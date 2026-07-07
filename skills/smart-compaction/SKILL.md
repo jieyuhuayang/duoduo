@@ -49,6 +49,27 @@ compaction (any origin — manual, auto, or the model's own reactive compact):
 | `g_gt1h_since_prev_compact` | cold (>1h-gap) returns between the last two compactions — the measured G |
 | `g_5m1h_since_prev_compact` | mid-gap returns — becomes cold too on 5-minute-TTL backends |
 | `idle_ms` | how long the session had been idle when the auto fire happened (absent for manual) |
+| `threshold_at_fire` | the `min_context_tokens` in effect when the auto fire triggered (absent for manual/reactive) |
+
+## The compact notice (kernel → you)
+
+On a smart-compaction-enabled session (and only there — sessions with the
+feature off get no injection), the first real turn after ANY compaction
+carries a `<smart-compact-notice>` block:
+
+- **data line** — `compacted <ts>: ctx <pre>→<post>, history <pre>→<post>`.
+  `post` is the measured floor; no need to query stats for the basics.
+- **mismatch line** (only when mis-calibrated) — `threshold <T> < suggested
+  <S> — re-calibrate via smart-compaction skill`. This is your retune signal:
+  apply guardrail 4 immediately. It also means the kernel FUSE is now armed:
+  auto-compact refuses to fire again while the threshold sits at or below the
+  measured floor (a fire there can never get under the threshold — a pure
+  no-gain loop), so retuning is what re-arms auto-compaction.
+- **transcript line** — the full pre-compact transcript path on disk.
+  Compaction summarizes your context but deletes nothing: for lost RECENT
+  detail, spawn a cheap subagent (haiku/sonnet) to search that file — do not
+  read it whole into your freshly-slimmed context. memory/dossiers lag hours
+  behind live chat; they are the long-term layer, not the recent-recall layer.
 
 ## The break-even algorithm (only for the judgment the arithmetic can't make)
 
@@ -98,9 +119,10 @@ a single cycle's G; watch the trend across a few compactions.
    No pre-calibration ritual is needed for new kinds.
 5. When the owner says a conversation is precious ("这个会话的上下文别动"),
    set `auto_compact_idle_minutes=0` on that instance and confirm.
-6. After any compaction, if you are unsure of an earlier detail, consult
-   memory/dossiers instead of reconstructing from the summary — the compact
-   notice reminds you of this for a reason.
+6. After any compaction, if you are unsure of an earlier detail: for recent
+   specifics, have a cheap subagent search the transcript path the notice
+   gives you; for long-term knowledge, consult memory/dossiers. Never
+   reconstruct from the summary alone.
 7. **Configure a kind AFTER installing its channel.** `--kind <kind>` on a kind
    whose channel is not yet installed CREATES the kind config file; a later
    channel install then SKIPS its seed (the file already exists), so the
