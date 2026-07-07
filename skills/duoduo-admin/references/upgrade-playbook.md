@@ -207,6 +207,30 @@ Do not tell users that an existing live conversation hot-swaps runtimes
 the moment a default changes. If they need a clean runtime switch, rebind
 or archive the affected session after inspecting current descriptors.
 
+## Built-in tool surface change landing in v0.5.10
+
+v0.5.10 flips the claude runtime's built-in tool surface from a denylist to
+an **allowlist**: every session gets a fixed 16-tool core, and descriptors
+add extras via the nested `claude.tools` frontmatter key (kind ∪ instance
+union, additive-only). No file migration is required — upgrade + daemon
+restart applies it to every session's next turn, and rollback is safe (older
+versions ignore the `claude:` block).
+
+Two descriptor recipes change meaning; check for them during preflight:
+
+- `allowedTools: [WebSearch]` (the old re-enable recipe) no longer adds any
+  tool — move the names to `claude: { tools: [...] }`. `allowedTools` keeps
+  its SDK meaning (permission auto-approve) only.
+- `disallowedTools` with built-in names (e.g. `Bash`) no longer blocks them —
+  the daemon warns and ignores such entries, and a core tool listed there
+  becomes available again after upgrade. `disallowedTools` remains effective
+  for MCP tools (`mcp__…`) only.
+
+Inspect any session's effective surface with
+`duoduo session config <target> get` (read-only `claude_tools` block).
+Full semantics: `duoduo-channel-admin` →
+`references/channel-config-model.md#built-in-tool-surface-v0510-allowlist`.
+
 ## Stdio output behavior in v0.5.3
 
 The stdio terminal UI buffers assistant text more cleanly around status

@@ -62,9 +62,11 @@ Editable keys by hand:
 - `time_gap_minutes`
 - `runtime`
 - `stream`
-- `allowedTools`
-- `disallowedTools`
+- `allowedTools` (permission auto-approve — does not extend the tool surface)
+- `disallowedTools` (MCP tools only on v0.5.10+)
 - `additionalDirectories`
+- `claude.tools` (v0.5.10+ — extra built-in tools unioned onto the fixed
+  allowlist core; the surface is allowlist-based since v0.5.10)
 
 v0.5 adds two instance-binding keys normally written by `channel.spawn`
 (not hand-edited): `bound_by`, `bound_at`. See
