@@ -43,6 +43,7 @@ compaction (any origin — manual, auto, or the model's own reactive compact):
 | field | meaning |
 | --- | --- |
 | `post_total` | measured S_total: the floor compaction cannot go below (prompt chain + summary) |
+| `history_post` | the compacted history size — this is the summary's OUTPUT cost (formula's `O`) |
 | `p_estimate` | fixed prompt-chain overhead (compaction can never reclaim this) |
 | `suggested_min_context_tokens` | kernel-computed 2 × post_total — your default retune target |
 | `g_gt1h_since_prev_compact` | cold (>1h-gap) returns between the last two compactions — the measured G |
@@ -56,14 +57,31 @@ C* = (5·O + 1.25·G·S) / (1.25·G − w)
 ```
 
 - `S` ← `compact_stats.post_total` (measured, this session — never assume)
-- `O` ← summary output size (≈ history shrink seen in the compact notice; ~4K typical)
-- `G` ← `g_gt1h_since_prev_compact` (add `g_5m1h` too when the backend TTL is 5-minute-class)
+- `O` ← the summarization OUTPUT size, i.e. the tokens the compact summary
+  itself costs: `compact_stats.history_post` (the compacted history — ~4K
+  typical). Do NOT use the history SHRINK (`history_pre − history_post`, which
+  can be ~50K); that is what was removed, not what the summary costs, and using
+  it inflates C* by an order of magnitude.
+- `G` ← `g_gt1h_since_prev_compact` (add `g_5m1h` too when the backend TTL is
+  5-minute-class). These are kernel-measured from the ledger — read them.
 - `w` ← trigger warmth: 0.1 if the backend cache TTL exceeds `idle_minutes`
   (subscription = 1h TTL), else 1.0 (metered API default, Bedrock, Vertex)
+
+Domain: the formula is only valid when `1.25·G > w`. When `1.25·G ≤ w` the
+denominator is zero or negative — there are too few cold returns per cycle for
+compaction to pay for itself at any context size; that region is governed by
+guardrail 2 (raise the threshold or disable), not by C*.
 
 Sessions with context above C* profit from compaction; below it, compaction
 loses money. TTL is a fact about the backend you must know or ask — it is
 deliberately NOT in the kernel.
+
+**G is a feedback variable, not a fixed input.** The threshold you set
+determines how often the session compacts, which sets the length of each
+compaction cycle, which changes how many cold returns fall inside it — i.e.
+the very G you will measure next time. Treat each retune as one step of a loop:
+set → observe the next `compact_stats` (new G) → re-evaluate. Don't over-fit to
+a single cycle's G; watch the trend across a few compactions.
 
 ## Guardrails (hard rules)
 
