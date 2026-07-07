@@ -1,0 +1,97 @@
+---
+name: smart-compaction
+description: Manage duoduo's idle auto-compact for channel sessions — enable/disable per conversation, read the measured compaction stats, and retune thresholds with the break-even formula when the owner changes model/backend or asks about idle-session cost. Trigger when the owner mentions 自动压缩/smart compaction/压缩策略, asks why a session was compacted (a compact notice appeared), switches a session to a metered or short-cache-TTL backend, or asks to protect a conversation from compaction. Also use proactively right after the FIRST auto-compaction of a session you manage — that event carries the calibration measurement.
+---
+
+# Smart Compaction — idle auto-compact management
+
+## What it is (one paragraph)
+
+Channel sessions accumulate context; after an idle gap longer than the prompt-cache
+TTL, the next message re-writes the whole context into cache at a premium. The
+daemon ships a deterministic sweeper: when a LIVE session has been idle
+`auto_compact_idle_minutes` and its context exceeds `auto_compact_min_context_tokens`,
+it silently runs `/compact` in-band. It is **off by default everywhere**; you
+(the agent) are the policy layer that enables and tunes it per conversation.
+
+## The knobs (per instance, per kind)
+
+```
+duoduo session config <session|alias> get            # merged view + per-key source + measured stats
+duoduo session config <session|alias> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000
+duoduo session config <session|alias> unset auto_compact_idle_minutes   # back to kind default
+duoduo session config --kind <kind> set ...          # kind-wide default (ONLY when the user explicitly says "kind"/"所有会话")
+```
+
+- Recommended starting values (signed off for subscription/1h-TTL backends):
+  `idle_minutes=50` (fires inside the 1h cache TTL → the compaction read is 10×
+  cheaper), `min_context_tokens=100000` (≈2× the measured post-compact floor).
+- OFF = `set auto_compact_idle_minutes=0`. This RETAINS the calibrated
+  threshold — the on/off switch and the calibration are separate fields
+  (thermostat rule: switching off doesn't forget the set-point). A fresh start
+  is an explicit `unset`.
+- Scope discipline: default to the CURRENT instance. Touch `--kind` only when
+  the user explicitly widens scope.
+- `set`/`unset` take effect on the session's NEXT drain or the next 60s sweep —
+  no restart. `get` never mutates anything.
+
+## Reading the stats — never mental-arithmetic what the kernel precomputed
+
+`session config get` prints the session's `compact_stats` after each
+compaction (any origin — manual, auto, or the model's own reactive compact):
+
+| field | meaning |
+| --- | --- |
+| `post_total` | measured S_total: the floor compaction cannot go below (prompt chain + summary) |
+| `p_estimate` | fixed prompt-chain overhead (compaction can never reclaim this) |
+| `suggested_min_context_tokens` | kernel-computed 2 × post_total — your default retune target |
+| `g_gt1h_since_prev_compact` | cold (>1h-gap) returns between the last two compactions — the measured G |
+| `g_5m1h_since_prev_compact` | mid-gap returns — becomes cold too on 5-minute-TTL backends |
+| `idle_ms` | how long the session had been idle when the auto fire happened (absent for manual) |
+
+## The break-even algorithm (only for the judgment the arithmetic can't make)
+
+```
+C* = (5·O + 1.25·G·S) / (1.25·G − w)
+```
+
+- `S` ← `compact_stats.post_total` (measured, this session — never assume)
+- `O` ← summary output size (≈ history shrink seen in the compact notice; ~4K typical)
+- `G` ← `g_gt1h_since_prev_compact` (add `g_5m1h` too when the backend TTL is 5-minute-class)
+- `w` ← trigger warmth: 0.1 if the backend cache TTL exceeds `idle_minutes`
+  (subscription = 1h TTL), else 1.0 (metered API default, Bedrock, Vertex)
+
+Sessions with context above C* profit from compaction; below it, compaction
+loses money. TTL is a fact about the backend you must know or ask — it is
+deliberately NOT in the kernel.
+
+## Guardrails (hard rules)
+
+1. **Never set the threshold below 1.2 × measured `post_total`** — below the
+   physical floor, compaction is meaningless churn plus fidelity loss.
+2. **Metered / short-TTL backends**: keep `100000` only if measured G ≥ 2.
+   For G≈1 sessions (one heavy task, one overnight return, re-fattened next
+   day) the cold break-even is ≈305K — raise the threshold there or disable.
+3. **Retune = act-then-inform**: apply the change, then tell the owner in ONE
+   line what changed and why (e.g. "已把这个会话的压缩阈值从 100K 调到 76K —
+   实测压缩地板是 38K"). Never silently, never with a wall of text.
+4. **First auto-compaction IS the calibration**: when the first compact notice
+   arrives, read `suggested_min_context_tokens` and retune the instance to it.
+   No pre-calibration ritual is needed for new kinds.
+5. When the owner says a conversation is precious ("这个会话的上下文别动"),
+   set `auto_compact_idle_minutes=0` on that instance and confirm.
+6. After any compaction, if you are unsure of an earlier detail, consult
+   memory/dossiers instead of reconstructing from the summary — the compact
+   notice reminds you of this for a reason.
+7. **Configure a kind AFTER installing its channel.** `--kind <kind>` on a kind
+   whose channel is not yet installed CREATES the kind config file; a later
+   channel install then SKIPS its seed (the file already exists), so the
+   channel comes up without its shipped defaults. Prefer instance-scope
+   (`config <session>`) for anything but a deliberate kind-wide rollout.
+
+## Cache-less compatible backends
+
+If the session runs on an endpoint with no prompt caching at all, every turn
+pays full input price on the whole context — compaction helps MORE there, not
+less. Same knobs, same formula with w=1 and cache premiums read as plain
+input cost.
