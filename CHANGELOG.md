@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.5.10] - 2026-07-09
+
+This release adds idle auto-compact for channel sessions, switches the
+built-in tool surface from a denylist to an allowlist, and fixes a Feishu
+card-anchoring bug plus a background-turn double-reply. Bundled Claude
+runtime updated.
+
+### Highlights
+
+- **Idle auto-compact for channel sessions**. A channel session that has sat
+  idle past a configurable threshold and grown past a token floor now
+  silently runs `/compact` on its next turn — no manual `/compact`, no
+  surprise cost spike from a stale prompt cache. Off by default everywhere;
+  enable and tune per conversation with `duoduo session config <session>
+  set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
+  A one-line notice on the session's next reply reports what was compacted
+  and its measured stats, so retuning is based on real numbers rather than
+  guesswork. See the `smart-compaction` skill for the full knob reference
+  and break-even formula.
+- **Built-in tool surface is now an allowlist, not a denylist**. Previously
+  every session got the SDK's full built-in tool set minus whatever a
+  `disallowedTools` entry blocked. As of v0.5.10, sessions get a fixed core
+  set (`Bash`, `Read`, `Write`, `Edit`, `Grep`, `Glob`, `Agent`, `TaskOutput`,
+  `TaskStop`, `Skill`, `ToolSearch`, `TaskCreate`, `TaskGet`, `TaskUpdate`,
+  `TaskList`, `SendMessage`); anything else (`WebSearch`, `WebFetch`,
+  `TodoWrite`, `Workflow`, `Monitor`, `Cron*`, …) is off unless explicitly
+  added via a new nested `claude.tools` key in a channel's kind or instance
+  descriptor. **Action needed if you rely on tools outside the core list**:
+  add them under `claude.tools` — see the `duoduo-channel-admin` skill's
+  upgrade note for the exact migration recipe. `disallowedTools` entries
+  naming built-in tools are now no-ops (MCP tool names still work); a
+  startup warning flags any descriptor still relying on the old behavior.
+
+### Fixes
+
+- **Feishu group replies no longer attach to the wrong message**. When
+  someone interjected mid-turn in a busy group chat, the agent's streaming
+  card reply could anchor to — and appear to answer — the wrong message.
+  Card anchoring is now pinned per-turn to the event it's actually
+  answering.
+- **A background job or subconscious result could double-post a reply**. A
+  race between an admitted turn and a same-session background notification
+  could cause the turn's prompt to be re-queued and answered twice. Fixed by
+  excluding not-yet-settled admitted prompts from being re-selected by a
+  re-iterated mailbox drain.
+- **Claude/Sonnet thinking quality restored on streaming sessions**. A
+  leftover compatibility flag was force-disabling extended thinking on every
+  streaming Claude turn; removed, so streaming sessions think as well as
+  non-streaming ones again.
+- Admitted-turn outbound attachments (images, files) are now delivered
+  instead of silently dropped.
+- Closed a rare TOCTOU window where archiving a session concurrently with a
+  runtime-state write could corrupt session state.
+
+### Dependencies
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.205 (Claude Code
+  v2.1.205).
+
 ## [v0.5.9] - 2026-07-01
 
 A patch release updating the bundled Claude runtime, which brings the latest
