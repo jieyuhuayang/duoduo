@@ -137,6 +137,36 @@ Switch the model for the current session without restarting anything.
 
 Read [model-switching.md](model-switching.md) for the full reference.
 
+## `/effort` (reasoning-effort switch)
+
+Set how hard the model reasons for the current session — a second,
+independent axis from `/model`. Trade reasoning depth against cost and
+latency: crank to `xhigh` for a hard analysis, drop to `low` for
+chit-chat.
+
+```
+/effort                   # show the current effort + the level list
+/effort <level>           # set the effort level for this session
+/effort reset             # revert to the runtime default
+```
+
+- **Levels**: `low`, `medium`, `high`, `xhigh` — exactly these four.
+  Unlike a model id, the level is validated up front: any other value
+  (a typo, or `max` / `none` / `minimal`) is rejected with the valid
+  list and nothing is changed.
+- **Claude runtime**: a switch takes effect **live** — the running
+  session picks up the new level immediately, with no restart and no
+  next-turn wait. `/effort` with no args shows the stored level (or
+  `(runtime default)`).
+- **Codex runtime**: a switch takes effect from the **next message**.
+  The no-arg view notes this.
+- **`/effort reset`**: clears the override and returns to the runtime
+  default — applied live on Claude, from the next message on Codex.
+- **Survives a `/model` runtime flip**: the four levels are valid on
+  both runtimes, so switching a session between Claude and Codex with
+  `/model` keeps the effort setting in effect — it is never stranded
+  or reset by the runtime change.
+
 ## When this skill does NOT apply
 
 - `/cancel` — interrupt-now semantics, bypasses the drain loop. Different
