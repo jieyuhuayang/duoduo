@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.6.0] - 2026-07-15
+
+duoduo now runs in one place — on your machine, as a host daemon. The
+never-deployed container runtime is gone, along with the `/cd` command. This
+release also adds a per-session reasoning-effort switch, closes a Feishu
+secret-logging leak, and hardens background-task notifications, session
+archiving, and outbox ordering. Bundled Claude runtime updated.
+
+### Breaking changes
+
+- **Container mode is removed.** The daemon runs only in host mode now. The
+  `duoduo container` subcommand, the container onboarding branch, and all
+  container-mode infrastructure are gone; onboarding no longer asks which
+  runtime mode to use. If you onboarded before v0.6, nothing changes — you
+  were already on the host daemon. Fresh installs go straight to host setup.
+- **The `/cd` command is removed.** The in-session workspace-navigation
+  command no longer exists. A session's working directory is fixed when the
+  session is created; start a new session in the directory you want instead.
+
+### Highlights
+
+- **`/effort` — per-session reasoning-effort switch.** Set how hard the model
+  thinks for a conversation without changing the model: send `/effort high`
+  (or `low` / `medium` / `max`) in any session. Applies live to an active
+  session and persists for future turns. See the `duoduo-runtime-admin` skill.
+
+### Fixes
+
+- **Feishu no longer writes the app secret to its log.** The Lark SDK was
+  logging the configured `App Secret` in plaintext to the channel plugin log;
+  it is now suppressed. If your Feishu plugin logs predate v0.6, rotate the
+  secret and prune the old logs.
+- **Feishu "read but no reply" is fixed.** When finalizing a streaming card
+  failed, the error was swallowed and the reply never arrived until a
+  restart. The failure now propagates so the static-message fallback fires
+  and the user still gets the answer.
+- **Background-task and worker completion notifications are scoped
+  correctly.** A long-running command promoted to the background, or a
+  finished subagent, no longer floods the top-level conversation with
+  bookkeeping turns or double-posts the same completion. Notification
+  guidance also stops the model from silently skipping a reply it hasn't
+  actually delivered.
+- **Session archiving is safer.** Archiving now refuses unless the session is
+  provably empty of pending work (checking every shape of in-flight work),
+  ignores channel placeholder actors, and treats the archive marker as a real
+  "about to disappear" signal.
+- **Outbound delivery preserves emit order.** The per-session outbox is now
+  drained one record at a time and serialized, so a channel socket sees
+  replies in the order they were produced.
+- **Drain errors surface immediately** instead of being stranded until the
+  next tick.
+
+### Dependencies
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.210 (Claude Code
+  v2.1.210), pinned to an exact version.
+
 ## [v0.5.10] - 2026-07-09
 
 This release adds idle auto-compact for channel sessions, switches the
