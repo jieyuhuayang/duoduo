@@ -22,10 +22,6 @@ that adds:
 
 1. Copy the dashboard into place:
    ```bash
-   # Container mode
-   docker cp contrib/dashboard/dashboard.html duoduo-openduo:/app/bootstrap/dashboard.html
-
-   # Host mode
    cp contrib/dashboard/dashboard.html bootstrap/dashboard.html
    ```
    The daemon serves this file at `/dashboard`. Takes effect on next page load (no restart needed).

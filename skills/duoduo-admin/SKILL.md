@@ -10,15 +10,12 @@ mental model of duoduo.
 
 ## Start With Discovery
 
-1. Confirm the runtime mode with `duoduo daemon status`.
-2. If the runtime is not in host mode, explain that this skill automates
-   host-mode operations only and limit container-mode work to inspection unless
-   the user explicitly asks for container-specific changes.
-3. Read `duoduo daemon config` before making persistent changes. Treat that
+1. Confirm the daemon is up with `duoduo daemon status`.
+2. Read `duoduo daemon config` before making persistent changes. Treat that
    output as the source of truth for paths and active settings.
-4. If the daemon is down, start there. If the machine is not onboarded yet,
+3. If the daemon is down, start there. If the machine is not onboarded yet,
    explain that the user must finish `duoduo` onboarding first.
-5. If the user says something is broken, first decide whether it is local
+4. If the user says something is broken, first decide whether it is local
    misconfiguration, operator error, channel/plugin setup error, or a likely
    duoduo product bug.
 

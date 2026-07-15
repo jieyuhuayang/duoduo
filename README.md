@@ -86,15 +86,12 @@ npm install -g @openduo/duoduo
 duoduo
 ```
 
-Requires Node.js 20+. Docker is recommended for container mode.
+Requires Node.js 20+.
 
-On first run, an interactive wizard walks through model configuration, runtime mode, and directory setup.
+On first run, an interactive wizard walks through model configuration and directory setup.
 
-## Runtime Modes
-
-**Container mode** (recommended) — runs the daemon inside Docker. Isolated, consistent toolchain, automatic restart. State persists in host-mounted directories.
-
-**Host mode** — runs the daemon directly on your machine. Useful when Docker is unavailable.
+duoduo runs the daemon directly on your machine (host mode). State lives in
+host directories you choose during onboarding.
 
 ## Channel Plugins
 
