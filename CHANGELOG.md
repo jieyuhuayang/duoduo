@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.6.1] - 2026-07-22
+
+This patch release fixes two long-running conversation stalls, makes
+background-worker completion delivery single-owner, validates scheduled jobs
+before they are persisted, and updates the bundled Claude runtime plus
+transitive security fixes.
+
+### Fixes
+
+- **Busy conversations no longer wedge after a mid-turn message.** duoduo now
+  admits only one conversational turn at a time and routes later input through
+  an explicit steering lane, so a message folded into an active Claude turn
+  cannot leave the session permanently busy with no reply.
+- **Background Agent completion has one conversation owner.** Claude's native
+  completion continuation is now the only path that speaks into the
+  conversation. duoduo records the lifecycle event durably without creating a
+  duplicate callback turn, avoiding duplicate answers and subprocess restarts
+  that could interrupt sibling workers.
+- **Scheduled jobs fail loudly instead of silently never firing.** `@in` and
+  `@every` now accept composite durations such as `2h30m` and `1d6h4m`.
+  Invalid cron strings, malformed durations, and delays outside the
+  representable time range are rejected when the job is created.
+
+### Dependencies and security
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.217 (Claude Code
+  v2.1.217), pinned to an exact version. The upstream fix restores reliable
+  completion notifications for multiple concurrent background Bash tasks, so
+  duoduo's temporary Bash-to-Agent redirect has been removed.
+- **Transitive dependency advisories patched** for Hono's Node server,
+  `body-parser`, `brace-expansion`, `fast-uri`, and `protobufjs`. The release
+  dependency tree audits with zero known advisories.
+
+### Project
+
+- Added OpenDuo editorial illustration assets.
+
 ## [v0.6.0] - 2026-07-15
 
 duoduo now runs in one place — on your machine, as a host daemon. The
