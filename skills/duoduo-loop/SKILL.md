@@ -36,7 +36,10 @@ health pings).
 > `/loop every morning at 8 send me a Hacker News digest`
 
 Each run starts fresh, does the job, and messages you the result. Calendar
-times and intervals both work ("every Monday at 9", "every 2 hours").
+times and intervals both work ("every Monday at 9", "every 2 hours"). Interval
+durations can combine units without spaces (`2h30m`, `1d6h4m`; units:
+`s`/`m`/`h`/`d`/`w`). An invalid or impossible schedule is rejected when the
+loop is created instead of being accepted and then silently never firing.
 
 **2. Self-paced** — a short-lived mission that decides its own next check.
 
