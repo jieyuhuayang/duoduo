@@ -14,18 +14,22 @@
 | **四 · 后台自治** | **无人对话时，运行时靠心跳自我维护而绝不越权。** 潜意识引擎经活动门节流后唤起无状态一次性 LLM 分区会话做维护，记忆系统只做只读测量与软删 GC，一切内容改写交回模型；机器真正强制的只剩契约门。 | §6 Subconscious · §7 记忆系统 |
 
 > 阅读建议：先读 **§0 端到端流程**（把四条论点拍成一条时间线），再按 Part I→IV 顺序读。每节都是"结论先行"——开头一句是该子系统的领起结论，其后才是代码/运行时证据。
+> **定位**：本文是**逐机制证据文档**（工程师复核用）。若你想先建立全貌或以产品视角理解设计思路（自我迭代、双大脑、渠道打通），请先读姊妹篇 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)——它按设计问题组织、结论与类比先行，与本文互为详略；部署视角见 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)。
 
 ---
 
 ## 材料与方法
 
-duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的，压缩只为省带宽"）。本文用三种方法交叉取证并经对抗验证，逆向其真实实现：
+duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的，压缩只为省带宽"）。本文用四种方法交叉取证并经对抗验证，逆向其真实实现：
 
 1. **静态代码 + 调用链追踪**：用 esbuild 反混淆 + js-beautify 把 `dist/release/{daemon,cli,stdio}.js` 展开为可读代码（daemon 7.9 万行）。字符串字面量（事件名/RPC 方法/env/日志）在 minify 后完整保留，是证据锚；关键机制**沿真实函数调用链追踪**（跟进被调用的下游函数确认控制流真的这样串联），而非仅凭单个字符串推断。
 2. **可读提示词**：`bootstrap/` 下 `meta-prompt.md`（agent 身份/记忆纪律的"宪法"）、`config/*.md`、`subconscious/**` 定义 agent 认知，本身人类可读。
 3. **活体运行时调用链**：本机运行的 daemon，用 `duoduo` CLI + `/rpc`（`spine.tail` 事件序列 / `usage.get` drain record / `daemon status`）印证动态行为——动态证据优先于静态推断。
+4. **还原源码交叉复核（本轮新增）**：运行时已被还原为可读、且经证明可同样运行的源码（见 [`../reconstruction/`](../reconstruction/)）。关键点：esbuild 的 `__export` 助手**逐字保留了真实导出符号名**（daemon 恢复 702 个），因此本文引用的短名 `WT`/`Xt`/`Qt`/`nQe`… 绝大多数能对上**权威原名**（`buildSystemPromptForChannelConfig`/`createSpineEvent`/`atomicAppendEvent`/`createSessionManager`…）。本轮用这些真名源码逐节复核了各机制主张，纠正处见 §9。**短名↔真名全表**见 [`../reconstruction/maps/RENAME_TABLE.md`](../reconstruction/maps/RENAME_TABLE.md)，可读源码按子系统分文件在 [`../reconstruction/first-party/`](../reconstruction/first-party/)。
 
-**可信度纪律**：8 个子系统各由独立 agent 逆向，再由对抗验证器沿调用链逐条证伪；每条机制主张标注 `file:line` / 字面量 / RPC / CLI 供复核，置信分 `confirmed` / `未证实推测`。所有行号指反混淆后的 `daemon.pretty.js`（除非另注 `cli`/`stdio`）。凡未证实的推断均显式标注。
+**符号命名约定**：下文机制名尽量以「真名 (短名)」形式给出，如 `buildSystemPromptForChannelConfig (WT)`。真名来自 `__export` 者为权威；少数内部辅助函数的真名系逆向推断，在 `RENAME_TABLE.md` 标 *inferred*，即便名字有偏差也不影响行号与逻辑结论。
+
+**可信度纪律**：8 个子系统各由独立 agent 逆向，再由对抗验证器沿调用链逐条证伪，最后用还原源码复核；每条机制主张标注 `file:line` / 字面量 / RPC / CLI 供复核，置信分 `confirmed` / `未证实推测`。所有行号指反混淆后的 `daemon.pretty.js`（除非另注 `cli`/`stdio`）。凡未证实的推断均显式标注。
 
 
 ---
@@ -37,16 +41,16 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
 ```
 外部输入 (channel.message)                                    [→Part III §5 Gateway 入站边界]
    │
-   ▼  ① 封装为不可变事件  Xt()  → id=evt_<uuid>, ts=ISO      [30948/30940]  [→§4]
+   ▼  ① 封装为不可变事件  createSpineEvent (Xt)  → id=evt_<uuid>, ts=ISO   [30948/30940]  [→§4]
    │
-   ▼  ② 去重前置  YX() 算 key                                [75651]        [→§4]
+   ▼  ② 去重前置  computeDedupKey (YX) 算 key                  [75651]        [→§4]
    │      命中重复 → 取回既有事件 + 重放上次 gateway 回执 → deduplicated:true，不 append
    │
-   ▼  ③ APPEND-BEFORE-EXECUTE：Qt() 原子写 WAL 分区           [30992/76089]  [→Part III §4 铁律]
+   ▼  ③ APPEND-BEFORE-EXECUTE：atomicAppendEvent (Qt) 原子写 WAL 分区  [30992/76089]  [→Part III §4 铁律]
    │      var/events/YYYY-MM-DD.jsonl (UTC)，记 byte_offset/byte_len
-   │      → 写 by_id 索引 → 写 by_session 索引
+   │      → 写 by_id 索引 →（仅当事件有 session_key）写 by_session 索引
    │
-   ▼  ④ ma() 推进 gateway 消费者 watermark                    [31852]
+   ▼  ④ advanceConsumerWatermark (ma) 推进 gateway 消费者 watermark  [31852]
    │      run/queue_offsets/gateway.json  (经 by_id 反查偏移)
    │
    ▼  ⑤ ha() 更新 status.json
@@ -119,7 +123,7 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
 
 **prompt_mode 分叉**（confirmed）。`57208`：`override` → 返回纯字符串 `||""`，整体替换 Claude Code 预设；默认 `append`（`57217`）→ 返回 `{type:"preset", preset:"claude_code", append:l}`，`l` 为空（`57216` `||void 0`）则返回 `undefined`（即无 append）。
 
-**数据源订正**（confirmed）。调用链 `EU`（`59953`）在 `59982` 调 `WT(g, t, {content,jobId,cron,stateless}, n.memoryBoard)`。**Claude 的 kind/instance/prompt_mode/time_gap 全部来自 `g`（effective_config，`59962` 经 `$i("effective_config_ms",…z1)` 取得并缓存），不是来自 `QXe`**（`QXe` 的用途见论点四）。此外 `WT` 被调两次：批处理/admission 路径 `59982` 与 live streaming 路径 `60718`，同一装配复用于两种进场方式。
+**数据源**（confirmed）。调用链 `EU`（`59953`）在 `59982` 调 `WT(g, t, {content,jobId,cron,stateless}, n.memoryBoard)`。**Claude 的 kind/instance/prompt_mode/time_gap 全部来自 `g`（effective_config，`59962` 经 `$i("effective_config_ms",…z1)` 取得并缓存），不是来自 `QXe`**（`QXe` 的用途见论点四）。此外 `WT` 被调两次：批处理/admission 路径 `59982` 与 live streaming 路径 `60718`，同一装配复用于两种进场方式。
 
 **广播板包装：OVERRIDE 前缀 + dossier 纪律**（confirmed）。第 4 层的 memoryBoard 整段被常量包装（`57199–57205`）：
 
@@ -132,17 +136,17 @@ c = V9e.test(d)
 // H9e = "The [[slug]] links…are dossier entry points, not footnotes…"  （57709）
 ```
 
-即广播板整段以 OVERRIDE 前缀 `Jue` 包装；含 wiki-link 时追加 dossier 纪律 `H9e`（"[[slug]] 是深档入口，触发时先读再行动"）。**注意：此 `Jue` 包装对 Claude 与 Codex 同源同文**——因为 Codex 复用的正是 `WT` 的整段输出（详见论点三），此处原文档"仅 Claude 用 `Jue`"的断言 refuted。
+即广播板整段以 OVERRIDE 前缀 `Jue` 包装；含 wiki-link 时追加 dossier 纪律 `H9e`（"[[slug]] 是深档入口，触发时先读再行动"）。**注意：此 `Jue` 包装对 Claude 与 Codex 同源同文**——因为 Codex 复用的正是 `WT` 的整段输出（详见论点三）。
 
 **广播板来源：`@include` transclusion**（confirmed）。`Ype(memoryBroadcastPath)`（`71601`）→ `Xpe`（`71617`）递归解析 `memory/CLAUDE.md`：用 `@path` 前缀语法（正则 `Zpe=/(?:^|\s)@((?:[^\s\\]|\\ )+)/g`，`71750`）提取 include，按深度上限 `CXe=5`（`71618` `if(n>=CXe)return[]`）递归内联，扩展名白名单 `AXe`（实测约 120 个扩展名）。每个被 transclude 的文件头是 `Contents of ${path} (project instructions, checked into the codebase):`（`DXe:71609` + 后缀常量 `NXe:71750`），非裸冒号。
 
-- **去环细节订正**（confirmed）：visited 集主检的是 `t.has(o)`，其中 `o=Wpe(i)` 是 resolve+win32 小写后的路径（`71621`），**不是 realpath**；realpath 由 `LXe`（`71652`）另行求得后在 `71626` 以 `t.add(o), t.add(Wpe(a))` 额外加入 visited 兜住软链别名。即"resolve 主检 + realpath 补检"，原文档"realpath 去重防环"表述略含糊。
+- **去环细节**（confirmed）：visited 集主检的是 `t.has(o)`，其中 `o=Wpe(i)` 是 resolve+win32 小写后的路径（`71621`），**不是 realpath**；realpath 由 `LXe`（`71652`）另行求得后在 `71626` 以 `t.add(o), t.add(Wpe(a))` 额外加入 visited 兜住软链别名。即"resolve 主检 + realpath 补检"。
 
 **活体冷启动印证**（confirmed）。本机 `~/aladuo/memory/CLAUDE.md` 为 0 字节 → `X.memoryBoard` 为空 → `73374` 不构造 memoryBoard → `WT` 不注入第 4 层。这印证机制本身：广播板初始为空，由潜意识逐步写入 durable heuristics 后才在下一次会话被注入——**渐进式冷启动，而非硬编码知识**。
 
 ---
 
-### 论点二：易变具身状态由 `fde` 每 turn 瞬态塞进 user 消息
+### 论点二：易变具身状态由 `buildTransientUserBlocks (fde)` 每 turn 瞬态塞进 user 消息
 
 **所以呢**：时间流逝、被打断、job 节拍、带外动作结果这些"每 turn 都可能变"的信号，若进 system prompt 会不断击穿缓存前缀。运行时把它们做成带 tag 的 text block，前置到用户输入之前、进 **user 消息而非 system prompt**，既让 agent 感知具身状态，又不污染缓存前缀。
 
@@ -162,13 +166,13 @@ daemon-restart-hint        （61181）
 
 **slash 命令短路**（confirmed）。若用户输入 `e.trimStart().startsWith("/")`（`61165`），跳过全部注入只发 user-input 原文——命令式输入不该被时间/中断噪声污染。
 
-**time-gap 阈值的读取位置订正**（confirmed）。time-gap 阈值确实来自 effective config 的 `time_gap_minutes`，但**不在 `fde` 内读取**：`EU:59965` 先算 `b=(g?.time_gap_minutes ?? lde)*60*1e3`（`lde=60` 分钟，定义在 `61969`）构造出 timeGap 对象再传入 `fde`，`fde` 只消费 `t.timeGap`。
+**time-gap 阈值的读取位置**（confirmed）。time-gap 阈值来自 effective config 的 `time_gap_minutes`，但**不在 `fde` 内读取**：`EU:59965` 先算 `b=(g?.time_gap_minutes ?? lde)*60*1e3`（`lde=60` 分钟，定义在 `61969`）构造出 timeGap 对象再传入 `fde`，`fde` 只消费 `t.timeGap`。
 
 ---
 
 ### 论点三：Claude 与 Codex 共用 `WT`，Codex 只多一层 `<aladuo:system-context>` 壳
 
-**所以呢**：这是本节相对原文档的最大修正。原文档描述"两套并行封装器 + 共享上游 `QXe` 内容"，并据此报告了"双重 `Contents of` 头嵌套""Codex developerInstructions 携带时间戳"两处漂移。沿真实调用链核验，**这两处漂移在 v0.5.8 运行时都不发生**：Codex 的系统提示就是 `WT` 那一整串（含 identity/kind/instance/广播板/`Jue`/runtime/job），二者差异只剩最外层那层壳。这条修正直接决定了本节领起结论能否成立。
+**所以呢**：Codex 的系统提示就是 `WT` 那一整串（含 identity/kind/instance/广播板/`Jue`/runtime/job），二者差异只剩最外层那层壳。乍看代码里存在"两套并行封装器"（`sle`/`ale`），容易据此推出"双重 `Contents of` 头嵌套""Codex developerInstructions 携带时间戳"两种缓存破坏——但沿真实调用链核验，**这两处漂移在 v0.5.8 运行时都不发生**（那对封装器是不可达死代码，见下）。
 
 **为何 `sle`/`ale` 的封装分支不可达**（confirmed，静态调用链）：
 - `sle`/`ale` 全仓仅在 `57951/57952`（`S_.run` 内）被调用，用的是闭包 `t`（`S_(e,t)` 的第 2 参 = instructions）。
@@ -185,7 +189,7 @@ daemon-restart-hint        （61181）
 | 广播板 / `Jue` | 有 | **有（同源同文）** |
 | 时间戳 | 仅在 user 面（`fde` time-context） | **无**（`ale` 返回 undefined，反而缓存友好） |
 
-**结论**：Codex 的 identity/kind/instance/广播板/`Jue`/runtime/job 与 Claude 完全同源同文，二者差异只剩最外层 `<aladuo:system-context>` 这层壳。原文档"验证发现两处漂移"两条均 refuted——反而 Codex 系统提示没有时间戳、比 Claude 更缓存友好，与原文档担忧相反。
+**结论**：Codex 的 identity/kind/instance/广播板/`Jue`/runtime/job 与 Claude 完全同源同文，二者差异只剩最外层 `<aladuo:system-context>` 这层壳。且 Codex 系统提示没有时间戳、比 Claude 更缓存友好。
 
 **适配器选择**（confirmed）。`xe(y)`（`72813`）决定路径：codex→`y.codexAdapter`（走上述 `S_`），channel-claude→streaming 包装，其余→裸 `Xc`。
 
@@ -202,9 +206,9 @@ daemon-restart-hint        （61181）
 - `yQe`（`74651`）：`## Inbox` + "After processing each item, delete the corresponding file … to ack it."（`74655`）——每条 `.pending` 文件，处理后删文件 ack。
 - 另有 **Session Mailbox 旁路** `XS`（`31688`）：`["# Session Mailbox","","## Inbox",""]`（`31689`）写盘供 agent 主动 Read，不进 system prompt——属"working notes"层。
 
-**`QXe` 的真正用途：instructions 指纹 / 漂移失效**（confirmed）。`QXe`（`72000`）确实存在且在 `73127` 被 `l2` 调用，但它**不进任一路的实际提示词**（Claude 用 `b_()`+effective_config，Codex 用 `WT` 输出）。它的实际用途有二：
-1. 产出 `memoryBoard`（`72004` `Ype…rendered.trim()`）供 `WT` 两路复用；
-2. 供 `l2`（`73127`）算 instructions 指纹做漂移检测——指纹 = `JSON.stringify([identity,kindPrompt,instancePrompt,memoryBoard,mission])`（`71884`）；漂移则在 `73135`（`gate2Fired && runtime==="claude"`）发 `session.streaming_invalidated`（reason `"instructions_drift"`）。
+**`QXe` 的真正用途：instructions 指纹 / 漂移失效**（confirmed）。`QXe`（`72000`）确实存在——它与 `runInstructionsFingerprintGuard (l2)` **同在 `73127` 调用，且 QXe 的输出被喂入 l2 指纹守卫**（而非"被 l2 调用"）。但它**不进任一路的实际提示词**（Claude 用 `b_()`+effective_config，Codex 用 `WT` 输出）。它的实际用途有二：
+1. 产出 `memoryBoard`（`72004` `transcludeBroadcastBoard (Ype)…rendered.trim()`）供 `WT` 两路复用；
+2. 在 `73127` 喂给 `runInstructionsFingerprintGuard (l2)`（守卫定义在 `71894`，`73127` 是调用点）算 instructions 指纹做漂移检测——指纹 = `computeInstructionsFingerprint (u2)`（定义 `71881`）= `JSON.stringify([identity??"", kindPrompt??"", instancePrompt??"", memoryBoard??"", mission??""])`（每元素带 `?? ""` 兜底）；漂移则在 `73135`（`gate2Fired && runtime==="claude"`）发 `session.streaming_invalidated`（reason `"instructions_drift"`）。
 
 即 `QXe` 的 identity/kindPrompt/instancePrompt 只进指纹、不进提示词——它是驱动 resumed session 失效的独立信号面。此外 `Qle`（`59948`）/ `autoloadAdditionalDirectoryClaudeMd`（`60747/73347`）门控 memoryBoard 与 additionalDirectories 的 CLAUDE.md 自动加载，是广播板之外第二条"文件即上下文"注入。
 
@@ -225,9 +229,9 @@ daemon-restart-hint        （61181）
 
 Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一长驻流式 SDK 会话"：一次 drain 只在可合并谓词允许的**前导窗口**上发一次 query，靠 **accepted 门控、PostToolUse additionalContext 注入、三态抢占边界、hold-stdin** 四条控制线，在不重开对话的前提下实现 turn 合并、mid-turn steering、后台 subagent 续跑与优雅抢占。下面四个论点自上而下拆解这句话：先是"离散消息如何被循环切成批"，再是"一个批如何变成一次 SDK query"，然后是"长驻会话上四条控制线如何不重开对话地改写正在跑的 turn"，最后是"失败如何收敛"。
 
-### 论点一：循环层是 `Tt`，不是 `cde`——一次 drain 只吃"一个前导可合并窗口"
+### 论点一：循环层是 `Tt`，不是 `drainSessionMailbox (cde)`——一次 drain 只吃"一个前导可合并窗口"
 
-**所以呢**：理解"多条消息为什么被分多次 turn 消费"的关键，是把"循环"与"单批处理器"分层。`cde` 不是 drain 循环，它是每次迭代被调用一次的**单批处理器**；真正的循环是 `Tt`。一次 `cde` 只从 mailbox 顶部切出**一个**可合并窗口（单 batch），窗口边界外的事件留给 `Tt` 的下一次迭代——所以"离散消息 → 若干 turn"是靠循环反复调用、而非一次合并成多批实现的。
+**所以呢**：理解"多条消息为什么被分多次 turn 消费"的关键，是把"循环"与"单批处理器"分层。`drainSessionMailbox (cde)` 不是 drain 循环，它是每次迭代被调用一次的**单批处理器**；真正的循环是 `Tt`（内部函数，无导出名）。`IU` 即 `batchDrainItems`（切合并窗口）。一次 `cde` 只从 mailbox 顶部切出**一个**可合并窗口（单 batch），窗口边界外的事件留给 `Tt` 的下一次迭代——所以"离散消息 → 若干 turn"是靠循环反复调用、而非一次合并成多批实现的。
 
 - **drain 循环本体 = `Tt`（`daemon:73018`），再抽循环 `for (; y.status !== "ended" && x;)`（`daemon:73114`）**。`q.drainPromise` 在 `daemon:73013`/`73016` 被赋值为 `Tt(q)`（或 `preStart().then(()=>Tt(q))`）；状态字面量里的 `drainPromise: null`（`72967`）只是字段声明，不是"进入循环"。`cde` 在循环体内每次迭代调用一次（调用点 `daemon:73366`）。
 - **`cde`（`daemon:60020`）单批骨架**：`mailbox_merge`（`YS`，`60118`）→ `mailbox_parse`（`Rg`，`60129`）→ `mailbox_render`（`XS`，`60150`）→ `IU(...)` 切窗口。选项键在 cde 侧读作 `n.batchSize ?? f5e`、`n.mergeWindowMs ?? p5e`（`60151`/`60152`），传入 `IU` 时命名为 `fallbackBatchSize`/`mergeWindowMs`（`60155`-`60158`）。
@@ -288,7 +292,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 | 适配器选择 `xe(y)` | codex→codexAdapter；非 channel/无 streaming→一次性 `s`；否则长驻 streamingAdapter | daemon:72813 | confirmed |
 | streamingAdapter sessionId 粘连复用条件 + 指纹重建 | `streamingState && !closed && !needsRecreation && configSignature===j && (hasAcceptedTurn||initialSessionId===W)`；`H`=JSON.stringify指纹；重建走 `K(y)` | daemon:72250 / 72190 / 72201 | confirmed |
 | 长驻流式输入靠队列驱动 generator | `async function* Le(){ ... for await (let ge of G.input.prompt) yield ge }`；队列类 `II`；turn 入列 | daemon:72270 / 71763 / 72822 | confirmed |
-| **accepted 门控（布尔已订正）**：上一 turn 已 accepted 且不同时**不切换**，把新 prompt 灌进当前 turn = steer | `B.currentTurn!==null && B.currentTurn!==G && B.currentTurn.accepted \|\| (B.currentTurn=G, G.accepted=!1, ...)` | daemon:72279 | confirmed（方向已订正） |
+| **accepted 门控**：上一 turn 已 accepted 且不同时**不切换**，把新 prompt 灌进当前 turn = steer | `B.currentTurn!==null && B.currentTurn!==G && B.currentTurn.accepted \|\| (B.currentTurn=G, G.accepted=!1, ...)` | daemon:72279 | confirmed |
 | steering 决策在 admission callback（park），消费在 PostToolUse hook（注入） | `EU` 生成 coalescedPromptText；`jme=!!w2&&w2.accepted&&!Dme&&!ht.isNotifyOnly&&S2.length>0`；"parked claude steer"；`additionalContext=G.join("\n\n")` | daemon:73197 / 73314 / 73328 / 72356-72362 | confirmed |
 | notify-steer 独立路径，冒泡背景 Agent 回调 | `pendingNotifySteer`；`HX(inboxPaths)`；`B.currentTurn===ge.spawningTurn` | daemon:72340-72354 | confirmed |
 | 抢占三态 accept/tool_use/tool_result + hard/soft；`D()` 置标志、`A(y)` 扳机 abort | `D(y,I,j)` 三分支；`I==="soft"`；`defer_accept`；`A(y)` 消费 `activeToolUseIds.add/delete` | daemon:72180-72186 / 73202 | confirmed |
@@ -349,7 +353,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 - **key 格式与派生**：`session_key = <scope>:<name>:<hash(workspaceAbsPath)>`，由 `dte`（`stdio.pretty.js:46451`）拼装：`` `${t}:${n}:${ute(a)}` ``，其中 `a=Af(e.workspaceAbsPath)`（`46453`）、`ute` 为 hash（`46435`），`hR` 注入 `scope:"stdio"`（`46458`）。活体 `system.status` 返回 `stdio:default:28d3ca682f86` 逐段印证。**confirmed**。
 - **前缀 → plane / kind**：kind 由 `Os(e)`（`daemon.pretty.js:35584`）前缀分类（`meta:/cadence:→meta`、`subconscious:→subconscious`、`system:→system`、`job:→job`，否则 `channel`）；plane 由 `B5e(e)`（`61737`：`system:/meta:/cadence:→system`，否则 `work`）。**confirmed**。
 - **一 key 一 actor**：注册表 `let _ = new Map`（`72126`），`ve(y,I)`（`72951`）负责生成 actor，`actorRunId: Y=++R` 单调自增（`72956`），`_.set(y,q)`。活体 `system.status` 只有单一 actor（status=`idle`），印证"至多一个"。**confirmed**。
-- **kind 的第二真值来源（文档此前漏列）**：`ve` 内 `gk(t, {...})` 把 `display_name/kind` upsert 进 meta.md（`72997`），此处 `kind` 从 **origin** 二次派生（`origin==="job"?"job":origin==="system"?"system":startsWith("meta:")?"meta":"channel"`）——与 `Os` 的前缀派生**并存**，是 kind 的另一条真值来源。**confirmed**。
+- **kind 的第二真值来源**：`ve` 内 `gk(t, {...})` 把 `display_name/kind` upsert 进 meta.md（`72997`），此处 `kind` 从 **origin** 二次派生（`origin==="job"?"job":origin==="system"?"system":startsWith("meta:")?"meta":"channel"`）——与 `Os` 的前缀派生**并存**，是 kind 的另一条真值来源。**confirmed**。
 
 ---
 
@@ -357,12 +361,12 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **所以呢**："lease lock"在代码里其实是**两把互不相干的锁**，各解决一个问题，绝不能混谈：一把跨重启防"同目录多 daemon 写者"（运维），一把按 key 串行防"同会话并发写状态"（数据）。
 
-- **进程级 runtime 写锁**——保证同一 runtime_dir 只有一个 daemon 写者。锁文件 `run/locks/daemon-writer.json`（`Yj`，`77207`），记 `{runtime_dir, pid, boot_id, started_at, last_heartbeat_at}`。`start()` 内 `S=await Fie(n); if(!S.acquired) throw \`Runtime lock already held by pid=${...}\``（**`78790`**，此前标 78791 漂 1 行）；心跳 `setInterval(()=>Uie(n),_)`、`_=Cme("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS",3e4,1e3)`（**`78802-78804`**，此前标 78805 漂 ~2 行）。夺锁前 `HWe`（`77245`）判 stale，逐字符为：
+- **进程级 runtime 写锁**——保证同一 runtime_dir 只有一个 daemon 写者。锁文件 `run/locks/daemon-writer.json`（`Yj`，`77207`），记 `{runtime_dir, pid, boot_id, started_at, last_heartbeat_at}`。`start()` 内 `S=await Fie(n); if(!S.acquired) throw \`Runtime lock already held by pid=${...}\``（`78790`）；心跳 `setInterval(()=>Uie(n),_)`、`_=Cme("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS",3e4,1e3)`（`78802-78804`）。夺锁前 `HWe`（`77245`）判 stale，逐字符为：
   ```
   Number.isNaN(r) || t.getTime()-r > n || (e.boot_id && e.boot_id !== zie()) || !qWe(e.pid)
   ```
   即心跳超 TTL（`ttlMs??12e4`=120s，`Fie` 内 `77259`）、**`boot_id` 存在且不符**（重启；`e.boot_id &&` 是空值守卫，boot_id 缺失时不据此判 stale）、或 `qWe`=`process.kill(pid,0)`（`77211`）探测进程已死，则视为可抢占。`boot_id` 取 `/proc/sys/kernel/random/boot_id` + macOS `sysctl kern.boottime` + uptime 兜底（`BWe`，`77221`）。活体 `system.config`：`heartbeat_ms=30000`、`runtime_lock_heartbeat_ms=30000`。**confirmed**。
-- **会话级异步互斥 `si(session_key, fn)`**（`31382`）——`WS: Map<key, 尾Promise>`，把该 key 的所有状态变更闭包串成链：`i=WS.get(e)??Promise.resolve()` → `WS.set(e,r)` → `await i` → finally `n(); WS.get(e)===r&&WS.delete(e)`（逐字符匹配）。state.json/meta 写、mailbox merge、outbox cursor 全按 key 串行。调用点已全验：`34133/34168/34218/34251/34284`（state/mailbox 写）、`76920`（`V1` delivery-cursor，`[delivery-cursor] skip cursor write: session archived`）、`78124`；此前漏列的 `31517`(`_c(t),si(t,…)`)、`35800/35818`(alias) 也走 `si`。配合"一 key 一 actor"形成双保险。**confirmed**。
+- **会话级异步互斥 `si(session_key, fn)`**（`31382`）——`WS: Map<key, 尾Promise>`，把该 key 的所有状态变更闭包串成链：`i=WS.get(e)??Promise.resolve()` → `WS.set(e,r)` → `await i` → finally `n(); WS.get(e)===r&&WS.delete(e)`（逐字符匹配）。state.json/meta 写、mailbox merge、outbox cursor 全按 key 串行。调用点已全验：`34133/34168/34218/34251/34284`（state/mailbox 写）、`76920`（`V1` delivery-cursor，`[delivery-cursor] skip cursor write: session archived`）、`78124`、`31517`(`_c(t),si(t,…)`)、`35800/35818`(alias)。配合"一 key 一 actor"形成双保险。**confirmed**。
 
 ---
 
@@ -373,8 +377,8 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 - **双有界池 channel=10 / job=6**：池对象 `h`(channel)@`72077`、`g`(job)@`72083`，各持 `{name, activeCount, maxConcurrent, wakeQueue}`；`f=e.maxConcurrentChannel??e.maxConcurrent??10`、`m=e.maxConcurrentJob??6`（`72086-72087`）；`v(y,I)` 按 origin 选池（`72087`）。actor 创建时抢槽 `F=v(y,q.origin); F.activeCount++, q.holdsPoolSlot=!0`（`72993-72994`）；超限入队 `q.wakeQueue.push(y)`（`Ne` 内 `72932`）。活体 `system.config`：`max_concurrent_channel=10, max_concurrent_job=6`。**confirmed**。
 - **三态 active → idle → ended**：idle 分支 `73543`、`y.status="ended"`（`73634/73635`）均已亲见。**confirmed**。
 - **idle 让槽 + `Ht(idle_ms)` 等待 + 前台钉活**：drain 空转后 `released pool slot (idle)`（`We.activeCount--, y.holdsPoolSlot=!1`，`73549`），进 `Ht(y,I)`（`73667`）等待——`wakeResolver=()=>{Y();j(!0)}` 与 `setTimeout(()=>{Y();j(!1)},I)` **竞争**。超时且无附着→`idle timeout, no attachments, exiting`（`73577`）退 ended；**有附着则继续等**→`idle timeout but has attachments, continuing wait`（`73566`），前台通道把 actor 钉住不回收；被唤醒→重抢槽（pool-full→`wakeQueue.unshift`，否则 `activeCount++`，`73585-73592`）。`idle_ms` 源：`idleTimeoutMs:i=36e5`（`72052`）、config `ALADUO_SESSION_IDLE_MS`（`77521`）、注入 `78879`。活体 `idle_ms=3600000`，stdio 会话正处 idle。**confirmed**。
-- **dequeue 原地复用 `S()`（行号已订正）**：出队唤醒时若目标是"idle 且无池槽且有 drainPromise"的 actor，走 `pendingWake+wakeResolver` **原地唤醒**而非新建 `ve()`，随后 `return`；池重满则 `unshift` 回队首（`dequeue deferred: pool re-filled`）；否则回落 `ve(I, c2(I)??…)`。`function S(y)` 定义在 **`72091`**、原地复用体在 **`72100-72125`**（此前误标 `72905-72914`——那实为 `Ne` 内 soft-preempt 边界日志，与 dequeue 无关，本节正文与洞察 #2 均已订正）。**confirmed**。
-- **重启 actor 的 origin 从何而来（文档此前漏列的闭环节点）**：`S()` 与 `Ne()` 回落新建时 `ve(I, c2(I))`——`c2(y)`（定义 `71871`，调用 `72123`/`72941`）负责推断被出队/唤醒 actor 应落 channel 还是 job 池，是"重抢槽"闭环里决定池归属的关键。**confirmed（机制），origin 推断细节为静态阅读**。
+- **dequeue 原地复用 `S()`**：出队唤醒时若目标是"idle 且无池槽且有 drainPromise"的 actor，走 `pendingWake+wakeResolver` **原地唤醒**而非新建 `ve()`，随后 `return`；池重满则 `unshift` 回队首（`dequeue deferred: pool re-filled`）；否则回落 `ve(I, c2(I)??…)`。`function S(y)` 定义在 **`72091`**、原地复用体在 **`72100-72125`**。**confirmed**。
+- **重启 actor 的 origin 从何而来（"重抢槽"闭环的落池决策）**：`S()` 与 `Ne()` 回落新建时 `ve(I, c2(I))`——`c2(y)`（定义 `71871`，调用 `72123`/`72941`）负责推断被出队/唤醒 actor 应落 channel 还是 job 池，是"重抢槽"闭环里决定池归属的关键。**confirmed（机制），origin 推断细节为静态阅读**。
 
 ---
 
@@ -384,10 +388,10 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 - **唤醒与抢占 `Ne`/`D`**：`Ne(y,I)`（`72845`）默认 `j=I?.preempt??"allow"`（`72858`）；归档会话 wake 被抑制（`Ni(y)`→`wake suppressed`，`72852`）；idle actor 直接 `Y.wakeResolver()`（`72866`）。`D(y,I,j)`（`72180`）在 `tool_use/tool_result/accept` 边界延迟中断，`I==="soft"` 分支存在，返回 `defer_*/immediate/noop`；`force→D(Y,"immediate",W)`（`72892`）、`allow→D(Y,"soft",W)`（`72905`）。**confirmed**。
 - **preempt 档位映射 `_2`**（`77569`）：`!t||!t.startsWith("/")?"allow":…"/cancel"?"force":"never"`（逐字符匹配）——普通消息→`allow`、`/cancel`→`force`、其它斜杠命令→`never`。`allow` 在内部派生为 `soft` 模式（非外部档位）。**confirmed**。
-- **活流注入 = idle 之外的第二条低延迟续接（文档此前只点到、未追全）**：`Ne` 内仅当 `j==="allow"&&(B||J)&&Y.admissionCallback&&!Y.admissionInProgress` 时把新批次**直接并入当前 turn**（`72873`），无需打断亦无需 idle 重启；`admissionInProgress` 双端 finally 复位防并发注入。`admissionCallback` 由 drain 循环安装，`Le().then(...)` 复位 `admissionInProgress` 把新批并入本 turn——这是"不打断直接续喂"的路径，区别于 idle 唤醒。**confirmed（注入判据），安装/复位时序为静态阅读**。
+- **活流注入 = idle 之外的第二条低延迟续接**：`Ne` 内仅当 `j==="allow"&&(B||J)&&Y.admissionCallback&&!Y.admissionInProgress` 时把新批次**直接并入当前 turn**（`72873`），无需打断亦无需 idle 重启；`admissionInProgress` 双端 finally 复位防并发注入。`admissionCallback` 由 drain 循环安装，`Le().then(...)` 复位 `admissionInProgress` 把新批并入本 turn——这是"不打断直接续喂"的路径，区别于 idle 唤醒。**confirmed（注入判据），安装/复位时序为静态阅读**。
 - **`wakeResolver` 单槽不变量（并发同步点）**：同一 `wakeResolver` 字段被 `Ht`(idle 等待) **设置**、被 `Ne`/`S`(唤醒/出队) **消费并置 null**（见 `72101` 的 `wakeResolver(),wakeResolver=null`），是 idle↔wake 竞争的**唯一同步点**，构成一条并发不变量。**confirmed**。
 - **Plane/kind 硬隔离**：`session.notify`（`77945`）内联 `s=Os(o.session_key); if(s!=="channel"&&s!=="job") return {ok:!1,reason:"forbidden_kind",…}`——拒绝把外部通知投给 subconscious/system/meta 平面；`session.compact`（`78001`）更严 `a=Os(...); if(a!=="channel")…`，且 `if(Ni(...)) reason:"archiving"`（`78007`）。白名单谓词 `F1(e){return Os(e)==="channel"||Os(e)==="job"}`（`35590`）存在但供 `listUserVisible`，notify/compact 用内联 `Os` 判断。**confirmed**。
-- **归档态统一短路 `ol()`（文档此前漏列）**：`ol(e,t)=DX(vf(e,t))&&!DX(Pr(e,t))`（`31250`，归档目录存在且活动目录不存在）——tombstone 判定贯穿 delivery-cursor（`76920`）、compact、drain 收尾，是归档态对所有写路径的统一短路机制。归档错误 `ZD extends Error {kind="session_archiving"}`（`31413-31414`），`_c` 抛之（`31517`）。**confirmed**。
+- **归档态统一短路 `ol()`**：`ol(e,t)=DX(vf(e,t))&&!DX(Pr(e,t))`（`31250`，归档目录存在且活动目录不存在）——tombstone 判定贯穿 delivery-cursor（`76920`）、compact、drain 收尾，是归档态对所有写路径的统一短路机制。归档错误 `ZD extends Error {kind="session_archiving"}`（`31413-31414`），`_c` 抛之（`31517`）。**confirmed**。
 - **收尾再校验 `Ze` + 一次性重驱**：`Ze(y,I)`（`73683`）actor end 后重扫 inbox，返回 `fresh/conservative/none`；`fresh`→重新 wake（`=!1`）；`conservative`(瞬时读失败) 受 `consecutiveConservativeRedrive` 约束——该字段**确为布尔**：初始 `??!1`（`72990`），已 true 则 `conservative re-drive suppressed (cap spent)`（`73643`），首次则 `=!0`+`re-entering wake path once`（`73646`）——即只重驱一次防自旋（`73638-73651`）。**confirmed**。
 
 ---
@@ -401,7 +405,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 | 一 session_key 一 actor + 单调 actorRunId + active/idle/ended | `let _ = new Map`（`72126`）；`ve()` 生成、`actorRunId: Y=++R`；`status:"active"→"idle"→"ended"` | daemon `72951-72956/73543/73634` | confirmed |
 | 双有界池：channel=10 / job=6，超限入 wakeQueue | `h`@`72077`/`g`@`72083` `{name,activeCount,maxConcurrent,wakeQueue}`；`f=…??10`、`m=…??6`；`q.wakeQueue.push(y)` | daemon `72077/72083/72086-72087`；`72932`；RPC `system.config`→`max_concurrent_channel:10, max_concurrent_job:6` | confirmed |
 | idle 释放池槽 + `Ht(idle_ms)` 等待，前台附着钉住 actor | `released pool slot (idle)`；`Ht(y,I){ wakeResolver=j(!0) vs setTimeout(j(!1),I) }`；`idle timeout but has attachments, continuing wait` | daemon `73549/73667/73566`；重抢槽 `73585-73592`；`idle_ms:3600000` RPC | confirmed |
-| dequeue 原地复用 idle actor（**行号已订正**） | `S(y){ …if(j.status==="idle"&&!j.holdsPoolSlot&&j.drainPromise){ pendingWake=!0; wakeResolver(); "resuming idle actor from dequeue"; return } …回落 ve(I,c2(I)) }` | daemon `72091-72125`（此前误标 72905-72914） | confirmed |
+| dequeue 原地复用 idle actor | `S(y){ …if(j.status==="idle"&&!j.holdsPoolSlot&&j.drainPromise){ pendingWake=!0; wakeResolver(); "resuming idle actor from dequeue"; return } …回落 ve(I,c2(I)) }` | daemon `72091-72125` | confirmed |
 | 唤醒/抢占：Ne 归档抑制 + idle resolve + 活流注入；D 边界延迟 | `Ne`：`Ni→wake suppressed`；`allow&&(B\|\|J)&&admissionCallback&&!admissionInProgress`；`D`：`tool_use/tool_result/accept` 边界，`force→immediate`/`allow→soft` | daemon `72845/72852/72866/72873`；`72180/72892/72905` | confirmed |
 | preempt 档位映射 `_2` | `!t\|\|!t.startsWith("/")?"allow":…/cancel?"force":"never"`；`Ne` 默认 `j=I?.preempt??"allow"` | daemon `77569`；`72858` | confirmed |
 | Plane/kind 隔离：notify 拒非 channel/job，compact 仅 channel | `s=Os(o.session_key); if(s!=="channel"&&s!=="job") reason:"forbidden_kind"`；`compact`：`if(a!=="channel")` + `if(Ni)reason:"archiving"` | daemon `77945-77951`；`78001-78007`；`Os`@`35584`；`F1`@`35590` | confirmed |
@@ -425,7 +429,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 > 1. **"外部单身份、内部多会话" = session_key 命名空间 + 一 key 一 actor + 前缀即平面**。路由/隔离/权限全部从 `session_key` 前缀（`stdio:`/`job:`/`meta:`/`subconscious:`/`system:`）纯函数派生（`Os`/`B5e`），无需额外注册表（呼应本节论点 1）。代价是"平面"是约定式字符串契约——`session.notify` 靠前缀白名单挡住 work→system/subconscious 的越权唤醒（只放行 channel/job），这是可借鉴的**轻量能力边界**，但也意味着改前缀即改权限，需谨慎治理。
 
-> 2. **并发用"双有界池 + 可让出的池槽"而非固定线程**。channel(10)/job(6) 分池避免后台批处理饿死前台交互；idle actor **主动释放池槽**（`73549`）再挂起等待，dequeue 时对 idle-with-drainPromise 的 actor **原地唤醒复用**（`72091-72125`，此前误标 72905-72914，已订正），让容量在会话间流动。可借鉴：把"占用执行槽"与"会话存活"解耦——idle 不占槽，但 `attachedChannels` 能把 actor 钉活，兼顾资源回收与前台低延迟续接（呼应论点 3）。
+> 2. **并发用"双有界池 + 可让出的池槽"而非固定线程**。channel(10)/job(6) 分池避免后台批处理饿死前台交互；idle actor **主动释放池槽**（`73549`）再挂起等待，dequeue 时对 idle-with-drainPromise 的 actor **原地唤醒复用**（`72091-72125`），让容量在会话间流动。可借鉴：把"占用执行槽"与"会话存活"解耦——idle 不占槽，但 `attachedChannels` 能把 actor 钉活，兼顾资源回收与前台低延迟续接（呼应论点 3）。
 
 > 3. **抢占是"边界感知"的而非硬 kill**。外部 preempt 枚举为 **`allow`/`force`/`never`** 三档（`_2` 由用户命令映射）；`allow` 档优先走**活流注入**（不打断、直接把新批并入当前 turn），退而求其次才在 `tool_use/tool_result/accept` 边界以 `soft` 模式延迟中断（`D`），避免在半个工具调用中截断导致状态损坏；`force` 走 `immediate`。这是有状态 agent 做"打断/续写"的关键取舍（呼应论点 4），值得任何流式 agent 产品照搬。
 
@@ -446,7 +450,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **所以呢**：runtime 的合法取值只有两个，选择逻辑不玩魔法——它把"用户/actor 明确要 codex"当作不可降级的意图直接放行，只对"从 channel frontmatter 派生出来的 codex"才做可用性门控。这是一条刻意的产品价值排序（尊重显式意图，宁可晚炸也不静默降级）。
 
-- **枚举只有两值，且是两处独立词法作用域的常量、非笔误**：`bqe = ["claude","codex"]`（`daemon.pretty.js:30870`，`FS` init 块内）与并行副本 `R6e = ["claude","codex"]`（`34409`，`h1` init 块）。默认值解析 `tl(e=process.env)`（`30861`）：`ALADUO_DEFAULT_RUNTIME` 非字符串 → `"claude"`；trim/lowercase 后空串 → `"claude"`；`bqe.includes(n) ? n : "claude"`（confirmed）。
+- **枚举只有两值，且是三处独立词法作用域的常量、非笔误**（还原源码复核后由「两处」更正为「三处」）：`bqe = ["claude","codex"]`（`daemon.pretty.js:30870`，`FS` init 块内）、并行副本 `R6e = ["claude","codex"]`（`34409`，`h1` init 块），以及第三处 `Ime = ["claude","codex"]`（`77746`，供 `VQe`/`ZQe` 使用）。默认值解析 `tl(e=process.env)`（`30861`）：`ALADUO_DEFAULT_RUNTIME` 非字符串 → `"claude"`；trim/lowercase 后空串 → `"claude"`；`bqe.includes(n) ? n : "claude"`（confirmed）。核心断言（枚举仅两值）不变。
 - **选择链 A——channel/Job 会话（函数 `p`，`daemon.pretty.js:72058-72071`）**：`if (I?.runtime === "codex") return "codex"`（**`72059`，显式声明 codex 直接返回，不做可用性门控**）→ 无 `source_channel_id` 则 `I?.runtime ?? "claude"` → 否则回溯 `Ps(W).channel_kind → Ec()` 取 frontmatter，`(Y?.runtime ?? F?.runtime) === "codex" && (await l()).ok ? "codex" : I?.runtime ?? "claude"`（`72069-72070`）。可用性探测经记忆化 `l = () => (u || (u = a()), u)`，其中 `a = e.codexAvailability ?? eu`（`72054`，即依赖注入点）。〔原文洞察 #3 引用的 `72058` 应指向直接返回行 **`72059`**〕（confirmed，直接读取核对）。
 - **选择链 B——潜意识 partition（函数 `S`，`daemon.pretty.js:74717`）**：`H = x.runtime`（partition frontmatter，`74721`）→ `K = H ?? tl()`（`74722`）。若 `K` 不可用则跳过该 partition 并发 `agent.error{outcome:"runtime_unavailable", runtime:K, runtime_source: H ? "explicit" : "default"}`（`74739-74741`）——注意这条与选择链 A 的失败前移相反，partition 路径*会*显式发不可用事件（confirmed）。
 - **"runtime"一词在本运行时被重载两义，须消歧**：`system.runtime.info` RPC（`daemon.pretty.js:78227`）返回的是*守护进程实例身份*——`{version, runtime_id, runtime_mode: host|container, runtime_dir, work_dir, kernel_dir}`（活体实测确认），**不含 `available_runtimes`、与模型后端无关**。本节所讲的 `runtime` 始终指*模型后端*；读者勿把 `runtime.info` 误当成后端探测入口（confirmed，含活体印证）。
@@ -455,12 +459,11 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **所以呢**：同一个字符串背后是两种根本不同的进程模型。理解"`available_runtimes` 会不会阻塞或重复探测"，必须看到探测被结果缓存 + in-flight promise 双重去重，且两侧都留了测试注入缝——这正是"探测可注入、选择可单测"论断的完整两半。
 
-- **claude = 进程内 SDK，无子进程**：模块顶层静态 `import { query as Wue } from "@anthropic-ai/claude-agent-sdk"`（`daemon.pretty.js:57055`）。可用性同步验证器 `ele()`（`57137`）：`CLAUDE_CODE_EXECUTABLE` 设了就放行（`57138`）；否则平台白名单 6 种、unsupported 抛错（`57143`）；原生二进制 `require.resolve("${u}/claude")` 在其后的 for 循环 `57152-57156`〔原文把二进制 resolve 当作 `57143`，略偏——`57143` 只是平台断言〕（confirmed）。
+- **claude = 进程内 SDK，无子进程**：模块顶层静态 `import { query as Wue } from "@anthropic-ai/claude-agent-sdk"`（`daemon.pretty.js:57055`）。可用性同步验证器 `ele()`（`57137`）：`CLAUDE_CODE_EXECUTABLE` 设了就放行（`57138`）；否则平台白名单 6 种、unsupported 抛错（`57143`）；原生二进制 `require.resolve("${u}/claude")` 在其后的 for 循环 `57152-57156`（confirmed）。
 - **真正的探测引擎是 `Que()`（probeClaudeAvailability，`57087`），5s 超时套在这里而非 `ele`**：`Promise.race([iU()包裹, setTimeout(Kue)])`（`57090-57110`，`Kue = 5e3` 精确在 `57717`）。**双重去重**：结果缓存 `Yc`（读 `57088`、写 `return Yc = r, r` 于 `57111`）+ in-flight promise `Vl`（并发探测复用同一 promise，`57089`）。派生读取 `isClaudeAvailable(oU)= Yc?.ok===!0`（`57118`）、`claudeUnavailableReason(v_)= Yc?.ok===!1 ? Yc.reason`（`57122`）（confirmed，直接读取核对）。
-  - 〔订正原文"未证实推测：`Yc` 无写入点"——现坐实为 **confirmed**：写点在 `57111`。〕
 - **claude 侧测试注入缝 `iU`**：`iU = Xue = () => ele()`（`57717`），验证器经 `__setClaudeVerifierForTest`（`G9e`，`57134`：`iU=e, Yc=void 0, Vl=void 0`）可替换并清缓存——与 codex 侧的注入缝对称（confirmed）。
 - **codex = 外部 CLI + 常驻 app-server 子进程**：探测 `eu(e="codex")`（`57769`）两步各 5s——`execFile(e,["--version"],{timeout:5e3})` 后 `codex login status` 断言 `(i+o).toLowerCase().includes("logged in")`（`57794`）。运行时 `KT.start()` 内 `this.proc = eKe(this.binary, ["app-server"], {cwd, stdio:["pipe","pipe","pipe"], env:{...process.env,...this.env}, detached:!0})`（`58531`），走换行分隔 JSON-RPC（confirmed）。
-- **codex 侧缓存是另一对变量 `sU`/`aU`**：`isCodexAvailable(w_)= sU===!0`（`57749`），写点在 `rKe`（primeCodexAvailability，`sU=t.ok, aU=t.ok?void 0:t.reason`，`57757`）与 `iKe`（`sU=e, aU=void 0`，`57761`）。测试注入 `__setCodexAvailabilityForTests: () => iKe` 导出在 `57733`，`iKe` 定义在 `57760`〔原文写 `57722` 系行号漂移，`57722` 无对应〕（confirmed）。
+- **codex 侧缓存是另一对变量 `sU`/`aU`**：`isCodexAvailable(w_)= sU===!0`（`57749`），写点在 `rKe`（primeCodexAvailability，`sU=t.ok, aU=t.ok?void 0:t.reason`，`57757`）与 `iKe`（`sU=e, aU=void 0`，`57761`）。测试注入 `__setCodexAvailabilityForTests: () => iKe` 导出在 `57733`，`iKe` 定义在 `57760`（confirmed）。
 - **`available_runtimes` 由两探针拼装**：会话探针 `ZQe`（`77751`）`s() && c.push("claude"), a() && c.push("codex")`（`77764`），`descriptor.runtime` 经 `VQe`（`77748`）归一化上报 `VQe(f.runtime ?? l?.runtime)`（`77797`），非原样透传（confirmed）。
 
 ### 论点③　命令层不假装对等：undo/model/compact 按 `runtime === "claude"` 诚实分叉
@@ -488,7 +491,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 | 机制主张 | 证据（字面量/代码片段） | 位置 | 置信 |
 |---|---|---|---|
-| runtime 枚举只有 claude/codex（两处独立常量） | `bqe = ["claude","codex"]`；并行副本 `R6e = ["claude","codex"]` | daemon.pretty.js:30870, 34409 | confirmed |
+| runtime 枚举只有 claude/codex（三处独立常量） | `bqe = ["claude","codex"]`；并行副本 `R6e`、`Ime` | daemon.pretty.js:30870, 34409, 77746 | confirmed |
 | 默认 runtime 由 ALADUO_DEFAULT_RUNTIME 决定，回退 claude | `tl(e=process.env)`；`bqe.includes(n) ? n : "claude"` | daemon.pretty.js:30861-30868 | confirmed |
 | claude=进程内 SDK（顶层静态 import，无子进程） | `import { query as Wue } from "@anthropic-ai/claude-agent-sdk"` | daemon.pretty.js:57055 | confirmed |
 | claude 可用性=CLAUDE_CODE_EXECUTABLE 短路 → 平台白名单 → 原生二进制 resolve | `if (h_(process.env.CLAUDE_CODE_EXECUTABLE)) return;`；平台断言；`require.resolve("${u}/claude")` for 循环 | daemon.pretty.js:57138, 57143, 57152-57156 | confirmed |
@@ -496,7 +499,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 | claude 探测可注入（__setClaudeVerifierForTest 清缓存） | `iU = () => ele()`；`G9e`：`iU=e, Yc=void 0, Vl=void 0` | daemon.pretty.js:57717, 57134 | confirmed |
 | codex=外部 CLI，探测 --version + login status（各 5s） | `r(e,["--version"],{timeout:5e3})`；`(i+o).toLowerCase().includes("logged in")` | daemon.pretty.js:57769-57810 | confirmed |
 | codex 运行时=spawn app-server 常驻子进程 | `this.proc = eKe(this.binary,["app-server"],{...detached:!0})` | daemon.pretty.js:58531 | confirmed |
-| codex 探测缓存 sU/aU + __setCodexAvailabilityForTests（行号订正） | `isCodexAvailable = sU===!0`；`rKe`：`sU=t.ok, aU=...`；export `() => iKe` | daemon.pretty.js:57749, 57757, 57733, 57760 | confirmed |
+| codex 探测缓存 sU/aU + __setCodexAvailabilityForTests | `isCodexAvailable = sU===!0`；`rKe`：`sU=t.ok, aU=...`；export `() => iKe` | daemon.pretty.js:57749, 57757, 57733, 57760 | confirmed |
 | available_runtimes 由两探针拼装，descriptor.runtime 经 VQe 归一化 | `s() && c.push("claude"), a() && c.push("codex")`；`VQe(f.runtime ?? l?.runtime)` | daemon.pretty.js:77751, 77764, 77797 | confirmed |
 | 选择链 A：显式 codex 直返(不门控)，channel 派生 codex 才门控 | `if (I?.runtime === "codex") return "codex"`（直返 72059）；`...==="codex" && (await l()).ok ? "codex" : ...` | daemon.pretty.js:72058-72071 | confirmed |
 | 选择链 B：partition frontmatter ?? tl()；不可用发 runtime_unavailable | `H = x.runtime, K = H ?? tl()`；`outcome:"runtime_unavailable", runtime_source: H?"explicit":"default"` | daemon.pretty.js:74717-74722, 74739-74741 | confirmed |
@@ -557,7 +560,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 一切都从这条日志派生：会话状态、去重表、消费进度、status，都不是权威数据，而是可丢弃、可从 `var/events/YYYY-MM-DD.jsonl`（按 UTC 日期分区，`HS(e)` 用 `toISOString().slice(0,10)` 切日，`daemon.pretty.js:30944`）加索引重放出来的物化视图。下面四个论点分别回答：**写怎么保证不丢（写路径）、重复怎么处理（去重）、崩溃后怎么读回来（读路径与恢复）、外部怎么观测（读接口与事件全集）**。
 
-### 论点一 · 写路径：先落 WAL、再写指针，且每条事件是「WAL 行 + 两个索引」的三写原子单元
+### 论点一 · 写路径：先落 WAL、再写指针，且每条事件是「WAL 行 + by_id 索引 +（有 session_key 才）by_session 索引」的原子单元
 
 **所以呢**：因为持久化严格早于任何副作用，崩溃后未处理的工作永远能从「mailbox 里的 `- [ ] @evt(id)` 指针 + WAL 行」精确恢复；而单条 append 其实是三次协同写入，`ma`/`nl` 等下游读路径都隐式依赖索引已落盘，构成 `append → 索引 → watermark` 的固定依赖链。
 
@@ -565,7 +568,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **存在第二条同构摄入源 `route.deliver`（会话间路由投递，confirmed）。** 会话→会话的路由投递走 `route.deliver` 全链(`35720-35744`)：先 `Qt(e,f)` append(`35736`)，后 `qo(e,c,\`- [ ] @evt(${f.id})\`)` 写指针(`35744`)，且入口带 `ol()` archived 检查短路。它与 `Sne` 是「先 append 后写指针」的同一契约，是 §4 应认清的第二类摄入源。
 
-**单条 append = 三写原子单元（confirmed，原文只点了一半）。** `Qt()`(`30992`) 内部先 `Tqe()`(`30955`) 写 WAL 行，再写两个索引：`Rqe`(`30983` 定义/`30994` 调用)追加 `by_id`、`OX`(`31012` 定义/`30999` 调用)追加 `by_session`（含 `session_key`+`ts`）。三者对应磁盘 append 与内存 Map 的同步更新——`ma` 反查偏移、`nl` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
+**单条 append = 两写或三写原子单元（confirmed；by_session 有条件）。** `atomicAppendEvent (Qt)`(`30992`) 内部先 `atomicWriteFileSync (Tqe)`(`30955`) 写 WAL 行，再**无条件**写 `by_id` 索引（`Rqe`，`30983` 定义/`30994` 调用），最后**仅当事件带 `session_key`** 才写 `by_session` 索引（`t.session_key && OX(...)`，`OX` `31012` 定义/`30999` 调用，含 `session_key`+`ts`）。因此无 session_key 的事件（如 `system.cadence_tick`）是「WAL + by_id」两写；带 session_key 的会话事件才是三写。三者对应磁盘 append 与内存 Map 的同步更新——`advanceConsumerWatermark (ma)` 反查偏移、`readEventByIdSeek (nl)` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
 
 **字节区间与全序（confirmed）。** `Tqe()` 执行 `qS.open(i,"a")`(`30962`)→`stat().size` 取 **byte_offset**(`30964`，stat 早于 write)→`write().bytesWritten` 取 **byte_len**(`30966`)→`close`(`30975`)，故 `[offset, offset+len)` 恰为该事件行字节区间。全序由 per-file promise 链保证（应用层互斥，非 fsync/DB 事务）：`xqe`(`30934`) `.then(t,t)` 两回调相同，成功失败都续链，同一分区 append 顺序与偏移计算无竞态。**架构假设**：单 daemon 单进程写；跨进程并发写同一分区无保护。
 
@@ -574,7 +577,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 | 网关摄入先 append 后写指针 | `Sne`：`Qt`(76089)→`ma/ha`→分支写 `- [ ] @evt(id)`(76113/76123) | daemon 76020-76124 | confirmed |
 | route.deliver 同构（含 archived 短路） | `Qt`(35736)→`qo(...@evt)`(35744)，`ol()` 短路 | daemon 35720-35744 | confirmed |
 | 路由分叉由 mne 决策 | `routing_hint.target ∈ {gateway,meta,session}` | daemon 75878 | confirmed |
-| 单 append = WAL+by_id+by_session 三写 | `Qt`→`Tqe`；`Rqe`(30994)/`OX`(30999) | daemon 30983/31012 | confirmed |
+| 单 append = WAL+by_id（无条件）+by_session（**仅当 session_key**）| `Qt`→`Tqe`；`Rqe`(30994) 无条件 / `t.session_key && OX`(30999) | daemon 30983/31012 | confirmed |
 | byte_offset=写前 stat().size，byte_len=bytesWritten | open→stat→write→close | daemon 30955-30975 | confirmed |
 | 全序=per-file promise 链 | `xqe` `.then(t,t)` | daemon 30934 | confirmed |
 | UTC 日切分区 | `HS(e)` `toISOString().slice(0,10)` | daemon 30944 | confirmed |
@@ -583,7 +586,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **所以呢**：去重是「尽力而为」而非严格幂等——它给重复输入回放上一次的网关回执（对渠道体验友好），但内存表满即整表清空会短时丢失去重能力，对副作用敏感的场景不能把它当幂等键。
 
-**三档 key，`channel.command` 的免疫条件需修正（confirmed with correction）。** `YX()`(`75651`，默认窗口 `t=5` min) 按优先级产 key，`<source.kind>` 为前缀。关键修正：`channel.command→null` 的判断在 **source_id 档之后**——`76044` 无条件从 `t.dedupSourceId` 写 `dedup.source_id`（不区分 eventType），故带 `dedup.source_id` 的 command 仍会在优先级 1 命中去重。准确表述是「**无 source_id 的 channel.command 永不去重**」，而非「channel.command 永不去重」。
+**三档 key：`channel.command` 仅在无 source_id 时免疫去重（confirmed）。** `YX()`(`75651`，默认窗口 `t=5` min) 按优先级产 key，`<source.kind>` 为前缀。关键点：`channel.command→null` 的判断在 **source_id 档之后**——`76044` 无条件从 `t.dedupSourceId` 写 `dedup.source_id`（不区分 eventType），故带 `dedup.source_id` 的 command 仍会在优先级 1 命中去重。准确表述是「**无 source_id 的 channel.command 永不去重**」。
 
 | 优先级 | 条件 | key 形态 | 行号 |
 |---|---|---|---|
@@ -604,12 +607,12 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **索引与随机读（confirmed）。** 两个 append-only 索引懒加载入内存 Map 并随 append 增量更新：`by_id.jsonl` `{event_id, partition, byte_offset, byte_len}`(`30994-30998`) 支撑 `nl()` 随机读 `read(o,0,n.byte_len,n.byte_offset)`(`31033`)；`by_session.jsonl` 追加 `session_key`+`ts`(`30999-31005`)，同 key 累积成 list。首次访问由 `$qe`(`31050`)/`Oqe`(`31060`) 整文件流式 load 进 Map，之后随 append 增量更新——**这正是「随机读 O(1)」的前提**。解析失败回退整文件顺扫 `Aqe`(`31101`，调用点 `31043`)。指针化的价值：mailbox 只存 `@evt(id)` 不存正文，避免正文双写与漂移。
 
-**消费者 watermark（confirmed 结构，但 jobs/gateway 语义需修正）。** `ma()`(`31852`) 先 `UD(e,n)`(`31853`) 经 by_id 反查偏移，再 `s2e` 写 `run/queue_offsets/<consumer>.json`，字段 `{updated_at, partition, byte_offset, last_event_id}`（活体 `jobs.json` 逐字段吻合）。全部 `ma()` 调用点仅 5 处，对应三个消费者：
+**消费者 watermark（confirmed）。** `ma()`(`31852`) 先 `UD(e,n)`(`31853`) 经 by_id 反查偏移，再 `s2e` 写 `run/queue_offsets/<consumer>.json`，字段 `{updated_at, partition, byte_offset, last_event_id}`（活体 `jobs.json` 逐字段吻合）。全部 `ma()` 调用点仅 5 处，对应三个消费者：
 
-| consumer | 触发点 | 语义（已修正）| 置信 |
+| consumer | 触发点 | 语义 | 置信 |
 |---|---|---|---|
 | `gateway` | 76089 | **网关摄入管线(`Sne`)的高水位，对每一条经 `Sne` 摄入的事件在路由前无条件推进**，覆盖全部摄入事件；非「仅 gateway-targeted 同步不入队」| confirmed |
-| `jobs` | 75269 | **由每次 cadence 扫 due-job 的 `system.cadence_tick` 事件推进**（`75269` 位于 cadence_tick 主体 `vme`/job 扫描 `75258-75269` 内，事件类型 `system.cadence_tick` `75260`）；非「由 `job.spawn/complete/fail` 推进」| confirmed（refuted 原说法）|
+| `jobs` | 75269 | **由每次 cadence 扫 due-job 的 `system.cadence_tick` 事件推进**（`75269` 位于 cadence_tick 主体 `vme`/job 扫描 `75258-75269` 内，事件类型 `system.cadence_tick` `75260`）；非「由 `job.spawn/complete/fail` 推进」| confirmed |
 | `meta_session` | 74747/74902/74926/75040 | 由潜意识/meta partition 事件推进 | confirmed |
 
   - jobs 的决定性活体证据：`jobs.json` 的 `last_event_id=evt_7e3d…` 在 events 文件里正是 `{"type":"system.cadence_tick",…count:0}`。job 到期扫描本身就是 cadence 循环的一环，故 jobs watermark 挂在 cadence tick 上。
@@ -617,7 +620,7 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **持久化分层（confirmed）。** 消费者进度放**易失 `run/`**（`runQueueOffsetsDir`, `o2e` `31847`；重启可从 WAL 重建），会话游标/state 放**持久 `var/`**（`sessionsDir`；会话身份必须跨重启）。活体 `run/queue_offsets/{gateway,jobs,meta_session}.json` 三消费者齐全——这是「运行时进度 vs 实体身份」的干净范式。
 
-**rehydrate（confirmed，行号微漂移 + 一处未证实）。** `MX()`(`31307`) readdir `sessionsDir` → 逐个读 `<hash>/state.json` 的 `session_key`(`31323`) 重建活跃会话集。自愈写回：缺 `session_key` 时遍历 `registrySessionsDir`(`31329`)、`decodeURIComponent`(`31332`)、`Ai(u)===目录名`(`31333`) 反解，**写回 state.json 实际在 `31335-31339`**（原文引 `31330` 是该自愈块起点，略偏）。resume 失败 append `agent.error{stage:'resume'}`(`60567`, `source.kind='runner'`) 留痕。state.json 的 `schema_version:2` 本轮未在调用链独立复核——**标未证实推测**。
+**rehydrate（confirmed，一处未证实）。** `MX()`(`31307`) readdir `sessionsDir` → 逐个读 `<hash>/state.json` 的 `session_key`(`31323`) 重建活跃会话集。自愈写回：缺 `session_key` 时遍历 `registrySessionsDir`(`31329`)、`decodeURIComponent`(`31332`)、`Ai(u)===目录名`(`31333`) 反解，**写回 state.json 在 `31335-31339`**。resume 失败 append `agent.error{stage:'resume'}`(`60567`, `source.kind='runner'`) 留痕。state.json 的 `schema_version:2` 本轮未在调用链独立复核——**标未证实推测**。
 
 ### 论点四 · 读接口与事件全集：spine.tail 尾读 + 十一类落库事件
 
@@ -625,14 +628,14 @@ B.currentTurn !== null && B.currentTurn !== G && B.currentTurn.accepted || (B.cu
 
 **spine.tail 尾读（confirmed，活体已验证）。** `Hie()`(`77319`)：`limit = clamp(t?.limit ?? 200, 1, 500)`(`77320`)。无 `after_id` → 尾取 N 条 + `has_more = h>0`(`77325-77330`)；有 `after_id` → 当日 `findIndex` 游标之后(`77332`)，未命中则 `setUTCDate(-1)` 回退前一日分区拼接 `[...prev.slice(f+1), ...a]`(`77343-77350`)。活体 `spine.tail limit:3` 现返回 `agent.tool_use/agent.tool_result`（`source.kind=meta`, `name=subconscious:memory-committer`, `session_key=meta:subconscious`）——**此为取样示例，返回何种事件取决于探测时点**（原文「3×system.cadence_tick」同理只是彼时取样）。
 
-**事件类型全集（需修正：补 `route.deliver`）。** 经 `Xt` 封装并 `Qt` 落库的合法 Spine 事件：
+**事件类型全集（含 `route.deliver`）。** 经 `Xt` 封装并 `Qt` 落库的合法 Spine 事件：
 
 ```
 channel.message / channel.command / channel.attached
 agent.result / agent.error / agent.tool_use / agent.tool_result
 job.spawn / job.complete / job.fail
 system.cadence_tick
-route.deliver                                 ← 会话→会话路由投递，Qt(35736)，原「全集」漏列
+route.deliver                                 ← 会话→会话路由投递，Qt(35736)
 ```
 
 `GROUND_TRUTH` 中的 `channel.ack/ingress/pull/spawn/describe`、`session.*`、`job.completed/spawned` 等**未见** `Xt`+`Qt` 构造点，属 RPC/bus 而非 Spine 落库，原文正确地未纳入。潜意识产出**复用** `agent.result`：`source.kind=meta`, `name=subconscious:<partition>`(`74887`), `payload.tick_type='subconscious'`(`74896`)，活体亦印证。
@@ -647,7 +650,7 @@ route.deliver                                 ← 会话→会话路由投递，
 > **给 Agent PM 的洞察**
 > - **真理之源 = 纯文件 JSONL WAL，零数据库依赖**：所有派生态（会话状态/去重/消费进度/status）都可从「日志 + 指针」重建，极简、天然可审计、git-friendly——这正是本节塔尖结论的运营含义。
 > - **append-before-execute 是可靠性契约的基石，且有两条摄入源**：网关摄入（`Sne`）与会话间路由（`route.deliver`）都遵守「先原子 append、再写 `- [ ] @evt(id)` 指针」；崩溃后从「mailbox 指针 + WAL」精确恢复未处理工作，mailbox 只存指针不存正文。
-> - **单条 append 是三写原子单元**：WAL 行 + by_id + by_session，下游 watermark 反查与随机读强依赖索引已落盘；要横向扩展写侧，必须同时打破「单进程 promise 链保序」与「三写同步」两个假设。
+> - **单条 append 是两写或三写原子单元**：WAL 行 + by_id（无条件）+ by_session（仅当带 session_key），下游 watermark 反查与随机读强依赖索引已落盘；要横向扩展写侧，必须同时打破「单进程 promise 链保序」与「索引同步」两个假设。
 > - **去重是尽力而为、命中即幂等重放**：5 min 时间桶 + 内容哈希，无 `source_id` 的 `channel.command` 永不去重；命中回放上次网关回执（`deduplicated:true`, `enqueued:false`），但内存 Map 满即整表 clear 会短暂丢失去重能力——对重复副作用敏感的场景，产品侧需知这不是幂等键。
 > - **watermark 语义要看清挂点**：`jobs` 游标挂在 `system.cadence_tick`（因 due-job 扫描是 cadence 一环），`gateway` 是整条摄入管线的高水位而非「目标同步」标记——误读会导致对「谁消费到哪」的错误运维假设。
 > - **持久化分层（run/ 可重建 vs var/ 必须留存）** 是区分「运行时进度」与「实体身份」的干净范式；UTC 日切分区同时是潜意识 scan-gap「做梦」的工作单元，日志分区即时间盒。
@@ -683,7 +686,7 @@ route.deliver                                 ← 会话→会话路由投递，
 
 **所以呢**：这是本节最值得抄的一条。routing target 三态（`gateway` / `meta` / `session`）在**入站边界**就决定一条消息要不要真正唤醒一个 agent。`/status /config /cd /debug` 这类命令在网关层被内联短路、根本不进模型；只有带内容的消息才唤醒 session。对话式 agent 想省 token，这就是「入站即分流、能不进模型就不进」的实现样板。
 
-- **真正的 target 决策在入口 wrapper `wne` → `pHe`，不在 `Sne` 内。** handler 收到 channel.ingress/command 后，先由 `wne`（message，`75969`）/ `L1`（command）做**斜杠命令解析**再调 `Sne`——`wne` 里 `D1(t.text)` 判斜杠命令、`Rk` 取命令、`j1` 判 intent，再喂 `pHe`（`75963`）裁 target：带参内容 → `session`，`status/config/navigate/debug` 类 intent 或纯命令 → `gateway`（内联短路、不进模型）。这一层命令预处理是「洞察 #5」的真实机制所在，此前文档直接跳到 `Sne` 掩盖了它。
+- **真正的 target 决策在入口 wrapper `wne` → `pHe`，不在 `Sne` 内。** handler 收到 channel.ingress/command 后，先由 `wne`（message，`75969`）/ `L1`（command）做**斜杠命令解析**再调 `Sne`——`wne` 里 `D1(t.text)` 判斜杠命令、`Rk` 取命令、`j1` 判 intent，再喂 `pHe`（`75963`）裁 target：带参内容 → `session`，`status/config/navigate/debug` 类 intent 或纯命令 → `gateway`（内联短路、不进模型）。这一层命令预处理是「洞察 #5」的真实机制所在。
 - **`mne` 只是读取器，不是决策器。** `mne`（`75878`）仅 `return routing_hint.target ∈ {gateway,meta,session} ? … : "session"`——它读回 `pHe` 已写进 `routing_hint` 的结果。`Sne` 内 `d = mne(r)`（**落点 `76101`**）据此分三路。
 - **三路的落地形态**：`gateway` → `mHe`（`76103`）内联应答，返回 responseText/outboxId 并 log `[gateway] gateway-targeted event (no enqueue)`，**完全不入队、不唤醒**；`meta` → 写 mailbox key `"meta:subconscious"`（`76114`）；`session` → 写 `t.sessionKey` 的 mailbox（`76124`）。
 - **channel.ingress 的入站守卫**：`Ni(w.session_key)` 命中归档中 → `-32011`（`78274-78277`）；workspace 不可用 → `-32010, message:R.guidance`（`78287-78290`）。`source_kind` 缺省按传输层推断 `w.source_kind ?? (v?.wsSubscriberId ? "ws" : "rpc")`（`78278`）。
@@ -694,7 +697,7 @@ route.deliver                                 ← 会话→会话路由投递，
 
 **所以呢**：可靠性不靠队列中间件，而靠一条铁律——事件先原子 append 进 spine 日志，才追加进 mailbox，才 emit 唤醒。任何一步崩溃都能从「spine log + mailbox 指针」精确复原。代价是「队列」就是纯 Markdown 文件，吞吐/并发靠文件锁与内存索引兜底。
 
-- **精确落点在 `Sne`（gateway 入站规范化，`76020`）。** 顺序：`Xt()` 构造 spine 事件（`76022`）→ 幂等去重 `checkAndRecordDetailed`（`76056`；命中则复用既有事件、`enqueued:!1`，经 `jf` 反查既有 outbox 回填 `gatewayResponse/gatewayOutboxId` 原样返回，即「去重即重放上次回执」，`76064-76073`）→ `yHe` 把原始 payload 持久化为 `raw_path`（`76078`）→ **`await Qt(e, r)` 把事件 append 进 spine 事件日志（这是 WAL，`76089`）** → `ma` 更新索引（`76089`）→ `d = mne(r)` 决定 routing target（`76101`）→ 只有 session/meta 目标才 `qo(…,"- [ ] @evt(<id>)")` 追加进 mailbox（enqueue，`76124/76114`）→ 最后 `bus.emit("spine.event", r)`（`76134`）。
+- **精确落点在 `Sne`（gateway 入站规范化，`76020`）。** 顺序：`Xt()` 构造 spine 事件（`76022`）→ 幂等去重 `checkAndRecordDetailed`（`76056`；命中则复用既有事件、`enqueued:!1`，经 `jf` 反查既有 outbox 回填 `gatewayResponse/gatewayOutboxId` 原样返回，即「去重即重放上次回执」，`76064-76073`）→ `yHe` 把原始 payload 持久化为 `raw_path`（`76078`）→ **`await Qt(e, r)` 把事件 append 进 spine 事件日志（这是 WAL，`76089`）** → `ma` 更新索引（`76089`）→ `d = mne(r)` 决定 routing target（`76101`）→ 只有 session/meta 目标才 `qo(…,"- [ ] @evt(<id>)")` 追加进 mailbox（enqueue，`76124/76114`）→ 最后 `n?.bus && n.bus.emit("spine.event", r)`（`76134`，**emit 受 `n?.bus` 守卫：未注入 bus 时不广播**）。
 - **`session.wake` 不在 `Sne` 内**，而由**调用方**在 `routing.enqueued` 为真时 emit：channel.ingress（`78312`）、channel.command（`78357`）、另一 gateway 调用方（`78024`）。即「先事件落盘 → 后入队 → 最后由调用方唤醒」。
 - **channel.ack 是双路径游标提交**（`78420-78446`）：按 `:` 前缀 channel 反查 `$s`/`Vte` 走一路；否则直接 `uo` 查记录、必要时 `kk` 重建后经 `qne`/`J1` 提交投递游标——含 `-32602 Invalid cursor` 游标校验分支与 `-32002` 归档中守卫。它不只是「置 sent」，而是带校验与归档态的游标推进。
 
@@ -705,9 +708,9 @@ route.deliver                                 ← 会话→会话路由投递，
 **所以呢**：同一个 `channel.pull` 方法对简单适配器（只 poll HTTP）和富客户端（订阅长连流）各取所需，而两端共享同一个随包发布的编译期契约，杜绝手抄漂移——这是想做 Agent 平台化的解耦支点。**关键更正**：RPC 才是 drain，WS 根本不 drain。
 
 - **RPC 形态 = drain，且门控于 `return_mask` 含 `"final"`。** `T = R.includes("final")`（`78385`）；`P = T ? await G1({… limit: w.limit ?? Number(process.env.ALADUO_PULL_LIMIT ?? 50) …}) : []`（`78398/78402`），返回 `records / next_cursor(P[last].id) / idle(P.length===0)`（`78405-78412`）。不含 `final` 则 records 恒为空。
-- **WS 形态 = 打开持久订阅 +（含 `final`）回放 backlog，records 不在 RPC result 里返回。** WS 上下文里 channel.pull **直接短路、根本不 drain**：`if(v?.wsSubscriberId) return await UQe({…}), _.result={opened:!0, …}, _`（`78386-78397`）——不调 `G1`、result 里无 records。真正的排空在 WS 外层 message handler：`O.result && !O.error` 后 `l.subscribe`（`78702`）打开订阅，再由 `Bne` 以 `session.output` 通知形式回放 outbox backlog（`78736`）。**`G1` drain 仅 RPC 路径独有**；此前文档把 RPC 的 drain 语义误挂到了 WS 上。
+- **WS 形态 = 打开持久订阅 +（含 `final`）回放 backlog，records 不在 RPC result 里返回。** WS 上下文里 channel.pull **直接短路、根本不 drain**：`if(v?.wsSubscriberId) return await UQe({…}), _.result={opened:!0, …}, _`（`78386-78397`）——不调 `G1`、result 里无 records。真正的排空在 WS 外层 message handler：`O.result && !O.error` 后 `l.subscribe`（`78702`）打开订阅，再由 `Bne` 以 `session.output` 通知形式回放 outbox backlog（`78736`）。**`G1` drain 仅 RPC 路径独有**。
 - **replay 窗口去重**：`ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0`（`78733`），期间用 `w = new Set` 抑制重复（`suppressed duplicate output during replay window`，`78708-78709`）；`onDelivered` 推进游标 `W1`、`gl` 标 sent、`Lf` 写 `.sent_ids`（`78744-78748`）。WS 送信器 `R(P,E)`（`78638-78660`）正常推 `session.output` 时若 `E` 且有 consumerId 则 `W1` 推进投递游标；replay 期用 `R(_e,!1)` 关闭该副作用、改由 `onDelivered` 推进——这是「replay 不重复推进游标」的关键。
-- **订阅注册表 `H1`（`76752`）做 sessionKey→订阅者扇出。** `Map<sessionKey,Set<id>>` + `Map<id,subscriber>`，按每订阅者 `returnMask`（默认 `["final","stream"]`，`76757`）过滤：`final`→`session.output`（`76766`）、`stream`→`session.stream`（`76792`）、`tool`→`session.execution`（`76816`）、`stream_end`（`76831`）；发送异常 `catch{d(v)}` 自动摘除订阅者。`returnMask` 值域校验器是 `y2`（`77557-77561`：`final|stream|stream_end|tool`，空回退 `["final","stream"]`），默认掩码常量在 `H1@76757`（此前文档引 `76595` 为幻影行号）。
+- **订阅注册表 `H1`（`76752`）做 sessionKey→订阅者扇出。** `Map<sessionKey,Set<id>>` + `Map<id,subscriber>`，按每订阅者 `returnMask`（默认 `["final","stream"]`，`76757`）过滤：`final`→`session.output`（`76766`）、`stream`→`session.stream`（`76792`）、`tool`→`session.execution`（`76816`）、`stream_end`（`76831`）；发送异常 `catch{d(v)}` 自动摘除订阅者。`returnMask` 值域校验器是 `y2`（`77557-77561`：`final|stream|stream_end|tool`，空回退 `["final","stream"]`），默认掩码常量在 `H1@76757`。
 - **stream_end reason 能力降级契约**：`H1` 内 `m==="interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`76840`），与 WS 订阅透传 `acceptStreamEndReasons`（`78706`）一致——daemon 按消费者声明的能力把不认识的 reason 降级为 `"interrupted"`，老插件优雅退化。
 - **零依赖契约包 `@openduo/protocol@0.5.8`**（`"dependencies":{}`、`"main":"src/index.ts"`，源码 `.ts` 随包发布，位于 `@openduo/duoduo/node_modules/@openduo/protocol/src/`）：`rpc.ts` 信封与守卫、`channel.ts` 全部 params + 校验器 + `outboxToOutbound`、`outbox.ts` `OutboxRecord`/`TurnMeta`、`notifications.ts` 4 种下推、`channel-binding.ts` `ChannelType`。通道插件以 npm tarball 安装（`cli.pretty.js:116315`：`mkdtemp aladuo-channel-plugin-`、`tar -xzf`、`package.installing` 标记）。
 - **outbox 落盘**：id `obx_${randomUUID()}`（`34552`），路径 `join(outboxDir, t, `${n}.json`)`（`34556`）；双索引 `by_event.jsonl`（`34708`）/`by_id.jsonl`（`34809`）+ `.sent_ids`（`34712`）+ `replay/`（`34788`）+ `.pending_queue.jsonl`（`35137`）。
@@ -803,7 +806,7 @@ route.deliver                                 ← 会话→会话路由投递，
 
 ### 论点 1 · 一条心跳、两级解耦：emit 广播不被维护环阻塞，60s cron 是另一条独立定时器
 
-**所以呢：** duoduo 把"系统自我维护"、"任务调度"、"自主思考"分到不同节拍/不同门，慢的 LLM 会话拖不垮维护与定时作业。此前分析把它们混成"一个心跳两个环"是误读——实为**两条互不相干的定时器**，且潜意识总线在心跳回调里被最先广播、绕过维护环重入门。
+**所以呢：** duoduo 把"系统自我维护"、"任务调度"、"自主思考"分到不同节拍/不同门，慢的 LLM 会话拖不垮维护与定时作业。它们不是"一个心跳两个环"，而是**两条互不相干的定时器**，且潜意识总线在心跳回调里被最先广播、绕过维护环重入门。
 
 - **37min 心跳**：`let D=Cme("ALADUO_CADENCE_INTERVAL_MS",222e4,1e3)`（`daemon.pretty.js:78916`），env 可覆盖、带 `1e3` 最小 clamp；活体 `duoduo daemon config` → `interval_ms: 37min (2,220,000ms) (default)`。单个 `setInterval` 回调体第一个表达式就是 `f.emit("cadence.tick")`（`78921-78922`），**在 `if(H){...skipped...;return}` 重入门之前**；随后 `H=!0; o(d).then(...).finally(()=>H=!1)` 才跑维护环（`o`=runCadenceTick，解构自 `78829`，调用点 `78928`）。故潜意识总线不受维护环 `H` 阻塞。（confirmed）
 - **60s job-scheduler 是另一条定时器**：pid0 里 `A=s({paths,sessionManager})`（`78911`）、`A.start()`（`78915`）单独启动，到期 cron 扫描 `h2` 在 `75279` 起。与 37min 心跳完全解耦，不属维护环。（confirmed；原稿"78908"应为 `78911`）
@@ -837,7 +840,7 @@ route.deliver                                 ← 会话→会话路由投递，
 
 ---
 
-### 论点 4 · 机器真正强制的边界只有两处：契约门 `pL` 与 `disallowedTools`；memory lint 全程只读、契约门控
+### 论点 4 · 机器真正强制的边界只有两处：契约门 `enforceContractGate (pL)` 与 `disallowedTools`；memory lint 全程只读、契约门控
 
 **所以呢：** 自治 agent 的"自我修改"必须区分"提示词约束"（软、模型可违反）与"运行时强制"（硬、不可绕过）。软边界写在提示词；机器强制的关键不变量只落在契约门与工具禁用两处，memory lint 只做只读测量。
 
@@ -926,7 +929,7 @@ memoryDir/
   state/meta-memory-state.json  ← ★ 也不在 Ac 内，属另一路径（meta-memory）
 ```
 
-> 修正：现有文档写"4 个子路径 + memoryDir + boardPath"是自相矛盾的措辞（boardPath 被算了两次）。正确表述 = memoryDir + boardPath（文件）+ 3 个子目录。`fragments/` 与 `state/meta-memory-state.json` **都不在 `Ac` 内**（旧文档只标注了 fragments/，漏标 state/）。
+> 口径：`Ac` 的组成 = memoryDir + boardPath（文件）+ 3 个子目录（entities/topics/effectiveness）；`fragments/` 与 `state/meta-memory-state.json` **都不在 `Ac` 内**。
 
 **A2 · 可达性 BFS 把"效用"算成不动点。** 种子来自 `Pl(e).filter(oL)`（`42929`），其中 `Pl`（`42561`）用手写解析器 `sy`（`42536`）扫 board 上全部 `[[...]]`——`sy` 遇第一个 `]` 即止（`42544`）。`op(e,t)`（`42927`）从种子 BFS 到不动点（`42932`–`42942`），reader `ip`（`42912`）读每个 slug 的 `topics/<slug>.md` + `entities/<slug>.md`。**不在可达集内的 topics 节点 = orphan**，这是整个 lint/orphan 体系的核心几何。
 
@@ -942,7 +945,7 @@ memoryDir/
 
 **B2 · 五类 lint，kind 全部 `.v1`。** 五个调用点（`43713`–`43728`）：
 
-| lint | 调用点→本体 | 产出信号 | 判据要点（含精度修正） |
+| lint | 调用点→本体 | 产出信号 | 判据要点 |
 |---|---|---|---|
 | **board-lint** | `Qie(c,mL)` `43713`→`42803`（逻辑 `dJe` `42867`） | REVISE / SINK / MERGE | 见 B3 |
 | **entity-lint** | `ioe` `43715`→`42979`（`pJe`） | `entity-converge.v1` | entity 缺收敛四段 `roe=["What it is now","Relationship","Open variables","Trend"]`（`43026`）；打分 `kb*1e3+dated`（`42995`） |
@@ -952,19 +955,19 @@ memoryDir/
 
 kind 值全部带 `.v1`（`Kr` 表 `42651`–`42660`）。
 
-**B3 · 各 lint 判据的精度修正**（旧文档过度简化处）：
+**B3 · 各 lint 判据细则**：
 
-- **board-lint（`dJe` `42867`）**：REVISE 过滤 = `trajectory!=='NO-EFF' && cls==='behavioral' && fmt==='legacy' && !(WEAKENING && (REMOVE||DROP))`，partition **硬编码 `'pattern-tracker'`**（`42876`，不经 `cL`）。**修正**：`SINK`（`42880`）与 `MERGE`（`42889`）**也含 `trajectory!=='NO-EFF'` 前置**（旧文档只在 REVISE 提及）。trajectory（STRENGTHENING/NEUTRAL/WEAKENING via `QWe`）与 verdict（PRESERVE/KEEP/REMOVE/REWRITE/SHARPEN/DROP via `tJe`）从 effectiveness 文件解析。
-- **node-lint（`_Je` `43045`）**：`escalated=!reachable`（`soe` `43084`），escalated 时打 `WASTED-COMPUTE`（`43052`）。**修正**：合法 section 由 `gJe`（`43030`–`43031`）判——`Condition`/`Procedure` 恒合法，`References` **仅 groove 合法**（lesson 用 References 也算非法 section）；旧文档"非 Condition/Procedure/References"未区分节点类型。
-- **gap-lint（`loe` `43215`）**：黑名单 `wJe`（`43247`）过滤内部 source kind，只把外部事件当证据。链路：`kJe`（`43127`）列 `var/events/<date>.jsonl` → `xJe`（`43142`）列已有 `fragments/<date>/` → `EJe`（`43156`）按 `o.source?.kind` 过滤黑名单计数（`43178`）→ `TJe`（`43188`）合小时 band。黑名单 `pQe` 在 **`75094`** 复用（`74606` 调用）——"外部 vs 内部事件"是代码库稳定的领域概念。**动态印证（值为时点快照，已漂移）**：机制 confirmed；具体值今日（2026-07-01）活体 `duoduo memory check --dry-run --json` 为 `"gap":{"date":"2026-07-01","bands":[[4,4]]}`（旧文档写的 `2026-06-30 bands=[[19,19]]` 是上一日快照）。
+- **board-lint（`dJe` `42867`）**：REVISE 过滤 = `trajectory!=='NO-EFF' && cls==='behavioral' && fmt==='legacy' && !(WEAKENING && (REMOVE||DROP))`，partition **硬编码 `'pattern-tracker'`**（`42876`，不经 `cL`）。`SINK`（`42880`）与 `MERGE`（`42889`）**也含 `trajectory!=='NO-EFF'` 前置**。trajectory（STRENGTHENING/NEUTRAL/WEAKENING via `QWe`）与 verdict（PRESERVE/KEEP/REMOVE/REWRITE/SHARPEN/DROP via `tJe`）从 effectiveness 文件解析。
+- **node-lint（`_Je` `43045`）**：`escalated=!reachable`（`soe` `43084`），escalated 时打 `WASTED-COMPUTE`（`43052`）。合法 section 由 `gJe`（`43030`–`43031`）判——`Condition`/`Procedure` 恒合法，`References` **仅 groove 合法**（lesson 用 References 也算非法 section）。
+- **gap-lint（`loe` `43215`）**：黑名单 `wJe`（`43247`）过滤内部 source kind，只把外部事件当证据。链路：`kJe`（`43127`）列 `var/events/<date>.jsonl` → `xJe`（`43142`）列已有 `fragments/<date>/` → `EJe`（`43156`）按 `o.source?.kind` 过滤黑名单计数（`43178`）→ `TJe`（`43188`）合小时 band。黑名单 `pQe` 在 **`75094`** 复用（`74606` 调用）——"外部 vs 内部事件"是代码库稳定的领域概念。**动态印证（值为时点快照）**：机制 confirmed；2026-07-01 活体 `duoduo memory check --dry-run --json` 为 `"gap":{"date":"2026-07-01","bands":[[4,4]]}`（具体值随日期漂移）。
 
-**B4 · 每类每 tick 至多一条（`mL=1`）。** `mL=1`（`43775`）是每类 lint 的默认 limit：`dJe`/`ioe`/`soe` 都 `slice(0,n)` 只取**最差 1 条**（help 的 `--limit=N default 1`）。即每 tick 每类最多投一个 worst-first 信号——这是"测量廉价"的核心节流，旧文档未提。
+**B4 · 每类每 tick 至多一条（`mL=1`）。** `mL=1`（`43775`）是每类 lint 的默认 limit：`dJe`/`ioe`/`soe` 都 `slice(0,n)` 只取**最差 1 条**（help 的 `--limit=N default 1`）。即每 tick 每类最多投一个 worst-first 信号——这是"测量廉价"的核心节流。
 
 **B5 · 契约门控 `pL`：只有声明 `consumes` 的分区才收到对应信号。** `pL`（`43609`）分支：partition-absent / self-id-mismatch / `!enabled` → withheld；contract valid → `consumes.has(kind) ? 放行 : 'kind-not-consumed'`；no-contract / parse-fail → 回退 flagFallback（= check flag）。契约解析本体 `uL`（`43474`）返回 5 态（partition-absent / parse-fail / no-contract / self-id-mismatch / valid），`Yie`（`42645`）把 consumes 名规范化补 `.v1`；`fL`（`43565`）把每分区契约缓存进 `e.contracts` Map，同 tick 内 `pL`/`Eoe`/`Toe` 复用同一份，避免反复解析 frontmatter。
 
 **B6 · 前置短路：没有下游读者就不测量。** `Eoe`（`43623`）在跑任何 lint 前遍历所有 `Kr` × `zJe=['pattern-tracker','memory-weaver']`（`43640`），任一 kind 过闸即测量；`if(!a && !r) return`（`43699`）——"有没有订阅者"是是否测量的前置门。
 
-> 修正（`cL` 定位过泛）：旧文档把 `cL`（`43451`）描述为通用"路由"。实际 `cL` **仅两处调用**：orphan-newborn 分区路由（`43339`）和 forget 警告门 `Toe`（`43737`）。**各 lint 信号的 partition 是每类硬编码的**（REVISE/NODE_CONVERGE→pattern-tracker；SINK/MERGE/ENTITY_CONVERGE/SCAN_GAP/ORPHAN_ISLANDS→memory-weaver），并不走 `cL`。`cL` 只决定 lesson-/groove- 孤儿告警投给哪个分区。
+> 注意 `cL`（`43451`）并非通用"路由"：它**仅两处调用**——orphan-newborn 分区路由（`43339`）和 forget 警告门 `Toe`（`43737`）。**各 lint 信号的 partition 是每类硬编码的**（REVISE/NODE_CONVERGE→pattern-tracker；SINK/MERGE/ENTITY_CONVERGE/SCAN_GAP/ORPHAN_ISLANDS→memory-weaver），并不走 `cL`。`cL` 只决定 lesson-/groove- 孤儿告警投给哪个分区。
 
 ---
 
@@ -981,7 +984,7 @@ else age < r              → NEWBORN   （r = newbornHours ?? Jx，Jx=48h：太
 else                      → STALE     （旧且孤立：可删）
 ```
 
-`indeg` 来源 `AJe`（定义在 **`43423`**，调用点 `43274`；旧文档写 `42423` 系行号漂移，已订正）。`$Je` 同时对每个 orphan 现算 `indeg=AJe.get` 与 `referencedBy=NJe`（`43434`，列出具体引用文件），ISLAND note 正文（`CJe` `43398`）就靠 `referencedBy` 生成"referenced-by"清单。**精度修正**：`mtimeMs<=0 → 直接 STALE` 仅当 `indeg=0` 时成立；`indeg>=1` 时无论 age 都判 ISLAND（`43324` 优先级）。
+`indeg` 来源 `AJe`（定义在 **`43423`**，调用点 `43274`）。`$Je` 同时对每个 orphan 现算 `indeg=AJe.get` 与 `referencedBy=NJe`（`43434`，列出具体引用文件），ISLAND note 正文（`CJe` `43398`）就靠 `referencedBy` 生成"referenced-by"清单。**注意优先级**：`mtimeMs<=0 → 直接 STALE` 仅当 `indeg=0` 时成立；`indeg>=1` 时无论 age 都判 ISLAND（`43324`）。
 
 **C2 · 破坏性遗忘（`goe` `43345`）只对 STALE，且双 flag AND。** `gL`（`43656`–`43658`）：`forget = ALADUO_EXP_MEMORY_FORGET && check`（双 flag AND）；`43684` 警告文案逐字："FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE)"。`goe` 仅对 STALE（`43346`）。
 
@@ -994,7 +997,7 @@ git -c user.name=aladuo -c user.email=aladuo@local commit -m <msg> -- <files>   
 失败 → git reset --quiet -- <files>  +  git checkout -- <files>       (43372–43377)
 ```
 
-> 修正（commit 命令语义）：`-c` 是 **git 顶层 config 开关（位于子命令 `commit` 之前）**，非 `commit -c`（后者 = 复用某提交的 message）。旧文档写成 `git commit -c user.name=...` 位置与语义均有误。`jJe`（`43461`）生成 commit message，confirmed。
+> 注意 commit 命令语义：`-c` 是 **git 顶层 config 开关（位于子命令 `commit` 之前）**，非 `commit -c`（后者 = 复用某提交的 message）。`jJe`（`43461`）生成 commit message，confirmed。
 
 **C4 · "不可警告即不可遗忘"。** forget 前 `Toe(s,cL(p))`（`43737`）：STALE 节点若其目标分区**不消费 orphan-newborn 信号**则 `sparedUnwarnable`——连警告都收不到就永远不能被静默删。
 
@@ -1039,7 +1042,7 @@ intuition-updater   编辑某 board 行前【必须先读】该行的 effectiven
 | board 种子 `Pl.filter(oL)`；`sy` 遇首个 `]` 即止 | 手写 `[[..]]` 扫描器 | daemon `42561` / `42536`（`42544`） | confirmed |
 | BFS `op` 到不动点；`ip` 仅 topics/entities 存在才读 effectiveness | `i.length>0` 守卫 | daemon `42927`(`42932`–`42942`) / `42912`(`42918`) | confirmed |
 | orphan 三态优先级 indeg≥1→ISLAND / age<r→NEWBORN / else STALE | `43323`–`43324`，`Jx=48`、`poe=3600*1e3` | daemon `43311`/`43261`(`43469`) | confirmed |
-| indeg 源 `AJe` 定义在 43423（非 42423） | 行号漂移订正 | daemon `43423`（调用 `43274`） | confirmed |
+| indeg 源 `AJe` | 定义 `43423`、调用点 `43274` | daemon `43423` | confirmed |
 | mtimeMs≤0→STALE 仅当 indeg=0；indeg≥1 恒 ISLAND | 判定优先级 | daemon `43324` | confirmed |
 | 主循环 `UJe`=runMemoryCheckTick，五 lint 逐个 `$l` try/catch | 导出 `43646` | daemon `43679`(`43750`) | confirmed |
 | 投递执行器是 `xoe`；already-pending/--force 在其内 | mkdir+write+分类 | daemon `43571`(`43578`/`43598`/`43589`–`43604`) | confirmed |
@@ -1081,16 +1084,25 @@ intuition-updater   编辑某 board 行前【必须先读】该行的 effectiven
 3. **`DISABLE_ADAPTIVE / DISABLE_THINKING / MAX_THINKING_TOKENS` 的消费方（未证实推测）**：这些 env 在 daemon 中仅出现在错误提示串里（各 1 次），推断 duoduo 自身不消费、只是透传给底层 Claude Code 二进制/SDK 的建议开关，未在 SDK 侧直接验证。
 4. **部分 RPC 方法的活体探测**：控制面方法全集从字面量提取（附录 B），其中 `spine.tail` / `usage.get` / `system.status` 已活体验证返回，其余 handler 存在性以代码字面量为准。
 
-> **本轮 review 已订正的实质结论**（不再是开放项，此处留痕以便对照上一版）：
-> - **§1**：原报告的"Claude/Codex 两套并行装配器 + 双 `Contents of` 头嵌套 + Codex developerInstructions 携带时间戳破缓存"——沿真实调用链核验为**不成立**：两路共用 `WT` 装配器，Codex 仅多套一层 `<aladuo:system-context>` 壳，那两处"漂移"实为不可达死代码。上一版开放项中"Codex 侧缓存反模式"据此**撤销**。
-> - **§2**：修正了 `accepted` 门控 / 抢占边界处一处布尔倒置，并把抢占边界补全为 `accept/tool_use/tool_result` 三态。
-> - **§3**：dequeue 原地复用的行号由误标的 `72905-72914`（实为 `Ne` 的 soft-preempt 日志）订正为 `72091-72125`。
+> 复核状态：全文已于 2026-07-02 用还原源码（真名 + 可读源）逐节复核，8 节机制主张全部 **CONFIRMED**（详见还原源码 [`reconstruction/first-party/`](../reconstruction/first-party/) 与真名表 [`RENAME_TABLE.md`](../reconstruction/maps/RENAME_TABLE.md)）。
 
 
 ---
 
 ## 附录 A：复核索引（关键 file:line 速查）
 
+**A.0 短名 ↔ 真名速查**（从还原源码的 `__export` 恢复；*inferred* 标注见 [`RENAME_TABLE.md`](../reconstruction/maps/RENAME_TABLE.md)，可读源码在 [`first-party/`](../reconstruction/first-party/)）：
+
+**§1 认知装配**：`WT`=buildSystemPromptForChannelConfig、`b_`=resolveMetaPromptText、`tle`=renderJobMissionBlock、`ole`=extractSystemPromptAppend、`fde`=buildTransientUserBlocks、`Ype`=transcludeBroadcastBoard
+**§2 Turn/Drain**：`Xc`=createAgentSdkAdapter、`IU`=batchDrainItems、`oR`=handleDrainError、`_l`=appendDrainRecord、`yl`=summarizeDrainRecords、`ile`=computeCodexTurnUsage
+**§3 Session**：`nQe`=createSessionManager、`_Qe`=createMetaSession、`MX`=rehydrateSessionState、`cde`=drainSessionMailbox、`u2`=computeInstructionsFingerprint、`l2`=runInstructionsFingerprintGuard、`vQe`=sweepTombstonedSessionRecords（`ve`/`Ne`=spawn/wakeSessionActor 在模块作用域内，保留短名）
+**§4 Spine**：`Xt`=createSpineEvent、`Qt`=atomicAppendEvent、`Tqe`=atomicWriteFileSync、`nl`=readEventByIdSeek、`ma`=advanceConsumerWatermark、`YX`=computeDedupKey
+**§5 Gateway**：`Sne`=appendBeforeExecuteGateway
+**§6 Cadence**：`SQe`=runCadenceTick、`bQe`=enqueueCadenceItem、`_me`=mergeCadenceInbox、`vme`=parseCadenceQueue、`wQe`=markCadenceItemsDone、`h2`=scanAndSpawnDueJobs、`TQe`=createJobScheduler、`IQe`=createOutboxDeliveryManager
+**§7 记忆**：`Ac`=resolveMemoryDirs、`op`=walkReachableMemory、`ip`=collectMemoryLinks、`Pl`=resolveMemoryLinkTargets、`moe`=detectOrphanMemory、`dJe`=runBoardLint、`loe`=runGapLint、`pL`=enforceContractGate、`cL`=routeContractDecision、`goe`=forgetMemoryEntry、`UJe`=runMemoryCheckTick
+**§8 运行时抽象**：`S_`=createCodexAppServerAdapter、`sle`=buildBaseInstructions、`ale`=buildDeveloperInstructions、`eu`=checkCodexAvailability、`Gp`=resolveCodexSandbox、`cU`=ensureAgentsMdSymlink、`GWe`=resolveRuntimePaths、`AKe`=initializeRuntime
+
+**A.1 机制 → file:line**
 
 | 机制 | 位置 |
 |---|---|
@@ -1100,7 +1112,7 @@ intuition-updater   编辑某 board 行前【必须先读】该行的 effectiven
 | 广播板包装 Jue/H9e/V9e | `57196-57206` / `57708` |
 | 广播板 transclusion | `71601-71643` (Ype/Xpe/DXe)，NXe `71750` |
 | per-turn 瞬态注入 | `61156-61235` (fde) |
-| Codex 装配（**已订正**） | 复用 `WT` 输出，经 `ole` 桥接抽字符串 `57846`；`sle`/`ale`（`57850-57880`）在当前路径为不可达死代码（构造 `S_` 未传 instructions），详见 §1 论点三 |
+| Codex 装配 | 复用 `WT` 输出，经 `ole` 桥接抽字符串 `57846`；`sle`/`ale`（`57850-57880`）在当前路径为不可达死代码（构造 `S_` 未传 instructions），详见 §1 论点三 |
 | 潜意识分区注入 | `74644-74658` (gQe/yQe) |
 | 事件封装/原子写 | `30948`/`30934` (xqe)/`30955` (Tqe)/`30992` (Qt) |
 | append-before-execute | `76089/76123/76134` (Sne) |
@@ -1109,13 +1121,13 @@ intuition-updater   编辑某 board 行前【必须先读】该行的 effectiven
 | watermark ma | `31852` |
 | rehydrate MX | `31307-31347` |
 | spine.tail Hie | `77319-77363` |
-| 记忆根 Ac | `42522`（4 子路径） |
+| 记忆根 Ac | `42522`（memoryDir + boardPath + entities/topics/effectiveness） |
 | 可达性 op/ip/Pl | `42927`/`42912`/`42561` |
 | orphan 三态 moe | `43324`（poe=3600e3, Jx=48） |
 | lint 主循环 UJe | `43679`，短路 Eoe `43623` |
 | 投递门控 pL | `43609`，路由 cL `43451` |
 | 遗忘 goe | `43345-43378`，jJe `43461`，双 flag `43684` |
-| cadence 间隔 | `76383`（2220000ms） |
+| cadence 间隔（运行时常量） | `78916` `Cme("ALADUO_CADENCE_INTERVAL_MS",222e4,1e3)`；`76383` 仅为 status 展示串 `"2220000"` |
 | 模态标签 | `meta-prompt.md:162-194` |
 
 ---
@@ -1150,7 +1162,7 @@ system.cadence_tick system.config system.runtime.info system.shutdown system.sta
 usage.get 
 ```
 
-> 活体已验证返回：`spine.tail`、`usage.get`、`system.status`。其余以字面量为准（见 §9.5）。
+> 活体已验证返回：`spine.tail`、`usage.get`、`system.status`。其余以字面量为准（见 §9 第 4 条）。
 
 
 ---

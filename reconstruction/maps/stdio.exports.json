@@ -1,0 +1,10 @@
+{
+  "buildInkTimeline": "Jq",
+  "formatInkDateKey": "Yx",
+  "formatInkTime": "Zq",
+  "main": "Rte",
+  "parseStdioCliOptions": "bte",
+  "runInkChatbot": "hte",
+  "runStdioChatbot": "Tte",
+  "shouldAppendFinalAssistantReply": "eV"
+}

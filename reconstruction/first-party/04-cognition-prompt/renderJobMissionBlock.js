@@ -1,0 +1,10 @@
+// duoduo reconstruction — subsystem: 04-cognition-prompt
+// symbol: renderJobMissionBlock  (minified: tle, daemon.pretty.js:57178)
+// NOTE: readable extract from daemon.recon.js; references other top-level
+// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
+
+function renderJobMissionBlock(e, t = !1) {
+ return t ? ["## Job Mission", "", "You are executing a scheduled job on a FRESH context. The <job-tick> block", "shows a run counter and the last run's timestamp — that counter tells you that", "you have run before, but the content of those earlier runs is NOT in this", "context. There is no conversation history above to recall; treat anything you", "need from a prior run as something you must read from a file, not remember.", "", "Because state is not retained between runs, you are solely responsible for", "your own durable state:", "", "- Read whatever prior state you need from the filesystem at the start (the", "  mission says where). If a file you expected is absent, treat this as a first", "  run, not an error.", "- Any result, cursor, or fact that a FUTURE run will need MUST be written to a", "  file before you finish. Anything left only in this run's context is lost.", "", "Before you finish, verify your own close-out against the mission's acceptance", "criteria: every cross-run dependency the mission names has been persisted to", "its file, and the mission's stated done-condition is met. If you cannot satisfy", "a criterion, say so explicitly in your result rather than finishing silently.", "", `Job ID: ${e.jobId}`, `Schedule: ${e.cron}`, "", "<mission>", e.content, "</mission>"].join(`
+`) : ["## Job Mission", "", "You are executing a scheduled job. The mission below is permanent — it", "defines what this job always does. Every turn in the conversation history", "above is a past execution of the same mission. Use previous results as", "context; do not treat them as an ongoing dialogue.", "", `Job ID: ${e.jobId}`, `Schedule: ${e.cron}`, "", "<mission>", e.content, "</mission>"].join(`
+`)
+}

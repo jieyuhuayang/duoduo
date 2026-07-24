@@ -1,11 +1,11 @@
 # duoduo 项目深度架构分析
 
 > 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` v0.5.8（npm 运行时）
-> 分析日期：2026-07-01
+> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新）
 > 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
 > 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
 >
-> **姊妹篇**：本文是**系统级/部署级**架构分析；如需 **agent 内部认知与运行逻辑**（提示词装配、drain 循环、事件溯源、session actor、cadence/潜意识引擎、记忆系统、runtime 抽象——均从 minified 运行时逆向 + 对抗验证）见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)。
+> **姊妹篇**：本文是**系统级/部署级**架构分析。入门与设计思路请先读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（PM 友好、按设计问题组织）；逐机制的 agent 内部证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
 
 ---
 
@@ -26,7 +26,8 @@
 - 因此 **"部署"= `npm install -g @openduo/duoduo` 并运行 daemon**，而非"克隆源码 + 构建"。
 - License 标注为 `Private. All rights reserved.`，名称 "**open**duo" 是一句自嘲式玩笑（README 原文："we are called openduo and we don't publish source either. Respect to OpenAI."）。
 
-> 实践意义：分析架构靠的是**官方文档 + 运行时可观测行为（文件系统、WAL、RPC、CLI）**，而不是阅读源码。本文正是这样做的。
+> 实践意义：本文的系统级主张靠**官方文档 + 运行时可观测行为（文件系统、WAL、RPC、CLI）**取证。
+> **补充（2026-07-02）**：minified 运行时其后已被**还原为可读、且经证明可同样运行的源码**（见 [`../reconstruction/`](../reconstruction/)）——从 esbuild `__export` 助手恢复了 702 个真实符号名，并以 47 万节点 AST 全等 + 隔离实启双重证明等价。因此**内部机理主张现在有源码级证据**，不再只依赖黑盒观测；本文的部署/可观测结论与还原源码相互印证。
 
 ---
 
@@ -195,7 +196,7 @@ subconscious/
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
   - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
   - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter，**不像 Codex 每回合 spawn 外部 CLI**。
+- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧则是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（daemon.pretty.js:58531，详见 INTERNALS §8）——两侧都不是逐回合 spawn。
 - 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
 
 ---
@@ -233,7 +234,7 @@ Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信。实测可
 | `job.list` | 任务列表 | （dashboard 使用） |
 | `document.get` | 文档读取 | （dashboard 使用） |
 
-> 注意：没有 REST 风格的 `/api/events`（实测 404）。Dashboard 另有 `127.0.0.1:20234/save` 用于本地保存类操作。
+> 注意：没有 REST 风格的 `/api/events`（实测 404），也没有独立的 dashboard save-api 端口——20233 是唯一控制面端口（三 bundle grep 无 20234 + 活体探测无响应，INTERNALS §5 已证）。
 
 ### 10.3 CLI 诊断命令
 `duoduo daemon status|config|logs`、`duoduo session list|alias|notify|compact|archive`、`duoduo channel ... status|logs|doctor`、`duoduo memory check|...`、`duoduo prompts`。
@@ -332,7 +333,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 | onboard 选择 | `~/.config/duoduo/config.json` |
 | Dashboard | `http://localhost:20233/dashboard` |
 | RPC | `POST http://localhost:20233/rpc`（JSON-RPC 2.0） |
-| 默认端口 | 20233（daemon），20234（dashboard save-api） |
+| 默认端口 | 20233（daemon，唯一控制面端口） |
 | 默认 cadence | 37 min |
 | 升级 | `npm i -g @openduo/duoduo@latest && duoduo daemon restart` |
 
