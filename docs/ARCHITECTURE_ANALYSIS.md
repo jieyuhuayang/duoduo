@@ -1,6 +1,6 @@
 # duoduo 项目深度架构分析
 
-> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` v0.5.8（npm 运行时）
+> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` v0.6.1（npm 运行时）
 > 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新）
 > 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
 > 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
@@ -196,7 +196,7 @@ subconscious/
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
   - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
   - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧则是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（daemon.pretty.js:58531，详见 INTERNALS §8）——两侧都不是逐回合 spawn。
+- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧则是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (V_)`，daemon.pretty.js:57391，详见 INTERNALS §8）——两侧都不是逐回合 spawn。
 - 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
 
 ---
@@ -266,7 +266,7 @@ tar -xf node.tar.xz -C ~/.local
 export PATH="$HOME/.local/node-v22.17.0-linux-x64/bin:$PATH"   # 已写入 ~/.bashrc
 
 # 2) 安装 duoduo 运行时（250 包，~34s）
-npm install -g @openduo/duoduo            # → v0.5.8
+npm install -g @openduo/duoduo            # → v0.6.1
 
 # 3) 非交互式 onboard（host 模式 + 本机 Claude Code 认证）
 export DUODUO_NODE_BIN="$HOME/.local/node-v22.17.0-linux-x64/bin/node"
@@ -281,7 +281,7 @@ duoduo onboard
 #      ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local
 
 # 5) 启动并验证
-duoduo daemon start          # → healthy, pid, runtime_mode=host, v0.5.8
+duoduo daemon start          # → healthy, pid, runtime_mode=host, v0.6.1
 duoduo daemon status         # → 4 个潜意识分区已加载
 curl -s http://localhost:20233/dashboard   # → HTTP 200
 printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端通路）
@@ -295,7 +295,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 
 | 验证项 | 结果 |
 |--------|------|
-| daemon 健康 | ✅ `healthy: yes`，v0.5.8，host 模式 |
+| daemon 健康 | ✅ `healthy: yes`，v0.6.1，host 模式 |
 | 端到端对话 | ✅ stdio 发消息→模型正确回复 `DUODUO_OK_42` |
 | WAL 事件溯源 | ✅ `channel.attached→channel.message→agent.result` 落盘 |
 | Dashboard | ✅ `http://localhost:20233/dashboard` HTTP 200 |

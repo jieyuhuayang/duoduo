@@ -25,7 +25,6 @@
   "writeHostModelEnvConfig": "10-runtime-host",
   "AgentSdkPromptNotAcceptedAbortError": "06-runtime-claude",
   "AgentSdkTurnInterruptedError": "06-runtime-claude",
-  "DEFAULT_DISALLOWED_TOOLS": "06-runtime-claude",
   "__resetClaudeProbeCacheForTest": "06-runtime-claude",
   "__setClaudeVerifierForTest": "06-runtime-claude",
   "buildSystemPromptForChannelConfig": "04-cognition-prompt",
@@ -101,5 +100,10 @@
   "runGapLint": "09-memory",
   "enforceContractGate": "09-memory",
   "routeContractDecision": "09-memory",
-  "forgetMemoryEntry": "09-memory"
+  "forgetMemoryEntry": "09-memory",
+  "CLAUDE_CORE_TOOLS": "06-runtime-claude",
+  "splitDisallowedToolsForClaude": "06-runtime-claude",
+  "PARTITION_CORE_TOOLS": "08-cadence-subconscious",
+  "computeBoardLayerHash": "09-memory",
+  "computeNonBoardInstructionsFingerprint": "03-session-actor"
 }

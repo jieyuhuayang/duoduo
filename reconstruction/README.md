@@ -1,6 +1,6 @@
 # duoduo 源代码还原（Source Reconstruction）
 
-`@openduo/duoduo` v0.5.8 以 **esbuild `--minify` 压缩后的 JavaScript** 发布（作者立场：“代码是给 agent 读的，压缩只为省带宽”）。本目录把这套压缩产物**还原成可读、且经证明能同样运行**的源代码。
+`@openduo/duoduo` v0.6.1 以 **esbuild `--minify` 压缩后的 JavaScript** 发布（作者立场：“代码是给 agent 读的，压缩只为省带宽”）。本目录把这套压缩产物**还原成可读、且经证明能同样运行**的源代码。
 
 ## 一句话结论
 

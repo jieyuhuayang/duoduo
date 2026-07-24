@@ -11,7 +11,7 @@
 | 论点 | 手段 | 保证 |
 |------|------|------|
 | **一 · 排版与拆包不损语义** | js-beautify（只改空白）+ AST 字节切分拆包 | 拼接可 `cmp` 字节还原 → 拆分零损失 |
-| **二 · 名字大多是恢复而非编造** | 抽取 esbuild `__export(exports,{原名:()=>短名})` | daemon 恢复 702 个真实导出名，与既有逆向交叉印证 |
+| **二 · 名字大多是恢复而非编造** | 抽取 esbuild `__export(exports,{原名:()=>短名})` | daemon 恢复 712 个真实导出名，与既有逆向交叉印证 |
 | **三 · 改名与运行被独立证明** | Babel 作用域安全改名 + 47 万节点 AST 全等 + 隔离实启 | 还原产物 = 出厂产物（同一 AST），且实机 RPC/WAL/cadence 正常 |
 
 ---
@@ -33,7 +33,7 @@
 **所以呢**：还原后能看到 `buildSystemPromptForChannelConfig`、`createSessionManager`、`runCadenceTick` 这些真名，绝大多数是从产物里**读出来**的，不是我起的。
 
 - **来源**：esbuild 为每个 ESM 模块生成 `__export(exports, { 导出名: () => 本地短名 })`。`tools/exports_map.mjs` 自动识别该助手（daemon=`jn`、cli=`go`）并抽取映射。
-- **产出**：daemon **702**、cli **726**、stdio **8** 个真实符号名。其中首方（duoduo 自研）子集经关键词过滤得到 daemon 78 个权威名，例如：
+- **产出**：daemon **712**、cli **736**、stdio **9** 个真实符号名。其中首方（duoduo 自研）子集经关键词过滤得到 daemon 82 个权威名，例如：
 
   ```
   WT  → buildSystemPromptForChannelConfig      Xc  → createAgentSdkAdapter
@@ -50,8 +50,8 @@
 
 **所以呢**：把短名改成真名之后，还原产物与出厂产物仍是**同一个程序**——这不是断言，是两类独立证据。
 
-- **作用域安全改名**（`tools/rename.mjs`）：用 Babel 绑定分析定位某顶层绑定的**精确引用点**（声明 + 全部 referencePaths + 重赋值），只在这些字节区间做文本替换，**保留 beautify 排版**；对内层同名变量零误伤；目标名有冲突则跳过。daemon 应用 101 个改名 / 387 处引用，**0 冲突**。
-- **静态全等证明**（`tools/ast_equiv.mjs`）：并行遍历 `*.pretty.js` 与 `*.recon.js` 两棵 AST，逐节点要求类型/字面量全等、标识符差异恰好等于改名表。daemon **474,559 节点全等、387 处改名命中**；cli/stdio 同样 `SEMANTICALLY EQUIVALENT`。**这覆盖 100% 代码，强于“能启动”。**
+- **作用域安全改名**（`tools/rename.mjs`）：用 Babel 绑定分析定位某顶层绑定的**精确引用点**（声明 + 全部 referencePaths + 重赋值），只在这些字节区间做文本替换，**保留 beautify 排版**；对内层同名变量零误伤；目标名有冲突则跳过。daemon 应用 105 个改名 / 409 处引用，**0 冲突**。
+- **静态全等证明**（`tools/ast_equiv.mjs`）：并行遍历 `*.pretty.js` 与 `*.recon.js` 两棵 AST，逐节点要求类型/字面量全等、标识符差异恰好等于改名表。daemon **482,818 节点全等、409 处改名命中**；cli/stdio 同样 `SEMANTICALLY EQUIVALENT`。**这覆盖 100% 代码，强于“能启动”。**
 - **实机运行**：还原 daemon 在隔离 HOME + 备用端口 20333 实启——RPC `system.status` 正确返回（cadence layered/2220000ms、memory-weaver/pattern-tracker 分区及其 contract 与 consumes）、生成 WAL/锁/status 文件、SIGTERM 干净退出；cli/stdio 的 `--help` 与出厂**逐字节一致**。完整记录见 [`../reconstruction/VERIFICATION.md`](../reconstruction/VERIFICATION.md)。
 
 ---
@@ -61,7 +61,7 @@
 | 你想要 | 去哪 |
 |--------|------|
 | **能跑的还原源码** | `reconstruction/recon/{daemon,cli,stdio}.recon.js` |
-| **好读的自研逻辑** | `reconstruction/first-party/`（101 个函数，按 11 子系统分文件，带真名与原行号） |
+| **好读的自研逻辑** | `reconstruction/first-party/`（105 个函数，按 11 子系统分文件，带真名与原行号） |
 | **短名↔真名对照** | `reconstruction/maps/RENAME_TABLE.md` |
 | **全部恢复的导出名** | `reconstruction/maps/*.exports.json` |
 | **自研/第三方分类** | `reconstruction/maps/daemon.classification.json` |
@@ -69,4 +69,4 @@
 
 ## 方法可迁移性
 
-本流水线不依赖 duoduo 的任何特有约定，适用于任何 **esbuild 打包** 的 minified Node 产物：结构化识别包装助手 → 字节无损拆包 → `__export` 恢复导出名 → Babel 作用域安全改名 → AST 全等自证。全部工具在 `reconstruction/tools/`（8 个脚本，纯 Babel，无外部服务）。
+本流水线不依赖 duoduo 的任何特有约定，适用于任何 **esbuild 打包** 的 minified Node 产物：结构化识别包装助手 → 字节无损拆包 → `__export` 恢复导出名 → Babel 作用域安全改名 → AST 全等自证。全部工具在 `reconstruction/tools/`（12 个脚本，纯 Babel，无外部服务；含跨版本升级用的结构指纹匹配 `fingerprint_match.mjs`、字符串锚点定位 `locate_by_anchor.mjs`、行号/短名重映射 `anchor_remap.mjs` 与改名表生成 `gen_rename_table.mjs`）。
