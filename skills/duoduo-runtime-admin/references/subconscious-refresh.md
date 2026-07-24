@@ -232,8 +232,3 @@ Abort and leave the kernel untouched.
 `git clone --branch` will fail cleanly. Ask the user for a valid
 tag. Tags are listed at
 <https://github.com/openduo/duoduo/releases>.
-
-**Kernel path is inside a container.**
-The refresh still works, but commands must run inside the container
-shell (`duoduo container:shell` or equivalent). The host file
-system's git and the container's kernel git are different repos.

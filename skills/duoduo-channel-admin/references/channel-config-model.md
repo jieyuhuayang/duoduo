@@ -24,33 +24,71 @@ Resolve `kernel_dir` and `runtime_dir` with `duoduo daemon config`.
 - `time_gap_minutes`
 - `runtime`
 - `stream`
-- `allowedTools`
-- `disallowedTools`
+- `allowedTools` — SDK permission auto-approve list; does NOT add tools to
+  the model's surface
+- `disallowedTools` — blocks MCP tools (`mcp__server` / `mcp__server__Tool`
+  entries); built-in tool names here are deprecated no-ops on v0.5.10+
 - `additionalDirectories`
+- `claude.tools` (nested, v0.5.10+) — extra built-in tools added onto the
+  core allowlist; see below
 
-## Default-disabled tools
+## Built-in tool surface (v0.5.10+: allowlist)
 
-These are disabled by default for every channel session (headless daemon):
-`WebSearch`, `WebFetch`, `AskUserQuestion`, `EnterPlanMode`, `ExitPlanMode`,
-`EnterWorktree`. A disabled tool surfaces to the model as unavailable, not as
-policy — so an agent told to search the web typically loops WebSearch → WebFetch
-→ `curl` → "no internet" rather than reporting it. Check tool config before
-treating that as a defect.
+Since v0.5.10 the claude runtime exposes a fixed **allowlist core** to every
+session instead of "everything minus a denylist":
 
-Re-enable by adding to `allowedTools` (kind or instance descriptor):
+`Bash, Read, Write, Edit, Grep, Glob, Agent, TaskOutput, TaskStop, Skill,
+ToolSearch, TaskCreate, TaskGet, TaskUpdate, TaskList, SendMessage`
+
+Everything else the SDK ships (WebSearch, WebFetch, TodoWrite, Workflow,
+Monitor, Cron*, ScheduleWakeup, plan/worktree tools, …) is absent by default.
+Add extras per kind or per instance with the nested `claude.tools` key:
 
 ```yaml
 ---
-allowedTools:
-  - WebSearch
-  - WebFetch
+claude:
+  tools:
+    - WebSearch
+    - WebFetch
 ---
 ```
 
-`allowedTools` is an override on the default-deny set, **not** an exclusive
-whitelist — every other tool stays available, so list only what you re-enable.
-Read at session creation, not hot-reloaded: restart the daemon (or `/setup` for
-Feishu) after editing.
+Semantics:
+
+- **Additive-only.** Kind and instance lists merge by union on top of the
+  core; config can add tools, never remove core ones.
+- **Applies at SDK subprocess (re)spawn** — typically the session's next
+  turn after the edit (the daemon detects the config change and respawns);
+  no daemon restart needed. Codex-runtime sessions ignore it entirely
+  (codex built-ins cannot be restricted — that is why the key is namespaced
+  `claude:`).
+- **Inspect, don't guess**: `duoduo session config <target> get` shows a
+  read-only `claude_tools` block (effective surface + which layer added
+  what). It is not settable through `session.config` — edit the descriptor
+  file.
+
+An absent tool surfaces to the model as unavailable, not as policy — an agent
+told to search the web typically loops WebSearch → WebFetch → `curl` → "no
+internet" rather than reporting it. Check the effective surface before
+treating that as a defect.
+
+### Migrating from ≤ v0.5.9 (denylist era)
+
+Older versions disabled `WebSearch`, `WebFetch`, `AskUserQuestion`,
+`EnterPlanMode`, `ExitPlanMode`, `EnterWorktree` and let `allowedTools`
+re-enable them. On v0.5.10+:
+
+- `allowedTools: [WebSearch]` no longer re-enables anything — move the name
+  to `claude.tools`.
+- `disallowedTools: [<built-in>]` no longer blocks anything (a core tool
+  listed there comes BACK). `disallowedTools` remains the lever for blocking
+  MCP tools only.
+
+Both dead recipes are self-announcing: the daemon logs a warning at every
+session subprocess spawn naming the stale entries and pointing at
+`claude.tools`. When diagnosing "tool missing / tool unexpectedly available"
+after an upgrade, check the daemon log for `[claude-sdk]` warnings and run
+`duoduo session config <target> get` to see the effective surface.
 
 ### v0.5+ additions
 

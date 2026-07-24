@@ -70,3 +70,20 @@ visible to the daemon.
 | `/model reset` timing | next turn | next message |
 | Invalid id detection | next turn reply | next turn reply |
 | Session disruption on switch | none | none |
+
+## Related: `/effort` (a separate, independent axis)
+
+`/model` chooses *which* model runs; `/effort` chooses *how hard* it
+reasons (`low | medium | high | xhigh`). They are independent per-session
+runtime knobs — set either without touching the other. Two differences
+worth calling out against `/model`:
+
+- **Timing**: an effort change applies **live** on Claude (immediately,
+  no next-turn wait) and from the **next message** on Codex — whereas a
+  `/model` change is always next-turn / next-message on both runtimes.
+- **Runtime flips**: the four effort levels are valid on both runtimes,
+  so switching a session's runtime with `/model` never strands or resets
+  the effort setting.
+
+See the `/effort` section of [slash-commands.md](slash-commands.md) for
+the full syntax, the level vocabulary, and reset semantics.

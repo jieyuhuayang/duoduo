@@ -104,7 +104,7 @@ Read [references/usage-archive.md](references/usage-archive.md) for
 the verified `find -mtime +N | xargs mv` recipe, recovery, and the
 race-window note.
 
-## Slash Commands (`/compact`, `/undo`, `/model`)
+## Slash Commands (`/compact`, `/undo`, `/model`, `/effort`)
 
 Chat-level history controls landed in v0.5.2: `/compact` shrinks the
 context window in place, `/undo [N]` rolls back the last `N`
@@ -121,6 +121,13 @@ and what to tell a confused user.
 Read [references/model-switching.md](references/model-switching.md)
 for syntax, Claude vs Codex timing differences, and how to recover
 from an invalid model id.
+
+`/effort` sets how hard the model reasons for a session
+(`low | medium | high | xhigh`) — an independent axis from `/model`. It
+applies live on Claude, from the next message on Codex, and stays in
+effect across a `/model` runtime flip (the levels are valid on both
+runtimes). Invalid values are rejected up front. See the `/effort`
+section of [references/slash-commands.md](references/slash-commands.md).
 
 ## Session Management (`duoduo session …`)
 

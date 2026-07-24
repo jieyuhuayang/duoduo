@@ -2,6 +2,159 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.6.1] - 2026-07-22
+
+This patch release fixes two long-running conversation stalls, makes
+background-worker completion delivery single-owner, validates scheduled jobs
+before they are persisted, and updates the bundled Claude runtime plus
+transitive security fixes.
+
+### Fixes
+
+- **Busy conversations no longer wedge after a mid-turn message.** duoduo now
+  admits only one conversational turn at a time and routes later input through
+  an explicit steering lane, so a message folded into an active Claude turn
+  cannot leave the session permanently busy with no reply.
+- **Background Agent completion has one conversation owner.** Claude's native
+  completion continuation is now the only path that speaks into the
+  conversation. duoduo records the lifecycle event durably without creating a
+  duplicate callback turn, avoiding duplicate answers and subprocess restarts
+  that could interrupt sibling workers.
+- **Scheduled jobs fail loudly instead of silently never firing.** `@in` and
+  `@every` now accept composite durations such as `2h30m` and `1d6h4m`.
+  Invalid cron strings, malformed durations, and delays outside the
+  representable time range are rejected when the job is created.
+
+### Dependencies and security
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.217 (Claude Code
+  v2.1.217), pinned to an exact version. The upstream fix restores reliable
+  completion notifications for multiple concurrent background Bash tasks, so
+  duoduo's temporary Bash-to-Agent redirect has been removed.
+- **Transitive dependency advisories patched** for Hono's Node server,
+  `body-parser`, `brace-expansion`, `fast-uri`, and `protobufjs`. The release
+  dependency tree audits with zero known advisories.
+
+### Project
+
+- Added OpenDuo editorial illustration assets.
+
+## [v0.6.0] - 2026-07-15
+
+duoduo now runs in one place — on your machine, as a host daemon. The
+never-deployed container runtime is gone, along with the `/cd` command. This
+release also adds a per-session reasoning-effort switch, closes a Feishu
+secret-logging leak, and hardens background-task notifications, session
+archiving, and outbox ordering. Bundled Claude runtime updated.
+
+### Breaking changes
+
+- **Container mode is removed.** The daemon runs only in host mode now. The
+  `duoduo container` subcommand, the container onboarding branch, and all
+  container-mode infrastructure are gone; onboarding no longer asks which
+  runtime mode to use. If you onboarded before v0.6, nothing changes — you
+  were already on the host daemon. Fresh installs go straight to host setup.
+- **The `/cd` command is removed.** The in-session workspace-navigation
+  command no longer exists. A session's working directory is fixed when the
+  session is created; start a new session in the directory you want instead.
+
+### Highlights
+
+- **`/effort` — per-session reasoning-effort switch.** Set how hard the model
+  thinks for a conversation without changing the model: send `/effort high`
+  (or `low` / `medium` / `max`) in any session. Applies live to an active
+  session and persists for future turns. See the `duoduo-runtime-admin` skill.
+
+### Fixes
+
+- **Feishu no longer writes the app secret to its log.** The Lark SDK was
+  logging the configured `App Secret` in plaintext to the channel plugin log;
+  it is now suppressed. If your Feishu plugin logs predate v0.6, rotate the
+  secret and prune the old logs.
+- **Feishu "read but no reply" is fixed.** When finalizing a streaming card
+  failed, the error was swallowed and the reply never arrived until a
+  restart. The failure now propagates so the static-message fallback fires
+  and the user still gets the answer.
+- **Background-task and worker completion notifications are scoped
+  correctly.** A long-running command promoted to the background, or a
+  finished subagent, no longer floods the top-level conversation with
+  bookkeeping turns or double-posts the same completion. Notification
+  guidance also stops the model from silently skipping a reply it hasn't
+  actually delivered.
+- **Session archiving is safer.** Archiving now refuses unless the session is
+  provably empty of pending work (checking every shape of in-flight work),
+  ignores channel placeholder actors, and treats the archive marker as a real
+  "about to disappear" signal.
+- **Outbound delivery preserves emit order.** The per-session outbox is now
+  drained one record at a time and serialized, so a channel socket sees
+  replies in the order they were produced.
+- **Drain errors surface immediately** instead of being stranded until the
+  next tick.
+
+### Dependencies
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.210 (Claude Code
+  v2.1.210), pinned to an exact version.
+
+## [v0.5.10] - 2026-07-09
+
+This release adds idle auto-compact for channel sessions, switches the
+built-in tool surface from a denylist to an allowlist, and fixes a Feishu
+card-anchoring bug plus a background-turn double-reply. Bundled Claude
+runtime updated.
+
+### Highlights
+
+- **Idle auto-compact for channel sessions**. A channel session that has sat
+  idle past a configurable threshold and grown past a token floor now
+  silently runs `/compact` on its next turn — no manual `/compact`, no
+  surprise cost spike from a stale prompt cache. Off by default everywhere;
+  enable and tune per conversation with `duoduo session config <session>
+  set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
+  A one-line notice on the session's next reply reports what was compacted
+  and its measured stats, so retuning is based on real numbers rather than
+  guesswork. See the `smart-compaction` skill for the full knob reference
+  and break-even formula.
+- **Built-in tool surface is now an allowlist, not a denylist**. Previously
+  every session got the SDK's full built-in tool set minus whatever a
+  `disallowedTools` entry blocked. As of v0.5.10, sessions get a fixed core
+  set (`Bash`, `Read`, `Write`, `Edit`, `Grep`, `Glob`, `Agent`, `TaskOutput`,
+  `TaskStop`, `Skill`, `ToolSearch`, `TaskCreate`, `TaskGet`, `TaskUpdate`,
+  `TaskList`, `SendMessage`); anything else (`WebSearch`, `WebFetch`,
+  `TodoWrite`, `Workflow`, `Monitor`, `Cron*`, …) is off unless explicitly
+  added via a new nested `claude.tools` key in a channel's kind or instance
+  descriptor. **Action needed if you rely on tools outside the core list**:
+  add them under `claude.tools` — see the `duoduo-channel-admin` skill's
+  upgrade note for the exact migration recipe. `disallowedTools` entries
+  naming built-in tools are now no-ops (MCP tool names still work); a
+  startup warning flags any descriptor still relying on the old behavior.
+
+### Fixes
+
+- **Feishu group replies no longer attach to the wrong message**. When
+  someone interjected mid-turn in a busy group chat, the agent's streaming
+  card reply could anchor to — and appear to answer — the wrong message.
+  Card anchoring is now pinned per-turn to the event it's actually
+  answering.
+- **A background job or subconscious result could double-post a reply**. A
+  race between an admitted turn and a same-session background notification
+  could cause the turn's prompt to be re-queued and answered twice. Fixed by
+  excluding not-yet-settled admitted prompts from being re-selected by a
+  re-iterated mailbox drain.
+- **Claude/Sonnet thinking quality restored on streaming sessions**. A
+  leftover compatibility flag was force-disabling extended thinking on every
+  streaming Claude turn; removed, so streaming sessions think as well as
+  non-streaming ones again.
+- Admitted-turn outbound attachments (images, files) are now delivered
+  instead of silently dropped.
+- Closed a rare TOCTOU window where archiving a session concurrently with a
+  runtime-state write could corrupt session state.
+
+### Dependencies
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.205 (Claude Code
+  v2.1.205).
+
 ## [v0.5.9] - 2026-07-01
 
 A patch release updating the bundled Claude runtime, which brings the latest

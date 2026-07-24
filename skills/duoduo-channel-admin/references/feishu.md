@@ -237,11 +237,18 @@ group messages still need @, this scope gap is the most likely cause.
 ## Web search/fetch disabled by default
 
 A Feishu agent asked to look something up will appear to "have no internet" —
-`WebSearch` / `WebFetch` are default-disabled (headless daemon), so the model
-loops WebSearch → WebFetch → `curl` → gives up. This is policy, not a defect.
-Re-enable by adding them to `allowedTools` in `config/feishu.md` frontmatter
-(or an instance descriptor); see [channel-config-model.md](channel-config-model.md)
-for the full default-deny set and override semantics.
+`WebSearch` / `WebFetch` are not on the default tool surface (headless
+daemon), so the model loops WebSearch → WebFetch → `curl` → gives up. This is
+policy, not a defect. Enable them in `config/feishu.md` frontmatter (or an
+instance descriptor):
+
+- v0.5.10+: add to the nested `claude.tools` key —
+  `claude:` newline `  tools: [WebSearch, WebFetch]`
+- ≤ v0.5.9: add to `allowedTools` (the old denylist-override recipe; it no
+  longer works on v0.5.10+)
+
+See [channel-config-model.md](channel-config-model.md) for the allowlist
+core, merge semantics, and the ≤ v0.5.9 migration notes.
 
 ## Accepted v0.5 limits
 
