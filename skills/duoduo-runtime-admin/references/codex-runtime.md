@@ -31,7 +31,7 @@ The daemon probes at boot. If the user installs codex or runs
 `codex login` while the daemon is running, ask them to restart:
 
 ```bash
-duoduo daemon restart
+duoduo daemon restart -r "codex login refreshed — re-probing runtimes"
 ```
 
 If the daemon seems not to see a freshly-logged-in codex, check with

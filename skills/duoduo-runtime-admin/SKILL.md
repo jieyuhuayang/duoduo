@@ -48,7 +48,7 @@ Typical keys:
 After changing daemon env settings, run:
 
 ```bash
-duoduo daemon restart
+duoduo daemon restart -r "changed <setting>"
 ```
 
 unless the user explicitly asked for an edit only.

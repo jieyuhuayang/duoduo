@@ -32,7 +32,7 @@ npm view @openduo/duoduo version
 This file is the persistent host-mode env surface. Changes here usually require:
 
 ```bash
-duoduo daemon restart
+duoduo daemon restart -r "changed <setting> in .env"
 ```
 
 The restart is not optional when the change targets daemon env-backed behavior:
