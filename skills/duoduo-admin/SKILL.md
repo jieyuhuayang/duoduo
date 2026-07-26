@@ -51,11 +51,17 @@ Standard upgrade path (works for minor bumps within the same major):
 
 ```bash
 npm install -g @openduo/duoduo@latest
-duoduo daemon restart
+duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
 ```
 
 The restart matters because the daemon is a detached background
 process — installing a newer CLI package does not hot-swap it.
+
+The `-r` reason is delivered to every session woken after the restart.
+Without it, a session whose turn the restart cut off has no way to know
+why its conversation stopped mid-sentence, and will typically conclude a
+person interrupted it. If a session was waiting on an answer, add
+`--wake <session-or-alias>` (repeatable) — it will not resume on its own.
 
 ### Crossing major boundaries (including v0.5)
 
@@ -163,7 +169,9 @@ user wants to file an issue or asks you to prepare one.
 - Prefer live inspection over defaults. Use the actual daemon config, actual
   files, and actual channel list before claiming how the system is set up.
 - After editing `~/.config/duoduo/.env`, tell the user to run
-  `duoduo daemon restart` unless they explicitly asked for an edit-only change.
+  `duoduo daemon restart -r "changed <setting>"` unless they explicitly asked
+  for an edit-only change. Never suggest a bare `restart` — the reason is what
+  tells the interrupted sessions what happened to them.
 - When the user asks to "understand duoduo", answer in terms of files,
   commands, and lifecycle rather than abstract architecture jargon.
 - Do not pretend a raw Git repository can be installed as a channel plugin.

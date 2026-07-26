@@ -10,7 +10,7 @@ Standard upgrade is two commands:
 
 ```bash
 npm install -g @openduo/duoduo@latest
-duoduo daemon restart
+duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
 ```
 
 The rest of this playbook only matters when (a) the user is crossing
@@ -66,7 +66,7 @@ channel configured.
 
 ```bash
 npm install -g @openduo/duoduo@latest
-duoduo daemon restart
+duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
 ```
 
 Then verify:
@@ -86,7 +86,7 @@ Safe to proceed. The agent should:
 1. Run the upgrade:
    ```bash
    npm install -g @openduo/duoduo@latest
-   duoduo daemon restart
+   duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
    ```
 2. Restart the Feishu plugin to pick up the new plugin bundle (the
    plugin is a separate process; daemon restart does not restart it):

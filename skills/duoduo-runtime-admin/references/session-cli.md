@@ -91,7 +91,15 @@ Use this to orchestrate across sessions — e.g. a monitoring job that finds
 something notifies a longer-lived research session to dig in, or an external
 script / webhook (`ssh host 'duoduo session notify "主控台" -m "…"'`) pokes a
 live session. It is the programmatic, by-name version of the in-session `Notify`
-tool.
+tool — which takes an alias too, so an agent handing off inside a session and a
+script poking one from outside address the target the same way.
+
+**Prefer the alias over the session_key** in both. A session_key is not stable:
+a job's key contains a hash of its schedule and workspace, so editing the job
+file changes it. The danger is not a key that no longer exists — that is
+reported plainly — but a key that still resolves to an **archived** session,
+which accepts the delivery and reports success into an inbox nobody drains.
+Aliases are checked against live sessions, so a stale one fails loudly instead.
 
 ## `duoduo session compact`
 
