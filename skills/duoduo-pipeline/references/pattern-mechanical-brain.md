@@ -69,6 +69,51 @@ cwd_rel: my-monitor   # working directory for state files
 ---
 ```
 
+### Optional SDK configuration keys
+
+A job file's frontmatter is that job's **instance** layer, and it can
+carry the same SDK configuration block a channel instance descriptor
+can. All five keys are optional; a job that sets none behaves exactly as
+before.
+
+```yaml
+---
+type: job
+cron: keepalive
+runtime: claude
+prompt_mode: override        # claude only — see below
+allowedTools:                # auto-approve, does NOT widen the surface
+  - "Bash"
+disallowedTools: []
+additionalDirectories:
+  - "../shared-state"
+claude:
+  tools: ["WebFetch"]        # additive to the built-in core; codex ignores it
+---
+```
+
+Three things are easy to get wrong here:
+
+- **`allowedTools` only auto-approves permissions — it does not add
+  tools.** It is worth more on a job than on a chat session, because a
+  scheduled run has nobody present to answer a permission prompt.
+- **`claude: { tools: [...] }` is additive only.** It extends the
+  built-in tool core; it cannot subtract from it. Codex ignores it.
+- **`prompt_mode` is claude-only.** `append` (the default) puts the
+  Claude Code preset ahead of the prompt layers; `override` uses the
+  prompt layers alone. Codex has no such preset and receives the same
+  text either way, so on a `runtime: codex` job the key does nothing.
+  Creating a codex job with any `prompt_mode` is refused with an
+  explanation rather than silently ignored — but that check only sees
+  the *requested* runtime, so a job that omits `runtime` on a
+  codex-default host, or one edited by hand, gets a warning in the
+  daemon log instead and still runs.
+
+Host-wide defaults for all of these live in `kernel/config/job.md`, the
+matching **kind** layer. A job file overrides it, the same way a channel
+instance descriptor overrides its kind. The shipped file is entirely
+commented out, so an untouched one changes nothing.
+
 The brain's instruction body should describe:
 - **On wake**: read the notify message for the incoming data increment.
   Process that data — do not re-fetch the full source; the mechanical
