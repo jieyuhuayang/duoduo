@@ -17,6 +17,38 @@ The rest of this playbook only matters when (a) the user is crossing
 the v0.5 boundary AND has a Feishu channel, or (b) something goes
 wrong and we need to fall back to first-principles.
 
+### Prefer `duoduo upgrade` where it is available
+
+On newer builds one command does both steps and does them better:
+
+```bash
+duoduo upgrade                 # or: duoduo upgrade 0.6.4
+```
+
+Detect support from the CLI, not from a version number: `duoduo --help`
+shows `--wake` on the upgrade line exactly when this behavior is
+present. Older builds ship a `duoduo upgrade` that takes only a version
+and has none of the properties below — on those, use the two-command
+form.
+
+It is not just shorter. It installs into the prefix that owns the
+**binary currently running**, which the manual `npm install -g` does
+not: if duoduo was installed outside npm's default global prefix (the
+DuoduoManager menubar app does exactly this), the manual command
+installs a second copy elsewhere, leaves the running binary untouched,
+restarts the old daemon, and reports success. It also fills in the
+restart reason from the version it actually resolved, and waits for
+the new daemon to pass a health check instead of assuming it booted.
+
+If a session was mid-turn and should be told, the same flag applies:
+
+```bash
+duoduo upgrade --wake <session-or-alias>       # repeatable
+```
+
+On older versions, and any time you want the steps separated, use the
+two-command form above — it works on every version.
+
 ## Step 1 — Preflight (accelerator)
 
 Run the preflight script to collect upgrade-relevant facts in one
@@ -293,6 +325,34 @@ target tag does not exist, and how to revert — live in
   first; refreshing on a dirty tree mixes unrelated changes into the
   refresh commit.
 
+## Step 2.5 — Refresh these skills (they do NOT come with the upgrade)
+
+The skills are published from the GitHub repo; the npm package does not
+contain them. `npm install -g @openduo/duoduo` and `duoduo upgrade` both
+leave them exactly as they were. An agent that upgraded the CLI and kept
+its old skills is now operating a version it has stale instructions for
+— which is the failure mode where an agent confidently uses a command
+shape that no longer exists.
+
+So whenever the CLI version changes, offer to refresh:
+
+```bash
+npx -y skills add https://github.com/openduo/duoduo --global --all
+```
+
+Notes that matter in practice:
+
+- Add `</dev/null` when running non-interactively over SSH; the
+  installer otherwise waits on a menu that never gets an answer.
+- `--all` is the reliable shape. Selecting individual skills with
+  `--skill <name>` can hang on the same interactive prompt.
+- Skills land in `~/.agents/skills/`. A new session picks them up
+  immediately — no daemon restart, no session restart.
+
+This is opt-in, not automatic: say the version changed and ask. Do not
+silently rewrite files under the user's home as part of an upgrade they
+scoped to the daemon.
+
 ## Step 3 — Post-upgrade verification
 
 Always verify:
@@ -311,16 +371,27 @@ duoduo channel <kind> stop
 duoduo channel <kind> start
 ```
 
-If the daemon reports an older version than expected, the upgrade
-`npm install` likely raced with a restart; re-run:
+If the daemon reports an older version than expected, first check that
+the install landed where the running binary lives — a `npm install -g`
+against a different prefix is the usual cause, and `duoduo upgrade`
+avoids it on builds that support it:
 
 ```bash
-duoduo daemon stop
-duoduo daemon start
+which duoduo                          # the binary actually in use
+npm root -g                           # where a bare `npm install -g` writes
 ```
 
-(There is no `duoduo daemon restart` override that forces a fresh
-binary load beyond this — the `restart` subcommand IS stop+start.)
+If those disagree, re-install with an explicit prefix (or use
+`duoduo upgrade`), then restart:
+
+```bash
+duoduo daemon restart -r "reinstalled @openduo/duoduo into the right prefix"
+```
+
+If they agree, the install raced the restart; a second restart with a
+reason is enough. Note that `restart` is stop+start only on hosts
+without launchd — on macOS it asks launchd to replace the process,
+which loads the new binary either way.
 
 ## Step 4 — If something goes wrong
 

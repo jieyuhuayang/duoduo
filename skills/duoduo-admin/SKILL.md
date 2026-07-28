@@ -54,8 +54,36 @@ npm install -g @openduo/duoduo@latest
 duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
 ```
 
+Newer builds collapse both steps into one command that also installs
+into the prefix owning the running binary (which a bare
+`npm install -g` may not), supplies the restart reason itself, and
+health-checks the new daemon:
+
+```bash
+duoduo upgrade [version] [--wake <session-or-alias>]
+```
+
+Check availability from the CLI itself rather than from a version
+number — `duoduo --help` lists `--wake` on the upgrade line exactly
+when this behavior is present. Older builds have a `duoduo upgrade`
+that takes only a version and does none of the above; on those, use
+the two-command form.
+
 The restart matters because the daemon is a detached background
 process — installing a newer CLI package does not hot-swap it.
+
+**These skills are not part of the upgrade.** They ship from the GitHub
+repo, not the npm package, so both upgrade paths leave them untouched
+and you are left operating a new CLI from old instructions. Whenever the
+version changes, offer to refresh them:
+
+```bash
+npx -y skills add https://github.com/openduo/duoduo --global --all
+```
+
+Offer — do not do it silently. See
+[references/upgrade-playbook.md](references/upgrade-playbook.md) for the
+non-interactive/SSH caveats.
 
 The `-r` reason is delivered to every session woken after the restart.
 Without it, a session whose turn the restart cut off has no way to know

@@ -79,6 +79,10 @@ is restarted. The `-r` string reaches every session woken afterwards, so a
 session that was interrupted learns an upgrade happened instead of guessing it
 was interrupted by a person.
 
+On newer builds both steps collapse into `duoduo upgrade [version]`, which also
+installs into the prefix that owns the running binary and supplies the reason
+itself. See [upgrade-playbook.md](upgrade-playbook.md).
+
 ## Restart Rule
 
 - Editing `~/.config/duoduo/.env`: requires
