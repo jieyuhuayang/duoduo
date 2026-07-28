@@ -2,6 +2,78 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.6.2] - 2026-07-28
+
+This release stops background workers from being killed as collateral when an
+agent declines to reply, makes daemon restarts explain themselves to the
+sessions they interrupt, and fixes `duoduo upgrade` installing to the wrong
+place on hosts where duoduo does not live in npm's default global prefix.
+Bundled Claude runtime updated.
+
+### Fixes
+
+- **Background workers survive a skipped reply.** When an agent decided a
+  message needed no answer, the mechanism that ended the turn also tore down
+  every background task started during it. Because the underlying runtime
+  reports such a teardown as "stopped by the user", the agent would then state
+  as fact that a person had interrupted it — nobody had. Ending a turn no
+  longer cancels the work started within it, a subagent declining to reply no
+  longer silences its parent's answer, and a skipped first turn no longer
+  blanks a later deliverable on scheduled runs.
+- **`duoduo upgrade` installs where duoduo actually lives.** It used to run a
+  plain global install, so on a host whose duoduo was installed outside npm's
+  default global prefix — which is how the macOS menubar app installs it — the
+  upgrade wrote a second copy elsewhere, left the running binary untouched,
+  restarted the old daemon and reported success. It now resolves the prefix
+  from the binary that is running, and uses the npm belonging to the Node.js
+  that is running it, so it also works where `node` is not on `PATH`.
+- **`duoduo upgrade` explains and verifies its restart.** The restart it
+  performs now carries the version it resolved as the reason, so sessions it
+  interrupts learn an upgrade happened instead of concluding a person
+  interrupted them, and it accepts `--wake <session-or-alias>` for a session
+  that was waiting on an answer. It also waits for the new daemon to pass a
+  health check rather than assuming it booted, while correctly distinguishing
+  "still starting" from "failed to start" on slower hosts.
+- **One malformed job file no longer hides every other job.** A job whose file
+  could not be parsed made the whole job list come back empty.
+- **The `Notify` tool accepts display-name aliases**, which its description
+  had advertised while only the CLI implemented it. Archived sessions are
+  excluded from alias resolution — a stale identifier used to be accepted and
+  reported as delivered into an inbox nobody drains.
+
+### Highlights
+
+- **`duoduo daemon restart` takes a reason, and can wake what it interrupted.**
+  `-r "<what changed>"` reaches every session that wakes after the restart;
+  `--wake <session-or-alias>` (repeatable) notifies a specific session that was
+  mid-conversation, which otherwise waits silently for the next inbound
+  message. Agents restarting the daemon from inside a session are warned when
+  they omit a reason.
+- **Job files can configure the SDK.** A job's frontmatter now accepts
+  `prompt_mode`, `allowedTools`, `disallowedTools`, `additionalDirectories`
+  and a nested `claude: { tools }`, with host-wide defaults in
+  `kernel/config/job.md`. See the `duoduo-pipeline` skill.
+
+### Dependencies and security
+
+- **Bundled Claude runtime updated** to Agent SDK 0.3.220 (Claude Code
+  v2.1.220), pinned to an exact version.
+- **Transitive advisory patched** for `find-my-way` (HTTP/2 denial of service,
+  reached through Fastify). Not reachable as duoduo ships — the daemon does not
+  enable HTTP/2 and binds loopback by default — but pinned because the second
+  condition is a setting an operator can change. The release dependency tree
+  audits with zero known advisories.
+
+### Note for skill users
+
+The agent skills published from this repository are **not** part of the npm
+package, so neither `npm install -g` nor `duoduo upgrade` updates them. After
+upgrading, refresh them separately:
+
+```bash
+npx -y skills add https://github.com/openduo/duoduo --global --all
+```
+
 ## [v0.6.1] - 2026-07-22
 
 This patch release fixes two long-running conversation stalls, makes
