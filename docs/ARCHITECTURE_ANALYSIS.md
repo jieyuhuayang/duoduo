@@ -244,6 +244,14 @@ Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信。实测可
 ### 10.3 CLI 诊断命令
 `duoduo daemon status|config|logs`、`duoduo session list|alias|notify|compact|archive`、`duoduo channel ... status|logs|doctor`、`duoduo memory check|...`、`duoduo prompts`。
 
+**重启与升级的实操要点**（confirmed，`cli.pretty.js`）：
+
+- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，走 `session.notify` RPC 给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`127019`）。
+- 从会话内让 agent 重启时若省掉 `-r`，CLI 会警告，并预告 `The next release will reject this call.`（`127103`）。它靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`116786`–`116815`）——`ps` 不可用或被 nohup/detach 包过时静默不警告。
+- `duoduo upgrade [version] [--wake …]` 优于手工两步：它从**正在运行的二进制**反推安装前缀（`116823`）、用当前 Node 自带的 `npm-cli.js` 执行（`116834`，因此 `node` 不在 PATH 上也能跑）、自己填重启原因、并轮询 `/healthz` 做健康检查。版本参数受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`116861`）——**从路径/URL/git 装包不再被接受**。
+- `duoduo daemon restart` 现在会先 `loadHostDotEnv` 并重新应用 onboard 配置（`127098`–`127100`），这缓解了"daemon 重启后丢 PATH"的老坑；但仍建议把 `DUODUO_NODE_BIN` 持久化进 `~/.config/duoduo/.env`。
+- 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**（`116692`）；Linux 上超时会先 SIGTERM 掉子进程再抛普通错误（`116480`），表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"，CLI 提示旧进程还在跑旧代码。
+
 ---
 
 ## 11. 技能（Skills）体系

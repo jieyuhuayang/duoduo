@@ -12,7 +12,6 @@
 | **要实际部署 / 运维**它 | [ARCHITECTURE_ANALYSIS](./ARCHITECTURE_ANALYSIS.md)（含可复现部署记录与坑） |
 | **做技术选型**，比较 duoduo / hermes-agent / pi | [AGENT_FRAMEWORKS_COMPARISON](./AGENT_FRAMEWORKS_COMPARISON.md)（含融合架构建议） |
 | 想知道**闭源 minified 代码怎么被还原成可信源码** | [SOURCE_RECONSTRUCTION](./SOURCE_RECONSTRUCTION.md)（方法论，可迁移） |
-| **已经读过旧版**，只想知道这次上游改了什么 | [UPSTREAM_DELTA_v0.6.2](./UPSTREAM_DELTA_v0.6.2.md)（v0.6.1→v0.6.2 逐条逆向） |
 
 ## 五篇文档的关系
 
@@ -34,10 +33,10 @@
 | 文档 | 视角 | 一句话 | 规模/鲜度 |
 |------|------|--------|----------|
 | [DUODUO_FRAMEWORK_GUIDE.md](./DUODUO_FRAMEWORK_GUIDE.md) | 框架与思路全解（PM 深度指南） | 按四个设计问题组织：**借脑**（如何租用 Claude Code / Codex）、**立身**（一条消息的一生 + 渠道/飞书打通）、**成长**（自我迭代闭环，本文核心）、**守护**（软硬边界/失败语义/成本）；每节"结论+类比"先行，锚点后置，附十二条可搬走的设计 | 550 行 · 07-09（渠道实包核验） |
-| [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | Agent 内部逻辑（逐行证据） | 8 个子系统（认知装配 / Turn-Drain / Session Actor / Spine-WAL / Gateway / Cadence-潜意识 / 记忆 / 双后端抽象）的机制主张全集，每条带 `file:line` + `confirmed/未证实推测` 置信标注，经还原源码复核与对抗验证 | 1180 行 · 07-08 复核 |
-| [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 系统 / 部署级 | 项目定位、六大创新的实测印证、进程与文件系统模型、崩溃恢复实证、可观测性、可复现的本机部署记录与验证清单 | 343 行 · 07-01（07-09 复核更新） |
+| [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | Agent 内部逻辑（逐行证据） | 8 个子系统（认知装配 / Turn-Drain / Session Actor / Spine-WAL / Gateway / Cadence-潜意识 / 记忆 / 双后端抽象）的机制主张全集，每条带 `file:line` + `confirmed/未证实推测` 置信标注，经还原源码复核与对抗验证 | 1221 行 · 07-29 对齐 v0.6.2 |
+| [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 系统 / 部署级 | 项目定位、六大创新的实测印证、进程与文件系统模型、崩溃恢复实证、可观测性、可复现的本机部署记录与验证清单 | 356 行 · 07-01（07-29 复核更新） |
 | [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | 跨项目对比调研 | duoduo vs hermes-agent vs pi：设计哲学、十维度对比、优劣总评，及面向"贝叶斯 + 自我迭代 + long-horizon 金融预测 agent"的融合架构与落地路线 | 325 行 · 07-03 |
-| [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 源码还原方法论 | 反混淆 → 字节无损拆包 → 从 esbuild `__export` 恢复 702 个真名 → 作用域安全改名 → 47 万节点 AST 全等 + 隔离实启双重证明；方法可迁移到任何 esbuild 产物 | 72 行 · 07-02 |
+| [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 源码还原方法论 | 反混淆 → 字节无损拆包 → 从 esbuild `__export` 恢复 712 个真名 → 作用域安全改名 → 48 万节点 AST 全等 + 隔离实启双重证明；外加跨版本身份承接（跟随上游发版）；方法可迁移到任何 esbuild 产物 | 94 行 · 07-29 |
 
 ## 关键结论一句话
 
@@ -45,6 +44,6 @@ duoduo 是一个"薄运行时 + 基础模型"的长驻自治 Agent：运行时�
 
 ## 证据与可信度约定（全部文档通用）
 
-- 行号锚点默认指 `daemon.pretty.js`（与还原源码 `reconstruction/recon/daemon.recon.js` 行号一致，偶有 ±2 漂移）；`cli:`/`stdio:` 前缀者指对应 bundle。
-- 机制主张分 `confirmed`（源码/活体可证）与 `未证实推测`（显式标注）两档；各文档随每轮复核**直接更新为当前正确内容**（最近一轮：2026-07-02 还原源码逐节复核 + 2026-07-09 全库整理）。
+- 行号锚点默认指 `daemon.pretty.js`（与还原源码 `reconstruction/recon/daemon.recon.js` 行号一致，偶有 ±2 漂移）；`cli:`/`stdio:` 前缀者指对应 bundle。**锚点与短名都随上游每次发版整体漂移**——esbuild 每次构建重新 mangle，同一个短名在相邻两版可能指向完全不同的函数（实例见 SOURCE_RECONSTRUCTION 论点四）。因此引用本库结论时务必确认文档头部标注的版本，跨版本的短名一律不可直接沿用。
+- 机制主张分 `confirmed`（源码/活体可证）与 `未证实推测`（显式标注）两档；各文档随每轮复核**直接更新为当前正确内容**，不留修订史（最近一轮：2026-07-29 随上游 v0.6.2 全库锚点迁移 + 逐条复核）。
 - 提示词类结论引用磁盘原文路径；部署类结论以活体 daemon 实测为准。

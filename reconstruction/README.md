@@ -56,6 +56,8 @@ OLD=/path/to/beautified/v0.6.1 NEW=/path/to/beautified/v0.6.2 bash tools/bump.sh
 # 复核并更新 maps/inferred_*.json 后，再跑 rebuild.sh 取得等价性证明
 ```
 
+迁移完文档后**务必跑一次** `check_doc_anchors.mjs --resolve <new.pretty.js> ../docs/*.md`：docs 把每条主张写成 `符号`(`行号`)，这份冗余是可机器校验的——短名若不出现在所引行上，两者必有一个是陈的。它抓得住其它检查全都漏掉的一类错误：**同一个短名可以既是过期名、又是新版里另一个函数的正确名**（v0.6.2 的 `eKe`/`rle`/`sle` 即是），此时任何“旧名换新名”的整体替换都会把本来对的改错。
+
 第 2 步报 `RE-ANCHOR` 的条目，用 `locate_by_anchor.mjs` 拿该函数独有的字符串字面量在新包里重新定位即可。第 4 步的“归一化后完全相同”是个好用的过滤器：v0.6.2 的 daemon 31 处声明差异里有 10 处属于纯 minifier churn。
 
 ## 边界与诚实声明
@@ -65,4 +67,4 @@ OLD=/path/to/beautified/v0.6.1 NEW=/path/to/beautified/v0.6.2 bash tools/bump.sh
 - **`first-party/` 下的单文件不可独立运行**：它们引用其它顶层符号，仅供阅读；可运行工件是 `recon/*.recon.js` 整体。
 - `spawnSessionActor` / `wakeSessionActor` 位于 `createSessionManager` 的函数作用域内（非顶层绑定），改名器按设计不动它们，保留 minified 名。这类内层短名**每次构建都会漂移**，本文不再固定引用具体短名。
 
-配套分析文档见 [`../docs/AGENT_INTERNALS_ANALYSIS.md`](../docs/AGENT_INTERNALS_ANALYSIS.md)（子系统逻辑）、[`../docs/UPSTREAM_DELTA_v0.6.2.md`](../docs/UPSTREAM_DELTA_v0.6.2.md)（本次上游变更的逐条逆向）与 [`../docs/SOURCE_RECONSTRUCTION.md`](../docs/SOURCE_RECONSTRUCTION.md)（还原方法论全文）。
+配套分析文档见 [`../docs/AGENT_INTERNALS_ANALYSIS.md`](../docs/AGENT_INTERNALS_ANALYSIS.md)（子系统逻辑）与 [`../docs/SOURCE_RECONSTRUCTION.md`](../docs/SOURCE_RECONSTRUCTION.md)（还原方法论全文）。
