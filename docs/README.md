@@ -1,6 +1,6 @@
 # duoduo 分析文档
 
-对 `@openduo/duoduo` v0.6.1 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
+对 `@openduo/duoduo` **v0.6.2** 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
 
 ## 先看这张阅读地图
 
@@ -12,6 +12,7 @@
 | **要实际部署 / 运维**它 | [ARCHITECTURE_ANALYSIS](./ARCHITECTURE_ANALYSIS.md)（含可复现部署记录与坑） |
 | **做技术选型**，比较 duoduo / hermes-agent / pi | [AGENT_FRAMEWORKS_COMPARISON](./AGENT_FRAMEWORKS_COMPARISON.md)（含融合架构建议） |
 | 想知道**闭源 minified 代码怎么被还原成可信源码** | [SOURCE_RECONSTRUCTION](./SOURCE_RECONSTRUCTION.md)（方法论，可迁移） |
+| **已经读过旧版**，只想知道这次上游改了什么 | [UPSTREAM_DELTA_v0.6.2](./UPSTREAM_DELTA_v0.6.2.md)（v0.6.1→v0.6.2 逐条逆向） |
 
 ## 五篇文档的关系
 

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBoardLint  (minified: eKe, daemon.pretty.js:56175)
+// symbol: runBoardLint  (minified: mKe, daemon.pretty.js:56297)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,26 +10,26 @@ function runBoardLint(e, t) {
     let i = e.filter(a => a.trajectory !== "NO-EFF" && a.cls === "behavioral" && a.fmt === "legacy" && !(a.trajectory === "WEAKENING" && (a.verdict === "REMOVE" || a.verdict === "DROP"))).slice(0, n);
     for (let a of i) r.push({
         target: a,
-        kind: ai.REVISE,
+        kind: oi.REVISE,
         partition: "pattern-tracker",
         pendingFilename: `${a.slug}.md.pending`,
-        pendingBody: J9e(a)
+        pendingBody: cKe(a)
     });
     let s = e.filter(a => a.trajectory !== "NO-EFF" && a.cls === "domain").slice(0, n);
     for (let a of s) r.push({
         target: a,
-        kind: ai.SINK,
+        kind: oi.SINK,
         partition: "memory-weaver",
         pendingFilename: `sink-${a.slug}.md.pending`,
-        pendingBody: G9e(a)
+        pendingBody: uKe(a)
     });
     let o = e.filter(a => a.trajectory !== "NO-EFF" && a.dual && a.cls !== "domain").slice(0, n);
     for (let a of o) r.push({
         target: a,
-        kind: ai.MERGE,
+        kind: oi.MERGE,
         partition: "memory-weaver",
         pendingFilename: `merge-${a.slug}.md.pending`,
-        pendingBody: K9e(a)
+        pendingBody: lKe(a)
     });
     return r
 }

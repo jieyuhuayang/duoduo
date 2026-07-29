@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: readAllSessionSummaries  (minified: Y1, daemon.pretty.js:35025)
+// symbol: readAllSessionSummaries  (minified: X1, daemon.pretty.js:35045)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readAllSessionSummaries(e, t) {
-    await ge(e.usageDir);
+    await _e(e.usageDir);
     let n;
     try {
-        n = await Zk.readdir(e.usageDir)
+        n = await Jk.readdir(e.usageDir)
     } catch {
         return {}
     }

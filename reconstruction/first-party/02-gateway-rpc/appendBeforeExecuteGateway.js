@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: appendBeforeExecuteGateway  (minified: Cne, daemon.pretty.js:75470)
+// symbol: appendBeforeExecuteGateway  (minified: Dne, daemon.pretty.js:75648)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -42,7 +42,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
                 tags: t.routingHint.tags
             } : void 0
         }),
-        i = await WHe(e),
+        i = await sVe(e),
         s = computeDedupKey(r);
     if (s) {
         let p = await i.checkAndRecordDetailed({
@@ -53,11 +53,11 @@ async function appendBeforeExecuteGateway(e, t, n) {
         if (p.duplicate && p.existing?.event_id) {
             let f = await readEventByIdSeek(e, p.existing.event_id);
             if (f) {
-                let m = await Kf(e, f.id);
-                return await Sne(e, t.sourceKind, t.sourceChannelId), {
+                let m = await Qf(e, f.id);
+                return await Ene(e, t.sourceKind, t.sourceChannelId), {
                     event: f,
                     routing: {
-                        target: Ene(f),
+                        target: Ine(f),
                         enqueued: !1
                     },
                     deduplicated: !0,
@@ -67,7 +67,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
             }
         }
     }
-    let o = await QHe(e, {
+    let o = await lVe(e, {
         sessionKey: t.sessionKey,
         sourceKind: t.sourceKind,
         sourceName: t.sourceName,
@@ -78,7 +78,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         rawPayload: t.rawPayload,
         routingHint: t.routingHint
     }, r);
-    r.payload && (r.payload.raw_path = o), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await Ca(e, p => ({
+    r.payload && (r.payload.raw_path = o), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await Aa(e, p => ({
         ...p,
         spine: {
             ...p.spine,
@@ -89,11 +89,11 @@ async function appendBeforeExecuteGateway(e, t, n) {
             gateway: "ok"
         }
     }), new Date(r.ts));
-    let a, u = !1,
-        c, l, d = Ene(r);
+    let a, c = !1,
+        u, l, d = Ine(r);
     if (d === "gateway") {
-        let p = await GHe(e, r, n?.bus, n?.gatewayCommands);
-        c = p.responseText, l = p.outboxId, Pe("[gateway] gateway-targeted event (no enqueue)", {
+        let p = await aVe(e, r, n?.bus, n?.gatewayCommands);
+        u = p.responseText, l = p.outboxId, Pe("[gateway] gateway-targeted event (no enqueue)", {
             id: r.id,
             type: r.type,
             intent: r.routing_hint?.intent,
@@ -103,7 +103,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
     } else if (d === "meta") {
         let p = "meta:subconscious",
             f = `- [ ] @evt(${r.id})`;
-        a = await Ho(e, p, f), u = !0, Ai("mailbox_enqueued", r.id, {
+        a = await Vo(e, p, f), c = !0, Ci("mailbox_enqueued", r.id, {
             sessionKey: p
         }), Pe("[gateway] meta-targeted event", {
             id: r.id,
@@ -113,7 +113,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         })
     } else {
         let p = `- [ ] @evt(${r.id})`;
-        a = await Ho(e, t.sessionKey, p), u = !0, Ai("mailbox_enqueued", r.id, {
+        a = await Vo(e, t.sessionKey, p), c = !0, Ci("mailbox_enqueued", r.id, {
             sessionKey: t.sessionKey
         }), Pe("[gateway] session-targeted event", {
             id: r.id,
@@ -123,14 +123,14 @@ async function appendBeforeExecuteGateway(e, t, n) {
             mailboxFile: a
         })
     }
-    return n?.bus && n.bus.emit("spine.event", r), await Sne(e, t.sourceKind, t.sourceChannelId), {
+    return n?.bus && n.bus.emit("spine.event", r), await Ene(e, t.sourceKind, t.sourceChannelId), {
         event: r,
         mailboxFile: a,
         routing: {
             target: d,
-            enqueued: u
+            enqueued: c
         },
-        gatewayResponse: c,
+        gatewayResponse: u,
         gatewayOutboxId: l
     }
 }

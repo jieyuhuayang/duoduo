@@ -1,7 +1,7 @@
 # duoduo 项目深度架构分析
 
-> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` v0.6.1（npm 运行时）
-> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新）
+> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` v0.6.2（npm 运行时）
+> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向行号锚点并复核）
 > 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
 > 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
 >
@@ -74,8 +74,12 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
 ├── subconscious/           # 潜意识运行数据
 ├── channels/<id>/          # 每通道运行数据
 ├── registry/dedup.jsonl    # 去重水位线
-└── meta/partitions/        # 分区元数据
+├── meta/partitions/        # 分区元数据
+└── daemon-restart-reason.json  # v0.6.2 新增；瞬态——CLI 重启前原子写入，
+                            #   新 daemon 启动时读一次即删（一次性认领）
 ```
+
+> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent}`（`daemon.pretty.js:49061`）。
 
 ### 3.3 持久化的配置面
 
@@ -83,7 +87,7 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
 |------|------|------------------------|
 | `~/.config/duoduo/.env` | host 模式持久化的环境变量（如 `ALADUO_*`、`DUODUO_NODE_BIN`） | **需要** `duoduo daemon restart`（daemon 是分离的后台进程，不热加载） |
 | `~/.config/duoduo/config.json` | onboard 向导写入的选择（认证来源等） | — |
-| `kernel/config/<kind>.md` | 按通道种类的默认值与种类级提示词 | 下一回合/新会话绑定时生效 |
+| `kernel/config/<kind>.md` | 按通道种类的默认值与种类级提示词 | 下一回合/新会话绑定时生效（`<kind>` 取自事件的 `source.kind`；`job.md` 虽随 v0.6.2 发布但不会被 job 运行加载，见 §5） |
 | `var/channels/<id>/descriptor.md` | 单个通道实例的覆盖与实例级提示词 | 同上；仅当凭证/进程 env 变化才需重启通道 |
 
 ---
@@ -196,7 +200,7 @@ subconscious/
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
   - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
   - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧则是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (V_)`，daemon.pretty.js:57391，详见 INTERNALS §8）——两侧都不是逐回合 spawn。
+- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧则是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (V_)`，daemon.pretty.js:57513，详见 INTERNALS §8）——两侧都不是逐回合 spawn。
 - 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
 
 ---
@@ -212,6 +216,7 @@ duoduo channel feishu start
 
 - 当前官方可用：`@openduo/channel-feishu`（飞书 / Lark）。
 - 配置走两级：`kernel/config/<kind>.md`（种类级默认）→ `var/channels/<id>/descriptor.md`（实例级覆盖）。
+  - v0.6.2 起 `bootstrap/config/` 多发一个 `job.md`（v0.6.1 只有 `acp.md`/`feishu.md`/`stdio.md`），意图是给 job 一个同样的种类层。**但 job 运行时从不加载它**：种类文件按 `event.source.kind` 选取（`daemon.pretty.js:48898`），而 job 的 drain 锚点事件来自 cadence 扫描器（`source.kind="cadence"`）或 notify 唤醒（`"route"`），永远不是 `"job"`。可观测症状：每个 job 的 system prompt 里 `## Runtime Context` 渲染的是 `channel_kind: cadence`。job 的 SDK 配置因此只有"实例层（job frontmatter）+ 内置默认"两级。
 - 通道安装器只接受 **npm 包名**（无 flag）或**本地 `.tgz` 包**（须 `--from-path`），**不能**把裸 git 仓库当通道装。
 - 包结构：`@openduo/duoduo`（核心运行时+CLI）、`@openduo/channel-feishu`（飞书适配器）、`@openduo/protocol`（零依赖共享 RPC 类型）。
 

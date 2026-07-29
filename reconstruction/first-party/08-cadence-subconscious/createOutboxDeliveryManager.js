@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createOutboxDeliveryManager  (minified: yet, daemon.pretty.js:75012)
+// symbol: createOutboxDeliveryManager  (minified: Net, daemon.pretty.js:75190)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,9 +11,9 @@ function createOutboxDeliveryManager(e) {
         maxAttempts: i = 5
     } = e, s = !1, o = new Set, a = new Map;
 
-    function u(f) {
+    function c(f) {
         let m = f.session_key,
-            _ = (a.get(m) ?? Promise.resolve(!1)).then(() => d(f)).catch(b => (ie("[outbox-delivery] live delivery failed", {
+            _ = (a.get(m) ?? Promise.resolve(!1)).then(() => d(f)).catch(b => (se("[outbox-delivery] live delivery failed", {
                 outboxId: f.id,
                 sessionKey: f.session_key,
                 error: b instanceof Error ? b.message : String(b)
@@ -22,14 +22,14 @@ function createOutboxDeliveryManager(e) {
             a.get(m) === _ && a.delete(m)
         }), _
     }
-    let c = ({
+    let u = ({
             record: f
         }) => {
-            u(f)
+            c(f)
         },
         l = () => {
             p().catch(f => {
-                ie("[outbox-delivery] pending flush failed", {
+                se("[outbox-delivery] pending flush failed", {
                     error: f instanceof Error ? f.message : String(f)
                 })
             })
@@ -38,15 +38,15 @@ function createOutboxDeliveryManager(e) {
         if (o.has(f.id)) return !1;
         o.add(f.id);
         try {
-            if (f = await Jo(t, f.channel_kind, f.id) ?? f, f.status === "sent") return await Yf(t, f.id), !0;
-            if (await ine(t, f.id)) return await Rl(t, f, {
+            if (f = await Go(t, f.channel_kind, f.id) ?? f, f.status === "sent") return await Xf(t, f.id), !0;
+            if (await ane(t, f.id)) return await Rl(t, f, {
                 status: "sent"
             }), !0;
-            if (get(f)) {
-                let v = await Rl(t, f, {
+            if (Aet(f)) {
+                let w = await Rl(t, f, {
                     status: "sent"
                 });
-                return await Yf(t, v.id), !0
+                return await Xf(t, w.id), !0
             }
             if (r.getSubscribers(f.session_key).length === 0) return !1;
             if (r.publishOutput(f.session_key, f) === 0) return f.attempts >= i || await Rl(t, f, {
@@ -56,7 +56,7 @@ function createOutboxDeliveryManager(e) {
             let b = await Rl(t, f, {
                 status: "sent"
             });
-            return await Yf(t, b.id), Ai("delivered", b.id, {
+            return await Xf(t, b.id), Ci("delivered", b.id, {
                 outboxId: b.id,
                 sessionKey: b.session_key
             }), !0
@@ -65,17 +65,17 @@ function createOutboxDeliveryManager(e) {
         }
     }
     async function p() {
-        let f = await mne(t, i),
+        let f = await yne(t, i),
             m = 0;
-        for (let h of f) await u(h) && (m += 1);
+        for (let h of f) await c(h) && (m += 1);
         return m
     }
     return {
         start() {
-            s || (s = !0, n.on("session.output", c), n.on("cadence.tick", l))
+            s || (s = !0, n.on("session.output", u), n.on("cadence.tick", l))
         },
         stop() {
-            s && (s = !1, n.off("session.output", c), n.off("cadence.tick", l))
+            s && (s = !1, n.off("session.output", u), n.off("cadence.tick", l))
         },
         flushPending: p
     }

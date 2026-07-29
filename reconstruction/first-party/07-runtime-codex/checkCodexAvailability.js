@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: checkCodexAvailability  (minified: hc, daemon.pretty.js:57280)
+// symbol: checkCodexAvailability  (minified: hu, daemon.pretty.js:57402)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

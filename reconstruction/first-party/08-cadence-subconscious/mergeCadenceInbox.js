@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: mergeCadenceInbox  (minified: the, daemon.pretty.js:74721)
+// symbol: mergeCadenceInbox  (minified: hhe, daemon.pretty.js:74899)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -16,7 +16,7 @@ async function mergeCadenceInbox(e) {
     }
     if (n.length > 0) {
         for (let o of n) await fd.unlink(YI.join(e.cadenceInboxDir, o));
-        J("[cadence] removed incompatible inbox files", {
+        K("[cadence] removed incompatible inbox files", {
             removed: n.length
         })
     }
@@ -24,12 +24,12 @@ async function mergeCadenceInbox(e) {
         i = [],
         s = [];
     for (let o of t) {
-        let u = (await fd.readFile(YI.join(e.cadenceInboxDir, o), "utf8")).trim();
-        u && i.push(u.startsWith("- [ ]") ? u : `- [ ] ${u}`), s.push(o)
+        let c = (await fd.readFile(YI.join(e.cadenceInboxDir, o), "utf8")).trim();
+        c && i.push(c.startsWith("- [ ]") ? c : `- [ ] ${c}`), s.push(o)
     }
     if (i.length > 0) {
-        let o = fet(r, i);
-        await Mt(e.cadenceQueuePath, o)
+        let o = Pet(r, i);
+        await Lt(e.cadenceQueuePath, o)
     }
     if (s.length === 0) return 0;
     for (let o of s) await fd.unlink(YI.join(e.cadenceInboxDir, o));

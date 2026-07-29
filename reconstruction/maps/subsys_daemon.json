@@ -105,5 +105,12 @@
   "splitDisallowedToolsForClaude": "06-runtime-claude",
   "PARTITION_CORE_TOOLS": "08-cadence-subconscious",
   "computeBoardLayerHash": "09-memory",
-  "computeNonBoardInstructionsFingerprint": "03-session-actor"
+  "computeNonBoardInstructionsFingerprint": "03-session-actor",
+  "applyJobSdkConfigOverride": "06-runtime-claude",
+  "mergeClaudeToolLists": "06-runtime-claude",
+  "daemonRestartReasonPath": "00-daemon-entry",
+  "claimDaemonRestartReason": "00-daemon-entry",
+  "setPendingRestartReason": "00-daemon-entry",
+  "getPendingRestartReason": "00-daemon-entry",
+  "renderDaemonRestartHint": "04-cognition-prompt"
 }

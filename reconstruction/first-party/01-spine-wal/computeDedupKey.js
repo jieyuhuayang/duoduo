@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: computeDedupKey  (minified: hX, daemon.pretty.js:75171)
+// symbol: computeDedupKey  (minified: bX, daemon.pretty.js:75349)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -9,12 +9,12 @@ function computeDedupKey(e, t = 5) {
     if (r?.source_id) return `${n}:${r.source_id}`;
     if (e.type === "channel.command") return null;
     if (r?.hash) {
-        let i = mX(e.ts, t);
+        let i = _X(e.ts, t);
         return `${n}:hash:${r.hash}:${i}`
     }
     if (e.payload?.text) {
-        let i = B2e(e.payload.text),
-            s = mX(e.ts, t);
+        let i = r4e(e.payload.text),
+            s = _X(e.ts, t);
         return `${n}:text:${i}:${s}`
     }
     return null

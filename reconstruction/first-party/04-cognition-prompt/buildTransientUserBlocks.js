@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: Gde, daemon.pretty.js:60924)
+// symbol: buildTransientUserBlocks  (minified: sfe, daemon.pretty.js:61047)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -31,28 +31,28 @@ function buildTransientUserBlocks(e, t, n) {
     let s = [],
         o = !1,
         a = !1,
-        u = !1,
         c = !1,
+        u = !1,
         l = !1,
         d = !1,
         p = !1,
         f = !1;
     if (t.daemonRestartHint && (s.push({
             type: "text",
-            text: Ide(t.daemonRestartHint.startedAt),
+            text: renderDaemonRestartHint(t.daemonRestartHint.startedAt, getPendingRestartReason()),
             tag: "daemon-restart-hint"
         }), d = !0), t.compactNotice && (s.push({
             type: "text",
-            text: n8e(t.compactNotice),
+            text: g8e(t.compactNotice),
             tag: "smart-compact-notice"
         }), p = !0), t.gatewayNotice) {
-        let w = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
+        let v = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
 `);
         s.push({
             type: "text",
             text: `<system-reminder>
 
-${w}
+${v}
 
 IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
 
@@ -60,19 +60,19 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
             tag: "gateway-notice"
         }), o = !0
     }
-    let m = r8e(t.timeGap);
+    let m = y8e(t.timeGap);
     m && (s.push({
         type: "text",
         text: m,
         tag: "time-context"
-    }), c = !0);
-    let _ = t.isUserMessage !== !1 ? e8e(t.skipRewind) : void 0;
+    }), u = !0);
+    let _ = t.isUserMessage !== !1 ? m8e(t.skipRewind) : void 0;
     _ && (s.push({
         type: "text",
         text: _,
         tag: "skip-rewind"
-    }), u = !0);
-    let b = K5e(t.interruptedContext);
+    }), c = !0);
+    let b = l8e(t.interruptedContext);
     return b && (s.push({
         type: "text",
         text: `<interrupted-context>
@@ -81,11 +81,11 @@ ${b}
         tag: "interrupted-context"
     }), a = !0), t.jobTick && (s.push({
         type: "text",
-        text: s8e(t.jobTick),
+        text: b8e(t.jobTick),
         tag: "job-tick"
     }), l = !0), t.boardUpdated && (s.push({
         type: "text",
-        text: Ode(t.boardUpdated.boardPath),
+        text: Ude(t.boardUpdated.boardPath),
         tag: "board-updated"
     }), f = !0), s.push({
         type: "text",
@@ -95,8 +95,8 @@ ${b}
         blocks: s,
         gatewayNoticeInjected: o,
         interruptedContextInjected: a,
-        skipRewindInjected: u,
-        timeGapInjected: c,
+        skipRewindInjected: c,
+        timeGapInjected: u,
         jobTickInjected: l,
         daemonRestartHintInjected: d,
         compactNoticeInjected: p,

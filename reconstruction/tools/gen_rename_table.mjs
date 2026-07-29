@@ -34,7 +34,7 @@ const total = Object.keys(rename).length;
 
 let md = `# duoduo 首字符还原：符号名映射表（daemon）\n\n`;
 md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 \`daemon.pretty.js\`。\n\n`;
-md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` v0.6.1。\n`;
+md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` ${process.env.PKG_VERSION || "v0.6.2"}。\n`;
 for (const sub of subs) {
   const rows = groups.get(sub).sort((a, b) => (a.line === "—" ? 1e9 : a.line) - (b.line === "—" ? 1e9 : b.line));
   md += `\n## ${sub}\n\n`;

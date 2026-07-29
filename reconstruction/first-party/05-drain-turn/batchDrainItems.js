@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: batchDrainItems  (minified: KU, daemon.pretty.js:61066)
+// symbol: batchDrainItems  (minified: eq, daemon.pretty.js:61189)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -13,26 +13,26 @@ async function batchDrainItems(e, t, n) {
         s = null,
         o = !0,
         a = !1,
-        u = () => a ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
-    for (let c of t) {
-        if (i.length >= u()) break;
-        let l = await f8e(e, c, r, n.perf);
+        c = () => a ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
+    for (let u of t) {
+        if (i.length >= c()) break;
+        let l = await T8e(e, u, r, n.perf);
         if (i.length === 0) {
-            a = l ? VU(l) : !1, i.push(c), s = l ? Mde(l.ts) : null, s === null && (o = !1);
+            a = l ? GU(l) : !1, i.push(u), s = l ? Wde(l.ts) : null, s === null && (o = !1);
             continue
         }
-        if ((l ? VU(l) : !1) !== a) break;
+        if ((l ? GU(l) : !1) !== a) break;
         if (!o) {
-            i.push(c);
+            i.push(u);
             continue
         }
-        let p = l ? Mde(l.ts) : null;
+        let p = l ? Wde(l.ts) : null;
         if (s === null || p === null) {
-            o = !1, i.push(c);
+            o = !1, i.push(u);
             continue
         }
         if (Math.abs(p - s) > n.mergeWindowMs) break;
-        i.push(c), s = p
+        i.push(u), s = p
     }
     return {
         items: i,

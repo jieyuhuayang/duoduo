@@ -1,69 +1,69 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: generatePartitionCodexAgents  (minified: n5e, daemon.pretty.js:58498)
+// symbol: generatePartitionCodexAgents  (minified: g5e, daemon.pretty.js:58620)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function generatePartitionCodexAgents(e, t = {}) {
-    let n = ho.join(e, ".claude", "agents"),
-        r = ho.join(e, ".codex", "agents"),
+    let n = yo.join(e, ".claude", "agents"),
+        r = yo.join(e, ".codex", "agents"),
         i = {
             generated: [],
             skipped: [],
             removed: [],
             errors: []
         },
-        s = await r5e(r),
+        s = await y5e(r),
         o;
     try {
-        o = (await sa.readdir(n, {
+        o = (await oa.readdir(n, {
             withFileTypes: !0
-        })).filter(c => c.isFile() && c.name.endsWith(".md")).map(c => ho.join(n, c.name))
-    } catch (u) {
-        if (u?.code === "ENOENT") {
+        })).filter(u => u.isFile() && u.name.endsWith(".md")).map(u => yo.join(n, u.name))
+    } catch (c) {
+        if (c?.code === "ENOENT") {
             if (t.removeStale !== !1) {
-                for (let l of s) await sa.rm(l, {
+                for (let l of s) await oa.rm(l, {
                     force: !0
                 }).catch(() => {}), i.removed.push(l);
-                await sa.rmdir(r).catch(() => {})
+                await oa.rmdir(r).catch(() => {})
             }
             return i
         }
-        throw u
+        throw c
     }
-    await sa.mkdir(r, {
+    await oa.mkdir(r, {
         recursive: !0
     });
     let a = new Set;
-    for (let u of o) try {
-        let c = await sa.readFile(u, "utf8"),
-            l = parseAgentMarkdown(u, c),
-            d = ho.join(r, `${l.name}.toml`),
+    for (let c of o) try {
+        let u = await oa.readFile(c, "utf8"),
+            l = parseAgentMarkdown(c, u),
+            d = yo.join(r, `${l.name}.toml`),
             p = renderAgentToml(l);
-        a.add(ho.resolve(d));
-        let f = await sa.readFile(d, "utf8").catch(() => {});
-        if (f !== void 0 && i5e(f, p)) {
+        a.add(yo.resolve(d));
+        let f = await oa.readFile(d, "utf8").catch(() => {});
+        if (f !== void 0 && _5e(f, p)) {
             i.skipped.push({
-                sourcePath: u,
+                sourcePath: c,
                 targetPath: d,
                 agentName: l.name
             });
             continue
         }
         let m = `${d}.tmp-${process.pid}-${Date.now()}`;
-        await sa.writeFile(m, p, "utf8"), await sa.rename(m, d), i.generated.push({
-            sourcePath: u,
+        await oa.writeFile(m, p, "utf8"), await oa.rename(m, d), i.generated.push({
+            sourcePath: c,
             targetPath: d,
             agentName: l.name
         })
-    } catch (c) {
+    } catch (u) {
         i.errors.push({
-            path: u,
-            reason: c instanceof Error ? c.message : String(c)
+            path: c,
+            reason: u instanceof Error ? u.message : String(u)
         })
     }
     if (t.removeStale !== !1)
-        for (let u of s) a.has(ho.resolve(u)) || (await sa.rm(u, {
+        for (let c of s) a.has(yo.resolve(c)) || (await oa.rm(c, {
             force: !0
-        }).catch(() => {}), i.removed.push(u));
+        }).catch(() => {}), i.removed.push(c));
     return i
 }

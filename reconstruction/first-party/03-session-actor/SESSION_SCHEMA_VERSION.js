@@ -1,42 +1,42 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: SESSION_SCHEMA_VERSION  (minified: JI, daemon.pretty.js:73971)
+// symbol: SESSION_SCHEMA_VERSION  (minified: WI, daemon.pretty.js:74149)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var SESSION_SCHEMA_VERSION, Bme = O(() => {
+var SESSION_SCHEMA_VERSION, rhe = O(() => {
     "use strict";
     Fa();
     E_();
-    Xde();
-    ei();
-    Hz();
-    Bo();
-    rm();
-    Vf();
-    yT();
+    ufe();
+    Xr();
+    Wz();
+    Ho();
+    om();
+    Jf();
+    _T();
     lk();
     id();
-    no();
+    ro();
     Cf();
     La();
     $l();
-    h2();
+    b2();
     id();
-    g2();
-    Oz();
-    SI();
-    TI();
+    v2();
+    Az();
+    kI();
+    RI();
     LI();
-    $I();
-    jp();
-    Ome();
-    Vt();
+    OI();
+    Mp();
+    Vme();
+    Jt();
     Jn();
-    GF();
-    nR();
-    Di();
-    vT();
+    XF();
+    rR();
+    Ni();
+    wT();
     M_();
-    Ame();
+    Jme();
     SESSION_SCHEMA_VERSION = 2
 });

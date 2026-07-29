@@ -2,7 +2,7 @@
 
 > 调研日期:2026-07-03  
 > 调研目标:深度理解三个项目各自的思路框架与逻辑,对比优劣,为构建**充分运用贝叶斯第一性原理、可持续自我迭代、擅长 Long-Horizon 金融预测任务的 agent** 提供选型与融合架构依据。  
-> 取证方式:duoduo — 本仓库对 v0.6.1 minified 运行时的还原源码级逆向(入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md),逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md),全部机制主张带 `file:line` 且经活体 daemon 印证);hermes-agent 与 pi — 克隆源码后由独立分析 agent 系统性深读,关键论断带 `文件:行号` 证据。
+> 取证方式:duoduo — 本仓库对 v0.6.2 minified 运行时的还原源码级逆向(入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md),逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md),全部机制主张带 `file:line` 且经活体 daemon 印证);hermes-agent 与 pi — 克隆源码后由独立分析 agent 系统性深读,关键论断带 `文件:行号` 证据。
 
 ---
 
@@ -40,13 +40,13 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 
 单 daemon 单进程,两个根目录:`~/aladuo`(内核/"内在世界",git 管理,自编程回滚点)与 `~/.aladuo`(运行时数据 `var/`、`run/`)。控制面是 loopback JSON-RPC(`:20233/rpc`)+ 零依赖单文件 dashboard。
 
-**机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:30992/76089`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引 + 有 session_key 才写 by_session 索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
+**机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:31012/76267`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引 + 有 session_key 才写 by_session 索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
 
-**机制二:双注入面上下文工程(`WT`@57186 / `fde`@61156,confirmed)。** 稳定认知(身份/通道人格/记忆广播板)由 `buildSystemPromptForChannelConfig` 六层一次装进 system prompt 前缀,吃满 prompt cache;易变具身状态(时间流逝、被打断、job tick)由 `buildTransientUserBlocks` 每 turn 瞬态塞进 user 消息,不污染缓存前缀。Claude 与 Codex 共用同一装配器,Codex 只多一层 `<aladuo:system-context>` 壳。
+**机制二:双注入面上下文工程(`WT`@57186 / `Sde`@61156,confirmed)。** 稳定认知(身份/通道人格/记忆广播板)由 `buildSystemPromptForChannelConfig` 六层一次装进 system prompt 前缀,吃满 prompt cache;易变具身状态(时间流逝、被打断、job tick)由 `buildTransientUserBlocks` 每 turn 瞬态塞进 user 消息,不污染缓存前缀。Claude 与 Codex 共用同一装配器,Codex 只多一层 `<aladuo:system-context>` 壳。
 
 **机制三:session actor 会话编排(§3 of internals doc,confirmed)。** 一个外部身份扩成多内部会话:一 key 一 actor(内存 Map),session_key 前缀纯函数派生平面与权限(`stdio:`/`job:`/`meta:` 前缀即能力边界);两层锁(跨重启进程写锁 + 按 key 异步互斥);双有界池(channel=10 / job=6),idle 主动让槽、前台附着钉活。抢占是**边界感知**的:能续喂就活流注入(steering),要打断也只在 tool_use/tool_result/accept 边界,绝不硬 kill 半个工具调用。
 
-**机制四:双环认知——Cortex + Subconscious(`daemon.pretty.js:78916/74661`,confirmed,活体实测)。** 前台响应实时消息;后台潜意识挂在 37 分钟 cadence 心跳上,经三重节流门(重入门、**内存指纹活动门**——记忆没变就整拍跳过、每分区 cooldown + 线性退避)唤起**无状态一次性 LLM 分区会话**做自我维护:"每 tick 唤醒潜意识的一块,做完就回去睡——除了写进文件的,不记得上次。"调度表 `playlist.md` 是 agent 自己可改写的纯文本状态机。
+**机制四:双环认知——Cortex + Subconscious(`daemon.pretty.js:78916/74839`,confirmed,活体实测)。** 前台响应实时消息;后台潜意识挂在 37 分钟 cadence 心跳上,经三重节流门(重入门、**内存指纹活动门**——记忆没变就整拍跳过、每分区 cooldown + 线性退避)唤起**无状态一次性 LLM 分区会话**做自我维护:"每 tick 唤醒潜意识的一块,做完就回去睡——除了写进文件的,不记得上次。"调度表 `playlist.md` 是 agent 自己可改写的纯文本状态机。
 
 **机制五:记忆系统——"代码测量、模型裁决"(§7 of internals doc,confirmed)。** 记忆效用被物化为**图可达性**:广播板 `memory/CLAUDE.md` 是唯一根,沿 `[[slug]]` wiki-link 闭包触达不到的节点即孤儿。daemon 侧只做只读 lint 测量与带 48h 宽限 + 双 flag + git 软删的孤儿 GC,**永不改内容**;一切改写交给 memory-weaver 三段流水线(spine-scanner → entity-crystallizer → intuition-updater),证据链"事件→fragment→effectiveness→改板"可复算,专门压制 LLM 编造统计的幻觉。dossier 中每条主张带六种**认识论模态标签**:`[observation]` / `[inference]` / `[instruction]` / `[conditional]` / `[hypothesis (unratified)]` / `[superseded]`。闭环:经验→事件日志→潜意识加工→广播板→下一次会话经 system prompt 自动注入。
 

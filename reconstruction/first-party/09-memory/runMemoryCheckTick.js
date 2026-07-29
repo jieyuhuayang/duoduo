@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runMemoryCheckTick  (minified: $Ke, daemon.pretty.js:56972)
+// symbol: runMemoryCheckTick  (minified: HKe, daemon.pretty.js:57094)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -8,7 +8,7 @@ async function runMemoryCheckTick(e, t) {
         check: n,
         forget: r
     } = resolveMemoryCheckFlags();
-    _U("ALADUO_EXP_MEMORY_FORGET") && !n && Ve("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
+    SU("ALADUO_EXP_MEMORY_FORGET") && !n && Be("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
     let s = {
             checkEnabled: n,
             forgetEnabled: r,
@@ -22,33 +22,33 @@ async function runMemoryCheckTick(e, t) {
             varDir: e.varDir,
             flagFallback: n
         },
-        a = OKe(() => mle(o));
+        a = VKe(() => xle(o));
     if (!a && !r) return s;
-    let u = e.memoryDir,
-        c = d => {
-            let p = ple(d, o);
+    let c = e.memoryDir,
+        u = d => {
+            let p = kle(d, o);
             s.posted.push(...p.posted), s.withheld.push(...p.withheld);
-            for (let f of p.errors) Ve(`[memory] pending delivery failed: ${f}`)
+            for (let f of p.errors) Be(`[memory] pending delivery failed: ${f}`)
         },
         l = null;
     return nd("orphan-states", () => {
-        let d = detectOrphanMemory(u, {
+        let d = detectOrphanMemory(c, {
             refTimestampMs: t
         });
         d.missing || (l = d.states)
     }), a && (nd("board-lint", () => {
-        c(qce(u, yU).selections)
+        u(Que(c, wU).selections)
     }), nd("entity-lint", () => {
-        c(Wce(u, yU).selected)
+        u(rle(c, wU).selected)
     }), nd("node-lint", () => {
-        c(Gce(u, yU).selected)
+        u(sle(c, wU).selected)
     }), nd("gap-lint", () => {
-        c(runGapLint(e.eventsDir, u).selected)
+        u(runGapLint(e.eventsDir, c).selected)
     }), nd("orphan-newborn-island", () => {
         if (l === null) return;
-        c(ile(l));
-        let d = ale(ole(l), t);
-        d && c([d])
+        u(mle(l));
+        let d = yle(gle(l), t);
+        d && u([d])
     })), r && nd("orphan-forget", () => {
         if (l === null) return;
         let d = [];
@@ -57,13 +57,13 @@ async function runMemoryCheckTick(e, t) {
                 d.push(p);
                 continue
             }
-            hle(o, routeContractDecision(p)) ? d.push(p) : s.sparedUnwarnable.push(p.rel)
+            Ele(o, routeContractDecision(p)) ? d.push(p) : s.sparedUnwarnable.push(p.rel)
         }
         s.forgotten.push(...forgetMemoryEntry(d, e.kernelDir, {
             dryRun: !1
         }))
-    }), (s.posted.length > 0 || s.forgotten.length > 0 || s.withheld.length > 0 || s.sparedUnwarnable.length > 0) && J("[memory] check tick", {
-        posted: s.posted.map(d => PKe.basename(d)),
+    }), (s.posted.length > 0 || s.forgotten.length > 0 || s.withheld.length > 0 || s.sparedUnwarnable.length > 0) && K("[memory] check tick", {
+        posted: s.posted.map(d => BKe.basename(d)),
         withheld: s.withheld,
         forgotten: s.forgotten,
         spared_unwarnable: s.sparedUnwarnable
