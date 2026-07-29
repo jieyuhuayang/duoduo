@@ -11,8 +11,16 @@ to orient a user before changing anything.
   experiment flag landed, since the background daemon's env is not visible via
   `ps`
 - `duoduo daemon config`: effective config and resolved paths
-- `duoduo daemon restart`: replace the running background daemon with a freshly
-  started process that picks up new code and env-backed settings
+- `duoduo daemon restart -r "<what changed>"`: replace the running background
+  daemon with a freshly started process that picks up new code and env-backed
+  settings. **Always pass a reason.** It is delivered to every session that
+  wakes after the restart, and a session whose turn the restart killed has no
+  other way to learn why — otherwise its most likely conclusion is that a
+  person interrupted it, which it will then state as fact. Say what changed
+  ("upgraded core to 0.6.3"), not "restart". Add `--wake <session-or-alias>`
+  (repeatable) for any session that was mid-answer: it does not wake on its
+  own, so from that user's side an interrupted reply is indistinguishable from
+  being ignored
 - `duoduo daemon logs`: daemon logs
 - `duoduo channel list`: installed channels and running state
 - `~/.config/duoduo/.env`: persistent host-mode env-backed settings
@@ -60,19 +68,26 @@ Update the CLI package:
 npm install -g @openduo/duoduo@latest
 ```
 
-Then restart the daemon:
+Then restart the daemon, naming the version you just installed:
 
 ```bash
-duoduo daemon restart
+duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
 ```
 
 Reason: the already-running background daemon keeps using the old code until it
-is restarted.
+is restarted. The `-r` string reaches every session woken afterwards, so a
+session that was interrupted learns an upgrade happened instead of guessing it
+was interrupted by a person.
+
+On newer builds both steps collapse into `duoduo upgrade [version]`, which also
+installs into the prefix that owns the running binary and supplies the reason
+itself. See [upgrade-playbook.md](upgrade-playbook.md).
 
 ## Restart Rule
 
-- Editing `~/.config/duoduo/.env`: requires `duoduo daemon restart` for
-  env-backed daemon settings to take effect.
+- Editing `~/.config/duoduo/.env`: requires
+  `duoduo daemon restart -r "changed <setting>"` for env-backed daemon settings
+  to take effect.
 - Editing `kernel/config/<kind>.md` or `descriptor.md`: takes effect on the next
   relevant turn or new session binding; channel process restart is only needed
   when credentials or plugin process env changed.
