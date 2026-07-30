@@ -1,8 +1,11 @@
 # duoduo 框架与思路全解 —— 写给产品经理的深度指南
 
-> 分析对象：`@openduo/duoduo` v0.6.2（还原源码级逆向 + 活体 daemon 实证）
-> 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核更新）
-> 读者定位：**Agent 产品经理 / 架构师**。目标是"快速入门 + 深度掌握细节原理"：每一节先给一句能转述给别人的结论和一个生活化类比，再往下钻到机制细节；细节主张带 `daemon.pretty.js:行号` 锚点（还原源码 `reconstruction/recon/daemon.recon.js` 行号与之一致），可逐条复核。
+> 分析对象：`@openduo/duoduo` v0.6.2（还原源码级逆向 + 活体 daemon 实证）  
+> 
+> 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核更新）  
+> 
+> 读者定位：**Agent 产品经理 / 架构师**。目标是"快速入门 + 深度掌握细节原理"：每一节先给一句能转述给别人的结论和一个生活化类比，再往下钻到机制细节；细节主张带 `daemon.pretty.js:行号` 锚点（还原源码 `reconstruction/recon/daemon.recon.js` 行号与之一致），可逐条复核。  
+> 
 > 与姊妹篇的分工：本文是全套分析的**入门与思路主线**，按**设计问题**组织——它怎么借用 Claude Code / Codex？一条消息怎么被处理？它怎么自我迭代？什么在防它失控？逐机制证据表见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（按子系统组织、面向逐行验证），部署与运维见 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)，跨框架选型见 [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md)。本文所有机制均已对照还原源码核验，少数推测显式标注（见附录 C）。
 
 ---
