@@ -69,12 +69,10 @@ reference covers adding a profile.
 
 ## Codex Runtime
 
-`/model` with no args shows the stored override (or `(runtime default)`)
-plus the scope's `codex.model_profiles` entries — window and layer only,
-since codex profiles carry no endpoint. No known-model list is returned;
-the Codex runtime does not expose one. A switch to a profiled codex model
-echoes its window the same way the Claude ack does, never with `routed
-endpoint`.
+`/model` with no args shows the stored override (or `(runtime default)`).
+No known-model list is returned; the Codex runtime does not expose one.
+Model profiles are a Claude-runtime concept — a codex session shows no
+profile section and its switch ack carries no window or routing line.
 
 A switch takes effect from the **next message** via an internal thread
 fork — the conversation state is preserved and the new model is applied
@@ -117,8 +115,8 @@ visible to the daemon.
 | Behavior | Claude | Codex |
 | --- | --- | --- |
 | Model list with `/model` | yes (after first turn) | no |
-| Profiled models in `/model` | yes (`claude.model_profiles`) | yes (`codex.model_profiles`) |
-| Window echoed in the switch ack | yes, + routing | yes, window only |
+| Profiled models in `/model` | yes (`claude.model_profiles`) | no (profiles are Claude-only) |
+| Window echoed in the switch ack | yes, + routing | no |
 | Switch takes effect | next turn | next message (thread fork) |
 | `/model reset` timing | next turn | next message |
 | Invalid id detection | next turn reply | next turn reply |

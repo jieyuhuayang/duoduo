@@ -3,8 +3,9 @@
 Use this reference when the user wants third-party models to work properly on their
 duoduo host: adding a model from a provider (DeepSeek, Bailian/Qwen, Kimi, GLM, an
 aggregator gateway), routing different models to different endpoints, remapping
-subagent tiers (`opus`/`sonnet`/`haiku`/`fable`), fixing a codex job that dies on
-long inputs, or understanding a `/model` acknowledgement about rebuilding.
+subagent tiers (`opus`/`sonnet`/`haiku`/`fable`), or understanding a `/model`
+acknowledgement about rebuilding. Profiles are a Claude-runtime feature; codex
+sessions have no profile namespace.
 
 **Your job is to drive the workflow**: ask the few questions only the user can
 answer, do the lookups and commands yourself, stop for confirmation before writes
@@ -180,23 +181,6 @@ curl -sS https://<endpoint>/v1/messages -H "x-api-key: $KEY_ENV_VAR" \
 Key from env, never inline. If it succeeds instead of erroring, the guess was
 low — raise and repeat.
 
-## Playbook 6 — "My codex job dies on long inputs" (codex windows)
-
-Codex models get windows too, in their own namespace — no endpoints, no
-credentials, just the number:
-
-```bash
-duoduo session config --global profile codex set <model-id> <tokens>
-# remove one:  … profile codex unset <model-id>
-```
-`profile get` shows codex entries in their own table (no endpoint/auth columns —
-codex windows are just the number).
-
-Relay two facts in plain words: *"codex reports about 95% of the number you set —
-that's its own safety margin, not an error"* and *"changes reach a live session by
-forking its thread: history survives, nothing is lost."* Gateways under-serving
-codex models is the classic cause here — probe first (Playbook 5).
-
 ---
 
 ## Phrasebook — say it like this
@@ -256,8 +240,7 @@ frontmatter (instance, wins). Per model id / per alias tier, never whole-map.
 (forever valid); object = `max_context_tokens` (required) + `base_url` + exactly
 one of `anthropic_auth_token` / `claude_code_oauth_token` (values stored plainly;
 file chmod'd 0600 when credentials present — runtime.md, kind files and
-descriptors alike; every display path masks to last 4). `codex.model_profiles`:
-bare numbers only.
+descriptors alike; every display path masks to last 4).
 
 **Aliases** (`claude.model_aliases`): keys limited to
 `fable|opus|sonnet|haiku`; delivered as `ANTHROPIC_DEFAULT_*_MODEL` to the

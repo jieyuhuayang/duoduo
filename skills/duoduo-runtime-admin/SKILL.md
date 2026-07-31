@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), codex model windows, CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, "profiles not working" troubleshooting. Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, "profiles not working" troubleshooting. Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -124,11 +124,12 @@ from an invalid model id.
 
 For hosts running third-party models, **model profiles** teach duoduo each
 model's real context window, its endpoint + credentials (per-model routing),
-subagent tier aliases, and codex windows. Read
+and subagent tier aliases (Claude runtime only — codex has no profile
+namespace). Read
 [references/model-context-profiles.md](references/model-context-profiles.md)
 **before answering any profile question** — it is written as guided playbooks
 (add a model / route to an endpoint / remap tiers / troubleshoot / probe an
-endpoint / codex windows) with plain-language phrasings to relay, plus the
+endpoint) with plain-language phrasings to relay, plus the
 mechanism facts at the bottom for your own verification. Non-negotiables it
 enforces: secret custody (you may receive a key the human hands you — in chat,
 env, or file — but the raw value must never appear in anything you emit; take it
