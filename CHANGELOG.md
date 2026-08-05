@@ -2,6 +2,99 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.7.0] - 2026-08-05
+
+The daemon no longer accepts full control over a network port. Everything that
+can change your agent's state now travels over a unix socket that only your own
+user account can open, and the TCP port keeps serving the dashboard as a
+read-only view. This release also adds per-model context windows and endpoint
+routing, teaches `duoduo upgrade` to upgrade channel plugins too, and fixes
+attachments arriving one message late. Bundled Claude runtime updated.
+
+**Upgrading: reinstall and restart your channels.** The gateways connect to the
+daemon over the new socket, so a gateway still running the old build cannot
+reach the upgraded daemon — your bot will go quiet while accepting messages.
+After upgrading, run `duoduo channel <kind> install`, then `stop` and `start`,
+for each channel you use. From this release onward `duoduo upgrade` does this
+for you; it cannot help the upgrade that introduces it.
+
+### Breaking changes
+
+- **The daemon's control interface moved to a unix socket.** It used to serve
+  its entire interface — send messages, change models, archive sessions, read
+  conversation history — on `127.0.0.1:20233` with no authentication of any
+  kind. Any program on the machine could drive your agent, and any web page you
+  visited could try. That interface now lives on a socket file that carries
+  owner-only permissions, so the operating system enforces what nothing was
+  enforcing before. The CLI and the channel gateways move over automatically.
+- **`127.0.0.1:20233` is now read-only.** It answers the handful of methods the
+  dashboard needs and rejects everything else, and it no longer speaks
+  WebSocket. The dashboard is unaffected. Anything else pointed at that port
+  gets a reply explaining where the full interface went. If your own scripts
+  used that port for control, point them at the CLI instead — and note that
+  when a locally-configured URL names this port, the CLI now recognises it as
+  the old default and quietly uses the socket, so most setups keep working.
+- **`ALADUO_DAEMON_HOST` means something different.** It used to choose where
+  the main port bound, and setting it to a non-loopback address silently
+  published that unauthenticated interface to the network. The read-only port
+  is now pinned to loopback and ignores it. The variable instead selects the
+  bind address for the optional remote listener described below, which refuses
+  to start without a token.
+
+### Highlights
+
+- **Opt-in remote access, with a token.** If you genuinely need to reach a
+  daemon from another machine, `duoduo daemon token new` generates a bearer
+  token and stores it with owner-only permissions. The remote listener starts
+  only when a host, a port and a token are all present, and every request must
+  carry the token. A misconfigured remote setup — a public address with no
+  token, or a port colliding with the read-only one — refuses to start rather
+  than exposing anything.
+- **`duoduo upgrade` upgrades channel plugins too.** It used to upgrade only
+  the core, leaving gateways on older builds until you remembered to reinstall
+  them by hand. It now installs each channel, restarts the daemon, and brings
+  the channels back, in an order where a failed download leaves that channel
+  running its previous build rather than stopping it. It also compares versions
+  properly, so a pre-release is no longer mistaken for newer than its release.
+- **Per-model context windows and endpoint routing.** A model served through a
+  gateway can now declare its real context window, its own endpoint and
+  credential, and tier aliases, so a session on that model is no longer capped
+  by whatever window the runtime assumed. A model chosen by your settings
+  rather than by an explicit `/model` gets its configuration attached too. See
+  the `duoduo-runtime-admin` skill. Claude sessions only.
+- **`/loop` follows a quality-graded work discipline.** The self-continuation
+  loop now judges progress by whether a named gap actually closed, and stops
+  when the work meets its bar instead of when it runs out of turns.
+- **Codex sessions accept inbound images** as first-class turn input rather
+  than as a path the model has to open for itself.
+- **An agent must now say why it restarted the daemon.** v0.6.2 warned that
+  the next release would reject a reason-less restart from inside a session;
+  this is that release. It applies only to a restart run from within a
+  session — you, your scripts and the menubar app are unaffected. The reason
+  is the only way a session whose turn was killed can learn what happened;
+  without one its likeliest conclusion is that a person interrupted it, which
+  it will then state as fact.
+
+### Fixes
+
+- **Attachments no longer arrive one message late.** A file produced while a
+  turn was settling was held back and delivered with the *next* message, so a
+  background job's report would announce a chart that showed up minutes later,
+  attached to something unrelated.
+- **Repeating a gateway command works.** Sending the same command twice — the
+  common case being `/model` to check the current model and then again to
+  switch — silently swallowed the second one, which read as the agent hanging.
+- **The daemon defends against hostile web pages.** A page you visit could ask
+  your browser to talk to the daemon by pretending a public hostname resolves
+  to your machine. Requests are now checked against that, in addition to the
+  socket move that takes the control interface off the browser's reach
+  entirely.
+- **Uploads are written atomically**, so a file being received can no longer be
+  read half-written, and a crafted filename can no longer escape the directory
+  it belongs in.
+- **Security advisories cleared.** Sixteen known vulnerabilities in bundled
+  dependencies (eight high severity) are resolved.
+
 ## [v0.6.2] - 2026-07-28
 
 This release stops background workers from being killed as collateral when an
