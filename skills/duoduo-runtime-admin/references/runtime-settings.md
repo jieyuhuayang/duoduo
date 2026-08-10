@@ -56,6 +56,32 @@ binary or env from your shell.
   but a compatible local `claude` executable is available. Prefer an absolute
   path. After editing it, restart the daemon.
 
+### Transport keys (v0.7.0 and later)
+
+From v0.7.0 the daemon serves its full interface on an owner-only unix
+socket and keeps `127.0.0.1:20233` as a read-only surface for the
+dashboard. Local clients need no configuration — the socket is the
+default.
+
+- `ALADUO_PORT`: the **read-only** TCP port (default `20233`). Always
+  loopback; it cannot be moved off it.
+- `ALADUO_DAEMON_SOCKET`: absolute path override for the socket. Rarely
+  needed. Note the OS caps a socket path at ~100 characters, and the
+  daemon refuses to start rather than truncate.
+- `ALADUO_DAEMON_HOST` + `ALADUO_REMOTE_PORT` + `ALADUO_DAEMON_TOKEN`:
+  the **opt-in remote listener**, which carries the full interface and
+  requires the token on every request. All three must be present or it
+  does not start; the remote port must differ from the read-only port.
+  Generate the token with `duoduo daemon token new` — it prints once to
+  stdout and is stored with owner-only permissions. **Before v0.7.0
+  `ALADUO_DAEMON_HOST` chose where the main port bound, and a
+  non-loopback value published an unauthenticated interface. That
+  configuration now fails closed.**
+- Remote *clients* set `ALADUO_DAEMON_URL` to the remote listener's
+  address plus their own `ALADUO_DAEMON_TOKEN`.
+
+All of these need a daemon restart to take effect.
+
 ## Experimental Flags (default OFF — opt in per host)
 
 These gate not-yet-default capabilities. All default OFF; set them in
