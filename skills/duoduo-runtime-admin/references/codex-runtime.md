@@ -44,7 +44,7 @@ Duoduo picks a runtime by specificity:
 1. Actor-level declaration, such as a channel descriptor, job frontmatter, or
    partition frontmatter.
 2. Channel-kind default in `kernel/config/<kind>.md`.
-3. Global default, usually `ALADUO_DEFAULT_RUNTIME=codex`.
+3. Global default: `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, or `grok`).
 4. Conservative fallback: `claude`.
 
 Use `ALADUO_DEFAULT_RUNTIME=codex` only when the operator wants all actors
@@ -62,6 +62,33 @@ Do not claim existing sessions hot-swap immediately after changing defaults.
 For a live channel, check its descriptor and session state, then rebind/archive
 when the user wants a clean runtime switch.
 
+## Tool-Surface Trim (recommended for duoduo hosts)
+
+A default `~/.codex/config.toml` exposes the full apps connector catalog to
+every codex session (~200 tools: Adobe/Canva/Figma/Gmail/quotes/weather …)
+whenever auth looks like the ChatGPT backend, plus interactive-only tools.
+duoduo sessions never use those. Recommended entries:
+
+```toml
+[features]
+apps = false          # removes the codex_apps connector catalog
+goals = false         # goal auto-continuation fights mailbox-driven turns
+
+[tools]
+experimental_request_user_input = { enabled = false }
+```
+
+Optionally disable user-level MCP servers duoduo sessions do not need
+(`openaiDeveloperDocs`, the ChatGPT.app `node_repl`) with `enabled = false`.
+Keep per owner preference: collaboration tools (`spawn_agent` & co.),
+`image_gen`, `view_image`, web search, `update_plan`.
+
+Feature gates are session-static: existing threads keep their tool surface
+until the next fork/cold resume, so follow config edits with
+`duoduo daemon restart -r "..."` for an immediate cutover. duoduo's codex
+app-server shares `~/.codex` with manual `codex` use on the same host — the
+trim applies to both.
+
 ## Caveats
 
 - Codex project trust is local to the machine. Multi-host deployments need
@@ -69,6 +96,8 @@ when the user wants a clean runtime switch.
 - `workspace-write` sandbox blocks network access, including localhost. Use
   `ALADUO_CODEX_SANDBOX=danger-full-access` only when the user explicitly needs
   networked commands from Codex.
-- Codex does not honor Claude-style tool allow/deny lists exactly. Treat tool
-  restrictions as instructions, not hard enforcement, when the selected runtime
-  is Codex.
+- Codex has no per-tool allow/deny lists like Claude's `allowedTools`; duoduo's
+  per-tool restrictions are ignored on the codex runtime. The built-in surface
+  can only be trimmed per family via the `~/.codex/config.toml` gates above,
+  which are hard config, not instructions. duoduo-side MCP tools stay governed
+  by the duoduo allowlist either way.
