@@ -2,6 +2,101 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.7.1] - 2026-08-18
+
+Grok joins Claude and Codex as a third agent runtime, so a session can now run
+on any of the three and still see the same tools, the same prompt layering and
+the same interruption behaviour. Sessions also stop holding a runtime process
+open forever while they sit idle, `duoduo upgrade` finally works when you run it
+from inside a session, and the bundled Claude runtime is updated.
+
+**Upgrading is routine this time** — reinstall and restart your channels as
+usual. If you are on v0.7.0 and upgrade from inside a duoduo session, that now
+works; before this release it could kill the very process performing the
+upgrade.
+
+### Highlights
+
+- **Grok is a first-class runtime.** It sits behind the same seam as Claude and
+  Codex rather than beside it: one long-lived agent process per session, duoduo's
+  own tools reachable from it, mid-turn steering, and the same
+  kind/instance/job/partition prompt fields — including whether the prompt is
+  appended or replaces the runtime's own. Availability is checked against the
+  Grok CLI you already have installed, and it fails closed: asking for Grok when
+  Grok is not usable gives you a clear error, never a silent fall back to Claude.
+  Token and cache accounting understands Grok's own reporting shape, so cost
+  numbers stay comparable across the three.
+- **Idle sessions release their runtime process.** A session that has gone quiet
+  now tears down its runtime subprocess and rebuilds it on the next message,
+  instead of holding it open for as long as a gateway stayed connected. This was
+  unbounded before: a channel that keeps one permanent connection per binding —
+  which is normal — kept every session it had ever touched resident, with no cap
+  on how many or for how long. Nothing was gained by holding them; the model
+  provider's prompt cache has already expired by then, so the only cost of
+  reclaiming is a slightly slower first reply after a long silence.
+- **`duoduo upgrade` survives being run from inside a session.** It now hands
+  the work to a detached process, so the upgrade cannot be killed by the restart
+  it is performing.
+- **Codex tools stay where the model can see them.** duoduo's tools are mounted
+  under their own namespace and pinned to the top level, so they no longer get
+  demoted out of the model's directly-visible tool list on runtimes that hide
+  ordinary tools behind a code-execution shim. Existing Codex conversations keep
+  their old tool list until you start a new one.
+- **Subconscious memory got more precise.** Crystallised claims are scoped to the
+  entity they are about rather than to the whole corpus, and partition inboxes
+  now have defined snapshot semantics, so a partition can no longer quietly lose
+  or re-process work handed to it.
+
+### Fixes
+
+- The Feishu setup card dropped runtimes the daemon had advertised, so a runtime
+  you had available could not be chosen during setup.
+- A failed Grok availability probe reported "not authenticated" regardless of
+  the real cause, sending people to re-login for problems that were not login
+  problems.
+- Codex sessions forked their conversation when only the shared board had
+  changed, losing history for a change that did not require it.
+- The Codex tool-call convention is no longer assumed, so reminders reach the
+  model whichever calling convention it uses.
+- Several idle-reclaim edge cases: reclaiming the Grok adapter on timeout,
+  guarding the exit-path audit on a process that is actually alive, and covering
+  the cold respawn.
+
+### Preview — ambient
+
+**duoduo is growing ears and a voice.**
+
+A small device on the shelf. Always on, always listening, no wake word to
+chant, no button to hold, no phone in your hand. It works out for itself when
+something was meant for it — and most of the time, correctly, that answer is
+"not this". You just talk in your room, and sometimes the room talks back.
+
+It is running today. Here is what already works end to end, and what we are
+proudest of:
+
+- **Interrupt it. Actually interrupt it.** Not "it finishes the sentence then
+  stops" — it cuts mid-word, and here is the part we like: it then knows exactly
+  how much of its answer reached your ears and how much died in its throat. The
+  next thing it says is grounded in what you *heard*, not in the paragraph it
+  meant to say. And it never mutes its own microphone to hear itself think —
+  going deaf the moment you open your mouth is not a conversation, it is a
+  walkie-talkie.
+- **It knows who is talking — and it will not guess.** An unfamiliar voice gets
+  a temporary badge for that room, never a permanent name. You promote it by
+  writing one line in the room's notes, the way you would introduce a person.
+  The code is forbidden from deciding two voices are the same person on its own.
+  We let it try that. Twice. Both times the entire room quietly collapsed into
+  one identity — the most confident, least detectable kind of wrong.
+- **It hears everything and answers almost nothing.** That restraint is the hard
+  part, and it is where most of our measurement has gone. A machine that
+  answers every sentence in a room is not present; it is a hazard.
+
+The brains sit next to the models — continuous transcription, separating who
+said what, understanding, speech — with the duoduo you already know doing the
+thinking.
+
+No install this time. Watch this space.
+
 ## [v0.7.0] - 2026-08-05
 
 The daemon no longer accepts full control over a network port. Everything that
