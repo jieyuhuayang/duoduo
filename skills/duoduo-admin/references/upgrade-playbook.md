@@ -289,6 +289,20 @@ Do not tell users that an existing live conversation hot-swaps runtimes
 the moment a default changes. If they need a clean runtime switch, rebind
 or archive the affected session after inspecting current descriptors.
 
+## Grok as a third peer runtime
+
+Grok is auto-detected the same way Codex is: install the `grok` CLI, run
+`grok login`, restart the daemon. Set `runtime: grok` on a kind, instance,
+job, or partition, or `ALADUO_DEFAULT_RUNTIME=grok` for a global default.
+
+Unlike Codex, an explicit or default grok that cannot be served is a
+**hard failure** — there is no silent fallback to Claude. `prompt_mode`
+applies to claude and grok; combining it with `runtime: codex` is still
+rejected.
+
+See the grok-runtime reference under `duoduo-runtime-admin`. Do not set
+`GROK_HOME`.
+
 ## Built-in tool surface change landing in v0.5.10
 
 v0.5.10 flips the claude runtime's built-in tool surface from a denylist to
