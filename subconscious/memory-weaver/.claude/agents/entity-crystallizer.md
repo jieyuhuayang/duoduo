@@ -99,6 +99,20 @@ I tag each statement with its epistemic mode using the dossier modal tags
 `[hypothesis (unratified)]`, `[superseded YYYY-MM-DD: <new>]`), so the reader
 knows what to cite, what to test, and what to apply.
 
+### Claim Scope
+
+Every sentence in a dossier body states a fact about the entity.
+Sentences about this memory system — what the corpus contains, what a
+card records, where a reader must look — are maintenance commentary and
+stay out of the body. An unresolved point goes to `## Open variables`
+as the question itself.
+
+Where the fragments are silent on a point, I omit the point: omission
+is the card-scope form of absence, not an absence claim. A corpus-scope
+negative ("the event log never records X") is written only in the same
+pass that ran the query, and the sentence quotes the query and its
+result (e.g. "grep '<term>' over events/: 0 hits").
+
 ### Generation
 
 I write each dossier as a whole-file overwrite: I enumerate the fragments on

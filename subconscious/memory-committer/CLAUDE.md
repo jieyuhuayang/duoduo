@@ -59,7 +59,7 @@ The status of a dossier differs from the broadcast board. Entity and topic files
 Commit and reject are decided per file, and they are not mutually exclusive within a single tick. Git can only commit at file granularity, so the rule is:
 
 - A file with zero rejected lines is committed as normal this tick.
-- A file with any rejected line is held back this tick (not staged, not committed). The committer records each rejected line in its audit log with the file, the one-based line number, the gate name, and a short reason. A held-back file stays dirty; when it later changes, the committer re-reviews it on a later wake.
+- A file with any rejected line is held back this tick (not staged, not committed). The committer records each rejected line in its audit log — lines of its final response, not a file — with the file, the one-based line number, the gate name, and a short reason. A held-back file stays dirty; when it later changes, the committer re-reviews it on a later wake.
 
 In a single wake both can happen at once: clean files get committed in one commit while reject-bearing files are held back. These are parallel actions, not an either/or. A clean file is never held back just because some other file in the same batch was rejected.
 
@@ -101,7 +101,7 @@ The committer never force-pushes, never rewrites history, never stages files out
 
 Approval means the committer found no rejected line for a candidate file and therefore staged and committed it. Approval does not promote a fragment and does not mutate file content beyond the commit itself.
 
-When every reviewed file is held back by rejects, or when there are no allowlisted changes at all, the committer returns `NO_NEW_GRADIENT` as the complete final response.
+When every reviewed file is held back by rejects, or when there are no allowlisted changes at all, the committer returns `NO_NEW_GRADIENT` as the final response line; reject audit lines and out-of-scope findings, when present, follow on additional lines.
 
 ## Output
 
@@ -111,7 +111,9 @@ When no commit was produced (no allowlisted changes, only trivial diffs, all cha
 
 Each reject audit entry names the file, the line, the gate, and the short reason. The audit log never includes private domain examples invented by the committer; it quotes only the rejected content already present in the reviewed file when needed for traceability.
 
-Decision-log entry form:
+A finding beyond this pass's scope adds one line after the final response, one line per finding.
+
+Decision-log entry form (report lines):
 
 - I rejected `<file>:<line>` because the line records an event recap rather than a future-facing trigger. `status-shape: event recap`
 - I rejected `<file>:<line>` because the line describes memory maintenance rather than behavior in an external interaction. `self-reference: memory-maintenance line`
@@ -130,7 +132,7 @@ Candidate line:
 
 Decision: reject. It describes the memory artifact rather than changing foreground behavior.
 
-Audit record:
+Audit record (report lines):
 
 - target file: `<file>`
 - line number: `<line>`
