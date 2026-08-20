@@ -103,17 +103,22 @@ stdio : nodes compared: 408291 | identifier checks: 152528 | rename-map matches:
 
 ### 4b. v0.7.1 新机制的活体验证：unix socket 全权限 + TCP 只读
 
+> `-H 'Content-Type: application/json'` **不可省**：`curl -d` 默认发 `application/x-www-form-urlencoded`，fastify 会先返回 `415 FST_ERR_CTP_INVALID_MEDIA_TYPE`，请求根本到不了 JSON-RPC 分发层——省掉它会把"方法是否被允许"误判成"端点坏了"。
+
 ```
-$ curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
+$ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
+    -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
 {"jsonrpc":"2.0","id":1,"result":{"health":{...},"cadence":{...},"memory_check":{...}}}   # 只读方法：通过
 
-$ curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":2,"method":"session.send","params":{}}'
+$ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
+    -d '{"jsonrpc":"2.0","id":2,"method":"session.send","params":{}}'
 {"jsonrpc":"2.0","id":2,"error":{"code":-32601,"message":"Method not available on read-only endpoint"}}   # 写方法：按预期拒绝
 
 $ ls -la /tmp/iso071/.aladuo/run/daemon.sock
 srw------- 1 root root 0 ... daemon.sock                       # mode 0600，父目录 0700
 
-$ curl -s --unix-socket /tmp/iso071/.aladuo/run/daemon.sock http://localhost/rpc \
+$ curl -s -H 'Content-Type: application/json' \
+    --unix-socket /tmp/iso071/.aladuo/run/daemon.sock http://localhost/rpc \
     -XPOST -d '{"jsonrpc":"2.0","id":3,"method":"system.status","params":{}}'
 {"jsonrpc":"2.0","id":3,"result":{...}}                         # socket 上同一方法照常工作
 ```
@@ -201,12 +206,18 @@ for b in daemon cli stdio; do npx js-beautify "$OLDPKG/$b.js" > "$SP/beautified/
 OLD="$SP/beautified/v0.6.2" NEW="$SP/beautified/v0.7.1" bash bump.sh
 
 # 3) 证据四（隔离 HOME + 备用端口，勿用默认 :20233）
+# 隔离 HOME 必须短：socket 路径 >104 字节时 daemon 直接 fatal 退出（unix socket 硬限制），
+# 放在 /tmp 下的短目录，别用深层临时目录。socket 路径写死成隔离 HOME 的绝对路径——
+# 写 "$HOME/..." 会展开成外层真实 HOME，探到线上 daemon 而不是这个隔离实例。
+ISO=/tmp/iso071 && mkdir -p "$ISO" && chmod 700 "$ISO"
 cp ../recon/*.recon.js "$PKG/" && cd "$PKG"
-HOME=/tmp/iso071 ALADUO_PORT=20334 ALADUO_LOG_LEVEL=info \
+HOME="$ISO" ALADUO_PORT=20334 ALADUO_LOG_LEVEL=info \
   ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" ALADUO_RUNTIME_MODE=host \
   ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local node daemon.recon.js &
-curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
-curl -s --unix-socket "$HOME/.aladuo/run/daemon.sock" http://localhost/rpc \
+curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
+  -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
+curl -s -H 'Content-Type: application/json' \
+  --unix-socket "$ISO/.aladuo/run/daemon.sock" http://localhost/rpc \
   -XPOST -d '{"jsonrpc":"2.0","id":2,"method":"system.status","params":{}}'
 kill %1
 ```

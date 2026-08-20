@@ -66,11 +66,24 @@ The reconstructed daemon boots as a real daemon. To verify it **without disturbi
 ```bash
 cp reconstruction/recon/daemon.recon.js "$PKG/"     # must run from package dir for peer-dep resolution
 cd "$PKG"
-HOME=/tmp/iso ALADUO_PORT=20333 ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" \
+ISO=/tmp/iso && mkdir -p "$ISO" && chmod 700 "$ISO"   # keep it SHORT: the daemon refuses to boot
+                                                      # if <HOME>/.aladuo/run/daemon.sock exceeds the
+                                                      # 104-byte unix-socket limit (fatal, not a warning)
+HOME="$ISO" ALADUO_PORT=20333 ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" \
   ALADUO_RUNTIME_MODE=host ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local \
-  node daemon.recon.js        # starts server + cadence + WAL; SIGTERM to stop
-# probe: curl -s -XPOST 127.0.0.1:20333/rpc -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
+  ALADUO_LOG_LEVEL=info \
+  node daemon.recon.js        # starts socket + read-only TCP + cadence + WAL; SIGTERM to stop
+
+# probe the READ-ONLY TCP surface (6 allowlisted methods; writes get -32601)
+curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20333/rpc \
+  -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
+# probe the FULL control plane — it lives on the unix socket
+curl -s -H 'Content-Type: application/json' \
+  --unix-socket "$ISO/.aladuo/run/daemon.sock" http://localhost/rpc \
+  -XPOST -d '{"jsonrpc":"2.0","id":2,"method":"session.list","params":{}}'
 ```
+
+Two things silently break these probes: omitting `-H 'Content-Type: application/json'` (curl defaults to form-encoding, so fastify answers `415` before JSON-RPC dispatch — it reads like a dead endpoint), and writing `"$HOME/.aladuo/run/daemon.sock"` for the socket path (the `HOME=` prefix applied only to `node`, so `$HOME` expands to your **real** home and you probe the live daemon instead of the isolated one). Default log level is `warn`; set `ALADUO_LOG_LEVEL=info` or boot-time behaviour looks like dead code.
 
 Deploying the shipped runtime (non-TTY onboarding requires these env vars, else `onboard` exits code 2):
 

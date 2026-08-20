@@ -240,15 +240,19 @@ duoduo channel feishu start
 
 **本轮活体验证**（隔离环境，`ALADUO_PORT=20334`）：
 ```
-$ curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
+$ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
+    -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
 {"jsonrpc":"2.0","id":1,"result":{...}}                                          # 只读方法：通过
-$ curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":2,"method":"session.send","params":{}}'
+$ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
+    -d '{"jsonrpc":"2.0","id":2,"method":"session.send","params":{}}'
 {"jsonrpc":"2.0","id":2,"error":{"code":-32601,"message":"Method not available on read-only endpoint"}}   # 写方法：按预期拒绝
 $ ls -la <runDir>/daemon.sock
 srw------- 1 <uid> <uid> 0 ... daemon.sock                                       # mode 0600
-$ curl -s --unix-socket <runDir>/daemon.sock http://localhost/rpc -XPOST -d '...system.status...'
+$ curl -s -H 'Content-Type: application/json' \
+    --unix-socket <runDir>/daemon.sock http://localhost/rpc -XPOST -d '...system.status...'
 {"jsonrpc":"2.0","id":3,"result":{...}}                                          # socket 上同一方法照常工作
 ```
+> 探测时 `-H 'Content-Type: application/json'` 不可省：`curl -d` 默认发 `application/x-www-form-urlencoded`，fastify 在 JSON-RPC 分发之前就返回 `415 FST_ERR_CTP_INVALID_MEDIA_TYPE`，会把"方法被只读端点拒绝"误读成"端点不可用"。
 daemon 日志同步落一条 `[WARN] [daemon] rejected write method on read-only port { method: 'session.send', id: 2 }`，与代码路径逐条对应（详见 `reconstruction/VERIFICATION.md`）。
 
 ### 10.3 RPC 接口
