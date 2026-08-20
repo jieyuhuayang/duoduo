@@ -1,8 +1,8 @@
 # duoduo 框架与思路全解 —— 写给产品经理的深度指南
 
-> 分析对象：`@openduo/duoduo` v0.6.2（还原源码级逆向 + 活体 daemon 实证）  
+> 分析对象：`@openduo/duoduo` **v0.7.1**（还原源码级逆向 + 活体 daemon 实证）  
 > 
-> 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核更新）  
+> 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核；2026-08-20 随上游 v0.7.1 复核更新）  
 > 
 > 读者定位：**Agent 产品经理 / 架构师**。目标是"快速入门 + 深度掌握细节原理"：每一节先给一句能转述给别人的结论和一个生活化类比，再往下钻到机制细节；细节主张带 `daemon.pretty.js:行号` 锚点（还原源码 `reconstruction/recon/daemon.recon.js` 行号与之一致），可逐条复核。  
 > 
@@ -532,7 +532,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 | kernel（git） | `~/aladuo/{CLAUDE.md, memory/, subconscious/}` |
 | 值班表 / cadence 队列 | `~/aladuo/subconscious/playlist.md`；`~/.aladuo/var/cadence/queue.md` |
 | 分区收件箱 | `~/.aladuo/var/subconscious/<partition>/inbox/*.pending` |
-| 控制面 | `POST 127.0.0.1:20233/rpc`（JSON-RPC 2.0）；`GET /dashboard` |
+| 控制面 | 全权：`~/.aladuo/run/daemon.sock`（unix socket，mode 0600）；只读：`POST 127.0.0.1:20233/rpc`（6 方法白名单）+ `GET /dashboard` |
 | 持久 env | `~/.config/duoduo/.env`（`DUODUO_NODE_BIN`、`ALADUO_CLAUDE_AUTH_SOURCE`、飞书凭据等） |
 | 渠道插件 | `~/.aladuo/plugins/channels/<type>/{package/, manifest.json, run/pid.json, run/plugin.log}` |
 | 渠道配置 | kind 级 `~/aladuo/config/<kind>.md`；实例级 `~/.aladuo/var/channels/<id>/descriptor.md` |
@@ -548,7 +548,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 
 ## 附录 C · 材料与可信度
 
-- **证据基础**：本文全部机制主张来自①还原源码（`reconstruction/recon/*.recon.js`，经 47 万节点 AST 全等证明与出厂 bundle 语义等价，见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)）；②npm 包内 `bootstrap/` 与仓库 `subconscious/`、`skills/` 的提示词原文；③本机活体 daemon 的只读观测（`~/aladuo` git log、cadence 队列、分区收件箱、RPC）。三路交叉印证。行号锚点指 `daemon.pretty.js`（与 `daemon.recon.js` 行号一致，偶有 ±2 漂移）。
+- **证据基础**：本文全部机制主张来自①还原源码（`reconstruction/recon/*.recon.js`，经 50 万节点 AST 全等证明与出厂 bundle 语义等价，见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)）；②npm 包内 `bootstrap/` 与仓库 `subconscious/`、`skills/` 的提示词原文；③本机活体 daemon 的只读观测（`~/aladuo` git log、cadence 队列、分区收件箱、RPC）。三路交叉印证。行号锚点指 `daemon.pretty.js`（与 `daemon.recon.js` 行号一致，偶有 ±2 漂移）。
 - **显式标注的推测点**（其余均 confirmed）：①Codex 适配器不重复注入 identity 的**动机**（行为是事实）；②`metaPromptDstPath = ~/.claude/CLAUDE.md` 疑为遗留路径（无调用点）；③"回滚点"无自动回滚代码（grep 未命中，属否定性结论，置信高）；④渠道插件进程无自动重启（CLI/daemon 两侧全量搜索无 supervisor 逻辑，否定性结论，置信高）。（注：v0.5.10 起工具面已由 denylist 反转为 allowlist，`DEFAULT_DISALLOWED_TOOLS` 退役、`CLAUDE_CORE_TOOLS`/`PARTITION_CORE_TOOLS` 上位，均为 confirmed，不再含"禁用动机"这一推测项。）
 - 渠道一节（2.5）另有实包证据：`@openduo/channel-feishu` v0.5.9 从 npm 解包核验（WebSocket 长连接、session_key 派生、卡片/语音渲染均出自其 `dist/plugin.js` 与 README），配置与运维流程比照仓库 `skills/duoduo-channel-admin/` 官方技能文档。
 - 如需逐机制的完整证据表与对抗验证记录，见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)。

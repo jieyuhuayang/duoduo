@@ -2,7 +2,7 @@
 
 目标命题：**还原后的 `recon/*.recon.js` 与出厂 `dist/release/*.js` 是同一个程序，能同样运行。**
 
-采用五条相互独立的证据，从“结构无损”到“语义全等”到“实机运行”层层加固，最后一条覆盖**跨版本重定向**这一新增风险面。以下为实测输出（2026-08-20，Node v22.22.2，`@openduo/duoduo` **v0.7.1**）。
+采用六条相互独立的证据，从“结构无损”到“语义全等”到“实机运行”层层加固，第五条覆盖**跨版本重定向**，第六条覆盖**可读树与 bundle 的一致性**——前五条只证明 `recon/*.recon.js`，都不看 `first-party/` 一眼，而那里出错是静默的。以下为实测输出（2026-08-20，Node v22.22.2 与 v22.17.0 两台各跑一遍，产物字节一致，`@openduo/duoduo` **v0.7.1**）。
 
 ---
 
@@ -160,9 +160,34 @@ stdio : old=745  new=868  matched=730   changedOld=15   unmatchedNew=137  (pureN
 
 本轮额外命中一处**结构性发现**，而非单纯的换名：v0.6.2 文档记载的"运行时枚举三处独立词法作用域常量"（`s2e`/`aHe`/`lhe`，刻意强调"非笔误"）在 v0.7.1 已被**合并成唯一权威定义** `Ex = ["claude","codex","grok"]`（`daemon.pretty.js:31090`），旧的三个副本站点现在都只是调用共享的 `Rx()`/`Fc()`/`Xl()`。全文件 grep 三值字面量数组只剩这一处命中——这是指纹匹配无法从"名字"层面发现的那类真实重构，必须读代码确认。
 
-另有一处**工具口径缺口**，本轮修复：`tools/build_rename.mjs` 的 first-party 关键词白名单没有 `grok`/`namespace` 类关键词，导致首次跑 `rebuild.sh` 时 19 个 Grok 符号与 `ALADUO_TOOL_NAMESPACE` 被判定为"非第一方"而不改名（`first-party rename entries: 120`）。补上 `grok`/`toolnamespace`/`aladuo_tool` 关键词后复跑，第一方符号数升到 `139`，`first-party/11-runtime-grok/` 才补全为可读源码——这提醒**版本升级引入新子系统时，关键词白名单本身也是需要复核的假设**，而非静态配置。
+另有一处**工具口径缺口**：`tools/build_rename.mjs` 的 first-party 关键词白名单没有 `grok`/`namespace` 类关键词，导致首次跑 `rebuild.sh` 时 19 个 Grok 符号与 `ALADUO_TOOL_NAMESPACE` 被判定为"非第一方"而不改名（`first-party rename entries: 120`），`first-party/11-runtime-grok/` 整个子系统不存在——**而三条等价性证据全部照常通过**：不改名不影响无损拆包，也不影响 AST 全等（改名表里没有它们，自然没有不一致），daemon 照常启动。这类缺失只有靠人读才能发现。
+
+补关键词只能修掉这一次。真正的修复是**不再信任这份启发式是完整的**：`build_rename.mjs` 现在带一道覆盖率闸门——每个从 `__export` 恢复出的导出名都必须**被交代过**，要么判定为第一方，要么记录在 `maps/vendor_baseline_<bundle>.json` 里；两者都不是，就说明它是相对基线**新出现**的名字，构建直接失败并列出这些名字，由人判定归属（第一方→加关键词；vendor→`--accept-vendor` 记账）。基线以**导出原名**为键（跨构建稳定），而非每次重新 mangle 的短名。
+
+回放验证：把 v0.7.1 手工补的那几个关键词去掉、重跑闸门，它精确报出当初被静默吞掉的那 19 个名字并以非零码退出。同一个缺口再发生一次，会是构建失败，而不是一个没人注意到的空目录。
 
 **结论**：跨版本重定向不是"把旧表拿来再跑一遍"，而是一次可证明的身份迁移；未能自动迁移的条目全部被显式报出并逐个复位，没有静默失败。
+
+---
+
+## 证据六 · 可读树与 bundle 一致（`tools/verify_first_party.mjs`）
+
+前五条证据全部只证明 `recon/*.recon.js`，**没有一条看 `first-party/` 一眼**。而人真正阅读的是后者，且它出错的每一种方式都是静默的：改名是作用域安全的，所以"函数体挂在错的符号名下""行锚点过期""头部与改名表不一致"在运行期代价为零，前五条证据照样全绿。
+
+本轮即抓到实例：`extract_functions.mjs` 用正则找声明行，`m.index` 落在**前一行的换行符**上、`\s*` 继续吞空行，139 个头部有 129 个偏 1–2 行；且正则看不见非首个声明符的名字，4 个符号（`AgentSdkTurnInterruptedError` 等，声明在共享的 `var A, B, C = $(() => {...})` 惰性块里）长期显示 `?`。改为从 AST 取声明行后全部归位。
+
+因此补第六条，四项冗余各自独立可查：
+
+```
+first-party files: 139
+  body verbatim in recon : 139/139     # 抽取是 daemon.recon.js 的逐字切片
+  header vs rename map   : 139/139     # 头部 短名->真名 与改名表一致
+  line anchor exact      : 139/139     # 头部行号 IS 该符号的声明行
+index.json: 139 条，与磁盘一一对应，0 个未解析锚点
+RESULT: first-party tree is consistent with the bundle
+```
+
+故障注入复核（把 `runBoardLint` 的锚点从 57529 改回 57527）：`anchor says line 57527, q7e is declared at 57529`，非零退出——不是一条永远为真的空检查。
 
 ---
 
@@ -176,6 +201,8 @@ stdio : old=745  new=868  matched=730   changedOld=15   unmatchedNew=137  (pureN
 | `node --check` 语法 | ✓ | ✓ | ✓ |
 | 实机运行 | ✓ 实启 RPC(TCP只读+socket全权) + 三运行时探测 | ✓ --help 逐字节一致 | ✓ --help 逐字节一致 |
 | 跨版本身份迁移 | ✓ 1814 指纹匹配 + 4 处锚点复位，全部 30/30 推断名成功迁移 | ✓ 1110 指纹匹配 | ✓ 730 指纹匹配 |
+| 导出名覆盖率闸门 | ✓ 739 = 109 第一方 + 630 基线，无未交代名 | ✓ 32 = 14 + 18 | ✓ 9 = 7 + 2 |
+| 可读树与 bundle 一致 | ✓ 139/139 切片·改名表·行锚点 | — | — |
 
 **命题成立**：三个入口的还原产物均与出厂 v0.7.1 语义全等，且可正确、同样效果地运行（含新增的 unix socket 控制面与三运行时探测的实机复现）。
 

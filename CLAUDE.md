@@ -18,18 +18,19 @@ When someone says "analyze duoduo's logic" or "restore the source," they mean wo
 - `docs/ARCHITECTURE_ANALYSIS.md` — system/deployment-level view (process model, filesystem layout, crash recovery, RPC/dashboard), backed by live-daemon observation.
 - `docs/SOURCE_RECONSTRUCTION.md` — the reconstruction methodology.
 - `reconstruction/recon/{daemon,cli,stdio}.recon.js` — runnable reconstructed source, **provably semantically identical** to the shipped bundles (only first-party symbols renamed).
-- `reconstruction/first-party/<NN-subsystem>/*.js` — the ~101 first-party functions extracted into a readable per-subsystem tree (real names, original `daemon.pretty.js` line in header). **Read-only reference — not independently runnable.**
+- `reconstruction/first-party/<NN-subsystem>/*.js` — the 139 first-party functions extracted into a readable per-subsystem tree (real names, original `daemon.pretty.js` line in header). **Read-only reference — not independently runnable.**
 - `reconstruction/maps/RENAME_TABLE.md` — the mangled↔real name map (also mirrored in `docs/AGENT_INTERNALS_ANALYSIS.md` Appendix A.0).
 - `reconstruction/tools/*.mjs` — the Babel-based reconstruction pipeline.
 
 ## Core discipline: the reconstruction must stay *provably equivalent*
 
-The reconstruction is a chain of **semantics-preserving** transforms (beautify → byte-lossless de-bundle → scope-safe rename), never a hand-rewrite. Two invariants must hold and are machine-checkable:
+The reconstruction is a chain of **semantics-preserving** transforms (beautify → byte-lossless de-bundle → scope-safe rename), never a hand-rewrite. Three invariants must hold and are machine-checkable:
 
 - **Lossless split**: concatenating the split module files reproduces the beautified bundle **byte-for-byte** (`cmp`).
-- **Rename equivalence**: `recon/*.recon.js` and the beautified source have **identical ASTs modulo the rename map** (`tools/ast_equiv.mjs`, ~474k nodes for daemon).
+- **Rename equivalence**: `recon/*.recon.js` and the beautified source have **identical ASTs modulo the rename map** (`tools/ast_equiv.mjs`, ~505k nodes for daemon).
+- **First-party tree honesty**: every `first-party/**/*.js` extract is a verbatim slice of `recon/daemon.recon.js`, its header agrees with the rename map, and its cited line IS the symbol's declaration line (`tools/verify_first_party.mjs`). Nothing else checks this tree, and every way it can be wrong is silent.
 
-Do **not** hand-edit `recon/*.recon.js` as if it were source you can freely change — any edit must preserve AST equivalence, or the "runs identically" guarantee is void. Real symbol names come from esbuild's `__export` helper (authoritative, 702 recovered for daemon); a minority of internal function names are RE-*inferred* (flagged in `RENAME_TABLE.md`) — an inferred name being slightly off never affects correctness because renaming is scope-safe.
+Do **not** hand-edit `recon/*.recon.js` as if it were source you can freely change — any edit must preserve AST equivalence, or the "runs identically" guarantee is void. Real symbol names come from esbuild's `__export` helper (authoritative, 739 recovered for daemon); a minority of internal function names are RE-*inferred* (flagged in `RENAME_TABLE.md`) — an inferred name being slightly off never affects correctness because renaming is scope-safe.
 
 ## Reconstruction workflow (commands)
 
@@ -40,14 +41,26 @@ The pipeline needs the **beautified bundles** as input (`{daemon,cli,stdio}.pret
 export PATH="$HOME/.local/node-v22.17.0-linux-x64/bin:$PATH"
 cd reconstruction/tools && npm install        # installs @babel/{parser,traverse,generator,types}
 
-# 1) regenerate beautified inputs from the shipped minified bundles
-PKG="$HOME/.local/node-v22.17.0-linux-x64/lib/node_modules/@openduo/duoduo/dist/release"
+# 1) get the shipped bundles into a SCRATCH install and beautify them.
+#    Do not point PKG at the global install: step 3 below copies the reconstruction
+#    into $PKG, and the global install is the one the live daemon was started from.
+npm install --prefix /tmp/duoduo-pkg @openduo/duoduo@latest
+PKG="/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release"
 mkdir -p /tmp/beautified
 for b in daemon cli stdio; do npx js-beautify "$PKG/$b.js" > /tmp/beautified/$b.pretty.js; done
 
-# 2) run the full pipeline (split → reassemble+cmp → recover names → rename → node --check → AST-equivalence)
+# 2) run the full pipeline: per bundle split → reassemble+cmp → recover names →
+#    coverage gate → rename → node --check → AST-equivalence, then verify the
+#    first-party tree and the doc anchors. The three bundles run concurrently;
+#    JOBS=1 forces sequential when bisecting a failure.
 BEAUTIFIED=/tmp/beautified bash rebuild.sh
 ```
+
+The coverage gate is the step that fails loudly on a version bump: any export name that
+is neither classified first-party nor recorded in `maps/vendor_baseline_<bundle>.json`
+stops the build. That is deliberate — at v0.7.1 the keyword heuristic silently skipped the
+entire new Grok subsystem, and nothing failed. Classify what it reports (add a keyword for
+first-party, or re-run `build_rename.mjs` with `--accept-vendor` to record vendor names).
 
 Individual tools (all take explicit paths, all read-only except writing outputs):
 
@@ -64,8 +77,9 @@ node tools/ast_equiv.mjs <original.js> <renamed.js> <rename.json>   # prove sema
 The reconstructed daemon boots as a real daemon. To verify it **without disturbing a live instance**, isolate `HOME` (the data home is `homedir()/.aladuo`, not overridable via `ALADUO_WORK_DIR`) and pick a non-default RPC port:
 
 ```bash
-cp reconstruction/recon/daemon.recon.js "$PKG/"     # must run from package dir for peer-dep resolution
-cd "$PKG"
+cp reconstruction/recon/daemon.recon.js "$PKG/"     # $PKG = the scratch install from step 1, never the
+cd "$PKG"                                           # global one; must run from a package dir so Node
+                                                    # resolves the peer dep @anthropic-ai/claude-agent-sdk
 ISO=/tmp/iso && mkdir -p "$ISO" && chmod 700 "$ISO"   # keep it SHORT: the daemon refuses to boot
                                                       # if <HOME>/.aladuo/run/daemon.sock exceeds the
                                                       # 104-byte unix-socket limit (fatal, not a warning)

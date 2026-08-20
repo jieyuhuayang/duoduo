@@ -1,6 +1,6 @@
 # duoduo 分析文档
 
-对 `@openduo/duoduo` **v0.6.2** 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
+对 `@openduo/duoduo` **v0.7.1** 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
 
 ## 先看这张阅读地图
 

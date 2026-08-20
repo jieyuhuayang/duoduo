@@ -20,7 +20,7 @@
 | `maps/inferred_daemon.json` | 逆向推断的内部函数名（30 个，未被 `__export` 记录者）。 |
 | `maps/daemon.classification.json` | 628 个模块的首方/第三方分类结果。 |
 | `maps/daemon.split-manifest.json` | 无损拆包清单（模块边界 + 字节偏移，可字节级重组）。 |
-| `tools/` | 可复现的还原流水线（Babel 脚本 + `rebuild.sh`），以及跨版本重定向流水线（`bump.sh`）。 |
+| `tools/` | 可复现的还原流水线（Babel 脚本 + `rebuild.sh`），跨版本重定向流水线（`bump.sh`），以及两道防静默失败的闸门：`build_rename.mjs` 的导出名覆盖率闸门、`verify_first_party.mjs` 的可读树一致性检查。 |
 
 ## 关键事实：为什么“还原”是可信的而非编造
 
@@ -35,7 +35,8 @@
 ```bash
 # 前置：Node>=18、npm；在 tools/ 目录 npm install
 export BEAUTIFIED=/path/to/beautified   # 存放 {daemon,cli,stdio}.pretty.js
-bash tools/rebuild.sh                    # 拆包→恢复名→改名→node --check→AST 全等，每步自检
+bash tools/rebuild.sh                    # 拆包→恢复名→覆盖率闸门→改名→node --check→AST 全等
+                                         # →可读树一致性→文档锚点；三个 bundle 并发（JOBS=1 转串行）
 ```
 
 `*.pretty.js` 由出厂 `dist/release/*.js` 经 `js-beautify` 得到（一次性预处理）。取产物建议用 `npm pack @openduo/duoduo@<版本>` 而非升级全局安装，以免扰动本机在跑的实例。完整命令见 [VERIFICATION.md](./VERIFICATION.md) 末尾。
@@ -60,7 +61,9 @@ OLD=/path/to/beautified/v0.6.1 NEW=/path/to/beautified/v0.6.2 bash tools/bump.sh
 
 第 2 步报 `RE-ANCHOR` 的条目，用 `locate_by_anchor.mjs` 拿该函数独有的字符串字面量在新包里重新定位即可。第 4 步的“归一化后完全相同”是个好用的过滤器：v0.6.2 的 daemon 31 处声明差异里有 10 处属于纯 minifier churn。
 
-**v0.6.2→v0.7.1（新增一类陷阱：新子系统落在关键词白名单外）**：`build_rename.mjs` 用一份关键词白名单把 esbuild 恢复出的全部权威导出名过滤成"第一方"子集，才拿去改名。这份白名单本身也是需要跟着版本升级复核的假设——本轮升级新增的 Grok 运行时相关符号与 `ALADUO_TOOL_NAMESPACE` 因为不含任何已有关键词（`daemon`/`session`/`claude`/`codex`/... 均未命中 `grok`/`namespace`），首次跑 `rebuild.sh` 时被静默判定为"非第一方"而不改名（`first-party rename entries: 120`，比预期少 19 个）；补上 `grok`/`toolnamespace`/`aladuo_tool` 关键词后复跑升到 `139`，`first-party/11-runtime-grok/` 才补全。**教训**：一个新版本引入全新子系统时，除了推断名表要用结构指纹迁移，关键词白名单也要用"这次的导出名 diff 里有没有明显应该是第一方却没被选中的条目"去人工核对一遍——它不会报错，只会悄悄漏掉。
+**v0.6.2→v0.7.1（新子系统落在关键词白名单外）**：`build_rename.mjs` 用一份关键词白名单把 esbuild 恢复出的全部权威导出名过滤成"第一方"子集，才拿去改名。v0.7.1 新增的 Grok 运行时符号与 `ALADUO_TOOL_NAMESPACE` 不含任何已有关键词（`daemon`/`session`/`claude`/`codex`/… 均未命中 `grok`/`namespace`），首次跑 `rebuild.sh` 时被静默判定为"非第一方"而不改名（`first-party rename entries: 120`，比预期少 19 个），`first-party/11-runtime-grok/` 整个子系统不存在——**而三条等价性证据全部照常通过**，因为不改名不会制造任何不一致。
+
+这类"漏掉"不能靠记得去人工核对来防。现在 `build_rename.mjs` 带一道**覆盖率闸门**：每个恢复出的导出名都必须被交代过——判定为第一方，或记录在 `maps/vendor_baseline_<bundle>.json`；两者都不是就是相对基线新出现的名字，构建**直接失败**并列出它们（第一方→加关键词重跑；vendor→`--accept-vendor` 记账）。基线以跨构建稳定的**导出原名**为键。把 v0.7.1 手工补的关键词去掉重跑，闸门精确报出当初被吞掉的那 19 个名字并非零退出。
 
 ## 边界与诚实声明
 

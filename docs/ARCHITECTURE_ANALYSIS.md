@@ -1,7 +1,7 @@
 # duoduo 项目深度架构分析
 
-> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` v0.6.2（npm 运行时）
-> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向行号锚点并复核）
+> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` **v0.7.1**（npm 运行时）
+> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向锚点；2026-08-20 随上游 v0.7.1 重定向行号锚点，并以隔离实启复核控制面三分面结论）
 > 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
 > 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
 >
@@ -27,7 +27,7 @@
 - License 标注为 `Private. All rights reserved.`，名称 "**open**duo" 是一句自嘲式玩笑（README 原文："we are called openduo and we don't publish source either. Respect to OpenAI."）。
 
 > 实践意义：本文的系统级主张靠**官方文档 + 运行时可观测行为（文件系统、WAL、RPC、CLI）**取证。
-> **补充（2026-07-02）**：minified 运行时其后已被**还原为可读、且经证明可同样运行的源码**（见 [`../reconstruction/`](../reconstruction/)）——从 esbuild `__export` 助手恢复了 702 个真实符号名，并以 47 万节点 AST 全等 + 隔离实启双重证明等价。因此**内部机理主张现在有源码级证据**，不再只依赖黑盒观测；本文的部署/可观测结论与还原源码相互印证。
+> **补充（2026-07-02）**：minified 运行时其后已被**还原为可读、且经证明可同样运行的源码**（见 [`../reconstruction/`](../reconstruction/)）——从 esbuild `__export` 助手恢复了 739 个真实符号名，并以 50 万节点 AST 全等 + 隔离实启双重证明等价。因此**内部机理主张现在有源码级证据**，不再只依赖黑盒观测；本文的部署/可观测结论与还原源码相互印证。
 
 ---
 
@@ -372,8 +372,8 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 | 持久化 env | `~/.config/duoduo/.env` |
 | onboard 选择 | `~/.config/duoduo/config.json` |
 | Dashboard | `http://localhost:20233/dashboard` |
-| RPC | `POST http://localhost:20233/rpc`（JSON-RPC 2.0） |
-| 默认端口 | 20233（daemon，唯一控制面端口） |
+| RPC | 全权：`<runDir>/daemon.sock`（unix socket，mode 0600）；只读：`POST http://localhost:20233/rpc`（6 个白名单方法，其余 `-32601`） |
+| 默认端口 | 20233（daemon 只读 TCP，恒 loopback）；控制面自 v0.7.0 起以 unix socket 为主，见 §10.2 |
 | 默认 cadence | 37 min |
 | 升级 | `npm i -g @openduo/duoduo@latest && duoduo daemon restart` |
 

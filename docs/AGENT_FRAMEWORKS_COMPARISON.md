@@ -2,7 +2,7 @@
 
 > 调研日期:2026-07-03  
 > 调研目标:深度理解三个项目各自的思路框架与逻辑,对比优劣,为构建**充分运用贝叶斯第一性原理、可持续自我迭代、擅长 Long-Horizon 金融预测任务的 agent** 提供选型与融合架构依据。  
-> 取证方式:duoduo — 本仓库对 v0.6.2 minified 运行时的还原源码级逆向(入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md),逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md),全部机制主张带 `file:line` 且经活体 daemon 印证);hermes-agent 与 pi — 克隆源码后由独立分析 agent 系统性深读,关键论断带 `文件:行号` 证据。
+> 取证方式:duoduo — 本仓库对 v0.7.1 minified 运行时的还原源码级逆向(入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md),逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md),全部机制主张带 `file:line` 且经活体 daemon 印证);hermes-agent 与 pi — 克隆源码后由独立分析 agent 系统性深读,关键论断带 `文件:行号` 证据。
 
 ---
 
@@ -38,7 +38,7 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 
 ### 1.2 架构与核心机制
 
-单 daemon 单进程,两个根目录:`~/aladuo`(内核/"内在世界",git 管理,自编程回滚点)与 `~/.aladuo`(运行时数据 `var/`、`run/`)。控制面是 loopback JSON-RPC(`:20233/rpc`)+ 零依赖单文件 dashboard。
+单 daemon 单进程,两个根目录:`~/aladuo`(内核/"内在世界",git 管理,自编程回滚点)与 `~/.aladuo`(运行时数据 `var/`、`run/`)。控制面自 v0.7.0 拆成三面:全权 JSON-RPC 走 unix socket(`~/.aladuo/run/daemon.sock`,mode 0600),loopback `:20233/rpc` 降为只读(6 方法白名单)+ 零依赖单文件 dashboard,带令牌的远程监听需显式开启。
 
 **机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:31573/31109`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引 + 有 session_key 才写 by_session 索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
 
