@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: claimDaemonRestartReason  (minified: wae, daemon.pretty.js:49060)
+// symbol: claimDaemonRestartReason  (minified: Ece, daemon.pretty.js:50235)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,11 +7,11 @@ async function claimDaemonRestartReason(e) {
     let t = daemonRestartReasonPath(e),
         n;
     try {
-        n = await vae.readFile(t, "utf8")
+        n = await xce.readFile(t, "utf8")
     } catch {
         return null
     }
-    await vae.rm(t, {
+    await xce.rm(t, {
         force: !0
     }).catch(() => {});
     try {

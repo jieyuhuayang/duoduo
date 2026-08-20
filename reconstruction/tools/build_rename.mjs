@@ -22,6 +22,7 @@ const FP_KEYWORDS = [
   // stdio/cli entrypoint public API
   "stdio", "chatbot", "ink", "timeline", "reply", "clioptions", "onboard",
   "probe", "install", "rootcli", "printhelp", "daemonchoice", "daemonurl",
+  "grok", "toolnamespace", "loopback", "remotelistener", "aladuo_tool",
 ];
 // explicit first-party names that don't contain a keyword
 const FP_EXPLICIT = new Set([

@@ -20,7 +20,7 @@
 | 一句话定位 | "会自我编程"的长驻自治 agent **运行时** | 自我改进的长驻**个人 agent**,"活在你所在的地方" | 自我可扩展的**极简编码 harness**(库 + 终端产品) |
 | 语言/形态 | Node.js daemon(npm 分发 minified JS,约 7.9 万行 beautified) | Python 单体核心(~62 万行非测试)+ TS 界面层(~26 万行) | TypeScript monorepo,5 包共约 10.9 万行源码 + 8.1 万行测试 |
 | License | **Private, All rights reserved**(闭源,"openduo 不开源"是自嘲梗) | MIT | MIT |
-| 推理引擎 | 委派 Claude Code SDK / Codex(两值枚举后端) | 自建 API 层,30 家 provider、5 种 api_mode | 自建 pi-ai 层,9 协议 × 35 provider × 1034 模型 |
+| 推理引擎 | 委派 Claude Code SDK / Codex / Grok(三值枚举后端,v0.7.1 起) | 自建 API 层,30 家 provider、5 种 api_mode | 自建 pi-ai 层,9 协议 × 35 provider × 1034 模型 |
 | 持久化哲学 | **应用层事件溯源 WAL**,文件系统即数据库 | SQLite transcript 库(WAL 模式)+ 文件式记忆 | append-only JSONL **会话树**(可分支/fork,无全局事件日志) |
 | 后台自治 | 37min cadence 心跳 + 潜意识分区(无人也自转) | gateway 常驻 + cron 调度器 + 后台 review agent | **无**(无调度器无守护进程;RPC/SDK 可被外部驱动) |
 | 自我迭代面 | 提示词拓扑可自改(分区/playlist/广播板),git 回滚 | skills + memory 知识层(代码/配置自改被禁止) | agent 可给自己写扩展/skill,`/reload` 热生效(无自主发起) |
@@ -40,13 +40,13 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 
 单 daemon 单进程,两个根目录:`~/aladuo`(内核/"内在世界",git 管理,自编程回滚点)与 `~/.aladuo`(运行时数据 `var/`、`run/`)。控制面是 loopback JSON-RPC(`:20233/rpc`)+ 零依赖单文件 dashboard。
 
-**机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:31012/76267`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引 + 有 session_key 才写 by_session 索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
+**机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:31573/31109`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引 + 有 session_key 才写 by_session 索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
 
 **机制二:双注入面上下文工程(`WT`@57186 / `Sde`@61156,confirmed)。** 稳定认知(身份/通道人格/记忆广播板)由 `buildSystemPromptForChannelConfig` 六层一次装进 system prompt 前缀,吃满 prompt cache;易变具身状态(时间流逝、被打断、job tick)由 `buildTransientUserBlocks` 每 turn 瞬态塞进 user 消息,不污染缓存前缀。Claude 与 Codex 共用同一装配器,Codex 只多一层 `<aladuo:system-context>` 壳。
 
 **机制三:session actor 会话编排(§3 of internals doc,confirmed)。** 一个外部身份扩成多内部会话:一 key 一 actor(内存 Map),session_key 前缀纯函数派生平面与权限(`stdio:`/`job:`/`meta:` 前缀即能力边界);两层锁(跨重启进程写锁 + 按 key 异步互斥);双有界池(channel=10 / job=6),idle 主动让槽、前台附着钉活。抢占是**边界感知**的:能续喂就活流注入(steering),要打断也只在 tool_use/tool_result/accept 边界,绝不硬 kill 半个工具调用。
 
-**机制四:双环认知——Cortex + Subconscious(`daemon.pretty.js:78916/74839`,confirmed,活体实测)。** 前台响应实时消息;后台潜意识挂在 37 分钟 cadence 心跳上,经三重节流门(重入门、**内存指纹活动门**——记忆没变就整拍跳过、每分区 cooldown + 线性退避)唤起**无状态一次性 LLM 分区会话**做自我维护:"每 tick 唤醒潜意识的一块,做完就回去睡——除了写进文件的,不记得上次。"调度表 `playlist.md` 是 agent 自己可改写的纯文本状态机。
+**机制四:双环认知——Cortex + Subconscious(`daemon.pretty.js:78916/78020`,confirmed,活体实测)。** 前台响应实时消息;后台潜意识挂在 37 分钟 cadence 心跳上,经三重节流门(重入门、**内存指纹活动门**——记忆没变就整拍跳过、每分区 cooldown + 线性退避)唤起**无状态一次性 LLM 分区会话**做自我维护:"每 tick 唤醒潜意识的一块,做完就回去睡——除了写进文件的,不记得上次。"调度表 `playlist.md` 是 agent 自己可改写的纯文本状态机。
 
 **机制五:记忆系统——"代码测量、模型裁决"(§7 of internals doc,confirmed)。** 记忆效用被物化为**图可达性**:广播板 `memory/CLAUDE.md` 是唯一根,沿 `[[slug]]` wiki-link 闭包触达不到的节点即孤儿。daemon 侧只做只读 lint 测量与带 48h 宽限 + 双 flag + git 软删的孤儿 GC,**永不改内容**;一切改写交给 memory-weaver 三段流水线(spine-scanner → entity-crystallizer → intuition-updater),证据链"事件→fragment→effectiveness→改板"可复算,专门压制 LLM 编造统计的幻觉。dossier 中每条主张带六种**认识论模态标签**:`[observation]` / `[inference]` / `[instruction]` / `[conditional]` / `[hypothesis (unratified)]` / `[superseded]`。闭环:经验→事件日志→潜意识加工→广播板→下一次会话经 system prompt 自动注入。
 
@@ -65,7 +65,7 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 1. **闭源 + minified**:License 为 Private,不可 fork、不可改内核代码;自定义只能在提示词/分区层。审计依赖逆向(本仓库已解决)。
 2. **单机单进程**:Map + Promise 编排,无横向扩展;控制面无鉴权(押注 loopback 单用户);`uncaughtException` 直接退出靠外部重启。
 3. **后台持续烧 token**:潜意识即使无人对话也按 cadence 消耗(可调间隔,活动门可缓解)。
-4. **后端强绑**:claude/codex 两值枚举,换推理后端需等上游。
+4. **后端强绑**:claude/codex/grok 三值枚举(v0.7.1 新增 grok),换推理后端仍需等上游支持。
 5. **无任何预测/校准基础设施**:effectiveness 轨迹(STRENGTHENING/WEAKENING)与 `[hypothesis]`→`[superseded]` 模态标签是信念更新的雏形,但无显式概率、无打分规则。
 
 ---
@@ -203,7 +203,7 @@ Monorepo 五包 lockstep 发版,单进程模型(交互 TUI 进程即一切),**�
 | **④ 记忆与知识沉淀** | **闭环最完整**:事件→潜意识加工→知识图(可达性=效用)→广播板→自动注入;六种认识论模态标签;证据链可复算 | 三层记忆(冻结快照文件 + FTS5 全历史 + provider 插件);后台 review agent 自动沉淀 | 无(设计上留白,靠扩展自建) |
 | **⑤ 后台自治/长时程** | **心跳 + 潜意识分区 + 三重节流门**("没有新证据不空转");无状态分区每 tick 冷启动 | cron(自然语言任务 + 前置脚本 + 任务链)+ kanban 队列 + Chronos scale-to-zero | 无;RPC/SDK 协议完备,可被外部调度器驱动 |
 | **⑥ 自我迭代** | **拓扑层自改 + git 回滚 + 契约硬边界**——三者中唯一敢让 agent 改自己认知结构的 | 知识层自改(skills/memory),curator 生命周期 + 快照回滚;代码/配置自改被禁止 | 工具层自改(agent 写扩展 + `/reload` 热生效),但需人发起、无验证关卡 |
-| **⑦ 多模型后端** | claude/codex 两值枚举(诚实但封闭) | 30 provider × 5 api_mode + credential_pool + fallback_chain | **9 协议 × 35 provider × 1034 模型 + 中途换模型**,且 pi-ai 可独立复用 |
+| **⑦ 多模型后端** | claude/codex/grok 三值枚举(诚实但封闭,v0.7.1 起三值) | 30 provider × 5 api_mode + credential_pool + fallback_chain | **9 协议 × 35 provider × 1034 模型 + 中途换模型**,且 pi-ai 可独立复用 |
 | **⑧ 工具与安全** | 权限走 permissionMode 透传 SDK;host 默认 bypass;控制面无鉴权(loopback 假设) | **分层最完整**:硬底线(yolo 不可绕)+ 审批三档 + 六种终端后端 + 凭据剥离 | 内置 7 工具、零权限系统(靠容器);`beforeToolCall` 拦截机制现成、策略自建 |
 | **⑨ 可观测性与成本** | **usage 账本 + drain record + 单文件 dashboard + spine.tail**;潜意识开销可见 | 实时 token 占用八类分解;成本随 models.dev 价格核算 | 逐 token 成本核算内建于 pi-ai;会话可导出 HTML |
 | **⑩ 开放性与工程成熟度** | 闭源(Private);单人节奏;逆向可读但法律受限 | MIT;万级 PR、69 万行测试、纪律文档化程度罕见 | **MIT;测试:源码 0.74:1、faux provider 全栈回归、供应链硬化** |

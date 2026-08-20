@@ -1,23 +1,23 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: createCodexAppServerAdapter  (minified: V_, daemon.pretty.js:57511)
+// symbol: createCodexAppServerAdapter  (minified: jb, daemon.pretty.js:58876)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createCodexAppServerAdapter(e, t) {
     let n = {
-            ...s5e,
+            ...jXe,
             ...e
         },
         r = null,
         i = !1,
-        s = null,
         o = null,
-        a = l => (l === Xc && o && (o.skipObserved = !0), o?.turnId),
-        c = (l, d, p) => {
-            l === Xc && !d && o && p !== void 0 && p === o.turnId && (o.skipObserved = !1)
+        s = null,
+        a = c => (c === _a && s && (s.skipObserved = !0), s?.turnId),
+        l = (c, d, p) => {
+            c === _a && !d && s && p !== void 0 && p === s.turnId && (s.skipObserved = !1)
         };
-    async function u(l, d, p) {
-        if ((!r || !r.isAlive) && (r = new vR(n.codexBinary, d, n.env), r.start(), r.setToolCallObserved(a), r.setToolCallSettled(c), i = !1, s = null), !i) {
+    async function u(c, d, p) {
+        if ((!r || !r.isAlive) && (r = new FI(n.codexBinary, d, n.env), r.start(), r.setToolCallObserved(a), r.setToolCallSettled(l), i = !1, o = null), !i) {
             if (await r.request("initialize", {
                     clientInfo: {
                         title: "duoduo-runtime",
@@ -35,20 +35,20 @@ function createCodexAppServerAdapter(e, t) {
             }
             i = !0
         }
-        s !== l && (await r.request("thread/resume", {
-            threadId: l
-        }, p), s = l)
+        o !== c && (await r.request("thread/resume", {
+            threadId: c
+        }, p), o = c)
     }
     return {
-        async run(l) {
+        async run(c) {
             let d;
-            if (typeof l.prompt == "string") d = l.prompt;
+            if (typeof c.prompt == "string") d = c.prompt;
             else {
-                let M = [];
-                for await (let F of l.prompt) if (typeof F.message.content == "string") M.push(F.message.content);
-                else if (Array.isArray(F.message.content))
-                    for (let xe of F.message.content) xe.type === "text" && M.push(xe.text);
-                d = M.join(`
+                let L = [];
+                for await (let B of c.prompt) if (typeof B.message.content == "string") L.push(B.message.content);
+                else if (Array.isArray(B.message.content))
+                    for (let te of B.message.content) te.type === "text" && L.push(te.text);
+                d = L.join(`
 
 `)
             }
@@ -56,8 +56,8 @@ function createCodexAppServerAdapter(e, t) {
                 text: "",
                 usage: void 0
             };
-            let p = l.cwd || process.cwd();
-            if ((!r || !r.isAlive) && (r = new vR(n.codexBinary, p, n.env), r.start(), r.setToolCallObserved(a), r.setToolCallSettled(c), i = !1), !i) {
+            let p = c.cwd || process.cwd();
+            if ((!r || !r.isAlive) && (r = new FI(n.codexBinary, p, n.env), r.start(), r.setToolCallObserved(a), r.setToolCallSettled(l), i = !1), !i) {
                 if (await r.request("initialize", {
                         clientInfo: {
                             title: "duoduo-runtime",
@@ -68,247 +68,252 @@ function createCodexAppServerAdapter(e, t) {
                             experimentalApi: !!n.dynamicTools?.length,
                             optOutNotificationMethods: ["item/reasoning/summaryTextDelta", "item/reasoning/summaryPartAdded", "item/reasoning/textDelta"]
                         }
-                    }, l.abortController?.signal), r.notify("initialized", {}), n.dynamicTools?.length) {
-                    let M = new Map;
-                    for (let F of n.dynamicTools) M.set(F.name, F.handler);
-                    r.setToolHandlers(M)
+                    }, c.abortController?.signal), r.notify("initialized", {}), n.dynamicTools?.length) {
+                    let L = new Map;
+                    for (let B of n.dynamicTools) L.set(B.name, B.handler);
+                    r.setToolHandlers(L)
                 }
                 i = !0
             }
-            let f = extractSystemPromptAppend(l.systemPrompt),
+            let f = extractSystemPromptAppend(c.systemPrompt),
                 m = buildBaseInstructions(t ?? {}, f),
-                h = buildDeveloperInstructions(t ?? {}),
-                _ = o5e(l.permissionMode, n.sandbox);
-            l.disallowedTools?.length && Pe("[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled", {
-                disallowedTools: l.disallowedTools
+                h = buildDeveloperInstructions(t ?? {}, n.dynamicTools?.map(L => L.name)),
+                y = LXe(c.permissionMode, n.sandbox);
+            c.disallowedTools?.length && Ae("[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled", {
+                disallowedTools: c.disallowedTools
             });
-            let b = l.persistSession !== void 0 ? !l.persistSession : n.ephemeral,
-                w = l.model !== void 0 ? l.model : n.model,
-                v = l.effort !== void 0 ? l.effort : n.effort,
-                g = () => {
-                    let M = {
+            let _ = c.persistSession !== void 0 ? !c.persistSession : n.ephemeral,
+                k = c.model !== void 0 ? c.model : n.model,
+                v = c.effort !== void 0 ? c.effort : n.effort,
+                b = () => {
+                    let L = {
                         cwd: p,
-                        model: w,
+                        model: k,
                         approvalPolicy: "never",
-                        sandbox: _,
+                        sandbox: y,
                         serviceName: n.serviceName,
-                        ephemeral: b,
+                        ephemeral: _,
                         experimentalRawEvents: !1,
                         persistExtendedHistory: !1
                     };
-                    return m && (M.baseInstructions = m), h && (M.developerInstructions = h), n.dynamicTools?.length && (M.dynamicTools = n.dynamicTools.map(F => ({
-                        name: F.name,
-                        description: F.description,
-                        inputSchema: F.inputSchema
-                    }))), M
+                    return m && (L.baseInstructions = m), h && (L.developerInstructions = h), n.dynamicTools?.length && (L.dynamicTools = [{
+                        type: "namespace",
+                        name: ALADUO_TOOL_NAMESPACE,
+                        description: "Runtime control tools provided by the duoduo daemon.",
+                        tools: n.dynamicTools.map(B => ({
+                            type: "function",
+                            name: B.name,
+                            description: B.description,
+                            inputSchema: B.inputSchema
+                        }))
+                    }], L.config = x2()), L
                 },
-                x = M => ({
-                    cwd: p,
-                    model: w,
-                    approvalPolicy: "never",
-                    sandbox: _,
-                    threadId: M
-                }),
-                k = M => {
-                    let F = {
+                I = L => {
+                    let B = {
                         cwd: p,
-                        model: w,
+                        model: k,
                         approvalPolicy: "never",
-                        sandbox: _,
-                        threadId: M,
+                        sandbox: y,
+                        threadId: L
+                    };
+                    return n.dynamicTools?.length && (B.config = x2()), B
+                },
+                T = L => {
+                    let B = {
+                        cwd: p,
+                        model: k,
+                        approvalPolicy: "never",
+                        sandbox: y,
+                        threadId: L,
                         persistExtendedHistory: !1
                     };
-                    return m && (F.baseInstructions = m), h && (F.developerInstructions = h), F
+                    return m && (B.baseInstructions = m), h && (B.developerInstructions = h), n.dynamicTools?.length && (B.config = x2()), B
                 },
-                E, R;
-            l.forkFrom ? (E = "thread/fork", R = k(l.forkFrom)) : l.sessionId ? (E = "thread/resume", R = x(l.sessionId)) : (E = "thread/start", R = g());
-            let $;
+                S, w;
+            c.forkFrom ? (S = "thread/fork", w = T(c.forkFrom)) : c.sessionId ? (S = "thread/resume", w = I(c.sessionId)) : (S = "thread/start", w = b());
+            let C;
             try {
-                $ = await r.request(E, R, l.abortController?.signal)
-            } catch (M) {
-                let F = M instanceof Error && M.name === "AbortError" || l.abortController?.signal.aborted === !0;
-                if (E === "thread/fork" && !F) K("[codex-adapter] thread/fork failed, falling back to thread/start", {
+                C = await r.request(S, w, c.abortController?.signal)
+            } catch (L) {
+                let B = L instanceof Error && L.name === "AbortError" || c.abortController?.signal.aborted === !0;
+                if (S === "thread/fork" && !B) K("[codex-adapter] thread/fork failed, falling back to thread/start", {
                     cwd: p,
-                    forkFrom: l.forkFrom,
-                    error: M instanceof Error ? M.message : String(M)
-                }), E = "thread/start", R = g(), $ = await r.request(E, R, l.abortController?.signal);
-                else throw M
+                    forkFrom: c.forkFrom,
+                    error: L instanceof Error ? L.message : String(L)
+                }), S = "thread/start", w = b(), C = await r.request(S, w, c.abortController?.signal);
+                else throw L
             }
-            let P = $.thread.id;
-            s = P;
-            let C = [],
-                j = new Map,
-                X = {},
-                W, Y = Date.now(),
-                G = !1,
-                ae, Ce, ue = new Promise(M => {
-                    Ce = M
+            let A = C.thread.id;
+            o = A;
+            let x = [],
+                P = new Map,
+                M = {},
+                j, H = Date.now(),
+                J = !1,
+                ee, ie, re = new Promise(L => {
+                    ie = L
                 }),
-                Ne = !1,
-                ot = M => {
-                    if (!ae) return;
-                    let F = extractCodexGeneratedImageAttachment(M);
-                    if (!F) {
-                        !Ne && hasImageGenerationRecord(M) && (Ne = !0, se("[codex] image-generation record present but no attachment extracted", {
-                            threadId: P,
-                            turnId: ae,
+                Ye = !1,
+                je = L => {
+                    if (!ee) return;
+                    let B = extractCodexGeneratedImageAttachment(L);
+                    if (!B) {
+                        !Ye && hasImageGenerationRecord(L) && (Ye = !0, Z("[codex] image-generation record present but no attachment extracted", {
+                            threadId: A,
+                            turnId: ee,
                             hint: "codex image-event schema may have changed (saved_path/result/type/wrapper-key)"
                         }));
                         return
                     }
-                    let xe = "path" in F ? `path:${F.path}` : `call:${F.callId}`;
-                    j.set(xe, F)
+                    let te = "path" in B ? `path:${B.path}` : `call:${B.callId}`;
+                    P.set(te, B)
                 },
                 Se = !1,
-                Xe = new Promise((M, F) => {
-                    let xe = et => {
-                            Se || (Se = !0, ze(), et())
+                lt = new Promise((L, B) => {
+                    let te = We => {
+                            Se || (Se = !0, Re(), We())
                         },
-                        Oe = et => {
+                        Le = We => {
                             if (Se) return;
-                            let yt = et.params ?? {},
-                                Tn = yt.threadId,
-                                Ze = yt.turnId;
+                            let Be = We.params ?? {},
+                                X = Be.threadId,
+                                Q = Be.turnId;
                             if (codexNotificationFilterDecision({
-                                    method: et.method,
-                                    msgThreadId: Tn,
-                                    msgTurnId: Ze,
-                                    ownThreadId: P,
-                                    ownTurnId: ae
+                                    method: We.method,
+                                    msgThreadId: X,
+                                    msgTurnId: Q,
+                                    ownThreadId: A,
+                                    ownTurnId: ee
                                 }) !== "process") return;
-                            let Qn = yt.item;
-                            switch (ot(yt), et.method) {
+                            let fe = Be.item;
+                            switch (je(Be), We.method) {
                                 case "item/agentMessage/delta": {
-                                    let y = yt.delta ?? "";
-                                    y && (G || (W = Date.now() - Y, G = !0), C.push(y), l.onStream?.(y));
+                                    let ve = Be.delta ?? "";
+                                    ve && (J || (j = Date.now() - H, J = !0), x.push(ve), c.onStream?.(ve));
                                     break
                                 }
                                 case "item/started": {
-                                    if (!Qn) break;
-                                    let y = Kle(Qn);
-                                    y && l.onExecutionEvent?.(y);
+                                    if (!fe) break;
+                                    let ve = sme(fe);
+                                    ve && c.onExecutionEvent?.(ve);
                                     break
                                 }
                                 case "item/completed": {
-                                    if (!Qn) break;
-                                    ot(Qn);
-                                    let y = Yle(Qn);
-                                    y && l.onExecutionEvent?.(y);
+                                    if (!fe) break;
+                                    je(fe);
+                                    let ve = ame(fe);
+                                    ve && c.onExecutionEvent?.(ve);
                                     break
                                 }
                                 case "item/reasoning/summaryTextDelta":
                                 case "item/reasoning/textDelta": {
-                                    let y = yt.delta ?? "";
-                                    y && l.onExecutionEvent?.({
+                                    let ve = Be.delta ?? "";
+                                    ve && c.onExecutionEvent?.({
                                         type: "thought_chunk",
-                                        text: y
+                                        text: ve
                                     });
                                     break
                                 }
                                 case "thread/tokenUsage/updated": {
-                                    let y = yt.tokenUsage;
-                                    X = computeCodexTurnUsage(X, y?.total, y?.last);
+                                    let ve = Be.tokenUsage;
+                                    M = computeCodexTurnUsage(M, ve?.total, ve?.last);
                                     break
                                 }
                                 case "turn/completed": {
-                                    Tn === P && xe(() => M());
+                                    X === A && te(() => L());
                                     break
                                 }
                                 case "error": {
-                                    let T = yt.error?.message ?? "";
-                                    if (/^(Reconnecting|Connecting)\b/.test(T)) {
+                                    let me = Be.error?.message ?? "";
+                                    if (/^(Reconnecting|Connecting)\b/.test(me)) {
                                         K("[codex-transport] transient reconnect notice", {
-                                            message: T,
-                                            threadId: P,
-                                            turnId: ae
+                                            message: me,
+                                            threadId: A,
+                                            turnId: ee
                                         });
                                         break
                                     }
-                                    xe(() => F(new Error(T || "codex app-server error notification")));
+                                    te(() => B(new Error(me || "codex app-server error notification")));
                                     break
                                 }
                             }
                         },
-                        ze = () => {
-                            r?.removeListener("notification", Oe)
+                        Re = () => {
+                            r?.removeListener("notification", Le)
                         };
-                    if (r.on("notification", Oe), l.abortController) {
-                        let et = () => {
-                            let yt = new Promise((Ze, Qn) => setTimeout(() => Qn(new Error("turnId timeout on abort")), 2e3));
-                            Promise.race([ue, yt]).then(Ze => {
+                    if (r.on("notification", Le), c.abortController) {
+                        let We = () => {
+                            let Be = new Promise((Q, fe) => setTimeout(() => fe(new Error("turnId timeout on abort")), 2e3));
+                            Promise.race([re, Be]).then(Q => {
                                 r?.request("turn/interrupt", {
-                                    threadId: P,
-                                    turnId: Ze
+                                    threadId: A,
+                                    turnId: Q
                                 }).catch(() => {})
                             }).catch(() => {});
-                            let Tn = new Error("turn aborted");
-                            Tn.name = "AbortError", xe(() => F(Tn))
+                            let X = new Error("turn aborted");
+                            X.name = "AbortError", te(() => B(X))
                         };
-                        l.abortController.signal.addEventListener("abort", et, {
+                        c.abortController.signal.addEventListener("abort", We, {
                             once: !0
                         })
                     }
                 });
             try {
-                l.onTurnAcknowledged?.()
+                c.onTurnAcknowledged?.()
             } catch {}
-            let Sn;
+            let Fe;
             try {
-                Sn = await r.request("turn/start", {
-                    threadId: P,
-                    input: [{
-                        type: "text",
-                        text: d,
-                        text_elements: []
-                    }],
-                    model: w,
+                Fe = await r.request("turn/start", {
+                    threadId: A,
+                    input: buildCodexTurnInput(d, c.attachments),
+                    model: k,
                     effort: v,
-                    outputSchema: l.outputFormat ?? null
-                }, l.abortController?.signal)
-            } catch (M) {
-                if (typeof M.code == "number" && M.name !== "AbortError") try {
-                    l.onTurnRejected?.()
+                    outputSchema: c.outputFormat ?? null
+                }, c.abortController?.signal)
+            } catch (L) {
+                if (typeof L.code == "number" && L.name !== "AbortError") try {
+                    c.onTurnRejected?.()
                 } catch {}
-                throw M
+                throw L
             }
-            ae = Sn.turn?.id, ae && Ce?.(ae), ae && (o = {
-                threadId: P,
-                turnId: ae,
-                abortSignal: l.abortController?.signal,
-                startedAt: Y
-            }), l.abortController?.signal.aborted && ae && r.request("turn/interrupt", {
-                threadId: P,
-                turnId: ae
+            ee = Fe.turn?.id, ee && ie?.(ee), ee && (s = {
+                threadId: A,
+                turnId: ee,
+                abortSignal: c.abortController?.signal,
+                startedAt: H
+            }), c.abortController?.signal.aborted && ee && r.request("turn/interrupt", {
+                threadId: A,
+                turnId: ee
             }).catch(() => {});
             try {
-                await Xe
+                await lt
             } finally {
-                o && o.turnId === ae && (o = null)
+                s && s.turnId === ee && (s = null)
             }
-            let U = C.join(""),
-                L = X.usage ? {
-                    ...X.usage,
-                    model: w ?? "default"
+            let qe = x.join(""),
+                F = M.usage ? {
+                    ...M.usage,
+                    model: k ?? "default"
                 } : void 0;
             return {
-                sessionId: P,
-                text: U || void 0,
-                attachments: j.size > 0 ? Array.from(j.values()) : void 0,
-                usage: L,
-                firstTokenLatencyMs: W
+                sessionId: A,
+                text: qe || void 0,
+                attachments: P.size > 0 ? Array.from(P.values()) : void 0,
+                usage: F,
+                firstTokenLatencyMs: j
             }
         },
-        async compact(l) {
+        async compact(c) {
             let d = new Date().toISOString(),
                 p = new AbortController,
                 f;
-            l.abortController && (f = () => p.abort(), l.abortController.signal.addEventListener("abort", f, {
+            c.abortController && (f = () => p.abort(), c.abortController.signal.addEventListener("abort", f, {
                 once: !0
             }));
             try {
-                await u(l.sessionId, l.cwd ?? process.cwd(), p.signal)
-            } catch (b) {
-                return f && l.abortController?.signal.removeEventListener("abort", f), l.abortController?.signal.aborted === !0 || b instanceof Error && b.name === "AbortError" ? {
+                await u(c.sessionId, c.cwd ?? process.cwd(), p.signal)
+            } catch (_) {
+                return f && c.abortController?.signal.removeEventListener("abort", f), c.abortController?.signal.aborted === !0 || _ instanceof Error && _.name === "AbortError" ? {
                     kind: "failed",
                     runtime: "codex",
                     error: "aborted",
@@ -316,64 +321,64 @@ function createCodexAppServerAdapter(e, t) {
                 } : {
                     kind: "failed",
                     runtime: "codex",
-                    error: `failed to attach to thread: ${b instanceof Error?b.message.split(`
-`)[0]:String(b)}`,
+                    error: `failed to attach to thread: ${_ instanceof Error?_.message.split(`
+`)[0]:String(_)}`,
                     triggered_at: d
                 }
             }
-            let m, h = b => {
-                    m || (m = b)
+            let m, h = _ => {
+                    m || (m = _)
                 },
-                _ = new Promise(b => {
-                    let w = g => {
-                            let x = g.params ?? {};
-                            if (g.method === "thread/compacted") {
+                y = new Promise(_ => {
+                    let k = b => {
+                            let I = b.params ?? {};
+                            if (b.method === "thread/compacted") {
                                 h({
                                     kind: "succeeded",
                                     runtime: "codex",
                                     triggered_at: d
-                                }), v(), b();
+                                }), v(), _();
                                 return
                             }
-                            if (g.method === "item/completed" && x.item?.type === "contextCompaction") {
+                            if (b.method === "item/completed" && I.item?.type === "contextCompaction") {
                                 h({
                                     kind: "succeeded",
                                     runtime: "codex",
                                     triggered_at: d
-                                }), v(), b();
+                                }), v(), _();
                                 return
                             }
-                            if (g.method === "error") {
-                                let k = (x.error?.message ?? "") || "unknown error";
-                                if (/^(Reconnecting|Connecting)\b/.test(k)) return;
+                            if (b.method === "error") {
+                                let T = (I.error?.message ?? "") || "unknown error";
+                                if (/^(Reconnecting|Connecting)\b/.test(T)) return;
                                 h({
                                     kind: "failed",
                                     runtime: "codex",
-                                    error: k,
+                                    error: T,
                                     triggered_at: d
-                                }), v(), b()
+                                }), v(), _()
                             }
                         },
                         v = () => {
-                            r?.removeListener("notification", w)
+                            r?.removeListener("notification", k)
                         };
-                    r.on("notification", w), p.signal.addEventListener("abort", () => {
+                    r.on("notification", k), p.signal.addEventListener("abort", () => {
                         v(), m || h({
                             kind: "failed",
                             runtime: "codex",
                             error: "aborted",
                             triggered_at: d
-                        }), b()
+                        }), _()
                     }, {
                         once: !0
                     })
                 });
             try {
                 await r.request("thread/compact/start", {
-                    threadId: l.sessionId
+                    threadId: c.sessionId
                 }, p.signal)
-            } catch (b) {
-                return f && l.abortController?.signal.removeEventListener("abort", f), l.abortController?.signal.aborted === !0 || b instanceof Error && b.name === "AbortError" ? {
+            } catch (_) {
+                return f && c.abortController?.signal.removeEventListener("abort", f), c.abortController?.signal.aborted === !0 || _ instanceof Error && _.name === "AbortError" ? {
                     kind: "failed",
                     runtime: "codex",
                     error: "aborted",
@@ -381,35 +386,35 @@ function createCodexAppServerAdapter(e, t) {
                 } : {
                     kind: "failed",
                     runtime: "codex",
-                    error: b instanceof Error ? b.message.split(`
-`)[0] : String(b),
+                    error: _ instanceof Error ? _.message.split(`
+`)[0] : String(_),
                     triggered_at: d
                 }
             }
-            return await _, f && l.abortController?.signal.removeEventListener("abort", f), m ?? {
+            return await y, f && c.abortController?.signal.removeEventListener("abort", f), m ?? {
                 kind: "noop",
                 runtime: "codex",
                 reason: "no compaction notification received before stream end",
                 triggered_at: d
             }
         },
-        async undo(l) {
+        async undo(c) {
             let d = new Date().toISOString();
-            if (!Number.isInteger(l.numTurns) || l.numTurns < 1) return {
+            if (!Number.isInteger(c.numTurns) || c.numTurns < 1) return {
                 kind: "noop",
                 runtime: "codex",
-                reason: `invalid numTurns: ${l.numTurns}`,
+                reason: `invalid numTurns: ${c.numTurns}`,
                 triggered_at: d
             };
             let p = new AbortController,
                 f;
-            l.abortController && (f = () => p.abort(), l.abortController.signal.addEventListener("abort", f, {
+            c.abortController && (f = () => p.abort(), c.abortController.signal.addEventListener("abort", f, {
                 once: !0
             }));
             try {
-                await u(l.sessionId, l.cwd ?? process.cwd(), p.signal)
+                await u(c.sessionId, c.cwd ?? process.cwd(), p.signal)
             } catch (m) {
-                return f && l.abortController?.signal.removeEventListener("abort", f), l.abortController?.signal.aborted === !0 || m instanceof Error && m.name === "AbortError" ? {
+                return f && c.abortController?.signal.removeEventListener("abort", f), c.abortController?.signal.aborted === !0 || m instanceof Error && m.name === "AbortError" ? {
                     kind: "failed",
                     runtime: "codex",
                     error: "aborted",
@@ -424,67 +429,63 @@ function createCodexAppServerAdapter(e, t) {
             }
             try {
                 return await r.request("thread/rollback", {
-                    threadId: l.sessionId,
-                    numTurns: l.numTurns
-                }, p.signal), f && l.abortController?.signal.removeEventListener("abort", f), {
+                    threadId: c.sessionId,
+                    numTurns: c.numTurns
+                }, p.signal), f && c.abortController?.signal.removeEventListener("abort", f), {
                     kind: "succeeded",
                     runtime: "codex",
-                    newSessionId: l.sessionId,
+                    newSessionId: c.sessionId,
                     sessionIdChanged: !1,
-                    droppedTurns: l.numTurns,
+                    droppedTurns: c.numTurns,
                     triggered_at: d
                 }
             } catch (m) {
-                if (f && l.abortController?.signal.removeEventListener("abort", f), l.abortController?.signal.aborted === !0 || m instanceof Error && m.name === "AbortError") return {
+                if (f && c.abortController?.signal.removeEventListener("abort", f), c.abortController?.signal.aborted === !0 || m instanceof Error && m.name === "AbortError") return {
                     kind: "failed",
                     runtime: "codex",
                     error: "aborted",
                     triggered_at: d
                 };
-                let _ = m instanceof Error ? m.message : String(m),
-                    b = _.toLowerCase();
-                return ["no turns", "nothing to roll back", "past system prompt", "rollback past", "history shorter", "out of range"].some(v => b.includes(v)) ? {
+                let y = m instanceof Error ? m.message : String(m),
+                    _ = y.toLowerCase();
+                return ["no turns", "nothing to roll back", "past system prompt", "rollback past", "history shorter", "out of range"].some(v => _.includes(v)) ? {
                     kind: "noop",
                     runtime: "codex",
-                    reason: _.split(`
+                    reason: y.split(`
 `)[0],
                     triggered_at: d
                 } : {
                     kind: "failed",
                     runtime: "codex",
-                    error: _.split(`
+                    error: y.split(`
 `)[0],
                     triggered_at: d
                 }
             }
         },
         activeTurnId() {
-            return o?.turnId
+            return s?.turnId
         },
         activeTurnStartedAt() {
-            return o?.startedAt
+            return s?.startedAt
         },
         activeTurnSkipObserved() {
-            return o?.skipObserved === !0
+            return s?.skipObserved === !0
         },
-        async steerActiveTurn(l, d) {
-            let p = o;
-            if (!r || !r.isAlive || !p || p.turnId !== d) return !1;
+        async steerActiveTurn(c, d, p) {
+            let f = s;
+            if (!r || !r.isAlive || !f || f.turnId !== d) return !1;
             try {
                 return await r.request("turn/steer", {
-                    threadId: p.threadId,
+                    threadId: f.threadId,
                     expectedTurnId: d,
-                    input: [{
-                        type: "text",
-                        text: l,
-                        text_elements: []
-                    }]
-                }, p.abortSignal), !0
-            } catch (f) {
+                    input: buildCodexTurnInput(c, p)
+                }, f.abortSignal), !0
+            } catch (m) {
                 return K("[codex] turn/steer failed — falling back to new turn", {
-                    threadId: p.threadId,
+                    threadId: f.threadId,
                     expectedTurnId: d,
-                    error: f instanceof Error ? f.message : String(f)
+                    error: m instanceof Error ? m.message : String(m)
                 }), !1
             }
         },

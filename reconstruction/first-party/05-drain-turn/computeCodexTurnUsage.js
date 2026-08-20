@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: computeCodexTurnUsage  (minified: Ule, daemon.pretty.js:57452)
+// symbol: computeCodexTurnUsage  (minified: Ype, daemon.pretty.js:58803)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -14,7 +14,7 @@ function computeCodexTurnUsage(e, t, n) {
         ...e
     };
     let i = n && n.inputTokens > 0 ? n.totalTokens : void 0,
-        s = typeof i == "number" && i > 0 ? i : e.usage?.context_used_tokens;
+        o = typeof i == "number" && i > 0 ? i : e.usage?.context_used_tokens;
     return {
         baseline: r,
         usage: {
@@ -22,7 +22,7 @@ function computeCodexTurnUsage(e, t, n) {
             input_tokens: t.inputTokens - r.input,
             output_tokens: t.outputTokens - r.output,
             cache_read_input_tokens: t.cachedInputTokens - r.cached,
-            context_used_tokens: s
+            context_used_tokens: o
         }
     }
 }
