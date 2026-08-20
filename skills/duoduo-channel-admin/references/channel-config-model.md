@@ -92,12 +92,14 @@ after an upgrade, check the daemon log for `[claude-sdk]` warnings and run
 
 ### v0.5+ additions
 
-- `runtime` — one of `claude` or `codex`. The agent runtime this instance is
+- `runtime` — one of `claude`, `codex`, or `grok`. The agent runtime this instance is
   bound to. Readers default to `claude` when absent. Set it in a kind
   descriptor to make a default for all channels of that kind, or in an instance
   descriptor for one specific channel. For Feishu, prefer the `/setup` card
   when possible so the plugin's active binding cache and descriptor stay in
-  sync.
+  sync. Explicit `grok` that cannot be served is a hard failure (no silent
+  Claude fallback). `prompt_mode` applies to claude and grok; combining it
+  with `runtime: codex` is rejected.
 - `bound_by` — channel-local identity of the operator who ran setup
   (e.g. a Feishu `open_id`). Present only on v0.5+ descriptors. Used by
   channel-feishu's `/setup` command to decide whether a re-bind attempt

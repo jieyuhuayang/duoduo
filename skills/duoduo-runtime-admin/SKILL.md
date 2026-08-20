@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, "profiles not working" troubleshooting. Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex/Grok runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`; grok auto-detected: install grok + `grok login`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, \"profiles not working\" troubleshooting; codex tool-surface trimming (~/.codex/config.toml gates: apps connector catalog, goals, request_user_input). Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 启用 grok runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口, codex 工具太多/裁剪 codex 工具. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -16,8 +16,9 @@ settings in `~/.config/duoduo/.env`.
    requesting a config change.
 
 Read [references/runtime-settings.md](references/runtime-settings.md) for the
-main host-mode knobs and [references/codex-runtime.md](references/codex-runtime.md)
-before enabling Codex.
+main host-mode knobs, [references/codex-runtime.md](references/codex-runtime.md)
+before enabling Codex, and [references/grok-runtime.md](references/grok-runtime.md)
+before enabling Grok.
 
 ## Persistent Host-Mode Settings
 
@@ -59,10 +60,13 @@ Be precise:
 
 - Claude remains the conservative fallback when no runtime is declared.
 - From v0.5.3 onward, Claude and Codex are peer runtimes for channel
-  sessions, jobs, and eligible background partitions.
+  sessions, jobs, and eligible background partitions. Grok is a third
+  peer: install `grok`, run `grok login`, restart the daemon.
 - Runtime selection can happen per actor, per channel kind, or globally with
-  `ALADUO_DEFAULT_RUNTIME=codex`.
+  `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, or `grok`).
 - Verify `codex` is installed and authenticated before routing work to it.
+  Verify `grok` the same way. Explicit grok that cannot be served is a
+  hard failure — it does not fall through to Claude.
 
 Do not claim every existing session switches runtime automatically. Existing
 sessions keep their stored conversation state until they are rebound, archived,

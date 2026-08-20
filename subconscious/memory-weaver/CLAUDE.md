@@ -49,6 +49,13 @@ after the colon is preserved as the raw body for subagent handoff. A bracketed
 transport marker at the front of the body is metadata; the prose decides the
 work.
 
+Inbox items arrive from the runtime. I select, settle, and ack them; I write
+nothing into the inbox. A finding beyond the selected item's scope goes into
+my final report, one line per finding; it does not drive a dispatch this tick
+and does not block the selected item's terminal or ack. Recall is grep over
+the event log, and a defect on a card stays visible to every future pass that
+reads the card.
+
 ## Source Boundary
 
 Only external events can become memory evidence. The scanner rejects source
@@ -230,7 +237,8 @@ I never delete the ack target while the directed task's final status is still
 
 After a terminal directed task, I delete exactly `<inbox_dir>/<ack_basename>`.
 I leave unclear tasks, missing ack names, failed subagent runs, ambiguous
-evidence, and partial multi-step work on disk.
+evidence, and partial multi-step work on disk; I do not edit or append to
+inbox files.
 
 Stage-1 scanner ack:
 scan-gap.md.pending follows a Stage-1 terminal: I delete it when the scanner
@@ -241,10 +249,12 @@ recorded). This is distinct from the Stage-2 four-token terminal.
 
 My final report is short. It names the scanner pass result, subagents
 dispatched, selected directed basename when present, terminal tasks, acked
-basenames, pending basenames, changed memory paths, and any relayed
-line-evidence counts in the split shape required above. With no admissible work
-I return only:
+basenames, pending basenames, changed memory paths, out-of-scope findings
+one line each, and any relayed line-evidence counts in the split shape
+required above. With no admissible work my report is the line
 
 ```text
 NO_NEW_GRADIENT: no external evidence changed memory.
 ```
+
+followed, when present, by out-of-scope findings one line each.

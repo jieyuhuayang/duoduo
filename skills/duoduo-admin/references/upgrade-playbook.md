@@ -4,6 +4,41 @@ Load this reference when the user asks to upgrade duoduo — especially
 when they mention v0.5, "升级 duoduo", "升级到 v0.5", or a specific
 version bump.
 
+## Upgrading from inside a session (read this first if you are an agent)
+
+If you are an agent running inside a duoduo session and the user asked you to
+upgrade the host, **the daemon restart will kill you mid-command.** The restart
+tears down the session-manager, which kills every SDK subprocess — including
+the one running your Bash tool. Anything you planned to do after the restart
+does not happen, and you cannot report that, because the turn dies too.
+
+This is not hypothetical: on 2026-08-05 an agent upgraded a production host
+this way, stopped the Feishu gateway, restarted the daemon, and died there.
+The gateway stayed down and the bot silently accepted messages without
+answering until a human noticed.
+
+**On every released version up to and including v0.7.0, there is no safe way
+to upgrade from inside a session — including `duoduo upgrade`.** Ask the user
+to run it from a terminal, or over SSH. Both are outside the daemon's process
+tree and unaffected.
+
+Two ways the attempt fails, neither of which reports anything:
+
+- **`duoduo upgrade`** stops the gateways, restarts the daemon, and dies before
+  restarting them. Worse than doing nothing, because it leaves them stopped.
+- **Manual step-by-step** (`npm install -g`, then `duoduo daemon restart`) ends
+  your turn at the restart, with the channels in whatever state you left them.
+
+From **v0.7.1** `duoduo upgrade` detects this case and hands the run to a
+detached process that the restart cannot reach, printing a log path first; pass
+`--wake <your-own-session-alias>` to be notified once the gateways are back.
+There is no flag for it and nothing in `--help` to detect — it is automatic, so
+the version is the only signal. When it engages it says so, printing
+"upgrade handed off to a detached process" before this turn ends.
+
+Running from a terminal, over SSH, or from DuoduoManager? None of this applies
+— you are not in the daemon's process tree.
+
 ## One-line summary
 
 Standard upgrade is two commands:
@@ -253,6 +288,20 @@ operators do not need to change anything unless they want Codex routing.
 Do not tell users that an existing live conversation hot-swaps runtimes
 the moment a default changes. If they need a clean runtime switch, rebind
 or archive the affected session after inspecting current descriptors.
+
+## Grok as a third peer runtime
+
+Grok is auto-detected the same way Codex is: install the `grok` CLI, run
+`grok login`, restart the daemon. Set `runtime: grok` on a kind, instance,
+job, or partition, or `ALADUO_DEFAULT_RUNTIME=grok` for a global default.
+
+Unlike Codex, an explicit or default grok that cannot be served is a
+**hard failure** — there is no silent fallback to Claude. `prompt_mode`
+applies to claude and grok; combining it with `runtime: codex` is still
+rejected.
+
+See the grok-runtime reference under `duoduo-runtime-admin`. Do not set
+`GROK_HOME`.
 
 ## Built-in tool surface change landing in v0.5.10
 

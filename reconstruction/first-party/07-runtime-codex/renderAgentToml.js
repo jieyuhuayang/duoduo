@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: renderAgentToml  (minified: lde, daemon.pretty.js:58708)
+// symbol: renderAgentToml  (minified: Dme, daemon.pretty.js:60964)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function renderAgentToml(e) {
-    let t = ade(e.name),
-        n = ade(e.description),
+    let t = $me(e.name),
+        n = $me(e.description),
         r = e.developerInstructions.replaceAll("'''", '"""');
-    return `${h5e}
+    return `${uQe}
 
 name = "${t}"
 description = "${n}"

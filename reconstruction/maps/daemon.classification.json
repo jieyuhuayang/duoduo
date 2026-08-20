@@ -1,23 +1,28 @@
-total modules: 615
-verdicts: {"vendor":596,"first-party (anchors)":9,"first-party? (weak)":10}
+total modules: 628
+verdicts: {"vendor":604,"first-party (anchors)":9,"first-party? (weak)":15}
 
-FIRST-PARTY modules (19), by line:
-  cjs W2     L73-256 (184L, 5KB) fp=10 ven=0 
-  cjs f4     L491-577 (87L, 4KB) fp=3 ven=0 
-  cjs $4     L645-939 (295L, 10KB) fp=4 ven=0 
-  cjs c6     L3038-3349 (312L, 13KB) fp=7 ven=0 
-  cjs mV     L6594-7063 (470L, 21KB) fp=3 ven=0 
-  cjs VQ     L30306-30443 (138L, 6KB) fp=14 ven=0 
-  esm cx     L36062-36075 (14L, 4KB) fp=1 ven=0 
-  esm Fa     L48774-48793 (20L, 1KB) fp=2 ven=0 
-  esm om     L55221-55612 (392L, 15KB) fp=6 ven=0 
-  esm mu     L56081-56094 (14L, 0KB) fp=2 ven=0 
-  esm lle    L56667-56672 (6L, 0KB) fp=1 ven=0 
-  esm Tle    L57051-57058 (8L, 0KB) fp=1 ven=0 
-  esm sde    L58593-58607 (15L, 0KB) fp=2 ven=0 
-  esm hde    L58949-58970 (22L, 0KB) fp=1 ven=0 
-  esm Sde    L59056-59157 (102L, 4KB) fp=8 ven=0 
-  esm kR     L59362-59369 (8L, 0KB) fp=1 ven=0 
-  esm Lme    L69711-71154 (1444L, 62KB) fp=5 ven=1 
-  esm Jme    L71314-71353 (40L, 1KB) fp=1 ven=0 
-  esm lhe    L74797-74816 (20L, 0KB) fp=1 ven=0 
+FIRST-PARTY modules (24), by line:
+  cjs QB     L73-256 (184L, 5KB) fp=10 ven=0 
+  cjs yH     L491-577 (87L, 4KB) fp=3 ven=0 
+  cjs DH     L645-940 (296L, 10KB) fp=4 ven=0 
+  cjs wV     L4793-5104 (312L, 13KB) fp=7 ven=0 
+  cjs IJ     L8289-8775 (487L, 22KB) fp=3 ven=0 
+  cjs ote    L30675-30812 (138L, 6KB) fp=14 ven=0 
+  esm cte    L31025-31035 (11L, 1KB) fp=1 ven=0 
+  esm Ai     L34571-34587 (17L, 1KB) fp=1 ven=0 
+  esm F0     L37022-37035 (14L, 4KB) fp=1 ven=0 
+  esm ba     L49738-49757 (20L, 1KB) fp=2 ven=0 
+  esm CT     L49849-49865 (17L, 1KB) fp=1 ven=0 
+  esm Vm     L56414-56806 (393L, 15KB) fp=6 ven=0 
+  esm Du     L57311-57324 (14L, 0KB) fp=2 ven=0 
+  esm gpe    L57897-57903 (7L, 0KB) fp=1 ven=0 
+  esm Npe    L58339-58346 (8L, 0KB) fp=1 ven=0 
+  esm S2     L58686-58691 (6L, 0KB) fp=1 ven=0 
+  esm nh     L60699-60751 (53L, 2KB) fp=2 ven=0 
+  esm Cme    L60849-60863 (15L, 0KB) fp=2 ven=0 
+  esm zme    L61207-61228 (22L, 0KB) fp=1 ven=0 
+  esm the    L61584-61685 (102L, 4KB) fp=8 ven=0 
+  esm YI     L61890-61897 (8L, 0KB) fp=1 ven=0 
+  esm g_e    L72353-73796 (1444L, 62KB) fp=5 ven=1 
+  esm R_e    L73957-73996 (40L, 1KB) fp=1 ven=0 
+  esm B_e    L77977-77997 (21L, 0KB) fp=1 ven=0 

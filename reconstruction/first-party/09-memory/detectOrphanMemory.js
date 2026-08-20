@@ -1,25 +1,25 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: detectOrphanMemory  (minified: ple, daemon.pretty.js:56732)
+// symbol: detectOrphanMemory  (minified: bpe, daemon.pretty.js:57963)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function detectOrphanMemory(e, t) {
-    let n = AKe(e, {
+    let n = aXe(e, {
         resolve: t.resolve
     });
     if (n.missing) return {
         missing: !0,
         states: []
     };
-    let r = t.newbornHours ?? bR;
+    let r = t.newbornHours ?? AI;
     return {
         missing: !1,
-        states: n.orphans.map(s => {
-            let o = s.mtimeMs > 0 ? (t.refTimestampMs - s.mtimeMs) / fle : Number.POSITIVE_INFINITY,
-                a = s.indeg >= 1 ? "ISLAND" : o < r ? "NEWBORN" : "STALE";
+        states: n.orphans.map(o => {
+            let s = o.mtimeMs > 0 ? (t.refTimestampMs - o.mtimeMs) / _pe : Number.POSITIVE_INFINITY,
+                a = o.indeg >= 1 ? "ISLAND" : s < r ? "NEWBORN" : "STALE";
             return {
-                ...s,
-                ageHours: o,
+                ...o,
+                ageHours: s,
                 state: a
             }
         })

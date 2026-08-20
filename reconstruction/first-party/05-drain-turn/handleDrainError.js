@@ -1,39 +1,39 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: handleDrainError  (minified: bm, daemon.pretty.js:61589)
+// symbol: handleDrainError  (minified: zd, daemon.pretty.js:64202)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function handleDrainError(e, t, n) {
     let r = n.error instanceof Error ? n.error.message : String(n.error),
         i = r.length > 4e3 ? r.slice(0, 4e3) + "…" : r,
-        s = n.userText ?? `[duoduo:drain-error] agent turn failed at ${n.stage}.
+        o = n.userText ?? `[duoduo:drain-error] agent turn failed at ${n.stage}.
 
 ${i}
 
-` + F8e(r, n.hintContext);
-    for (let c of n.precedingRecords ?? []) n.bus?.emit("session.output", {
-        sessionKey: c.session_key,
-        record: c
+` + Bet(r, n.hintContext);
+    for (let l of n.precedingRecords ?? []) n.bus?.emit("session.output", {
+        sessionKey: l.session_key,
+        record: l
     });
     if (n.anchor.event.source?.name === "idle-compact") K("[runner] idle-compact drain error — spine only, no channel record", {
         sessionKey: t,
         stage: n.stage
     });
     else try {
-        let c = await Ja(e, t, {
+        let l = await fl(e, t, {
             item: n.anchor.item,
             event: n.anchor.event,
-            outputText: s
+            outputText: o
         });
-        for (let u of c.records) n.bus?.emit("session.output", {
+        for (let u of l.records) n.bus?.emit("session.output", {
             sessionKey: u.session_key,
             record: u
         })
-    } catch (c) {
+    } catch (l) {
         K("[runner] failed to emit drain-error outbox record", {
             sessionKey: t,
             stage: n.stage,
-            emitError: c instanceof Error ? c.message : String(c)
+            emitError: l instanceof Error ? l.message : String(l)
         })
     }
     let a = createSpineEvent({
@@ -51,11 +51,11 @@ ${i}
     });
     try {
         await atomicAppendEvent(e, a)
-    } catch (c) {
+    } catch (l) {
         K("[runner] failed to append agent.error to spine", {
             sessionKey: t,
             stage: n.stage,
-            spineError: c instanceof Error ? c.message : String(c)
+            spineError: l instanceof Error ? l.message : String(l)
         })
     }
 }

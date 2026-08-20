@@ -79,7 +79,7 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
                             #   新 daemon 启动时读一次即删（一次性认领）
 ```
 
-> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent}`（`daemon.pretty.js:49061`）。
+> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent}`（`daemon.pretty.js:50236`）。
 
 ### 3.3 持久化的配置面
 
@@ -191,16 +191,17 @@ subconscious/
 
 ---
 
-## 8. 模型运行时：Claude 与 Codex 互为对等
+## 8. 模型运行时：Claude / Codex / Grok 三方并列
 
 - duoduo 内嵌 **Anthropic Claude Code SDK**，并把原生平台二进制作为 npm 可选依赖随包安装。
-- 自 v0.5.3 起，**Claude 与 Codex 是对等运行时**；daemon 启动时探测两者，按可用情况适配。
-- **Claude 是保守的默认回退**：除非 actor 显式声明 `runtime: codex`（在 descriptor / job frontmatter / 分区 frontmatter 中），或设置 `ALADUO_DEFAULT_RUNTIME=codex`，否则一律落到 Claude。
-- 三种认证来源（onboard 时三选一）：
+- 自 v0.5.3 起 Claude 与 Codex 是对等运行时；**v0.7.1 起 Grok 作为第三个对等运行时加入**，坐在与 Claude/Codex 同一层抽象后面（同样的一进程一会话、duoduo 自有工具可达、mid-turn steering、kind/instance/job/partition prompt 字段）；daemon 启动时探测三者，按可用情况适配。运行时枚举本身在 v0.7.1 也做了一次内部重构：旧版三处独立词法作用域的重复常量数组被合并成唯一权威定义（详见 INTERNALS §8）。
+- **Claude 是保守的默认回退**：除非 actor 显式声明 `runtime: codex|grok`（在 descriptor / job frontmatter / 分区 frontmatter 中），或设置 `ALADUO_DEFAULT_RUNTIME=codex|grok`，否则一律落到 Claude。**两个非默认后端的失败模式不对称**：codex 不可用会静默降级回 claude 并打警告日志；grok 不可用**绝不降级**，actor 仍以 `runtime="grok"` 创建，直到该会话真正被 drain 时才抛出定制到 "grok" 的硬错误（`Install the grok CLI, run 'grok login'...`）——这是本轮阅读代码发现的一处 changelog 未明说的实现细节，而非"两个后端对称降级"（详见 INTERNALS §8）。
+- 三种认证来源（onboard 时三选一，均只覆盖 Claude 侧）：
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
   - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
   - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧则是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (V_)`，daemon.pretty.js:57513，详见 INTERNALS §8）——两侧都不是逐回合 spawn。
+- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (jb)`，daemon.pretty.js:58878-59369，详见 INTERNALS §8）。Grok 侧同样是**常驻子进程**，但走标准 ACP（Agent Client Protocol）协议 + `_x.ai/...` 供应商扩展方法命名空间，适配器是闭包工厂而非 class，spawn 时不带 `detached:!0`（`createGrokAcpAdapter (zb)`，daemon.pretty.js:60102-60391 一带）——三者均不是逐回合 spawn。
+- **v0.7.1 起 duoduo 自有工具在 Codex 侧被显式钉在模型可见的顶层工具列表**（`ALADUO_TOOL_NAMESPACE="aladuo"`），防止被 Codex 的 code-execution shim 折叠进模型看不见的间接调用层——这是 changelog "Codex tools stay where the model can see them" 的落地机制，只解决 Codex 一侧的可见性问题，不代表三后端工具面已拉平。
 - 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
 
 ---
@@ -216,7 +217,7 @@ duoduo channel feishu start
 
 - 当前官方可用：`@openduo/channel-feishu`（飞书 / Lark）。
 - 配置走两级：`kernel/config/<kind>.md`（种类级默认）→ `var/channels/<id>/descriptor.md`（实例级覆盖）。
-  - v0.6.2 起 `bootstrap/config/` 多发一个 `job.md`（v0.6.1 只有 `acp.md`/`feishu.md`/`stdio.md`），意图是给 job 一个同样的种类层。**但 job 运行时从不加载它**：种类文件按 `event.source.kind` 选取（`daemon.pretty.js:48898`），而 job 的 drain 锚点事件来自 cadence 扫描器（`source.kind="cadence"`）或 notify 唤醒（`"route"`），永远不是 `"job"`。可观测症状：每个 job 的 system prompt 里 `## Runtime Context` 渲染的是 `channel_kind: cadence`。job 的 SDK 配置因此只有"实例层（job frontmatter）+ 内置默认"两级。
+  - v0.6.2 起 `bootstrap/config/` 多发一个 `job.md`（v0.6.1 只有 `acp.md`/`feishu.md`/`stdio.md`），意图是给 job 一个同样的种类层。**但 job 运行时从不加载它**：种类文件按 `event.source.kind` 选取，而 job 的 drain 锚点事件来自 cadence 扫描器（`source.kind="cadence"`）或 notify 唤醒（`"route"`），永远不是 `"job"`。可观测症状：每个 job 的 system prompt 里 `## Runtime Context` 渲染的是 `channel_kind: cadence`。job 的 SDK 配置因此只有"实例层（job frontmatter）+ 内置默认"两级。
 - 通道安装器只接受 **npm 包名**（无 flag）或**本地 `.tgz` 包**（须 `--from-path`），**不能**把裸 git 仓库当通道装。
 - 包结构：`@openduo/duoduo`（核心运行时+CLI）、`@openduo/channel-feishu`（飞书适配器）、`@openduo/protocol`（零依赖共享 RPC 类型）。
 
@@ -229,8 +230,29 @@ duoduo channel feishu start
 - **单文件、零依赖** HTML，由 daemon 直接服务，无构建步骤、无额外端口、无框架。
 - 三大区：**Header**（累计成本/token/工具调用数/健康灯）、**Signal Bar**（每个活跃实体的形状+颜色状态：● 前台会话 / ■ cron 任务 / ◆ 一次性任务 / ✓· 潜意识分区）、**Event Stream**（实时 Spine WAL 事件，富渲染 + 可展开 JSON）。
 
-### 10.2 RPC 接口
-Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信。实测可用方法包括：
+### 10.2 控制面（v0.7.0 起破坏性变更）：TCP 只读，unix socket 才有全权限
+
+**v0.7.0 起，`:20233` 不再是唯一控制面端口，也不再拥有全部权限**——旧版"任何能连上 20233 的进程都能读写会话状态、无任何鉴权"的模型被拆成三层：
+
+1. **TCP `:20233`（`ALADUO_PORT`，默认恒 loopback）——只读**。`/rpc` 只放行一份方法白名单：`system.status, usage.get, job.list, spine.tail, system.runtime.info, system.config`；其余方法返回 JSON-RPC `-32601 "Method not available on read-only endpoint"`（HTTP 200，非连接层拒绝）。`/ws`（双向流式 RPC）在只读模式下直接返回 HTTP 426，响应体指路"Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead"并附 `socket_path`。这个监听器还额外做 Host/Origin 白名单（`127.0.0.1`/`localhost`/`::1`）防 DNS-rebinding。`/healthz`/`/dashboard`/`/readyz` 三个端点在只读/全权模式下都注册，行为不变。
+2. **unix socket（默认 `<runDir>/daemon.sock`，可用 `daemonSocketPath` 选项或 `ALADUO_DAEMON_SOCKET` 覆盖）——全权限**。daemon 启动时校验 socket 所在目录属主为当前 uid 且权限 `0700`，`listen` 之后再显式 `chmod` socket 文件为 `0600`——**只有本机同一个 OS 用户能打开它，鉴权靠文件系统权限本身，不是应用层 token**。CLI 与 channel gateway 的"全权限客户端"默认走这条路径。
+3. **可选的第三个监听器——非 loopback、token 网关，opt-in**。把 `ALADUO_DAEMON_HOST` 设成非 loopback 主机会打开第三个监听器，此时必须同时提供 `ALADUO_DAEMON_TOKEN`（经 `duoduo daemon token new [--force]` 生成，持久化进 `~/.config/duoduo/.env`，文件权限 `0600`）和一个独立的 `ALADUO_REMOTE_PORT`（否则拒绝启动）。该监听器上 `/rpc`/`/ws` 都会校验 `Authorization: Bearer <token>` 的 SHA-256 是否与配置的 token 的 SHA-256 用 `crypto.timingSafeEqual` 比对相等——这是旧版"网络端口=全权控制"模型里唯一保留、且现在默认关闭、需要显式两步开启的形态。
+
+**本轮活体验证**（隔离环境，`ALADUO_PORT=20334`）：
+```
+$ curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
+{"jsonrpc":"2.0","id":1,"result":{...}}                                          # 只读方法：通过
+$ curl -s -XPOST 127.0.0.1:20334/rpc -d '{"jsonrpc":"2.0","id":2,"method":"session.send","params":{}}'
+{"jsonrpc":"2.0","id":2,"error":{"code":-32601,"message":"Method not available on read-only endpoint"}}   # 写方法：按预期拒绝
+$ ls -la <runDir>/daemon.sock
+srw------- 1 <uid> <uid> 0 ... daemon.sock                                       # mode 0600
+$ curl -s --unix-socket <runDir>/daemon.sock http://localhost/rpc -XPOST -d '...system.status...'
+{"jsonrpc":"2.0","id":3,"result":{...}}                                          # socket 上同一方法照常工作
+```
+daemon 日志同步落一条 `[WARN] [daemon] rejected write method on read-only port { method: 'session.send', id: 2 }`，与代码路径逐条对应（详见 `reconstruction/VERIFICATION.md`）。
+
+### 10.3 RPC 接口
+Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信（走只读 TCP 端口即可，因为 dashboard 本身只读）。实测可用方法包括：
 
 | 方法 | 用途 | 实测结果 |
 |------|------|----------|
@@ -239,18 +261,19 @@ Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信。实测可
 | `job.list` | 任务列表 | （dashboard 使用） |
 | `document.get` | 文档读取 | （dashboard 使用） |
 
-> 注意：没有 REST 风格的 `/api/events`（实测 404），也没有独立的 dashboard save-api 端口——20233 是唯一控制面端口（三 bundle grep 无 20234 + 活体探测无响应，INTERNALS §5 已证）。
+> 注意：没有 REST 风格的 `/api/events`（实测 404），也没有独立的 dashboard save-api 端口；`document.get` 若是写操作或不在只读白名单内，走 TCP 端口会被拒绝，需确认其调用路径（dashboard 前端代码未在本轮范围内逐行核对）。
 
-### 10.3 CLI 诊断命令
+### 10.4 CLI 诊断命令
 `duoduo daemon status|config|logs`、`duoduo session list|alias|notify|compact|archive`、`duoduo channel ... status|logs|doctor`、`duoduo memory check|...`、`duoduo prompts`。
 
 **重启与升级的实操要点**（confirmed，`cli.pretty.js`）：
 
-- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，走 `session.notify` RPC 给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`127019`）。
-- 从会话内让 agent 重启时若省掉 `-r`，CLI 会警告，并预告 `The next release will reject this call.`（`127103`）。它靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`116786`–`116815`）——`ps` 不可用或被 nohup/detach 包过时静默不警告。
-- `duoduo upgrade [version] [--wake …]` 优于手工两步：它从**正在运行的二进制**反推安装前缀（`116823`）、用当前 Node 自带的 `npm-cli.js` 执行（`116834`，因此 `node` 不在 PATH 上也能跑）、自己填重启原因、并轮询 `/healthz` 做健康检查。版本参数受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`116861`）——**从路径/URL/git 装包不再被接受**。
-- `duoduo daemon restart` 现在会先 `loadHostDotEnv` 并重新应用 onboard 配置（`127098`–`127100`），这缓解了"daemon 重启后丢 PATH"的老坑；但仍建议把 `DUODUO_NODE_BIN` 持久化进 `~/.config/duoduo/.env`。
-- 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**（`116692`）；Linux 上超时会先 SIGTERM 掉子进程再抛普通错误（`116480`），表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"，CLI 提示旧进程还在跑旧代码。
+- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，走 `session.notify` RPC 给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`cli.pretty.js:71987`）。
+- **v0.7.1 起，从会话内让 agent 重启时若省掉 `-r`，CLI 不再只是警告——直接硬拒绝执行**：`reasonlessRestartRefusal (\$We)` 返回一段 `error: refusing to restart the daemon without --reason...` 并中止调用（`cli.pretty.js:71939-71943`），v0.6.2 时代"预告下个版本会拒绝"的警告已经兑现。它仍靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`cli.pretty.js:65358`）——`ps` 不可用或被 nohup/detach 包过时静默放行不拒绝。
+- `duoduo upgrade [version] [--wake …]` 优于手工两步，且 **v0.7.1 起把升级工作交给一个 detached 子进程**（`isDetachedUpgradeWorker`/`ALADUO_UPGRADE_DETACHED_WORKER` 环境变量标记，`cli.pretty.js:71944-71968`）执行，使升级触发的重启不会连带杀死正在执行升级的那个 CLI 进程本身——这正是 v0.7.0 changelog 承诺"下一版本修复"、v0.7.1 兑现的那个坑（旧版在会话内跑 `duoduo upgrade` 有几率被自己触发的重启杀死）。版本参数仍受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`cli.pretty.js:65429`）——从路径/URL/git 装包不被接受。
+- `duoduo daemon token new [--force]`（**v0.7.1 新增子命令**，帮助文本 `cli.pretty.js:71786`）：生成 `ALADUO_DAEMON_TOKEN`（写入 `~/.config/duoduo/.env`，见下方"控制面"一节），是开启第三个可选、非 loopback、token 网关全权限监听器的前置步骤。
+- `duoduo daemon restart`（daemon 侧，不是 CLI 侧）在 `main()` 启动时会先 `loadHostDotEnv`（`daemon.pretty.js:58674`，`main` 函数体内解构导入）并重新应用 onboard 配置，这缓解了"daemon 重启后丢 PATH"的老坑；但仍建议把 `DUODUO_NODE_BIN` 持久化进 `~/.config/duoduo/.env`。
+- 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**（`zwe`，`cli.pretty.js:64964-64993`）；Linux/通用路径超时会先 SIGTERM 掉子进程再抛普通错误（`\$we`，`cli.pretty.js:65008-65037`），表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"，CLI 提示旧进程还在跑旧代码。
 
 ---
 

@@ -13,7 +13,6 @@ except what's written to files.
 ```text
 subconscious/
 ├── CLAUDE.md              ← this guide (you are here)
-├── inbox/                 ← notes to pick up (*.pending / *.json)
 ├── playlist.md            ← who runs next (checkbox format)
 ├── <partition>/
 │   └── CLAUDE.md          ← that partition's purpose and schedule
@@ -47,13 +46,17 @@ what it does when it wakes up.
 - New partition directories (with CLAUDE.md) — to grow new capabilities.
 - `playlist.md` — to adjust the rhythm.
 - `memory/CLAUDE.md` — to shape how all of me thinks.
-- `subconscious/inbox/` — to leave notes for other partitions.
 
 What I must not touch:
 
 - Spine event data — that's my unalterable history.
 - Lock files — those belong to the runtime.
-- Other partitions' CLAUDE.md — use inbox to coordinate instead.
+- Inbox directories — the runtime fills them; my only touch is deleting
+  an item of my own inbox to ack it.
+- Job scheduling — a recurring need goes in my final report, not into a
+  job.
+- Other partitions' CLAUDE.md — theirs alone. A need that crosses
+  partitions goes in my final report.
 - `contract:` frontmatter in any partition's CLAUDE.md — machine-read
   consumer declarations owned by the runtime, refreshed from upstream.
 

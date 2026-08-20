@@ -1,8 +1,11 @@
 # duoduo 框架与思路全解 —— 写给产品经理的深度指南
 
-> 分析对象：`@openduo/duoduo` v0.6.2（还原源码级逆向 + 活体 daemon 实证）
-> 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核更新）
-> 读者定位：**Agent 产品经理 / 架构师**。目标是"快速入门 + 深度掌握细节原理"：每一节先给一句能转述给别人的结论和一个生活化类比，再往下钻到机制细节；细节主张带 `daemon.pretty.js:行号` 锚点（还原源码 `reconstruction/recon/daemon.recon.js` 行号与之一致），可逐条复核。
+> 分析对象：`@openduo/duoduo` v0.6.2（还原源码级逆向 + 活体 daemon 实证）  
+> 
+> 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核更新）  
+> 
+> 读者定位：**Agent 产品经理 / 架构师**。目标是"快速入门 + 深度掌握细节原理"：每一节先给一句能转述给别人的结论和一个生活化类比，再往下钻到机制细节；细节主张带 `daemon.pretty.js:行号` 锚点（还原源码 `reconstruction/recon/daemon.recon.js` 行号与之一致），可逐条复核。  
+> 
 > 与姊妹篇的分工：本文是全套分析的**入门与思路主线**，按**设计问题**组织——它怎么借用 Claude Code / Codex？一条消息怎么被处理？它怎么自我迭代？什么在防它失控？逐机制证据表见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（按子系统组织、面向逐行验证），部署与运维见 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)，跨框架选型见 [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md)。本文所有机制均已对照还原源码核验，少数推测显式标注（见附录 C）。
 
 ---
@@ -110,7 +113,7 @@
 | 工具执行环（读写文件/跑命令/循环回填结果） | Claude Code 内置全套工具与执行环 |
 | 子代理编排 | `.claude/agents/*.md` 由 SDK 自动加载成 Agent 工具（memory-weaver 的三段子代理就是这么挂上的） |
 | 会话持久化 | SDK 自管 jsonl 会话文件，duoduo 只保管一个 resume id |
-| 干预正在进行的推理的手段 | **hooks 即控制面**：PreToolUse 拦 Skip/后台 Bash，PostToolUse 注入插话（`72026`）——duoduo 把 SDK 的钩子当成运行时与模型之间的"神经接口" |
+| 干预正在进行的推理的手段 | **hooks 即控制面**：PreToolUse 拦 Skip/后台 Bash，PostToolUse 注入插话（`74836`）——duoduo 把 SDK 的钩子当成运行时与模型之间的"神经接口" |
 | 工具扩展协议 | MCP（Claude）/ dynamicTools（Codex）现成 |
 
 **所以"薄运行时"能薄，是因为最厚的那层（工具执行与编排）被租走了。** duoduo 的自研代码里没有工具执行循环这种东西。这也解释了第三部分的自编程为什么"零专用工具"——模型改自己用的就是 harness 自带的 Edit/Write/Bash，运行时只需要把工作目录指到 kernel。
@@ -118,32 +121,32 @@
 
 ## 1.1 Claude 侧：进程内 SDK，不 spawn CLI
 
-- **怎么调用**：Claude 大脑住在 daemon 进程里——直接 import 官方 Agent SDK，一次 turn 就是一次 `query()` 调用；SDK 自己负责拉起 Claude Code 原生二进制（duoduo 不管这层）。（`48359/48406`）
-- **怎么记住上次聊到哪**：全靠 SDK 的 resume 机制。对话历史由 Claude Code 自己的会话文件保管，duoduo 只在每次 turn 成功后把一个 session id 存进会话状态，下次带上它续聊。（`48699/59905`）
-- **权限怎么给**：**host 模式默认绕过一切权限询问**（bypassPermissions）——daemon 无人值守，弹窗即挂死；安全靠结构性边界（工具白名单，见第四部分）而非逐次审批。（`48366`）
-- **给了它哪些"自操作"工具**：除 Claude Code 自带工具外，duoduo 经进程内 MCP 追加了几个动自己身体的工具——ManageJob（给自己排定时任务）、ManageSession、Notify（后台消息上浮给前台）、QueueOutboundAttachment 和 Skip（后两个仅前台会话）。（`68613` 起）
-- **回答怎么流出来**：daemon 逐条消费 SDK 消息流，拆成"文本增量 / 思考增量 / 工具调用"三类事件转发给订阅方，最后从 result 消息拿最终文本与 token 账单；首 token 时延单独记账。（`47937-48446`）
+- **怎么调用**：Claude 大脑住在 daemon 进程里——直接 import 官方 Agent SDK，一次 turn 就是一次 `query()` 调用；SDK 自己负责拉起 Claude Code 原生二进制（duoduo 不管这层）。（`49323/49370`）
+- **怎么记住上次聊到哪**：全靠 SDK 的 resume 机制。对话历史由 Claude Code 自己的会话文件保管，duoduo 只在每次 turn 成功后把一个 session id 存进会话状态，下次带上它续聊。（`49663/59905`）
+- **权限怎么给**：**host 模式默认绕过一切权限询问**（bypassPermissions）——daemon 无人值守，弹窗即挂死；安全靠结构性边界（工具白名单，见第四部分）而非逐次审批。（`49330`）
+- **给了它哪些"自操作"工具**：除 Claude Code 自带工具外，duoduo 经进程内 MCP 追加了几个动自己身体的工具——ManageJob（给自己排定时任务）、ManageSession、Notify（后台消息上浮给前台）、QueueOutboundAttachment 和 Skip（后两个仅前台会话）。（`71253` 起）
+- **回答怎么流出来**：daemon 逐条消费 SDK 消息流，拆成"文本增量 / 思考增量 / 工具调用"三类事件转发给订阅方，最后从 result 消息拿最终文本与 token 账单；首 token 时延单独记账。（`48897-49410`）
 - **两个巧妙的细节**：
-  - **答完不挂电话（hold-input-open）**：模型答完后输入通道不立刻关闭，等它派出去的后台 subagent 都回调完毕才收线，配 10 分钟看门狗。类比"主任务结束了，但等实习生把活干完再下班"。（`48517`，仅后台类会话）
-  - **撤销 = 算切点 + 延迟分叉**：Claude 的会话历史只能追加、不能改史，所以 `/undo` 只先算出"回退到哪条消息"，下次处理时再从切点分叉出一条新会话（session id 会变）。（`57631/59906`）
+  - **答完不挂电话（hold-input-open）**：模型答完后输入通道不立刻关闭，等它派出去的后台 subagent 都回调完毕才收线，配 10 分钟看门狗。类比"主任务结束了，但等实习生把活干完再下班"。（`49481`，仅后台类会话）
+  - **撤销 = 算切点 + 延迟分叉**：Claude 的会话历史只能追加、不能改史，所以 `/undo` 只先算出"回退到哪条消息"，下次处理时再从切点分叉出一条新会话（session id 会变）。（`59005/59906`）
 
 ## 1.2 Codex 侧：常驻子进程 + 行分隔 JSON-RPC
 
-- **怎么调用**：Codex 大脑住在 daemon 旁边——启动一个常驻的 `codex app-server` 子进程，两边用"一行一条 JSON"的 RPC 对话；一个子进程可同时承载多个对话线程（thread）。（`57513-57734`）
-- **怎么记住上次聊到哪**：thread 三分支——新会话开 thread、续聊 resume thread、"指令变了/换模型"则 fork 出携带新设定的新 thread（见 1.4）。（`57545`）
-- **无人值守的自动批准**：审批策略固定为 never，Codex 反问的任何批准请求一律自动同意。安全兜底不在批准环节，而在沙箱：默认 workspace-write（只能写工作区），可调成只读或全放开。（`57399/57401`）
-- **工具面差异**：Codex 内置工具**不可禁用**（duoduo 传禁用清单会被忽略并告警）；duoduo 的自操作工具改走 dynamicTools 协议注入。（`57589/57535`）
+- **怎么调用**：Codex 大脑住在 daemon 旁边——启动一个常驻的 `codex app-server` 子进程，两边用"一行一条 JSON"的 RPC 对话；一个子进程可同时承载多个对话线程（thread）。（`58878-59369`）
+- **怎么记住上次聊到哪**：thread 三分支——新会话开 thread、续聊 resume thread、"指令变了/换模型"则 fork 出携带新设定的新 thread（见 1.4）。（`58910`）
+- **无人值守的自动批准**：审批策略固定为 never，Codex 反问的任何批准请求一律自动同意。安全兜底不在批准环节，而在沙箱：默认 workspace-write（只能写工作区），可调成只读或全放开。（`58750/58752`）
+- **工具面差异**：Codex 内置工具**不可禁用**（duoduo 传禁用清单会被忽略并告警）；duoduo 的自操作工具改走 dynamicTools 协议注入。（`58954/57535`）
 - **一套指令喂两颗大脑的两个"翻译器"**：
-  - **符号链接**：工作目录里有 `CLAUDE.md` 而没有 `AGENTS.md` 时自动建软链，Codex 按自己的约定读到同一份项目指令。（`57440`）
-  - **子代理"编译"**：把 Claude 格式的子代理定义（`.claude/agents/*.md`）批量转成 Codex 格式（`.codex/agents/*.toml`），潜意识的三个子代理因此对两个后端都可用。（`58621-58710`）
-- **一个产品开关**：握手时 duoduo 主动退订了 Codex 的"思考过程"增量流——Codex 的推理是否对用户可见，就在这一个订阅项上。（`57450`）
+  - **符号链接**：工作目录里有 `CLAUDE.md` 而没有 `AGENTS.md` 时自动建软链，Codex 按自己的约定读到同一份项目指令。（`58791`）
+  - **子代理"编译"**：把 Claude 格式的子代理定义（`.claude/agents/*.md`）批量转成 Codex 格式（`.codex/agents/*.toml`），潜意识的三个子代理因此对两个后端都可用。（`60877-60966`）
+- **一个产品开关**：握手时 duoduo 主动退订了 Codex 的"思考过程"增量流——Codex 的推理是否对用户可见，就在这一个订阅项上。（`58801`）
 
 ## 1.3 统一装配、分叉执行
 
 两颗大脑吃的"饭"是同一条装配线做的（细节见第二部分 2.4）：
 
-- **系统面**：`buildSystemPromptForChannelConfig`（`48254`）产出同一段六层系统提示；Claude 以 `{preset:"claude_code", append}` 追加在 Claude Code 内置提示之后，Codex 把同一段文本包进 `<aladuo:system-context>` 壳作 baseInstructions（`57482-57496`）——**同源同文，只差一层壳**。
-- **瞬时面**：`buildTransientUserBlocks`（`61049`）产出的 user 消息前置块两边一致。
+- **系统面**：`buildSystemPromptForChannelConfig`（`48254`）产出同一段六层系统提示；Claude 以 `{preset:"claude_code", append}` 追加在 Claude Code 内置提示之后，Codex 把同一段文本包进 `<aladuo:system-context>` 壳作 baseInstructions（`58833-58847`）——**同源同文，只差一层壳**。
+- **瞬时面**：`buildTransientUserBlocks`（`63657`）产出的 user 消息前置块两边一致。
 - **执行分叉**——同名操作、不同语义，一张表看清：
 
 | 操作 | Claude | Codex |
@@ -153,23 +156,23 @@
 | `/model` 换模型 | 可即时生效 | 下一条消息起 fork 生效 |
 | token 记账 | 三段式（新写入/缓存创建/缓存命中） | 两段式（cached 已含在 input 里） |
 
-  **运行时不假装这些差异不存在，而是在命令层显式分支**（`49287/75583` 等）——"薄名字、厚差异、诚实路由"。
+  **运行时不假装这些差异不存在，而是在命令层显式分支**（`50462/78798` 等）——"薄名字、厚差异、诚实路由"。
 
 ## 1.4 指令变了，两颗大脑的"换脑"方式不同（fingerprint 守卫）
 
-这是理解第三部分"自我迭代如何生效"的关键接口。每次 drain 开始前，运行时把 `[身份 meta-prompt, 通道人格, 实例提示, 记忆广播板, job mission]` 五元组做 sha256 指纹，与会话存档比对（`computeInstructionsFingerprint`，`71441`；守卫 `runInstructionsFingerprintGuard`，`71495`，调用点 `74338`）：
+这是理解第三部分"自我迭代如何生效"的关键接口。每次 drain 开始前，运行时把 `[身份 meta-prompt, 通道人格, 实例提示, 记忆广播板, job mission]` 五元组做 sha256 指纹，与会话存档比对（`computeInstructionsFingerprint`，`74084`；守卫 `runInstructionsFingerprintGuard`，`74138`，调用点 `77479`）：
 
-- **Claude**：指纹漂移只更新存档、**不作废会话**——因为 Claude 每次 query 都重发 system prompt，新自我自然生效；流式长驻会话则广播 `instructions_drift` 使其重建（`72803`）。
-- **Codex**：thread 的 baseInstructions 在创建时就冻结在服务端，改不了——于是置 `pending_fork_to`，**fork 一条携带新指令、继承历史的新线程**（`71495-71622`）。
+- **Claude**：指纹漂移只更新存档、**不作废会话**——因为 Claude 每次 query 都重发 system prompt，新自我自然生效；流式长驻会话则广播 `instructions_drift` 使其重建（`75672`）。
+- **Codex**：thread 的 baseInstructions 在创建时就冻结在服务端，改不了——于是置 `pending_fork_to`，**fork 一条携带新指令、继承历史的新线程**（`74138-74288`）。
 
 > 一句话：**agent 半夜改了自己的"座右铭"，第二天早上每个在岗会话都会以各自后端语义正确的方式换上新自我**，且日志里留有 fp_old→fp_new 审计链。
 
 ## 1.5 探测、选择与降级
 
-- **探测不对称**：Claude 探测是纯文件系统检查（SDK 装没装、平台二进制在不在），5 秒超时、结果缓存、并发去重（`48158-48207`）——**不验证登录态**；Codex 探测是 `codex --version` + `codex login status` 两连（各 5 秒，`57403-57433`）——**验证登录态**。
-- **选择链**：job frontmatter `runtime` > 通道绑定 > 通道种类配置 > env `ALADUO_DEFAULT_RUNTIME` > `claude`（`30595/30933`）。**Claude 是保守默认**。
-- **降级**：channel/job 会话请求 codex 但探测失败 → 回退 claude 并记警告（`74290-74323`）；潜意识分区请求的后端不可用 → 记 `runtime_unavailable` 错误并退避，不静默换脑（`74406-74498`）。
-- **认证三态**（Claude 侧）：`claude_code_local`（用本机 Claude Code 登录态，短路不注入任何 ANTHROPIC_* env，且启动时反向清除残留 key 防劫持，`77341`）/ `anthropic_api_key` / `compatible_endpoint`（任意 Anthropic 兼容端点：设 `ANTHROPIC_BASE_URL`+`AUTH_TOKEN`，并把 OPUS/SONNET/HAIKU 三个默认模型全指到同一个第三方模型，`57261-57351`）。
+- **探测不对称**：Claude 探测是纯文件系统检查（SDK 装没装、平台二进制在不在），5 秒超时、结果缓存、并发去重（`49119-49168`）——**不验证登录态**；Codex 探测是 `codex --version` + `codex login status` 两连（各 5 秒，`58754-58784`）——**验证登录态**。
+- **选择链**：job frontmatter `runtime` > 通道绑定 > 通道种类配置 > env `ALADUO_DEFAULT_RUNTIME` > `claude`（`30595/31494`）。**Claude 是保守默认**。
+- **降级**：channel/job 会话请求 codex 但探测失败 → 回退 claude 并记警告（`77431-77464`）；潜意识分区请求的后端不可用 → 记 `runtime_unavailable` 错误并退避，不静默换脑（`74406-77652`）。
+- **认证三态**（Claude 侧）：`claude_code_local`（用本机 Claude Code 登录态，短路不注入任何 ANTHROPIC_* env，且启动时反向清除残留 key 防劫持，`80747`）/ `anthropic_api_key` / `compatible_endpoint`（任意 Anthropic 兼容端点：设 `ANTHROPIC_BASE_URL`+`AUTH_TOKEN`，并把 OPUS/SONNET/HAIKU 三个默认模型全指到同一个第三方模型，`58571-57351`）。
 
 > **给 PM 的洞察（第一部分）**
 > - **"装配面共用、执行面分叉"是多后端 agent 的正确姿势**：一套提示词装配线 + 两个薄翻译器（symlink、TOML 编译），避免两套封装各自漂移；差异（undo/model/计费/思考可见性）不抹平而是显式分支——承诺"跨后端统一体验"是做不到的，诚实分叉才可维护。
@@ -197,21 +200,21 @@
 每一站都有一个"为什么"：
 
 - **①门卫分流**：入站边界就判定"要不要动用模型"。能不进模型就不进——这是最便宜的一次省钱。
-- **②记账先行（append-before-execute）**：模型调用又慢又可能失败；把"收到"与"处理"解耦后，崩溃恢复退化成"重读文件"。去重是 5 分钟时间桶 + 内容哈希（`75351`），命中即重放上次回执（幂等体验）。
+- **②记账先行（append-before-execute）**：模型调用又慢又可能失败；把"收到"与"处理"解耦后，崩溃恢复退化成"重读文件"。去重是 5 分钟时间桶 + 内容哈希（`78532`），命中即重放上次回执（幂等体验）。
 - **③指针化**：mailbox 只存 `@evt(id)`，正文永远只有 WAL 一份，杜绝双写漂移。
-- **④一 key 一 actor**：每个会话键对应至多一个内存 actor；channel 池 10 并发、job 池 6 并发，后台任务饿不死前台对话（`71696-71704`）。两层锁（跨进程写锁 + 进程内按 key 互斥）保证并发安全（`59743/59846`）。
+- **④一 key 一 actor**：每个会话键对应至多一个内存 actor；channel 池 10 并发、job 池 6 并发，后台任务饿不死前台对话（`74439-74377`）。两层锁（跨进程写锁 + 进程内按 key 互斥）保证并发安全（`62317/62420`）。
 
 ## 2.2 办理站的三个聪明处
 
-**（a）攒批：turn ≠ 消息。** 真人常连发短句。drain 每次从 mailbox 顶部切一个"可合并窗口"：最多 5 条、相邻间隔 ≤3 分钟、必须同类型同投递目标、不含斜杠命令（`61190-61286`）；合并 prompt 明说 *"Process these N closely timed events as one continuous update… Reply once."* 后台任务回调（notify）不限量一次吃完。**代价是单条消息的少量延迟，换来 token 成本和碎片回复的大幅下降。**v0.6.1 起后台 Agent 完成也统一到**单一 owner**：Claude 原生的完成续写是唯一"说进对话"的路径，运行时只持久记录子代理的生命周期事件，不再另造一个重复的回调 turn。
+**（a）攒批：turn ≠ 消息。** 真人常连发短句。drain 每次从 mailbox 顶部切一个"可合并窗口"：最多 5 条、相邻间隔 ≤3 分钟、必须同类型同投递目标、不含斜杠命令（`63798-63894`）；合并 prompt 明说 *"Process these N closely timed events as one continuous update… Reply once."* 后台任务回调（notify）不限量一次吃完。**代价是单条消息的少量延迟，换来 token 成本和碎片回复的大幅下降。**v0.6.1 起后台 Agent 完成也统一到**单一 owner**：Claude 原生的完成续写是唯一"说进对话"的路径，运行时只持久记录子代理的生命周期事件，不再另造一个重复的回调 turn。
 
-**（b）插话优先于打断。** 模型正在跑时来了新消息，处置分三级：优先"steer"——把新文本在下一个工具调用边界注入当前 turn（Claude 用 SDK 的 PostToolUse hook `additionalContext`，Codex 用 `turn/steer` RPC）；其次排队为同一条流式会话的下一 turn；最后才打断，且只在 tool_use/tool_result/accept 边界打断，**绝不拦腰砍断半个工具调用**（Claude PostToolUse `additionalContext` 注入 `72026`；steering lane `72343-72894`）。后台通知一律 `preempt:"never"`——后台永远不打断前台对话。v0.6.1 把这套明确化为**单 turn 准入 + steering lane**：一次只准入一个对话 turn，后到的消息走显式 steering 通道，不再被折进正在跑的 turn 里（那会让会话陷入永久 busy）。
+**（b）插话优先于打断。** 模型正在跑时来了新消息，处置分三级：优先"steer"——把新文本在下一个工具调用边界注入当前 turn（Claude 用 SDK 的 PostToolUse hook `additionalContext`，Codex 用 `turn/steer` RPC）；其次排队为同一条流式会话的下一 turn；最后才打断，且只在 tool_use/tool_result/accept 边界打断，**绝不拦腰砍断半个工具调用**（Claude PostToolUse `additionalContext` 注入 `74836`；steering lane `76072-72894`）。后台通知一律 `preempt:"never"`——后台永远不打断前台对话。v0.6.1 把这套明确化为**单 turn 准入 + steering lane**：一次只准入一个对话 turn，后到的消息走显式 steering 通道，不再被折进正在跑的 turn 里（那会让会话陷入永久 busy）。
 
-**（c）长驻流式会话。** 同一前台会话复用同一个流式 `query()` 进程（configSignature 指纹一变才重建，`71905-71928`），避免每 turn 冷启动，也让 prompt cache 前缀持续命中。
+**（c）长驻流式会话。** 同一前台会话复用同一个流式 `query()` 进程（configSignature 指纹一变才重建，`74692-74642`），避免每 turn 冷启动，也让 prompt cache 前缀持续命中。
 
 ## 2.3 崩溃恢复：进程可丢，"我"不丢
 
-重启后 `rehydrateSessionState` 扫会话目录重建 actor 集（`31040`）；mailbox 里没勾掉的待办就地续跑；第一个 turn 给模型注入一条 `daemon-restart-hint`（"你在新的 daemon 进程下运行"）。活体实测：重启后 runtime_id 不变、会话与 WAL 无损。**这就是"文件系统即数据库"的兑现。**
+重启后 `rehydrateSessionState` 扫会话目录重建 actor 集（`31601`）；mailbox 里没勾掉的待办就地续跑；第一个 turn 给模型注入一条 `daemon-restart-hint`（"你在新的 daemon 进程下运行"）。活体实测：重启后 runtime_id 不变、会话与 WAL 无损。**这就是"文件系统即数据库"的兑现。**
 
 ## 2.4 上下文装配：员工手册与工位便签
 
@@ -220,11 +223,11 @@
 | 注入面 | 装什么 | 载体 | 类比 |
 |---|---|---|---|
 | **系统面**（`buildSystemPromptForChannelConfig`，`48254`） | ①身份 meta-prompt ②通道人格 ③实例特化 ④**记忆广播板**（带 OVERRIDE 前缀；含 `[[slug]]` 时附"深档入口"使用纪律） ⑤Runtime Context ⑥job 任务书 | system prompt（Claude 追加在 claude_code 预设后） | **员工手册**：很少变，变了有版本号（fingerprint） |
-| **瞬时面**（`buildTransientUserBlocks`，`61049`） | 重启提示 → 网关带外结果 → 时间流逝（`<time-context>`）→ skip 回卷 → 被打断上下文 → job tick → 用户原文 | user 消息前置块 | **工位便签**：每天都换，绝不写进手册 |
+| **瞬时面**（`buildTransientUserBlocks`，`63657`） | 重启提示 → 网关带外结果 → 时间流逝（`<time-context>`）→ skip 回卷 → 被打断上下文 → job tick → 用户原文 | user 消息前置块 | **工位便签**：每天都换，绝不写进手册 |
 
 为什么这样切：系统面稳定 ⇒ prompt cache 前缀反复命中（直接省钱）；瞬时面让模型获得它本没有的"具身感"（时间过了多久、刚才被打断了、后台节拍到了）——两个互相冲突的目标同时满足。每类瞬时通知注入一次即清除标记位，不污染后续 turn。
 
-**顺着"具身感"再想一层：时间是被注入的感官。** LLM 天生没有时钟——两次调用之间隔了 3 秒还是 3 天，对模型完全等价。duoduo 用三个机制把时间做成感官送进模型：`<time-context>` 块（距上次交互超过阈值才注入，默认 60 分钟）让它感到"隔了很久"（`61029/61110`）；`<job-tick>`（run_number / triggered_at / previous_run_at）让定时任务感到"这是第几次例行"；cadence 心跳让潜意识有"节拍"。反向的纪律同样重要：**时间戳绝不放进系统面**（系统面无任何时间字段，Codex 侧连 developerInstructions 的时间戳都不注入）——因为分钟级时间戳会击穿缓存前缀。一句话：**让模型感到时间，但不让时间弄脏缓存。**这是"具身状态放瞬时面"原则最典型的一次应用。
+**顺着"具身感"再想一层：时间是被注入的感官。** LLM 天生没有时钟——两次调用之间隔了 3 秒还是 3 天，对模型完全等价。duoduo 用三个机制把时间做成感官送进模型：`<time-context>` 块（距上次交互超过阈值才注入，默认 60 分钟）让它感到"隔了很久"（`63637/63718`）；`<job-tick>`（run_number / triggered_at / previous_run_at）让定时任务感到"这是第几次例行"；cadence 心跳让潜意识有"节拍"。反向的纪律同样重要：**时间戳绝不放进系统面**（系统面无任何时间字段，Codex 侧连 developerInstructions 的时间戳都不注入）——因为分钟级时间戳会击穿缓存前缀。一句话：**让模型感到时间，但不让时间弄脏缓存。**这是"具身状态放瞬时面"原则最典型的一次应用。
 
 ## 2.5 渠道体系：以飞书为例，消息到底从哪来、回哪去
 
@@ -255,7 +258,7 @@ channel-feishu ◀——WebSocket 订阅推送（回复/流式增量/工具动�
 - **诚实的短板**：渠道进程由 CLI 拉起、detached 运行，**崩了没人自动重启**（daemon 不知道它的存在），要靠 `duoduo channel feishu status` 发现、手动 `start`；升级插件也要手动 stop && start。这是当前版本明确的运维负担。
 - **协议是通用解耦支点**：接钉钉/Telegram/微信 = 写一个新的独立进程包（声明入口和环境变量白名单），入站调 `channel.ingress`、出站开 WS 订阅四类通知、首次绑定写 descriptor——daemon 零改动。协议还内置**能力协商**：插件声明自己能收什么（MIME、流式结束原因……），daemon 对不认识的新语义自动降级，老插件永远不会被新版 daemon 弄坏。
 
-（细节锚点：进程模型 `cli.recon.js:115633-115900`；入站链 `daemon.recon.js:78193-78310`；WS 订阅 `78485-78739`；描述符 `34038-34137`；能力降级 `77523`。）
+（细节锚点：进程模型 `cli.recon.js:115633-115900`；入站链 `daemon.recon.js:78193-78310`；WS 订阅 `82246-82568`；描述符 `34843-34137`；能力降级 `80930`。）
 
 > **给 PM 的洞察（第二部分）**
 > - **"消息、批、turn"三层解耦**是对话式 agent 的成本杠杆：合批省 query 次数，插话省打断重跑，长驻流式省冷启动。三者都以"边界感知"为前提——工具调用边界是唯一安全的干预点。
@@ -273,7 +276,7 @@ channel-feishu ◀——WebSocket 订阅推送（回复/流式增量/工具动�
 
 ## 3.1 自我 = 一个 git 仓库
 
-kernel（`~/aladuo`，`ALADUO_KERNEL_DIR` 可覆盖，`55628`）的内容与语义分界：
+kernel（`~/aladuo`，`ALADUO_KERNEL_DIR` 可覆盖，`56842`）的内容与语义分界：
 
 ```
 ~/aladuo/                      ← git 仓库（runtime 启动时幂等 git init + "memory: genesis" 首提交，58446-58448）
@@ -290,16 +293,16 @@ kernel（`~/aladuo`，`ALADUO_KERNEL_DIR` 可覆盖，`55628`）的内容与语�
     └── <partition>/CLAUDE.md  ← 各分区自己的提示词（agent 可改）
 ```
 
-语义分界直接写在 `.gitignore` 首行注释里（常量 `58597`）：**`# Runtime state (not part of cognitive evolution)`** —— 入 git 的是"认知演化"，被忽略的是可从日志重建的运行态。**这一行注释就是"自我"的机器定义。**（confirmed）
+语义分界直接写在 `.gitignore` 首行注释里（常量 `60853`）：**`# Runtime state (not part of cognitive evolution)`** —— 入 git 的是"认知演化"，被忽略的是可从日志重建的运行态。**这一行注释就是"自我"的机器定义。**（confirmed）
 
-**git 隔离细节**：所有 git 操作固定 author `aladuo <aladuo@local>`、`GIT_CONFIG_GLOBAL=/dev/null`、`GIT_CONFIG_NOSYSTEM=1`（`58541-58546`）——与宿主机 git 配置完全隔离，不会误用你的签名。
+**git 隔离细节**：所有 git 操作固定 author `aladuo <aladuo@local>`、`GIT_CONFIG_GLOBAL=/dev/null`、`GIT_CONFIG_NOSYSTEM=1`（`60797-60802`）——与宿主机 git 配置完全隔离，不会误用你的签名。
 
 ## 3.2 出厂：bootstrap 播种，而且只播一次
 
-npm 包内 `bootstrap/` 目录是"出厂人格 + 入职培训包"。首次 onboard / daemon 启动时（`initializeRuntime`，`58917`）：
+npm 包内 `bootstrap/` 目录是"出厂人格 + 入职培训包"。首次 onboard / daemon 启动时（`initializeRuntime`，`61175`）：
 
-- **kernel 为空 → 全量播种**；**kernel 已存在 → 一律 copy-if-absent（只补缺、绝不覆盖）**（`58882-58969`）。这一条就是"npm 升级永不踩踏 agent 已演化的文件"的实现。
-- **meta-prompt.md（14KB 的"我是谁"宪章）刻意不入 kernel**（排除集 `58969`），每次装配 system prompt 时从包内现读（`48240`）。效果：**升级 npm 包 = 人格宪章即时升级，而 agent 后天写的一切一字不动**——先天与后天在文件层就分开了。
+- **kernel 为空 → 全量播种**；**kernel 已存在 → 一律 copy-if-absent（只补缺、绝不覆盖）**（`61140-61227`）。这一条就是"npm 升级永不踩踏 agent 已演化的文件"的实现。
+- **meta-prompt.md（14KB 的"我是谁"宪章）刻意不入 kernel**（排除集 `61227`），每次装配 system prompt 时从包内现读（`49201`）。效果：**升级 npm 包 = 人格宪章即时升级，而 agent 后天写的一切一字不动**——先天与后天在文件层就分开了。
 - 种子里最有产品味的三件：`memory/CLAUDE.md` 是 **0 字节**（直觉层从零开始长）；`var/**/DUODUO.md` 是撒在运行时目录里的"身体说明书"（meta-prompt 教 agent "look for DUODUO.md files in my runtime directories"——自我发现而非硬编码）；四个出厂分区的提示词共约 36KB，就是"出厂潜意识"。
 
 meta-prompt 的自我叙事值得引用，它是全系统的世界观（`bootstrap/meta-prompt.md` 原文）：
@@ -309,10 +312,10 @@ meta-prompt 的自我叙事值得引用，它是全系统的世界观（`bootstr
 
 ## 3.3 心跳与值班表：潜意识怎么被唤醒
 
-- **心跳**：单 `setInterval`，默认 2,220,000ms ≈ 37 分钟（`ALADUO_CADENCE_INTERVAL_MS`，`79012`）。每拍先广播 `cadence.tick`，再跑确定性维护环 `runCadenceTick`（lint、队列合并、记账——**这一环零 LLM**，`74949`）。定时任务扫描是另一条独立的 60 秒定时器，互不拖累（`75157`）。
-- **不空转的四层闸门**（潜意识引擎侧，`74378-74798`）：①重入/停机门；②**活动指纹门**——对记忆目录 mtime + 最新外部事件做指纹，没变化整拍跳过（系统安静时潜意识不烧钱）；③每分区 `cooldown_ticks` 冷却 + 失败线性退避（2h/4h 封顶）；④前台优先——只有活跃会话 ≤1 时才在同拍补跑第二个分区（上限 2）。
-- **值班表 `playlist.md`**：`## Current Round` 下的 checkbox 轮转，每拍取下一个未勾选分区，整轮勾完用 enabled 分区重建新一轮（`55831-55897`）。**它是纯文本状态机，且 agent 被明确授权改写它**（分区总纲原文："Anyone can edit the playlist — including the partitions themselves."）——调度本身就是可自编程的。
-- **分区执行**：一次性无状态 SDK 会话（`persistSession:false`，`74544`），cwd = 分区目录，prompt = 分区 CLAUDE.md 正文 + 运行时路径清单 + 收件箱内容；超时硬杀；结果落 Spine `agent.result`（`tick_type:"subconscious"`）+ usage 台账——**潜意识的每一次开销都可观测**。分区自述（`subconscious/CLAUDE.md`）：*"Stateless. No memory of last time except what's written to files."* —— 跨拍协作全靠文件，任何一拍崩溃都可整段重跑（幂等）。
+- **心跳**：单 `setInterval`，默认 2,220,000ms ≈ 37 分钟（`ALADUO_CADENCE_INTERVAL_MS`，`79012`）。每拍先广播 `cadence.tick`，再跑确定性维护环 `runCadenceTick`（lint、队列合并、记账——**这一环零 LLM**，`78130`）。定时任务扫描是另一条独立的 60 秒定时器，互不拖累（`78338`）。
+- **不空转的四层闸门**（潜意识引擎侧，`77519-77978`）：①重入/停机门；②**活动指纹门**——对记忆目录 mtime + 最新外部事件做指纹，没变化整拍跳过（系统安静时潜意识不烧钱）；③每分区 `cooldown_ticks` 冷却 + 失败线性退避（2h/4h 封顶）；④前台优先——只有活跃会话 ≤1 时才在同拍补跑第二个分区（上限 2）。
+- **值班表 `playlist.md`**：`## Current Round` 下的 checkbox 轮转，每拍取下一个未勾选分区，整轮勾完用 enabled 分区重建新一轮（`57047-57113`）。**它是纯文本状态机，且 agent 被明确授权改写它**（分区总纲原文："Anyone can edit the playlist — including the partitions themselves."）——调度本身就是可自编程的。
+- **分区执行**：一次性无状态 SDK 会话（`persistSession:false`，`77708`），cwd = 分区目录，prompt = 分区 CLAUDE.md 正文 + 运行时路径清单 + 收件箱内容；超时硬杀；结果落 Spine `agent.result`（`tick_type:"subconscious"`）+ usage 台账——**潜意识的每一次开销都可观测**。分区自述（`subconscious/CLAUDE.md`）：*"Stateless. No memory of last time except what's written to files."* —— 跨拍协作全靠文件，任何一拍崩溃都可整段重跑（幂等）。
 
 ## 3.4 经验 → 直觉的流水线（自我迭代的主环）
 
@@ -351,7 +354,7 @@ memory-committer（git 守门员）: 逐行审查工作区变更，只允许 git
 
 三个设计点值得单独咀嚼：
 
-1. **"效用 = 图可达性"**。一条知识还有没有用，不看时间戳不看访问计数，而看它能否从广播板沿 `[[slug]]` 链接被走到（BFS 闭包，`56356`）。走不到的就是孤儿，再按"有无引用/是否新生"分 ISLAND / NEWBORN（48 小时宽限）/ STALE 三态——只有 STALE 才可能被删，且删除是 `git rm` 软删 + "没被警告过就不许删"（`56734-56802`）。**遗忘被设计成可逆的、有正当程序的。**
+1. **"效用 = 图可达性"**。一条知识还有没有用，不看时间戳不看访问计数，而看它能否从广播板沿 `[[slug]]` 链接被走到（BFS 闭包，`57586`）。走不到的就是孤儿，再按"有无引用/是否新生"分 ISLAND / NEWBORN（48 小时宽限）/ STALE 三态——只有 STALE 才可能被删，且删除是 `git rm` 软删 + "没被警告过就不许删"（`57965-58033`）。**遗忘被设计成可逆的、有正当程序的。**
 2. **证据链压制幻觉**。scanner 的碎片必须写明它检验的是广播板哪一行（`claude_md_ref`），updater 改行前必读该行效果账本——"事件→证据→效果→改写"可复算，LLM 不能空口宣布"这条经验很有效"。
 3. **噪声进不了记忆**。weaver 的证据源门与 committer 的内外门共用同一个 deny-list：`{cadence, meta, system, runner, route, gateway}`——**系统自己的运行噪声在制度上无法变成长期记忆**，只有外部世界的事件才配成为经验。
 
@@ -375,8 +378,8 @@ memory-committer（git 守门员）: 逐行审查工作区变更，只允许 git
 | 层 | 载体 | 进入方式 | 预算与纪律 |
 |---|---|---|---|
 | **工作记忆** | 当前上下文窗口 | 本 turn 装配 | 由下面三层供给，自身不留东西 |
-| **L1 直觉缓存** | 广播板 `memory/CLAUDE.md` | **每个新会话无条件注入** system prompt | **硬预算**：>100 行或单行 >200 字符即触发压缩任务单（`ALADUO_MEMORY_MAX_LINES/…_LINE_CHARS`，默认值 `59216/59220`，lint `56299`）——直觉必须短到"常驻"得起 |
-| **L2 深档** | `[[slug]]` 指向的 dossier / lesson / groove | **默认不展开**，模型按需 Read | 注入的使用纪律原文："dossier entry points, not footnotes… expand **only when it would otherwise leave you guessing on a consequential call**"（`48782`）——渐进披露，防上下文膨胀 |
+| **L1 直觉缓存** | 广播板 `memory/CLAUDE.md` | **每个新会话无条件注入** system prompt | **硬预算**：>100 行或单行 >200 字符即触发压缩任务单（`ALADUO_MEMORY_MAX_LINES/…_LINE_CHARS`，默认值 `61744/61748`，lint `57529`）——直觉必须短到"常驻"得起 |
+| **L2 深档** | `[[slug]]` 指向的 dossier / lesson / groove | **默认不展开**，模型按需 Read | 注入的使用纪律原文："dossier entry points, not footnotes… expand **only when it would otherwise leave you guessing on a consequential call**"（`49746`）——渐进披露，防上下文膨胀 |
 | **L3 史料** | WAL 事件日志 + fragments 证据碎片 | 只有潜意识"做梦"时批量读 | 前台永不直接触碰；经蒸馏才能上行 |
 
 两条流动方向都有守门人：**上行（史料→直觉）** 要过第三部分 3.4 的整条蒸馏管道加 committer 编辑门；**下行（直觉→展开深档）** 靠 `[[slug]]` 指针 + 使用纪律控制。板上一行直觉的"常驻资格"还要接受 effectiveness 轨迹的持续复核（WEAKENING 会被 lint 点名重写或下沉）。
@@ -385,7 +388,7 @@ memory-committer（git 守门员）: 逐行审查工作区变更，只允许 git
 
 ## 3.6 自改的边界：允许什么、禁止什么、靠什么执行
 
-**执行面**（confirmed）：没有任何"SelfEdit"专用工具。`meta:`/`system:` 平面会话的 cwd 就是 kernel（`31571`），改自己 = 在自己家目录里用普通 Edit/Write/Bash。模型还能经 `ManageJob` 给自己排定时任务（自续期的 "rearm contract" 模式，`77298`；v0.6.1 起建作业时会校验 cron 合法性并接受 `2h30m`/`1d6h4m` 这类复合时长，畸形/超范围直接拒绝）——**自我调度也是自编程的一部分**。
+**执行面**（confirmed）：没有任何"SelfEdit"专用工具。`meta:`/`system:` 平面会话的 cwd 就是 kernel（`32132`），改自己 = 在自己家目录里用普通 Edit/Write/Bash。模型还能经 `ManageJob` 给自己排定时任务（自续期的 "rearm contract" 模式，`80704`；v0.6.1 起建作业时会校验 cron 合法性并接受 `2h30m`/`1d6h4m` 这类复合时长，畸形/超范围直接拒绝）——**自我调度也是自编程的一部分**。
 
 **授权清单**（`subconscious/CLAUDE.md` 原文，是自编程的"宪法"）：
 
@@ -437,11 +440,11 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 
 | 闸门 | 防什么 | 机制 |
 |---|---|---|
-| **工具 allowlist**（`CLAUDE_CORE_TOOLS`，`48775`；拆分 `splitDisallowedToolsForClaude`，`48118`） | 无人值守挂死 / 逃逸 / 失控扩面 | v0.5.10 起从 denylist 反转为 allowlist：会话默认只发放固定核心集 `CLAUDE_CORE_TOOLS`（Bash/Read/Write/Edit/Grep/Glob/Agent/TaskOutput/TaskStop/Skill/ToolSearch/Task{Create,Get,Update,List}/SendMessage），WebSearch/WebFetch/Workflow/Monitor/Cron* 等一律**默认关闭**，需在 channel descriptor 的 `claude.tools` 嵌套键显式追加才发放（`48366`）；分区侧另有 `PARTITION_CORE_TOOLS`（`48775`）。`splitDisallowedToolsForClaude` 按 `mcp__` 前缀把工具名拆成 `{mcpTools, builtIns}`。旧的 `DEFAULT_DISALLOWED_TOOLS` 已退役——"没在白名单里"即"关闭"，比逐项 deny 更难被绕过。（confirmed。注意 Codex 侧内置工具无法禁用，此闸只对 Claude 完整生效） |
-| **契约门 `enforceContractGate`**（`57026`） | 记忆信号误投 / 版本错配 | 分区 frontmatter 未声明 `consumes` 某信号 → 不投递；目录名≠声明名 → 不投递（防提示词被复制冒名）；无任何订阅者 → 整拍不测量 |
-| **写锁与归档屏障**（`59743/59846/72496`） | 并发写坏状态 | 跨进程 drain 写锁（pid+心跳+stale 抢占）、进程内按 key 互斥、归档中会话拒绝一切唤醒 |
-| **孤儿 GC 三重保险**（`56734-56802`） | 误删记忆 | 双实验 flag AND + 48h 新生宽限 + 必须先被警告 + git 软删 + 失败自动 git 回滚 + `.git/index.lock` 存在即放弃 |
-| **指纹守卫**（`71495`） | 自我漂移不生效/静默生效 | 指令五元组指纹漂移 → 按后端语义显式重建/fork 会话，日志留痕 |
+| **工具 allowlist**（`CLAUDE_CORE_TOOLS`，`49739`；拆分 `splitDisallowedToolsForClaude`，`49079`） | 无人值守挂死 / 逃逸 / 失控扩面 | v0.5.10 起从 denylist 反转为 allowlist：会话默认只发放固定核心集 `CLAUDE_CORE_TOOLS`（Bash/Read/Write/Edit/Grep/Glob/Agent/TaskOutput/TaskStop/Skill/ToolSearch/Task{Create,Get,Update,List}/SendMessage），WebSearch/WebFetch/Workflow/Monitor/Cron* 等一律**默认关闭**，需在 channel descriptor 的 `claude.tools` 嵌套键显式追加才发放（`49330`）；分区侧另有 `PARTITION_CORE_TOOLS`（`49739`）。`splitDisallowedToolsForClaude` 按 `mcp__` 前缀把工具名拆成 `{mcpTools, builtIns}`。旧的 `DEFAULT_DISALLOWED_TOOLS` 已退役——"没在白名单里"即"关闭"，比逐项 deny 更难被绕过。（confirmed。注意 Codex 侧内置工具无法禁用，此闸只对 Claude 完整生效） |
+| **契约门 `enforceContractGate`**（`58258`） | 记忆信号误投 / 版本错配 | 分区 frontmatter 未声明 `consumes` 某信号 → 不投递；目录名≠声明名 → 不投递（防提示词被复制冒名）；无任何订阅者 → 整拍不测量 |
+| **写锁与归档屏障**（`62317/62420/75346`） | 并发写坏状态 | 跨进程 drain 写锁（pid+心跳+stale 抢占）、进程内按 key 互斥、归档中会话拒绝一切唤醒 |
+| **孤儿 GC 三重保险**（`57965-58033`） | 误删记忆 | 双实验 flag AND + 48h 新生宽限 + 必须先被警告 + git 软删 + 失败自动 git 回滚 + `.git/index.lock` 存在即放弃 |
+| **指纹守卫**（`74138`） | 自我漂移不生效/静默生效 | 指令五元组指纹漂移 → 按后端语义显式重建/fork 会话，日志留痕 |
 | **Spine 只追加** | 篡改历史 | 事件日志无更新/删除路径；提示词同时声明"that's my unalterable history"（软硬同向） |
 
 **软约束**（提示词层，靠模型自律 + committer 编辑门 + git 兜底）：不改别人分区、不碰锁文件、广播板只写可执行梯度、"我不向用户报记忆文件名"等等。**评估风险时的正确问法是：如果模型违反了 X，会发生什么？** 对 duoduo：违反软约束 → committer 拒收 / git 可回滚；想突破硬闸门 → 代码路径不存在。
@@ -453,7 +456,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 - **入站分流**：运维命令不进模型（第二部分①）。
 - **合批**：5 条并 1 turn（第二部分 2.2a）。
 - **prompt cache 工程**：稳定系统面 + 长驻流式会话（第二部分 2.4）。
-- **空闲自动 compact**（v0.5.10，per-channel 会话级，默认关闭）：`auto_compact_idle_minutes` 空闲阈值 + `auto_compact_min_context_tokens` 经济下限（`33990-34014`）——会话冷下来后在缓存 TTL 内静默 `/compact`，把驻留 token 压回地板，避免长会话上下文无限膨胀而缓存反复失效。
+- **空闲自动 compact**（v0.5.10，per-channel 会话级，默认关闭）：`auto_compact_idle_minutes` 空闲阈值 + `auto_compact_min_context_tokens` 经济下限（`34554-34582`）——会话冷下来后在缓存 TTL 内静默 `/compact`，把驻留 token 压回地板，避免长会话上下文无限膨胀而缓存反复失效。
 - **潜意识四层闸门**：活动指纹门（没新经验整拍睡过去）× cooldown × 失败退避 × 前台优先（第三部分 3.3）。
 - **全链路台账**：每次 drain（含每次潜意识分区执行）写一条 usage 记录（token/成本/工具数/TTFT），`usage.get` RPC 可查——**后台的每一分钱都可归因到具体分区**。
 
@@ -465,15 +468,15 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 
 | 失败场景 | 处置 | 锚点 |
 |---|---|---|
-| 模型 turn 抛错 | 产品化为统一文本 `[duoduo:drain-error]` 回给用户 + `agent.error` 事件落账（不静默、不裸堆栈） | `61593-61617` |
-| resume 旧会话失败 | 自动降级为无历史重跑，并落一条 `stage:"resume"` 错误事件留痕 | `60346/61356` |
-| 潜意识分区超时/失败 | 硬杀 + 线性退避（2h/4h 封顶，前 1-2 次宽限），连续失败不拖垮整个心跳 | `74478-74520` |
-| mailbox 里有坏文件 | 隔离区（quarantine），不阻塞其余待办 | `31282` |
-| 定时任务终局 | 五态显式分类（NEVER_STARTED / STARTED_FAILURE / CANCELLED×2 / SUCCESS），配乐观并发游标防双跑 | `74869` |
-| 会话结束后又来消息 | 收尾再扫一次收件箱；"保守重驱"只允许一次，防自旋 | `74849-74862` |
-| 后台 subagent 迟迟不回 | hold-input 10 分钟空转看门狗强制收尾 | `48517` |
-| 遗忘 GC 中途失败 | `git reset + checkout` 整体回滚，宁可不删 | `56790-56793` |
-| daemon 自身崩溃 | 见 2.3——`uncaughtException` 直接退出，把"重启"交给外部管理器，绝不带伤运行 | `78929` |
+| 模型 turn 抛错 | 产品化为统一文本 `[duoduo:drain-error]` 回给用户 + `agent.error` 事件落账（不静默、不裸堆栈） | `64206-64230` |
+| resume 旧会话失败 | 自动降级为无历史重跑，并落一条 `stage:"resume"` 错误事件留痕 | `60346/63964` |
+| 潜意识分区超时/失败 | 硬杀 + 线性退避（2h/4h 封顶，前 1-2 次宽限），连续失败不拖垮整个心跳 | `77619-74520` |
+| mailbox 里有坏文件 | 隔离区（quarantine），不阻塞其余待办 | `31843` |
+| 定时任务终局 | 五态显式分类（NEVER_STARTED / STARTED_FAILURE / CANCELLED×2 / SUCCESS），配乐观并发游标防双跑 | `78050` |
+| 会话结束后又来消息 | 收尾再扫一次收件箱；"保守重驱"只允许一次，防自旋 | `78030-78043` |
+| 后台 subagent 迟迟不回 | hold-input 10 分钟空转看门狗强制收尾 | `49481` |
+| 遗忘 GC 中途失败 | `git reset + checkout` 整体回滚，宁可不删 | `58021-58024` |
+| daemon 自身崩溃 | 见 2.3——`uncaughtException` 直接退出，把"重启"交给外部管理器，绝不带伤运行 | `82808` |
 | 渠道适配器进程崩溃 | **无自动重启**（已知短板，见 2.5）：daemon 不感知插件进程，需人工 `channel start`；期间消息滞留平台侧 | `cli:115884` |
 
 规律：**每条失败路径都收敛到"落账 + 退避/降级 + 不扩散"三件事**，且失败本身也是 WAL 事件（可复盘）。反面教材是"失败被 catch 后 log 一行就继续"——那种系统撑不过一周无人值守。
@@ -513,7 +516,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 
 1. **闭源 + 单机**：License 为 Private，不可 fork；单进程 Map+Promise 编排，无横向扩展；控制面无鉴权。学它的架构，别指望用它的代码。
 2. **自我迭代深度止于提示词拓扑**：它不能给自己写新工具/新代码（对比 pi），也没有对"改完之后变好了没有"的自动验证关卡——effectiveness 轨迹是事后证据，不是发布前测试。
-3. **后台成本与后端强绑**：潜意识按节拍烧钱；推理后端只有 claude/codex 两值，换第三家要等上游。
+3. **后台成本与后端强绑**：潜意识按节拍烧钱；推理后端是 claude/codex/grok 三值(v0.7.1 新增 grok)，换第四家仍要等上游。
 
 **与本仓库长期目标的一句话衔接**（详见 [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md)）：对"贝叶斯 + 可持续自我迭代 + long-horizon 金融预测"的目标 agent，duoduo 的可搬件恰好是上面第 5、9、10 三条——把 `prediction.made / prediction.resolved` 做成 WAL 事件（预测先于结果落盘）、把"信念库"做成带 effectiveness 账本的记忆图、把校准复盘做成一个潜意识分区；而它止步的"改完验证关卡"，正是金融场景必须自建的那一层。
 
