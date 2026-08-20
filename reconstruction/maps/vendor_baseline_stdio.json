@@ -1,0 +1,9 @@
+{
+  "bundle": "stdio",
+  "recordedAt": "@openduo/duoduo v0.7.1",
+  "note": "Export names accepted as NOT first-party as of the recorded version. This is a snapshot of what the keyword heuristic declined at a version known to reconstruct correctly -- not a per-name human audit. Its job is to make the gate fire only on names that are NEW, so a new upstream subsystem cannot slip through unnoticed the way the Grok subsystem did at v0.7.1.",
+  "vendor": [
+    "main",
+    "resolveIngressCwdAbs"
+  ]
+}
