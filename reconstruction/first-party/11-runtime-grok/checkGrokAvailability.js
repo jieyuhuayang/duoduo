@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: checkGrokAvailability  (minified: ju, daemon.pretty.js:59912)
+// symbol: checkGrokAvailability  (minified: ju, daemon.pretty.js:59913)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

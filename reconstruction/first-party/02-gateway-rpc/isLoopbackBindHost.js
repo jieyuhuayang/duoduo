@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: isLoopbackBindHost  (minified: vst, daemon.pretty.js:81920)
+// symbol: isLoopbackBindHost  (minified: vst, daemon.pretty.js:81922)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createSessionManager  (minified: fot, daemon.pretty.js:74337)
+// symbol: createSessionManager  (minified: fot, daemon.pretty.js:74339)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

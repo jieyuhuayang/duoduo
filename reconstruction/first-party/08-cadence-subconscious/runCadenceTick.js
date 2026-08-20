@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runCadenceTick  (minified: $ot, daemon.pretty.js:78129)
+// symbol: runCadenceTick  (minified: $ot, daemon.pretty.js:78130)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

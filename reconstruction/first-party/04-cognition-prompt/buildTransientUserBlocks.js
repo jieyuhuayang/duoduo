@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: Lhe, daemon.pretty.js:63655)
+// symbol: buildTransientUserBlocks  (minified: Lhe, daemon.pretty.js:63657)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

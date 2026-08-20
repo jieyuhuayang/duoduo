@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildSystemPromptForChannelConfig  (minified: Pm, daemon.pretty.js:49239)
+// symbol: buildSystemPromptForChannelConfig  (minified: Pm, daemon.pretty.js:49241)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -20,24 +20,30 @@ const origSrc = fs.readFileSync(ORIG, "utf8");
 const inv = {};
 for (const [m, n] of Object.entries(renameMap)) inv[n] = m;
 
-// line index for ORIGINAL pretty file (to report original line numbers)
-const origLineStarts = [0];
-for (let i = 0; i < origSrc.length; i++) if (origSrc[i] === "\n") origLineStarts.push(i + 1);
+// Declaration line of every top-level binding in the ORIGINAL pretty file, so
+// the header can cite a line a reader can jump to. Taken from the AST, not a
+// regex: a text scan for `var NAME` mis-reports two whole classes of binding.
+// It lands on the *preceding* newline (`(?:^|\n)\s*` makes m.index the \n, and
+// \s* then swallows blank lines) — off by one or two on nearly every symbol —
+// and it cannot see a name that is not the first declarator, so every symbol
+// in a shared `var A, B, C = lazyInit(...)` block degraded to `?`.
+const origDeclLine = new Map();
+{
+  const origAst = parse(origSrc, { sourceType: "module", ranges: true });
+  const put = (name, node) => { if (!origDeclLine.has(name)) origDeclLine.set(name, node.loc.start.line); };
+  for (const s of origAst.program.body) {
+    if ((s.type === "FunctionDeclaration" || s.type === "ClassDeclaration") && s.id) put(s.id.name, s);
+    else if (s.type === "VariableDeclaration") for (const d of s.declarations) if (d.id.type === "Identifier") put(d.id.name, d.id);
+  }
+}
 
 const ast = parse(src, { sourceType: "module", ranges: true });
 let programScope;
 traverse(ast, { Program(p) { programScope = p.scope; p.stop(); } });
 
-// find original mangled-name line in ORIG (first declaration occurrence)
+// find original mangled-name line in ORIG (top-level declaration site)
 function origLineOf(mangled) {
-  // match `var MANGLED =` / `function MANGLED(` / `const MANGLED =`
-  const re = new RegExp(`(?:^|\\n)\\s*(?:var|let|const|function|async function)\\s+${mangled.replace(/[$]/g, "\\$")}\\b`);
-  const m = re.exec(origSrc);
-  if (!m) return null;
-  const off = m.index;
-  let lo = 0, hi = origLineStarts.length - 1, ans = 0;
-  while (lo <= hi) { const mid = (lo + hi) >> 1; if (origLineStarts[mid] <= off) { ans = mid; lo = mid + 1; } else hi = mid - 1; }
-  return ans + 1;
+  return origDeclLine.get(mangled) ?? null;
 }
 
 const index = [];

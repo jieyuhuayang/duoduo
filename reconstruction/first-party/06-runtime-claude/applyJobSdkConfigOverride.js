@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: applyJobSdkConfigOverride  (minified: RU, daemon.pretty.js:49965)
+// symbol: applyJobSdkConfigOverride  (minified: RU, daemon.pretty.js:49967)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

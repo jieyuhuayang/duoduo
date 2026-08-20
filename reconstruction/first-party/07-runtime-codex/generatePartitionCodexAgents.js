@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: generatePartitionCodexAgents  (minified: cQe, daemon.pretty.js:60876)
+// symbol: generatePartitionCodexAgents  (minified: cQe, daemon.pretty.js:60877)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

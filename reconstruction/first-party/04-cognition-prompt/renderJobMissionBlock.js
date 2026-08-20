@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderJobMissionBlock  (minified: $ue, daemon.pretty.js:49207)
+// symbol: renderJobMissionBlock  (minified: $ue, daemon.pretty.js:49209)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

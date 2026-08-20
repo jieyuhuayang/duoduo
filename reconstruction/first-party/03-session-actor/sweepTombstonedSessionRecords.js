@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: sweepTombstonedSessionRecords  (minified: Pot, daemon.pretty.js:78007)
+// symbol: sweepTombstonedSessionRecords  (minified: Pot, daemon.pretty.js:78008)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

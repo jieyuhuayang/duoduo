@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: PARTITION_CORE_TOOLS  (minified: vU, daemon.pretty.js:?)
+// symbol: PARTITION_CORE_TOOLS  (minified: vU, daemon.pretty.js:49739)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

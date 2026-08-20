@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: createCodexAppServerAdapter  (minified: jb, daemon.pretty.js:58876)
+// symbol: createCodexAppServerAdapter  (minified: jb, daemon.pretty.js:58878)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

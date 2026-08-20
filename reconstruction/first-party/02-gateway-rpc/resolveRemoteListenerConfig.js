@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveRemoteListenerConfig  (minified: wst, daemon.pretty.js:81927)
+// symbol: resolveRemoteListenerConfig  (minified: wst, daemon.pretty.js:81929)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

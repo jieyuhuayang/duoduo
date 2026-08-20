@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: CLAUDE_CODE_EXECUTABLE_ENV_KEY  (minified: b2, daemon.pretty.js:?)
+// symbol: CLAUDE_CODE_EXECUTABLE_ENV_KEY  (minified: b2, daemon.pretty.js:58687)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

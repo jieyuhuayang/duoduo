@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: advanceConsumerWatermark  (minified: Ya, daemon.pretty.js:32104)
+// symbol: advanceConsumerWatermark  (minified: Ya, daemon.pretty.js:32105)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

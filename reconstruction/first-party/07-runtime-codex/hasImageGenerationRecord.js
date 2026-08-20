@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: hasImageGenerationRecord  (minified: nme, daemon.pretty.js:59392)
+// symbol: hasImageGenerationRecord  (minified: nme, daemon.pretty.js:59394)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

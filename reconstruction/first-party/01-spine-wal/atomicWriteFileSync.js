@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: atomicWriteFileSync  (minified: Z6e, daemon.pretty.js:31246)
+// symbol: atomicWriteFileSync  (minified: Z6e, daemon.pretty.js:31247)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

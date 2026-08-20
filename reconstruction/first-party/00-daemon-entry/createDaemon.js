@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: createDaemon  (minified: Sst, daemon.pretty.js:81953)
+// symbol: createDaemon  (minified: Sst, daemon.pretty.js:81955)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

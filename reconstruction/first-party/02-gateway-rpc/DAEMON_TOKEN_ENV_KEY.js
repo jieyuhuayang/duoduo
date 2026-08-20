@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: DAEMON_TOKEN_ENV_KEY  (minified: MI, daemon.pretty.js:58690)
+// symbol: DAEMON_TOKEN_ENV_KEY  (minified: MI, daemon.pretty.js:58687)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
