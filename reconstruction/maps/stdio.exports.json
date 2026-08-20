@@ -1,11 +1,11 @@
 {
-  "buildInkTimeline": "Zq",
-  "formatInkDateKey": "Gx",
-  "formatInkTime": "jq",
-  "main": "Nte",
-  "parseStdioCliOptions": "Rte",
-  "resolveIngressCwdAbs": "Tte",
-  "runInkChatbot": "Cte",
-  "runStdioChatbot": "hte",
-  "shouldAppendFinalAssistantReply": "Jq"
+  "buildInkTimeline": "qde",
+  "formatInkDateKey": "m4",
+  "formatInkTime": "Vde",
+  "main": "BUe",
+  "parseStdioCliOptions": "vUe",
+  "resolveIngressCwdAbs": "yUe",
+  "runInkChatbot": "RUe",
+  "runStdioChatbot": "DUe",
+  "shouldAppendFinalAssistantReply": "Wde"
 }

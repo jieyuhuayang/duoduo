@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: mergeCadenceInbox  (minified: hhe, daemon.pretty.js:74899)
+// symbol: mergeCadenceInbox  (minified: Z_e, daemon.pretty.js:78080)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,31 +7,31 @@ async function mergeCadenceInbox(e) {
     let t = [],
         n = [];
     try {
-        let o = await fd.readdir(e.cadenceInboxDir, {
+        let s = await Wd.readdir(e.cadenceInboxDir, {
             withFileTypes: !0
         });
-        t = o.filter(a => a.isFile() && a.name.endsWith(".pending")).map(a => a.name).sort(), n = o.filter(a => a.isFile() && !a.name.endsWith(".pending")).map(a => a.name).sort()
+        t = s.filter(a => a.isFile() && a.name.endsWith(".pending")).map(a => a.name).sort(), n = s.filter(a => a.isFile() && !a.name.endsWith(".pending")).map(a => a.name).sort()
     } catch {
         return 0
     }
     if (n.length > 0) {
-        for (let o of n) await fd.unlink(YI.join(e.cadenceInboxDir, o));
+        for (let s of n) await Wd.unlink(xC.join(e.cadenceInboxDir, s));
         K("[cadence] removed incompatible inbox files", {
             removed: n.length
         })
     }
-    let r = await fd.readFile(e.cadenceQueuePath, "utf8"),
+    let r = await Wd.readFile(e.cadenceQueuePath, "utf8"),
         i = [],
-        s = [];
-    for (let o of t) {
-        let c = (await fd.readFile(YI.join(e.cadenceInboxDir, o), "utf8")).trim();
-        c && i.push(c.startsWith("- [ ]") ? c : `- [ ] ${c}`), s.push(o)
+        o = [];
+    for (let s of t) {
+        let l = (await Wd.readFile(xC.join(e.cadenceInboxDir, s), "utf8")).trim();
+        l && i.push(l.startsWith("- [ ]") ? l : `- [ ] ${l}`), o.push(s)
     }
     if (i.length > 0) {
-        let o = Pet(r, i);
-        await Lt(e.cadenceQueuePath, o)
+        let s = Aot(r, i);
+        await qt(e.cadenceQueuePath, s)
     }
-    if (s.length === 0) return 0;
-    for (let o of s) await fd.unlink(YI.join(e.cadenceInboxDir, o));
+    if (o.length === 0) return 0;
+    for (let s of o) await Wd.unlink(xC.join(e.cadenceInboxDir, s));
     return i.length
 }

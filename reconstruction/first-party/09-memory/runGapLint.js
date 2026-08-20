@@ -1,28 +1,28 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runGapLint  (minified: ule, daemon.pretty.js:56637)
+// symbol: runGapLint  (minified: hpe, daemon.pretty.js:57867)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function runGapLint(e, t) {
-    let n = TKe(e),
-        r = RKe(t);
+    let n = eXe(e),
+        r = tXe(t);
     for (let i = n.length - 1; i >= 0; i -= 1) {
-        let s = n[i];
-        if (r.has(s)) continue;
+        let o = n[i];
+        if (r.has(o)) continue;
         let {
-            count: o,
+            count: s,
             hours: a
-        } = IKe(cle.join(e, `${s}.jsonl`));
-        if (o === 0) continue;
-        let c = PKe(a);
+        } = nXe(mpe.join(e, `${o}.jsonl`));
+        if (s === 0) continue;
+        let l = rXe(a);
         return {
-            gapDate: s,
-            bands: c,
+            gapDate: o,
+            bands: l,
             selected: [{
-                kind: oi.SCAN_GAP,
+                kind: Si.SCAN_GAP,
                 partition: "memory-weaver",
                 pendingFilename: "scan-gap.md.pending",
-                pendingBody: OKe(s, c, o)
+                pendingBody: oXe(o, l, s)
             }]
         }
     }

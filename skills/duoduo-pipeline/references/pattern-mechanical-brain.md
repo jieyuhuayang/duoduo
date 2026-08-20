@@ -64,7 +64,7 @@ Minimal job frontmatter:
 ---
 type: job
 cron: keepalive
-runtime: codex   # or claude
+runtime: grok    # or claude / codex
 cwd_rel: my-monitor   # working directory for state files
 ---
 ```
@@ -80,8 +80,8 @@ before.
 ---
 type: job
 cron: keepalive
-runtime: claude
-prompt_mode: override        # claude only — see below
+runtime: grok    # or claude / codex
+prompt_mode: override        # claude and grok — refused on codex
 allowedTools:                # auto-approve, does NOT widen the surface
   - "Bash"
 disallowedTools: []
@@ -99,15 +99,15 @@ Three things are easy to get wrong here:
   scheduled run has nobody present to answer a permission prompt.
 - **`claude: { tools: [...] }` is additive only.** It extends the
   built-in tool core; it cannot subtract from it. Codex ignores it.
-- **`prompt_mode` is claude-only.** `append` (the default) puts the
-  Claude Code preset ahead of the prompt layers; `override` uses the
-  prompt layers alone. Codex has no such preset and receives the same
-  text either way, so on a `runtime: codex` job the key does nothing.
-  Creating a codex job with any `prompt_mode` is refused with an
-  explanation rather than silently ignored — but that check only sees
-  the *requested* runtime, so a job that omits `runtime` on a
-  codex-default host, or one edited by hand, gets a warning in the
-  daemon log instead and still runs.
+- **`prompt_mode` applies to claude and grok.** `append` (the default) puts the
+  Claude Code preset (claude) or Grok `<human_rules>` (grok) ahead of the
+  prompt layers; `override` uses the prompt layers alone. Codex has no such
+  preset and receives the same text either way, so creating a codex job with
+  any `prompt_mode` is refused with an explanation rather than silently
+  ignored — but that check only sees the *requested* runtime, so a job that
+  omits `runtime` on a codex-default host, or one edited by hand, gets a
+  warning in the daemon log instead and still runs. Grok honors both modes;
+  combining `prompt_mode` with grok is accepted.
 
 Host-wide defaults for all of these live in `kernel/config/job.md`, the
 matching **kind** layer. A job file overrides it, the same way a channel

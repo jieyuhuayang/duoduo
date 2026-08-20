@@ -58,9 +58,9 @@ channel of a kind; **instance-level** for one specific channel.
 Editable keys by hand:
 
 - `new_session_workspace`
-- `prompt_mode`
+- `prompt_mode` (claude and grok; refused on an explicit `runtime: codex` job)
 - `time_gap_minutes`
-- `runtime`
+- `runtime` (`claude` | `codex` | `grok`)
 - `stream`
 - `allowedTools` (permission auto-approve — does not extend the tool surface)
 - `disallowedTools` (MCP tools only on v0.5.10+)

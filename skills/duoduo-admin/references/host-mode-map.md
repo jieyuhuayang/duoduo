@@ -13,7 +13,9 @@ to orient a user before changing anything.
 - `duoduo daemon config`: effective config and resolved paths
 - `duoduo daemon restart -r "<what changed>"`: replace the running background
   daemon with a freshly started process that picks up new code and env-backed
-  settings. **Always pass a reason.** It is delivered to every session that
+  settings. **Always pass a reason** — from v0.7.0 a restart run from inside a
+  session is **refused** without one (exit 2, nothing restarts); a restart run
+  by a human, a script or the menubar app is unaffected. It is delivered to every session that
   wakes after the restart, and a session whose turn the restart killed has no
   other way to learn why — otherwise its most likely conclusion is that a
   person interrupted it, which it will then state as fact. Say what changed

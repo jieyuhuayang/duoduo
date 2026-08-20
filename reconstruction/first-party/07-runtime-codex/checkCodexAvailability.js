@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: checkCodexAvailability  (minified: hu, daemon.pretty.js:57402)
+// symbol: checkCodexAvailability  (minified: Mu, daemon.pretty.js:58753)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -22,11 +22,11 @@ async function checkCodexAvailability(e = "codex") {
     try {
         let {
             stdout: i,
-            stderr: s
+            stderr: o
         } = await r(e, ["login", "status"], {
             timeout: 5e3
         });
-        if (!(i + s).toLowerCase().includes("logged in")) return {
+        if (!(i + o).toLowerCase().includes("logged in")) return {
             ok: !1,
             reason: "Codex CLI is installed but not authenticated. Run 'codex login' to sign in."
         }

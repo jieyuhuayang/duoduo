@@ -154,10 +154,11 @@ bare `duoduo` still works the same way as before.
   batch-archive per channel.
 - **v0.5.3 runtime selection**: Claude and Codex are peer runtimes.
   Claude remains the default fallback, while `runtime: codex` can be
-  selected per channel/job where Codex is available. Use
-  `ALADUO_DEFAULT_RUNTIME=codex` only for an intentional global default
-  change, and restart the daemon after changing env-backed runtime
-  settings.
+  selected per channel/job where Codex is available. Grok is a later
+  peer (`runtime: grok`, `ALADUO_DEFAULT_RUNTIME=grok`) with **no
+  silent Claude fallback** — install `grok`, run `grok login`, restart
+  the daemon. Use `ALADUO_DEFAULT_RUNTIME=codex` or `=grok` only for an
+  intentional global default change.
 - **Stdio output buffering**: the terminal UI now buffers assistant text
   more cleanly so status/tool rendering does not interleave as visibly
   with assistant prose. Treat this as a UX fix, not a protocol change.

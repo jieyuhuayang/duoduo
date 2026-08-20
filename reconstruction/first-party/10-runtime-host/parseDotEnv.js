@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: parseDotEnv  (minified: IU, daemon.pretty.js:57207)
+// symbol: parseDotEnv  (minified: jI, daemon.pretty.js:58517)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,9 +11,9 @@ function parseDotEnv(e) {
         if (!r || r.startsWith("#")) continue;
         let i = r.indexOf("=");
         if (i < 1) continue;
-        let s = r.slice(0, i).trim(),
-            o = r.slice(i + 1).trim();
-        (o.startsWith('"') && o.endsWith('"') || o.startsWith("'") && o.endsWith("'")) && (o = o.slice(1, -1)), t[s] = o
+        let o = r.slice(0, i).trim(),
+            s = r.slice(i + 1).trim();
+        (s.startsWith('"') && s.endsWith('"') || s.startsWith("'") && s.endsWith("'")) && (s = s.slice(1, -1)), t[o] = s
     }
     return t
 }

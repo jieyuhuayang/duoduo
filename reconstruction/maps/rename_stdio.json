@@ -1,9 +1,9 @@
 {
-  "Zq": "buildInkTimeline",
-  "Gx": "formatInkDateKey",
-  "jq": "formatInkTime",
-  "Rte": "parseStdioCliOptions",
-  "Cte": "runInkChatbot",
-  "hte": "runStdioChatbot",
-  "Jq": "shouldAppendFinalAssistantReply"
+  "qde": "buildInkTimeline",
+  "m4": "formatInkDateKey",
+  "Vde": "formatInkTime",
+  "vUe": "parseStdioCliOptions",
+  "RUe": "runInkChatbot",
+  "DUe": "runStdioChatbot",
+  "Wde": "shouldAppendFinalAssistantReply"
 }
