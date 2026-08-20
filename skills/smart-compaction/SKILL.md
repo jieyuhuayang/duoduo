@@ -11,8 +11,13 @@ Channel sessions accumulate context; after an idle gap longer than the prompt-ca
 TTL, the next message re-writes the whole context into cache at a premium. The
 daemon ships a deterministic sweeper: when a LIVE session has been idle
 `auto_compact_idle_minutes` and its context exceeds `auto_compact_min_context_tokens`,
-it silently runs `/compact` in-band. It is **off by default everywhere**; you
+it silently runs `/compact`. It is **off by default everywhere**; you
 (the agent) are the policy layer that enables and tunes it per conversation.
+Claude runs that `/compact` in-band on the live streaming subprocess. Grok
+uses the same knobs but executes `_x.ai/compact_conversation` (silent, no
+channel ack). Codex stays excluded. Grok compact returns no token counts, so
+the fuse and the compact notice never self-calibrate on a grok-only session —
+do not treat the first grok idle-compact as a calibration measurement.
 
 ## The knobs (per instance, per kind)
 
@@ -114,9 +119,11 @@ a single cycle's G; watch the trend across a few compactions.
 3. **Retune = act-then-inform**: apply the change, then tell the owner in ONE
    line what changed and why (e.g. "已把这个会话的压缩阈值从 100K 调到 76K —
    实测压缩地板是 38K"). Never silently, never with a wall of text.
-4. **First auto-compaction IS the calibration**: when the first compact notice
-   arrives, read `suggested_min_context_tokens` and retune the instance to it.
-   No pre-calibration ritual is needed for new kinds.
+4. **First auto-compaction IS the calibration** (Claude, which writes
+   `compact_stats`): when the first compact notice arrives, read
+   `suggested_min_context_tokens` and retune the instance to it.
+   No pre-calibration ritual is needed for new kinds. Grok does not
+   emit that notice; skip this step on grok.
 5. When the owner says a conversation is precious ("这个会话的上下文别动"),
    set `auto_compact_idle_minutes=0` on that instance and confirm.
 6. After any compaction, if you are unsure of an earlier detail: for recent

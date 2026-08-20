@@ -4,6 +4,41 @@ Load this reference when the user asks to upgrade duoduo — especially
 when they mention v0.5, "升级 duoduo", "升级到 v0.5", or a specific
 version bump.
 
+## Upgrading from inside a session (read this first if you are an agent)
+
+If you are an agent running inside a duoduo session and the user asked you to
+upgrade the host, **the daemon restart will kill you mid-command.** The restart
+tears down the session-manager, which kills every SDK subprocess — including
+the one running your Bash tool. Anything you planned to do after the restart
+does not happen, and you cannot report that, because the turn dies too.
+
+This is not hypothetical: on 2026-08-05 an agent upgraded a production host
+this way, stopped the Feishu gateway, restarted the daemon, and died there.
+The gateway stayed down and the bot silently accepted messages without
+answering until a human noticed.
+
+**On every released version up to and including v0.7.0, there is no safe way
+to upgrade from inside a session — including `duoduo upgrade`.** Ask the user
+to run it from a terminal, or over SSH. Both are outside the daemon's process
+tree and unaffected.
+
+Two ways the attempt fails, neither of which reports anything:
+
+- **`duoduo upgrade`** stops the gateways, restarts the daemon, and dies before
+  restarting them. Worse than doing nothing, because it leaves them stopped.
+- **Manual step-by-step** (`npm install -g`, then `duoduo daemon restart`) ends
+  your turn at the restart, with the channels in whatever state you left them.
+
+From **v0.7.1** `duoduo upgrade` detects this case and hands the run to a
+detached process that the restart cannot reach, printing a log path first; pass
+`--wake <your-own-session-alias>` to be notified once the gateways are back.
+There is no flag for it and nothing in `--help` to detect — it is automatic, so
+the version is the only signal. When it engages it says so, printing
+"upgrade handed off to a detached process" before this turn ends.
+
+Running from a terminal, over SSH, or from DuoduoManager? None of this applies
+— you are not in the daemon's process tree.
+
 ## One-line summary
 
 Standard upgrade is two commands:
@@ -12,6 +47,13 @@ Standard upgrade is two commands:
 npm install -g @openduo/duoduo@latest
 duoduo daemon restart -r "upgraded @openduo/duoduo to <version>"
 ```
+
+**Crossing into v0.7.0 needs a third step: reinstall and restart every
+channel.** The gateways connect to the daemon over a unix socket from
+that release on, so a gateway still running its old build cannot reach
+the upgraded daemon — the bot accepts messages and answers none. See
+"Transport change landing in v0.7.0" below; that section is mandatory
+reading for this upgrade, not a footnote.
 
 The rest of this playbook only matters when (a) the user is crossing
 the v0.5 boundary AND has a Feishu channel, or (b) something goes
@@ -39,6 +81,14 @@ installs a second copy elsewhere, leaves the running binary untouched,
 restarts the old daemon, and reports success. It also fills in the
 restart reason from the version it actually resolved, and waits for
 the new daemon to pass a health check instead of assuming it booted.
+
+From v0.7.0 on it **also upgrades the channel plugins** — installing
+each one, restarting the daemon, then bringing the channels back, in an
+order where a channel whose download failed keeps running its previous
+build instead of being stopped. This is the step people forget when
+upgrading by hand. Note it cannot help the upgrade that *introduces*
+it: an upgrade run from a pre-0.7.0 CLI executes the old code, so
+crossing into v0.7.0 still needs the channels reinstalled manually.
 
 If a session was mid-turn and should be told, the same flag applies:
 
@@ -239,6 +289,20 @@ Do not tell users that an existing live conversation hot-swaps runtimes
 the moment a default changes. If they need a clean runtime switch, rebind
 or archive the affected session after inspecting current descriptors.
 
+## Grok as a third peer runtime
+
+Grok is auto-detected the same way Codex is: install the `grok` CLI, run
+`grok login`, restart the daemon. Set `runtime: grok` on a kind, instance,
+job, or partition, or `ALADUO_DEFAULT_RUNTIME=grok` for a global default.
+
+Unlike Codex, an explicit or default grok that cannot be served is a
+**hard failure** — there is no silent fallback to Claude. `prompt_mode`
+applies to claude and grok; combining it with `runtime: codex` is still
+rejected.
+
+See the grok-runtime reference under `duoduo-runtime-admin`. Do not set
+`GROK_HOME`.
+
 ## Built-in tool surface change landing in v0.5.10
 
 v0.5.10 flips the claude runtime's built-in tool surface from a denylist to
@@ -262,6 +326,62 @@ Inspect any session's effective surface with
 `duoduo session config <target> get` (read-only `claude_tools` block).
 Full semantics: `duoduo-channel-admin` →
 `references/channel-config-model.md#built-in-tool-surface-v0510-allowlist`.
+
+## Transport change landing in v0.7.0
+
+v0.7.0 moves the daemon's full-access interface off TCP and onto a unix
+socket (`<runtime>/run/daemon.sock`, owner-only). `127.0.0.1:20233`
+survives as a **read-only** surface for the dashboard and speaks no
+WebSocket. Nothing about this is optional or gradual — both sides flip
+at the restart.
+
+**The upgrade step people miss: channels must be reinstalled.** A
+gateway built before v0.7.0 dials the TCP port for its control
+connection and gets refused by the upgraded daemon. Symptom, and it is
+a quiet one: the bot keeps *receiving* messages and answers none — the
+user sees read-but-no-reply. The gateway's own log goes silent after a
+few reconnect lines; the signal that identifies it is on the daemon
+side.
+
+```bash
+# after the core upgrade + daemon restart, per channel:
+duoduo channel <kind> install
+duoduo channel <kind> stop && duoduo channel <kind> start
+```
+
+Verify — all three should hold:
+
+```bash
+ls -l <runtime>/run/daemon.sock                  # srw------- (owner-only socket)
+curl -s -X POST http://127.0.0.1:20233/rpc \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"session.list","params":{}}'
+                                                 # -32601, method not available
+duoduo channel list                              # every channel you use: running
+```
+
+A `426` in the daemon log (`pre-hardening client dialed /ws`) means a
+gateway is still on the old build — that is the detector for "someone
+forgot to reinstall a channel", and it repeats until fixed.
+
+Two more consequences worth stating before someone trips on them:
+
+- **`ALADUO_DAEMON_HOST` changed meaning.** It no longer moves the main
+  port. The read-only port is pinned to loopback regardless. The
+  variable now selects the bind address of the optional remote
+  listener, which refuses to start unless `ALADUO_REMOTE_PORT` and a
+  token (`duoduo daemon token new`) are also present. A host that
+  previously set this to expose the daemon on a LAN address was
+  publishing an unauthenticated control interface; that configuration
+  now fails closed instead of starting.
+- **A locally-configured `ALADUO_DAEMON_URL` pointing at
+  `127.0.0.1:20233` keeps working.** The CLI recognises it as the old
+  default and uses the socket instead. Do not "fix" such a value by
+  pointing it somewhere else.
+
+Rollback is a downgrade of both core and channels together; a new
+daemon with old channels and an old daemon with new channels both fail
+the same way.
 
 ## Stdio output behavior in v0.5.3
 

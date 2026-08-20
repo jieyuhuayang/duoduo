@@ -146,7 +146,8 @@ When creating a new node, it needs an inbound inline `[[lesson-<slug>]]` or
 `[[groove-<slug>]]` from a reachable dossier — an `entities/<X>.md` or
 `topics/<X>.md` where the rule is operationally relevant. In the same tick,
 add that wikilink in a prose sentence of that dossier. If no related dossier
-exists to anchor it, leave the signal in `memory/fragments/` for a later tick.
+exists to anchor it, leave that fragment where it is, unconsumed, for a
+later tick.
 
 ## Output
 
@@ -157,3 +158,6 @@ and rewritten this tick:
 - `No behavioral signal in scan window. Fragments examined: <N>.`
 - `No new material since last scan.`
 - `Insufficient material. No fragments found.`
+
+A finding beyond this tick's scope adds one line after the closing line,
+one line per finding.

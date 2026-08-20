@@ -20,6 +20,9 @@ turns into a single compact boundary.
 
 - **Claude runtime**: emits a `compact_boundary` system message; the
   session continues with the same `sdk_session_id`.
+- **Grok runtime**: calls `_x.ai/compact_conversation`; the session
+  continues with the same ACP session id. Idle auto-compact on grok
+  is silent (no channel ack), same as Claude.
 - **Codex runtime**: calls `thread/compact/start` natively; the
   session continues with the same `threadId`.
 
@@ -79,12 +82,12 @@ next message arrives.
 
 ## Cross-runtime cheat sheet
 
-| Behavior | Claude | Codex |
-| --- | --- | --- |
-| `/compact` execution | inline, SDK-side | inline, `thread/compact/start` |
-| `/compact` session id change | none (`sdk_session_id` unchanged) | none (`threadId` unchanged) |
-| `/undo` execution | deferred to next turn (`pending_undo`) | inline, `thread/rollback` |
-| `/undo` session id change | new `sdk_session_id` on next turn | none (same `threadId`) |
+| Behavior | Claude | Grok | Codex |
+| --- | --- | --- | --- |
+| `/compact` execution | inline, SDK-side | `_x.ai/compact_conversation` | inline, `thread/compact/start` |
+| `/compact` session id change | none (`sdk_session_id` unchanged) | none (ACP id unchanged) | none (`threadId` unchanged) |
+| `/undo` execution | deferred to next turn (`pending_undo`) | `_x.ai/rewind/points` then `rewind/execute` | inline, `thread/rollback` |
+| `/undo` session id change | new `sdk_session_id` on next turn | none | none (same `threadId`) |
 
 ## Design rationale
 

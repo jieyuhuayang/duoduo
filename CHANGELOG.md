@@ -2,6 +2,194 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.7.1] - 2026-08-18
+
+Grok joins Claude and Codex as a third agent runtime, so a session can now run
+on any of the three and still see the same tools, the same prompt layering and
+the same interruption behaviour. Sessions also stop holding a runtime process
+open forever while they sit idle, `duoduo upgrade` finally works when you run it
+from inside a session, and the bundled Claude runtime is updated.
+
+**Upgrading is routine this time** — reinstall and restart your channels as
+usual. If you are on v0.7.0 and upgrade from inside a duoduo session, that now
+works; before this release it could kill the very process performing the
+upgrade.
+
+### Highlights
+
+- **Grok is a first-class runtime.** It sits behind the same seam as Claude and
+  Codex rather than beside it: one long-lived agent process per session, duoduo's
+  own tools reachable from it, mid-turn steering, and the same
+  kind/instance/job/partition prompt fields — including whether the prompt is
+  appended or replaces the runtime's own. Availability is checked against the
+  Grok CLI you already have installed, and it fails closed: asking for Grok when
+  Grok is not usable gives you a clear error, never a silent fall back to Claude.
+  Token and cache accounting understands Grok's own reporting shape, so cost
+  numbers stay comparable across the three.
+- **Idle sessions release their runtime process.** A session that has gone quiet
+  now tears down its runtime subprocess and rebuilds it on the next message,
+  instead of holding it open for as long as a gateway stayed connected. This was
+  unbounded before: a channel that keeps one permanent connection per binding —
+  which is normal — kept every session it had ever touched resident, with no cap
+  on how many or for how long. Nothing was gained by holding them; the model
+  provider's prompt cache has already expired by then, so the only cost of
+  reclaiming is a slightly slower first reply after a long silence.
+- **`duoduo upgrade` survives being run from inside a session.** It now hands
+  the work to a detached process, so the upgrade cannot be killed by the restart
+  it is performing.
+- **Codex tools stay where the model can see them.** duoduo's tools are mounted
+  under their own namespace and pinned to the top level, so they no longer get
+  demoted out of the model's directly-visible tool list on runtimes that hide
+  ordinary tools behind a code-execution shim. Existing Codex conversations keep
+  their old tool list until you start a new one.
+- **Subconscious memory got more precise.** Crystallised claims are scoped to the
+  entity they are about rather than to the whole corpus, and partition inboxes
+  now have defined snapshot semantics, so a partition can no longer quietly lose
+  or re-process work handed to it.
+
+### Fixes
+
+- The Feishu setup card dropped runtimes the daemon had advertised, so a runtime
+  you had available could not be chosen during setup.
+- A failed Grok availability probe reported "not authenticated" regardless of
+  the real cause, sending people to re-login for problems that were not login
+  problems.
+- Codex sessions forked their conversation when only the shared board had
+  changed, losing history for a change that did not require it.
+- The Codex tool-call convention is no longer assumed, so reminders reach the
+  model whichever calling convention it uses.
+- Several idle-reclaim edge cases: reclaiming the Grok adapter on timeout,
+  guarding the exit-path audit on a process that is actually alive, and covering
+  the cold respawn.
+
+### Preview — ambient
+
+**duoduo is growing ears and a voice.**
+
+A small device on the shelf. Always on, always listening, no wake word to
+chant, no button to hold, no phone in your hand. It works out for itself when
+something was meant for it — and most of the time, correctly, that answer is
+"not this". You just talk in your room, and sometimes the room talks back.
+
+It is running today. Here is what already works end to end, and what we are
+proudest of:
+
+- **Interrupt it. Actually interrupt it.** Not "it finishes the sentence then
+  stops" — it cuts mid-word, and here is the part we like: it then knows exactly
+  how much of its answer reached your ears and how much died in its throat. The
+  next thing it says is grounded in what you *heard*, not in the paragraph it
+  meant to say. And it never mutes its own microphone to hear itself think —
+  going deaf the moment you open your mouth is not a conversation, it is a
+  walkie-talkie.
+- **It knows who is talking — and it will not guess.** An unfamiliar voice gets
+  a temporary badge for that room, never a permanent name. You promote it by
+  writing one line in the room's notes, the way you would introduce a person.
+  The code is forbidden from deciding two voices are the same person on its own.
+  We let it try that. Twice. Both times the entire room quietly collapsed into
+  one identity — the most confident, least detectable kind of wrong.
+- **It hears everything and answers almost nothing.** That restraint is the hard
+  part, and it is where most of our measurement has gone. A machine that
+  answers every sentence in a room is not present; it is a hazard.
+
+The brains sit next to the models — continuous transcription, separating who
+said what, understanding, speech — with the duoduo you already know doing the
+thinking.
+
+No install this time. Watch this space.
+
+## [v0.7.0] - 2026-08-05
+
+The daemon no longer accepts full control over a network port. Everything that
+can change your agent's state now travels over a unix socket that only your own
+user account can open, and the TCP port keeps serving the dashboard as a
+read-only view. This release also adds per-model context windows and endpoint
+routing, teaches `duoduo upgrade` to upgrade channel plugins too, and fixes
+attachments arriving one message late. Bundled Claude runtime updated.
+
+**Upgrading: reinstall and restart your channels.** The gateways connect to the
+daemon over the new socket, so a gateway still running the old build cannot
+reach the upgraded daemon — your bot will go quiet while accepting messages.
+After upgrading, run `duoduo channel <kind> install`, then `stop` and `start`,
+for each channel you use. From this release onward `duoduo upgrade` does this
+for you; it cannot help the upgrade that introduces it.
+
+### Breaking changes
+
+- **The daemon's control interface moved to a unix socket.** It used to serve
+  its entire interface — send messages, change models, archive sessions, read
+  conversation history — on `127.0.0.1:20233` with no authentication of any
+  kind. Any program on the machine could drive your agent, and any web page you
+  visited could try. That interface now lives on a socket file that carries
+  owner-only permissions, so the operating system enforces what nothing was
+  enforcing before. The CLI and the channel gateways move over automatically.
+- **`127.0.0.1:20233` is now read-only.** It answers the handful of methods the
+  dashboard needs and rejects everything else, and it no longer speaks
+  WebSocket. The dashboard is unaffected. Anything else pointed at that port
+  gets a reply explaining where the full interface went. If your own scripts
+  used that port for control, point them at the CLI instead — and note that
+  when a locally-configured URL names this port, the CLI now recognises it as
+  the old default and quietly uses the socket, so most setups keep working.
+- **`ALADUO_DAEMON_HOST` means something different.** It used to choose where
+  the main port bound, and setting it to a non-loopback address silently
+  published that unauthenticated interface to the network. The read-only port
+  is now pinned to loopback and ignores it. The variable instead selects the
+  bind address for the optional remote listener described below, which refuses
+  to start without a token.
+
+### Highlights
+
+- **Opt-in remote access, with a token.** If you genuinely need to reach a
+  daemon from another machine, `duoduo daemon token new` generates a bearer
+  token and stores it with owner-only permissions. The remote listener starts
+  only when a host, a port and a token are all present, and every request must
+  carry the token. A misconfigured remote setup — a public address with no
+  token, or a port colliding with the read-only one — refuses to start rather
+  than exposing anything.
+- **`duoduo upgrade` upgrades channel plugins too.** It used to upgrade only
+  the core, leaving gateways on older builds until you remembered to reinstall
+  them by hand. It now installs each channel, restarts the daemon, and brings
+  the channels back, in an order where a failed download leaves that channel
+  running its previous build rather than stopping it. It also compares versions
+  properly, so a pre-release is no longer mistaken for newer than its release.
+- **Per-model context windows and endpoint routing.** A model served through a
+  gateway can now declare its real context window, its own endpoint and
+  credential, and tier aliases, so a session on that model is no longer capped
+  by whatever window the runtime assumed. A model chosen by your settings
+  rather than by an explicit `/model` gets its configuration attached too. See
+  the `duoduo-runtime-admin` skill. Claude sessions only.
+- **`/loop` follows a quality-graded work discipline.** The self-continuation
+  loop now judges progress by whether a named gap actually closed, and stops
+  when the work meets its bar instead of when it runs out of turns.
+- **Codex sessions accept inbound images** as first-class turn input rather
+  than as a path the model has to open for itself.
+- **An agent must now say why it restarted the daemon.** v0.6.2 warned that
+  the next release would reject a reason-less restart from inside a session;
+  this is that release. It applies only to a restart run from within a
+  session — you, your scripts and the menubar app are unaffected. The reason
+  is the only way a session whose turn was killed can learn what happened;
+  without one its likeliest conclusion is that a person interrupted it, which
+  it will then state as fact.
+
+### Fixes
+
+- **Attachments no longer arrive one message late.** A file produced while a
+  turn was settling was held back and delivered with the *next* message, so a
+  background job's report would announce a chart that showed up minutes later,
+  attached to something unrelated.
+- **Repeating a gateway command works.** Sending the same command twice — the
+  common case being `/model` to check the current model and then again to
+  switch — silently swallowed the second one, which read as the agent hanging.
+- **The daemon defends against hostile web pages.** A page you visit could ask
+  your browser to talk to the daemon by pretending a public hostname resolves
+  to your machine. Requests are now checked against that, in addition to the
+  socket move that takes the control interface off the browser's reach
+  entirely.
+- **Uploads are written atomically**, so a file being received can no longer be
+  read half-written, and a crafted filename can no longer escape the directory
+  it belongs in.
+- **Security advisories cleared.** Sixteen known vulnerabilities in bundled
+  dependencies (eight high severity) are resolved.
+
 ## [v0.6.2] - 2026-07-28
 
 This release stops background workers from being killed as collateral when an
