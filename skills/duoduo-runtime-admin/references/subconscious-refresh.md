@@ -139,17 +139,20 @@ Once the user has approved:
    A partition `CLAUDE.md`'s YAML frontmatter mixes two ownerships:
    `schedule:` keys (`enabled` / `cooldown_ticks` / `max_duration_ms`) are
    **user-tuned cost config** — they directly set how often the partition
-   spends money — while the prompt body and the `contract:` block are
-   code-owned and must follow upstream. A blind wholesale `cp` of a
+   spends money — and the optional `runtime:` / `model:` / `effort:` keys
+   are host-side tuning in the same ownership class (`effort` needs duoduo
+   0.7.2+ and applies on the Claude runtime only) — while the prompt body
+   and the `contract:` block are code-owned and must follow upstream. A blind wholesale `cp` of a
    partition `CLAUDE.md` silently reverts the user's cooldown tuning to
    the upstream baseline.
 
    So for each partition `CLAUDE.md` that exists on BOTH sides: take the
    upstream file, but if the local file's `schedule:` values differ from
    the upstream defaults (the user tuned them), re-apply the local
-   `schedule:` keys onto the upstream frontmatter before writing. Body and
-   `contract:` always come from upstream; `schedule:` keys the user tuned
-   are preserved. Show the user which schedule values were preserved.
+   `schedule:` keys — and any local `runtime:` / `model:` / `effort:` keys —
+   onto the upstream frontmatter before writing. Body and `contract:`
+   always come from upstream; keys the user tuned are preserved. Show the
+   user which values were preserved.
 
 2. Commit the result inside the kernel git repo:
 

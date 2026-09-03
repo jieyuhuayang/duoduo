@@ -90,6 +90,9 @@ Without it, a session whose turn the restart cut off has no way to know
 why its conversation stopped mid-sentence, and will typically conclude a
 person interrupted it. If a session was waiting on an answer, add
 `--wake <session-or-alias>` (repeatable) — it will not resume on its own.
+This holds even when the caller is a session inside the daemon being
+restarted: the wake is carried by the restart itself, so it survives
+the caller's own process dying with the old daemon.
 
 ### Crossing major boundaries (including v0.5)
 

@@ -46,6 +46,7 @@ Typical keys:
 - `ALADUO_LOG_SESSION_LIFECYCLE`
 - `ALADUO_TELEMETRY_ENABLED`
 - `ALADUO_CADENCE_INTERVAL_MS`
+- `ALADUO_SPINE_INDEX_RETENTION_DAYS`
 - `ALADUO_CODEX_SANDBOX` (codex auto-detected from v0.5 onward; no
   enable flag — see codex-runtime reference)
 
@@ -157,10 +158,13 @@ Pi the levels map onto pi's native thinking levels), and stays in
 effect across a `/model` runtime flip (the levels are valid on every
 runtime). Invalid values are rejected up front. See the `/effort`
 section of [references/slash-commands.md](references/slash-commands.md).
+Both knobs are also settable per session from the CLI (0.7.2+) via
+`duoduo session model` / `duoduo session effort` — see
+[references/session-cli.md](references/session-cli.md).
 
 ## Session Management (`duoduo session …`)
 
-Four subcommands manage sessions from the CLI (human, agent-via-Bash, or
+These subcommands manage sessions from the CLI (human, agent-via-Bash, or
 external script — one entry point):
 
 - `duoduo session list [--kind …] [--named] [--json]` — the live route table.
@@ -170,12 +174,55 @@ external script — one entry point):
 - `duoduo session notify <target> -m "<msg>"` — wake a session by key OR alias
   and deliver a source-tagged notification. Only `channel`/`job` targets are
   allowed; the subconscious/kernel plane is isolated and refused.
+- `duoduo session model <target> [<id>|reset]` / `duoduo session effort
+  <target> [<level>|reset]` (0.7.2+) — inspect or set a channel session's
+  model / reasoning effort from the CLI, same knobs as in-chat `/model` and
+  `/effort`, without entering the session's chat. Channel sessions only.
 - `duoduo session archive <key>` — move (never delete) a session's artifacts.
 
 When the user says "name this session X" / "把这个会话叫 X", or wants to wake
 one session from another by name, this is the surface. Read
 [references/session-cli.md](references/session-cli.md) for full usage, the
 isolation boundary, output/`--json` discipline, and the refusal reasons.
+
+## Spine Inspection (`duoduo spine …`, 0.7.2+)
+
+The event log (Spine WAL) is read through the CLI, not by opening the JSONL
+partitions — a single day can be 10-30MB with megabyte-long tool results, and
+92% of raw lines are tool plumbing the reader does not need.
+
+- `duoduo spine cat --date <yyyy-mm-dd> [--session <key>] [--type <t>]…
+  [--kind external|all] [--from … --to …] [--after <id>] [--json]` — a compact
+  transcript: human/agent text in full, tool calls collapsed to one line with
+  `use=`/`res=` drill-down anchors, an honest multi-count header and an
+  `END spine` footer (no footer = the read was truncated). `--date` defaults to
+  today. All times are UTC and every range is `(from, to]`; `--from/--to` also
+  accept absolute ISO instants with an offset (`2026-08-31T08:29+08:00`), and
+  such a range may span several days. `--after <id>` resumes strictly after one
+  event inside the same bounds, so the output is a suffix of the same read.
+- `--kind external` is **turn-scoped, not a source filter**: it keeps events
+  that came from outside plus the internal rows of the turn each kept
+  `channel.message` opened. Job sessions do not expand. Default is `all`.
+- `duoduo spine cat --interval '<date>[t1,t2]' …` — the machine-shaped bounded
+  read (this is what the subconscious uses), one partition, same `(t1, t2]`
+  edges. **Always quote the interval: zsh treats the brackets as a glob and
+  fails before the CLI runs.**
+- `duoduo spine cat … --sessions` — per-session summary (exact key, event
+  count, first/last ts) for finding a session key on a busy day.
+- `duoduo spine cat … --count-only` — sizes only, no body; check before
+  pulling a large window into an agent's context.
+- `duoduo spine show <event-id> [--date <yyyy-mm-dd>]` — one event, full JSON,
+  nothing elided. Row ids are shortened for display; `show` accepts any unique
+  prefix and lists candidates when ambiguous. The by-id index is a boot-compacted
+  recency cache. An older bare id falls back to a full partition scan; `--date`
+  only narrows that scan, and the WAL row is unchanged.
+- A `cat` that would print a body with no narrowing filter refuses unless
+  `--unfiltered` is passed — that is protection for agent context windows, not a
+  permission. `--count-only` and `--sessions` print no body and are exempt, so
+  sizing a whole day never needs the flag.
+- `missing_partitions=` / `skipped_malformed=` in the header are disclosures,
+  not errors: a day with no events writes no partition file, and a torn final
+  line is a normal crash artifact.
 
 ## Operating Rules
 

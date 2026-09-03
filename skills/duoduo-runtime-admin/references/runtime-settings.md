@@ -45,7 +45,28 @@ binary or env from your shell.
 - `ALADUO_LOG_RUNNER_THOUGHT_CHUNKS`
 - `ALADUO_LOG_SESSION_LIFECYCLE`
 - `ALADUO_TELEMETRY_ENABLED`
+- `ALADUO_LOG_RUNNER_TOOL_EVENTS`: off by default. When off, the daemon log does
+  not carry a line per `tool_use` / `tool_result`. **This is not a loss of the
+  record** — the Spine already stores both as `agent.tool_use` /
+  `agent.tool_result` with more detail than the log line had (the tool input and
+  the result summary). Read them with `duoduo spine cat` / `duoduo spine show`,
+  which also folds each call and its result into one entry. Turn the flag on only
+  to see `ephemeral` tool calls, which are the one shape the Spine skips.
+- `ALADUO_LOG_LATENCY_STAGES`: off by default. Turns on eight `[telemetry]` stage
+  lines tracing one message across components: `ingress_received`,
+  `mailbox_enqueued`, `drain_started`, `sdk_start`, `sdk_first_token`, `sdk_end`,
+  `outbox_written`, `delivered`. Nothing persists these — the log is their only
+  sink — so turn it on for a measurement window and off again. Per-drain timings
+  are persisted separately and read with the `usage.get` RPC (`perf` block); they
+  cover the inside of a drain rather than these cross-component hops.
 - `ALADUO_CADENCE_INTERVAL_MS`
+- `ALADUO_SPINE_INDEX_RETENTION_DAYS`: positive integer, default `7`. At daemon
+  boot, the derived by-id index drops rows older than `today UTC - N`; the Spine
+  WAL partitions are untouched. A larger value keeps more bare-id lookups in
+  memory. A smaller value makes older runtime lookups scan from their known date
+  and makes more old bare-id `duoduo spine show` calls fall back to a full scan.
+  `--date` narrows that scan. Verify the
+  effective cutoff in the boot log's `spine by-id index retention` line.
 - `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`): global fallback
   for actors without a more-specific runtime declaration. Use a channel kind
   descriptor when only one surface should change. `grok` here is a hard failure

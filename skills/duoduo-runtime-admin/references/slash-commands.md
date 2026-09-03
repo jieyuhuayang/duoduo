@@ -97,9 +97,14 @@ fires once. If the user's first post-reset message is itself a slash
 command, the notice holds back to the next normal message (slash-prefixed
 input skips runtime-context injection by design).
 
-- **Pi runtime**: `/clear` also kills the session's worker process — pi
-  holds the conversation in memory, so clearing the id alone would let
-  the next message continue pre-clear history.
+- **Pi and grok runtimes**: `/clear` also recycles the session's runtime
+  process. Both hold the conversation where clearing the stored id cannot
+  reach it — pi keeps it in the worker's memory, grok caches its session id
+  inside the live client — so without the recycle the next message would
+  continue pre-clear history while the session reported itself as fresh.
+  Expect the message after a `/clear` to pay one process start.
+- **Claude and codex**: no recycle, and none is needed — both address the
+  conversation by the stored id, which is re-read on the next turn.
 
 ## `/model` (model switching)
 
