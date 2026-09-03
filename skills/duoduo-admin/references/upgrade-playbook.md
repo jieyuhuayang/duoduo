@@ -388,6 +388,34 @@ Rollback is a downgrade of both core and channels together; a new
 daemon with old channels and an old daemon with new channels both fail
 the same way.
 
+## Feishu card settings landing in v0.7.2
+
+v0.7.2 deletes both `ALADUO_EXP_FEISHU_*` env gates. They are not renamed
+and not deprecated — the channel package's `envAllowlist` no longer carries
+them, so the keys never reach the channel process at all.
+
+**`ALADUO_EXP_FEISHU_CARD_FOOTER` needs no action.** The card footer is now
+unconditional: it renders whenever the turn reports usage. A host that had
+the flag on sees the same cards as before, and one that had it off gains the
+footer.
+
+**`ALADUO_EXP_FEISHU_PROCESS_CARD=1` is the one that bites.** The process
+card is now selected per channel in config, and the default is `off`, so a
+host that was running the experiment loses the process card at the upgrade
+with nothing in the log to say why. Put it back in `config/feishu.md` (every
+Feishu channel) or in one instance descriptor (that channel only):
+
+```yaml
+feishu:
+  process_card: replace   # replace = one card; keep = process card + result card
+```
+
+`replace` matches the old `ALADUO_EXP_FEISHU_PROCESS_CARD=1` with
+`ALADUO_EXP_FEISHU_KEEP_PROCESS_CARD` unset; `keep` matches having both set.
+Both files are read on every message, so the change takes effect on the next
+message — no channel restart, unlike the flag it replaces. Delete the dead
+keys from `~/.config/duoduo/.env` in the same pass; nothing warns about them.
+
 ## Subconscious partition retirement landing in v0.7.2
 
 v0.7.2 replaces the `memory-weaver` partition with the

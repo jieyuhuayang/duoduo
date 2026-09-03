@@ -113,13 +113,10 @@ These gate not-yet-default capabilities. All default OFF; set them in
 `~/.config/duoduo/.env` only when you intend to run the experiment. They are
 **not** standard tuning knobs.
 
-- `ALADUO_EXP_FEISHU_CARD_FOOTER`: render a one-line ops footer
-  (`elapsed · tokens · cost`, or `elapsed · N steps` on a Codex turn) on the
-  finalized Feishu streaming card. **Read by the Feishu channel process, not
-  the daemon** — after setting it, restart the channel
-  (`duoduo channel feishu stop && duoduo channel feishu start`), a daemon
-  restart alone does not pick it up. Confirm it landed with
-  `ps eww <feishu-pid> | tr ' ' '\n' | grep ALADUO_EXP_FEISHU_CARD_FOOTER`.
+- The Feishu card footer and the Feishu process card are not flags. The
+  footer is always on; the process card is chosen per channel by
+  `feishu.process_card` in the channel config (see the channel-admin skill's
+  `references/feishu.md`).
 - `ALADUO_EXP_MEMORY_CHECK`: run the mechanical memory lint (board/entity/node
   measure + orphan/island notify) as a pre-step on every cadence tick. It only
   ever writes slug-named `.pending` notes into partition inboxes — reversible,
@@ -145,7 +142,7 @@ and `reclaim` handles the destructive orphan-deletion lifecycle
 > lint's signals. Before turning on `ALADUO_EXP_MEMORY_CHECK` /
 > `ALADUO_EXP_MEMORY_FORGET`, refresh this host's subconscious partitions to
 > the matching duoduo tag (see the subconscious-refresh reference under this
-> skill). The Feishu footer flag has no such dependency.
+> skill).
 
 Confirm any of these landed with `duoduo daemon status`, which now reports the
 `memory_check` flag state (and cadence / subconscious progress) — the reliable
