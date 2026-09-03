@@ -64,7 +64,7 @@ Minimal job frontmatter:
 ---
 type: job
 cron: keepalive
-runtime: grok    # or claude / codex
+runtime: grok    # or claude / codex / pi (pi also needs `model: provider/modelId`)
 cwd_rel: my-monitor   # working directory for state files
 ---
 ```
@@ -80,8 +80,8 @@ before.
 ---
 type: job
 cron: keepalive
-runtime: grok    # or claude / codex
-prompt_mode: override        # claude and grok — refused on codex
+runtime: grok    # or claude / codex / pi (pi also needs `model: provider/modelId`)
+prompt_mode: override        # claude, grok, and pi — refused on codex
 allowedTools:                # auto-approve, does NOT widen the surface
   - "Bash"
 disallowedTools: []

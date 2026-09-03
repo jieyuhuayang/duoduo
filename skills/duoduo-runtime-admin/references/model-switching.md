@@ -96,7 +96,10 @@ The stored override is what reset clears — not the protection.
 
 ## Unknown / Unlisted Model Id
 
-Any id without spaces is accepted and stored. The runtime decides whether
+Any id without spaces is accepted and stored. (On Pi, the id must
+additionally be the `provider/modelId` form — a bare id is rejected up
+front rather than guessing the provider; see
+[pi-runtime.md](pi-runtime.md).) The runtime decides whether
 it is valid when the next turn runs. If the id is invalid:
 
 - The turn will return an explanatory error message naming the invalid id.
@@ -130,9 +133,10 @@ runtime knobs — set either without touching the other. Two differences
 worth calling out against `/model`:
 
 - **Timing**: an effort change applies **live** on Claude (immediately,
-  no next-turn wait) and from the **next message** on Codex — whereas a
-  `/model` change is always next-turn / next-message on both runtimes.
-- **Runtime flips**: the four effort levels are valid on both runtimes,
+  no next-turn wait) and from the **next message** on Codex and Pi —
+  whereas a `/model` change is always next-turn / next-message on every
+  runtime.
+- **Runtime flips**: the four effort levels are valid on every runtime,
   so switching a session's runtime with `/model` never strands or resets
   the effort setting.
 

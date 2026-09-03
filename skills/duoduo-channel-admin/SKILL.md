@@ -58,9 +58,10 @@ channel of a kind; **instance-level** for one specific channel.
 Editable keys by hand:
 
 - `new_session_workspace`
-- `prompt_mode` (claude and grok; refused on an explicit `runtime: codex` job)
+- `prompt_mode` (claude, grok, and pi; refused on an explicit `runtime: codex` job)
 - `time_gap_minutes`
-- `runtime` (`claude` | `codex` | `grok`)
+- `runtime` (`claude` | `codex` | `grok` | `pi` — pi sessions also need a
+  model pointer; see duoduo-runtime-admin's pi-runtime reference)
 - `stream`
 - `allowedTools` (permission auto-approve — does not extend the tool surface)
 - `disallowedTools` (MCP tools only on v0.5.10+)

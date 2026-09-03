@@ -157,8 +157,12 @@ bare `duoduo` still works the same way as before.
   selected per channel/job where Codex is available. Grok is a later
   peer (`runtime: grok`, `ALADUO_DEFAULT_RUNTIME=grok`) with **no
   silent Claude fallback** — install `grok`, run `grok login`, restart
-  the daemon. Use `ALADUO_DEFAULT_RUNTIME=codex` or `=grok` only for an
-  intentional global default change.
+  the daemon. Pi is a fourth peer that ships inside duoduo (nothing to
+  install, always available) with the same no-silent-fallback posture:
+  every pi session needs a model pointer (`provider/modelId` via job
+  frontmatter, `/model`, or partition frontmatter) and fails actionably
+  without one. Use `ALADUO_DEFAULT_RUNTIME=codex`, `=grok`, or `=pi`
+  only for an intentional global default change.
 - **Stdio output buffering**: the terminal UI now buffers assistant text
   more cleanly so status/tool rendering does not interleave as visibly
   with assistant prose. Treat this as a UX fix, not a protocol change.

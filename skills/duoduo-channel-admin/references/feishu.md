@@ -86,6 +86,11 @@ The bot owner's DM is the **zero-prerequisite control surface**:
 - Setup cards only show runtimes that the daemon currently reports as
   available. If Codex is missing after `codex login`, restart the daemon
   so it re-probes runtime availability.
+- **Pi is always listed, and "available" is not "ready".** Pi is
+  embedded, so it never fails a probe — but it has no default model, and
+  a pi session refuses every message until one is set. The bind
+  confirmation carries the next step (`/model <provider>/<modelId>`);
+  see [pi-runtime.md](../../duoduo-runtime-admin/references/pi-runtime.md).
 - Owner is resolved from `cfg.botOwnerOpenId`:
   `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → undefined.
 - When undefined (zero-config), ANY first DM sender triggers auto-spawn

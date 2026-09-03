@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex/Grok runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`; grok auto-detected: install grok + `grok login`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, \"profiles not working\" troubleshooting; codex tool-surface trimming (~/.codex/config.toml gates: apps connector catalog, goals, request_user_input). Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 启用 grok runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口, codex 工具太多/裁剪 codex 工具. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex/Grok/Pi runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`; grok auto-detected: install grok + `grok login`; pi ships inside duoduo — no install, no login, but every pi session needs a model pointer `provider/modelId`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, \"profiles not working\" troubleshooting; codex tool-surface trimming (~/.codex/config.toml gates: apps connector catalog, goals, request_user_input). pi compaction sizing and the one-character-reply symptom. Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 启用 grok runtime, 启用 pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口, codex 工具太多/裁剪 codex 工具, pi 会话只回一个字. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -17,8 +17,11 @@ settings in `~/.config/duoduo/.env`.
 
 Read [references/runtime-settings.md](references/runtime-settings.md) for the
 main host-mode knobs, [references/codex-runtime.md](references/codex-runtime.md)
-before enabling Codex, and [references/grok-runtime.md](references/grok-runtime.md)
-before enabling Grok.
+before enabling Codex, [references/grok-runtime.md](references/grok-runtime.md)
+before enabling Grok, and [references/pi-runtime.md](references/pi-runtime.md)
+before enabling Pi — its Context and compaction section also covers a pi
+session that has started answering with a single character (a filled
+context window, not a broken model).
 
 ## Persistent Host-Mode Settings
 
@@ -61,12 +64,18 @@ Be precise:
 - Claude remains the conservative fallback when no runtime is declared.
 - From v0.5.3 onward, Claude and Codex are peer runtimes for channel
   sessions, jobs, and eligible background partitions. Grok is a third
-  peer: install `grok`, run `grok login`, restart the daemon.
+  peer: install `grok`, run `grok login`, restart the daemon. Pi is a
+  fourth peer that ships inside duoduo — nothing to install, always
+  reported available, but every pi session needs a model pointer
+  (`provider/modelId`) from job frontmatter, `/model`, or partition
+  frontmatter.
 - Runtime selection can happen per actor, per channel kind, or globally with
-  `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, or `grok`).
+  `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
 - Verify `codex` is installed and authenticated before routing work to it.
   Verify `grok` the same way. Explicit grok that cannot be served is a
-  hard failure — it does not fall through to Claude.
+  hard failure — it does not fall through to Claude. Pi is the same
+  posture: a pi session with no resolvable model fails with the fix
+  named in the reply, never a silent Claude run.
 
 Do not claim every existing session switches runtime automatically. Existing
 sessions keep their stored conversation state until they are rebound, archived,
@@ -108,23 +117,24 @@ Read [references/usage-archive.md](references/usage-archive.md) for
 the verified `find -mtime +N | xargs mv` recipe, recovery, and the
 race-window note.
 
-## Slash Commands (`/compact`, `/undo`, `/model`, `/effort`)
+## Slash Commands (`/compact`, `/model`, `/effort`)
 
-Chat-level history controls landed in v0.5.2: `/compact` shrinks the
-context window in place, `/undo [N]` rolls back the last `N`
-exchanges. Both work on Claude and Codex runtimes and flow through
+Chat-level history control landed in v0.5.2: `/compact` shrinks the
+context window in place. It works on every runtime and flows through
 the normal channel message pipeline (spine → mailbox → drain), so
 the user gets a regular text reply when the command finishes.
+(`/undo`, which shipped with it, was removed on 2026-08-20.)
 
 Read [references/slash-commands.md](references/slash-commands.md)
-for the runtime semantics (synchronous on Codex, deferred on Claude
-for `/undo`), troubleshooting when a command appears not to work,
-and what to tell a confused user.
+for the runtime semantics, troubleshooting when a command appears
+not to work, and what to tell a confused user.
 
 `/model` switches the model for a session at runtime without a restart.
 Read [references/model-switching.md](references/model-switching.md)
 for syntax, Claude vs Codex timing differences, and how to recover
-from an invalid model id.
+from an invalid model id. On Pi, `/model` is store-only and the
+session's worker is rebuilt with the new model on the next message —
+see [references/pi-runtime.md](references/pi-runtime.md).
 
 For hosts running third-party models, **model profiles** teach duoduo each
 model's real context window, its endpoint + credentials (per-model routing),
@@ -142,9 +152,10 @@ number, confirm before writes that cost a rebuild.
 
 `/effort` sets how hard the model reasons for a session
 (`low | medium | high | xhigh`) — an independent axis from `/model`. It
-applies live on Claude, from the next message on Codex, and stays in
-effect across a `/model` runtime flip (the levels are valid on both
-runtimes). Invalid values are rejected up front. See the `/effort`
+applies live on Claude, and from the next message on Codex and Pi (on
+Pi the levels map onto pi's native thinking levels), and stays in
+effect across a `/model` runtime flip (the levels are valid on every
+runtime). Invalid values are rejected up front. See the `/effort`
 section of [references/slash-commands.md](references/slash-commands.md).
 
 ## Session Management (`duoduo session …`)

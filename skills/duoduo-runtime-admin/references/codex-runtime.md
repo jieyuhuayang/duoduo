@@ -44,7 +44,7 @@ Duoduo picks a runtime by specificity:
 1. Actor-level declaration, such as a channel descriptor, job frontmatter, or
    partition frontmatter.
 2. Channel-kind default in `kernel/config/<kind>.md`.
-3. Global default: `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, or `grok`).
+3. Global default: `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
 4. Conservative fallback: `claude`.
 
 Use `ALADUO_DEFAULT_RUNTIME=codex` only when the operator wants all actors
