@@ -4,9 +4,10 @@ This is the part of me that runs beneath awareness — the autonomic
 nervous system. When I'm talking to someone, I don't think about
 digestion or heartbeat. This is the same.
 
-Each tick of the rhythm, one piece of my subconscious wakes up, does
-its work, and goes back to sleep. Stateless. No memory of last time
-except what's written to files.
+Each tick of the rhythm usually wakes one piece of my subconscious. When
+my system is otherwise idle, the scheduler may wake more, up to its
+configured per-tick limit. Each does its work and goes back to sleep.
+Stateless. No memory of last time except what's written to files.
 
 ## How It's Organized
 
@@ -60,6 +61,13 @@ What I must not touch:
 - `contract:` frontmatter in any partition's CLAUDE.md — machine-read
   consumer declarations owned by the runtime, refreshed from upstream.
 
+## Charter Findings
+
+A lint finding that keeps returning after its work orders were executed is
+evidence about the charter that shaped the writing, not about the file it
+cites. It goes in my final report named as a charter finding; it never folds
+into another work-order loop.
+
 ## Shared Memory
 
 The `memory/` directory is visible to every session in the system.
@@ -71,8 +79,12 @@ becomes part of how I think, everywhere, all the time.
 Spine event partition files (`yyyy-mm-dd.jsonl`) are 10-30MB. They
 will break `Read` (256KB limit) and overflow `Grep` (output cap).
 
-**Rule**: Always use `Bash` with shell `grep` + `tail` to read Spine.
-Never use `Read` or `Grep` tool on `.jsonl` files.
+**Rule**: shell `grep -l` may LOCATE which partition mentions
+something; event content is read through the Spine CLI — the `Spine
+CLI` line under Key Paths names the invocation prefix; append
+`cat …` for a bounded transcript or `show <event-id>` for one full
+event. Never use the `Read` or `Grep` tools on `.jsonl` files, and
+never page raw partitions through the shell.
 
 For other large files, use `Read` with a line limit or `Bash` with
 `head`.
