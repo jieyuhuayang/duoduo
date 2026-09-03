@@ -1,15 +1,8 @@
 # Slash Commands (`/compact`)
 
-Reference for the chat-level history control that landed in v0.5.2.
-Load this when the user asks about compacting a long conversation, or
-about the command appearing not to work.
-
-> **`/undo` was removed on 2026-08-20.** It shipped alongside `/compact`
-> in v0.5.2 and rolled back the last N turns. It had no users, and on the
-> Claude runtime it could not roll back in place — it queued the rollback
-> until the user's next message, so the command never did anything at the
-> moment it was typed. If a host still accepts `/undo`, it is running a
-> build from before the removal; check `duoduo daemon status`.
+Reference for chat-level history control. Load this when the user
+asks about compacting a long conversation, or about the command
+appearing not to work.
 
 ## Commands
 

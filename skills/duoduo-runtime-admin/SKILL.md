@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs and running-daemon diagnostics; Claude/Codex/Grok/Pi runtime setup (codex auto-detected since v0.5.3: install codex + `codex login`; grok auto-detected: install grok + `grok login`; pi ships inside duoduo — no install, no login, but every pi session needs a model pointer `provider/modelId`) and default runtime (ALADUO_DEFAULT_RUNTIME); Codex sandbox (ALADUO_CODEX_SANDBOX); log level (ALADUO_LOG_LEVEL); telemetry persistence; cadence interval; other ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts from a published tag; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (`duoduo session config … profile set/unset/get`, global/kind/instance layers): context-window caps, per-model endpoint routing (base_url + credentials via stdin entry), subagent tier aliases (opus/sonnet/haiku/fable remapping, `profile alias set`), CLAUDE_CODE_MAX_CONTEXT_TOKENS, context-profile rebuild acknowledgements from /model, \"profiles not working\" troubleshooting; codex tool-surface trimming (~/.codex/config.toml gates: apps connector catalog, goals, request_user_input). pi compaction sizing and the one-character-reply symptom. Session management: list/inspect sessions, name a session (alias), wake/notify another session by name or key (cross-session orchestration), archive a session. Chinese triggers: 启用 codex runtime, 启用 grok runtime, 启用 pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 列出会话, 唤醒/通知 session, 归档会话, 跨会话编排, 配置模型上下文窗口, 模型 profile, 外部模型窗口, codex 工具太多/裁剪 codex 工具, pi 会话只回一个字. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` CLI. Use for: daemon status/config/logs; agent runtime setup and selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env (log level, telemetry, cadence interval, codex sandbox); refreshing subconscious partition prompts from a published tag; the `duoduo memory` maintenance CLI; archiving/pruning the usage ledger (var/usage); model profiles for third-party models (context-window caps, endpoint routing, subagent tier aliases, profile troubleshooting); codex tool-surface trimming; pi compaction sizing and the one-character-reply symptom; session management (list/inspect, alias, wake/notify by name for cross-session orchestration, archive). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 清理 usage, 给会话起名, 唤醒/通知 session, 归档会话, 模型 profile, 配置模型上下文窗口, 裁剪 codex 工具, pi 会话只回一个字. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -47,8 +47,8 @@ Typical keys:
 - `ALADUO_TELEMETRY_ENABLED`
 - `ALADUO_CADENCE_INTERVAL_MS`
 - `ALADUO_SPINE_INDEX_RETENTION_DAYS`
-- `ALADUO_CODEX_SANDBOX` (codex auto-detected from v0.5 onward; no
-  enable flag — see codex-runtime reference)
+- `ALADUO_CODEX_SANDBOX` (codex is auto-detected; no enable flag —
+  see codex-runtime reference)
 
 After changing daemon env settings, run:
 
@@ -63,13 +63,13 @@ unless the user explicitly asked for an edit only.
 Be precise:
 
 - Claude remains the conservative fallback when no runtime is declared.
-- From v0.5.3 onward, Claude and Codex are peer runtimes for channel
-  sessions, jobs, and eligible background partitions. Grok is a third
-  peer: install `grok`, run `grok login`, restart the daemon. Pi is a
-  fourth peer that ships inside duoduo — nothing to install, always
-  reported available, but every pi session needs a model pointer
-  (`provider/modelId`) from job frontmatter, `/model`, or partition
-  frontmatter.
+- Claude, Codex, Grok, and Pi are peer runtimes for channel sessions,
+  jobs, and eligible background partitions. Codex and Grok are
+  auto-detected: install the CLI, log in (`codex login` /
+  `grok login`), restart the daemon. Pi ships inside duoduo — nothing
+  to install, always reported available, but every pi session needs a
+  model pointer (`provider/modelId`) from job frontmatter, `/model`,
+  or partition frontmatter.
 - Runtime selection can happen per actor, per channel kind, or globally with
   `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
 - Verify `codex` is installed and authenticated before routing work to it.
@@ -97,6 +97,12 @@ to handle user-authored partitions and local edits to shipped
 partitions, the commit-as-rollback-point pattern, and why no daemon
 restart is required after refresh.
 
+The mechanical (no-LLM) half of memory maintenance is the
+`duoduo memory` CLI: lint checks that post `.pending` signals into
+partition inboxes, plus the manual orphan `reclaim` lifecycle. Read
+[references/memory-cli.md](references/memory-cli.md) when an operator
+or a partition needs it directly.
+
 ## Cadence And Telemetry
 
 - Before changing cadence, explain that a shorter interval increases background
@@ -120,11 +126,10 @@ race-window note.
 
 ## Slash Commands (`/compact`, `/model`, `/effort`)
 
-Chat-level history control landed in v0.5.2: `/compact` shrinks the
-context window in place. It works on every runtime and flows through
-the normal channel message pipeline (spine → mailbox → drain), so
-the user gets a regular text reply when the command finishes.
-(`/undo`, which shipped with it, was removed on 2026-08-20.)
+`/compact` shrinks the context window in place. It works on every
+runtime and flows through the normal channel message pipeline
+(spine → mailbox → drain), so the user gets a regular text reply
+when the command finishes.
 
 Read [references/slash-commands.md](references/slash-commands.md)
 for the runtime semantics, troubleshooting when a command appears

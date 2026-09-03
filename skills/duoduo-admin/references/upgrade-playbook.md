@@ -322,10 +322,15 @@ Two descriptor recipes change meaning; check for them during preflight:
   becomes available again after upgrade. `disallowedTools` remains effective
   for MCP tools (`mcp__…`) only.
 
-Inspect any session's effective surface with
-`duoduo session config <target> get` (read-only `claude_tools` block).
-Full semantics: `duoduo-channel-admin` →
-`references/channel-config-model.md#built-in-tool-surface-v0510-allowlist`.
+Both stale recipes usually announce themselves after the upgrade: the
+daemon logs a `[claude-sdk]` warning naming the stale entries and
+pointing at `claude.tools`, once per session subprocess. Do not treat a
+silent log as proof of a clean descriptor — a built-in listed in
+`allowedTools` **and** `disallowedTools` is dropped before the warning
+can fire, so that combination is a no-op nobody announces. Inspect any session's
+effective surface with `duoduo session config <target> get` (read-only
+`claude_tools` block). Full semantics: `duoduo-channel-admin` →
+`references/channel-config-model.md#built-in-tool-surface-allowlist`.
 
 ## Transport change landing in v0.7.0
 
@@ -382,6 +387,45 @@ Two more consequences worth stating before someone trips on them:
 Rollback is a downgrade of both core and channels together; a new
 daemon with old channels and an old daemon with new channels both fail
 the same way.
+
+## Subconscious partition retirement landing in v0.7.2
+
+v0.7.2 replaces the `memory-weaver` partition with the
+`gradient-distiller` + `intuition-weaver` pair and removes the
+`cadence-executor` partition (its signal kinds post directly to
+`intuition-weaver`). Fresh installs never see the old partitions;
+upgraded hosts still have their directories on disk, and the first
+daemon start after the upgrade retires them automatically:
+
+All four conditions must hold before anything is written, which is
+what decides whether a host's own edits survive:
+
+1. The directory is named `memory-weaver` or `cadence-executor`.
+2. Its `CLAUDE.md` still declares itself the official partition of
+   that name — the weaver by a `contract:` block naming itself, the
+   executor by having no `contract:` block at all. **Note what this
+   does and does not protect: a rewritten prompt is still retired.**
+   Partitions self-program, so the migration deliberately does not
+   fingerprint the text; what spares a directory is having been
+   *repurposed* — a contract naming some other partition, or a
+   contract appearing where the executor never had one.
+3. The frontmatter literally says `enabled: true`. A charter with no
+   `schedule` block is skipped, even though the scheduler would treat
+   that as enabled — writing a schedule block into a file that never
+   had one is a bigger edit than a migration should make.
+4. No marker on disk yet.
+
+The flip sets `schedule.enabled: false` and writes a marker at
+`<runtime_dir>/var/meta/partitions/<name>.retired`. The marker is
+written **first**, so a crash between the two writes degrades to a
+silent skip rather than to re-flipping a switch an operator had turned
+back on. An existing marker is never re-applied — a manual re-enable
+sticks, and is the rollback path for one host. The directories are
+never deleted; `npm install` merges, it does not remove.
+
+The two replacement partitions arrive through the normal bootstrap
+merge on upgrade. Their prompts, like all shipped partition prompts,
+are NOT auto-upgraded afterwards — see the refresh section below.
 
 ## Stdio output behavior in v0.5.3
 

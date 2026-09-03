@@ -1,6 +1,6 @@
 ---
 name: duoduo-admin
-description: "Explain and manage a host-mode duoduo installation after onboarding. Use when the user asks how duoduo works, how stdio/daemon/channel/session fit together, where duoduo stores config and state, how to inspect current setup, how to upgrade duoduo itself (including migrating to v0.5), where something lives on disk (kernel_dir, runtime_dir, .env, descriptor.md), how to archive or recover a specific session (`duoduo session archive`, sessions-archive directory, restoring an archived session), or for broad 'configure duoduo' / 'fix my duoduo' requests that haven't narrowed to a specific channel or runtime setting yet. Also trigger for Chinese: 帮我理解 duoduo, duoduo 是怎么工作的, 看看我现在的 duoduo 配置, 帮我管理 duoduo, 升级 duoduo, 升级到 v0.5 要注意什么, duoduo 哪个路径存什么, 归档 session, 删掉 session, 恢复归档 session."
+description: "Explain and manage a host-mode duoduo installation after onboarding. Use when the user asks how duoduo works, how stdio/daemon/channel/session fit together, where duoduo stores config and state, how to inspect current setup, how to upgrade duoduo itself, where something lives on disk (kernel_dir, runtime_dir, .env, descriptor.md), how to archive or recover a specific session (`duoduo session archive`, sessions-archive directory, restoring an archived session), or for broad 'configure duoduo' / 'fix my duoduo' requests that haven't narrowed to a specific channel or runtime setting yet. Also trigger for Chinese: 帮我理解 duoduo, duoduo 是怎么工作的, 看看我现在的 duoduo 配置, 帮我管理 duoduo, 升级 duoduo, 升级要注意什么, duoduo 哪个路径存什么, 归档 session, 删掉 session, 恢复归档 session."
 ---
 
 # Duoduo Admin
@@ -116,11 +116,10 @@ is unusual, the playbook's Step 1 fallback enumerates every probe
 the script performs as an individual command so the agent can
 reproduce it by hand.
 
-## v0.5 capabilities you should know about
+## Automation surfaces you should know about
 
-Three new surfaces landed in v0.5 that change how agents and
-automation talk to duoduo. Treat them as additions, not rewrites —
-bare `duoduo` still works the same way as before.
+These surfaces matter when agents and automation talk to duoduo;
+bare `duoduo` interactive use works without any of them.
 
 - **`duoduo onboard`**: dedicated subcommand that runs the wizard
   and exits (never drops into the chat REPL). This is the correct
@@ -137,13 +136,13 @@ bare `duoduo` still works the same way as before.
   See openduo/duoduo#50 for the full rationale.
 - **User-visible drain errors**: when the daemon's internal SDK
   turn fails (most commonly: third-party compatible endpoints that
-  don't accept Claude Code's current wire schema), the user now
+  don't accept Claude Code's current wire schema), the user
   sees a text reply prefixed with `[duoduo:drain-error]` instead
   of silence. The message carries the original error and suggests
   `DISABLE_ADAPTIVE=1 DISABLE_THINKING=1 DISABLE_INTERLEAVED_THINKING=1 MAX_THINKING_TOKENS=0`
   in `~/.config/duoduo/.env` as the common workaround.
-- **`duoduo session archive <session_key>`**: new subcommand that
-  archives every durable artifact of one session in one call
+- **`duoduo session archive <session_key>`**: archives every
+  durable artifact of one session in one call
   (session dir, ingress snapshots, outbox records, channel
   descriptor). "Archive" literally — nothing is deleted, everything
   moves to `var/<kind>-archive/` where the operator can `mv` it
@@ -155,18 +154,18 @@ bare `duoduo` still works the same way as before.
   `reset-feishu-session.sh` script in `duoduo-channel-admin` drives
   this CLI; read that script as a worked example if you need to
   batch-archive per channel.
-- **v0.5.3 runtime selection**: Claude and Codex are peer runtimes.
-  Claude remains the default fallback, while `runtime: codex` can be
-  selected per channel/job where Codex is available. Grok is a later
-  peer (`runtime: grok`, `ALADUO_DEFAULT_RUNTIME=grok`) with **no
-  silent Claude fallback** — install `grok`, run `grok login`, restart
-  the daemon. Pi is a fourth peer that ships inside duoduo (nothing to
+- **Runtime selection**: Claude, Codex, Grok, and Pi are peer
+  runtimes. Claude remains the default fallback, while `runtime: codex`
+  can be selected per channel/job where Codex is available. Grok
+  (`runtime: grok`, `ALADUO_DEFAULT_RUNTIME=grok`) has **no silent
+  Claude fallback** — install `grok`, run `grok login`, restart
+  the daemon. Pi ships inside duoduo (nothing to
   install, always available) with the same no-silent-fallback posture:
   every pi session needs a model pointer (`provider/modelId` via job
   frontmatter, `/model`, or partition frontmatter) and fails actionably
   without one. Use `ALADUO_DEFAULT_RUNTIME=codex`, `=grok`, or `=pi`
   only for an intentional global default change.
-- **Stdio output buffering**: the terminal UI now buffers assistant text
+- **Stdio output buffering**: the terminal UI buffers assistant text
   more cleanly so status/tool rendering does not interleave as visibly
   with assistant prose. Treat this as a UX fix, not a protocol change.
 

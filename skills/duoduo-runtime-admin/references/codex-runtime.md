@@ -14,7 +14,7 @@ codex --version
 codex login
 ```
 
-## Host-Mode Availability (v0.5.3+)
+## Host-Mode Availability
 
 Codex is **auto-detected**. There is no `ALADUO_CODEX_ENABLED` env
 var. If `codex` is installed on `PATH` and `codex login status`

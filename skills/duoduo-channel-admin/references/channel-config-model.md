@@ -27,15 +27,15 @@ Resolve `kernel_dir` and `runtime_dir` with `duoduo daemon config`.
 - `allowedTools` — SDK permission auto-approve list; does NOT add tools to
   the model's surface
 - `disallowedTools` — blocks MCP tools (`mcp__server` / `mcp__server__Tool`
-  entries); built-in tool names here are deprecated no-ops on v0.5.10+
+  entries); built-in tool names here are no-ops (the daemon warns and
+  ignores them)
 - `additionalDirectories`
-- `claude.tools` (nested, v0.5.10+) — extra built-in tools added onto the
+- `claude.tools` (nested) — extra built-in tools added onto the
   core allowlist; see below
 
-## Built-in tool surface (v0.5.10+: allowlist)
+## Built-in tool surface (allowlist)
 
-Since v0.5.10 the claude runtime exposes a fixed **allowlist core** to every
-session instead of "everything minus a denylist":
+The claude runtime exposes a fixed **allowlist core** to every session:
 
 `Bash, Read, Write, Edit, Grep, Glob, Agent, TaskOutput, TaskStop, Skill,
 ToolSearch, TaskCreate, TaskGet, TaskUpdate, TaskList, SendMessage`
@@ -72,25 +72,15 @@ told to search the web typically loops WebSearch → WebFetch → `curl` → "no
 internet" rather than reporting it. Check the effective surface before
 treating that as a defect.
 
-### Migrating from ≤ v0.5.9 (denylist era)
+If a descriptor carries built-in tool names in `allowedTools` /
+`disallowedTools` that have no effect, it predates the allowlist
+surface — migration lives in the v0.5.10 section of `duoduo-admin` →
+`references/upgrade-playbook.md`. The daemon logs a `[claude-sdk]`
+warning naming the stale entries, once per session subprocess, but a
+name listed in BOTH keys is filtered out before that warning fires —
+so read the effective surface rather than trusting a quiet log.
 
-Older versions disabled `WebSearch`, `WebFetch`, `AskUserQuestion`,
-`EnterPlanMode`, `ExitPlanMode`, `EnterWorktree` and let `allowedTools`
-re-enable them. On v0.5.10+:
-
-- `allowedTools: [WebSearch]` no longer re-enables anything — move the name
-  to `claude.tools`.
-- `disallowedTools: [<built-in>]` no longer blocks anything (a core tool
-  listed there comes BACK). `disallowedTools` remains the lever for blocking
-  MCP tools only.
-
-Both dead recipes are self-announcing: the daemon logs a warning at every
-session subprocess spawn naming the stale entries and pointing at
-`claude.tools`. When diagnosing "tool missing / tool unexpectedly available"
-after an upgrade, check the daemon log for `[claude-sdk]` warnings and run
-`duoduo session config <target> get` to see the effective surface.
-
-### v0.5+ additions
+### Binding and runtime keys
 
 - `runtime` — one of `claude`, `codex`, `grok`, or `pi`. The agent runtime this
   instance is bound to. Readers default to `claude` when absent. Set it in a kind
@@ -104,25 +94,21 @@ after an upgrade, check the daemon log for `[claude-sdk]` warnings and run
   `prompt_mode` applies to claude, grok, and pi; combining it with
   `runtime: codex` is rejected.
 - `bound_by` — channel-local identity of the operator who ran setup
-  (e.g. a Feishu `open_id`). Present only on v0.5+ descriptors. Used by
-  channel-feishu's `/setup` command to decide whether a re-bind attempt
-  in a group chat is allowed. Pre-v0.5 descriptors that lack this field
-  fall back to `FEISHU_GROUP_CMD_USERS` for `/setup` permission.
+  (e.g. a Feishu `open_id`). Used by channel-feishu's `/setup` command
+  to decide whether a re-bind attempt in a group chat is allowed. A
+  descriptor without this field falls back to `FEISHU_GROUP_CMD_USERS`
+  for `/setup` permission.
 - `bound_at` — ISO timestamp of the spawn that wrote the descriptor.
   Informational only; no runtime behavior depends on it.
 
-## v0.5 priority-order fix — descriptor wins over session state
+## Workspace priority — descriptor wins over session state
 
-Before v0.5, `descriptor.new_session_workspace` only took effect on the very
-first ingress of a channel. Once a session existed, the session's stored cwd
-shadowed the descriptor forever, so editing `new_session_workspace` after
-that point silently did nothing.
-
-v0.5 fixed this at the daemon level. The workspace resolver now reads the
-descriptor BEFORE falling back to session state. Caveat: the fix only
-applies when the incoming ingress does NOT also pass a legacy explicit
-`cwd_abs` — that legacy path still takes priority (and logs a deprecation
-warning) as long as adapters keep sending it. In practice as of v0.5:
+The workspace resolver reads `descriptor.new_session_workspace` BEFORE
+falling back to session state, so editing it takes effect on later
+ingresses of a live channel. Caveat: this only applies when the
+incoming ingress does NOT also pass a legacy explicit `cwd_abs` — that
+legacy path still takes priority (and logs a deprecation warning) as
+long as adapters keep sending it. In practice:
 
 - `acp` defaults to not sending an explicit `cwd_abs`, so descriptor
   edits take effect on the next ingress without any adapter change.
@@ -137,9 +123,6 @@ warning) as long as adapters keep sending it. In practice as of v0.5:
 - Old active sessions continue under their old cwd until they idle
   out; the new cwd applies when a new session materializes under the
   updated descriptor.
-- No migration is required — users who previously edited this key
-  without effect see it start applying in the scenarios above after
-  the upgrade.
 - The legacy `cwd_abs` ingress path is deprecated and planned for
   removal; a future release will move all bundled adapters onto
   descriptor-only workspace resolution.

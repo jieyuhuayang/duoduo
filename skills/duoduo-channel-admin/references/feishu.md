@@ -50,16 +50,16 @@ operator identity). Read the matrix top-to-bottom; the first match wins.
 | chatType | configured? | descriptor        | operator           | behavior                                                        |
 | -------- | ----------- | ----------------- | ------------------ | --------------------------------------------------------------- |
 | group    | no          | —                 | any allowlisted    | full setup card; ⌂ workspace-root option shown AND pre-selected as the default project |
-| group    | yes         | v0.5 (bound_by)   | bound_by           | compact rebind card (mention toggle only)                       |
-| group    | yes         | v0.5 (bound_by)   | other              | plain-text refusal                                              |
-| group    | yes         | pre-v0.5 (no bound_by) | allowlisted     | compact rebind card                                             |
-| group    | yes         | pre-v0.5          | not allowlisted    | plain-text refusal                                              |
+| group    | yes         | bound_by present  | bound_by           | compact rebind card (mention toggle only)                       |
+| group    | yes         | bound_by present  | other              | plain-text refusal                                              |
+| group    | yes         | no bound_by       | allowlisted        | compact rebind card                                             |
+| group    | yes         | no bound_by       | not allowlisted    | plain-text refusal                                              |
 | p2p      | no          | —                 | owner (or zero-config) | auto-spawn to defaultWorkDir (main session; see below)       |
 | p2p      | no          | —                 | non-owner          | setup card (no ⌂)                                              |
-| p2p      | yes         | v0.5 bound_by==owner | owner           | plain-text refusal — "main session is locked"                   |
-| p2p      | yes         | v0.5 bound_by≠owner | owner            | setup card (no ⌂) — descriptor drifted, let owner reassign      |
-| p2p      | yes         | v0.5 bound_by     | non-owner          | setup card (no ⌂) — secondary DM flow                           |
-| p2p      | yes         | pre-v0.5 (no bound_by) | any            | setup card (no ⌂) — legacy compatibility                        |
+| p2p      | yes         | bound_by==owner   | owner              | plain-text refusal — "main session is locked"                   |
+| p2p      | yes         | bound_by≠owner   | owner              | setup card (no ⌂) — descriptor drifted, let owner reassign      |
+| p2p      | yes         | bound_by present  | non-owner          | setup card (no ⌂) — secondary DM flow                           |
+| p2p      | yes         | no bound_by       | any                | setup card (no ⌂) — re-setup allowed                        |
 
 The **⌂** ("workspace root") dropdown entry:
 
@@ -113,7 +113,7 @@ FEISHU_BOT_OWNER=ou_yourOpenId       # explicit owner — locks main session
 FEISHU_ALLOW_FROM=ou_you,ou_friend,… # additional DMs allowed as secondary
 FEISHU_DM_POLICY=allowlist           # refuse DMs from users not in ALLOW_FROM
 FEISHU_GROUP_POLICY=allowlist        # same for groups (see FEISHU_ALLOW_GROUPS)
-FEISHU_GROUP_CMD_USERS=ou_you,…      # lets pre-v0.5 groups keep /setup access
+FEISHU_GROUP_CMD_USERS=ou_you,…      # grants /setup in groups whose descriptor has no bound_by
 ```
 
 When the user reports "strangers can DM my bot", check `dmPolicy`
@@ -235,7 +235,7 @@ Operator checklist when configuring `require_mention=false`:
 5. Re-test with a non-@ message in the group
 
 The setup card and rebind card render this hint inline below the
-require_mention checker (v0.5+), and `duoduo channel feishu doctor`
+require_mention checker, and `duoduo channel feishu doctor`
 includes it in the manual checklist. If a user toggles the box but
 group messages still need @, this scope gap is the most likely cause.
 

@@ -139,7 +139,8 @@ and `reclaim` handles the destructive orphan-deletion lifecycle
 
 > **Version coupling — refresh the subconscious before enabling the MEMORY
 > flags.** The lint emits `.pending` notes whose format is parsed by the
-> subconscious partition prompts (pattern-tracker / memory-weaver). They are
+> subconscious partition prompts (gradient-distiller / intuition-weaver /
+> pattern-tracker). They are
 > version-coupled: an older partition set will mis-parse or ignore a newer
 > lint's signals. Before turning on `ALADUO_EXP_MEMORY_CHECK` /
 > `ALADUO_EXP_MEMORY_FORGET`, refresh this host's subconscious partitions to
