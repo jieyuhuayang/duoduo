@@ -291,8 +291,9 @@ or archive the affected session after inspecting current descriptors.
 
 ## Grok as a third peer runtime
 
-Grok is auto-detected the same way Codex is: install the `grok` CLI, run
-`grok login`, restart the daemon. Set `runtime: grok` on a kind, instance,
+Grok is auto-detected: install the `grok` CLI and restart the daemon, then
+run `grok login` (unlike Codex, the login itself needs no restart — duoduo
+probes only the binary). Set `runtime: grok` on a kind, instance,
 job, or partition, or `ALADUO_DEFAULT_RUNTIME=grok` for a global default.
 
 Unlike Codex, an explicit or default grok that cannot be served is a

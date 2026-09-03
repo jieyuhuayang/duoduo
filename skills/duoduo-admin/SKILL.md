@@ -158,8 +158,8 @@ bare `duoduo` interactive use works without any of them.
   runtimes. Claude remains the default fallback, while `runtime: codex`
   can be selected per channel/job where Codex is available. Grok
   (`runtime: grok`, `ALADUO_DEFAULT_RUNTIME=grok`) has **no silent
-  Claude fallback** — install `grok`, run `grok login`, restart
-  the daemon. Pi ships inside duoduo (nothing to
+  Claude fallback** — install `grok`, restart the daemon, run
+  `grok login` (login needs no restart). Pi ships inside duoduo (nothing to
   install, always available) with the same no-silent-fallback posture:
   every pi session needs a model pointer (`provider/modelId` via job
   frontmatter, `/model`, or partition frontmatter) and fails actionably

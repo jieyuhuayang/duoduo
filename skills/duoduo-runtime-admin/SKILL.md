@@ -65,15 +65,17 @@ Be precise:
 - Claude remains the conservative fallback when no runtime is declared.
 - Claude, Codex, Grok, and Pi are peer runtimes for channel sessions,
   jobs, and eligible background partitions. Codex and Grok are
-  auto-detected: install the CLI, log in (`codex login` /
-  `grok login`), restart the daemon. Pi ships inside duoduo — nothing
+  auto-detected: install the CLI, restart the daemon, log in
+  (`codex login` / `grok login`). Codex probes the login too, so it
+  needs the restart after logging in; grok does not. Pi ships inside duoduo — nothing
   to install, always reported available, but every pi session needs a
   model pointer (`provider/modelId`) from job frontmatter, `/model`,
   or partition frontmatter.
 - Runtime selection can happen per actor, per channel kind, or globally with
   `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
 - Verify `codex` is installed and authenticated before routing work to it.
-  Verify `grok` the same way. Explicit grok that cannot be served is a
+  For `grok`, duoduo only checks the binary — verify the login yourself
+  before routing work to it. Explicit grok that cannot be served is a
   hard failure — it does not fall through to Claude. Pi is the same
   posture: a pi session with no resolvable model fails with the fix
   named in the reply, never a silent Claude run.
