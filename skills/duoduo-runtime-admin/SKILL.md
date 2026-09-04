@@ -165,7 +165,7 @@ Pi the levels map onto pi's native thinking levels), and stays in
 effect across a `/model` runtime flip (the levels are valid on every
 runtime). Invalid values are rejected up front. See the `/effort`
 section of [references/slash-commands.md](references/slash-commands.md).
-Both knobs are also settable per session from the CLI (0.7.2+) via
+Both knobs are also settable per session from the CLI (0.8.0+) via
 `duoduo session model` / `duoduo session effort` — see
 [references/session-cli.md](references/session-cli.md).
 
@@ -182,7 +182,7 @@ external script — one entry point):
   and deliver a source-tagged notification. Only `channel`/`job` targets are
   allowed; the subconscious/kernel plane is isolated and refused.
 - `duoduo session model <target> [<id>|reset]` / `duoduo session effort
-  <target> [<level>|reset]` (0.7.2+) — inspect or set a channel session's
+  <target> [<level>|reset]` (0.8.0+) — inspect or set a channel session's
   model / reasoning effort from the CLI, same knobs as in-chat `/model` and
   `/effort`, without entering the session's chat. Channel sessions only.
 - `duoduo session archive <key>` — move (never delete) a session's artifacts.
@@ -192,7 +192,7 @@ one session from another by name, this is the surface. Read
 [references/session-cli.md](references/session-cli.md) for full usage, the
 isolation boundary, output/`--json` discipline, and the refusal reasons.
 
-## Spine Inspection (`duoduo spine …`, 0.7.2+)
+## Spine Inspection (`duoduo spine …`, 0.8.0+)
 
 The event log (Spine WAL) is read through the CLI, not by opening the JSONL
 partitions — a single day can be 10-30MB with megabyte-long tool results, and

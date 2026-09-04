@@ -131,7 +131,7 @@ duoduo session model  <target> [<model-id>|reset] [--json|--plain]
 duoduo session effort <target> [<level>|reset]    [--json|--plain]
 ```
 
-The CLI form of the in-chat `/model` and `/effort` commands (duoduo 0.7.2+):
+The CLI form of the in-chat `/model` and `/effort` commands (duoduo 0.8.0+):
 set a channel session's model or reasoning effort without entering its chat —
 the SSH-friendly way to recover a session stuck on a bad model. `<target>` is
 a **session_key OR a display-name alias**.

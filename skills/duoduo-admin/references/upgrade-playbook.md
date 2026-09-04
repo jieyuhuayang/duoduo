@@ -389,9 +389,9 @@ Rollback is a downgrade of both core and channels together; a new
 daemon with old channels and an old daemon with new channels both fail
 the same way.
 
-## Feishu card settings landing in v0.7.2
+## Feishu card settings landing in v0.8.0
 
-v0.7.2 deletes both `ALADUO_EXP_FEISHU_*` env gates. They are not renamed
+v0.8.0 deletes both `ALADUO_EXP_FEISHU_*` env gates. They are not renamed
 and not deprecated — the channel package's `envAllowlist` no longer carries
 them, so the keys never reach the channel process at all.
 
@@ -417,9 +417,9 @@ Both files are read on every message, so the change takes effect on the next
 message — no channel restart, unlike the flag it replaces. Delete the dead
 keys from `~/.config/duoduo/.env` in the same pass; nothing warns about them.
 
-## Subconscious partition retirement landing in v0.7.2
+## Subconscious partition retirement landing in v0.8.0
 
-v0.7.2 replaces the `memory-weaver` partition with the
+v0.8.0 replaces the `memory-weaver` partition with the
 `gradient-distiller` + `intuition-weaver` pair and removes the
 `cadence-executor` partition (its signal kinds post directly to
 `intuition-weaver`). Fresh installs never see the old partitions;
@@ -592,6 +592,14 @@ Fall back to first-principles diagnosis:
 
 - Daemon won't start: check `duoduo daemon logs` for the first
   stack trace.
+- Restart or upgrade reports a health-check timeout: this is not by
+  itself a failed upgrade, and the CLI cannot tell you which of the two
+  causes it was. Check the real state (`duoduo daemon status`) before
+  retrying anything. From v0.8.0 the daemon log separates them for you:
+  shutting down waits for turns that are already running, and if a turn
+  outlasts that wait the log says so and names the sessions it stopped
+  waiting for. See that line and a session was mid-turn; see no such
+  line and the daemon was simply slow to boot.
 - Channel won't start: `duoduo channel <kind> logs`.
 - Feishu-specific symptoms after upgrade: route to
   `duoduo-channel-admin` → `references/diagnose-feishu.md`.

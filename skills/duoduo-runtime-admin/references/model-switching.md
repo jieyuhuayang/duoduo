@@ -14,7 +14,7 @@ session, list available models, or recover from an invalid model id.
 All three forms flow through the normal channel message pipeline —
 they are typed as a chat message, not a CLI call.
 
-Ops path (duoduo 0.7.2+): the same knobs are settable from the CLI
+Ops path (duoduo 0.8.0+): the same knobs are settable from the CLI
 without entering the session's chat — `duoduo session model <target>
 [<id>|reset]` and `duoduo session effort <target> [<level>|reset]`,
 channel sessions only. See [session-cli.md](session-cli.md).

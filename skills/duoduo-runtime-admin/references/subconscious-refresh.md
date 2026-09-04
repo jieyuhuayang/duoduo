@@ -128,7 +128,7 @@ Once the user has approved:
    **user-tuned cost config** — they directly set how often the partition
    spends money — and the optional `runtime:` / `model:` / `effort:` keys
    are host-side tuning in the same ownership class (`effort` needs duoduo
-   0.7.2+ and applies on the Claude runtime only) — while the prompt body
+   0.8.0+ and applies on the Claude runtime only) — while the prompt body
    and the `contract:` block are code-owned and must follow upstream. A blind wholesale `cp` of a
    partition `CLAUDE.md` silently reverts the user's cooldown tuning to
    the upstream baseline.
