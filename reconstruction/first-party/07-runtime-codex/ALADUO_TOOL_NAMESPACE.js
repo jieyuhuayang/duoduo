@@ -1,14 +1,15 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: ALADUO_TOOL_NAMESPACE  (minified: zI, daemon.pretty.js:59649)
+// symbol: ALADUO_TOOL_NAMESPACE  (minified: JI, daemon.pretty.js:56917)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
+var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
     "use strict";
-    Zt();
-    Sd();
-    ALADUO_TOOL_NAMESPACE = "aladuo", AXe = "features.code_mode.direct_only_tool_namespaces";
-    jXe = {
+    Xc();
+    ft();
+    dl();
+    ALADUO_TOOL_NAMESPACE = "aladuo", UXe = "features.code_mode.direct_only_tool_namespaces";
+    VXe = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -17,7 +18,7 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, FI = class extends $Xe {
+    }, WI = class extends zXe {
         constructor(n, r, i) {
             super();
             this.binary = n;
@@ -29,12 +30,11 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
         env;
         proc = null;
         rl = null;
-        stderrRl = null;
         nextId = 1;
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = PXe(this.binary, ["app-server"], {
+            this.alive || (this.proc = jXe(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -50,12 +50,8 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
                 this.alive = !1;
                 let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
                 this.rejectAllPending(i)
-            }), this.rl = Zpe({
-                input: this.proc.stdout
-            }), this.rl.on("line", n => this.handleLine(n)), this.stderrRl = Zpe({
-                input: this.proc.stderr
-            }), this.stderrRl.on("line", n => {
-                Ae("[codex-stderr]", n)
+            }), this.rl = iu(this.proc.stdout, n => this.handleLine(n)), iu(this.proc.stderr, n => {
+                ke("[codex-stderr]", n)
             }))
         }
         request(n, r, i) {
@@ -96,7 +92,7 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
             })
         }
         async shutdown() {
-            this.alive = !1, this.rl?.close(), this.rl = null, this.stderrRl?.close(), this.stderrRl = null;
+            this.alive = !1, this.rl?.close(), this.rl = null;
             let n = this.proc;
             if (this.proc = null, this.rejectAllPending(new Error("codex app-server shut down")), !n || n.exitCode !== null || n.signalCode !== null) return;
             let r = new Promise(i => {
@@ -123,7 +119,7 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
             try {
                 i = JSON.parse(r)
             } catch {
-                Ae("[codex-transport] unparseable line:", r.slice(0, 200));
+                J("[codex-transport] unparseable line:", r.slice(0, 200));
                 return
             }
             if (i.id != null && (i.result !== void 0 || i.error !== void 0)) {
@@ -153,7 +149,7 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
             this.onToolCallSettled = n
         }
         handleServerRequest(n) {
-            if (Ae("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
+            if (ke("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
                 let r = n.params,
                     i = r?.tool,
                     o = r?.arguments ?? {},
@@ -215,5 +211,5 @@ var ALADUO_TOOL_NAMESPACE, AXe, R2, T2, jXe, FI, Gpe, jd = $(() => {
             for (let [r, i] of this.pending) i.reject(n), this.pending.delete(r)
         }
     };
-    Gpe = new Set
+    Kfe = new Set
 });

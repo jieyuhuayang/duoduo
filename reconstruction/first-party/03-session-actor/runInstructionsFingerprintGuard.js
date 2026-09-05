@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: runInstructionsFingerprintGuard  (minified: LB, daemon.pretty.js:74138)
+// symbol: runInstructionsFingerprintGuard  (minified: rO, daemon.pretty.js:75670)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,16 +11,15 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
         c = computeBoardLayerHash(n.memoryBoard),
         d = computeNonBoardInstructionsFingerprint(n),
         p = i.board_layer_hash !== void 0 && i.instructions_nonboard_fingerprint !== void 0 && i.board_layer_hash !== c && i.instructions_nonboard_fingerprint === d;
-    if (l < SESSION_SCHEMA_VERSION) return await ut(e, t, {
+    if (l < SESSION_SCHEMA_VERSION) return await Ye(e, t, {
         sdk_session_id: null,
         pending_fork_to: null,
-        pending_undo: null,
         instructions_fingerprint: s,
         mission_fingerprint: null,
         schema_version: SESSION_SCHEMA_VERSION,
         board_layer_hash: c,
         instructions_nonboard_fingerprint: d
-    }), K(`[session-upgrade] v${l} → v${SESSION_SCHEMA_VERSION} rebuild`, {
+    }), Q(`[session-upgrade] v${l} → v${SESSION_SCHEMA_VERSION} rebuild`, {
         sessionKey: t,
         jobId: u,
         runtime: r,
@@ -38,11 +37,11 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
     };
     if (a !== s) {
         if (r === "codex") {
-            if (p && rs(t) === "channel") return await ut(e, t, {
+            if (p && no(t) === "channel") return await Ye(e, t, {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), K("[instructions-fingerprint] codex board-only drift — fork skipped", {
+            }), Q("[instructions-fingerprint] codex board-only drift — fork skipped", {
                 sessionKey: t,
                 jobId: u,
                 fp_old: a ?? null,
@@ -62,12 +61,12 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 nonBoardFingerprint: d
             };
             let m = i.sdk_session_id;
-            return m ? (await ut(e, t, {
+            return m ? (await Ye(e, t, {
                 pending_fork_to: m,
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), K("[instructions-fingerprint] codex thread fork", {
+            }), Q("[instructions-fingerprint] codex thread fork", {
                 sessionKey: t,
                 jobId: u,
                 fp_old: a ?? null,
@@ -85,14 +84,13 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 boardOnlyDrift: p,
                 boardLayerHash: c,
                 nonBoardFingerprint: d
-            }) : (await ut(e, t, {
+            }) : (await Ye(e, t, {
                 sdk_session_id: null,
                 pending_fork_to: null,
-                pending_undo: null,
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), K("[instructions-fingerprint] codex thread reset (no parent to fork)", {
+            }), Q("[instructions-fingerprint] codex thread reset (no parent to fork)", {
                 sessionKey: t,
                 jobId: u,
                 fp_old: a ?? null,
@@ -111,11 +109,11 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 nonBoardFingerprint: d
             })
         }
-        return await ut(e, t, {
+        return await Ye(e, t, {
             instructions_fingerprint: s,
             board_layer_hash: c,
             instructions_nonboard_fingerprint: d
-        }), K(`[instructions-fingerprint] ${r} instructions updated`, {
+        }), Q(`[instructions-fingerprint] ${r} instructions updated`, {
             sessionKey: t,
             jobId: u,
             fp_old: a ?? null,
@@ -135,7 +133,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
             nonBoardFingerprint: d
         }
     }
-    return (i.board_layer_hash === void 0 || i.instructions_nonboard_fingerprint === void 0) && await ut(e, t, {
+    return (i.board_layer_hash === void 0 || i.instructions_nonboard_fingerprint === void 0) && await Ye(e, t, {
         board_layer_hash: c,
         instructions_nonboard_fingerprint: d
     }), {

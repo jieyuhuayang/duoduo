@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: handleDrainError  (minified: zd, daemon.pretty.js:64203)
+// symbol: handleDrainError  (minified: mv, daemon.pretty.js:65618)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,17 +10,17 @@ async function handleDrainError(e, t, n) {
 
 ${i}
 
-` + Bet(r, n.hintContext);
+` + kit(r, n.hintContext);
     for (let l of n.precedingRecords ?? []) n.bus?.emit("session.output", {
         sessionKey: l.session_key,
         record: l
     });
-    if (n.anchor.event.source?.name === "idle-compact") K("[runner] idle-compact drain error — spine only, no channel record", {
+    if (n.anchor.event.source?.name === "idle-compact") Q("[runner] idle-compact drain error — spine only, no channel record", {
         sessionKey: t,
         stage: n.stage
     });
     else try {
-        let l = await fl(e, t, {
+        let l = await Xu(e, t, {
             item: n.anchor.item,
             event: n.anchor.event,
             outputText: o
@@ -30,7 +30,7 @@ ${i}
             record: u
         })
     } catch (l) {
-        K("[runner] failed to emit drain-error outbox record", {
+        Q("[runner] failed to emit drain-error outbox record", {
             sessionKey: t,
             stage: n.stage,
             emitError: l instanceof Error ? l.message : String(l)
@@ -52,7 +52,7 @@ ${i}
     try {
         await atomicAppendEvent(e, a)
     } catch (l) {
-        K("[runner] failed to append agent.error to spine", {
+        Q("[runner] failed to append agent.error to spine", {
             sessionKey: t,
             stage: n.stage,
             spineError: l instanceof Error ? l.message : String(l)

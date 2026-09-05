@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: buildMemoryCheckStatus  (minified: y2, daemon.pretty.js:58369)
+// symbol: buildMemoryCheckStatus  (minified: N4, daemon.pretty.js:62115)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,7 +7,7 @@ function buildMemoryCheckStatus(e) {
     let t = resolveMemoryCheckFlags(),
         n;
     try {
-        n = Ipe(e.subconsciousDir)
+        n = Mhe(e.subconsciousDir)
     } catch {
         n = void 0
     }
