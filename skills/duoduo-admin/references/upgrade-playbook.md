@@ -291,8 +291,9 @@ or archive the affected session after inspecting current descriptors.
 
 ## Grok as a third peer runtime
 
-Grok is auto-detected the same way Codex is: install the `grok` CLI, run
-`grok login`, restart the daemon. Set `runtime: grok` on a kind, instance,
+Grok is auto-detected: install the `grok` CLI and restart the daemon, then
+run `grok login` (unlike Codex, the login itself needs no restart — duoduo
+probes only the binary). Set `runtime: grok` on a kind, instance,
 job, or partition, or `ALADUO_DEFAULT_RUNTIME=grok` for a global default.
 
 Unlike Codex, an explicit or default grok that cannot be served is a
@@ -322,10 +323,15 @@ Two descriptor recipes change meaning; check for them during preflight:
   becomes available again after upgrade. `disallowedTools` remains effective
   for MCP tools (`mcp__…`) only.
 
-Inspect any session's effective surface with
-`duoduo session config <target> get` (read-only `claude_tools` block).
-Full semantics: `duoduo-channel-admin` →
-`references/channel-config-model.md#built-in-tool-surface-v0510-allowlist`.
+Both stale recipes usually announce themselves after the upgrade: the
+daemon logs a `[claude-sdk]` warning naming the stale entries and
+pointing at `claude.tools`, once per session subprocess. Do not treat a
+silent log as proof of a clean descriptor — a built-in listed in
+`allowedTools` **and** `disallowedTools` is dropped before the warning
+can fire, so that combination is a no-op nobody announces. Inspect any session's
+effective surface with `duoduo session config <target> get` (read-only
+`claude_tools` block). Full semantics: `duoduo-channel-admin` →
+`references/channel-config-model.md#built-in-tool-surface-allowlist`.
 
 ## Transport change landing in v0.7.0
 
@@ -382,6 +388,73 @@ Two more consequences worth stating before someone trips on them:
 Rollback is a downgrade of both core and channels together; a new
 daemon with old channels and an old daemon with new channels both fail
 the same way.
+
+## Feishu card settings landing in v0.8.0
+
+v0.8.0 deletes both `ALADUO_EXP_FEISHU_*` env gates. They are not renamed
+and not deprecated — the channel package's `envAllowlist` no longer carries
+them, so the keys never reach the channel process at all.
+
+**`ALADUO_EXP_FEISHU_CARD_FOOTER` needs no action.** The card footer is now
+unconditional: it renders whenever the turn reports usage. A host that had
+the flag on sees the same cards as before, and one that had it off gains the
+footer.
+
+**`ALADUO_EXP_FEISHU_PROCESS_CARD=1` is the one that bites.** The process
+card is now selected per channel in config, and the default is `off`, so a
+host that was running the experiment loses the process card at the upgrade
+with nothing in the log to say why. Put it back in `config/feishu.md` (every
+Feishu channel) or in one instance descriptor (that channel only):
+
+```yaml
+feishu:
+  process_card: replace   # replace = one card; keep = process card + result card
+```
+
+`replace` matches the old `ALADUO_EXP_FEISHU_PROCESS_CARD=1` with
+`ALADUO_EXP_FEISHU_KEEP_PROCESS_CARD` unset; `keep` matches having both set.
+Both files are read on every message, so the change takes effect on the next
+message — no channel restart, unlike the flag it replaces. Delete the dead
+keys from `~/.config/duoduo/.env` in the same pass; nothing warns about them.
+
+## Subconscious partition retirement landing in v0.8.0
+
+v0.8.0 replaces the `memory-weaver` partition with the
+`gradient-distiller` + `intuition-weaver` pair and removes the
+`cadence-executor` partition (its signal kinds post directly to
+`intuition-weaver`). Fresh installs never see the old partitions;
+upgraded hosts still have their directories on disk, and the first
+daemon start after the upgrade retires them automatically:
+
+All four conditions must hold before anything is written, which is
+what decides whether a host's own edits survive:
+
+1. The directory is named `memory-weaver` or `cadence-executor`.
+2. Its `CLAUDE.md` still declares itself the official partition of
+   that name — the weaver by a `contract:` block naming itself, the
+   executor by having no `contract:` block at all. **Note what this
+   does and does not protect: a rewritten prompt is still retired.**
+   Partitions self-program, so the migration deliberately does not
+   fingerprint the text; what spares a directory is having been
+   *repurposed* — a contract naming some other partition, or a
+   contract appearing where the executor never had one.
+3. The frontmatter literally says `enabled: true`. A charter with no
+   `schedule` block is skipped, even though the scheduler would treat
+   that as enabled — writing a schedule block into a file that never
+   had one is a bigger edit than a migration should make.
+4. No marker on disk yet.
+
+The flip sets `schedule.enabled: false` and writes a marker at
+`<runtime_dir>/var/meta/partitions/<name>.retired`. The marker is
+written **first**, so a crash between the two writes degrades to a
+silent skip rather than to re-flipping a switch an operator had turned
+back on. An existing marker is never re-applied — a manual re-enable
+sticks, and is the rollback path for one host. The directories are
+never deleted; `npm install` merges, it does not remove.
+
+The two replacement partitions arrive through the normal bootstrap
+merge on upgrade. Their prompts, like all shipped partition prompts,
+are NOT auto-upgraded afterwards — see the refresh section below.
 
 ## Stdio output behavior in v0.5.3
 
@@ -519,6 +592,14 @@ Fall back to first-principles diagnosis:
 
 - Daemon won't start: check `duoduo daemon logs` for the first
   stack trace.
+- Restart or upgrade reports a health-check timeout: this is not by
+  itself a failed upgrade, and the CLI cannot tell you which of the two
+  causes it was. Check the real state (`duoduo daemon status`) before
+  retrying anything. From v0.8.0 the daemon log separates them for you:
+  shutting down waits for turns that are already running, and if a turn
+  outlasts that wait the log says so and names the sessions it stopped
+  waiting for. See that line and a session was mid-turn; see no such
+  line and the daemon was simply slow to boot.
 - Channel won't start: `duoduo channel <kind> logs`.
 - Feishu-specific symptoms after upgrade: route to
   `duoduo-channel-admin` → `references/diagnose-feishu.md`.

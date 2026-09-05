@@ -22,7 +22,8 @@ to orient a user before changing anything.
   ("upgraded core to 0.6.3"), not "restart". Add `--wake <session-or-alias>`
   (repeatable) for any session that was mid-answer: it does not wake on its
   own, so from that user's side an interrupted reply is indistinguishable from
-  being ignored
+  being ignored. The wake is carried by the restart itself, so it survives
+  an agent restarting the daemon it is running inside
 - `duoduo daemon logs`: daemon logs
 - `duoduo channel list`: installed channels and running state
 - `~/.config/duoduo/.env`: persistent host-mode env-backed settings

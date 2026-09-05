@@ -1,6 +1,6 @@
 ---
 name: duoduo-channel-admin
-description: "Install, start, stop, inspect, reset, and configure duoduo host-mode channels. Use when the request involves: channel lifecycle (install/list/start/stop/status/logs), Feishu setup card or /setup command, Feishu owner DM / main session / FEISHU_BOT_OWNER configuration, the 'main session is locked' refusal, stale card error, resetting a bound Feishu chat, WeChat QR login or packaging, ACP editor integration, channel descriptor editing (kind vs instance). Also trigger for Chinese: 拉起 feishu 通道, 拉起微信 channel, 配置 channel 提示词, 改 stdio 的 workspace, 查看 channel 状态, 飞书机器人怎么配, 设置 owner, 清除 session, 重置 channel, v0.5 升级 feishu 安全."
+description: "Install, start, stop, inspect, reset, and configure duoduo host-mode channels. Use when the request involves: channel lifecycle (install/list/start/stop/status/logs), Feishu setup card or /setup command, Feishu owner DM / main session / FEISHU_BOT_OWNER configuration, the 'main session is locked' refusal, stale card error, resetting a bound Feishu chat, WeChat QR login or packaging, ACP editor integration, channel descriptor editing (kind vs instance). Also trigger for Chinese: 拉起 feishu 通道, 拉起微信 channel, 配置 channel 提示词, 改 stdio 的 workspace, 查看 channel 状态, 飞书机器人怎么配, 设置 owner, 清除 session, 重置 channel."
 ---
 
 # Duoduo Channel Admin
@@ -41,6 +41,11 @@ matches the request to avoid polluting context with unrelated detail.
 - **ACP** (编辑器) → read [references/acp.md](references/acp.md).
   Covers install, editor integration semantics.
 
+Cross-kind conventions — installer package specs, why install is a
+pure write-to-disk (a running plugin keeps serving the old code until
+an explicit `stop && start`), and the lifecycle verbs — live in
+[references/channel-lifecycle.md](references/channel-lifecycle.md).
+
 When the request is "diagnose a misbehaving Feishu channel" and the
 symptom isn't obvious, read
 [references/diagnose-feishu.md](references/diagnose-feishu.md) — it
@@ -58,17 +63,18 @@ channel of a kind; **instance-level** for one specific channel.
 Editable keys by hand:
 
 - `new_session_workspace`
-- `prompt_mode` (claude and grok; refused on an explicit `runtime: codex` job)
+- `prompt_mode` (claude, grok, and pi; refused on an explicit `runtime: codex` job)
 - `time_gap_minutes`
-- `runtime` (`claude` | `codex` | `grok`)
+- `runtime` (`claude` | `codex` | `grok` | `pi` — pi sessions also need a
+  model pointer; see duoduo-runtime-admin's pi-runtime reference)
 - `stream`
 - `allowedTools` (permission auto-approve — does not extend the tool surface)
-- `disallowedTools` (MCP tools only on v0.5.10+)
+- `disallowedTools` (MCP tools only)
 - `additionalDirectories`
-- `claude.tools` (v0.5.10+ — extra built-in tools unioned onto the fixed
-  allowlist core; the surface is allowlist-based since v0.5.10)
+- `claude.tools` (extra built-in tools unioned onto the fixed
+  allowlist core; the built-in surface is allowlist-based)
 
-v0.5 adds two instance-binding keys normally written by `channel.spawn`
+Two instance-binding keys are normally written by `channel.spawn`
 (not hand-edited): `bound_by`, `bound_at`. See
 [references/channel-config-model.md](references/channel-config-model.md)
 for the full list and the `new_session_workspace` priority rules.

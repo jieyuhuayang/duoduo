@@ -2,6 +2,159 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.0] - 2026-09-04
+
+pi joins Claude, Codex and Grok as a fourth agent runtime. `duoduo spine` opens
+the write-ahead log as something an agent can actually read. The subconscious
+memory pipeline was split in two and given a feedback signal, so it can tell
+which of its own memories are doing any work. Feishu answers now stream into
+the card you are already looking at instead of arriving as a second one.
+
+**Upgrading is routine** — reinstall, restart the daemon, then reinstall and
+restart your channels as usual. Two things to know before you do:
+
+- Two `ALADUO_EXP_FEISHU_*` environment gates are **deleted, not renamed**. The
+  behaviour they guarded now ships on, selected per channel. See the upgrade
+  playbook in the `duoduo-admin` skill.
+- The `memory-weaver` subconscious partition is **replaced** by two partitions.
+  Existing partition prompts are never overwritten by an upgrade, so nothing
+  changes until you refresh them — the `duoduo-runtime-admin` skill walks it.
+
+### Highlights
+
+- **pi is a first-class runtime.** Fourth peer behind the same seam as the other
+  three: duoduo's own tools reachable from it, mid-turn steering, the same
+  kind/instance/job/partition prompt fields including append-or-replace, and
+  token accounting that understands pi's own reporting shape. `/model` lists the
+  models *this* installation can actually run — resolved from the providers and
+  extensions your pi has, not from a list we hardcoded — and a job naming a
+  model pi cannot run is refused when you create it, not when it next fires.
+  Subconscious partitions can opt into pi per partition. Availability fails
+  closed: asking for pi when pi is not usable is an error, never a silent
+  fallback.
+- **`duoduo spine` — the log, readable.** The write-ahead log has always been the
+  system's source of truth and has always been raw JSONL. This is a read surface
+  built for an agent reading it: tool calls folded together with their results,
+  full text rather than truncated previews, counts in a header and footer so a
+  reader can tell a complete read from a partial one, and turn-granular resume
+  (`--after`) so a long scan continues where it stopped instead of starting over.
+- **The memory pipeline learned what it is not using.** The single memory weaver
+  is now two partitions with separate jobs — one distils raw experience into
+  fragments, one consolidates them into intuition. On top of that sits an
+  activation report: it counts which memories are actually being read during
+  real work, so the pipeline gets told about dead weight and unreachable
+  material instead of accumulating both silently. Weaver wakes are now bounded
+  by budget and rank everything waiting, rather than taking one item per wake.
+  The activation window counts days on which someone actually interacted, so a
+  quiet week no longer ages memories out.
+- **Feishu: one card, not two.** The process card streams status while the turn
+  runs, names the tools as they are called, and then the answer replaces it —
+  no second card, and the footer is now standard rather than experimental.
+  Selected per channel, so two channels on one daemon can differ. A card only
+  ever appears for turns that channel itself started.
+- **Model and effort from the CLI.** `duoduo session model` / `duoduo session
+  effort` inspect or set a channel session's model and reasoning effort without
+  going through the chat, and partitions can declare effort in frontmatter.
+- **`duoduo daemon status` shows what is running right now.** With tool calls in
+  flight it lists each one — which session, which tool, how long ago it started
+  — and nothing when idle. Deliberately judgment-free: no threshold, no
+  watchdog, no timeout. It reports; `/cancel` acts. Note that an empty list is
+  not "nothing is happening" — it is equally empty while the model is writing.
+- **The log index no longer grows forever.** The by-id index is now a bounded
+  recency cache keyed on event date and compacted at boot
+  (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default). On a busy host this
+  is the difference between a 157 MB index and a 5.6 MB one. Readers that miss
+  it fall back to the day's log partition, so nothing becomes unreadable — and
+  `duoduo spine show <id>` falls back to a full scan.
+
+### Ambient — duoduo in the room
+
+Ambient is duoduo present in a physical room: round-the-clock ears and eyes,
+no app to open, no button to press, no wake word to recite before every
+sentence. You talk. It is already listening, and it already knows whether you
+were talking to it.
+
+That last part is the whole trick, and it is why ambient is not a smart speaker.
+A speaker asks "did this person stop talking?" Ambient asks a much harder
+question — **"was that said to me?"** — and answers it the way a person sitting
+in the corner of the room would.
+
+A scene that happens constantly, and that nothing else gets right:
+
+> Two colleagues are at the whiteboard arguing about duoduo. One says duoduo
+> handled yesterday's rollout badly. The other disagrees, and for four minutes
+> they go back and forth about what duoduo should have done.
+>
+> **duoduo says nothing.** Not a chime, not a "did you mean me?", not a
+> half-second of a listening animation. Being *talked about* is not being
+> *talked to*, and it sat through the entire argument without interrupting once.
+>
+> Then one of them turns to the corner: *"duoduo, what do you think?"*
+>
+> It answers — about the actual argument. Both positions, who said which, the
+> rollout they were describing. It had been listening the whole time; it simply
+> had no standing to speak until someone gave it one.
+
+The same judgment runs in the other direction, which is the half everyone else
+forgets. Command-shaped speech is not automatically an order: people dictate to
+their phones and to other assistants in exactly the phrasing they would use on
+duoduo, and being overheard is not being instructed. Retelling a past
+conversation, thinking out loud, asking a rhetorical question, telling a third
+party what to do — a person in the room would not answer any of those, and
+neither does ambient.
+
+Everything anyone says still becomes part of the room's record, whether or not
+it was addressed to duoduo — that record is how it reads the room later. The
+addressee judgment decides only whether it *acts*. Recording always happens; it
+is not a behavioural choice.
+
+Underneath it is one specialized multimodal model, end to end. Room audio goes
+straight in; transcript and speaker attribution come out together, in a single
+pass. That is why a five-person conversation arrives already attributed instead
+of as one undifferentiated blob, and why the same person keeps one stable
+identity through the day without ever enrolling a voice sample.
+
+And it is small. It runs on hardware you already own — a Mac, a 3090, any
+40-series card. **The room's audio never leaves the building.** A room full of
+people talking all day is the most sensitive recording there is, and it can stay
+on your own machine precisely because the model doing the hearing was built for
+this one job and nothing else.
+
+Around it: continuous voice-presence detection rather than push-to-talk or a
+per-sentence wake word, and answers spoken with pauses placed where the
+*reasoning* paused, not where a sentence happened to end.
+
+Test access is open by application. If you want a room, open an issue
+describing your space and how many people are usually in it.
+
+### Fixes
+
+- Shutdown now actually waits for work in progress. A daemon restart could
+  start a fresh model turn after shutdown had begun, and outlive its own wait;
+  in-progress deliveries, cursor writes and socket callbacks could all be
+  dropped on the way out. When shutdown does give up on a turn that is taking
+  too long, it now says so and names the sessions — previously that was silent
+  and indistinguishable from a slow boot.
+- Log lines containing U+2028 were shredded on read, because the line reader
+  treated it as a line break and JSON does not. Any event carrying that
+  character in its text was unreadable.
+- A session woken while the runtime pool was full fell through into a drain
+  instead of returning to wait, bypassing the pool cap.
+- Identical text sent twice was silently suppressed as a duplicate. Ingress
+  de-duplication now keys only on an explicit source id, so resending a message
+  always gets an answer.
+- A Feishu channel could reply twice while a CLI client was pulling the same
+  session.
+- A pi worker was torn down and rebuilt when its settings file merely failed to
+  *read* — a transient error was treated as "not configured".
+- A failed Grok availability probe reported a login problem regardless of the
+  real cause.
+- A partition that threw lost the error message on the way to the log.
+- Job results went nowhere when the job had no explicit audience; the owner is
+  now the default, and a job can no longer disappear without a trace.
+- Two log lines that restated a record already on disk, and a housekeeping
+  warning that fired once per orphaned key instead of reporting a count.
+
 ## [v0.7.1] - 2026-08-18
 
 Grok joins Claude and Codex as a third agent runtime, so a session can now run

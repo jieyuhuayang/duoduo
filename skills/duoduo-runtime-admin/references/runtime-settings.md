@@ -45,11 +45,35 @@ binary or env from your shell.
 - `ALADUO_LOG_RUNNER_THOUGHT_CHUNKS`
 - `ALADUO_LOG_SESSION_LIFECYCLE`
 - `ALADUO_TELEMETRY_ENABLED`
+- `ALADUO_LOG_RUNNER_TOOL_EVENTS`: off by default. When off, the daemon log does
+  not carry a line per `tool_use` / `tool_result`. **This is not a loss of the
+  record** — the Spine already stores both as `agent.tool_use` /
+  `agent.tool_result` with more detail than the log line had (the tool input and
+  the result summary). Read them with `duoduo spine cat` / `duoduo spine show`,
+  which also folds each call and its result into one entry. Turn the flag on only
+  to see `ephemeral` tool calls, which are the one shape the Spine skips.
+- `ALADUO_LOG_LATENCY_STAGES`: off by default. Turns on eight `[telemetry]` stage
+  lines tracing one message across components: `ingress_received`,
+  `mailbox_enqueued`, `drain_started`, `sdk_start`, `sdk_first_token`, `sdk_end`,
+  `outbox_written`, `delivered`. Nothing persists these — the log is their only
+  sink — so turn it on for a measurement window and off again. Per-drain timings
+  are persisted separately and read with the `usage.get` RPC (`perf` block); they
+  cover the inside of a drain rather than these cross-component hops.
 - `ALADUO_CADENCE_INTERVAL_MS`
-- `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, or `grok`): global fallback for actors
-  without a more-specific runtime declaration. Use a channel kind descriptor
-  when only one surface should change. `grok` here is a hard failure if the
-  CLI is missing — unlike `codex`, which still falls back to Claude.
+- `ALADUO_SPINE_INDEX_RETENTION_DAYS`: positive integer, default `7`. At daemon
+  boot, the derived by-id index drops rows older than `today UTC - N`; the Spine
+  WAL partitions are untouched. A larger value keeps more bare-id lookups in
+  memory. A smaller value makes older runtime lookups scan from their known date
+  and makes more old bare-id `duoduo spine show` calls fall back to a full scan.
+  `--date` narrows that scan. Verify the
+  effective cutoff in the boot log's `spine by-id index retention` line.
+- `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`): global fallback
+  for actors without a more-specific runtime declaration. Use a channel kind
+  descriptor when only one surface should change. `grok` here is a hard failure
+  if the CLI is missing — unlike `codex`, which still falls back to Claude.
+  `pi` never lacks an install (it ships inside duoduo), but a pi session with
+  no model pointer is the same hard-failure posture: an actionable error,
+  never a silent Claude run. See [pi-runtime.md](pi-runtime.md).
 - `ALADUO_CODEX_SANDBOX` (codex is auto-detected from v0.5; there is
   no enable flag. See [codex-runtime.md](codex-runtime.md).)
 - `CLAUDE_CODE_EXECUTABLE`: explicit Claude Code runtime override for
@@ -89,13 +113,10 @@ These gate not-yet-default capabilities. All default OFF; set them in
 `~/.config/duoduo/.env` only when you intend to run the experiment. They are
 **not** standard tuning knobs.
 
-- `ALADUO_EXP_FEISHU_CARD_FOOTER`: render a one-line ops footer
-  (`elapsed · tokens · cost`, or `elapsed · N steps` on a Codex turn) on the
-  finalized Feishu streaming card. **Read by the Feishu channel process, not
-  the daemon** — after setting it, restart the channel
-  (`duoduo channel feishu stop && duoduo channel feishu start`), a daemon
-  restart alone does not pick it up. Confirm it landed with
-  `ps eww <feishu-pid> | tr ' ' '\n' | grep ALADUO_EXP_FEISHU_CARD_FOOTER`.
+- The Feishu card footer and the Feishu process card are not flags. The
+  footer is always on; the process card is chosen per channel by
+  `feishu.process_card` in the channel config (see the channel-admin skill's
+  `references/feishu.md`).
 - `ALADUO_EXP_MEMORY_CHECK`: run the mechanical memory lint (board/entity/node
   measure + orphan/island notify) as a pre-step on every cadence tick. It only
   ever writes slug-named `.pending` notes into partition inboxes — reversible,
@@ -115,12 +136,13 @@ and `reclaim` handles the destructive orphan-deletion lifecycle
 
 > **Version coupling — refresh the subconscious before enabling the MEMORY
 > flags.** The lint emits `.pending` notes whose format is parsed by the
-> subconscious partition prompts (pattern-tracker / memory-weaver). They are
+> subconscious partition prompts (gradient-distiller / intuition-weaver /
+> pattern-tracker). They are
 > version-coupled: an older partition set will mis-parse or ignore a newer
 > lint's signals. Before turning on `ALADUO_EXP_MEMORY_CHECK` /
 > `ALADUO_EXP_MEMORY_FORGET`, refresh this host's subconscious partitions to
 > the matching duoduo tag (see the subconscious-refresh reference under this
-> skill). The Feishu footer flag has no such dependency.
+> skill).
 
 Confirm any of these landed with `duoduo daemon status`, which now reports the
 `memory_check` flag state (and cadence / subconscious progress) — the reliable

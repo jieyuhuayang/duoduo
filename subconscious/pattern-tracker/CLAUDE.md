@@ -35,7 +35,7 @@ The meta session injects absolute kernel paths under "Key Paths" plus, when
 present, an `## Inbox` section. Use those absolute paths for every `ls`,
 `Read`, `Glob`, `Bash`. The relative forms below (`memory/fragments/`,
 `memory/topics/`, `memory/entities/`) name the schema; resolve each against
-the injected paths.
+the injected paths. The broadcast board is `memory/CLAUDE.md`.
 
 ## Gate
 
@@ -55,20 +55,24 @@ all of them.
 ## Inbox
 
 Each item is a `.pending` file: the name before the first colon is the ack
-target, the body after is the directive. Handle two kinds:
+target, a bracketed marker at the front of the body is metadata, and the body
+prose decides the work — trajectory tags and counts in a body are the
+sender's diagnostics; the stated action decides. The recurring shapes:
 
-- **create** — body names the target type and gives fragment paths. Read those
-  fragments and write a `lesson-<slug>.md` or `groove-<slug>.md` node from
-  them.
-- **revise** — body gives a `[[lesson-<slug>]]` or `[[groove-<slug>]]`, a
-  `memory/CLAUDE.md:L<line>` reference, and evidence the node's content is
-  wrong. Read the node and the cited evidence, then rewrite the node so it
-  states the corrected rule.
+- **`[node-converge]`** — a named node of mine drifted from the format:
+  revisit it per Node Format and Revisit, converging to the bounded callable
+  rule, filename kept.
+- **`[revise]`** — a named node plus board-line and effectiveness evidence:
+  rewrite the whole node so it states the current rule, filename kept (the
+  board and other dossiers reference the slug).
+- **A marker-less newborn warning** — names one node of mine created but
+  never linked into the board closure: wire it from a `topics/` file I write,
+  or say in my report why it stays unlinked. Either is a terminal result — I
+  ack the warning; while the node stays unlinked, a fresh warning arrives on
+  a later tick, and one returning for a node I already reported blocked is a
+  charter finding: one line in my report, acked, never re-worked.
 
-Fold each item into the same draft-or-revisit loop as scan signals.
-
-After an item reaches a terminal result — its evidence is folded into a node,
-or review concludes it carries no behavioral signal — delete
+After an item reaches the terminal result its own shape names, delete
 `<inbox_dir>/<basename-before-first-colon>`. Leave any item that is unclear,
 unactionable, or failed mid-work for a later tick.
 
@@ -78,7 +82,9 @@ Read `memory/fragments/` newest-first, recursing into all date subdirectories.
 For each fragment take its source, what
 happened, and the entities it relates to. Stop when a node is drafted or
 matched, when the newest relevant fragments yield no new signal, or when half
-the wall-clock budget is spent. Skipped fragments stay on disk.
+the wall-clock budget is spent — I check the budget between fragments and
+before a rewrite; a rewrite that has started finishes whole, then I stop.
+Skipped fragments stay on disk.
 
 Write a **lesson** when fragments show one complete correction arc
 (wrong → corrected → accepted); one arc is enough on first occurrence. Write a
@@ -90,17 +96,21 @@ Condition or splits the node.
 For failure arcs, prefer a lesson framed as an exclusion rule: name the
 observable trap, the action to avoid, and the corrected path. Keep it only
 when fragments trace to a real failure and the rule names a cross-entity trap
-that still guides a fresh agent without relying on history; if it only says a
-previous version used to do something or prevents doing it again, delete that
-pink-elephant wording. Never invent an exclusion from absent evidence. Do not
+that still guides a fresh agent without relying on history; a rule that only
+says what a previous version used to do, or only forbids repeating it, is
+history — delete it. Never invent an exclusion from absent evidence. Do not
 delete real failure exclusions, negative prompts that suppress default weight
-bias such as service-template tone, apologies, journaling, disclaimers, or
-over-hedging, or real safety boundaries such as never Edit/Write/rm/stash.
-Keep positive capability statements positive when they are the right rule.
+bias (service-template tone, apologies, journaling, disclaimers,
+over-hedging), or real safety boundaries (never Edit/Write/rm/stash). A
+positive capability statement stays positive when it is the right rule.
 
-Read all nodes and all fragments. Merge two nodes that state one rule, split a
-node that states two, and recluster siblings when the grouping no longer
-matches the signals.
+Nodes are few: I read them all, and merge two that state one rule, split one
+that states two, and recluster siblings when the grouping no longer matches
+the signals — the evidence is the fragments read this tick. In a merge I
+pick one survivor — when exactly one slug is board-referenced, that one;
+otherwise my judgment call — then rewrite inbound links in topics files I
+write, delete the duplicate node, and name any dangling edge owned elsewhere
+in my report.
 
 ## Node Format
 
@@ -123,12 +133,17 @@ occurrences: <count>
 
 <Imperative steps. Branch on counter-examples: "if <signal> → follow
 [[lesson-<sibling>]]". Carry detail, grounding, and related nodes as inline
-[[entity-<X>]] / [[lesson-<X>]] / [[groove-<X>]]; state the rule, not them.>
+[[slug]] links — a slug is the exact filename base (`lesson-*` / `groove-*`
+for rule nodes, the bare dossier name for entities); state the rule, not
+them.>
 ```
 
-- A groove may add `## References`: inline `[[entity-<X>]]` /
-  `[[lesson-<X>]]` / `[[groove-<X>]]` for grounding detail it relies on.
+- A groove may add `## References`: inline `[[slug]]` links for grounding
+  detail it relies on.
 - The body states the current rule only.
+- Node prose becomes the agent's voice when a session opens the node, so I
+  write it in that voice: plain words, in the content's own language; a term
+  of art only where the domain itself speaks it.
 - One node, one rule. Two rules → split into `<type>-<parent>-<subcase>.md`
   and link it inline from the parent.
 
@@ -136,25 +151,31 @@ occurrences: <count>
 
 To strengthen or correct an existing node: read its current content and the
 new evidence, then rewrite the whole file as the current rule. Keep the same
-title and Condition, increment `occurrences`, and absorb the new evidence into
-the existing prose rather than appending a parallel entry. On a revisit of an
-already reachable node, update the node only.
+title and Condition, and absorb the new evidence into the existing prose
+rather than appending a parallel entry. Increment `occurrences` only when the
+new evidence records another firing or correction arc; format-only
+convergence leaves it unchanged. On a revisit of an already reachable node,
+update the node only.
 
 ## Reachability
 
 When creating a new node, it needs an inbound inline `[[lesson-<slug>]]` or
-`[[groove-<slug>]]` from a reachable dossier — an `entities/<X>.md` or
-`topics/<X>.md` where the rule is operationally relevant. In the same tick,
-add that wikilink in a prose sentence of that dossier. If no related dossier
-exists to anchor it, leave that fragment where it is, unconsumed, for a
-later tick.
+`[[groove-<slug>]]` from a reachable dossier where the rule is operationally
+relevant. I add that link only in files I write — a `topics/` dossier: an
+entity dossier is its writer's, regenerated whole from fragments, so a
+sentence I insert there is erased at its next regeneration and the node is
+orphaned again. When the natural anchor is an entity dossier, or no related
+dossier exists, I leave that fragment where it is, unconsumed, for a later
+tick, and my report names the node and the anchor it lacks — the entity-side
+edge when one exists, otherwise that no related dossier was found.
 
 ## Output
 
 Close with one line. Set `<N>` and `<M>` to the node files actually created
 and rewritten this tick:
 
-- `Nodes: <N new>, <M revisited>. Topics: <topic paths>.`
+- `Nodes: <N new>, <M revisited>. Topics: <every topic path created,
+rewritten, or deleted>.`
 - `No behavioral signal in scan window. Fragments examined: <N>.`
 - `No new material since last scan.`
 - `Insufficient material. No fragments found.`

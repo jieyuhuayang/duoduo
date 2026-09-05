@@ -1,21 +1,20 @@
-# Slash Commands (`/compact`, `/undo`)
+# Slash Commands (`/compact`)
 
-Reference for the chat-level history controls that landed in v0.5.2.
-Load this when the user asks about compacting a long conversation,
-undoing the last turn, or these commands appearing not to work.
+Reference for chat-level history control. Load this when the user
+asks about compacting a long conversation, or about the command
+appearing not to work.
 
 ## Commands
 
-Both commands are user-typed text in a channel session (Feishu DM,
-stdio CLI, ACP editor — anywhere a session accepts messages). They
-flow through the same spine → mailbox → drain pipeline as normal
-messages, so the user gets a regular text reply when the command
-finishes.
+`/compact` is user-typed text in a channel session (Feishu DM, stdio
+CLI, ACP editor — anywhere a session accepts messages). It flows
+through the same spine → mailbox → drain pipeline as normal messages,
+so the user gets a regular text reply when the command finishes.
 
 ### `/compact`
 
 Compacts the conversation history in place. Keeps the same session
-id; both runtimes shrink the context window by summarizing earlier
+id; every runtime shrinks the context window by summarizing earlier
 turns into a single compact boundary.
 
 - **Claude runtime**: emits a `compact_boundary` system message; the
@@ -25,28 +24,13 @@ turns into a single compact boundary.
   is silent (no channel ack), same as Claude.
 - **Codex runtime**: calls `thread/compact/start` natively; the
   session continues with the same `threadId`.
+- **Pi runtime**: compacts in place through pi's own compaction; the
+  session id does not change. Pi also keeps its native threshold
+  compaction on (inherited from the user's pi settings) — the two
+  layers coexist; see the smart-compaction skill.
 
 User-visible reply: a short confirmation that compaction happened.
 The next turn the user sends will run against the compacted history.
-
-### `/undo` and `/undo N`
-
-Removes the last `N` exchanges from the conversation. Defaults to
-`/undo 1` if no number is given.
-
-- **Codex runtime**: synchronous — calls `thread/rollback` inside the
-  drain that processed the `/undo` message.
-- **Claude runtime**: deferred — sets a `pending_undo` state field;
-  the actual `forkSession` call happens on the next user-message
-  turn. From the user's perspective this is invisible: they type
-  `/undo`, get a confirmation, then type their next message and the
-  reply reflects the rolled-back state.
-
-The deferred behavior on Claude is intentional. Claude has no
-in-place rewind primitive; using `forkSession` immediately would
-produce a fresh `sdk_session_id` that needs to be written from
-outside the normal turn-finalize path. Deferring keeps the
-"`sdk_session_id` is written only by a real turn" invariant intact.
 
 ## What to tell the user when something looks off
 
@@ -63,16 +47,10 @@ session could still hit `too_many_total_tokens`. That is fixed in
 subprocess). If a heavy Claude session still climbs in tokens after
 `/compact`, confirm it is on v0.5.5+.
 
-**"`/undo` on Claude didn't seem to roll back."** — The rollback
-materializes on the *next* user message. If the user types `/undo`
-and then immediately reads `duoduo session list`, they will see the
-pending_undo flag still set; it clears when the next real turn
-finalizes. This is the deferred-fork design, not a bug.
-
-**"The reply landed in the wrong session."** — Both commands route
+**"The reply landed in the wrong session."** — `/compact` routes
 through the same channel mailbox as normal messages, so if a Feishu
-DM is bound to session A, `/compact` and `/undo` apply to A. If the
-user expected B, the channel is on the wrong binding — that is a
+DM is bound to session A, `/compact` applies to A. If the user
+expected B, the channel is on the wrong binding — that is a
 channel-binding question, not a slash-command question.
 
 **Feishu groups + `/compact`**: in a multi-principal group, `/compact`
@@ -82,17 +60,15 @@ next message arrives.
 
 ## Cross-runtime cheat sheet
 
-| Behavior | Claude | Grok | Codex |
-| --- | --- | --- | --- |
-| `/compact` execution | inline, SDK-side | `_x.ai/compact_conversation` | inline, `thread/compact/start` |
-| `/compact` session id change | none (`sdk_session_id` unchanged) | none (ACP id unchanged) | none (`threadId` unchanged) |
-| `/undo` execution | deferred to next turn (`pending_undo`) | `_x.ai/rewind/points` then `rewind/execute` | inline, `thread/rollback` |
-| `/undo` session id change | new `sdk_session_id` on next turn | none | none (same `threadId`) |
+| Behavior | Claude | Grok | Codex | Pi |
+| --- | --- | --- | --- | --- |
+| `/compact` execution | inline, SDK-side | `_x.ai/compact_conversation` | inline, `thread/compact/start` | in place, pi-native compaction |
+| `/compact` session id change | none (`sdk_session_id` unchanged) | none (ACP id unchanged) | none (`threadId` unchanged) | none |
 
 ## Design rationale
 
 See `docs/design/conversation-history-controls.md` in the source
-repo for the full architectural decisions (Qa-Qe). The short version:
+repo for the full architectural decisions. The short version:
 spine + mailbox is aladuo's only control plane, so slash commands
 must flow through it like any other channel input — no second queue.
 
@@ -101,7 +77,7 @@ must flow through it like any other channel input — no second queue.
 `/reset` is an alias for `/clear`. Both drop the session's agent memory:
 the next message starts a fresh agent session with a new `sdk_session_id`.
 These are gateway commands (interrupt-now, different runtime path from
-`/compact` / `/undo` above).
+`/compact` above).
 
 As of **v0.5.5**, the fresh session's first turn carries a one-time notice
 telling it that it was reset — start fresh, do not resume the prior
@@ -113,6 +89,15 @@ deliberately does not spell out a path). The notice is runtime-neutral and
 fires once. If the user's first post-reset message is itself a slash
 command, the notice holds back to the next normal message (slash-prefixed
 input skips runtime-context injection by design).
+
+- **Pi and grok runtimes**: `/clear` also recycles the session's runtime
+  process. Both hold the conversation where clearing the stored id cannot
+  reach it — pi keeps it in the worker's memory, grok caches its session id
+  inside the live client — so without the recycle the next message would
+  continue pre-clear history while the session reported itself as fresh.
+  Expect the message after a `/clear` to pay one process start.
+- **Claude and codex**: no recycle, and none is needed — both address the
+  conversation by the stored id, which is re-read on the next turn.
 
 ## `/model` (model switching)
 
@@ -133,10 +118,19 @@ Switch the model for the current session without restarting anything.
   shows the stored override only). A switch takes effect from the next
   message via an internal thread fork — the model is applied without
   visible disruption.
+- **Pi runtime**: store-only. The id must be the `provider/modelId`
+  form (with the slash) — a bare id is rejected up front rather than
+  guessing the provider. The stored value applies from the next
+  message, when the session's worker process is rebuilt with it.
+  `/model reset` clears the override, but a pi session still needs
+  SOME model source afterwards (job frontmatter, kind/instance
+  config); with none, the next message fails with an actionable
+  error instead of running on a default.
 - **Unknown model id**: accepted and stored. If the id is invalid, the
   next turn will report the error. Run `/model reset` to recover.
 - **Validation**: a model id may not contain spaces. Any other string
-  is accepted; the runtime is the authority on whether it is valid.
+  is accepted (on pi it must also carry the `provider/` prefix); the
+  runtime is the authority on whether it is valid.
 
 Read [model-switching.md](model-switching.md) for the full reference.
 
@@ -163,12 +157,16 @@ chit-chat.
   `(runtime default)`).
 - **Codex runtime**: a switch takes effect from the **next message**.
   The no-arg view notes this.
+- **Pi runtime**: a switch takes effect from the **next message** —
+  the stored level rides the session's worker rebuild, and the four
+  levels map 1:1 onto pi's native thinking levels.
 - **`/effort reset`**: clears the override and returns to the runtime
-  default — applied live on Claude, from the next message on Codex.
+  default — applied live on Claude, from the next message on Codex
+  and Pi.
 - **Survives a `/model` runtime flip**: the four levels are valid on
-  both runtimes, so switching a session between Claude and Codex with
-  `/model` keeps the effort setting in effect — it is never stranded
-  or reset by the runtime change.
+  every runtime, so switching a session's runtime with `/model` keeps
+  the effort setting in effect — it is never stranded or reset by the
+  runtime change.
 
 ## When this skill does NOT apply
 

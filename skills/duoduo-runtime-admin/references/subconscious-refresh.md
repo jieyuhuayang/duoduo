@@ -33,38 +33,25 @@ Do not run this for:
 - Editing partition prompts locally — that is a normal text edit
   plus `git commit` inside the kernel; no skill needed.
 
-## Partition Status (as of v0.5.6)
+## Shipped Partitions
 
-The 6 partitions shipped under `bootstrap/subconscious/` are:
+The 4 partitions shipped under `bootstrap/subconscious/` are:
 
 | Partition | enabled | Role |
 | --- | --- | --- |
-| `cadence-executor` | yes | Processes the cadence inbox queue; idles when empty. |
+| `gradient-distiller` | yes | Scan half of the gradient pipeline: dreams over one bounded day of the event log per `scan-gap` signal and distills line-referenced memory fragments. |
+| `intuition-weaver` | yes | Settle half: folds accumulated fragments into the intuition board and works the board / entity / orphan lint debt. |
 | `memory-committer` | yes | Commits memory/subconscious/config evolution to git. |
-| `memory-weaver` | yes | Orchestrates spine-scanner / entity-crystallizer / intuition-updater. |
 | `pattern-tracker` | yes | Detects behavioral patterns from fragments and writes `pattern-*.md` topics. |
-| `opportunity-scout` | **no** (retired 2026-05-13) | Inert; partition prompt kept as design archaeology. |
-| `working-memory` | **no** (retired 2026-05-14) | Inert; the `@priority.md` broadcast pathway was retired after empirical verification that the directive never inlined from `additionalDirectories`. |
 
-After a refresh that pulls v0.5.2 (or later), users should expect
-`opportunity-scout` and `working-memory` to remain unchecked in
-`playlist.md`. The meta-session scheduler auto-skips disabled
-partitions and advances past them on the next tick.
+A host upgraded from an earlier version may also carry partition
+directories that no longer ship; daemon init retires those
+automatically (disabled + marker, never deleted). See the upgrade
+playbook in `duoduo-admin` → `references/upgrade-playbook.md`.
 
-The v0.5.3 release refreshes the active subconscious prompts around
-evidence discipline, recall discipline, and convergence of recurring
-patterns. This affects the shipped prompt files under `subconscious/`
-only after the operator explicitly refreshes from the public tag.
-
-The v0.5.2 release also lands the GraphSkill consumer contract in
-`bootstrap/meta-prompt.md` (foreground sessions are now taught to
-follow `[[wikilinks]]`, interpret modal tags `[observation]` /
-`[inference]` / `[instruction]` / `[conditional]` /
-`[hypothesis (unratified)]` / `[superseded]`, and probe
-`memory/topics/pattern-*<chore>*.md` before recurring chore-class
-operations). Meta-prompt lives in the npm package's `bootstrap/`
-directory and is read at runtime — no `subconscious/` refresh
-needed for it to take effect.
+The meta-prompt lives in the npm package's `bootstrap/` directory and
+is read at runtime — no `subconscious/` refresh is needed for
+meta-prompt changes to take effect.
 
 ## Preconditions
 
@@ -139,17 +126,20 @@ Once the user has approved:
    A partition `CLAUDE.md`'s YAML frontmatter mixes two ownerships:
    `schedule:` keys (`enabled` / `cooldown_ticks` / `max_duration_ms`) are
    **user-tuned cost config** — they directly set how often the partition
-   spends money — while the prompt body and the `contract:` block are
-   code-owned and must follow upstream. A blind wholesale `cp` of a
+   spends money — and the optional `runtime:` / `model:` / `effort:` keys
+   are host-side tuning in the same ownership class (`effort` needs duoduo
+   0.8.0+ and applies on the Claude runtime only) — while the prompt body
+   and the `contract:` block are code-owned and must follow upstream. A blind wholesale `cp` of a
    partition `CLAUDE.md` silently reverts the user's cooldown tuning to
    the upstream baseline.
 
    So for each partition `CLAUDE.md` that exists on BOTH sides: take the
    upstream file, but if the local file's `schedule:` values differ from
    the upstream defaults (the user tuned them), re-apply the local
-   `schedule:` keys onto the upstream frontmatter before writing. Body and
-   `contract:` always come from upstream; `schedule:` keys the user tuned
-   are preserved. Show the user which schedule values were preserved.
+   `schedule:` keys — and any local `runtime:` / `model:` / `effort:` keys —
+   onto the upstream frontmatter before writing. Body and `contract:`
+   always come from upstream; keys the user tuned are preserved. Show the
+   user which values were preserved.
 
 2. Commit the result inside the kernel git repo:
 

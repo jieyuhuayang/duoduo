@@ -50,16 +50,16 @@ operator identity). Read the matrix top-to-bottom; the first match wins.
 | chatType | configured? | descriptor        | operator           | behavior                                                        |
 | -------- | ----------- | ----------------- | ------------------ | --------------------------------------------------------------- |
 | group    | no          | —                 | any allowlisted    | full setup card; ⌂ workspace-root option shown AND pre-selected as the default project |
-| group    | yes         | v0.5 (bound_by)   | bound_by           | compact rebind card (mention toggle only)                       |
-| group    | yes         | v0.5 (bound_by)   | other              | plain-text refusal                                              |
-| group    | yes         | pre-v0.5 (no bound_by) | allowlisted     | compact rebind card                                             |
-| group    | yes         | pre-v0.5          | not allowlisted    | plain-text refusal                                              |
+| group    | yes         | bound_by present  | bound_by           | compact rebind card (mention toggle only)                       |
+| group    | yes         | bound_by present  | other              | plain-text refusal                                              |
+| group    | yes         | no bound_by       | allowlisted        | compact rebind card                                             |
+| group    | yes         | no bound_by       | not allowlisted    | plain-text refusal                                              |
 | p2p      | no          | —                 | owner (or zero-config) | auto-spawn to defaultWorkDir (main session; see below)       |
 | p2p      | no          | —                 | non-owner          | setup card (no ⌂)                                              |
-| p2p      | yes         | v0.5 bound_by==owner | owner           | plain-text refusal — "main session is locked"                   |
-| p2p      | yes         | v0.5 bound_by≠owner | owner            | setup card (no ⌂) — descriptor drifted, let owner reassign      |
-| p2p      | yes         | v0.5 bound_by     | non-owner          | setup card (no ⌂) — secondary DM flow                           |
-| p2p      | yes         | pre-v0.5 (no bound_by) | any            | setup card (no ⌂) — legacy compatibility                        |
+| p2p      | yes         | bound_by==owner   | owner              | plain-text refusal — "main session is locked"                   |
+| p2p      | yes         | bound_by≠owner   | owner              | setup card (no ⌂) — descriptor drifted, let owner reassign      |
+| p2p      | yes         | bound_by present  | non-owner          | setup card (no ⌂) — secondary DM flow                           |
+| p2p      | yes         | no bound_by       | any                | setup card (no ⌂) — re-setup allowed                        |
 
 The **⌂** ("workspace root") dropdown entry:
 
@@ -86,6 +86,11 @@ The bot owner's DM is the **zero-prerequisite control surface**:
 - Setup cards only show runtimes that the daemon currently reports as
   available. If Codex is missing after `codex login`, restart the daemon
   so it re-probes runtime availability.
+- **Pi is always listed, and "available" is not "ready".** Pi is
+  embedded, so it never fails a probe — but it has no default model, and
+  a pi session refuses every message until one is set. The bind
+  confirmation carries the next step (`/model <provider>/<modelId>`);
+  see [pi-runtime.md](../../duoduo-runtime-admin/references/pi-runtime.md).
 - Owner is resolved from `cfg.botOwnerOpenId`:
   `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → undefined.
 - When undefined (zero-config), ANY first DM sender triggers auto-spawn
@@ -108,7 +113,7 @@ FEISHU_BOT_OWNER=ou_yourOpenId       # explicit owner — locks main session
 FEISHU_ALLOW_FROM=ou_you,ou_friend,… # additional DMs allowed as secondary
 FEISHU_DM_POLICY=allowlist           # refuse DMs from users not in ALLOW_FROM
 FEISHU_GROUP_POLICY=allowlist        # same for groups (see FEISHU_ALLOW_GROUPS)
-FEISHU_GROUP_CMD_USERS=ou_you,…      # lets pre-v0.5 groups keep /setup access
+FEISHU_GROUP_CMD_USERS=ou_you,…      # grants /setup in groups whose descriptor has no bound_by
 ```
 
 When the user reports "strangers can DM my bot", check `dmPolicy`
@@ -171,21 +176,76 @@ When the agent calls `QueueOutboundAttachment` (MCP tool) with an `.opus`
 file, the gateway uploads it as a voice message bubble that the user can
 play with one tap. Useful for generated voice replies and audio summaries.
 
-## Card footer (experiment, v0.5.5)
+## Card footer
 
-Setting `ALADUO_EXP_FEISHU_CARD_FOOTER=1` (default off) adds a one-line ops
-footer to the finalized streaming card: `elapsed · ↑in ↓out · cost` on a
-Claude turn, or `elapsed · N steps` on a Codex turn (Codex token counts are
-thread-cumulative and it reports no cost, so the step count is the only honest
-per-turn figure). The footer only appears when the reply finishes; the
-streaming loading animation during generation is the platform's, unchanged.
+Every finished reply card carries a one-line ops footer:
+`↑in(cache%) ↓out · ctx N · model · $cost`. Segments a runtime does not
+report are simply omitted (a Codex turn has no cost, a compat endpoint may
+have no context figure), so the line just renders shorter. The footer appears
+when the reply finishes; the loading animation during generation is the
+platform's, unchanged. A turn that reports no usage renders no footer. There
+is nothing to configure.
 
-This flag is **read by the Feishu channel process**, not the daemon. Set it in
-`~/.config/duoduo/.env`, then restart the channel
-(`duoduo channel feishu stop && duoduo channel feishu start`) — a daemon
-restart alone will not pick it up. It must also be present in the channel
-package's `envAllowlist` (it is, from v0.5.5). Confirm it reached the process
-with `ps eww <feishu-pid> | tr ' ' '\n' | grep ALADUO_EXP_FEISHU_CARD_FOOTER`.
+## Process card
+
+The process card replaces the streaming card and the per-stage reactions with a
+layout modelled on Feishu's own agent. It is selected per channel by
+`process_card` inside the `feishu:` block of the channel config:
+
+```yaml
+feishu:
+  process_card: replace   # off (default) | replace | keep
+```
+
+- `off` — the streaming card path, unchanged. An absent or unrecognised value
+  means the same thing.
+- `replace` — one card: the process card becomes the answer when the turn ends.
+- `keep` — two cards: the finished process card stays as a trace and the answer
+  arrives as its own result card.
+
+Put it in `config/feishu.md` to set every Feishu channel, or in one instance
+descriptor to override that channel alone; the instance value wins per key. The
+daemon reads both files on every message, so a change takes effect on the next
+message — no channel restart and no daemon restart. Behaviour switches only
+ever go in this block: its contents are handed to the channel with each
+message, so credentials must never be written there.
+
+What a turn looks like with the card on:
+
+- **Reactions per turn: `Get` → `THINKING` → removed.** Nothing else, so the
+  author's phone rings twice per turn instead of once per tool/typing switch.
+- **Process card**, sent as a reply on the first model signal: a collapsed
+  panel titled 「工作中」 plus one status line (「思考中...」 at first). The
+  chat-list preview reads 「工作中」 too. Interim text streams into the status
+  line one line at a time with the typewriter effect; each tool call (raw tool
+  name plus a one-row summary, e.g. `Bash ls -la`) takes the panel title the
+  moment the call starts and stays there until the next call. Every completed
+  line of text and every tool call is archived inside the panel in order, so
+  the expanded panel reads as a timeline. When the turn ends the panel is
+  retitled 「任务已完成」 (「已停止」 after `/cancel`); Skip recalls the card.
+- **The answer.** Under `replace` the process card is replaced in place by the
+  answer when the turn ends (markdown plus the footer); the tool panel is
+  gone, attachments
+  follow the card, and a turn that ends with no text recalls the card.
+  `/cancel` still leaves the 「已停止」 panel. Under `keep` the finished process
+  card (「任务已完成」) stays and the answer arrives as a separate **result
+  card**, so it can be forwarded without the process. A turn with no tool calls
+  and no attachments ends as one card either way.
+- Under `keep` the finished panel holds the interim text but not the answer's
+  lines; the answer lives only in the result card.
+
+Internal drains — a Notify wake, a job result — never get a process card: the
+card belongs to the message a person sent. Their output arrives as plain text
+and leaves a card that is still being written untouched.
+
+The daemon side gained two optional fields on `session.execution`
+(`anchor_event_id`, `is_sidechain`) in the same release; an older daemon still
+works, but a reply may anchor to the newest inbound message instead of the one
+the turn answers when several messages were merged, and subagent tool calls are
+not hidden.
+
+There is no scroll or max-height option on Feishu's collapsible panel; a long
+turn expands to its full step list. This is deliberate.
 
 ## Stale first-time card defense (v0.5)
 
@@ -230,7 +290,7 @@ Operator checklist when configuring `require_mention=false`:
 5. Re-test with a non-@ message in the group
 
 The setup card and rebind card render this hint inline below the
-require_mention checker (v0.5+), and `duoduo channel feishu doctor`
+require_mention checker, and `duoduo channel feishu doctor`
 includes it in the manual checklist. If a user toggles the box but
 group messages still need @, this scope gap is the most likely cause.
 
