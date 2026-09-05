@@ -19,6 +19,13 @@ without entering the session's chat — `duoduo session model <target>
 [<id>|reset]` and `duoduo session effort <target> [<level>|reset]`,
 channel sessions only. See [session-cli.md](session-cli.md).
 
+Fleet path (duoduo 0.8.1+): for a model that should apply to every session of
+a kind or of the whole host, set a **model default** instead of switching
+sessions one at a time. See [model-defaults.md](model-defaults.md). A stored
+`/model` always outranks a default, so nothing on this page changes — but
+`/model` now also names the config layer a session is inheriting from, and
+reports the model that actually served its last turn.
+
 ## Claude Runtime
 
 `/model` with no args shows:
@@ -85,9 +92,15 @@ transparently. From the user's perspective this is invisible.
 
 ## `/model reset`
 
-Clears any stored override and restores the daemon's effective default
-(set by `ALADUO_DEFAULT_RUNTIME` and the channel kind descriptor, or the
-compiled-in baseline if neither is set). Takes effect on the next turn.
+Clears any stored override and restores the session's effective default.
+Takes effect on the next turn.
+
+On 0.8.1+ that default is a `<runtime>.model` config value when any layer sets
+one — the channel's, its kind's, or the host's — and only otherwise the
+daemon's own (set by `ALADUO_DEFAULT_RUNTIME` and the channel kind descriptor,
+or the compiled-in baseline). So "reset" can land on a model an operator chose
+rather than on the runtime's own; `/model` names the layer, and
+[model-defaults.md](model-defaults.md) covers how to change it.
 
 Reset does not mean "unprotected": if a settings file names a profiled
 model, the session goes back to running that model *with* its profile.

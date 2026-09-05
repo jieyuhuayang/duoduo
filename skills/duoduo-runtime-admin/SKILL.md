@@ -144,6 +144,16 @@ from an invalid model id. On Pi, `/model` is store-only and the
 session's worker is rebuilt with the new model on the next message —
 see [references/pi-runtime.md](references/pi-runtime.md).
 
+When the user wants a model for **many** sessions rather than one — every
+session of a channel kind, or the whole host — that is a model default
+(`claude.model` / `codex.model` / `pi.model` / `grok.model`, 0.8.1+), set with
+`duoduo session config` at the global, kind, or instance layer. Read
+[references/model-defaults.md](references/model-defaults.md) for the layers,
+what outranks what, and the two things `/model` now reports: the config layer a
+session inherits from, and the model that actually served its last turn. Reach
+for that file whenever a user says a model "will not stick" or "went back to
+the old one" — the two lines are the diagnosis.
+
 For hosts running third-party models, **model profiles** teach duoduo each
 model's real context window, its endpoint + credentials (per-model routing),
 and subagent tier aliases (Claude runtime only — codex has no profile
