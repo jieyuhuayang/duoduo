@@ -1,11 +1,12 @@
-# Model Defaults (`<runtime>.model`)
+# Model and Effort Defaults (`<runtime>.model`, `<runtime>.effort`)
 
-Use this reference when the user wants a model to apply to **more than one
-session** — every Feishu session, every session on the host, or one channel
-permanently — rather than switching a single running session with `/model`.
+Use this reference when the user wants a model or a reasoning effort to apply to
+**more than one session** — every Feishu session, every session on the host, or
+one channel permanently — rather than switching a single running session with
+`/model` or `/effort`.
 
 Requires duoduo 0.8.1 or newer. On older builds these keys are rejected as
-unknown, and the only model controls are `/model` and job frontmatter.
+unknown, and the only controls are `/model`, `/effort` and job frontmatter.
 
 ## The four keys
 
@@ -113,6 +114,55 @@ lines together are the diagnosis: compare them before changing anything.
 The line is absent for a session that has not completed a turn since the
 feature landed, and absent when the runtime did not report a model.
 
+## The effort keys work the same way
+
+```
+claude.effort     codex.effort     pi.effort     grok.effort
+```
+
+Each names the reasoning effort a session of that runtime runs when nothing
+closer to it names one. Same three layers, same command, same per-key merge, and
+the same problem solved: without them, every duoduo session inherits whatever
+effort the user set for their own interactive work.
+
+```bash
+duoduo session config --global set codex.effort=xhigh
+duoduo session config --kind feishu set claude.effort=high
+duoduo session config --global unset codex.effort
+```
+
+Two differences from the model keys, both deliberate.
+
+**Validation is strict.** The vocabulary is four words — `low`, `medium`,
+`high`, `xhigh` — so anything else is a typo and is refused at the command. A
+model id had to stay open because ids are an open universe; an effort level does
+not, and a silently-wrong level would be rejected on every turn with nothing
+naming the config line that caused it.
+
+**A job may name one, or leave it out.** `model` is required on every job
+because a job without one used to run the user's own harness default. With these
+keys a job without an effort runs duoduo's configured default, which is the
+inheritance the user wants, so the field is optional.
+
+What outranks what, highest first: a session's own `/effort`, then a job's or a
+partition's frontmatter `effort`, then the channel, kind and host-wide
+`<runtime>.effort`, then the runtime's own configuration. `/effort` with no
+argument names the deciding layer the same way `/model` does:
+
+```
+Session effort: (high, from the kind config)
+```
+
+Every runtime applies the value its own way, and none of that changed. Claude
+applies it to the live conversation, Codex on each turn, Grok on the live
+session, and Pi when its worker is built, which means a Pi session picks up a
+change on its next turn rather than mid-turn.
+
+Match the effort to the model tier rather than to the runtime: a top-tier model
+runs `high`, every other model runs `xhigh`. Because the config layers cannot
+know which model a session's own `/model` selected, a session moved to a top
+tier by hand needs `duoduo session effort <target> high` by hand too.
+
 ## Phrasebook — say it like this
 
 - "That sets it for this one session. Want it for every Feishu session? That is
@@ -124,6 +174,10 @@ feature landed, and absent when the runtime did not report a model.
   fresh thread."
 - "Any id without spaces is accepted. If the backend does not serve it, the
   next turn fails and names it — nothing silently falls back."
+- "Effort is the same three layers as the model, but the level has to be one of
+  four words, so a typo is refused right at the command."
+- "Match the effort to the model, not the runtime: top tier runs high, anything
+  else runs xhigh."
 
 ## Relationship to the other model surfaces
 
@@ -132,5 +186,8 @@ feature landed, and absent when the runtime did not report a model.
 | `/model` in chat | one session, now | switching a live conversation |
 | `duoduo session model` | one session, from ops | fixing a session without entering its chat |
 | `<runtime>.model` config | a host, a kind, or a channel | setting a default for many sessions |
+| `/effort` in chat, `duoduo session effort` | one session | changing how long one session reasons |
+| `<runtime>.effort` config | a host, a kind, or a channel | setting an effort default for many sessions |
 | Job frontmatter `model` | one scheduled job | that job needs a specific model |
+| Job frontmatter `effort` | one scheduled job | that job's work differs from the host norm |
 | Model profiles | Claude context window, endpoint, credentials | teaching duoduo a third-party model |
