@@ -1,20 +1,22 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: GROK_AGENT_PROFILE  (minified: dme, daemon.pretty.js:60700)
+// symbol: GROK_AGENT_PROFILE  (minified: dpe, daemon.pretty.js:57858)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var O2, $2, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_ACP_REWIND_POINTS, GROK_ACP_REWIND_EXECUTE, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, C2, nh = $(() => {
+var S2, k2, eQe, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, w2, eh = N(() => {
     "use strict";
-    Zt();
-    ba();
-    Sd();
+    Xc();
+    ft();
+    Ki();
+    dl();
+    eQe = 5e3;
     GROK_DISALLOWED_TOOLS = ["scheduler_create", "scheduler_list", "scheduler_delete", "monitor", "workflow", "update_goal"], GROK_AGENT_PROFILE = {
         name: "duoduo",
         description: "duoduo session",
         disallowedTools: [...GROK_DISALLOWED_TOOLS]
     }, GROK_ACP_EXT_PREFIX = "_x.ai";
-    GROK_ACP_SDK_CALL = grokAcpExtMethod("mcp/sdk_call"), GROK_ACP_COMPACT = grokAcpExtMethod("compact_conversation"), GROK_ACP_REWIND_POINTS = grokAcpExtMethod("rewind/points"), GROK_ACP_REWIND_EXECUTE = grokAcpExtMethod("rewind/execute"), GROK_MCP_SDK_META = "x.ai/mcp/sdk", GROK_MCP_SERVERS_META = "x.ai/mcp/servers", GROK_MCP_SERVER_NAME = "aladuo";
-    C2 = class {
+    GROK_ACP_SDK_CALL = grokAcpExtMethod("mcp/sdk_call"), GROK_ACP_COMPACT = grokAcpExtMethod("compact_conversation"), GROK_MCP_SDK_META = "x.ai/mcp/sdk", GROK_MCP_SERVERS_META = "x.ai/mcp/servers", GROK_MCP_SERVER_NAME = "aladuo";
+    w2 = class {
         onmessage;
         onclose;
         onerror;

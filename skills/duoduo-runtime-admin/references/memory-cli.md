@@ -7,16 +7,17 @@ maintenance via Bash.
 `duoduo memory` is the mechanical (no-LLM) half of memory maintenance.
 It measures the memory tree and routes convergence signals into
 partition inboxes as `.pending` files; the intelligent partitions
-(pattern-tracker / memory-weaver) process those signals on their own
-cadence ticks.
+(gradient-distiller / intuition-weaver / pattern-tracker) process
+those signals on their own cadence ticks.
 
 ## Subcommands
 
 ### `duoduo memory check [--dry-run] [--limit=N] [--json|--plain]`
 
 The default automation path. Runs all the mechanical lints — board, entity,
-node, the orphan island report, **and gap-lint** — and posts the
-worst-finding(s) as `.pending` signals into the relevant partition inboxes.
+node, the orphan reports, **gap-lint**, **fold-lint**, and the broadcast
+budget / broken-pointer lints — and posts the worst-finding(s) as
+`.pending` signals into the relevant partition inboxes.
 
 - `--dry-run`: measure only, no inbox writes. Safe to run at any time.
 - `--limit=N`: how many signals to post per lint class (default 1).
@@ -25,10 +26,17 @@ worst-finding(s) as `.pending` signals into the relevant partition inboxes.
 **gap-lint** is the program half of "gap-driven dreaming": it scans the event
 log against the existing memory fragments, finds a day with events but no
 fragments written for it, and posts a bounded `scan-gap.md.pending` interval to
-the memory-weaver inbox. This replaces the weaver self-selecting what to dream
-about (an unbounded scan that could time out producing zero fragments) with a
-program-computed, one-bounded-day-per-tick target. The `check` output reports a
-`gap:` line — either the chosen day, or `none — all external days dreamt`.
+the gradient-distiller inbox. This replaces the scanner self-selecting what to
+dream about (an unbounded scan that could time out producing zero fragments)
+with a program-computed, one-bounded-day-per-tick target. The `check` output
+reports a `gap:` line — either the chosen day, or
+`none — all external days dreamt`.
+
+**fold-lint** is the settle half's trigger: a 1-bit `fold-gap.md.pending`
+posted to the intuition-weaver inbox whenever some fragment on disk is newer
+than the weaver's last wake — accumulated gradient is waiting to be folded
+into the board. The body deliberately names no slugs or counts; the weaver
+finds the stale lines itself.
 
 This is what the daemon calls automatically on every cadence tick when
 `ALADUO_EXP_MEMORY_CHECK` is enabled (or when the partition `CLAUDE.md`
@@ -54,9 +62,10 @@ an explicit recorded intent so the operation is auditable.
 What it does:
 
 - **Newborn orphans** (recently created, not yet on the board): receive
-  an idempotent warning `.pending` in the weaver inbox.
-- **Islands** (board-unreachable clusters): receive a weaver inbox note
-  summarizing the cluster.
+  an idempotent warning `.pending` in the producing partition's inbox
+  (intuition-weaver or pattern-tracker).
+- **Islands** (board-unreachable clusters): receive an intuition-weaver
+  inbox note summarizing the cluster.
 - **Stale orphans** (board-unreachable, age ≥ 48h, zero inbound links):
   deleted via `git rm`. Git-recoverable from the kernel git history.
 

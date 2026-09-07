@@ -40,6 +40,15 @@ run_bundle() {
   node "$HERE/build_rename.mjs" "$OUT/$name.exports.json" "$INF" "$OUT/rename_$name.json" \
        "$HERE/../maps/vendor_baseline_$name.json"
 
+  # 2b. every RE-inferred name must resolve to function-like code, and match the
+  #     shape recorded at the last trusted release. Renaming is scope-safe, so a
+  #     name pinned to the wrong declaration passes every check below this line;
+  #     this is the only step that can see it (see verify_inferred.mjs header).
+  if [ -f "$HERE/../maps/inferred_$name.json" ]; then
+    node "$HERE/verify_inferred.mjs" check "$BEAUTIFIED/$name.pretty.js" \
+         "$HERE/../maps/inferred_$name.json" "$HERE/../maps/inferred_$name.shape.json"
+  fi
+
   # 3. scope-safe, formatting-preserving rename
   node "$HERE/rename.mjs" "$BEAUTIFIED/$name.pretty.js" "$OUT/rename_$name.json" \
        "$OUT/$name.recon.js" "$OUT/rename_$name.report.json"

@@ -1,52 +1,54 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: sweepTombstonedSessionRecords  (minified: Pot, daemon.pretty.js:78008)
+// symbol: sweepTombstonedSessionRecords  (minified: qlt, daemon.pretty.js:79557)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function sweepTombstonedSessionRecords(e) {
     let t = 0,
         n = 0,
-        r;
+        r = 0,
+        i;
     try {
-        r = await jp(e)
-    } catch (o) {
-        Z("[housekeeping] failed to list outbox records — sweep skipped", {
-            error: o
-        }), r = []
+        i = await m_(e)
+    } catch (s) {
+        J("[housekeeping] failed to list outbox records — sweep skipped", {
+            error: s
+        }), i = []
     }
-    for (let o of r)
-        if (o.status !== "pending" && ws(e, o.session_key)) try {
-            await V_e.unlink(s_(e, o.channel_kind, o.id)), t += 1
-        } catch (s) {
-            s.code !== "ENOENT" && Z("[housekeeping] failed to remove tombstoned outbox record", {
-                sessionKey: o.session_key,
-                recordId: o.id,
-                error: s
-            })
-        }
-    let i = new Set(r.map(o => o.session_key));
-    for (let o of await Nie(e)) i.add(o), !H_e(Fr(e, o)) && !H_e(gp(e, o)) && Z("[housekeeping] replay log decodes to a session key with no active or archived dir — skipping (decode may be lossy)", {
-        sessionKey: o
-    });
-    for (let o of i) {
-        if (!ws(e, o)) continue;
-        let s = tl(e, o);
-        try {
-            await V_e.unlink(s), n += 1
+    for (let s of i)
+        if (s.status !== "pending" && ws(e, s.session_key)) try {
+            await lwe.unlink(p_(e, s.channel_kind, s.id)), t += 1
         } catch (a) {
-            a.code !== "ENOENT" && Z("[housekeeping] failed to remove tombstoned replay log", {
-                sessionKey: o,
+            a.code !== "ENOENT" && J("[housekeeping] failed to remove tombstoned outbox record", {
+                sessionKey: s.session_key,
+                recordId: s.id,
                 error: a
             })
         }
+    let o = new Set(i.map(s => s.session_key));
+    for (let s of await Zoe(e)) o.add(s), !awe(Yn(e, s)) && !awe($p(e, s)) && (r += 1);
+    for (let s of o) {
+        if (!ws(e, s)) continue;
+        let a = Wo(e, s);
+        try {
+            await lwe.unlink(a), n += 1
+        } catch (l) {
+            l.code !== "ENOENT" && J("[housekeeping] failed to remove tombstoned replay log", {
+                sessionKey: s,
+                error: l
+            })
+        }
     }
-    return t > 0 || n > 0 ? K("[housekeeping] swept tombstoned-session records", {
+    return t > 0 || n > 0 ? Q("[housekeeping] swept tombstoned-session records", {
         outboxRemoved: t,
-        replayLogsRemoved: n
-    }) : Ae("[housekeeping] no tombstoned-session records to sweep", {
-        replayDir: _0(e)
+        replayLogsRemoved: n,
+        replayLogsWithoutSessionDir: r
+    }) : ke("[housekeeping] no tombstoned-session records to sweep", {
+        replayDir: ZE(e),
+        replayLogsWithoutSessionDir: r
     }), {
         outboxRemoved: t,
-        replayLogsRemoved: n
+        replayLogsRemoved: n,
+        replayLogsWithoutSessionDir: r
     }
 }

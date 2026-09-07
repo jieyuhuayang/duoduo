@@ -1,106 +1,99 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: Lhe, daemon.pretty.js:63657)
+// symbol: buildTransientUserBlocks  (minified: Xye, daemon.pretty.js:65062)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function buildTransientUserBlocks(e, t, n) {
     let r = {
-            gatewayNotice: t.gatewayNotice,
-            interruptedContext: t.interruptedContext,
-            skipRewind: t.skipRewind
-        },
-        i = {
-            gatewayNoticeInjected: !1,
-            interruptedContextInjected: !1,
-            skipRewindInjected: !1,
-            timeGapInjected: !1,
-            jobTickInjected: !1,
-            daemonRestartHintInjected: !1,
-            compactNoticeInjected: !1,
-            boardUpdatedInjected: !1
-        };
+        gatewayNoticeInjected: !1,
+        interruptedContextInjected: !1,
+        skipRewindInjected: !1,
+        timeGapInjected: !1,
+        jobTickInjected: !1,
+        daemonRestartHintInjected: !1,
+        compactNoticeInjected: !1,
+        boardUpdatedInjected: !1
+    };
     if (e.trimStart().startsWith("/")) return {
         blocks: [{
             type: "text",
             text: e,
             tag: "user-input"
         }],
-        ...i,
-        captured: r
+        ...r
     };
-    let o = [],
+    let i = [],
+        o = !1,
         s = !1,
         a = !1,
         l = !1,
         u = !1,
         c = !1,
         d = !1,
-        p = !1,
-        f = !1;
-    if (t.daemonRestartHint && (o.push({
+        p = !1;
+    if (t.daemonRestartHint && (i.push({
             type: "text",
             text: renderDaemonRestartHint(t.daemonRestartHint.startedAt, getPendingRestartReason()),
             tag: "daemon-restart-hint"
-        }), d = !0), t.compactNotice && (o.push({
+        }), c = !0), t.compactNotice && (i.push({
             type: "text",
-            text: bet(t.compactNotice),
+            text: Krt(t.compactNotice),
             tag: "smart-compact-notice"
-        }), p = !0), t.gatewayNotice) {
-        let v = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
+        }), d = !0), t.gatewayNotice) {
+        let w = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
 `);
-        o.push({
+        i.push({
             type: "text",
             text: `<system-reminder>
 
-${v}
+${w}
 
 IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
 
 </system-reminder>`,
             tag: "gateway-notice"
-        }), s = !0
+        }), o = !0
     }
-    let m = vet(t.timeGap);
-    m && (o.push({
+    let f = Yrt(t.timeGap);
+    f && (i.push({
         type: "text",
-        text: m,
+        text: f,
         tag: "time-context"
-    }), u = !0);
-    let y = t.isUserMessage !== !1 ? yet(t.skipRewind) : void 0;
-    y && (o.push({
-        type: "text",
-        text: y,
-        tag: "skip-rewind"
     }), l = !0);
-    let _ = pet(t.interruptedContext);
-    return _ && (o.push({
+    let h = t.isUserMessage !== !1 ? Jrt(t.skipRewind) : void 0;
+    h && (i.push({
+        type: "text",
+        text: h,
+        tag: "skip-rewind"
+    }), a = !0);
+    let g = Brt(t.interruptedContext);
+    return g && (i.push({
         type: "text",
         text: `<interrupted-context>
-${_}
+${g}
 </interrupted-context>`,
         tag: "interrupted-context"
-    }), a = !0), t.jobTick && (o.push({
+    }), s = !0), t.jobTick && (i.push({
         type: "text",
-        text: ket(t.jobTick),
+        text: Qrt(t.jobTick),
         tag: "job-tick"
-    }), c = !0), t.boardUpdated && (o.push({
+    }), u = !0), t.boardUpdated && (i.push({
         type: "text",
-        text: vhe(t.boardUpdated.boardPath),
+        text: Oye(t.boardUpdated.boardPath),
         tag: "board-updated"
-    }), f = !0), o.push({
+    }), p = !0), i.push({
         type: "text",
         text: e,
         tag: "user-input"
     }), {
-        blocks: o,
-        gatewayNoticeInjected: s,
-        interruptedContextInjected: a,
-        skipRewindInjected: l,
-        timeGapInjected: u,
-        jobTickInjected: c,
-        daemonRestartHintInjected: d,
-        compactNoticeInjected: p,
-        boardUpdatedInjected: f,
-        captured: r
+        blocks: i,
+        gatewayNoticeInjected: o,
+        interruptedContextInjected: s,
+        skipRewindInjected: a,
+        timeGapInjected: l,
+        jobTickInjected: u,
+        daemonRestartHintInjected: c,
+        compactNoticeInjected: d,
+        boardUpdatedInjected: p
     }
 }

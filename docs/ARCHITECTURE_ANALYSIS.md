@@ -1,7 +1,7 @@
 # duoduo 项目深度架构分析
 
-> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` **v0.7.1**（npm 运行时）
-> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向锚点；2026-08-20 随上游 v0.7.1 重定向行号锚点，并以隔离实启复核控制面三分面结论）
+> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` **v0.8.0**（npm 运行时）
+> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向锚点；2026-08-20 随上游 v0.7.1 重定向行号锚点，并以隔离实启复核控制面三分面结论；2026-09-05 随上游 v0.8.0 部分复核——新增 daemon 重启 `--wake` 跨会话唤醒与 `duoduo spine cat/show` 只读事件读取入口，pi 加入为第四运行时并复用 Claude 的 job-config 叠加口，`/undo`与 Grok rewind 扩展方法已从代码中移除；本轮**未**对全文逐条重新核实，仅更新下方明确标注 v0.8.0 的段落，详见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 复核状态）
 > 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
 > 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
 >
@@ -195,6 +195,7 @@ subconscious/
 
 - duoduo 内嵌 **Anthropic Claude Code SDK**，并把原生平台二进制作为 npm 可选依赖随包安装。
 - 自 v0.5.3 起 Claude 与 Codex 是对等运行时；**v0.7.1 起 Grok 作为第三个对等运行时加入**，坐在与 Claude/Codex 同一层抽象后面（同样的一进程一会话、duoduo 自有工具可达、mid-turn steering、kind/instance/job/partition prompt 字段）；daemon 启动时探测三者，按可用情况适配。运行时枚举本身在 v0.7.1 也做了一次内部重构：旧版三处独立词法作用域的重复常量数组被合并成唯一权威定义（详见 INTERNALS §8）。
+- **v0.8.0 起 `pi` 作为第四运行时加入，且与另三者有一处本质不同：它不需要用户另装、另登录外部 CLI**。Claude/Codex/Grok 都要求宿主机已装好对应的 CLI 并完成登录，`available_runtimes` 探测失败就不进候选列表；`pi` 反而**无条件**出现在候选列表里（`daemon.pretty.js:57951`），因为它是随 `@openduo/duoduo` 包本身分发的内嵌进程（`dist/release/pi-worker.js`，独立于 `daemon.js`/`cli.js`/`stdio.js`，本文档与 `reconstruction/` 均未覆盖这个新 bundle），凭据来自用户自己的 pi agent 目录（`models.json`/`auth.json`）而非某个"登录了哪个账号"的探测。它复用与 Claude 相同的 job-config 叠加口（新增 `piExtensions`/`piSkills`/`piConfigIssues` 三个键，详见 INTERNALS §1 论点五），`prompt_mode` 语义也与 claude/grok 同组、codex 例外。
 - **Claude 是保守的默认回退**：除非 actor 显式声明 `runtime: codex|grok`（在 descriptor / job frontmatter / 分区 frontmatter 中），或设置 `ALADUO_DEFAULT_RUNTIME=codex|grok`，否则一律落到 Claude。**两个非默认后端的失败模式不对称**：codex 不可用会静默降级回 claude 并打警告日志；grok 不可用**绝不降级**，actor 仍以 `runtime="grok"` 创建，直到该会话真正被 drain 时才抛出定制到 "grok" 的硬错误（`Install the grok CLI, run 'grok login'...`）——这是本轮阅读代码发现的一处 changelog 未明说的实现细节，而非"两个后端对称降级"（详见 INTERNALS §8）。
 - 三种认证来源（onboard 时三选一，均只覆盖 Claude 侧）：
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
@@ -272,7 +273,8 @@ Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信（走只读
 
 **重启与升级的实操要点**（confirmed，`cli.pretty.js`）：
 
-- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，走 `session.notify` RPC 给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`cli.pretty.js:71987`）。
+- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`cli.pretty.js:71987`）。
+  - **v0.8.0 更新（confirmed，代码证据）：`--wake` 投递从"CLI 侧健康检查后另发 RPC"改成"daemon 自己在认领重启原因时投递，durable"。** `--wake` 的目标列表现在随 `-r` 一起编码进同一份 `daemon-restart-reason.json`（新增字段 `wake_targets`），新 daemon 启动时 `claimDaemonRestartReason` 一次性认领后交给新导出 `deliverDaemonRestartWakes`（`daemon.pretty.js:82782`）逐个投递并记 `[pid0] restart wake delivered/refused/failed` 日志；CLI 侧 `restartWakeReport`（`cli.pretty.js`，新导出）据此打印三种回执之一：daemon 已重启则 `wake queued for <target> — delivered by the daemon once it is up`；本次其实没重启则警告 `--wake was dropped`（并给出用 `duoduo session notify` 手动补发的命令）；健康检查超时则提示 `--wake is durable — the daemon delivers it when it finishes booting`。即"CLI 进程等不到重启完成就退出"不再丢失 wake 请求——这是 changelog "reading a restart timeout" 一类措辞的落地机制之一。
 - **v0.7.1 起，从会话内让 agent 重启时若省掉 `-r`，CLI 不再只是警告——直接硬拒绝执行**：`reasonlessRestartRefusal (\$We)` 返回一段 `error: refusing to restart the daemon without --reason...` 并中止调用（`cli.pretty.js:71939-71943`），v0.6.2 时代"预告下个版本会拒绝"的警告已经兑现。它仍靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`cli.pretty.js:65358`）——`ps` 不可用或被 nohup/detach 包过时静默放行不拒绝。
 - `duoduo upgrade [version] [--wake …]` 优于手工两步，且 **v0.7.1 起把升级工作交给一个 detached 子进程**（`isDetachedUpgradeWorker`/`ALADUO_UPGRADE_DETACHED_WORKER` 环境变量标记，`cli.pretty.js:71944-71968`）执行，使升级触发的重启不会连带杀死正在执行升级的那个 CLI 进程本身——这正是 v0.7.0 changelog 承诺"下一版本修复"、v0.7.1 兑现的那个坑（旧版在会话内跑 `duoduo upgrade` 有几率被自己触发的重启杀死）。版本参数仍受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`cli.pretty.js:65429`）——从路径/URL/git 装包不被接受。
 - `duoduo daemon token new [--force]`（**v0.7.1 新增子命令**，帮助文本 `cli.pretty.js:71786`）：生成 `ALADUO_DAEMON_TOKEN`（写入 `~/.config/duoduo/.env`，见下方"控制面"一节），是开启第三个可选、非 loopback、token 网关全权限监听器的前置步骤。

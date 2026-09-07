@@ -1,0 +1,301 @@
+{
+  "source": "daemon.pretty.js",
+  "recorded": "2026-09-07",
+  "shapes": {
+    "createSpineEvent": {
+      "kind": "function",
+      "params": 2,
+      "literals": []
+    },
+    "advanceConsumerWatermark": {
+      "kind": "async function",
+      "params": 4,
+      "literals": []
+    },
+    "transcludeBroadcastBoard": {
+      "kind": "async function",
+      "params": 1,
+      "literals": []
+    },
+    "handleDrainError": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "[duoduo:drain-error] agent turn failed at ",
+        "[runner] failed to append agent.error to spine",
+        "[runner] failed to emit drain-error outbox record",
+        "[runner] idle-compact drain error — spine only, no channel record",
+        "agent.error",
+        "idle-compact",
+        "runner",
+        "session.output"
+      ]
+    },
+    "rehydrateSessionState": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        ".json",
+        "sessions.snapshot.json",
+        "state.json",
+        "utf8"
+      ]
+    },
+    "walkReachableMemory": {
+      "kind": "function",
+      "params": 2,
+      "literals": []
+    },
+    "collectMemoryLinks": {
+      "kind": "function",
+      "params": 1,
+      "literals": []
+    },
+    "resolveMemoryLinkTargets": {
+      "kind": "function",
+      "params": 1,
+      "literals": []
+    },
+    "resolveMemoryDirs": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "CLAUDE.md",
+        "effectiveness",
+        "entities",
+        "topics"
+      ]
+    },
+    "detectOrphanMemory": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "ISLAND",
+        "NEWBORN",
+        "STALE"
+      ]
+    },
+    "enforceContractGate": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "kind-not-consumed",
+        "no-contract",
+        "parse-fail",
+        "partition-absent",
+        "partition-disabled",
+        "self-id-mismatch",
+        "valid"
+      ]
+    },
+    "forgetMemoryEntry": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "--cached",
+        "--diff-filter=D",
+        "--ignore-unmatch",
+        "--name-only",
+        "--quiet",
+        ".git",
+        "STALE",
+        "checkout",
+        "commit",
+        "diff",
+        "index.lock",
+        "memory",
+        "reset",
+        "user.email=aladuo@local",
+        "user.name=aladuo",
+        "utf8"
+      ]
+    },
+    "mergeClaudeToolLists": {
+      "kind": "function",
+      "params": 2,
+      "literals": []
+    },
+    "daemonRestartReasonPath": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "daemon-restart-reason.json"
+      ]
+    },
+    "setPendingRestartReason": {
+      "kind": "function",
+      "params": 1,
+      "literals": []
+    },
+    "renderDaemonRestartHint": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " (requested ",
+        " Restart reason, given by the caller: ",
+        "[system] You're running under a new daemon process (started "
+      ]
+    },
+    "atomicAppendEvent": {
+      "kind": "async function",
+      "params": 2,
+      "literals": []
+    },
+    "atomicWriteFileSync": {
+      "kind": "async function",
+      "params": 3,
+      "literals": []
+    },
+    "readEventByIdSeek": {
+      "kind": "async function",
+      "params": 3,
+      "literals": []
+    },
+    "appendBeforeExecuteGateway": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "- [ ] @evt(",
+        "[gateway] gateway-targeted event (no enqueue)",
+        "[gateway] meta-targeted event",
+        "[gateway] session-targeted event",
+        "channel.command",
+        "gateway",
+        "mailbox_enqueued",
+        "meta",
+        "meta:subconscious",
+        "number",
+        "spine.event"
+      ]
+    },
+    "batchDrainItems": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "regular"
+      ]
+    },
+    "runBoardLint": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        ".md.pending",
+        "DROP",
+        "NO-EFF",
+        "REMOVE",
+        "WEAKENING",
+        "behavioral",
+        "domain",
+        "intuition-weaver",
+        "legacy",
+        "merge-",
+        "pattern-tracker"
+      ]
+    },
+    "runGapLint": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        ".jsonl",
+        "T00:00:00.000Z"
+      ]
+    },
+    "routeContractDecision": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "groove-",
+        "intuition-weaver",
+        "lesson-",
+        "pattern-tracker",
+        "topics/"
+      ]
+    },
+    "buildTransientUserBlocks": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "\n\nIMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.\n\n</system-reminder>",
+        "\n</interrupted-context>",
+        "- applied_at: ",
+        "- command: ",
+        "- command_name: ",
+        "- current_cwd: ",
+        "- result: ",
+        "<interrupted-context>\n",
+        "<system-reminder>\n\n",
+        "This action was executed by a gateway command outside the model context.",
+        "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.",
+        "[Session Runtime Notice]",
+        "board-updated",
+        "daemon-restart-hint",
+        "gateway-notice",
+        "interrupted-context",
+        "job-tick",
+        "skip-rewind",
+        "smart-compact-notice",
+        "text",
+        "time-context",
+        "user-input"
+      ]
+    },
+    "claimDaemonRestartReason": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "string",
+        "unknown time",
+        "utf8"
+      ]
+    },
+    "computeDedupKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "unknown"
+      ]
+    },
+    "applyJobSdkConfigOverride": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "instance"
+      ]
+    },
+    "drainSessionMailbox": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " cancelled=true",
+        " event_id=",
+        " item_file=",
+        " not_after=",
+        " outbox=",
+        " skipped=",
+        "/compact",
+        "[runner] SDK session ID mismatch — context lost",
+        "[runner] Skip called — suppressing outbox",
+        "[runner] compact_boundary — telemetry only, no channel ack",
+        "[runner] dropping stale idle-compact item (no SDK call)",
+        "[runner] eager markDone failed (will retry at drain end)",
+        "[runner] history-control mailbox finalize failed (will be retried at drain end)",
+        "[runner] idle-compact no-op (nothing to compact) — no channel ack",
+        "[runner] in-band /compact turn — suppressing empty outbox",
+        "[runner] mailbox event unresolved: session_key=",
+        "[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack",
+        "agent.error",
+        "auto",
+        "channel",
+        "channel.message",
+        "claude",
+        "codex",
+        "compact_boundary"
+      ]
+    },
+    "getPendingRestartReason": {
+      "kind": "function",
+      "params": 0,
+      "literals": []
+    }
+  }
+}

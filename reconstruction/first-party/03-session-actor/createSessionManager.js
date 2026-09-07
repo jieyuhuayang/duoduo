@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createSessionManager  (minified: fot, daemon.pretty.js:74339)
+// symbol: createSessionManager  (minified: Ilt, daemon.pretty.js:76852)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,982 +10,187 @@ function createSessionManager(e) {
         sdk: r,
         idleTimeoutMs: i = 36e5,
         heartbeatIntervalMs: o = 3e4
-    } = e, s = r ?? createAgentSdkAdapter(), a = e.codexAvailability ?? checkCodexAvailability, l = e.codexAdapterFactory ?? createCodexAppServerAdapter, u = null, c = () => (u || (u = a()), u), d = e.grokAvailability ?? checkGrokAvailability, p = e.grokAdapterFactory ?? createGrokAcpAdapter, f = null, m = () => (f || (f = d()), f), h = g => g.map(E => ({
-        value: E.value,
-        displayName: E.displayName
-    }));
-    async function y(g, E) {
-        if (E?.runtime === "grok") return "grok";
-        if (E?.runtime === "codex") return "codex";
-        let N = (await It(t, g).catch(() => null))?.source_channel_id;
-        if (!N) return E?.runtime ?? "claude";
-        let U = await eo(t, N).catch(() => null),
-            D = U?.channel_kind,
-            ne = D ? await Ts(t.channelConfigDir, D).catch(() => null) : null,
-            Oe = U?.runtime ?? ne?.runtime;
-        return Oe === "grok" ? "grok" : Oe === "codex" && (await c()).ok ? "codex" : E?.runtime ?? "claude"
-    }
-
-    function _(g) {
-        if (!(!g || typeof g != "object" || typeof g.setModel != "function")) return g
-    }
-    async function k(g, E) {
-        let z = E.trim();
-        if (!z) return;
-        let N = ed({
-            channel_kind: DB(g),
-            session_key: g,
+    } = e, s = r ?? createAgentSdkAdapter(), a = new _o(t), {
+        listSessionInboxPendingNames: l,
+        sessionInboxFreshNameVerdict: u,
+        finalizeJobSession: c
+    } = yve({
+        paths: t,
+        bus: n,
+        jobManager: a
+    }), d = e.codexAvailability ?? checkCodexAvailability, p = e.codexAdapterFactory ?? createCodexAppServerAdapter, f = null, m = () => (f || (f = d()), f), h = e.grokAvailability ?? checkGrokAvailability, g = e.grokAdapterFactory ?? createGrokAcpAdapter, y = e.piAdapterFactory ?? QP, w = null, v = () => (w || (w = h()), w), {
+        toModelOptions: b,
+        resolveRuntimeForModelCommand: R,
+        resolveModelProfileScope: I,
+        classifyModelTargetAgainstLiveGeneration: T
+    } = Zve({
+        paths: t,
+        probeCodexAvailability: m
+    }), {
+        ensureStreamingSession: x
+    } = ewe({
+        paths: t,
+        bus: n,
+        resolvedSdk: s,
+        classifyModelTargetAgainstLiveGeneration: T
+    });
+    async function S(_, k) {
+        let M = k.trim();
+        if (!M) return;
+        let Y = du({
+            channel_kind: Zv(_),
+            session_key: _,
             payload: {
-                text: z
+                text: M
             }
         });
         try {
-            await td(t, N), n.emit("session.output", {
-                sessionKey: g,
-                record: N
+            await fu(t, Y), n.emit("session.output", {
+                sessionKey: _,
+                record: Y
             })
-        } catch (U) {
-            et("[session-manager] grok detached-turn outbox write failed", {
-                sessionKey: g,
-                error: U instanceof Error ? U.message : String(U)
+        } catch (q) {
+            Me("[session-manager] grok detached-turn outbox write failed", {
+                sessionKey: _,
+                error: q instanceof Error ? q.message : String(q)
             })
         }
     }
-    async function v(g, E) {
-        let z = await Rd(t, g);
-        if (z) return z;
-        if (TU(E?.sourceKind)) {
-            let N = await Ed(t, {
-                channel_kind: E?.sourceKind,
-                channel_id: E?.sourceChannelId
-            });
-            if (N) return N
-        }
-        return Cm(await Rs(t.channelConfigDir))
-    }
-    async function b(g, E, z, N) {
-        let U = E ? F(E) : void 0,
-            D = E ? L(E) : void 0,
-            ne = await v(g, N),
-            Oe = z ? void 0 : Wb(t, g, await It(t, g).catch(() => null) ?? void 0).cwd,
-            bt = await Bb({
-                model: z,
-                cwd: Oe,
-                daemonEnv: process.env,
-                mergedCatalog: ne.claudeModelProfiles ?? {},
-                hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                issues: ne.claudeModelProfileIssues
-            }),
-            ye = oh(bt, ne.claudeModelProfileIssues);
-        if (ye.length > 0) return {
-            outcome: "blocked",
-            detail: JI(ye)
-        };
-        let Ft = Bme(bt);
-        return U === void 0 || D === void 0 ? {
-            outcome: "unknown",
-            requirementKind: bt.kind,
-            contextWindow: Ft
-        } : {
-            outcome: PT({
-                capToken: ih({
-                    requirement: bt,
-                    hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                    liveGenerationToken: U
-                }),
-                requirement: bt,
-                aliases: TT(ne.claudeModelAliases)
-            }) === D ? "compatible" : "rebuild",
-            requirementKind: bt.kind,
-            contextWindow: Ft
-        }
-    }
-    let I = e.maxConcurrentChannel ?? e.maxConcurrent ?? 10,
-        T = e.maxConcurrentJob ?? 6,
-        S = {
+    let O = e.maxConcurrentChannel ?? e.maxConcurrent ?? 10,
+        $ = e.maxConcurrentJob ?? 6,
+        C = {
             name: "channel",
             activeCount: 0,
-            maxConcurrent: I,
+            maxConcurrent: O,
             wakeQueue: []
         },
-        w = {
+        A = {
             name: "job",
             activeCount: 0,
-            maxConcurrent: T,
+            maxConcurrent: $,
             wakeQueue: []
         };
 
-    function C(g, E) {
-        return cot(g, E) === "job" ? w : S
+    function j(_, k) {
+        return hve(_, k) === "job" ? A : C
     }
 
-    function O(g) {
-        return S.wakeQueue.includes(g) || w.wakeQueue.includes(g)
+    function P(_) {
+        return C.wakeQueue.includes(_) || A.wakeQueue.includes(_)
     }
 
-    function A(g) {
-        if (g.wakeQueue.length === 0 || !j) return;
-        let E = g.wakeQueue.findIndex(U => !hr(U));
-        if (E === -1) {
-            ht("[session-manager] dequeue deferred: every queued session is archiving", {
-                pool: g.name,
-                queuedSessions: g.wakeQueue.length
+    function z(_) {
+        if (_.wakeQueue.length === 0 || !V) return;
+        let k = _.wakeQueue.findIndex(q => !Xn(q));
+        if (k === -1) {
+            st("[session-manager] dequeue deferred: every queued session is archiving", {
+                pool: _.name,
+                queuedSessions: _.wakeQueue.length
             });
             return
         }
-        let z = g.wakeQueue.splice(E, 1)[0];
-        E > 0 && ht("[session-manager] dequeue skipped archiving sessions", {
-            skipped: E,
-            sessionKey: z,
-            pool: g.name
-        }), ht("[session-manager] dequeue queued wake", {
-            sessionKey: z,
-            pool: g.name,
-            queuedSessions: g.wakeQueue.length
+        let M = _.wakeQueue.splice(k, 1)[0];
+        k > 0 && st("[session-manager] dequeue skipped archiving sessions", {
+            skipped: k,
+            sessionKey: M,
+            pool: _.name
+        }), st("[session-manager] dequeue queued wake", {
+            sessionKey: M,
+            pool: _.name,
+            queuedSessions: _.wakeQueue.length
         });
-        let N = x.get(z);
-        if (N && N.status === "idle" && !N.holdsPoolSlot && N.drainPromise) {
-            N.pendingWake = !0, N.wakeResolver && (N.wakeResolver(), N.wakeResolver = null), ht("[session-manager] resuming idle actor from dequeue", {
-                sessionKey: z,
-                actorRunId: N.actorRunId,
-                pool: g.name
+        let Y = U.get(M);
+        if (Y && Y.status === "idle" && !Y.holdsPoolSlot && Y.drainPromise) {
+            Y.pendingWake = !0, Y.wakeResolver && (Y.wakeResolver(), Y.wakeResolver = null), st("[session-manager] resuming idle actor from dequeue", {
+                sessionKey: M,
+                actorRunId: Y.actorRunId,
+                pool: _.name
             });
             return
         }
-        if (g.activeCount >= g.maxConcurrent) {
-            g.wakeQueue.unshift(z), ht("[session-manager] dequeue deferred: pool re-filled", {
-                sessionKey: z,
-                pool: g.name,
-                activeCount: g.activeCount
+        if (_.activeCount >= _.maxConcurrent) {
+            _.wakeQueue.unshift(M), st("[session-manager] dequeue deferred: pool re-filled", {
+                sessionKey: M,
+                pool: _.name,
+                activeCount: _.activeCount
             });
             return
         }
-        if (N?.origin === "job" && N.jobId) {
-            let U = N.jobId;
-            Be(z, {
+        if (Y?.origin === "job" && Y.jobId) {
+            let q = Y.jobId;
+            D(M, {
                 origin: "job",
-                jobId: U
+                jobId: q
             })
         } else {
-            let U = jB(z);
-            Be(z, U ?? void 0)
+            let q = MH(M);
+            D(M, q ?? void 0)
         }
     }
-    let x = new Map,
-        P = new Map,
-        M = new Map,
-        j = !1,
-        H = 0,
-        J = ({
-            sessionKey: g,
-            displayName: E,
-            preempt: z,
-            preemptBoundary: N
+    let U = new Map,
+        K = new Map,
+        te = new Map,
+        V = !1,
+        re = 0,
+        X = ({
+            sessionKey: _,
+            displayName: k,
+            preempt: M,
+            preemptBoundary: Y
         }) => {
-            ht("[session-manager] wake", {
-                sessionKey: g,
-                preempt: z ?? "allow",
-                preemptBoundary: N ?? "default"
-            }), E && P.set(g, E), We(g, {
-                preempt: z,
-                preemptBoundary: N
+            st("[session-manager] wake", {
+                sessionKey: _,
+                preempt: M ?? "allow",
+                preemptBoundary: Y ?? "default"
+            }), k && K.set(_, k), _e(_, {
+                preempt: M,
+                preemptBoundary: Y
             })
         },
-        ee = () => {
-            qi()
+        L = () => {
+            ye()
         },
         ie = ({
-            sessionKey: g,
-            reason: E
+            sessionKey: _,
+            reason: k
         }) => {
-            let z = x.get(g);
-            if (!z) return;
-            let N = z.streamingAdapter !== null;
-            z.streamingAdapter = null;
-            let U = !1;
-            z.streamingState && !z.streamingState.closed && (z.streamingState.needsRecreation = !0, U = !0), (N || U) && K("[session-manager] streamingAdapter torn down for session", {
-                sessionKey: g,
-                reason: E,
-                hadAdapter: N,
-                stateMarked: U
-            }), U && Ct("warn", "[kv-cache] needsRecreation flagged", {
-                sessionKey: g,
-                reason: E === "fork" ? "undo-fork" : "instructions-drift",
-                generation: z.streamingGeneration,
-                sdk_session_id: z.sdkSessionId ?? null
+            let M = U.get(_);
+            if (!M) return;
+            let Y = M.streamingAdapter !== null;
+            M.streamingAdapter = null;
+            let q = !1;
+            M.streamingState && !M.streamingState.closed && (M.streamingState.needsRecreation = !0, q = !0), (Y || q) && Q("[session-manager] streamingAdapter torn down for session", {
+                sessionKey: _,
+                reason: k,
+                hadAdapter: Y,
+                stateMarked: q
+            }), q && ht("warn", "[kv-cache] needsRecreation flagged", {
+                sessionKey: _,
+                reason: "instructions-drift",
+                generation: M.streamingGeneration,
+                sdk_session_id: M.sdkSessionId ?? null
             })
         };
 
-    function re(g) {
-        g.query?.interrupt().catch(() => {})
-    }
-
-    function Ye(g) {
-        if (g.query) {
-            re(g);
-            return
-        }
-        g.currentAbortController?.abort()
-    }
-
-    function je(g, E, z) {
-        if (g.query) {
-            if (z === "tool_result" && g.activeToolUseIds.size > 0) return g.pendingPreempt = !0, g.pendingPreemptBoundary = "tool_result", "defer_tool_result";
-            let N = g.streamingState?.currentTurn;
-            return N && !N.accepted ? (g.pendingPreempt = !0, g.pendingPreemptBoundary = "accept", "defer_accept") : (re(g), g.pendingPreempt = !1, g.pendingPreemptBoundary = null, "immediate")
-        }
-        return !g.currentAbortController || g.currentAbortController.signal.aborted ? "noop" : z === "tool_result" ? g.activeToolUseIds.size > 0 ? (g.pendingPreempt = !0, g.pendingPreemptBoundary = "tool_result", "defer_tool_result") : (g.currentAbortController.abort(), g.currentAbortController = null, g.pendingPreempt = !1, g.pendingPreemptBoundary = null, "immediate") : z === "tool_use" ? g.isStreaming ? (g.pendingPreempt = !0, g.pendingPreemptBoundary = "tool_use", "defer_tool_use") : (g.currentAbortController.abort(), g.currentAbortController = null, g.pendingPreempt = !1, g.pendingPreemptBoundary = null, "immediate") : E === "soft" && g.isStreaming ? (g.pendingPreempt = !0, g.pendingPreemptBoundary = "tool_use", "defer_tool_use") : E === "soft" && g.activeToolUseIds.size > 0 ? (g.pendingPreempt = !0, g.pendingPreemptBoundary = "tool_result", "defer_tool_result") : (g.currentAbortController.abort(), g.currentAbortController = null, g.pendingPreempt = !1, g.pendingPreemptBoundary = null, "immediate")
-    }
-
-    function Se(g) {
-        let E;
-        for (let z of g.inflightEventIds)(E ??= new Set).add(z);
-        return E
-    }
-
-    function lt(g, E) {
-        let z = g.claudeContextRequirement,
-            N = z?.kind === "profiled-external" && z.modelOrigin !== void 0 ? z.model : null;
-        return JSON.stringify({
-            cwd: g.cwd,
-            settingSources: g.settingSources ?? [],
-            persistSession: g.persistSession,
-            permissionMode: g.permissionMode,
-            allowedTools: g.allowedTools ?? [],
-            disallowedTools: g.disallowedTools ?? [],
-            tools: g.tools ?? [],
-            additionalDirectories: g.additionalDirectories ?? [],
-            autoloadAdditionalDirectoryClaudeMd: g.autoloadAdditionalDirectoryClaudeMd,
-            [I_e]: E,
-            [sot]: N
-        })
-    }
-    async function Fe(g, E) {
-        let z = g.streamingState;
-        if (!z) return;
-        E && Ct("warn", `[kv-cache] streaming teardown: ${E}`, {
-            sessionKey: g.sessionKey,
-            generation: g.streamingGeneration,
-            sdk_session_id: g.sdkSessionId ?? null
-        });
-        let N = g.query;
-        g.streamingState = null, g.query = null, g.streamAbortController = null, g.spawnBoardHash = void 0, z.abortController.signal.aborted || z.abortController.abort(), typeof N?.close == "function" && N.close();
-        try {
-            await z.loopPromise
-        } catch {}
-    }
-    async function qe(g, E) {
-        let z = E,
-            N = String(z.task_id ?? "unknown"),
-            U = String(z.status ?? "completed"),
-            D = String(z.summary ?? ""),
-            ne = String(z.output_file ?? "");
-        try {
-            let Oe = await Td(t, n, {
-                traceId: `task-notify-${N}`,
-                routeId: "task_notification",
-                sourceName: "sdk_subagent",
-                targetSessionKey: g,
-                sourceSessionKey: g,
-                eventType: "notify",
-                walOnly: !0,
-                payload: {
-                    task_id: N,
-                    task_status: U,
-                    task_summary: D || void 0,
-                    task_output_file: ne || void 0,
-                    completion_owner: "claude-cli"
-                }
-            });
-            Ae("[session-manager] task_notification recorded WAL-only", {
-                sessionKey: g,
-                taskId: N,
-                status: U,
-                success: Oe.success
-            })
-        } catch (Oe) {
-            et("[session-manager] task_notification WAL record failed", {
-                sessionKey: g,
-                taskId: N,
-                status: U,
-                error: Oe instanceof Error ? Oe.message : String(Oe)
-            })
-        }
-    }
-
-    function F(g) {
-        let E = g.streamingState;
-        if (!(!E || E.closed)) return E.spawnMaxContextToken ?? null
-    }
-
-    function L(g) {
-        let E = g.streamingState;
-        if (!(!E || E.closed)) return E.spawnDeliveryToken
-    }
-
-    function B(g, E) {
-        if (E === void 0 || E === "native-claude") return !1;
-        let z = g.streamingState;
-        return !!(z && !z.closed)
-    }
-
-    function te(g, E) {
-        if (!B(g, E.requirementKind)) return !1;
-        let z = g.streamingState;
-        return z ? (z.needsRecreation = !0, Ct("warn", "[kv-cache] needsRecreation flagged", {
-            sessionKey: g.sessionKey,
-            reason: "model-apply-rejected",
-            via: E.reason,
-            model: E.model,
-            generation: g.streamingGeneration,
-            sdk_session_id: g.sdkSessionId ?? null
-        }), !0) : !1
-    }
-    async function Le(g, E) {
-        if (!s.createStreamingQuery) throw new Error("Streaming query support unavailable");
-        let z = F(g),
-            N = ih({
-                requirement: E.claudeContextRequirement,
-                hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                liveGenerationToken: z
-            }),
-            U = PT({
-                capToken: N,
-                requirement: E.claudeContextRequirement,
-                aliases: E.claudeModelAliases
-            }),
-            D = lt(E, U),
-            ne = E.sessionId;
-        if (g.streamingState && !g.streamingState.closed && !g.streamingState.needsRecreation && g.streamingState.configSignature === D && (g.streamingState.hasAcceptedTurn || g.streamingState.initialSessionId === ne)) return g.streamingState;
-        let Oe = g.streamingState,
-            bt;
-        if (Oe && !Oe.closed)
-            if (Oe.configSignature !== D) {
-                let we = N_e(Oe.configSignature, D);
-                Ct("warn", "[kv-cache] respawn: signature-mismatch", {
-                    sessionKey: g.sessionKey,
-                    generation: g.streamingGeneration,
-                    sdk_session_id: g.sdkSessionId ?? null,
-                    diff: we
-                }), we.some(se => se.startsWith(`${I_e}:`)) && (bt = "model-context-profile-change")
-            } else Oe.needsRecreation ? Ae("[kv-cache] respawn: recreation-requested (already audited at source)", {
-                sessionKey: g.sessionKey,
-                generation: g.streamingGeneration,
-                sdk_session_id: g.sdkSessionId ?? null
-            }) : Ct("warn", "[kv-cache] respawn: resume-sessionid-change", {
-                sessionKey: g.sessionKey,
-                generation: g.streamingGeneration,
-                sdk_session_id: g.sdkSessionId ?? null,
-                requested_session_id: ne ?? null
-            });
-        await Fe(g, bt);
-        let ye = ih({
-                requirement: E.claudeContextRequirement,
-                hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                liveGenerationToken: void 0
-            }),
-            Ft = ye === N ? U : PT({
-                capToken: ye,
-                requirement: E.claudeContextRequirement,
-                aliases: E.claudeModelAliases
-            }),
-            Xe = Ft === U ? D : lt(E, Ft),
-            mt = new vC,
-            _e = new AbortController,
-            kt = E.mcpServersFactory ? E.mcpServersFactory() : E.mcpServers,
-            Ee = {
-                queue: mt,
-                abortController: _e,
-                configSignature: Xe,
-                initialSessionId: ne,
-                hasAcceptedTurn: !1,
-                needsRecreation: !1,
-                closed: !1,
-                currentTurn: null,
-                loopPromise: Promise.resolve(),
-                cliTurnTentative: null,
-                spawnMaxContextToken: ye,
-                spawnDeliveryToken: Ft,
-                liveModel: E.model
-            },
-            hn = we => {
-                for (let se of mt.drain()) se.reject(we())
-            };
-        async function* Xt() {
-            for (; !_e.signal.aborted;) {
-                let we;
-                try {
-                    we = await mt.dequeue(_e.signal)
-                } catch ($e) {
-                    if ($e instanceof Error && $e.name === "AbortError") return;
-                    throw $e
-                }
-                let se = Ee.currentTurn;
-                if (se !== null && se !== we) {
-                    Z("[session-manager] drain turn dequeued while the slot is occupied — rejected", {
-                        sessionKey: g.sessionKey,
-                        occupantAccepted: se.accepted
-                    }), we.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming slot occupied — prompt not yielded; retry after the occupant settles"));
-                    continue
-                } else Ee.currentTurn = we, Ee.cliTurnTentative && (Ee.cliTurnTentative.compromised = !0), we.accepted = !1, we.streamedText = "", we.turnStreamedText = "", we.toolUseMap.clear();
-                for await (let $e of we.input.prompt) yield $e
-            }
-        }
-        let Mn = E.sessionId,
-            {
-                query: Ht
-            } = s.createStreamingQuery({
-                prompt: Xt(),
-                abortController: _e,
-                sessionId: Mn,
-                cwd: E.cwd,
-                settingSources: E.settingSources,
-                persistSession: E.persistSession,
-                permissionMode: E.permissionMode,
-                allowedTools: E.allowedTools,
-                disallowedTools: E.disallowedTools,
-                tools: E.tools,
-                effort: E.effort,
-                model: E.model,
-                claudeContextRequirement: E.claudeContextRequirement,
-                claudeSettingsPath: E.claudeSettingsPath,
-                mcpServers: kt,
-                additionalDirectories: E.additionalDirectories,
-                autoloadAdditionalDirectoryClaudeMd: E.autoloadAdditionalDirectoryClaudeMd,
-                systemPrompt: E.systemPrompt,
-                hooks: {
-                    PreToolUse: [{
-                        matcher: "*",
-                        hooks: [async we => {
-                            let se = we,
-                                $e = se.transcript_path;
-                            return typeof $e == "string" && $e.length > 0 && se.agent_id === void 0 && g.lastTranscriptPath !== $e && (g.lastTranscriptPath = $e, ut(t, g.sessionKey, {
-                                transcript_path: $e
-                            }).catch(() => {})), {}
-                        }]
-                    }, {
-                        matcher: wd,
-                        hooks: [async we => {
-                            let se = we?.agent_id !== void 0,
-                                $e = se ? null : Ee.currentTurn;
-                            return $e ? $e.skipCalled = !0 : !se && Ee.cliTurnTentative && (Ee.cliTurnTentative.skipObserved = !0), {
-                                continue: !1,
-                                stopReason: "The agent intentionally ended this turn silently by calling Skip."
-                            }
-                        }]
-                    }],
-                    PostToolUse: [{
-                        matcher: "*",
-                        hooks: [async () => {
-                            let we = [];
-                            if (Ee.currentTurn?.skipCalled === !0) return {};
-                            if (Ee.cliTurnTentative?.skipObserved === !0) return {};
-                            let se = g.pendingSteer;
-                            if (se && (g.pendingSteer = null, !se.settled)) {
-                                se.settled = !0;
-                                try {
-                                    await Ir(t, g.sessionKey, se.eventIds)
-                                } catch ($e) {
-                                    K("[session-manager] steer hook markDone error", {
-                                        sessionKey: g.sessionKey,
-                                        error: String($e)
-                                    })
-                                }
-                                for (let $e of se.claimedEventIds) g.inflightEventIds.delete($e);
-                                K("[session-manager] steer hook: injected interjection mid-turn", {
-                                    sessionKey: g.sessionKey,
-                                    eventIds: se.eventIds
-                                }), we.push(se.steerText)
-                            }
-                            return we.length === 0 ? {} : {
-                                hookSpecificOutput: {
-                                    hookEventName: "PostToolUse",
-                                    additionalContext: we.join(`
-
-`)
-                                }
-                            }
-                        }]
-                    }]
-                }
-            });
-        g.query = Ht, g.streamAbortController = _e, g.streamingState = Ee, g.spawnBoardHash = E.boardHash, g.streamingGeneration += 1;
-        let Te = g.streamingGeneration,
-            He = E.model,
-            cn = typeof Ht.setModel == "function",
-            nn = typeof Ht.applyFlagSettings == "function";
-        if (cn || nn) {
-            let we = await It(t, g.sessionKey).catch(() => null);
-            if (cn) {
-                let se = we ? we.model ?? null : void 0,
-                    Y = E.claudeContextRequirement?.kind === "profiled-external" && E.claudeContextRequirement.modelOrigin !== void 0 ? null : E.model ?? null;
-                if (se !== void 0 && se !== Y && !_e.signal.aborted) {
-                    let Ot = "compatible",
-                        yt;
-                    try {
-                        let gn = await b(g.sessionKey, g, se);
-                        Ot = gn.outcome, gn.outcome !== "blocked" && (yt = gn.requirementKind)
-                    } catch (gn) {
-                        Z("[session-manager] spawn-time model reconcile failed to read config", {
-                            sessionKey: g.sessionKey,
-                            model: se ?? "(reset to default)",
-                            error: gn instanceof Error ? gn.message : String(gn)
-                        }), Ot = "config-unreadable"
-                    }
-                    if (Ot !== "compatible") Z("[session-manager] deferring spawn-time model re-apply — context profile differs from this generation", {
-                        sessionKey: g.sessionKey,
-                        generation: Te,
-                        deferred_model: se ?? "(reset to default)",
-                        running_model: E.model ?? "(runtime default)",
-                        outcome: Ot
-                    });
-                    else try {
-                        await Ht.setModel(se ?? void 0), He = se ?? void 0, Ee.liveModel = se ?? void 0
-                    } catch (gn) {
-                        Z("[session-manager] failed to re-apply session model override — keeping it for the next spawn", {
-                            sessionKey: g.sessionKey,
-                            model: se ?? "(reset to default)",
-                            running_model: E.model ?? "(runtime default)",
-                            error: gn instanceof Error ? gn.message : String(gn)
-                        }), se !== null && te(g, {
-                            model: se,
-                            requirementKind: yt,
-                            reason: "spawn-reconcile"
-                        })
-                    }
-                }
-            }
-            if (nn && !_e.signal.aborted) {
-                let se = we?.effort ?? null,
-                    $e = E.effort ?? null;
-                if (se !== $e) try {
-                    await Ht.applyFlagSettings({
-                        effortLevel: se
-                    })
-                } catch (Y) {
-                    Z("[session-manager] failed to re-apply session effort override at spawn", {
-                        sessionKey: g.sessionKey,
-                        effort: se ?? "(reset to default)",
-                        error: Y instanceof Error ? Y.message : String(Y)
-                    })
-                }
-            }
-        }
-        Ct("info", "[kv-cache] streaming subprocess spawned", {
-            sessionKey: g.sessionKey,
-            generation: Te,
-            model: He ?? "default",
-            context_profile_source: HI(E.claudeContextRequirement),
-            max_context_token: ye,
-            ...VI(E.claudeContextRequirement),
-            alias_tiers: WI(E.claudeModelAliases),
-            board_hash: E.boardHash ? E.boardHash.slice(0, 12) : null
-        });
-        let Wn = (we, se, $e, Y = !1) => {
-                if (se && !we.skipCalled) {
-                    if (Y) {
-                        we.input.onStream?.(se, !0);
-                        return
-                    }
-                    if ($e) {
-                        we.streamedText += se, we.turnStreamedText += se, we.input.onStream?.(se, !1);
-                        return
-                    }
-                    if (we.turnStreamedText && se.startsWith(we.turnStreamedText)) {
-                        let Ot = se.slice(we.turnStreamedText.length);
-                        Ot && (we.streamedText += Ot, we.turnStreamedText = se, we.input.onStream?.(Ot, !1));
-                        return
-                    }
-                    if (se.startsWith(we.streamedText)) {
-                        let Ot = se.slice(we.streamedText.length);
-                        Ot && (we.streamedText = se, we.turnStreamedText += Ot, we.input.onStream?.(Ot, !1));
-                        return
-                    }
-                    we.streamedText += se, we.turnStreamedText += se, we.input.onStream?.(se, !1)
-                }
-            },
-            Jn = async () => {
-                let we = g.pendingSteer;
-                if (we && (g.pendingSteer = null, !we.settled)) {
-                    if (Ee.closed) {
-                        we.settled = !0;
-                        let se = [];
-                        for (let Y = 0; Y < we.requeueLines.length; Y += 1) {
-                            let Ot = we.requeueLines[Y],
-                                yt = we.requeueEventIds[Y];
-                            try {
-                                await ua(t, g.sessionKey, Ot), se.push(yt)
-                            } catch (gn) {
-                                Z("[session-manager] steer fallback closed-stream requeue failed", {
-                                    sessionKey: g.sessionKey,
-                                    eventId: yt,
-                                    error: gn instanceof Error ? gn.message : String(gn)
-                                })
-                            }
-                        }
-                        let $e = [...se, ...we.processedEventIds];
-                        if ($e.length > 0) try {
-                            await Ir(t, g.sessionKey, $e)
-                        } catch (Y) {
-                            K("[session-manager] steer fallback closed markDone error", {
-                                sessionKey: g.sessionKey,
-                                error: String(Y)
-                            })
-                        }
-                        for (let Y of we.claimedEventIds) g.inflightEventIds.delete(Y);
-                        g.pendingWake = !0, K("[session-manager] steer fallback requeued to inbox (stream closed)", {
-                            sessionKey: g.sessionKey,
-                            eventIds: we.eventIds,
-                            requeued: se.length,
-                            requeueFailed: we.requeueLines.length - se.length
-                        });
-                        return
-                    }
-                    we.settled = !0;
-                    try {
-                        await we.enqueueAsNewTurn()
-                    } catch (se) {
-                        K("[session-manager] steer fallback enqueue error", {
-                            sessionKey: g.sessionKey,
-                            error: String(se)
-                        })
-                    }
-                }
-            }, Ei = we => we.origin?.kind === "task-notification", Hr = async (we, se, $e, Y) => {
-                let Ot = we,
-                    yt = typeof Ot.duration_ms == "number" && Number.isFinite(Ot.duration_ms) && Ot.duration_ms >= 0 ? Ot.duration_ms : 0,
-                    gn = typeof Ot.duration_api_ms == "number" && Number.isFinite(Ot.duration_api_ms) && Ot.duration_api_ms >= 0 ? Ot.duration_api_ms : 0;
-                try {
-                    await appendDrainRecord(t, {
-                        origin: "cli-turn",
-                        id: tot(),
-                        session_key: g.sessionKey,
-                        sdk_session_id: g.sdkSessionId,
-                        drain_started_at: new Date(Y - yt).toISOString(),
-                        drain_duration_ms: yt,
-                        sdk_duration_ms: gn,
-                        events_processed: 0,
-                        events_skipped: 0,
-                        tool_calls: 0,
-                        tool_errors: 0,
-                        output_chars: $e,
-                        cancelled: !1,
-                        usage: se
-                    })
-                } catch (ce) {
-                    et("[completion-owner] CLI turn ledger write failed", {
-                        sessionKey: g.sessionKey,
-                        generation: g.streamingGeneration,
-                        error: ce instanceof Error ? ce.message : String(ce)
-                    })
-                }
-            };
-        return Ee.loopPromise = (async () => {
-            let we = null,
-                se;
-            try {
-                for await (let $e of Ht) {
-                    let Y = $e;
-                    g.lastActivityAt = Date.now();
-                    let Ot, yt, gn = null;
-                    if (Y.type === "result") {
-                        Ot = Ee.lastModelUsage, yt = Ee.lastTotalCostUsd, gn = we, we = null;
-                        let ke = Y.modelUsage;
-                        ke !== void 0 && (Ee.lastModelUsage = ke);
-                        let De = Y.total_cost_usd;
-                        typeof De == "number" && (Ee.lastTotalCostUsd = De)
-                    }
-                    if (Y.type === "result" && Ei(Y)) {
-                        let ke = Date.now(),
-                            De = Ee.cliTurnTentative;
-                        Ee.cliTurnTentative = null;
-                        let at = Ee.currentTurn,
-                            yn = De?.skipObserved ?? !1,
-                            ai;
-                        if (Y.subtype === "success" && (ai = Rm(Y, {
-                                prevModelUsage: Ot,
-                                prevTotalCostUsd: yt
-                            }), ai && !yn && typeof Ht.getContextUsage == "function")) try {
-                            let Dr = (await Ht.getContextUsage())?.totalTokens;
-                            typeof Dr == "number" && Number.isFinite(Dr) && Dr >= 0 && (ai.context_used_tokens = Dr)
-                        } catch {}
-                        if (g.lastCliTurnSettledAt = ke, g.lastTurnCompletedAt = ke, se = void 0, at) {
-                            let _n = gn === at,
-                                Dr = De?.compromised === !0,
-                                ir = at.accepted;
-                            Ee.currentTurn = null, at.accepted = !1, await Jn(), (ir || at.streamedText.length > 0 || at.turnStreamedText.length > 0) && n.emit("session.stream_end", {
-                                sessionKey: g.sessionKey,
-                                reason: "interrupted"
-                            }), at.reject(new AgentSdkPromptNotAcceptedAbortError("Task-completion turn folded with mailbox drain; retrying the drain")), g.pendingWake = !0, g.wakeResolver?.(), await Hr(Y, ai, 0, ke), Ct("warn", "[completion-owner] voided folded drain", {
-                                sessionKey: g.sessionKey,
-                                generation: g.streamingGeneration,
-                                acceptedByForeignInit: _n,
-                                installedDuringTentative: Dr,
-                                wasAccepted: ir
-                            });
-                            continue
-                        }
-                        let Nr = 0,
-                            br = Y.subtype === "success" && !yn && typeof Y.result == "string" && Y.result.length > 0 ? Y.result : void 0;
-                        if (br !== void 0) {
-                            let _n = await n4(t, g.sessionKey).catch(() => {}),
-                                Dr = ed({
-                                    channel_kind: DB(g.sessionKey),
-                                    session_key: g.sessionKey,
-                                    payload: {
-                                        text: br,
-                                        attachments: _n
-                                    }
-                                });
-                            try {
-                                await td(t, Dr), Nr = br.length, n.emit("session.output", {
-                                    sessionKey: g.sessionKey,
-                                    record: Dr
-                                })
-                            } catch (ir) {
-                                et("[completion-owner] proactive outbox write failed", {
-                                    sessionKey: g.sessionKey,
-                                    generation: g.streamingGeneration,
-                                    error: ir instanceof Error ? ir.message : String(ir)
-                                })
-                            }
-                            Nr > 0 && _n && await tP(t, g.sessionKey).catch(ir => et("[completion-owner] pending attachment clear failed", {
-                                sessionKey: g.sessionKey,
-                                generation: g.streamingGeneration,
-                                error: ir instanceof Error ? ir.message : String(ir)
-                            }))
-                        }
-                        await Hr(Y, ai, Nr, ke), g.pendingWake = !0, g.wakeResolver?.(), K("[completion-owner] settled CLI completion turn", {
-                            sessionKey: g.sessionKey,
-                            generation: g.streamingGeneration,
-                            subtype: Y.subtype,
-                            skipped: yn,
-                            outputChars: Nr
-                        });
-                        continue
-                    }
-                    let ce = Ee.currentTurn;
-                    if (!ce) {
-                        if (Y.type === "system" && Y.subtype === "task_notification") {
-                            let ke = Y;
-                            await qe(g.sessionKey, Y), se = {
-                                taskId: String(ke.task_id ?? "unknown"),
-                                status: String(ke.status ?? "completed"),
-                                observedAt: Date.now()
-                            };
-                            continue
-                        }
-                        if (Y.type === "system" && Y.subtype === "init") {
-                            Ee.cliTurnTentative ??= {
-                                skipObserved: !1,
-                                compromised: !1
-                            }, we = null;
-                            continue
-                        }
-                        if (Y.type === "result") {
-                            let ke = Ee.cliTurnTentative !== null;
-                            Ee.cliTurnTentative = null, K("[session-manager] orphan result received", {
-                                sessionKey: g.sessionKey,
-                                subtype: Y.subtype,
-                                hadTentative: ke
-                            }), g.pendingWake = !0, g.wakeResolver?.();
-                            continue
-                        }
-                        continue
-                    }
-                    if (Y.type === "system") {
-                        if (Y.subtype === "task_notification") {
-                            let De = Y;
-                            await qe(g.sessionKey, Y), se = {
-                                taskId: String(De.task_id ?? "unknown"),
-                                status: String(De.status ?? "completed"),
-                                observedAt: Date.now()
-                            }
-                        }
-                        if (Y.subtype === "init") {
-                            let De = !ce.accepted;
-                            Ee.hasAcceptedTurn = !0, ce.accepted = !0, Ee.cliTurnTentative = null, we = De ? ce : null;
-                            try {
-                                ce.input.onTurnAcknowledged?.()
-                            } catch {}
-                            ce.sessionId = Y.session_id ?? ce.sessionId, g.sdkSessionId = Y.session_id ?? g.sdkSessionId, g.sdkSessionIdVerified = !0, Mn && Y.session_id && Mn !== Y.session_id && Z("[session-manager] SDK session ID mismatch — context lost", {
-                                sessionKey: g.sessionKey,
-                                requestedSessionId: Mn,
-                                actualSessionId: Y.session_id
-                            }), Y.session_id && g.jobStateless !== !0 && await ut(t, g.sessionKey, {
-                                sdk_session_id: Y.session_id
-                            }), g.pendingPreempt && g.pendingPreemptBoundary === "accept" && (g.pendingPreempt = !1, g.pendingPreemptBoundary = null, re(g))
-                        }
-                        let ke;
-                        Y.subtype === "init" ? ke = {
-                            session_id: Y.session_id
-                        } : Y.subtype === "compact_boundary" && Y.compact_metadata && (ke = {
-                            trigger: Y.compact_metadata.trigger,
-                            pre_tokens: Y.compact_metadata.pre_tokens,
-                            post_tokens: Y.compact_metadata.post_tokens
-                        }), ce.input.onExecutionEvent?.({
-                            type: "system",
-                            subtype: Y.subtype ?? "unknown",
-                            data: ke
-                        });
-                        continue
-                    }
-                    if (Y.type === "stream_event") {
-                        let ke = xm(Y);
-                        for (let yn of bT(Y.event)) Wn(ce, yn.text, yn.isDelta, ke);
-                        for (let yn of vT(Y.event)) ce.input.onExecutionEvent?.({
-                            type: "thought_chunk",
-                            text: yn
-                        });
-                        let De = wT(Y.event);
-                        De && (ce.toolBlockIndexMap.set(De.index, {
-                            toolUseId: De.toolUseId,
-                            toolName: De.toolName
-                        }), ce.toolUseMap.set(De.toolUseId, De.toolName), ce.input.onExecutionEvent?.({
-                            type: "tool_use",
-                            toolUseId: De.toolUseId,
-                            toolName: De.toolName,
-                            input: void 0,
-                            ephemeral: !0
-                        }));
-                        let at = ST(Y.event);
-                        if (at) {
-                            let yn = ce.toolBlockIndexMap.get(at.index);
-                            yn && ce.input.onExecutionEvent?.({
-                                type: "tool_input_delta",
-                                toolUseId: yn.toolUseId,
-                                toolName: yn.toolName,
-                                partialJson: at.partialJson
-                            })
-                        }
-                        continue
-                    }
-                    if (typeof Y.type == "string" && Y.type.includes("assistant")) {
-                        let ke = xm(Y);
-                        for (let at of _T(Y)) Wn(ce, at.text, at.isDelta, ke);
-                        let De = Y.message?.content;
-                        if (Array.isArray(De))
-                            for (let at of De) {
-                                if (!at || typeof at != "object" || at.type !== "tool_use") continue;
-                                let yn = at.id,
-                                    ai = at.name;
-                                !yn || !ai || (ce.toolUseMap.set(yn, ai), ce.input.onExecutionEvent?.({
-                                    type: "tool_use",
-                                    toolUseId: yn,
-                                    toolName: ai,
-                                    input: at.input
-                                }))
-                            }
-                        continue
-                    }
-                    if (Y.type === "user") {
-                        let ke = Y.message?.content;
-                        if (Array.isArray(ke))
-                            for (let De of ke) {
-                                if (!De || typeof De != "object" || De.type !== "tool_result") continue;
-                                let at = De.tool_use_id;
-                                at && (ce.input.onExecutionEvent?.({
-                                    type: "tool_result",
-                                    toolUseId: at,
-                                    toolName: ce.toolUseMap.get(at),
-                                    isError: De.is_error ?? !1,
-                                    summary: kT(De.content)
-                                }), ce.turnStreamedText = "")
-                            }
-                        continue
-                    }
-                    if (Y.type === "result") {
-                        if (Y.subtype === "success") {
-                            if (typeof Y.result == "string" && (ce.text = Y.result), Y.structured_output !== void 0 && (ce.structured = Y.structured_output), ce.usage = Rm(Y, {
-                                    prevModelUsage: Ot,
-                                    prevTotalCostUsd: yt
-                                }), ce.usage && !ce.skipCalled && typeof Ht.getContextUsage == "function") try {
-                                let De = (await Ht.getContextUsage())?.totalTokens;
-                                typeof De == "number" && Number.isFinite(De) && De >= 0 && (ce.usage.context_used_tokens = De)
-                            } catch {}
-                            if (await Jn(), Ee.currentTurn = null, ce.skipCalled) ce.resolve({
-                                sessionId: ce.sessionId ?? g.sdkSessionId,
-                                text: void 0,
-                                skipped: !0,
-                                usage: ce.usage
-                            });
-                            else {
-                                let ke = ce.text ?? (ce.streamedText ? ce.streamedText : void 0);
-                                ce.resolve({
-                                    sessionId: ce.sessionId ?? g.sdkSessionId,
-                                    text: ke,
-                                    structured: ce.structured,
-                                    usage: ce.usage
-                                })
-                            }
-                            continue
-                        }
-                        if (Y.subtype === "error_during_execution" && ce.skipCalled) {
-                            await Jn(), Ee.currentTurn = null, ce.resolve({
-                                sessionId: ce.sessionId ?? g.sdkSessionId,
-                                text: void 0,
-                                skipped: !0,
-                                usage: ce.usage
-                            });
-                            continue
-                        }
-                        ce.accepted && n.emit("session.stream_end", {
-                            sessionKey: g.sessionKey,
-                            reason: "interrupted"
-                        }), await Jn(), Ee.currentTurn = null, Y.subtype === "error_during_execution" ? ce.accepted ? ce.reject(new AgentSdkTurnInterruptedError) : g.pendingClear ? (Ee.needsRecreation = !0, ce.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance"))) : (Ee.needsRecreation = !0, Mn && !g.sdkSessionIdVerified && (g.sdkSessionId = void 0, g.pendingWake = !0, await Es(t, g.sessionKey, "sdk_session_id").catch(() => {}), Z("[session-manager] cleared stale sdk_session_id after resume failure", {
-                            sessionKey: g.sessionKey,
-                            staleSessionId: Mn
-                        })), ce.reject(new AgentSdkPromptNotAcceptedAbortError)) : ce.reject(new Error(`Unexpected streaming SDK result subtype: ${Y.subtype??"unknown"}`))
-                    }
-                }
-            } catch ($e) {
-                let Y = Ee.currentTurn;
-                Ee.currentTurn = null, Y && (Y.accepted && n.emit("session.stream_end", {
-                    sessionKey: g.sessionKey,
-                    reason: "interrupted"
-                }), _e.signal.aborted && !Y.accepted ? (Ee.needsRecreation = !0, g.pendingClear ? Y.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : Y.reject(new AgentSdkPromptNotAcceptedAbortError)) : _e.signal.aborted ? Y.reject(Em("Streaming SDK run aborted", $e)) : (Y.accepted || (Ee.needsRecreation = !0), Y.reject($e))), hn(() => new AgentSdkPromptNotAcceptedAbortError)
-            } finally {
-                Ee.closed = !0, Ee.needsRecreation = !0, _e.signal.aborted || Ct("warn", "[kv-cache] streaming loop exited unexpectedly (closed)", {
-                    sessionKey: g.sessionKey,
-                    generation: g.streamingGeneration,
-                    sdk_session_id: g.sdkSessionId ?? null
-                });
-                let $e = Ee.currentTurn;
-                Ee.currentTurn = null, $e && (_e.signal.aborted && !$e.accepted ? g.pendingClear ? $e.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : $e.reject(new AgentSdkPromptNotAcceptedAbortError) : _e.signal.aborted ? ($e.accepted && n.emit("session.stream_end", {
-                    sessionKey: g.sessionKey,
-                    reason: "interrupted"
-                }), $e.reject(Em("Streaming SDK run aborted"))) : $e.accepted ? (n.emit("session.stream_end", {
-                    sessionKey: g.sessionKey,
-                    reason: "interrupted"
-                }), $e.reject(new AgentSdkTurnInterruptedError("Streaming SDK query ended during execution"))) : $e.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"))), hn(() => new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted")), se && (g.lastCliTurnSettledAt === void 0 || se.observedAt > g.lastCliTurnSettledAt) && Ct("warn", "[completion-owner] unspoken-completion", {
-                    sessionKey: g.sessionKey,
-                    taskId: se.taskId,
-                    status: se.status,
-                    generation: g.streamingGeneration
-                }), Ee.cliTurnTentative = null, g.wakeResolver?.(), g.pendingSteer && (await Jn(), g.wakeResolver?.()), g.streamingState === Ee && (g.streamingState = null), g.query === Ht && (g.query = null), g.streamAbortController === _e && (g.streamAbortController = null)
-            }
-        })(), Ee
-    }
-
-    function Re(g) {
-        return g.runtime === "grok" && g.grokAdapter ? g.grokAdapter : g.runtime === "grok" ? {
+    function fe(_) {
+        return _.runtime !== "claude" ? _.adapter ? _.adapter : {
             run: async () => {
-                throw new Error("grok runtime selected but the grok ACP adapter is not wired; refusing to fall through to Claude")
+                throw new Error(`${_.runtime} runtime selected but its adapter was not built; refusing to fall through to Claude`)
             }
-        } : g.runtime === "codex" && g.codexAdapter ? g.codexAdapter : g.origin !== "channel" || !s.createStreamingQuery ? s : (g.streamingAdapter || (g.streamingAdapter = {
-            run: async E => {
-                let z = await Le(g, E);
-                return await new Promise((N, U) => {
-                    if (z.closed) {
-                        U(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"));
+        } : _.origin !== "channel" || !s.createStreamingQuery ? s : (_.streamingAdapter || (_.streamingAdapter = {
+            run: async k => {
+                let M = await x(_, k);
+                return await new Promise((Y, q) => {
+                    if (M.closed) {
+                        q(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"));
                         return
                     }
-                    z.queue.enqueue({
-                        input: E,
-                        resolve: N,
-                        reject: U,
+                    M.queue.enqueue({
+                        input: k,
+                        resolve: Y,
+                        reject: q,
                         accepted: !1,
-                        sessionId: E.sessionId,
+                        sessionId: k.sessionId,
                         text: void 0,
                         structured: void 0,
                         usage: void 0,
@@ -997,145 +202,144 @@ function createSessionManager(e) {
                     })
                 })
             },
-            createStreamingQuery: s.createStreamingQuery,
-            undo: s.undo ? s.undo.bind(s) : void 0
-        }), g.streamingAdapter)
+            createStreamingQuery: s.createStreamingQuery
+        }), _.streamingAdapter)
     }
 
-    function We(g, E) {
-        if (!j) {
-            ht("[session-manager] wake ignored, manager not running", {
-                sessionKey: g
+    function _e(_, k) {
+        if (!V) {
+            st("[session-manager] wake ignored, manager not running", {
+                sessionKey: _
             });
             return
         }
-        if (hr(g)) {
-            ht("[session-manager] wake suppressed, session is being archived", {
-                sessionKey: g
+        if (Xn(_)) {
+            st("[session-manager] wake suppressed, session is being archived", {
+                sessionKey: _
             });
             return
         }
-        let z = E?.preempt ?? "allow",
-            N = E?.preemptBoundary,
-            U = x.get(g);
-        if (U && U.wakeResolver) {
-            ht("[session-manager] wake delivered to idle actor", {
-                sessionKey: g,
-                actorRunId: U.actorRunId,
-                status: U.status,
-                preemptBoundary: N ?? "default"
-            }), U.wakeResolver(), U.wakeResolver = null;
+        let M = k?.preempt ?? "allow",
+            Y = k?.preemptBoundary,
+            q = U.get(_);
+        if (q && q.wakeResolver) {
+            st("[session-manager] wake delivered to idle actor", {
+                sessionKey: _,
+                actorRunId: q.actorRunId,
+                status: q.status,
+                preemptBoundary: Y ?? "default"
+            }), q.wakeResolver(), q.wakeResolver = null;
             return
         }
-        if (U && U.drainPromise && (U.status === "active" || U.status === "idle")) {
-            let Oe = !!U.query && U.streamingState?.currentTurn?.accepted === !0,
-                bt = U.runtime === "codex" && !!U.codexAdapter?.activeTurnId?.();
-            if (z === "allow" && (Oe || bt) && U.admissionCallback && !U.admissionInProgress) {
-                U.pendingWake = !0, U.admissionInProgress = !0;
-                let ye = U.admissionCallback;
-                ht("[session-manager] wake: admitting to live streaming session", {
-                    sessionKey: g,
-                    actorRunId: U.actorRunId
-                }), ye().then(() => {
-                    U.admissionInProgress = !1, U.wakeResolver?.()
+        if (q && q.drainPromise && (q.status === "active" || q.status === "idle")) {
+            let Se = !!q.query && q.streamingState?.currentTurn?.accepted === !0,
+                He = !!q.adapter?.activeTurnId?.();
+            if (M === "allow" && (Se || He) && q.admissionCallback && !q.admissionInProgress) {
+                q.pendingWake = !0, q.admissionInProgress = !0;
+                let it = q.admissionCallback;
+                st("[session-manager] wake: admitting to live streaming session", {
+                    sessionKey: _,
+                    actorRunId: q.actorRunId
+                }), it().then(() => {
+                    q.admissionInProgress = !1, q.wakeResolver?.()
                 }, () => {
-                    U.admissionInProgress = !1, U.wakeResolver?.()
+                    q.admissionInProgress = !1, q.wakeResolver?.()
                 });
                 return
             }
-            if (U.status === "active" && U.currentAbortController)
-                if (z === "force") {
-                    let ye = je(U, "immediate", N);
-                    ye === "immediate" ? ht("[session-manager] wake: forced preempt", {
-                        sessionKey: g,
-                        actorRunId: U.actorRunId,
-                        preemptBoundary: N ?? "default"
-                    }) : ye === "defer_accept" ? ht("[session-manager] wake: forced preempt deferred until prompt acceptance", {
-                        sessionKey: g,
-                        actorRunId: U.actorRunId
-                    }) : ye === "defer_tool_result" ? ht("[session-manager] wake: forced preempt deferred until tool_result", {
-                        sessionKey: g,
-                        actorRunId: U.actorRunId
-                    }) : ye === "defer_tool_use" && ht("[session-manager] wake: forced preempt deferred until tool_use", {
-                        sessionKey: g,
-                        actorRunId: U.actorRunId
+            if (q.status === "active" && q.currentAbortController)
+                if (M === "force") {
+                    let it = rw(q, "immediate", Y);
+                    it === "immediate" ? st("[session-manager] wake: forced preempt", {
+                        sessionKey: _,
+                        actorRunId: q.actorRunId,
+                        preemptBoundary: Y ?? "default"
+                    }) : it === "defer_accept" ? st("[session-manager] wake: forced preempt deferred until prompt acceptance", {
+                        sessionKey: _,
+                        actorRunId: q.actorRunId
+                    }) : it === "defer_tool_result" ? st("[session-manager] wake: forced preempt deferred until tool_result", {
+                        sessionKey: _,
+                        actorRunId: q.actorRunId
+                    }) : it === "defer_tool_use" && st("[session-manager] wake: forced preempt deferred until tool_use", {
+                        sessionKey: _,
+                        actorRunId: q.actorRunId
                     })
-                } else if (z === "allow") {
-                let ye = je(U, "soft", N);
-                ye === "defer_accept" ? ht("[session-manager] wake: soft preempt deferred until prompt acceptance", {
-                    sessionKey: g,
-                    actorRunId: U.actorRunId
-                }) : ye === "defer_tool_use" ? ht("[session-manager] wake: soft preempt pending (streaming)", {
-                    sessionKey: g,
-                    actorRunId: U.actorRunId
-                }) : ye === "defer_tool_result" ? ht("[session-manager] wake: soft preempt deferred until tool_result", {
-                    sessionKey: g,
-                    actorRunId: U.actorRunId
-                }) : ye === "immediate" && ht("[session-manager] wake: hard preempt (not streaming)", {
-                    sessionKey: g,
-                    actorRunId: U.actorRunId
+                } else if (M === "allow") {
+                let it = rw(q, "soft", Y);
+                it === "defer_accept" ? st("[session-manager] wake: soft preempt deferred until prompt acceptance", {
+                    sessionKey: _,
+                    actorRunId: q.actorRunId
+                }) : it === "defer_tool_use" ? st("[session-manager] wake: soft preempt pending (streaming)", {
+                    sessionKey: _,
+                    actorRunId: q.actorRunId
+                }) : it === "defer_tool_result" ? st("[session-manager] wake: soft preempt deferred until tool_result", {
+                    sessionKey: _,
+                    actorRunId: q.actorRunId
+                }) : it === "immediate" && st("[session-manager] wake: hard preempt (not streaming)", {
+                    sessionKey: _,
+                    actorRunId: q.actorRunId
                 })
-            } else ht("[session-manager] wake: preempt disabled, queueing only", {
-                sessionKey: g,
-                actorRunId: U.actorRunId
+            } else st("[session-manager] wake: preempt disabled, queueing only", {
+                sessionKey: _,
+                actorRunId: q.actorRunId
             });
-            U.pendingWake = !0, ht("[session-manager] wake marked pending", {
-                sessionKey: g,
-                actorRunId: U.actorRunId,
-                status: U.status
-            });
-            return
-        }
-        let D = C(g, U?.origin);
-        if (D.activeCount >= D.maxConcurrent) {
-            let Oe = D.wakeQueue.includes(g);
-            Oe || D.wakeQueue.push(g), ht("[session-manager] wake queued", {
-                sessionKey: g,
-                pool: D.name,
-                activeCount: D.activeCount,
-                maxConcurrent: D.maxConcurrent,
-                alreadyQueued: Oe,
-                queuedSessions: D.wakeQueue.length
+            q.pendingWake = !0, st("[session-manager] wake marked pending", {
+                sessionKey: _,
+                actorRunId: q.actorRunId,
+                status: q.status
             });
             return
         }
-        let ne = jB(g);
-        ne ? (ht("[session-manager] wake starting actor with inferred origin", {
-            sessionKey: g,
-            ...ne
-        }), Be(g, ne)) : (ht("[session-manager] wake starting actor", {
-            sessionKey: g
-        }), Be(g))
+        let se = j(_, q?.origin);
+        if (se.activeCount >= se.maxConcurrent) {
+            let Se = se.wakeQueue.includes(_);
+            Se || se.wakeQueue.push(_), st("[session-manager] wake queued", {
+                sessionKey: _,
+                pool: se.name,
+                activeCount: se.activeCount,
+                maxConcurrent: se.maxConcurrent,
+                alreadyQueued: Se,
+                queuedSessions: se.wakeQueue.length
+            });
+            return
+        }
+        let ve = MH(_);
+        ve ? (st("[session-manager] wake starting actor with inferred origin", {
+            sessionKey: _,
+            ...ve
+        }), D(_, ve)) : (st("[session-manager] wake starting actor", {
+            sessionKey: _
+        }), D(_))
     }
 
-    function Be(g, E) {
-        let z = x.get(g),
-            N = z?.attachedChannels ?? new Set,
-            U = ++H,
-            D = {
-                sessionKey: g,
-                actorRunId: U,
-                sdkSessionId: z?.sdkSessionId,
-                sdkSessionIdVerified: z?.sdkSessionIdVerified ?? !1,
+    function D(_, k) {
+        let M = U.get(_),
+            Y = M?.attachedChannels ?? new Set,
+            q = ++re,
+            se = {
+                sessionKey: _,
+                actorRunId: q,
+                sdkSessionId: M?.sdkSessionId,
+                sdkSessionIdVerified: M?.sdkSessionIdVerified ?? !1,
                 status: "active",
                 currentAbortController: null,
                 query: null,
                 streamAbortController: null,
                 streamingState: null,
-                streamingAdapter: z?.streamingAdapter ?? null,
-                streamingGeneration: z?.streamingGeneration ?? 0,
+                streamingAdapter: M?.streamingAdapter ?? null,
+                streamingGeneration: M?.streamingGeneration ?? 0,
                 drainPromise: null,
                 wakeResolver: null,
                 pendingWake: !1,
                 isStreaming: !1,
-                activeToolUseIds: new Set,
+                activeToolCalls: new Map,
                 pendingPreempt: !1,
                 pendingPreemptBoundary: null,
                 pendingClear: !1,
-                attachedChannels: N,
-                origin: E?.origin ?? z?.origin ?? "channel",
-                jobId: E?.jobId ?? z?.jobId,
-                jobStateless: z?.jobStateless ?? !1,
+                attachedChannels: Y,
+                origin: k?.origin ?? M?.origin ?? "channel",
+                jobId: k?.jobId ?? M?.jobId,
+                jobStateless: M?.jobStateless ?? !1,
                 holdsPoolSlot: !1,
                 inflightEventIds: new Set,
                 admissionInProgress: !1,
@@ -1146,1162 +350,896 @@ function createSessionManager(e) {
                 lastActivityAt: void 0,
                 lastTurnCompletedAt: void 0,
                 lastCliTurnSettledAt: void 0,
-                notifyCalledDuringDrain: !1,
-                runtime: E?.runtime ?? z?.runtime ?? "claude",
-                codexAdapter: z?.codexAdapter ?? null,
-                grokAdapter: z?.grokAdapter ?? null,
-                consecutiveConservativeRedrive: z?.consecutiveConservativeRedrive ?? !1
+                agentNotifiedThisDrain: !1,
+                runtime: k?.runtime ?? M?.runtime ?? "claude",
+                adapter: M?.adapter ?? null,
+                adapterFacts: M?.adapterFacts,
+                consecutiveConservativeRedrive: M?.consecutiveConservativeRedrive ?? !1
             };
-        x.set(g, D);
-        let ne = C(g, D.origin);
-        ne.activeCount++, D.holdsPoolSlot = !0;
-        let Oe = P.get(g);
-        if (Oe && P.delete(g), m0(t, {
-                session_key: g,
-                display_name: Oe,
-                kind: D.origin === "job" ? "job" : D.origin === "system" ? "system" : g.startsWith("meta:") ? "meta" : "channel"
-            }).catch(() => {}), K("[session-manager] actor start", {
-                sessionKey: g,
-                actorRunId: U,
-                sdkSessionId: D.sdkSessionId,
-                origin: D.origin,
-                jobId: D.jobId,
-                pool: ne.name,
-                activeCount: ne.activeCount,
-                attachedChannels: D.attachedChannels.size,
-                queuedSessions: ne.wakeQueue.length
-            }), E?.preStart) {
-            let bt = E.preStart;
-            D.drainPromise = bt().catch(ye => et("[session-manager] preStart failed", ye)).then(() => X(D))
-        } else D.drainPromise = X(D)
+        U.set(_, se);
+        let ve = j(_, se.origin);
+        ve.activeCount++, se.holdsPoolSlot = !0;
+        let Se = K.get(_);
+        if (Se && K.delete(_), VE(t, {
+                session_key: _,
+                display_name: Se,
+                kind: se.origin === "job" ? "job" : se.origin === "system" ? "system" : _.startsWith("meta:") ? "meta" : "channel"
+            }).catch(() => {}), Q("[session-manager] actor start", {
+                sessionKey: _,
+                actorRunId: q,
+                sdkSessionId: se.sdkSessionId,
+                origin: se.origin,
+                jobId: se.jobId,
+                pool: ve.name,
+                activeCount: ve.activeCount,
+                attachedChannels: se.attachedChannels.size,
+                queuedSessions: ve.wakeQueue.length
+            }), k?.preStart) {
+            let He = k.preStart;
+            se.drainPromise = He().catch(it => Me("[session-manager] preStart failed", it)).then(() => B(se))
+        } else se.drainPromise = B(se)
     }
-    async function X(g) {
+    async function B(_) {
         let {
-            sessionKey: E
-        } = g, z, N, U = 0, D = 0, ne = !1, Oe = [], bt = 0, ye = !1, Ft = !1, Xe = null, mt;
+            sessionKey: k
+        } = _, M, Y, q = 0, se = 0, ve = !1, Se = [], He = 0, it = !1, pt = !1, Ae = null, bt;
         try {
-            mt = await fe(E)
-        } catch (_e) {
-            Z("[session-manager] drain-start inbox snapshot read failed — empty snapshot (everything fresh)", {
-                sessionKey: E,
-                error: _e instanceof Error ? _e.message : String(_e)
-            }), mt = new Set
+            bt = await l(k)
+        } catch (Ne) {
+            J("[session-manager] drain-start inbox snapshot read failed — empty snapshot (everything fresh)", {
+                sessionKey: k,
+                error: Ne instanceof Error ? Ne.message : String(Ne)
+            }), bt = new Set
         }
-        ht("[session-manager] drain loop begin", {
-            sessionKey: E,
-            actorRunId: g.actorRunId,
-            origin: g.origin,
-            jobId: g.jobId
+        st("[session-manager] drain loop begin", {
+            sessionKey: k,
+            actorRunId: _.actorRunId,
+            origin: _.origin,
+            jobId: _.jobId
         });
         try {
-            if (!g.sdkSessionId && !g.pendingClear) {
-                let Te = await It(t, E);
-                Te?.sdk_session_id && (g.sdkSessionId = Te.sdk_session_id, K("[session-manager] loaded sdk_session_id from state.json", {
-                    sessionKey: E,
-                    sdkSessionId: Te.sdk_session_id
+            if (!_.sdkSessionId && !_.pendingClear) {
+                let Dt = await ut(t, k);
+                Dt?.sdk_session_id && (_.sdkSessionId = Dt.sdk_session_id, Q("[session-manager] loaded sdk_session_id from state.json", {
+                    sessionKey: k,
+                    sdkSessionId: Dt.sdk_session_id
                 }))
             }
-            if ((await It(t, E))?.session_key || await ut(t, E, {
-                    session_key: E
-                }), g.origin === "job" && !g.jobId) {
-                await me.init();
-                let He = (await me.listJobs()).find(cn => cn.session_key === E);
-                He ? (g.jobId = He.id, Ae("[session-manager] recovered jobId from active jobs", {
-                    sessionKey: E,
-                    jobId: He.id
-                })) : Z("[session-manager] job-origin actor has no matching active job", {
-                    sessionKey: E
+            if ((await ut(t, k))?.session_key || await Ye(t, k, {
+                    session_key: k
+                }), _.origin === "job" && !_.jobId) {
+                await a.init();
+                let Bt = (await a.listJobs()).find(qn => qn.session_key === k);
+                Bt ? (_.jobId = Bt.id, ke("[session-manager] recovered jobId from active jobs", {
+                    sessionKey: k,
+                    jobId: Bt.id
+                })) : J("[session-manager] job-origin actor has no matching active job", {
+                    sessionKey: k
                 })
             }
-            let _e = !1,
-                kt, Ee = !1,
-                hn, Xt, Mn = null,
-                Ht = !1;
-            if (g.jobStateless = !1, g.origin === "job" && g.jobId) {
-                let Te = await me.getJob(g.jobId);
-                if (Mn = Te, Xe = Te?.state.last_scheduled_at ?? null, Te?.execution_cwd && (await Afe({
-                        cwdRel: Te.execution_context === "workspace" ? Te.frontmatter.cwd_rel ?? null : null,
-                        cwd: Te.execution_cwd,
-                        runtimeWorkspaceDir: Te.runtime_workspace_dir,
-                        context: Te.execution_context
-                    }), await xe(Te.execution_cwd), await ut(t, E, {
-                        session_key: E,
-                        cwd: Te.execution_cwd,
+            let Ne, we, Xe = !1,
+                Pt, nr, Hs, wr = null,
+                ro = !1;
+            if (_.jobStateless = !1, _.origin === "job" && _.jobId) {
+                let Dt = await a.getJob(_.jobId);
+                if (wr = Dt, Ae = Dt?.state.last_scheduled_at ?? null, Dt?.execution_cwd && (await Bfe({
+                        cwdRel: Dt.execution_context === "workspace" ? Dt.frontmatter.cwd_rel ?? null : null,
+                        cwd: Dt.execution_cwd,
+                        runtimeWorkspaceDir: Dt.runtime_workspace_dir,
+                        context: Dt.execution_context
+                    }), await Te(Dt.execution_cwd), await Ye(t, k, {
+                        session_key: k,
+                        cwd: Dt.execution_cwd,
                         plane: "work",
                         permission_profile: "work_default"
-                    })), Te) {
-                    _e = !!Te.frontmatter.owner_session?.startsWith("job:"), kt = MB(Te.frontmatter.cron);
-                    let He = Te.frontmatter.stateless === !0;
-                    if (He && Te.frontmatter.cron === "keepalive") throw new Error(bB);
-                    Ee = He, g.jobStateless = Ee, hn = Te.frontmatter.model;
-                    let cn = Te.frontmatter.runtime ?? void 0,
-                        nn = cn ?? Xl(),
-                        Wn = cn ? "explicit" : "default";
-                    if (Te.frontmatter.prompt_mode !== void 0 && nn === "codex" && Z("[session-manager] job sets prompt_mode but resolves to the codex runtime; the setting is inert", {
-                            sessionKey: E,
-                            jobId: g.jobId,
-                            promptMode: Te.frontmatter.prompt_mode,
-                            runtimeSource: Wn
-                        }), nn === "codex") {
-                        let Jn = await c();
-                        Jn.ok ? g.runtime = "codex" : (g.runtime = "claude", Z("[session-manager] job requested codex but codex is unavailable; falling back to claude", {
-                            sessionKey: E,
-                            jobId: g.jobId,
-                            runtime_source: Wn,
-                            reason: Jn.reason
+                    })), Dt) {
+                    Ne = Kv(Dt.frontmatter.cron), we = Dt.frontmatter.cron;
+                    let Bt = Dt.frontmatter.stateless === !0;
+                    if (Bt && Dt.frontmatter.cron === "keepalive") throw new Error(R2);
+                    Xe = Bt, _.jobStateless = Xe, Pt = Dt.frontmatter.model, nr = {
+                        piExtensions: Dt.frontmatter.piExtensions,
+                        piSkills: Dt.frontmatter.piSkills,
+                        piConfigIssues: Dt.frontmatter.piConfigIssues
+                    };
+                    let qn = Dt.frontmatter.runtime ?? void 0,
+                        Ie = qn ?? ao(),
+                        oe = qn ? "explicit" : "default";
+                    if (Dt.frontmatter.prompt_mode !== void 0 && Ie === "codex" && J("[session-manager] job sets prompt_mode but resolves to the codex runtime; the setting is inert", {
+                            sessionKey: k,
+                            jobId: _.jobId,
+                            promptMode: Dt.frontmatter.prompt_mode,
+                            runtimeSource: oe
+                        }), Ie === "codex") {
+                        let ne = await m();
+                        ne.ok ? _.runtime = "codex" : (_.runtime = "claude", J("[session-manager] job requested codex but codex is unavailable; falling back to claude", {
+                            sessionKey: k,
+                            jobId: _.jobId,
+                            runtime_source: oe,
+                            reason: ne.reason
                         }))
-                    } else if (nn === "grok") {
-                        g.runtime = "grok";
-                        let Jn = await m();
-                        Jn.ok || (Xt = Jn.reason, Z("[session-manager] job requested grok but grok is unavailable", {
-                            sessionKey: E,
-                            jobId: g.jobId,
-                            runtime_source: Wn,
-                            reason: Jn.reason
+                    } else if (Ie === "grok") {
+                        _.runtime = "grok";
+                        let ne = await v();
+                        ne.ok || (Hs = ne.reason, J("[session-manager] job requested grok but grok is unavailable", {
+                            sessionKey: k,
+                            jobId: _.jobId,
+                            runtime_source: oe,
+                            reason: ne.reason
                         }))
-                    } else g.runtime = "claude"
+                    } else Ie === "pi" ? _.runtime = "pi" : _.runtime = "claude"
                 }
-            } else if (g.origin === "channel") {
-                let He = (await It(t, E))?.source_channel_id;
-                if (He) {
-                    let cn = await eo(t, He).catch(() => null),
-                        nn = cn?.channel_kind,
-                        Wn = nn ? await Ts(t.channelConfigDir, nn).catch(() => null) : null,
-                        Ei = cn?.runtime ?? Wn?.runtime ?? void 0 ?? Xl(),
-                        Hr = cn?.runtime ? "explicit" : Wn?.runtime ? "inherited" : "default";
-                    if (Ei === "codex") {
-                        let we = await c();
-                        we.ok ? g.runtime = "codex" : (g.runtime = "claude", Z("[session-manager] channel requested codex but codex is unavailable; falling back to claude", {
-                            sessionKey: E,
-                            sourceChannelId: He,
-                            runtime_source: Hr,
-                            reason: we.reason
+            } else if (_.origin === "channel") {
+                let Bt = (await ut(t, k))?.source_channel_id;
+                if (Bt) {
+                    let qn = await li(t, Bt).catch(() => null),
+                        Ie = qn?.channel_kind,
+                        oe = Ie ? await Jo(t.channelConfigDir, Ie).catch(() => null) : null,
+                        Ht = qn?.runtime ?? oe?.runtime ?? void 0 ?? ao(),
+                        Lt = qn?.runtime ? "explicit" : oe?.runtime ? "inherited" : "default";
+                    if (Ht === "codex") {
+                        let Ct = await m();
+                        Ct.ok ? _.runtime = "codex" : (_.runtime = "claude", J("[session-manager] channel requested codex but codex is unavailable; falling back to claude", {
+                            sessionKey: k,
+                            sourceChannelId: Bt,
+                            runtime_source: Lt,
+                            reason: Ct.reason
                         }))
-                    } else if (Ei === "grok") {
-                        g.runtime = "grok";
-                        let we = await m();
-                        we.ok || (Xt = we.reason, Z("[session-manager] channel requested grok but grok is unavailable", {
-                            sessionKey: E,
-                            sourceChannelId: He,
-                            runtime_source: Hr,
-                            reason: we.reason
+                    } else if (Ht === "grok") {
+                        _.runtime = "grok";
+                        let Ct = await v();
+                        Ct.ok || (Hs = Ct.reason, J("[session-manager] channel requested grok but grok is unavailable", {
+                            sessionKey: k,
+                            sourceChannelId: Bt,
+                            runtime_source: Lt,
+                            reason: Ct.reason
                         }))
-                    } else g.runtime = "claude"
+                    } else Ht === "pi" ? _.runtime = "pi" : _.runtime = "claude"
                 }
             }
-            for (; g.status !== "ended" && j;) {
-                if (g.runtime !== "codex") {
+            for (; _.status !== "ended" && V;) {
+                let Dt = Hs;
+                if (_.runtime !== "codex") {
                     for (;;) {
-                        let $e = g.streamingState,
-                            Y = !!$e && !$e.closed && ($e.cliTurnTentative !== null || $e.currentTurn !== null);
-                        if (!Y && !g.admissionInProgress) break;
-                        if (g.pendingWake) {
-                            g.pendingWake = !1;
+                        let ct = _.streamingState,
+                            Je = !!ct && !ct.closed && (ct.cliTurnTentative !== null || ct.currentTurn !== null);
+                        if (!Je && !_.admissionInProgress) break;
+                        if (_.pendingWake) {
+                            _.pendingWake = !1;
                             continue
                         }
-                        ht("[session-manager] drain parked: CLI busy gate", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId,
-                            cliBusy: Y,
-                            admissionInProgress: g.admissionInProgress
-                        }), await Q(g, i)
+                        st("[session-manager] drain parked: CLI busy gate", {
+                            sessionKey: k,
+                            actorRunId: _.actorRunId,
+                            cliBusy: Je,
+                            admissionInProgress: _.admissionInProgress
+                        }), await n6(_, i)
                     }
-                    if (!j || g.status === "ended") break
+                    if (!V || _.status === "ended") break
                 }
-                g.pendingClear && (g.sdkSessionId = void 0, g.pendingClear = !1, await ut(t, E, {
+                _.pendingClear && (_.sdkSessionId = void 0, _.pendingClear = !1, await Ye(t, k, {
                     sdk_session_id: null,
-                    pending_fork_to: null,
-                    pending_undo: null
+                    pending_fork_to: null
                 }).catch(() => {}));
-                let Te, He = null;
-                g.origin === "job" && g.jobId && (Ht ? He = await me.getJob(g.jobId).catch(() => null) : (Ht = !0, He = Mn, Mn = null));
+                let Bt, qn = null;
+                _.origin === "job" && _.jobId && (ro ? qn = await a.getJob(_.jobId).catch(() => null) : (ro = !0, qn = wr, wr = null));
                 let {
-                    instructions: cn,
-                    missionContent: nn
-                } = await uot(t, E, g, He), Wn = await It(t, E), Jn = await runInstructionsFingerprintGuard(t, E, cn, g.runtime, {
-                    instructions_fingerprint: Wn?.instructions_fingerprint,
-                    mission_fingerprint: Wn?.mission_fingerprint,
-                    schema_version: Wn?.schema_version,
-                    sdk_session_id: Wn?.sdk_session_id,
-                    board_layer_hash: Wn?.board_layer_hash,
-                    instructions_nonboard_fingerprint: Wn?.instructions_nonboard_fingerprint
-                }, g.origin === "job" && g.jobId ? {
-                    jobId: g.jobId
+                    instructions: Ie,
+                    missionContent: oe
+                } = await Jve(t, k, _, qn), ne = await ut(t, k), Ht = await runInstructionsFingerprintGuard(t, k, Ie, _.runtime, {
+                    instructions_fingerprint: ne?.instructions_fingerprint,
+                    mission_fingerprint: ne?.mission_fingerprint,
+                    schema_version: ne?.schema_version,
+                    sdk_session_id: ne?.sdk_session_id,
+                    board_layer_hash: ne?.board_layer_hash,
+                    instructions_nonboard_fingerprint: ne?.instructions_nonboard_fingerprint
+                }, _.origin === "job" && _.jobId ? {
+                    jobId: _.jobId
                 } : void 0);
-                Jn.clearedSdkSessionId && (g.sdkSessionId = void 0), Jn.gate2Fired && g.runtime === "claude" && (Jn.boardOnlyDrift ? g.streamingState && !g.streamingState.closed ? K("[session-manager] board-only drift — pinning streaming prefix (no teardown)", {
-                    sessionKey: E,
-                    board_layer_hash: Jn.boardLayerHash
-                }) : K("[session-manager] board-only drift — no live streaming prefix (nothing to pin)", {
-                    sessionKey: E,
-                    board_layer_hash: Jn.boardLayerHash
+                Ht.clearedSdkSessionId && (_.sdkSessionId = void 0), Ht.gate2Fired && _.runtime === "claude" && (Ht.boardOnlyDrift ? _.streamingState && !_.streamingState.closed ? Q("[session-manager] board-only drift — pinning streaming prefix (no teardown)", {
+                    sessionKey: k,
+                    board_layer_hash: Ht.boardLayerHash
+                }) : Q("[session-manager] board-only drift — no live streaming prefix (nothing to pin)", {
+                    sessionKey: k,
+                    board_layer_hash: Ht.boardLayerHash
                 }) : n.emit("session.streaming_invalidated", {
-                    sessionKey: E,
+                    sessionKey: k,
                     reason: "instructions_drift"
-                })), g.origin === "job" && g.jobId && (nn !== void 0 ? Te = {
-                    content: nn,
-                    jobId: g.jobId,
-                    cron: He?.frontmatter.cron ?? "",
-                    stateless: Ee,
-                    model: He?.frontmatter.model ?? hn,
-                    sdkConfig: Lfe(He?.frontmatter)
-                } : Z("[session-manager] job snapshot unavailable at drain start", {
-                    sessionKey: E,
-                    jobId: g.jobId
-                })), g.status = "active", g.idleSince = void 0;
-                let Ei = new Set,
-                    Hr = Date.now(),
-                    we = new AbortController;
-                g.currentAbortController = we;
-                let se;
+                })), _.origin === "job" && _.jobId && (oe !== void 0 ? Bt = {
+                    content: oe,
+                    jobId: _.jobId,
+                    cron: qn?.frontmatter.cron ?? "",
+                    stateless: Xe,
+                    acceptance: qn?.frontmatter.acceptance,
+                    model: qn?.frontmatter.model ?? Pt,
+                    sdkConfig: Gfe(qn?.frontmatter)
+                } : J("[session-manager] job snapshot unavailable at drain start", {
+                    sessionKey: k,
+                    jobId: _.jobId
+                })), _.status !== "ended" && (_.status = "active"), _.idleSince = void 0;
+                let Lt = new Set,
+                    Ct = Date.now(),
+                    Yt = new AbortController;
+                _.currentAbortController = Yt;
+                let vt;
                 try {
-                    let $e = !_e,
-                        Y = [...$e ? [Cye] : [], Mye, Kye];
-                    g.origin === "channel" && (Y.push(Lye), Y.push(wd));
-                    let Ot = g.origin === "job" ? "job" : g.origin === "system" ? "system" : "foreground",
-                        yt = 0,
-                        gn = oot();
-                    if (g.admissionCallback = async () => {
+                    let ct = [..._.origin === "system" ? [] : [bpe], Epe, Mpe];
+                    _.origin === "channel" && (ct.push(y_e), ct.push(Cu));
+                    let Je = _.origin === "job" ? "job" : _.origin === "system" ? "system" : "foreground",
+                        on = 0,
+                        dr = mve();
+                    if (_.admissionCallback = async () => {
                             try {
-                                await Gx(t, E);
-                                let ke = await zy(t, E);
-                                if (ke.length === 0) return;
-                                await Kx(t, E, ke);
-                                let De = {},
-                                    at = await batchDrainItems(t, ke, {
-                                        fallbackBatchSize: 5,
-                                        mergeWindowMs: 180 * 1e3,
-                                        perf: De
+                                await EE(t, k);
+                                let We = await Jy(t, k);
+                                if (We.length === 0) return;
+                                await RE(t, k, We);
+                                let at = {},
+                                    De = await batchDrainItems(t, We, {
+                                        fallbackBatchSize: sB,
+                                        mergeWindowMs: aB,
+                                        perf: at
                                     }),
-                                    yn = await It(t, E),
-                                    ai = Wb(t, E, yn ?? void 0),
-                                    Nr = [],
-                                    br = [];
-                                for (let $t of at.items) {
-                                    if (!$t.eventId) continue;
-                                    if (g.inflightEventIds.has($t.eventId)) {
-                                        br.push($t.eventId);
+                                    mt = await ut(t, k),
+                                    Mr = hh(t, k, mt ?? void 0),
+                                    pn = [],
+                                    Mi = [];
+                                for (let lt of De.items) {
+                                    if (!lt.eventId) continue;
+                                    if (_.inflightEventIds.has(lt.eventId)) {
+                                        Mi.push(lt.eventId);
                                         continue
                                     }
-                                    if (await Lp(t, $t.eventId)) {
-                                        br.push($t.eventId);
+                                    if (await Yp(t, lt.eventId)) {
+                                        Mi.push(lt.eventId);
                                         continue
                                     }
-                                    let Ln = at.events.get($t.eventId) ?? await readEventByIdSeek(t, $t.eventId);
-                                    Ln && Nr.push({
-                                        item: $t,
-                                        event: Ln,
-                                        prompt: t4(Ln, E)
+                                    let nt = lt.createdAt ? {
+                                            notAfter: lt.createdAt
+                                        } : void 0,
+                                        ln = De.events.get(lt.eventId) ?? await td(t, lt.eventId, nt);
+                                    if (!ln) {
+                                        J(`[session-manager] mailbox event unresolved: session_key=${k} event_id=${lt.eventId} not_after=${nt?.notAfter??"none"} item_file=${lt.file??"none"}`);
+                                        continue
+                                    }
+                                    pn.push({
+                                        item: lt,
+                                        event: ln,
+                                        prompt: cB(ln, k)
                                     })
                                 }
-                                if (Nr.length === 0) {
-                                    br.length > 0 && await Ir(t, E, br);
+                                if (pn.length === 0) {
+                                    Mi.length > 0 && await co(t, k, Mi);
                                     return
                                 }
-                                let _n = await Q2(t, E, {
-                                        allowedTools: Y,
-                                        tools: gn,
-                                        additionalDirectories: [t.memoryDir],
-                                        onExecutionEvent: $t => {
-                                            $t.type === "tool_use" && (g.isStreaming = !1, g.activeToolUseIds.add($t.toolUseId), g.pendingPreempt && g.pendingPreemptBoundary === "tool_use" && (g.pendingPreempt = !1, g.pendingPreemptBoundary = null, Ye(g))), $t.type === "tool_result" && (g.activeToolUseIds.delete($t.toolUseId), g.pendingPreempt && g.pendingPreemptBoundary === "tool_result" && g.activeToolUseIds.size === 0 && (g.pendingPreempt = !1, g.pendingPreemptBoundary = null, Ye(g)));
-                                            let Ri = T_e($t);
-                                            Ri && n.emit("session.execution", {
-                                                sessionKey: E,
-                                                event: Ri
-                                            })
-                                        },
-                                        onStream: ($t, Ri, Ln) => {
-                                            g.isStreaming = !0, n.emit("session.stream", {
-                                                sessionKey: E,
-                                                chunk: $t,
-                                                isSidechain: Ri,
-                                                anchorEventId: Ln
-                                            })
-                                        }
-                                    }, Nr, ai, {
-                                        pendingGatewayNotice: yn?.pending_gateway_notice,
-                                        pendingInterruptedContext: yn?.pending_interrupted_context,
-                                        pendingSkipRewind: yn?.pending_skip_rewind,
-                                        lastEventAtWatermark: yn?.last_event_at,
+                                let mn = await lB(t, k, {
+                                        allowedTools: ct,
+                                        tools: dr,
+                                        additionalDirectories: [t.memoryDir]
+                                    }, pn, Mr, {
+                                        pendingGatewayNotice: mt?.pending_gateway_notice,
+                                        pendingInterruptedContext: mt?.pending_interrupted_context,
+                                        pendingSkipRewind: mt?.pending_skip_rewind,
+                                        lastEventAtWatermark: mt?.last_event_at,
                                         timeGapConsumed: !1,
                                         daemonRestartHint: void 0
-                                    }, De, $t => $t),
-                                    Dr = [...br, ...Nr.map($t => $t.item.eventId).filter($t => !!$t)];
-                                if (g.runtime === "codex" || g.runtime === "grok") {
-                                    let $t = g.runtime === "codex" ? g.codexAdapter : g.grokAdapter,
-                                        Ri = $t?.steerActiveTurn,
-                                        Ln = _n.coalescedPromptText.trim(),
-                                        Vr = $t?.activeTurnId?.(),
-                                        Dh = $t?.activeTurnStartedAt?.(),
-                                        fo = !1;
-                                    if (Vr && Dh !== void 0)
-                                        if ($t?.activeTurnSkipObserved?.() === !0) fo = !0;
+                                    }, at, lt => lt),
+                                    $a = [...Mi, ...pn.map(lt => lt.item.eventId).filter(lt => !!lt)];
+                                if (_.runtime === "codex" || _.runtime === "grok" || _.runtime === "pi") {
+                                    let lt = _.adapter?.steerActiveTurn,
+                                        Ge = mn.coalescedPromptText.trim(),
+                                        nt = _.adapter?.activeTurnId?.(),
+                                        ln = _.adapter?.activeTurnStartedAt?.(),
+                                        Tr = !1;
+                                    if (nt && ln !== void 0)
+                                        if (_.adapter?.activeTurnSkipObserved?.() === !0) Tr = !0;
                                         else {
-                                            let Gu = await It(t, E).catch(() => null);
-                                            if (Gu === null) fo = !0, Z("[session-manager] seal-on-skip: session state unreadable at admission, failing closed (steer rejected → fresh turn)", {
-                                                sessionKey: E
+                                            let Vs = await ut(t, k).catch(() => null);
+                                            if (Vs === null) Tr = !0, J("[session-manager] seal-on-skip: session state unreadable at admission, failing closed (steer rejected → fresh turn)", {
+                                                sessionKey: k
                                             });
                                             else {
-                                                let Bs = Date.parse(Gu.pending_skip_rewind?.skipped_at ?? "");
-                                                fo = Number.isFinite(Bs) && Bs >= Dh
+                                                let rr = Date.parse(Vs.pending_skip_rewind?.skipped_at ?? "");
+                                                Tr = Number.isFinite(rr) && rr >= ln
                                             }
-                                        } if (!!Ri && !!Vr && !_n.isNotifyOnly && Ln.length > 0 && !fo && Ri && Vr) {
-                                        let Zu = _n.batchEventIds.filter(Bs => !g.inflightEventIds.has(Bs));
-                                        for (let Bs of Zu) g.inflightEventIds.add(Bs);
-                                        if (await Ri(Ln, Vr, _n.attachments).catch(() => !1)) {
-                                            await Ir(t, E, Dr);
-                                            for (let Bs of Zu) g.inflightEventIds.delete(Bs);
-                                            K("[session-manager] admission callback: codex turn/steer landed", {
-                                                sessionKey: E,
-                                                admittedItems: Nr.length,
-                                                batchEventIds: _n.batchEventIds
+                                        } if (!!lt && !!nt && !mn.isNotifyOnly && Ge.length > 0 && !Tr && lt && nt) {
+                                        let yi = mn.batchEventIds.filter(rr => !_.inflightEventIds.has(rr));
+                                        for (let rr of yi) _.inflightEventIds.add(rr);
+                                        if (await lt(Ge, nt, mn.attachments).catch(() => !1)) {
+                                            await co(t, k, $a);
+                                            for (let rr of yi) _.inflightEventIds.delete(rr);
+                                            Q("[session-manager] admission callback: codex turn/steer landed", {
+                                                sessionKey: k,
+                                                admittedItems: pn.length,
+                                                batchEventIds: mn.batchEventIds
                                             })
                                         } else {
-                                            for (let Bs of Zu) g.inflightEventIds.delete(Bs);
-                                            g.pendingWake = !0, K("[session-manager] admission callback: codex steer fell back to redrain", {
-                                                sessionKey: E,
-                                                batchEventIds: _n.batchEventIds
+                                            for (let rr of yi) _.inflightEventIds.delete(rr);
+                                            _.pendingWake = !0, Q("[session-manager] admission callback: codex steer fell back to redrain", {
+                                                sessionKey: k,
+                                                batchEventIds: mn.batchEventIds
                                             })
                                         }
-                                    } else g.pendingWake = !0, K("[session-manager] admission callback: codex no live turn, redraining", {
-                                        sessionKey: E,
-                                        admittedItems: Nr.length,
-                                        batchEventIds: _n.batchEventIds
+                                    } else _.pendingWake = !0, Q("[session-manager] admission callback: codex no live turn, redraining", {
+                                        sessionKey: k,
+                                        admittedItems: pn.length,
+                                        batchEventIds: mn.batchEventIds
                                     });
                                     return
                                 }
-                                let ir = g.streamingState;
-                                if (!ir || ir.closed) return;
-                                let Bi = ir.currentTurn,
-                                    fbe = !!_n.attachments && _n.attachments.length > 0,
-                                    TC = _n.coalescedPromptText.trim();
-                                if (!!Bi && Bi.accepted && !Bi.skipCalled && !fbe && !_n.isNotifyOnly && TC.length > 0) {
-                                    let $t = g.pendingSteer;
-                                    if ($t && !$t.settled && $t.spawningTurn === Bi) {
-                                        let Ri = _n.batchEventIds.filter(Ln => !g.inflightEventIds.has(Ln));
-                                        for (let Ln of Ri) g.inflightEventIds.add(Ln);
-                                        $t.steerText = `${$t.steerText}
-${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines.push(...Nr.map(Ln => Ln.item.line)), $t.requeueEventIds.push(...Nr.map(Ln => Ln.item.eventId)), $t.processedEventIds.push(...br), K("[session-manager] admission callback: appended claude steer", {
-                                            sessionKey: E,
-                                            admittedItems: Nr.length,
-                                            batchEventIds: _n.batchEventIds
+                                let gi = _.streamingState;
+                                if (!gi || gi.closed) return;
+                                let xo = gi.currentTurn,
+                                    lf = !!mn.attachments && mn.attachments.length > 0,
+                                    Sl = mn.coalescedPromptText.trim();
+                                if (!!xo && xo.accepted && !xo.skipCalled && !lf && !mn.isNotifyOnly && Sl.length > 0) {
+                                    let lt = _.pendingSteer;
+                                    if (lt && !lt.settled && lt.spawningTurn === xo) {
+                                        let Ge = mn.batchEventIds.filter(nt => !_.inflightEventIds.has(nt));
+                                        for (let nt of Ge) _.inflightEventIds.add(nt);
+                                        lt.steerText = `${lt.steerText}
+${Sl}`, lt.eventIds.push(...$a), lt.claimedEventIds.push(...Ge), lt.requeueLines.push(...pn.map(nt => nt.item.line)), lt.requeueEventIds.push(...pn.map(nt => nt.item.eventId)), lt.processedEventIds.push(...Mi), Q("[session-manager] admission callback: appended claude steer", {
+                                            sessionKey: k,
+                                            admittedItems: pn.length,
+                                            batchEventIds: mn.batchEventIds
                                         });
                                         return
                                     }
-                                    if (!$t) {
-                                        let Ri = _n.batchEventIds.filter(Vr => !g.inflightEventIds.has(Vr));
-                                        for (let Vr of Ri) g.inflightEventIds.add(Vr);
-                                        let Ln = {
-                                            steerText: TC,
-                                            eventIds: [...Dr],
-                                            claimedEventIds: [...Ri],
+                                    if (!lt) {
+                                        let Ge = mn.batchEventIds.filter(ln => !_.inflightEventIds.has(ln));
+                                        for (let ln of Ge) _.inflightEventIds.add(ln);
+                                        let nt = {
+                                            steerText: Sl,
+                                            eventIds: [...$a],
+                                            claimedEventIds: [...Ge],
                                             enqueueAsNewTurn: async () => {
-                                                let Vr = [];
-                                                for (let fo = 0; fo < Ln.requeueLines.length; fo += 1) {
-                                                    let GB = Ln.requeueLines[fo],
-                                                        Zu = Ln.requeueEventIds[fo];
+                                                let ln = [];
+                                                for (let Eo = 0; Eo < nt.requeueLines.length; Eo += 1) {
+                                                    let yi = nt.requeueLines[Eo],
+                                                        Vs = nt.requeueEventIds[Eo];
                                                     try {
-                                                        await ua(t, E, GB), Vr.push(Zu)
-                                                    } catch (Gu) {
-                                                        Z("[session-manager] steer fallback requeue failed", {
-                                                            sessionKey: E,
-                                                            eventId: Zu,
-                                                            error: Gu instanceof Error ? Gu.message : String(Gu)
+                                                        await ks(t, k, yi), ln.push(Vs)
+                                                    } catch (rr) {
+                                                        J("[session-manager] steer fallback requeue failed", {
+                                                            sessionKey: k,
+                                                            eventId: Vs,
+                                                            error: rr instanceof Error ? rr.message : String(rr)
                                                         })
                                                     }
                                                 }
-                                                let Dh = [...Vr, ...Ln.processedEventIds];
-                                                if (Dh.length > 0) try {
-                                                    await Ir(t, E, Dh)
-                                                } catch (fo) {
-                                                    K("[session-manager] steer fallback markDone error", {
-                                                        sessionKey: E,
-                                                        error: String(fo)
+                                                let Tr = [...ln, ...nt.processedEventIds];
+                                                if (Tr.length > 0) try {
+                                                    await co(t, k, Tr)
+                                                } catch (Eo) {
+                                                    Q("[session-manager] steer fallback markDone error", {
+                                                        sessionKey: k,
+                                                        error: String(Eo)
                                                     })
                                                 }
-                                                for (let fo of Ln.claimedEventIds) g.inflightEventIds.delete(fo);
-                                                g.pendingWake = !0, K("[session-manager] steer fallback requeued to inbox (turn ended undelivered)", {
-                                                    sessionKey: E,
-                                                    eventIds: Ln.eventIds,
-                                                    requeued: Vr.length,
-                                                    requeueFailed: Ln.requeueLines.length - Vr.length
+                                                for (let Eo of nt.claimedEventIds) _.inflightEventIds.delete(Eo);
+                                                _.pendingWake = !0, Q("[session-manager] steer fallback requeued to inbox (turn ended undelivered)", {
+                                                    sessionKey: k,
+                                                    eventIds: nt.eventIds,
+                                                    requeued: ln.length,
+                                                    requeueFailed: nt.requeueLines.length - ln.length
                                                 })
                                             },
-                                            spawningTurn: Bi,
-                                            requeueLines: Nr.map(Vr => Vr.item.line),
-                                            requeueEventIds: Nr.map(Vr => Vr.item.eventId),
-                                            processedEventIds: [...br],
+                                            spawningTurn: xo,
+                                            requeueLines: pn.map(ln => ln.item.line),
+                                            requeueEventIds: pn.map(ln => ln.item.eventId),
+                                            processedEventIds: [...Mi],
                                             settled: !1
                                         };
-                                        g.pendingSteer = Ln, K("[session-manager] admission callback: parked claude steer", {
-                                            sessionKey: E,
-                                            admittedItems: Nr.length,
-                                            batchEventIds: _n.batchEventIds
+                                        _.pendingSteer = nt, Q("[session-manager] admission callback: parked claude steer", {
+                                            sessionKey: k,
+                                            admittedItems: pn.length,
+                                            batchEventIds: mn.batchEventIds
                                         });
                                         return
                                     }
                                 }
-                                g.pendingWake = !0, g.wakeResolver?.()
-                            } catch (ke) {
-                                K("[session-manager] admission callback error", {
-                                    sessionKey: E,
-                                    error: String(ke)
+                                _.pendingWake = !0, _.wakeResolver?.()
+                            } catch (We) {
+                                Q("[session-manager] admission callback error", {
+                                    sessionKey: k,
+                                    error: String(We)
                                 })
                             }
-                        }, g.runtime === "codex" && !g.codexAdapter) {
-                        let ke = (await It(t, E))?.cwd;
-                        ke && await ensureAgentsMdSymlink(ke).catch(() => {}), g.codexAdapter = l({
+                        }, _.runtime === "codex" && !_.adapter) {
+                        let We = (await ut(t, k))?.cwd;
+                        We && await ensureAgentsMdSymlink(We).catch(() => {}), _.adapter = p({
                             sandbox: resolveCodexSandbox(),
                             ephemeral: !1,
-                            model: hn,
-                            dynamicTools: fC({
+                            model: Pt,
+                            dynamicTools: WC({
                                 paths: t,
-                                sessionKey: E,
+                                sessionKey: k,
                                 bus: n,
-                                sessionContextKind: Ot,
-                                notifyDepth: yt,
-                                jobScheduleType: kt,
-                                canManageJobs: $e,
-                                getSessionStatus: De => x.get(De)?.status,
+                                sessionContextKind: Je,
+                                notifyDepth: on,
+                                jobScheduleType: Ne,
+                                callerJobCron: we,
+                                getSessionStatus: at => U.get(at)?.status,
                                 onNotifyCalled: () => {
-                                    g.notifyCalledDuringDrain = !0
+                                    _.agentNotifiedThisDrain = !0
                                 }
                             })
                         })
                     }
-                    if (g.runtime === "grok" && !g.grokAdapter && !Xt) {
-                        let ke = await It(t, E).catch(() => null);
-                        g.grokAdapter = p({
-                            cwd: ke?.cwd ?? t.workDir,
-                            sdkSessionId: ke?.sdk_session_id,
-                            mcpServerFactory: () => Ah(t, {
-                                sessionKey: E,
+                    if (_.runtime === "grok" && !_.adapter && !Dt) {
+                        let We = await ut(t, k).catch(() => null);
+                        _.adapter = g({
+                            cwd: We?.cwd ?? t.workDir,
+                            sdkSessionId: We?.sdk_session_id,
+                            mcpServerFactory: () => Fh(t, {
+                                sessionKey: k,
                                 bus: n,
-                                sessionContextKind: Ot,
-                                notifyDepth: yt,
-                                jobScheduleType: kt,
-                                canManageJobs: $e,
-                                getSessionStatus: De => x.get(De)?.status,
+                                sessionContextKind: Je,
+                                notifyDepth: on,
+                                jobScheduleType: Ne,
+                                callerRuntime: _.runtime,
+                                callerJobCron: we,
+                                getSessionStatus: at => U.get(at)?.status,
                                 onNotifyCalled: () => {
-                                    g.notifyCalledDuringDrain = !0
+                                    _.agentNotifiedThisDrain = !0
                                 }
                             }),
                             onDetachedTurn: ({
-                                text: De
-                            }) => k(E, De)
+                                text: at
+                            }) => S(k, at)
                         })
                     }
-                    let ce = Re(g);
-                    se = await drainSessionMailbox(t, E, {
-                        sdk: ce,
-                        usesStreamingAdapter: ce === g.streamingAdapter,
+                    if (_.runtime === "pi" && !Dt) {
+                        let We = await ut(t, k).catch(() => null),
+                            at = (We?.model_runtime === "pi" ? We.model : void 0) ?? Pt,
+                            De = We?.effort ?? void 0,
+                            mt = yv(),
+                            {
+                                settingsSeed: Mr,
+                                defaultProjectTrust: pn,
+                                unknownKeys: Mi,
+                                readFailed: mn
+                            } = _v(mt);
+                        Mi.length > 0 && J("[session-manager] pi settings keys not classified (SDK bump gate)", {
+                            sessionKey: k,
+                            keys: Mi
+                        });
+                        let $a = !1,
+                            gi = nr ?? await Sa(t, k).catch(() => ($a = !0, null));
+                        gi?.piConfigIssues?.length && J("[session-manager] invalid pi.* config values ignored (defaults apply)", {
+                            sessionKey: k,
+                            issues: gi.piConfigIssues
+                        });
+                        let xo = gi?.piExtensions ?? "all",
+                            lf = gi?.piSkills ?? "all",
+                            Sl = h_e({
+                                model: at,
+                                thinkingLevel: De,
+                                settingsSeed: Mr,
+                                defaultProjectTrust: pn,
+                                extensions: xo,
+                                skills: lf,
+                                instructionsFingerprint: m_e(no(k) === "channel", Ht)
+                            }),
+                            Gn = !mn && !$a;
+                        if (Gn || J("[session-manager] pi construction facts unread, keeping the live worker", {
+                                sessionKey: k,
+                                seedReadFailed: mn,
+                                configReadFailed: $a
+                            }), _.adapter && _.adapterFacts !== Sl && Gn) {
+                            let lt = _.adapter;
+                            _.adapter = null, _.adapterFacts = void 0, Promise.resolve(lt.shutdown()).catch(Ge => {
+                                J("[session-manager] stale pi adapter shutdown failed", {
+                                    sessionKey: k,
+                                    error: String(Ge)
+                                })
+                            })
+                        }
+                        if (!_.adapter)
+                            if (!at) Dt = "pi binds its model when the worker is built, and this session has none. Send `/model <provider>/<modelId>` (channel sessions), or set `model: <provider>/<modelId>` in the job frontmatter, then send the message again.";
+                            else {
+                                let lt = lc.join(Yn(t, k), "pi"),
+                                    Ge = {
+                                        session_context_kind: Je
+                                    };
+                                _.adapter = y({
+                                    cwd: We?.cwd ?? t.workDir,
+                                    sdkSessionId: We?.sdk_session_id ?? Rlt(),
+                                    sessionDir: lt,
+                                    agentDir: mt,
+                                    authPath: lc.join(mt, "auth.json"),
+                                    modelsPath: lc.join(mt, "models.json"),
+                                    modelsStorePath: lc.join(lt, "models-store.json"),
+                                    settingsSeed: Mr,
+                                    resources: {
+                                        extensions: xo,
+                                        skills: lf,
+                                        default_project_trust: pn
+                                    },
+                                    model: at,
+                                    thinkingLevel: De,
+                                    workerCommand: gv(),
+                                    env: {
+                                        [oI]: t.daemonSocketPath,
+                                        [sI]: lI({
+                                            session_key: k,
+                                            job_cron: we,
+                                            job_schedule_type: Ne,
+                                            ...Ge
+                                        }),
+                                        [aI]: JSON.stringify(Ge)
+                                    },
+                                    onToolEnd: nt => v_e(t, k, nt),
+                                    logDebug: nt => ke(nt, {
+                                        sessionKey: k
+                                    }),
+                                    logWarn: nt => J(nt, {
+                                        sessionKey: k
+                                    })
+                                }), _.adapterFacts = Sl
+                            }
+                    }
+                    if (!V || _.status === "ended") break;
+                    let Sr = fe(_);
+                    vt = await drainSessionMailbox(t, k, {
+                        sdk: Sr,
+                        usesStreamingAdapter: Sr === _.streamingAdapter,
                         bus: n,
-                        abortController: we,
-                        runtime: g.runtime,
-                        runtimeUnavailableReason: Xt,
-                        excludeEventIds: Se(g),
-                        actorSpawnedAt: g.spawnedAt,
-                        actorLastTurnCompletedAt: g.lastTurnCompletedAt,
-                        getStreamGeneration: () => g.streamingGeneration,
-                        holdInputOpenForBackgroundAgents: g.runtime === "claude" && g.origin !== "channel",
-                        jobContext: Te,
-                        memoryBoard: cn.memoryBoard ? {
+                        abortController: Yt,
+                        runtime: _.runtime,
+                        runtimeUnavailableReason: Dt,
+                        excludeEventIds: Qve(_),
+                        actorSpawnedAt: _.spawnedAt,
+                        actorLastTurnCompletedAt: _.lastTurnCompletedAt,
+                        getStreamGeneration: () => _.streamingGeneration,
+                        holdInputOpenForBackgroundAgents: _.runtime === "claude" && _.origin !== "channel",
+                        jobContext: Bt,
+                        memoryBoard: Ie.memoryBoard ? {
                             path: t.memoryBroadcastPath,
-                            content: cn.memoryBoard
+                            content: Ie.memoryBoard
                         } : void 0,
-                        boardHash: cn.memoryBoard ? Jn.boardLayerHash : void 0,
-                        onBatchContext: ke => {
-                            if (yt = ke.maxNotifyDepth, ke.eventIds)
-                                for (let De of ke.eventIds) g.inflightEventIds.add(De)
+                        boardHash: Ie.memoryBoard ? Ht.boardLayerHash : void 0,
+                        onBatchContext: We => {
+                            if (on = We.maxNotifyDepth, We.eventIds)
+                                for (let at of We.eventIds) _.inflightEventIds.add(at)
                         },
                         mcpServersFactory: () => ({
-                            aladuo: Ah(t, {
-                                sessionKey: E,
+                            aladuo: Fh(t, {
+                                sessionKey: k,
                                 bus: n,
-                                sessionContextKind: Ot,
-                                notifyDepth: yt,
-                                jobScheduleType: kt,
-                                canManageJobs: $e,
-                                getSessionStatus: ke => x.get(ke)?.status,
+                                sessionContextKind: Je,
+                                notifyDepth: on,
+                                jobScheduleType: Ne,
+                                callerRuntime: _.runtime,
+                                callerJobCron: we,
+                                getSessionStatus: We => U.get(We)?.status,
                                 onNotifyCalled: () => {
-                                    g.notifyCalledDuringDrain = !0
+                                    _.agentNotifiedThisDrain = !0
                                 }
                             })
                         }),
-                        allowedTools: Y,
-                        tools: gn,
+                        allowedTools: ct,
+                        tools: dr,
                         additionalDirectories: [t.memoryDir],
                         lockHeartbeatIntervalMs: o,
                         onSdkTurnStarted: () => {
-                            U += 1;
-                            let ke = !ne;
-                            if (ne = U > D, ke && ne && g.origin === "job" && g.jobId) {
-                                let De = g.jobId;
-                                Oe.push(me.updateState(De, {
+                            q += 1;
+                            let We = !ve;
+                            if (ve = q > se, We && ve && _.origin === "job" && _.jobId) {
+                                let at = _.jobId;
+                                Se.push(a.updateState(at, {
                                     last_run_started_at: new Date().toISOString()
                                 }, {
-                                    expectedClaimCursor: Xe
-                                }).catch(at => {
-                                    Z("[session-manager] last_run_started_at stamp failed (best-effort)", {
-                                        sessionKey: E,
-                                        jobId: De,
-                                        error: at instanceof Error ? at.message : String(at)
+                                    expectedClaimCursor: Ae
+                                }).catch(De => {
+                                    J("[session-manager] last_run_started_at stamp failed (best-effort)", {
+                                        sessionKey: k,
+                                        jobId: at,
+                                        error: De instanceof Error ? De.message : String(De)
                                     })
                                 }))
                             }
                         },
                         onSdkTurnRejected: () => {
-                            D += 1;
-                            let ke = ne && U <= D;
-                            if (ne = U > D, ke && g.origin === "job" && g.jobId) {
-                                let De = g.jobId;
-                                Oe.push(me.updateState(De, {
+                            se += 1;
+                            let We = ve && q <= se;
+                            if (ve = q > se, We && _.origin === "job" && _.jobId) {
+                                let at = _.jobId;
+                                Se.push(a.updateState(at, {
                                     last_run_started_at: null
                                 }, {
-                                    expectedClaimCursor: Xe
-                                }).catch(at => {
-                                    Z("[session-manager] last_run_started_at rollback failed (best-effort)", {
-                                        sessionKey: E,
-                                        jobId: De,
-                                        error: at instanceof Error ? at.message : String(at)
+                                    expectedClaimCursor: Ae
+                                }).catch(De => {
+                                    J("[session-manager] last_run_started_at rollback failed (best-effort)", {
+                                        sessionKey: k,
+                                        jobId: at,
+                                        error: De instanceof Error ? De.message : String(De)
                                     })
                                 }))
                             }
                         },
-                        onStream: (ke, De, at) => {
-                            g.isStreaming = !0, n.emit("session.stream", {
-                                sessionKey: E,
-                                chunk: ke,
-                                isSidechain: De,
-                                anchorEventId: at
+                        onStream: (We, at, De) => {
+                            _.isStreaming = !0, n.emit("session.stream", {
+                                sessionKey: k,
+                                chunk: We,
+                                isSidechain: at,
+                                anchorEventId: De
                             })
                         },
-                        onExecutionEvent: ke => {
-                            ke.type === "tool_use" && (g.isStreaming = !1, g.activeToolUseIds.add(ke.toolUseId), g.pendingPreempt && g.pendingPreemptBoundary === "tool_use" && (g.pendingPreempt = !1, g.pendingPreemptBoundary = null, Ye(g))), ke.type === "tool_result" && (g.activeToolUseIds.delete(ke.toolUseId), g.pendingPreempt && g.pendingPreemptBoundary === "tool_result" && g.activeToolUseIds.size === 0 && (g.pendingPreempt = !1, g.pendingPreemptBoundary = null, Ye(g)));
-                            let De = rot(ke);
-                            if (De && Ei.has(De)) return;
-                            De && Ei.add(De);
-                            let at = T_e(ke);
-                            at && n.emit("session.execution", {
-                                sessionKey: E,
-                                event: at
-                            })
+                        onExecutionEvent: (We, at) => {
+                            We.type === "tool_use" && (_.isStreaming = !1, _.activeToolCalls.set(We.toolUseId, {
+                                toolName: We.toolName,
+                                startedAtMs: Date.now()
+                            }), _.pendingPreempt && _.pendingPreemptBoundary === "tool_use" && (_.pendingPreempt = !1, _.pendingPreemptBoundary = null, t6(_))), We.type === "tool_result" && (_.activeToolCalls.delete(We.toolUseId), _.pendingPreempt && _.pendingPreemptBoundary === "tool_result" && _.activeToolCalls.size === 0 && (_.pendingPreempt = !1, _.pendingPreemptBoundary = null, t6(_)));
+                            let De = cve(We);
+                            if (De && Lt.has(De)) return;
+                            De && Lt.add(De);
+                            let mt = dve(We);
+                            if (mt) {
+                                let Mr = We.type === "tool_use" || We.type === "tool_result" ? We.isSidechain : void 0;
+                                n.emit("session.execution", {
+                                    sessionKey: k,
+                                    event: mt,
+                                    anchorEventId: at,
+                                    isSidechain: Mr
+                                })
+                            }
                         }
                     })
                 } finally {
-                    g.admissionCallback = null, g.admissionInProgress || g.inflightEventIds.clear(), g.currentAbortController === we && (g.currentAbortController = null), g.isStreaming = !1, g.activeToolUseIds.clear(), g.pendingPreempt = !1, g.pendingPreemptBoundary = null
+                    _.admissionCallback = null, _.admissionInProgress || _.inflightEventIds.clear(), _.currentAbortController === Yt && (_.currentAbortController = null), _.isStreaming = !1, _.activeToolCalls.clear(), _.pendingPreempt = !1, _.pendingPreemptBoundary = null
                 }
-                if (ht("[session-manager] drain result", {
-                        sessionKey: E,
-                        actorRunId: g.actorRunId,
-                        processed: se.processed,
-                        skipped: se.skipped,
-                        lockAcquired: se.lockAcquired,
-                        outboxRecords: se.outboxRecords?.length ?? (se.lastOutboxRecord ? 1 : 0),
-                        durationMs: Date.now() - Hr
-                    }), bt += se.processed, ye = se.mergeTransientFailure === !0, se.cancelled && (Ft = !0), se.processed > 0 && (g.lastTurnCompletedAt = Date.now(), await Es(t, E, "last_error").catch(() => {})), se.compacted && g.runtime === "claude" && g.streamingState && !g.streamingState.closed) {
-                    let $e = cn.memoryBoard ? Jn.boardLayerHash : void 0;
-                    g.spawnBoardHash !== $e && (g.streamingState.needsRecreation = !0, Ct("warn", "[kv-cache] needsRecreation flagged", {
-                        sessionKey: E,
+                if (st("[session-manager] drain result", {
+                        sessionKey: k,
+                        actorRunId: _.actorRunId,
+                        processed: vt.processed,
+                        skipped: vt.skipped,
+                        lockAcquired: vt.lockAcquired,
+                        outboxRecords: vt.outboxRecords?.length ?? (vt.lastOutboxRecord ? 1 : 0),
+                        durationMs: Date.now() - Ct
+                    }), He += vt.processed, it = vt.mergeTransientFailure === !0, vt.cancelled && (pt = !0), vt.processed > 0 && (_.lastTurnCompletedAt = Date.now(), await Es(t, k, "last_error").catch(() => {})), vt.compacted && _.runtime === "claude" && _.streamingState && !_.streamingState.closed) {
+                    let ct = Ie.memoryBoard ? Ht.boardLayerHash : void 0;
+                    _.spawnBoardHash !== ct && (_.streamingState.needsRecreation = !0, ht("warn", "[kv-cache] needsRecreation flagged", {
+                        sessionKey: k,
                         reason: "board-refresh(B4)",
-                        generation: g.streamingGeneration,
-                        spawn_board_hash: g.spawnBoardHash ? g.spawnBoardHash.slice(0, 12) : null,
-                        current_board_hash: $e ? $e.slice(0, 12) : null
+                        generation: _.streamingGeneration,
+                        spawn_board_hash: _.spawnBoardHash ? _.spawnBoardHash.slice(0, 12) : null,
+                        current_board_hash: ct ? ct.slice(0, 12) : null
                     }))
                 }
-                if (g.pendingClear) g.sdkSessionId = void 0, g.pendingClear = !1, await ut(t, E, {
+                if (_.pendingClear) _.sdkSessionId = void 0, _.pendingClear = !1, await Ye(t, k, {
                     sdk_session_id: null,
-                    pending_fork_to: null,
-                    pending_undo: null
-                }).catch(() => {}), K("[session-manager] applied pending clear after drain", {
-                    sessionKey: E,
-                    actorRunId: g.actorRunId
+                    pending_fork_to: null
+                }).catch(() => {}), Q("[session-manager] applied pending clear after drain", {
+                    sessionKey: k,
+                    actorRunId: _.actorRunId
                 });
                 else {
-                    let $e = await It(t, E);
-                    if ($e?.sdk_session_id) {
-                        let Y = !g.sdkSessionId,
-                            Ot = g.sdkSessionId !== $e.sdk_session_id;
-                        g.sdkSessionId = $e.sdk_session_id, (Y || Ot) && K("[session-manager] sdk session bound", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId,
-                            sdkSessionId: g.sdkSessionId,
-                            isNewSession: Y
+                    let ct = await ut(t, k);
+                    if (ct?.sdk_session_id) {
+                        let Je = !_.sdkSessionId,
+                            on = _.sdkSessionId !== ct.sdk_session_id;
+                        _.sdkSessionId = ct.sdk_session_id, (Je || on) && Q("[session-manager] sdk session bound", {
+                            sessionKey: k,
+                            actorRunId: _.actorRunId,
+                            sdkSessionId: _.sdkSessionId,
+                            isNewSession: Je
                         })
                     }
                 }
-                if (se.lastReplyText && (N = se.lastReplyText), se.outboxRecords && se.outboxRecords.length > 0) {
-                    ht("[session-manager] emitting outbox records", {
-                        sessionKey: E,
-                        actorRunId: g.actorRunId,
-                        count: se.outboxRecords.length
+                if (vt.lastReplyText && (Y = vt.lastReplyText), vt.outboxRecords && vt.outboxRecords.length > 0) {
+                    st("[session-manager] emitting outbox records", {
+                        sessionKey: k,
+                        actorRunId: _.actorRunId,
+                        count: vt.outboxRecords.length
                     });
-                    for (let $e of se.outboxRecords) n.emit("session.output", {
-                        sessionKey: $e.session_key,
-                        record: $e
+                    for (let ct of vt.outboxRecords) n.emit("session.output", {
+                        sessionKey: ct.session_key,
+                        record: ct
                     })
-                } else se.lastOutboxRecord ? (ht("[session-manager] emitting single outbox record", {
-                    sessionKey: E,
-                    actorRunId: g.actorRunId,
-                    recordId: se.lastOutboxRecord.id
+                } else if (vt.lastOutboxRecord) st("[session-manager] emitting single outbox record", {
+                    sessionKey: k,
+                    actorRunId: _.actorRunId,
+                    recordId: vt.lastOutboxRecord.id
                 }), n.emit("session.output", {
-                    sessionKey: E,
-                    record: se.lastOutboxRecord
-                })) : g.origin === "channel" && se.processed > 0 && !se.cancelled && (ht("[session-manager] drain produced no output, emitting stream_end", {
-                    sessionKey: E,
-                    actorRunId: g.actorRunId,
-                    turnSkipped: se.turnSkipped === !0
-                }), n.emit("session.stream_end", {
-                    sessionKey: g.sessionKey,
-                    reason: se.turnSkipped ? "skipped" : "interrupted"
-                }));
-                if (se.processed === 0) {
-                    if (g.origin === "job" || g.origin === "system") {
-                        ht("[session-manager] job/system session drain complete, exiting", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId,
-                            origin: g.origin,
-                            jobId: g.jobId
+                    sessionKey: k,
+                    record: vt.lastOutboxRecord
+                });
+                else if (_.origin === "channel" && vt.processed > 0 && !vt.cancelled) {
+                    st("[session-manager] drain produced no output, emitting stream_end", {
+                        sessionKey: k,
+                        actorRunId: _.actorRunId,
+                        turnSkipped: vt.turnSkipped === !0
+                    });
+                    let ct = vt.sdkTurns?.length ? vt.sdkTurns : [{
+                        anchorEventId: void 0,
+                        skipped: vt.turnSkipped === !0
+                    }];
+                    for (let Je of ct) n.emit("session.stream_end", {
+                        sessionKey: _.sessionKey,
+                        reason: Je.skipped ? "skipped" : "interrupted",
+                        anchorEventId: Je.anchorEventId
+                    })
+                }
+                if (vt.processed === 0) {
+                    if (_.origin === "job" || _.origin === "system") {
+                        st("[session-manager] job/system session drain complete, exiting", {
+                            sessionKey: k,
+                            actorRunId: _.actorRunId,
+                            origin: _.origin,
+                            jobId: _.jobId
                         });
                         break
                     }
-                    if (g.pendingWake) {
-                        g.pendingWake = !1, ht("[session-manager] pending wake after empty drain, re-draining", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId
+                    if (_.pendingWake) {
+                        _.pendingWake = !1, st("[session-manager] pending wake after empty drain, re-draining", {
+                            sessionKey: k,
+                            actorRunId: _.actorRunId
                         });
                         continue
                     }
-                    if (g.status = "idle", g.idleSince = new Date().toISOString(), g.pendingWake) {
-                        g.pendingWake = !1, ht("[session-manager] pending wake during idle transition, re-draining", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId
+                    if (_.status = "idle", _.idleSince = new Date().toISOString(), _.pendingWake) {
+                        _.pendingWake = !1, st("[session-manager] pending wake during idle transition, re-draining", {
+                            sessionKey: k,
+                            actorRunId: _.actorRunId
                         });
                         continue
                     }
-                    if (ht("[session-manager] idle", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId,
-                            attachedChannels: g.attachedChannels.size
-                        }), g.holdsPoolSlot) {
-                        let Y = C(E, g.origin);
-                        Y.activeCount--, g.holdsPoolSlot = !1, ht("[session-manager] released pool slot (idle)", {
-                            sessionKey: E,
-                            pool: Y.name,
-                            activeCount: Y.activeCount
-                        }), A(Y)
+                    if (st("[session-manager] idle", {
+                            sessionKey: k,
+                            actorRunId: _.actorRunId,
+                            attachedChannels: _.attachedChannels.size
+                        }), _.holdsPoolSlot) {
+                        let Je = j(k, _.origin);
+                        Je.activeCount--, _.holdsPoolSlot = !1, st("[session-manager] released pool slot (idle)", {
+                            sessionKey: k,
+                            pool: Je.name,
+                            activeCount: Je.activeCount
+                        }), z(Je)
                     }
-                    let $e = !1;
-                    for (; g.status === "idle";) {
-                        if (g.pendingWake) {
-                            g.pendingWake = !1, $e = !0;
+                    let ct = !1;
+                    for (;;) {
+                        let Je = !1,
+                            on = !1;
+                        for (; _.status === "idle";) {
+                            if (_.pendingWake) {
+                                _.pendingWake = !1, Je = !0;
+                                break
+                            }
+                            if (!V) {
+                                on = !0;
+                                break
+                            }
+                            if (await n6(_, i) || _.status !== "idle") {
+                                Je = !0;
+                                break
+                            }
+                            if (_.attachedChannels.size > 0) {
+                                st("[session-manager] idle timeout with attachments, reclaiming runtime processes", {
+                                    sessionKey: k,
+                                    actorRunId: _.actorRunId,
+                                    attachedChannels: _.attachedChannels.size
+                                }), _.streamingState && !_.streamingState.closed && ht("warn", "[kv-cache] streaming teardown: idle-timeout", {
+                                    sessionKey: k,
+                                    generation: _.streamingGeneration,
+                                    sdk_session_id: _.sdkSessionId ?? null
+                                }), await sf(_), uO(_);
+                                continue
+                            }
                             break
                         }
-                        if (await Q(g, i) || g.status !== "idle") {
-                            $e = !0;
+                        if (on) {
+                            ct = !0;
                             break
                         }
-                        if (g.attachedChannels.size > 0) {
-                            if (ht("[session-manager] idle timeout with attachments, reclaiming runtime processes", {
-                                    sessionKey: E,
-                                    actorRunId: g.actorRunId,
-                                    attachedChannels: g.attachedChannels.size
-                                }), g.streamingState && !g.streamingState.closed && Ct("warn", "[kv-cache] streaming teardown: idle-timeout", {
-                                    sessionKey: E,
-                                    generation: g.streamingGeneration,
-                                    sdk_session_id: g.sdkSessionId ?? null
-                                }), await Fe(g), g.codexAdapter) {
-                                let Ot = g.codexAdapter;
-                                g.codexAdapter = null, Promise.resolve(Ot.shutdown()).catch(yt => {
-                                    Z("[session-manager] codex adapter shutdown failed", {
-                                        sessionKey: E,
-                                        error: yt instanceof Error ? yt.message : String(yt)
-                                    })
-                                })
+                        if (!Je && _.status === "idle") {
+                            st("[session-manager] idle timeout, no attachments, exiting", {
+                                sessionKey: k,
+                                actorRunId: _.actorRunId
+                            }), _.streamingState && !_.streamingState.closed && ht("warn", "[kv-cache] streaming teardown: idle-timeout", {
+                                sessionKey: k,
+                                generation: _.streamingGeneration,
+                                sdk_session_id: _.sdkSessionId ?? null
+                            }), ct = !0;
+                            break
+                        }
+                        if (Je && !_.holdsPoolSlot) {
+                            let dr = j(k, _.origin);
+                            if (dr.activeCount >= dr.maxConcurrent) {
+                                dr.wakeQueue.includes(k) || dr.wakeQueue.unshift(k), st("[session-manager] woken idle actor re-queued (pool full)", {
+                                    sessionKey: k,
+                                    pool: dr.name,
+                                    activeCount: dr.activeCount
+                                }), _.pendingWake = !1;
+                                continue
                             }
-                            if (g.grokAdapter) {
-                                let Ot = g.grokAdapter;
-                                g.grokAdapter = null, Promise.resolve(Ot.shutdown()).catch(yt => {
-                                    Z("[session-manager] grok adapter shutdown failed", {
-                                        sessionKey: E,
-                                        error: yt instanceof Error ? yt.message : String(yt)
-                                    })
-                                })
-                            }
-                            continue
+                            dr.activeCount++, _.holdsPoolSlot = !0, st("[session-manager] re-acquired pool slot (woken)", {
+                                sessionKey: k,
+                                pool: dr.name,
+                                activeCount: dr.activeCount
+                            })
                         }
                         break
                     }
-                    if (!$e && g.status === "idle") {
-                        ht("[session-manager] idle timeout, no attachments, exiting", {
-                            sessionKey: E,
-                            actorRunId: g.actorRunId
-                        }), g.streamingState && !g.streamingState.closed && Ct("warn", "[kv-cache] streaming teardown: idle-timeout", {
-                            sessionKey: E,
-                            generation: g.streamingGeneration,
-                            sdk_session_id: g.sdkSessionId ?? null
-                        });
-                        break
-                    }
-                    if ($e && !g.holdsPoolSlot) {
-                        let Y = C(E, g.origin);
-                        if (Y.activeCount >= Y.maxConcurrent) {
-                            Y.wakeQueue.includes(E) || Y.wakeQueue.unshift(E), ht("[session-manager] woken idle actor re-queued (pool full)", {
-                                sessionKey: E,
-                                pool: Y.name,
-                                activeCount: Y.activeCount
-                            }), g.pendingWake = !1;
-                            continue
-                        }
-                        Y.activeCount++, g.holdsPoolSlot = !0, ht("[session-manager] re-acquired pool slot (woken)", {
-                            sessionKey: E,
-                            pool: Y.name,
-                            activeCount: Y.activeCount
-                        })
-                    }
+                    if (ct) break
                 }
             }
-        } catch (_e) {
-            et(`[session-manager] error in drain loop for ${E}:`, _e), z = _e, await ut(t, E, {
+        } catch (Ne) {
+            Me(`[session-manager] error in drain loop for ${k}:`, Ne), M = Ne, await Ye(t, k, {
                 last_error: {
-                    message: _e instanceof Error ? _e.message : String(_e),
+                    message: Ne instanceof Error ? Ne.message : String(Ne),
                     at: new Date().toISOString()
                 }
             }).catch(() => {})
         } finally {
-            if (await Fe(g), g.currentAbortController = null, g.streamingAdapter = null, g.isStreaming = !1, g.activeToolUseIds.clear(), g.pendingPreempt = !1, g.pendingPreemptBoundary = null, g.codexAdapter) {
-                let Ee = g.codexAdapter;
-                g.codexAdapter = null, await Promise.resolve(Ee.shutdown()).catch(hn => {
-                    Z("[session-manager] codex adapter shutdown failed", {
-                        sessionKey: E,
-                        error: hn instanceof Error ? hn.message : String(hn)
-                    })
-                })
-            }
-            if (g.grokAdapter) {
-                let Ee = g.grokAdapter;
-                g.grokAdapter = null, await Promise.resolve(Ee.shutdown()).catch(hn => {
-                    Z("[session-manager] grok adapter shutdown failed", {
-                        sessionKey: E,
-                        error: hn instanceof Error ? hn.message : String(hn)
-                    })
-                })
-            }
-            let _e = C(E, g.origin);
-            if (g.holdsPoolSlot && (_e.activeCount--, g.holdsPoolSlot = !1), g.origin === "job" && g.jobId) {
-                Oe.length > 0 && await Promise.allSettled(Oe);
+            await sf(_), _.currentAbortController = null, _.streamingAdapter = null, _.isStreaming = !1, _.activeToolCalls.clear(), _.pendingPreempt = !1, _.pendingPreemptBoundary = null, await uO(_);
+            let Ne = j(k, _.origin);
+            if (_.holdsPoolSlot && (Ne.activeCount--, _.holdsPoolSlot = !1), _.origin === "job" && _.jobId) {
+                Se.length > 0 && await Promise.allSettled(Se);
                 try {
-                    await Yt(g, {
-                        runStarted: ne,
-                        cancelled: Ft,
-                        processedCount: bt,
-                        claimCursor: Xe,
-                        error: z,
-                        resultText: N
+                    await c(_, {
+                        runStarted: ve,
+                        cancelled: pt,
+                        processedCount: He,
+                        claimCursor: Ae,
+                        error: M,
+                        resultText: Y
                     })
                 } finally {
-                    g.status = "ended"
+                    _.status = "ended"
                 }
-            } else g.status = "ended";
-            if (g.pendingWake = !1, j && P_e(Fr(t, E)) && !hr(E)) {
-                let Ee = await ve(E, mt);
-                Ee === "fresh" ? (g.consecutiveConservativeRedrive = !1, ht("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
-                    sessionKey: E,
-                    actorRunId: g.actorRunId
-                }), We(E, {
+            } else _.status = "ended";
+            if (_.pendingWake = !1, V && klt(Yn(t, k)) && !Xn(k)) {
+                let Xe = await u(k, bt);
+                Xe === "fresh" ? (_.consecutiveConservativeRedrive = !1, st("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
+                    sessionKey: k,
+                    actorRunId: _.actorRunId
+                }), _e(k, {
                     preempt: "never"
-                })) : Ee === "conservative" || ye ? g.consecutiveConservativeRedrive ? Z("[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake", {
-                    sessionKey: E,
-                    actorRunId: g.actorRunId
-                }) : (g.consecutiveConservativeRedrive = !0, ht("[session-manager] post-finalize wake re-check: conservative re-drive (transient read) — re-entering wake path once", {
-                    sessionKey: E,
-                    actorRunId: g.actorRunId
-                }), We(E, {
+                })) : Xe === "conservative" || it ? _.consecutiveConservativeRedrive ? J("[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake", {
+                    sessionKey: k,
+                    actorRunId: _.actorRunId
+                }) : (_.consecutiveConservativeRedrive = !0, st("[session-manager] post-finalize wake re-check: conservative re-drive (transient read) — re-entering wake path once", {
+                    sessionKey: k,
+                    actorRunId: _.actorRunId
+                }), _e(k, {
                     preempt: "never"
-                })) : g.consecutiveConservativeRedrive = !1
+                })) : _.consecutiveConservativeRedrive = !1
             }
-            K("[session-manager] actor end", {
-                sessionKey: E,
-                actorRunId: g.actorRunId,
-                sdkSessionId: g.sdkSessionId,
-                pool: _e.name,
-                activeCount: _e.activeCount,
-                origin: g.origin,
-                jobId: g.jobId,
-                attachedChannels: g.attachedChannels.size,
-                queuedSessions: _e.wakeQueue.length
-            }), A(_e)
+            Q("[session-manager] actor end", {
+                sessionKey: k,
+                actorRunId: _.actorRunId,
+                sdkSessionId: _.sdkSessionId,
+                pool: Ne.name,
+                activeCount: Ne.activeCount,
+                origin: _.origin,
+                jobId: _.jobId,
+                attachedChannels: _.attachedChannels.size,
+                queuedSessions: Ne.wakeQueue.length
+            }), z(Ne)
         }
     }
 
-    function Q(g, E) {
-        return new Promise(z => {
-            let N = null,
-                U = () => {
-                    N && (clearTimeout(N), N = null), g.wakeResolver = null
-                };
-            g.wakeResolver = () => {
-                U(), z(!0)
-            }, N = setTimeout(() => {
-                U(), z(!1)
-            }, E)
-        })
-    }
-    async function fe(g) {
-        return new Set(await My(Ny(t, g)))
-    }
-    async function ve(g, E) {
-        let z;
-        try {
-            z = await fe(g)
-        } catch (N) {
-            return Z("[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)", {
-                sessionKey: g,
-                error: N instanceof Error ? N.message : String(N)
-            }), "conservative"
-        }
-        for (let N of z)
-            if (!E.has(N)) return "fresh";
-        return "none"
-    }
-    let me = new xo(t);
-
-    function Bt(g) {
-        return g.error ? g.runStarted ? "STARTED_FAILURE" : "NEVER_STARTED_FAILURE" : g.cancelled ? g.runStarted ? "CANCELLED_POST_ACK" : "CANCELLED_PRE_ACK" : !g.runStarted && g.processedCount === 0 ? "ZERO_FED" : "STARTED_SUCCESS"
-    }
-    async function tt(g, E, z, N, U, D) {
-        try {
-            let ne = await me.finalizeJobState(g, z, {
-                consumeRunAt: N,
-                expectedClaimCursor: U
-            });
-            return ne === Jq ? (K(`[session-manager] job gone at finalize (${D}) — state frozen`, {
-                jobId: g,
-                sessionKey: E
-            }), {
-                kind: "gone"
-            }) : ne === Zq ? (Z(`[session-manager] stale finalize (${D}) — a fresh claim owns the sidecar; nothing written`, {
-                jobId: g,
-                sessionKey: E,
-                claimCursor: U
-            }), {
-                kind: "stale"
-            }) : {
-                kind: "written",
-                runAt: ne.run_at
-            }
-        } catch (ne) {
-            return et(`[session-manager] job state finalize failed (${D})`, ne), {
-                kind: "failed"
-            }
-        }
-    }
-    async function Yt(g, E) {
-        let z = g.jobId,
-            {
-                sessionKey: N
-            } = g,
-            {
-                runStarted: U,
-                cancelled: D,
-                processedCount: ne,
-                claimCursor: Oe,
-                error: bt,
-                resultText: ye
-            } = E,
-            Ft = Bt({
-                error: bt,
-                cancelled: D,
-                runStarted: U,
-                processedCount: ne
-            });
-        try {
-            await me.init();
-            let Xe = await me.getJob(z),
-                mt = Xe?.frontmatter.cron ?? "";
-            switch (Ft) {
-                case "NEVER_STARTED_FAILURE": {
-                    let _e = bt instanceof Error ? bt.message : String(bt);
-                    await tt(z, N, {
-                        last_result: "failure",
-                        last_error: _e
-                    }, !1, Oe, "never-started failure"), await St({
-                        jobId: z,
-                        sessionKey: N,
-                        job: Xe,
-                        cron: mt,
-                        errorMsg: _e
-                    }), K("[session-manager] job failed (never started, spawn-class) — job preserved", {
-                        jobId: z,
-                        sessionKey: N,
-                        cron: mt,
-                        error: _e
-                    });
-                    break
-                }
-                case "STARTED_FAILURE": {
-                    let _e = bt instanceof Error ? bt.message : String(bt),
-                        kt = await tt(z, N, {
-                            last_result: "failure",
-                            last_error: _e
-                        }, !0, Oe, "started failure");
-                    await St({
-                        jobId: z,
-                        sessionKey: N,
-                        job: Xe,
-                        cron: mt,
-                        errorMsg: _e
-                    }), await Qn({
-                        jobId: z,
-                        sessionKey: N,
-                        cron: mt,
-                        state: kt
-                    }), K("[session-manager] job failed", {
-                        jobId: z,
-                        sessionKey: N,
-                        error: _e
-                    });
-                    break
-                }
-                case "CANCELLED_POST_ACK": {
-                    let _e = await tt(z, N, {
-                        last_result: "failure",
-                        last_error: "cancelled"
-                    }, !0, Oe, "cancelled post-ack");
-                    await Qn({
-                        jobId: z,
-                        sessionKey: N,
-                        cron: mt,
-                        state: _e
-                    }), Z("[session-manager] job run cancelled after turn ack — consumed + failure marker, no delivery", {
-                        jobId: z,
-                        sessionKey: N
-                    });
-                    break
-                }
-                case "ZERO_FED": {
-                    await tt(z, N, {
-                        last_result: "failure",
-                        last_error: "zero-fed run — no items merged"
-                    }, !1, Oe, "zero-fed"), Z("[session-manager] zero-fed job run — failure marker written, job preserved", {
-                        jobId: z,
-                        sessionKey: N
-                    });
-                    break
-                }
-                case "CANCELLED_PRE_ACK": {
-                    Z("[session-manager] job run ended without turn ack (cancelled before start) — finalize skipped, job preserved", {
-                        jobId: z,
-                        sessionKey: N,
-                        processedCount: ne
-                    });
-                    break
-                }
-                case "STARTED_SUCCESS": {
-                    let _e = await tt(z, N, {
-                            last_result: "success",
-                            last_run_at: new Date().toISOString(),
-                            last_error: void 0
-                        }, !0, Oe, "success"),
-                        kt = createSpineEvent({
-                            type: "job.complete",
-                            source: {
-                                kind: "job",
-                                name: z
-                            },
-                            session_key: N,
-                            payload: {
-                                job_id: z,
-                                result_summary: ye?.slice(0, 200)
-                            }
-                        });
-                    await atomicAppendEvent(t, kt);
-                    let Ee = ye?.slice(0, 200);
-                    n.emit("job.completed", {
-                        jobId: z,
-                        sessionKey: N,
-                        resultSummary: Ee
-                    }), g.notifyCalledDuringDrain ? Ae("[session-manager] skipping system job.complete delivery: agent called Notify", {
-                        jobId: z,
-                        sessionKey: N
-                    }) : await Ze(Xe, N, "job.complete", {
-                        job_id: z,
-                        result_summary: Ee,
-                        result_text: ye?.slice(0, 2e3),
-                        agent_notified: !1,
-                        schedule_type: MB(mt),
-                        owner_session: Xe?.frontmatter.owner_session
-                    }), await Qn({
-                        jobId: z,
-                        sessionKey: N,
-                        cron: mt,
-                        state: _e
-                    }), K("[session-manager] job completed", {
-                        jobId: z,
-                        sessionKey: N
-                    });
-                    break
-                }
-            }
-        } catch (Xe) {
-            et("[session-manager] error finalizing job session", Xe)
-        }
-    }
-    async function St(g) {
-        let {
-            jobId: E,
-            sessionKey: z,
-            job: N,
-            cron: U,
-            errorMsg: D
-        } = g, ne = createSpineEvent({
-            type: "job.fail",
-            source: {
-                kind: "job",
-                name: E
-            },
-            session_key: z,
-            payload: {
-                job_id: E,
-                error: D
-            }
-        });
-        await atomicAppendEvent(t, ne), n.emit("job.failed", {
-            jobId: E,
-            sessionKey: z,
-            error: D
-        }), await Ze(N, z, "job.fail", {
-            job_id: E,
-            error: D,
-            agent_notified: !1,
-            schedule_type: MB(U),
-            owner_session: N?.frontmatter.owner_session
-        })
-    }
-    async function Qn(g) {
-        let {
-            jobId: E,
-            sessionKey: z,
-            cron: N,
-            state: U
-        } = g;
-        if (iot(N)) {
-            switch (U.kind) {
-                case "gone":
-                    K("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
-                        jobId: E,
-                        cron: N
-                    });
-                    return;
-                case "stale":
-                    K("[session-manager] skip auto-archive: stale finalize (a fresh claim owns the job)", {
-                        jobId: E,
-                        cron: N
-                    });
-                    return;
-                case "failed":
-                    Z("[session-manager] skip auto-archive: job state unreadable at finalize (failing toward stale-active)", {
-                        jobId: E,
-                        cron: N
-                    });
-                    return;
-                case "written":
-                    if (U.runAt !== null) {
-                        K("[session-manager] skip auto-archive: job re-armed via reschedule", {
-                            jobId: E,
-                            cron: N,
-                            runAt: U.runAt
-                        });
-                        return
-                    }
-                    break;
-                default:
-                    return U
-            }
-            try {
-                let D = await me.archiveJobIfNotRearmed(E);
-                if (!D.archived) {
-                    K("[session-manager] skip auto-archive: job re-armed during finalize", {
-                        jobId: E,
-                        cron: N,
-                        runAt: D.runAt
-                    });
-                    return
-                }
-                if ((await Ace(t, z)).reason === "archive_in_flight") {
-                    Z("[session-manager] skip finalize session archive: archive already in flight", {
-                        jobId: E,
-                        sessionKey: z
-                    });
-                    return
-                }
-                K("[session-manager] auto-archived one-shot job", {
-                    jobId: E,
-                    cron: N
-                })
-            } catch (D) {
-                et("[session-manager] failed to auto-archive one-shot job", D)
-            }
-        }
-    }
-    async function Ze(g, E, z, N) {
-        if (!g) return;
-        let U = ll(g.frontmatter.notify);
-        if (U.length !== 0)
-            for (let D = 0; D < U.length; D++) {
-                let ne = qm(U[D]);
-                if (!ne) {
-                    Z("[session-manager] invalid notify target in job, skipping delivery", {
-                        jobId: g.id,
-                        notify: U[D]
-                    });
-                    continue
-                }
-                try {
-                    await Td(t, n, {
-                        traceId: `job-finalize_${g.id}_${D}`,
-                        routeId: `job-result-${D}`,
-                        sourceName: `job:${g.id}`,
-                        sourceSessionKey: E,
-                        targetSessionKey: ne,
-                        eventType: z,
-                        payload: N
-                    }), Ae("[session-manager] job result delivered to notify target", {
-                        jobId: g.id,
-                        targetSessionKey: ne,
-                        eventType: z
-                    })
-                } catch (Oe) {
-                    Z("[session-manager] failed to deliver job result to notify target", {
-                        jobId: g.id,
-                        targetSessionKey: ne,
-                        eventType: z,
-                        error: String(Oe)
-                    })
-                }
-            }
-    }
-
-    function it(g, E) {
-        if (!j) return;
-        if (hr(E)) {
-            ht("[session-manager] skip job spawn, session is being archived", {
-                jobId: g,
-                sessionKey: E
+    function F(_, k) {
+        if (!V) return;
+        if (Xn(k)) {
+            st("[session-manager] skip job spawn, session is being archived", {
+                jobId: _,
+                sessionKey: k
             });
             return
         }
-        let z = x.get(E);
-        if (z && z.status !== "ended") {
-            ht("[session-manager] skip duplicate job spawn", {
-                jobId: g,
-                sessionKey: E,
-                actorStatus: z.status
+        let M = U.get(k);
+        if (M && M.status !== "ended") {
+            st("[session-manager] skip duplicate job spawn", {
+                jobId: _,
+                sessionKey: k,
+                actorStatus: M.status
             });
             return
         }
-        if (w.activeCount >= w.maxConcurrent) {
-            w.wakeQueue.includes(E) || w.wakeQueue.push(E), z ? (z.origin = "job", z.jobId = g) : x.set(E, {
-                sessionKey: E,
+        if (A.activeCount >= A.maxConcurrent) {
+            A.wakeQueue.includes(k) || A.wakeQueue.push(k), M ? (M.origin = "job", M.jobId = _) : U.set(k, {
+                sessionKey: k,
                 actorRunId: 0,
                 sdkSessionId: void 0,
                 sdkSessionIdVerified: !1,
@@ -2316,178 +1254,205 @@ ${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines
                 wakeResolver: null,
                 pendingWake: !1,
                 isStreaming: !1,
-                activeToolUseIds: new Set,
+                activeToolCalls: new Map,
                 pendingPreempt: !1,
                 pendingPreemptBoundary: null,
                 pendingClear: !1,
                 attachedChannels: new Set,
                 origin: "job",
-                jobId: g,
+                jobId: _,
                 jobStateless: !1,
                 holdsPoolSlot: !1,
                 inflightEventIds: new Set,
                 admissionInProgress: !1,
                 pendingSteer: null,
                 idleSince: void 0,
-                notifyCalledDuringDrain: !1,
+                agentNotifiedThisDrain: !1,
                 runtime: "claude",
-                codexAdapter: null,
+                adapter: null,
                 consecutiveConservativeRedrive: !1
             });
             return
         }
-        Be(E, {
+        D(k, {
             origin: "job",
-            jobId: g
+            jobId: _
         }), (async () => {
             try {
-                let N = createSpineEvent({
+                let Y = createSpineEvent({
                     type: "job.spawn",
                     source: {
                         kind: "job",
-                        name: g
+                        name: _
                     },
-                    session_key: E,
+                    session_key: k,
                     payload: {
-                        job_id: g
+                        job_id: _
                     }
                 });
-                await atomicAppendEvent(t, N), n.emit("job.spawned", {
-                    jobId: g,
-                    sessionKey: E
+                await atomicAppendEvent(t, Y), n.emit("job.spawned", {
+                    jobId: _,
+                    sessionKey: k
                 })
-            } catch (N) {
-                et("[session-manager] error recording job spawn", N)
+            } catch (Y) {
+                Me("[session-manager] error recording job spawn", Y)
             }
         })()
     }
-    async function sn(g, E) {
-        let N = (M.get(g) ?? Promise.resolve()).catch(() => {}).then(async () => {
-            if (g.startsWith("job:") || g.startsWith("meta:") || g.startsWith("system:") || g.startsWith("cadence:")) return;
-            let U = DB(g),
-                D = new Date().toISOString(),
-                ne = createSpineEvent({
+    async function W(_, k) {
+        let Y = (te.get(_) ?? Promise.resolve()).catch(() => {}).then(async () => {
+            if (Dr(_) !== "channel") return;
+            let q = Zv(_),
+                se = new Date().toISOString(),
+                ve = createSpineEvent({
                     type: "channel.attached",
                     source: {
-                        kind: U,
+                        kind: q,
                         name: "session-manager"
                     },
-                    session_key: g,
+                    session_key: _,
                     payload: {
-                        session_key: g,
-                        channel_kind: U,
-                        channel_id: E,
-                        attached_at: D
+                        session_key: _,
+                        channel_kind: q,
+                        channel_id: k,
+                        attached_at: se
                     }
                 });
-            await atomicAppendEvent(t, ne)
+            await atomicAppendEvent(t, ve)
         }).finally(() => {
-            M.get(g) === N && M.delete(g)
+            te.get(_) === Y && te.delete(_)
         });
-        M.set(g, N), await N
+        te.set(_, Y), await Y
     }
 
-    function qi() {
-        for (let g of x.values()) {
-            if (g.status = "ended", g.codexAdapter) {
-                let E = g.codexAdapter;
-                g.codexAdapter = null, Promise.resolve(E.shutdown()).catch(z => {
-                    Z("[session-manager] codex adapter shutdown failed", {
-                        sessionKey: g.sessionKey,
-                        error: z instanceof Error ? z.message : String(z)
-                    })
-                })
-            }
-            if (g.grokAdapter) {
-                let E = g.grokAdapter;
-                g.grokAdapter = null, Promise.resolve(E.shutdown()).catch(z => {
-                    Z("[session-manager] grok adapter shutdown failed", {
-                        sessionKey: g.sessionKey,
-                        error: z instanceof Error ? z.message : String(z)
-                    })
-                })
-            }
-            g.streamAbortController && !g.streamAbortController.signal.aborted && g.streamAbortController.abort(), typeof g.query?.close == "function" && g.query.close(), g.query = null, g.streamAbortController = null, g.currentAbortController && !g.currentAbortController.signal.aborted && g.currentAbortController.abort(), g.currentAbortController = null, g.wakeResolver && (g.wakeResolver(), g.wakeResolver = null)
-        }
+    function ye() {
+        for (let _ of U.values()) _.status = "ended", uO(_), _.streamAbortController && !_.streamAbortController.signal.aborted && _.streamAbortController.abort(), typeof _.query?.close == "function" && _.query.close(), _.query = null, _.streamAbortController = null, _.currentAbortController && !_.currentAbortController.signal.aborted && _.currentAbortController.abort(), _.currentAbortController = null, _.wakeResolver && (_.wakeResolver(), _.wakeResolver = null)
     }
-    async function xi() {
-        if (M.size === 0) return;
-        let g = Array.from(M.values()),
-            E = new Promise(z => setTimeout(z, 3e4));
-        await Promise.race([Promise.allSettled(g).then(() => {}), E])
+    async function ge() {
+        if (te.size === 0) return;
+        let _ = Array.from(te.values()),
+            k = !1,
+            M = new Promise(Y => setTimeout(() => {
+                k = !0, Y()
+            }, 3e4));
+        await Promise.race([Promise.allSettled(_).then(() => {}), M]), k && J("[session-manager] shutdown abandoned pending attach writes after the fallback", {
+            pending: _.length
+        })
+    }
+    async function Be(_) {
+        let k;
+        try {
+            k = xlt(lc.join(Tlt(), "aladuo-pi-catalog-"));
+            let M = yv(),
+                {
+                    settingsSeed: Y,
+                    defaultProjectTrust: q
+                } = _v(M),
+                se = await Sa(t, _).catch(() => null),
+                ve = await ut(t, _).catch(() => null),
+                Se = await c_e({
+                    cwd: ve?.cwd ?? t.workDir,
+                    agentDir: M,
+                    authPath: lc.join(M, "auth.json"),
+                    modelsPath: lc.join(M, "models.json"),
+                    modelsStorePath: lc.join(k, "models-store.json"),
+                    settingsSeed: Y,
+                    resources: {
+                        extensions: se?.piExtensions ?? "all",
+                        default_project_trust: q
+                    },
+                    workerCommand: gv(),
+                    logDebug: He => ke("[pi-catalog] " + He)
+                });
+            return Se.length > 0 ? Se : void 0
+        } catch (M) {
+            J("[session-manager] pi model catalog failed", {
+                sessionKey: _,
+                error: String(M)
+            });
+            return
+        } finally {
+            try {
+                k && Elt(k, {
+                    recursive: !0,
+                    force: !0
+                })
+            } catch {}
+        }
     }
     return {
         async start() {
-            if (!j) {
-                j = !0, n.on("session.wake", J), n.on("shutdown", ee), n.on("session.streaming_invalidated", ie);
+            if (!V) {
+                V = !0, n.on("session.wake", X), n.on("shutdown", L), n.on("session.streaming_invalidated", ie);
                 try {
-                    let g = await rehydrateSessionState(t);
-                    for (let E of g) {
-                        if (hr(E)) {
-                            ht("[session-manager] skip hydrating session being archived", {
-                                sessionKey: E
+                    let _ = await rehydrateSessionState(t);
+                    for (let k of _) {
+                        if (Xn(k)) {
+                            st("[session-manager] skip hydrating session being archived", {
+                                sessionKey: k
                             });
                             continue
                         }
-                        let N = (await It(t, E))?.cwd;
-                        if (N && !dot(N)) {
-                            Z("[session-manager] skip hydrating session with unavailable workspace", {
-                                sessionKey: E,
-                                cwd: N
+                        let Y = (await ut(t, k))?.cwd;
+                        if (Y && !gve(Y)) {
+                            J("[session-manager] skip hydrating session with unavailable workspace", {
+                                sessionKey: k,
+                                cwd: Y
                             });
                             continue
                         }
-                        if (hr(E)) {
-                            ht("[session-manager] skip hydrating session being archived", {
-                                sessionKey: E
-                            });
-                            continue
-                        }
-                        let U = jB(E),
-                            D = C(E);
-                        D.activeCount < D.maxConcurrent ? Be(E, U ?? void 0) : D.wakeQueue.push(E)
+                        _e(k, {
+                            preempt: "never"
+                        })
                     }
-                } catch (g) {
-                    et("[session-manager] error hydrating sessions:", g)
+                } catch (_) {
+                    Me("[session-manager] error hydrating sessions:", _)
                 }
-                K("[session-manager] started", {
-                    channelActive: S.activeCount,
-                    channelQueued: S.wakeQueue.length,
-                    jobActive: w.activeCount,
-                    jobQueued: w.wakeQueue.length
+                Q("[session-manager] started", {
+                    channelActive: C.activeCount,
+                    channelQueued: C.wakeQueue.length,
+                    jobActive: A.activeCount,
+                    jobQueued: A.wakeQueue.length
                 })
             }
         },
         async stop() {
-            if (!j) return;
-            j = !1, n.off("session.wake", J), n.off("shutdown", ee), n.off("session.streaming_invalidated", ie), qi();
-            let g = Array.from(x.values()).map(E => E.drainPromise).filter(E => E !== null);
-            if (g.length > 0) {
-                let E = new Promise(z => setTimeout(z, 3e4));
-                await Promise.race([Promise.all(g), E])
+            if (!V) return;
+            V = !1, n.off("session.wake", X), n.off("shutdown", L), n.off("session.streaming_invalidated", ie), ye();
+            let _ = Array.from(U.values()).map(k => k.drainPromise).filter(k => k !== null);
+            if (_.length > 0) {
+                let k = Array.from(U.values()).filter(q => q.drainPromise !== null),
+                    M = !1,
+                    Y = new Promise(q => setTimeout(() => {
+                        M = !0, q()
+                    }, 3e4));
+                await Promise.race([Promise.all(_), Y]), M && J("[session-manager] shutdown abandoned running drains after the fallback", {
+                    sessions: k.map(q => q.sessionKey),
+                    runtimes: k.map(q => q.runtime)
+                })
             }
-            await xi(), x.clear(), S.wakeQueue.length = 0, S.activeCount = 0, w.wakeQueue.length = 0, w.activeCount = 0, K("[session-manager] stopped")
+            await ge(), U.clear(), C.wakeQueue.length = 0, C.activeCount = 0, A.wakeQueue.length = 0, A.activeCount = 0, Q("[session-manager] stopped")
         },
-        wakeSession: We,
-        getActor(g) {
-            return x.get(g)
+        wakeSession: _e,
+        getActor(_) {
+            return U.get(_)
         },
         activeCount() {
-            return S.activeCount + w.activeCount
+            return C.activeCount + A.activeCount
         },
         activeChannelCount() {
-            return S.activeCount
+            return C.activeCount
         },
         activeJobCount() {
-            return w.activeCount
+            return A.activeCount
         },
         isRunning() {
-            return j
+            return V
         },
-        attachChannel(g, E) {
-            let z = x.get(g);
-            z || (z = {
-                sessionKey: g,
+        attachChannel(_, k) {
+            let M = U.get(_);
+            M || (M = {
+                sessionKey: _,
                 actorRunId: 0,
                 sdkSessionId: void 0,
                 sdkSessionIdVerified: !1,
@@ -2502,7 +1467,7 @@ ${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines
                 wakeResolver: null,
                 pendingWake: !1,
                 isStreaming: !1,
-                activeToolUseIds: new Set,
+                activeToolCalls: new Map,
                 pendingPreempt: !1,
                 pendingPreemptBoundary: null,
                 pendingClear: !1,
@@ -2514,55 +1479,55 @@ ${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines
                 admissionInProgress: !1,
                 pendingSteer: null,
                 idleSince: void 0,
-                notifyCalledDuringDrain: !1,
+                agentNotifiedThisDrain: !1,
                 runtime: "claude",
-                codexAdapter: null,
+                adapter: null,
                 consecutiveConservativeRedrive: !1
-            }, x.set(g, z)), z.attachedChannels.add(E), ht("[session-manager] channel attached", {
-                sessionKey: g,
-                channelId: E,
-                totalAttachments: z.attachedChannels.size
-            }), sn(g, E).catch(N => {
-                Z("[session-manager] failed to emit channel.attached event", {
-                    sessionKey: g,
-                    channelId: E,
-                    error: String(N)
+            }, U.set(_, M)), M.attachedChannels.add(k), st("[session-manager] channel attached", {
+                sessionKey: _,
+                channelId: k,
+                totalAttachments: M.attachedChannels.size
+            }), W(_, k).catch(Y => {
+                J("[session-manager] failed to emit channel.attached event", {
+                    sessionKey: _,
+                    channelId: k,
+                    error: String(Y)
                 })
             })
         },
-        detachChannel(g, E) {
-            let z = x.get(g);
-            z && (z.attachedChannels.delete(E), ht("[session-manager] channel detached", {
-                sessionKey: g,
-                channelId: E,
-                remainingAttachments: z.attachedChannels.size
-            }), z.attachedChannels.size === 0 && z.status === "idle" && z.wakeResolver && (z.wakeResolver(), z.wakeResolver = null))
+        detachChannel(_, k) {
+            let M = U.get(_);
+            M && (M.attachedChannels.delete(k), st("[session-manager] channel detached", {
+                sessionKey: _,
+                channelId: k,
+                remainingAttachments: M.attachedChannels.size
+            }), M.attachedChannels.size === 0 && M.status === "idle" && M.wakeResolver && (M.wakeResolver(), M.wakeResolver = null))
         },
-        hasAttachedChannels(g) {
-            let E = x.get(g);
-            return E ? E.attachedChannels.size > 0 : !1
+        hasAttachedChannels(_) {
+            let k = U.get(_);
+            return k ? k.attachedChannels.size > 0 : !1
         },
-        spawnJobSession(g, E) {
-            it(g, E)
+        spawnJobSession(_, k) {
+            F(_, k)
         },
-        async interruptSession(g) {
-            if (!j) return {
+        async interruptSession(_) {
+            if (!V) return {
                 interrupted: !1,
                 reason: "not_running"
             };
-            let E = x.get(g);
-            return E ? !E.query && (!E.currentAbortController || E.currentAbortController.signal.aborted) ? {
+            let k = U.get(_);
+            return k ? !k.query && (!k.currentAbortController || k.currentAbortController.signal.aborted) ? {
                 interrupted: !1,
                 reason: "idle"
-            } : E.streamAbortController && !E.streamAbortController.signal.aborted ? (K("[session-manager] interrupt: stopping streaming session", {
-                sessionKey: g,
-                actorRunId: E.actorRunId
-            }), await Fe(E, "cancel-interrupt"), {
+            } : k.streamAbortController && !k.streamAbortController.signal.aborted ? (Q("[session-manager] interrupt: stopping streaming session", {
+                sessionKey: _,
+                actorRunId: k.actorRunId
+            }), await sf(k, "cancel-interrupt"), {
                 interrupted: !0,
                 reason: "interrupted"
-            }) : (je(E, "immediate") === "immediate" && K("[session-manager] interrupt requested", {
-                sessionKey: g,
-                actorRunId: E.actorRunId
+            }) : (rw(k, "immediate") === "immediate" && Q("[session-manager] interrupt requested", {
+                sessionKey: _,
+                actorRunId: k.actorRunId
             }), {
                 interrupted: !0,
                 reason: "interrupted"
@@ -2571,288 +1536,326 @@ ${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines
                 reason: "not_found"
             }
         },
-        async clearSdkSession(g) {
-            if (!j) return {
+        async clearSdkSession(_) {
+            if (!V) return {
                 cleared: !1,
                 reason: "not_running"
             };
-            let E = x.get(g),
-                z = E?.sdkSessionId;
-            return E && (E.pendingClear = !0, E.sdkSessionId = void 0, E.sdkSessionIdVerified = !1), E?.streamAbortController && !E.streamAbortController.signal.aborted ? await Fe(E, "clear") : E?.currentAbortController && !E.currentAbortController.signal.aborted && je(E, "immediate"), await ut(t, g, {
-                sdk_session_id: null,
-                pending_fork_to: null,
-                pending_undo: null
-            }), K("[session-manager] SDK session cleared", {
-                sessionKey: g,
-                actorRunId: E?.actorRunId,
-                previousSessionId: z
+            let k = U.get(_),
+                M = k?.sdkSessionId;
+            if (k && (k.pendingClear = !0, k.sdkSessionId = void 0, k.sdkSessionIdVerified = !1), k?.streamAbortController && !k.streamAbortController.signal.aborted ? await sf(k, "clear") : k?.currentAbortController && !k.currentAbortController.signal.aborted && rw(k, "immediate"), await Ye(t, _, {
+                    sdk_session_id: null,
+                    pending_fork_to: null
+                }), (k?.runtime === "pi" || k?.runtime === "grok") && k.adapter) {
+                let Y = k.adapter;
+                k.adapter = null, k.adapterFacts = void 0, await Promise.resolve(Y.shutdown()).catch(q => {
+                    J("[session-manager] runtime adapter shutdown on clear failed", {
+                        sessionKey: _,
+                        runtime: k.runtime,
+                        error: String(q)
+                    })
+                })
+            }
+            return Q("[session-manager] SDK session cleared", {
+                sessionKey: _,
+                actorRunId: k?.actorRunId,
+                previousSessionId: M
             }), {
                 cleared: !0,
-                previousSessionId: z
+                previousSessionId: M
             }
         },
-        async getSessionModelView(g, E) {
-            let z = x.get(g),
-                N = await It(t, g).catch(() => null),
-                U = await y(g, z),
-                D = {
-                    runtime: U,
-                    storedModel: N?.model,
-                    hasLiveQuery: !!z?.query
-                },
-                ne = z?.query;
-            if (ne && typeof ne.supportedModels == "function") try {
-                D.available = h(await ne.supportedModels())
+        async getSessionModelView(_, k) {
+            let M = U.get(_),
+                Y = await ut(t, _).catch(() => null),
+                q = await R(_, M),
+                se = {
+                    runtime: q,
+                    storedModel: Y?.model,
+                    hasLiveQuery: !!M?.query
+                };
+            if (q === "pi") return se.piProviders = await Be(_), se;
+            let ve = M?.query;
+            if (ve && typeof ve.supportedModels == "function") try {
+                se.available = b(await ve.supportedModels())
             } catch {}
             try {
-                let Oe = await v(g, E);
-                if (U === "claude") {
-                    let bt = Object.entries(Oe.claudeModelProfiles ?? {}).map(([Xe, mt]) => {
-                        let _e = Hme(mt.baseUrl);
+                let Se = await I(_, k);
+                if (q === "claude") {
+                    let He = Object.entries(Se.claudeModelProfiles ?? {}).map(([Ae, bt]) => {
+                        let Ne = fye(bt.baseUrl);
                         return {
-                            model: Xe,
-                            contextWindow: mt.cap,
-                            source: mt.source,
-                            ..._e ? {
-                                endpointHost: _e
+                            model: Ae,
+                            contextWindow: bt.cap,
+                            source: bt.source,
+                            ...Ne ? {
+                                endpointHost: Ne
                             } : {}
                         }
                     });
-                    bt.length > 0 && (D.profiles = bt.sort((Xe, mt) => Xe.model.localeCompare(mt.model)));
-                    let ye = Object.entries(Oe.claudeModelAliases ?? {}).map(([Xe, mt]) => ({
-                        tier: Xe,
-                        model: mt.model,
-                        source: mt.source
-                    })).sort((Xe, mt) => Xe.tier.localeCompare(mt.tier));
-                    if (ye.length > 0 && (D.aliases = ye), !D.storedModel) {
-                        let Xe = await Bb({
+                    He.length > 0 && (se.profiles = He.sort((Ae, bt) => Ae.model.localeCompare(bt.model)));
+                    let it = Object.entries(Se.claudeModelAliases ?? {}).map(([Ae, bt]) => ({
+                        tier: Ae,
+                        model: bt.model,
+                        source: bt.source
+                    })).sort((Ae, bt) => Ae.tier.localeCompare(bt.tier));
+                    if (it.length > 0 && (se.aliases = it), !se.storedModel) {
+                        let Ae = await ph({
                             model: null,
-                            cwd: Wb(t, g, N ?? void 0).cwd,
+                            cwd: hh(t, _, Y ?? void 0).cwd,
                             daemonEnv: process.env,
-                            mergedCatalog: Oe.claudeModelProfiles ?? {},
+                            mergedCatalog: Se.claudeModelProfiles ?? {},
                             hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                            issues: Oe.claudeModelProfileIssues
+                            issues: Se.claudeModelProfileIssues
                         });
-                        Xe.kind === "profiled-external" && Xe.modelOrigin && (D.cliDefaultModel = {
-                            model: Xe.model,
-                            origin: Xe.modelOrigin
+                        Ae.kind === "profiled-external" && Ae.modelOrigin && (se.cliDefaultModel = {
+                            model: Ae.model,
+                            origin: Ae.modelOrigin
                         })
                     }
-                    let Ft = [...Oe.claudeModelProfileIssues ?? [], ...Oe.claudeModelAliasIssues ?? []];
-                    Ft.length > 0 && (D.profileIssues = Ft.map(Xe => ({
-                        ...Xe.model !== void 0 ? {
-                            model: Xe.model
+                    let pt = [...Se.claudeModelProfileIssues ?? [], ...Se.claudeModelAliasIssues ?? []];
+                    pt.length > 0 && (se.profileIssues = pt.map(Ae => ({
+                        ...Ae.model !== void 0 ? {
+                            model: Ae.model
                         } : {},
-                        reason: Xe.reason,
-                        ...Xe.layer !== void 0 ? {
-                            layer: Xe.layer
+                        reason: Ae.reason,
+                        ...Ae.layer !== void 0 ? {
+                            layer: Ae.layer
                         } : {}
                     })))
                 }
-            } catch (Oe) {
-                Z("[session-manager] /model view: model profile scope unreadable", {
-                    sessionKey: g,
-                    error: Oe instanceof Error ? Oe.message : String(Oe)
+            } catch (Se) {
+                J("[session-manager] /model view: model profile scope unreadable", {
+                    sessionKey: _,
+                    error: Se instanceof Error ? Se.message : String(Se)
                 })
             }
-            return D
+            return se
         },
-        async setSessionModel(g, E, z) {
-            if (!j) return {
+        async setSessionModel(_, k, M) {
+            if (!V) return {
                 ok: !1,
                 reason: "not_running"
             };
-            let N = x.get(g),
-                U = await y(g, N);
-            if (U === "grok") {
-                let _e = _(N?.grokAdapter),
-                    kt = !!(_e && (_e.hasSession?.() ?? !0));
-                if (E !== null && _e && kt) try {
-                    await _e.setModel({
-                        modelId: E
+            let Y = U.get(_),
+                q = await R(_, Y);
+            if (q === "pi") return k !== null && !e0(k) ? {
+                ok: !1,
+                reason: "runtime_rejected",
+                detail: `pi model ids are canonical "provider/modelId" (got "${k}")`
+            } : (await Ye(t, _, {
+                model: k ?? null,
+                model_runtime: k !== null ? "pi" : null,
+                pending_model_fork: null
+            }), Q("[session-manager] pi session model override updated", {
+                sessionKey: _,
+                model: k ?? "(reset to default)",
+                applied: "stored"
+            }), {
+                ok: !0,
+                model: k,
+                applied: "stored"
+            });
+            if (q === "grok") {
+                let Ne = XH(Y?.adapter),
+                    we = !!(Ne && (Ne.hasSession?.() ?? !0));
+                if (k !== null && Ne && we) try {
+                    await Ne.setModel({
+                        modelId: k
                     })
-                } catch (Ee) {
-                    let hn = Ee instanceof Error ? Ee.message : String(Ee);
-                    return Z("[session-manager] grok session/set_model failed", {
-                        sessionKey: g,
-                        model: E,
-                        error: hn
+                } catch (Xe) {
+                    let Pt = Xe instanceof Error ? Xe.message : String(Xe);
+                    return J("[session-manager] grok session/set_model failed", {
+                        sessionKey: _,
+                        model: k,
+                        error: Pt
                     }), {
                         ok: !1,
                         reason: "runtime_rejected",
-                        detail: hn
+                        detail: Pt
                     }
                 }
-                return await ut(t, g, {
-                    model: E ?? null,
-                    model_runtime: E !== null ? "grok" : null,
+                return await Ye(t, _, {
+                    model: k ?? null,
+                    model_runtime: k !== null ? "grok" : null,
                     pending_model_fork: null
-                }), K("[session-manager] grok session model override updated", {
-                    sessionKey: g,
-                    model: E ?? "(reset to default)",
-                    applied: E !== null && kt ? "live" : "stored"
+                }), Q("[session-manager] grok session model override updated", {
+                    sessionKey: _,
+                    model: k ?? "(reset to default)",
+                    applied: k !== null && we ? "live" : "stored"
                 }), {
                     ok: !0,
-                    model: E,
-                    applied: E !== null && kt ? "live" : "stored"
+                    model: k,
+                    applied: k !== null && we ? "live" : "stored"
                 }
             }
-            if (U === "codex") return await ut(t, g, {
-                model: E ?? null,
-                model_runtime: E !== null ? "codex" : null,
+            if (q === "codex") return await Ye(t, _, {
+                model: k ?? null,
+                model_runtime: k !== null ? "codex" : null,
                 pending_model_fork: !0
-            }), K("[session-manager] codex session model override updated", {
-                sessionKey: g,
-                model: E ?? "(reset to default)",
+            }), Q("[session-manager] codex session model override updated", {
+                sessionKey: _,
+                model: k ?? "(reset to default)",
                 pendingModelFork: !0
             }), {
                 ok: !0,
-                model: E,
-                applied: "stored"
+                model: k,
+                applied: "stored",
+                pending_model_fork: !0
             };
-            let D = N?.query,
-                ne;
-            if (E && D && typeof D.supportedModels == "function") try {
-                ne = (await D.supportedModels()).some(kt => kt.value === E)
+            let se = Y?.query,
+                ve;
+            if (k && se && typeof se.supportedModels == "function") try {
+                ve = (await se.supportedModels()).some(we => we.value === k)
             } catch {}
-            let Oe = await b(g, N, E, z).catch(_e => (Z("[session-manager] model context profile classification failed — applying live", {
-                sessionKey: g,
-                model: E ?? "(reset to default)",
-                error: _e instanceof Error ? _e.message : String(_e)
+            let Se = await T(_, Y, k, M).catch(Ne => (J("[session-manager] model context profile classification failed — applying live", {
+                sessionKey: _,
+                model: k ?? "(reset to default)",
+                error: Ne instanceof Error ? Ne.message : String(Ne)
             }), {
                 outcome: "unknown",
                 requirementKind: void 0,
                 contextWindow: void 0
             }));
-            if (Oe.outcome === "blocked") return Z("[session-manager] /model refused: unresolved model context profile", {
-                sessionKey: g,
-                model: E ?? "(reset to default)",
-                detail: Oe.detail
+            if (Se.outcome === "blocked") return J("[session-manager] /model refused: unresolved model context profile", {
+                sessionKey: _,
+                model: k ?? "(reset to default)",
+                detail: Se.detail
             }), {
                 ok: !1,
                 reason: "profile_error",
-                detail: Oe.detail
+                detail: Se.detail
             };
-            let bt = Oe.outcome === "rebuild",
-                ye = bt ? "stored_pending_rebuild" : "stored",
-                Ft = null,
-                Xe = N?.streamingState;
-            if (!bt && !!Xe && Xe?.closed === !1 && (E ?? null) === (Xe?.liveModel ?? null)) ye = "live";
-            else if (!bt && D && typeof D.setModel == "function") try {
-                await D.setModel(E ?? void 0), ye = "live", Xe && !Xe.closed && (Xe.liveModel = E ?? void 0)
-            } catch (_e) {
-                Z("[session-manager] live setModel failed — storing the override instead", {
-                    sessionKey: g,
-                    model: E ?? "(reset to default)",
-                    error: _e instanceof Error ? _e.message : String(_e)
-                }), E && N && B(N, Oe.requirementKind) && (ye = "stored_pending_rebuild", Ft = E)
+            let He = Se.outcome === "rebuild",
+                it = He ? "stored_pending_rebuild" : "stored",
+                pt = null,
+                Ae = Y?.streamingState;
+            if (!He && !!Ae && Ae?.closed === !1 && (k ?? null) === (Ae?.liveModel ?? null)) it = "live";
+            else if (!He && se && typeof se.setModel == "function") try {
+                await se.setModel(k ?? void 0), it = "live", Ae && !Ae.closed && (Ae.liveModel = k ?? void 0)
+            } catch (Ne) {
+                J("[session-manager] live setModel failed — storing the override instead", {
+                    sessionKey: _,
+                    model: k ?? "(reset to default)",
+                    error: Ne instanceof Error ? Ne.message : String(Ne)
+                }), k && Y && e6(Y, Se.requirementKind) && (it = "stored_pending_rebuild", pt = k)
             }
-            return await ut(t, g, {
-                model: E ?? null,
-                model_runtime: E !== null ? "claude" : null,
+            return await Ye(t, _, {
+                model: k ?? null,
+                model_runtime: k !== null ? "claude" : null,
                 pending_model_fork: null
-            }), Ft && N && te(N, {
-                model: Ft,
-                requirementKind: Oe.requirementKind,
+            }), pt && Y && oO(Y, {
+                model: pt,
+                requirementKind: Se.requirementKind,
                 reason: "live-command"
-            }), K("[session-manager] session model override updated", {
-                sessionKey: g,
-                model: E ?? "(reset to default)",
-                applied: ye,
-                listed: ne ?? "(no list consulted)",
-                contextProfile: Oe.requirementKind ?? "(unresolved)"
+            }), Q("[session-manager] session model override updated", {
+                sessionKey: _,
+                model: k ?? "(reset to default)",
+                applied: it,
+                listed: ve ?? "(no list consulted)",
+                contextProfile: Se.requirementKind ?? "(unresolved)"
             }), {
                 ok: !0,
-                model: E,
-                applied: ye,
-                listed: ne,
-                contextProfile: Oe.requirementKind,
-                ...Oe.contextWindow ? {
-                    contextWindow: Oe.contextWindow
+                model: k,
+                applied: it,
+                listed: ve,
+                contextProfile: Se.requirementKind,
+                ...Se.contextWindow ? {
+                    contextWindow: Se.contextWindow
                 } : {}
             }
         },
-        async getSessionEffortView(g) {
-            let E = x.get(g),
-                z = await It(t, g).catch(() => null);
+        async getSessionEffortView(_) {
+            let k = U.get(_),
+                M = await ut(t, _).catch(() => null);
             return {
-                runtime: await y(g, E),
-                storedEffort: z?.effort ?? void 0,
-                hasLiveQuery: !!E?.query
+                runtime: await R(_, k),
+                storedEffort: M?.effort ?? void 0,
+                hasLiveQuery: !!k?.query
             }
         },
-        async setSessionEffort(g, E) {
-            if (!j) return {
+        async setSessionEffort(_, k) {
+            if (!V) return {
                 ok: !1,
                 reason: "not_running"
             };
-            let z = x.get(g),
-                N = await y(g, z);
-            if (N === "grok") {
-                let ne = _(z?.grokAdapter),
-                    bt = (await It(t, g).catch(() => null))?.model ?? ne?.currentModelId?.(),
-                    ye = !!(ne && (ne.hasSession?.() ?? !0) && bt);
-                if (E !== null) {
-                    if (!ye || !ne || !bt) return await ut(t, g, {
-                        effort: E
-                    }), K("[session-manager] grok session effort override updated", {
-                        sessionKey: g,
-                        effort: E,
+            let M = U.get(_),
+                Y = await R(_, M);
+            if (Y === "pi") return await Ye(t, _, {
+                effort: k ?? null
+            }), Q("[session-manager] pi session effort override updated", {
+                sessionKey: _,
+                effort: k ?? "(reset to default)"
+            }), {
+                ok: !0,
+                effort: k,
+                applied: "stored"
+            };
+            if (Y === "grok") {
+                let ve = XH(M?.adapter),
+                    He = (await ut(t, _).catch(() => null))?.model ?? ve?.currentModelId?.(),
+                    it = !!(ve && (ve.hasSession?.() ?? !0) && He);
+                if (k !== null) {
+                    if (!it || !ve || !He) return await Ye(t, _, {
+                        effort: k
+                    }), Q("[session-manager] grok session effort override updated", {
+                        sessionKey: _,
+                        effort: k,
                         applied: "stored"
                     }), {
                         ok: !0,
-                        effort: E,
+                        effort: k,
                         applied: "stored"
                     };
                     try {
-                        await ne.setModel({
-                            modelId: bt,
-                            reasoningEffort: E
+                        await ve.setModel({
+                            modelId: He,
+                            reasoningEffort: k
                         })
-                    } catch (Ft) {
-                        let Xe = Ft instanceof Error ? Ft.message : String(Ft);
-                        return Z("[session-manager] grok session/set_model(effort) failed", {
-                            sessionKey: g,
-                            effort: E,
-                            error: Xe
+                    } catch (pt) {
+                        let Ae = pt instanceof Error ? pt.message : String(pt);
+                        return J("[session-manager] grok session/set_model(effort) failed", {
+                            sessionKey: _,
+                            effort: k,
+                            error: Ae
                         }), {
                             ok: !1,
                             reason: "runtime_rejected",
-                            detail: Xe
+                            detail: Ae
                         }
                     }
-                    return await ut(t, g, {
-                        effort: E
-                    }), K("[session-manager] grok session effort override updated", {
-                        sessionKey: g,
-                        effort: E,
+                    return await Ye(t, _, {
+                        effort: k
+                    }), Q("[session-manager] grok session effort override updated", {
+                        sessionKey: _,
+                        effort: k,
                         applied: "live"
                     }), {
                         ok: !0,
-                        effort: E,
+                        effort: k,
                         applied: "live"
                     }
                 }
-                if (ne && bt && (ne.hasSession?.() ?? !0)) {
+                if (ve && He && (ve.hasSession?.() ?? !0)) {
                     try {
-                        await ne.setModel({
-                            modelId: bt
+                        await ve.setModel({
+                            modelId: He
                         })
-                    } catch (Ft) {
-                        let Xe = Ft instanceof Error ? Ft.message : String(Ft);
-                        return Z("[session-manager] grok session/set_model(effort reset) failed", {
-                            sessionKey: g,
-                            error: Xe
+                    } catch (pt) {
+                        let Ae = pt instanceof Error ? pt.message : String(pt);
+                        return J("[session-manager] grok session/set_model(effort reset) failed", {
+                            sessionKey: _,
+                            error: Ae
                         }), {
                             ok: !1,
                             reason: "runtime_rejected",
-                            detail: Xe
+                            detail: Ae
                         }
                     }
-                    return await ut(t, g, {
+                    return await Ye(t, _, {
                         effort: null
-                    }), K("[session-manager] grok session effort override updated", {
-                        sessionKey: g,
+                    }), Q("[session-manager] grok session effort override updated", {
+                        sessionKey: _,
                         effort: "(reset to default)",
                         applied: "live"
                     }), {
@@ -2861,10 +1864,10 @@ ${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines
                         applied: "live"
                     }
                 }
-                return await ut(t, g, {
+                return await Ye(t, _, {
                     effort: null
-                }), K("[session-manager] grok session effort override updated", {
-                    sessionKey: g,
+                }), Q("[session-manager] grok session effort override updated", {
+                    sessionKey: _,
                     effort: "(reset to default)",
                     applied: "stored"
                 }), {
@@ -2873,80 +1876,86 @@ ${TC}`, $t.eventIds.push(...Dr), $t.claimedEventIds.push(...Ri), $t.requeueLines
                     applied: "stored"
                 }
             }
-            if (N === "codex") return await ut(t, g, {
-                effort: E ?? null
-            }), K("[session-manager] codex session effort override updated", {
-                sessionKey: g,
-                effort: E ?? "(reset to default)"
+            if (Y === "codex") return await Ye(t, _, {
+                effort: k ?? null
+            }), Q("[session-manager] codex session effort override updated", {
+                sessionKey: _,
+                effort: k ?? "(reset to default)"
             }), {
                 ok: !0,
-                effort: E,
+                effort: k,
                 applied: "stored"
             };
-            let U = z?.query,
-                D = "stored";
-            if (U && typeof U.applyFlagSettings == "function") try {
-                await U.applyFlagSettings({
-                    effortLevel: E ?? null
-                }), D = "live"
-            } catch (ne) {
-                Z("[session-manager] live applyFlagSettings(effort) failed — storing the override instead", {
-                    sessionKey: g,
-                    effort: E ?? "(reset to default)",
-                    error: ne instanceof Error ? ne.message : String(ne)
+            let q = M?.query,
+                se = "stored";
+            if (q && typeof q.applyFlagSettings == "function") try {
+                await q.applyFlagSettings({
+                    effortLevel: k ?? null
+                }), se = "live"
+            } catch (ve) {
+                J("[session-manager] live applyFlagSettings(effort) failed — storing the override instead", {
+                    sessionKey: _,
+                    effort: k ?? "(reset to default)",
+                    error: ve instanceof Error ? ve.message : String(ve)
                 })
             }
-            return await ut(t, g, {
-                effort: E ?? null
-            }), K("[session-manager] session effort override updated", {
-                sessionKey: g,
-                effort: E ?? "(reset to default)",
-                applied: D
+            return await Ye(t, _, {
+                effort: k ?? null
+            }), Q("[session-manager] session effort override updated", {
+                sessionKey: _,
+                effort: k ?? "(reset to default)",
+                applied: se
             }), {
                 ok: !0,
-                effort: E,
-                applied: D
+                effort: k,
+                applied: se
             }
         },
-        getActorView(g) {
-            let E = x.get(g);
-            return !E || E.actorRunId <= 0 ? null : {
-                sessionKey: E.sessionKey,
-                status: E.status,
+        getActorView(_) {
+            let k = U.get(_);
+            return !k || k.actorRunId <= 0 ? null : {
+                sessionKey: k.sessionKey,
+                status: k.status,
                 health: "ok",
-                idleSince: E.status === "idle" ? E.idleSince : void 0,
-                attachedChannels: E.attachedChannels.size,
-                sdkSessionId: E.sdkSessionId,
-                origin: E.origin,
-                jobId: E.jobId,
-                runtime: E.runtime
+                idleSince: k.status === "idle" ? k.idleSince : void 0,
+                attachedChannels: k.attachedChannels.size,
+                sdkSessionId: k.sdkSessionId,
+                origin: k.origin,
+                jobId: k.jobId,
+                runtime: k.runtime,
+                activeToolCalls: [...k.activeToolCalls.values()]
             }
         },
-        hasQueuedWake: O,
+        hasQueuedWake: P,
         listActors() {
-            let g = new Map;
-            for (let [E, z] of x) z.actorRunId <= 0 && !O(z.sessionKey) || g.set(E, {
-                sessionKey: z.sessionKey,
-                status: z.status,
+            let _ = new Map;
+            for (let [k, M] of U) M.actorRunId <= 0 && !P(M.sessionKey) || _.set(k, {
+                sessionKey: M.sessionKey,
+                status: M.status,
                 health: "ok",
-                idleSince: z.status === "idle" ? z.idleSince : void 0,
-                attachedChannels: z.attachedChannels.size,
-                sdkSessionId: z.sdkSessionId,
-                origin: z.origin,
-                jobId: z.jobId,
-                runtime: z.runtime
+                idleSince: M.status === "idle" ? M.idleSince : void 0,
+                attachedChannels: M.attachedChannels.size,
+                sdkSessionId: M.sdkSessionId,
+                origin: M.origin,
+                jobId: M.jobId,
+                runtime: M.runtime,
+                activeToolCalls: [...M.activeToolCalls.values()]
             });
-            return g
+            return _
         },
-        getSweeperActorState(g) {
-            let E = x.get(g);
-            return !E || E.actorRunId <= 0 ? null : {
+        getSweeperActorState(_) {
+            let k = U.get(_);
+            return !k || k.actorRunId <= 0 ? null : {
                 live: !0,
-                midTurn: E.streamingState?.currentTurn?.accepted === !0,
-                lastActivityAt: E.lastActivityAt,
-                lastTurnCompletedAt: E.lastTurnCompletedAt,
-                spawnedAt: E.spawnedAt
+                midTurn: k.streamingState?.currentTurn?.accepted === !0,
+                lastActivityAt: k.lastActivityAt,
+                lastTurnCompletedAt: k.lastTurnCompletedAt,
+                spawnedAt: k.spawnedAt
             }
+        },
+        markAgentNotified(_) {
+            let k = U.get(_);
+            k && (k.agentNotifiedThisDrain = !0)
         }
     }
 }

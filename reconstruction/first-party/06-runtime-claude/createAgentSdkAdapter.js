@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAgentSdkAdapter  (minified: Su, daemon.pretty.js:49323)
+// symbol: createAgentSdkAdapter  (minified: Dd, daemon.pretty.js:49529)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -8,13 +8,13 @@ function createAgentSdkAdapter() {
         let r = {},
             i = !!process.env.ALADUO_SDK_DEBUG;
         i && (r.debug = !0, r.stderr = l => {
-            Ct("debug", "[claude-sdk stderr]", l)
+            ht("debug", "[claude-sdk stderr]", l)
         }), t.sessionId && (r.resume = t.sessionId), t.abortController && (r.abortController = t.abortController), t.cwd && (r.cwd = t.cwd), t.settingSources && (r.settingSources = t.settingSources), t.persistSession !== void 0 && (r.persistSession = t.persistSession), "outputFormat" in t && t.outputFormat && (r.outputFormat = t.outputFormat), "model" in t && t.model && (r.model = t.model), "effort" in t && t.effort && (r.effort = t.effort);
         let o = t.permissionMode ?? process.env.ALADUO_PERMISSION_MODE ?? "bypassPermissions";
         if (o && (r.permissionMode = o), t.systemPrompt !== void 0) r.systemPrompt = t.systemPrompt;
         else {
-            let l = cb(process.env.SYSTEM_PROMPT),
-                u = cb(process.env.APPEND_SYSTEM_PROMPT),
+            let l = _b(process.env.SYSTEM_PROMPT),
+                u = _b(process.env.APPEND_SYSTEM_PROMPT),
                 p = [resolveMetaPromptText(), u].filter(f => !!f).join(`
 
 `).trim();
@@ -28,9 +28,9 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
         }
         if (t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let l = [...new Set(t.tools)];
-            if (r.tools = l, Ct("info", `[claude-sdk] built-in tool surface (${l.length}): ${l.join(",")}`), t.allowedTools?.length) {
-                let u = Tue(t.allowedTools, l);
-                u.length > 0 && Z(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${u.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
+            if (r.tools = l, ht("info", `[claude-sdk] built-in tool surface (${l.length}): ${l.join(",")}`), t.allowedTools?.length) {
+                let u = Uce(t.allowedTools, l);
+                u.length > 0 && J(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${u.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
             }
         }
         if (t.disallowedTools !== void 0) {
@@ -38,7 +38,7 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
                 mcpTools: l,
                 builtIns: u
             } = splitDisallowedToolsForClaude(t.disallowedTools);
-            u.length > 0 && Z(`[claude-sdk] disallowedTools no longer governs built-in tools (allowlist-only via claude.tools); ignoring: ${u.join(",")}`), l.length > 0 && (r.disallowedTools = l)
+            u.length > 0 && J(`[claude-sdk] disallowedTools no longer governs built-in tools (allowlist-only via claude.tools); ignoring: ${u.join(",")}`), l.length > 0 && (r.disallowedTools = l)
         }
         t.mcpServers && (r.mcpServers = t.mcpServers), t.additionalDirectories !== void 0 && (r.additionalDirectories = t.additionalDirectories);
         let s = {
@@ -57,13 +57,13 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
                 tools: r.tools,
                 includePartialMessages: r.includePartialMessages
             };
-            Ct("debug", "[claude-sdk debug] execPath:", process.execPath), Ct("debug", "[claude-sdk debug] PATH:", process.env.PATH), Ct("debug", "[claude-sdk debug] options:", JSON.stringify(l))
+            ht("debug", "[claude-sdk debug] execPath:", process.execPath), ht("debug", "[claude-sdk debug] PATH:", process.env.PATH), ht("debug", "[claude-sdk debug] options:", JSON.stringify(l))
         }
         return r
     };
     return {
         async run(t) {
-            xue();
+            Lce();
             let n = t.sessionId,
                 r, i, o = "",
                 s = "",
@@ -77,344 +77,231 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
                     includePartialMessages: !!t.onStream
                 });
             {
-                let F = h.hooks ?? {},
-                    L = F.PreToolUse ?? [];
-                L.push({
-                    matcher: wd,
-                    hooks: [async B => (B?.agent_id !== void 0 || (p = !0, d = !0, K("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
+                let D = h.hooks ?? {},
+                    B = D.PreToolUse ?? [];
+                B.push({
+                    matcher: Cu,
+                    hooks: [async F => (F?.agent_id !== void 0 || (p = !0, d = !0, Q("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
                         continue: !1,
                         stopReason: "The agent intentionally ended this turn silently by calling Skip."
                     })]
-                }), F.PreToolUse = L, h.hooks = F
+                }), D.PreToolUse = B, h.hooks = D
             }
-            let y = (F, L, B = !1) => {
-                    if (!(!t.onStream || !F) && !d) {
-                        if (l || (l = !0, u = Date.now() - a, Yi("sdk_first_token", t.sessionId ?? "new", {
+            let g = (D, B, F = !1) => {
+                    if (!(!t.onStream || !D) && !d) {
+                        if (l || (l = !0, u = Date.now() - a, Bi("sdk_first_token", t.sessionId ?? "new", {
                                 ttftMs: u
-                            })), B) {
-                            t.onStream(F, !0);
+                            })), F) {
+                            t.onStream(D, !0);
                             return
                         }
-                        if (L) {
-                            o += F, s += F, t.onStream(F, !1);
+                        if (B) {
+                            o += D, s += D, t.onStream(D, !1);
                             return
                         }
-                        if (s && F.startsWith(s)) {
-                            let te = F.slice(s.length);
-                            te && (o += te, s = F, t.onStream(te, !1));
+                        if (s && D.startsWith(s)) {
+                            let W = D.slice(s.length);
+                            W && (o += W, s = D, t.onStream(W, !1));
                             return
                         }
-                        if (F.startsWith(o)) {
-                            let te = F.slice(o.length);
-                            te && (o = F, s += te, t.onStream(te, !1));
+                        if (D.startsWith(o)) {
+                            let W = D.slice(o.length);
+                            W && (o = D, s += W, t.onStream(W, !1));
                             return
                         }
-                        o += F, s += F, t.onStream(F, !1)
+                        o += D, s += D, t.onStream(D, !1)
                     }
                 },
-                _ = new Map,
-                k = new Map,
-                v = F => {
+                y = new Map,
+                w = new Map,
+                v = D => {
                     if (t.onExecutionEvent) try {
-                        t.onExecutionEvent(F)
+                        t.onExecutionEvent(D)
                     } catch {}
                 },
-                b = F => {
-                    let L = F.message?.content;
-                    if (Array.isArray(L))
-                        for (let B of L) {
-                            if (!B || typeof B != "object") continue;
-                            if (B.type === "tool_use") {
-                                let Le = B.id,
-                                    Re = B.name,
-                                    We = B.input;
-                                Le && Re && (_.set(Le, Re), v({
+                b = D => {
+                    let B = D.message?.content;
+                    if (Array.isArray(B))
+                        for (let F of B) {
+                            if (!F || typeof F != "object") continue;
+                            if (F.type === "tool_use") {
+                                let ye = F.id,
+                                    ge = F.name,
+                                    Be = F.input;
+                                ye && ge && (y.set(ye, ge), v({
                                     type: "tool_use",
-                                    toolUseId: Le,
-                                    toolName: Re,
-                                    input: We
+                                    toolUseId: ye,
+                                    toolName: ge,
+                                    input: Be
                                 }))
                             }
                         }
                 },
-                I = parsePositiveMsEnv(process.env.ALADUO_ABORT_CLOSE_TIMEOUT_MS, 1e4),
-                T = null,
-                S = !1,
-                w = t.holdInputOpenForBackgroundAgents === !0,
-                C = new Set,
+                R = parsePositiveMsEnv(process.env.ALADUO_ABORT_CLOSE_TIMEOUT_MS, 1e4),
+                I = null,
+                T = !1,
+                x = t.holdInputOpenForBackgroundAgents === !0,
+                S = new Set,
                 O = !1,
-                A = !w,
-                x = () => {},
-                P = w ? new Promise(F => {
-                    x = F
+                $ = !x,
+                C = () => {},
+                A = x ? new Promise(D => {
+                    C = D
                 }) : Promise.resolve(),
-                M = parsePositiveMsEnv(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5),
-                j = null,
-                H = () => {
-                    j && (clearTimeout(j), j = null)
+                j = parsePositiveMsEnv(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5),
+                P = null,
+                z = () => {
+                    P && (clearTimeout(P), P = null)
                 },
-                J = () => {
-                    A || O && C.size === 0 && (A = !0, H(), x())
+                U = () => {
+                    $ || O && S.size === 0 && ($ = !0, z(), C())
                 },
-                ee = () => {
-                    A || (A = !0, H(), x())
+                K = () => {
+                    $ || ($ = !0, z(), C())
                 },
-                ie = () => {
-                    !w || A || (H(), O && (j = setTimeout(() => {
-                        A || (Ct("warn", "[claude-sdk] hold-input idle watchdog fired — SDK went silent with background Agent task(s) still tracked; force-releasing stdin to avoid an unbounded hang. If this was a legitimate long-running task, its continuation's in-process MCP call may fail; investigate.", JSON.stringify({
-                            idleTimeoutMs: M,
-                            inFlightAgentTaskIds: Array.from(C)
-                        })), ee())
-                    }, M), typeof j == "object" && j?.unref && j.unref()))
+                te = () => {
+                    !x || $ || (z(), O && (P = setTimeout(() => {
+                        $ || (ht("warn", "[claude-sdk] hold-input idle watchdog fired — SDK went silent with background Agent task(s) still tracked; force-releasing stdin to avoid an unbounded hang. If this was a legitimate long-running task, its continuation's in-process MCP call may fail; investigate.", JSON.stringify({
+                            idleTimeoutMs: j,
+                            inFlightAgentTaskIds: Array.from(S)
+                        })), K())
+                    }, j), typeof P == "object" && P?.unref && P.unref()))
                 };
-            async function* re() {
-                let F = typeof t.prompt == "string" ? ET(t.prompt) : t.prompt;
-                for await (let L of F) yield L;
-                await P
+            async function* V() {
+                let D = typeof t.prompt == "string" ? rI(t.prompt) : t.prompt;
+                for await (let B of D) yield B;
+                await A
             }
-            let Ye = Sue({
-                    prompt: w ? re() : t.prompt,
+            let re = Mce({
+                    prompt: x ? V() : t.prompt,
                     options: h
                 }),
-                je = () => {
-                    T = setTimeout(() => {
-                        S = !0, Ae("[claude-sdk] abort close timeout reached, closing query"), Ye.close()
-                    }, I)
+                X = () => {
+                    I = setTimeout(() => {
+                        T = !0, ke("[claude-sdk] abort close timeout reached, closing query"), re.close()
+                    }, R)
                 };
-            t.abortController?.signal.aborted ? je() : t.abortController?.signal.addEventListener("abort", je, {
+            t.abortController?.signal.aborted ? X() : t.abortController?.signal.addEventListener("abort", X, {
                 once: !0
             });
-            let Se = !1,
-                lt = () => {
-                    if (!Se) {
-                        Se = !0;
+            let L = !1,
+                ie = () => {
+                    if (!L) {
+                        L = !0;
                         try {
                             t.onTurnAcknowledged?.()
                         } catch {}
                     }
                 };
             try {
-                for await (let F of Ye) {
-                    let L = F;
-                    if (L.type === "system" && L.subtype === "init" || lt(), L.type === "system") {
-                        if (L.subtype === "init" && (n = L.session_id ?? n), w && L.subtype === "task_started") {
-                            let B = L,
-                                te = typeof B.task_type == "string" ? B.task_type : void 0,
-                                Re = B.subagent_type !== void 0 && B.subagent_type !== null || te !== void 0 && te !== "local_bash";
-                            typeof B.task_id == "string" && B.task_id.length > 0 && Re && C.add(B.task_id)
+                for await (let D of re) {
+                    let B = D;
+                    if (B.type === "system" && B.subtype === "init" || ie(), B.type === "system") {
+                        if (B.subtype === "init" && (n = B.session_id ?? n), x && B.subtype === "task_started") {
+                            let F = B,
+                                W = typeof F.task_type == "string" ? F.task_type : void 0,
+                                ge = F.subagent_type !== void 0 && F.subagent_type !== null || W !== void 0 && W !== "local_bash";
+                            typeof F.task_id == "string" && F.task_id.length > 0 && ge && S.add(F.task_id)
                         }
-                        if (w && L.subtype === "task_notification") {
-                            let B = L;
-                            typeof B.task_id == "string" && C.delete(B.task_id)
+                        if (x && B.subtype === "task_notification") {
+                            let F = B;
+                            typeof F.task_id == "string" && S.delete(F.task_id)
                         }
                         v({
                             type: "system",
-                            subtype: L.subtype ?? "unknown",
-                            data: L.subtype === "init" ? {
-                                session_id: L.session_id
+                            subtype: B.subtype ?? "unknown",
+                            data: B.subtype === "init" ? {
+                                session_id: B.session_id
                             } : void 0
                         })
                     }
-                    if (L.type === "stream_event") {
-                        let B = xm(L),
-                            te = bT(L.event);
-                        for (let Be of te) y(Be.text, Be.isDelta, B);
-                        let Le = vT(L.event);
-                        for (let Be of Le) v({
+                    if (B.type === "stream_event") {
+                        let F = Ad(B),
+                            W = YT(B.event);
+                        for (let _ of W) g(_.text, _.isDelta, F);
+                        let ye = XT(B.event);
+                        for (let _ of ye) v({
                             type: "thought_chunk",
-                            text: Be
+                            text: _
                         });
-                        let Re = wT(L.event);
-                        Re && (k.set(Re.index, {
-                            toolUseId: Re.toolUseId,
-                            toolName: Re.toolName
-                        }), _.set(Re.toolUseId, Re.toolName), v({
+                        let ge = QT(B.event);
+                        ge && (w.set(ge.index, {
+                            toolUseId: ge.toolUseId,
+                            toolName: ge.toolName
+                        }), y.set(ge.toolUseId, ge.toolName), v({
                             type: "tool_use",
-                            toolUseId: Re.toolUseId,
-                            toolName: Re.toolName,
+                            toolUseId: ge.toolUseId,
+                            toolName: ge.toolName,
                             input: void 0,
                             ephemeral: !0
                         }));
-                        let We = ST(L.event);
-                        if (We) {
-                            let Be = k.get(We.index);
-                            Be && v({
+                        let Be = eI(B.event);
+                        if (Be) {
+                            let _ = w.get(Be.index);
+                            _ && v({
                                 type: "tool_input_delta",
-                                toolUseId: Be.toolUseId,
-                                toolName: Be.toolName,
-                                partialJson: We.partialJson
+                                toolUseId: _.toolUseId,
+                                toolName: _.toolName,
+                                partialJson: Be.partialJson
                             })
                         }
                     }
-                    if (typeof L.type == "string" && L.type.includes("assistant")) {
-                        let B = xm(L),
-                            te = _T(L);
-                        for (let Le of te) y(Le.text, Le.isDelta, B);
-                        b(L)
+                    if (typeof B.type == "string" && B.type.includes("assistant")) {
+                        let F = Ad(B),
+                            W = KT(B);
+                        for (let ye of W) g(ye.text, ye.isDelta, F);
+                        b(B)
                     }
-                    if (L.type === "user") {
-                        let B = L.message?.content;
-                        if (Array.isArray(B))
-                            for (let te of B) {
-                                if (!te || typeof te != "object") continue;
-                                if (te.type === "tool_result") {
-                                    let Re = te.tool_use_id,
-                                        We = te.is_error ?? !1,
-                                        Be = te.content;
-                                    Re && (v({
+                    if (B.type === "user") {
+                        let F = B.message?.content;
+                        if (Array.isArray(F))
+                            for (let W of F) {
+                                if (!W || typeof W != "object") continue;
+                                if (W.type === "tool_result") {
+                                    let ge = W.tool_use_id,
+                                        Be = W.is_error ?? !1,
+                                        _ = W.content;
+                                    ge && (v({
                                         type: "tool_result",
-                                        toolUseId: Re,
-                                        toolName: _.get(Re),
-                                        isError: We,
-                                        summary: kT(Be)
+                                        toolUseId: ge,
+                                        toolName: y.get(ge),
+                                        isError: Be,
+                                        summary: tI(_)
                                     }), s = "")
                                 }
                             }
                     }
-                    if (L.type === "result" && L.subtype === "success")
-                        if (d) c = Rm(L);
+                    if (B.type === "result" && B.subtype === "success")
+                        if (d) c = Lm(B);
                         else {
-                            let B = typeof L.result == "string" ? L.result : "";
-                            B.length > 0 && (r = B, f = !0), L.structured_output !== void 0 && (i = L.structured_output, f = !0), c = Rm(L)
-                        } L.type === "result" && (d = !1), w && L.type === "result" && (O = !0, J()), w && !A && ie()
+                            let F = typeof B.result == "string" ? B.result : "";
+                            F.length > 0 && (r = F, f = !0), B.structured_output !== void 0 && (i = B.structured_output, f = !0), c = Lm(B)
+                        } B.type === "result" && (d = !1), x && B.type === "result" && (O = !0, U()), x && !$ && te()
                 }
-                if (S) throw Em("SDK run force-closed after abort timeout", new Error("abort close timeout"))
-            } catch (F) {
-                throw m && Ct("error", "[claude-sdk error]", F instanceof Error ? F.stack ?? F.message : String(F)), t.abortController?.signal.aborted && !x9e(F) ? Em("SDK run aborted", F) : F
+                if (T) throw jm("SDK run force-closed after abort timeout", new Error("abort close timeout"))
+            } catch (D) {
+                throw m && ht("error", "[claude-sdk error]", D instanceof Error ? D.stack ?? D.message : String(D)), t.abortController?.signal.aborted && !isAbortLikeError(D) ? jm("SDK run aborted", D) : D
             } finally {
-                T && clearTimeout(T), t.abortController?.signal.removeEventListener("abort", je), ee()
+                I && clearTimeout(I), t.abortController?.signal.removeEventListener("abort", X), K()
             }
-            let Fe = p && !f;
+            let fe = p && !f;
             return {
                 sessionId: n,
-                text: Fe ? void 0 : r ?? (o || void 0),
-                structured: Fe ? void 0 : i,
+                text: fe ? void 0 : r ?? (o || void 0),
+                structured: fe ? void 0 : i,
                 usage: c,
                 firstTokenLatencyMs: u,
-                skipped: Fe || void 0
+                skipped: fe || void 0
             }
         },
         createStreamingQuery(t) {
-            return xue(), {
-                query: Sue({
+            return Lce(), {
+                query: Mce({
                     prompt: t.prompt,
                     options: e(t, {
                         includePartialMessages: !0
                     })
                 })
-            }
-        },
-        async undo(t) {
-            let n = new Date().toISOString();
-            if (!Number.isInteger(t.numTurns) || t.numTurns < 1) return {
-                kind: "noop",
-                runtime: "claude",
-                reason: `invalid numTurns: ${t.numTurns}`,
-                triggered_at: n
-            };
-            let r = process.env.CLAUDE_CONFIG_DIR ?? Tm.join(w9e(), ".claude"),
-                i = Tm.join(r, "projects"),
-                o = [];
-            try {
-                o = await b9e(i)
-            } catch (m) {
-                return {
-                    kind: "failed",
-                    runtime: "claude",
-                    error: `failed to scan claude projects dir: ${m instanceof Error?m.message.split(`
-`)[0]:String(m)}`,
-                    triggered_at: n
-                }
-            }
-            let s;
-            for (let m of o) {
-                let h = Tm.join(i, m, `${t.sessionId}.jsonl`);
-                try {
-                    if (!(await v9e(h)).isFile()) continue;
-                    if (s) return {
-                        kind: "failed",
-                        runtime: "claude",
-                        error: "ambiguous session file lookup (multiple matches)",
-                        triggered_at: n
-                    };
-                    s = h
-                } catch {}
-            }
-            if (!s) return {
-                kind: "failed",
-                runtime: "claude",
-                error: `session file not found for sdk_session_id=${t.sessionId}`,
-                triggered_at: n
-            };
-            if (t.abortController?.signal.aborted) return {
-                kind: "failed",
-                runtime: "claude",
-                error: "aborted",
-                triggered_at: n
-            };
-            let a;
-            try {
-                a = await _9e(s, "utf8")
-            } catch (m) {
-                return {
-                    kind: "failed",
-                    runtime: "claude",
-                    error: `failed to read session file: ${m instanceof Error?m.message.split(`
-`)[0]:String(m)}`,
-                    triggered_at: n
-                }
-            }
-            let l = [],
-                u = [],
-                c = m => {
-                    if (m.type !== "user") return !1;
-                    let y = m.message?.content;
-                    return typeof y == "string" ? !0 : Array.isArray(y) ? y.some(_ => !_ || typeof _ != "object" ? !0 : _.type !== "tool_result") : !0
-                };
-            for (let m of a.split(`
-`)) {
-                let h = m.trim();
-                if (!h) continue;
-                let y;
-                try {
-                    y = JSON.parse(h)
-                } catch {
-                    continue
-                }
-                if (y.isSidechain === !0 || typeof y.type != "string" || typeof y.uuid != "string" || y.uuid.length === 0) continue;
-                let _ = l.length;
-                l.push({
-                    uuid: y.uuid,
-                    type: y.type
-                }), c(y) && u.push(_)
-            }
-            if (u.length === 0) return {
-                kind: "noop",
-                runtime: "claude",
-                reason: "session has no real user turns to undo",
-                triggered_at: n
-            };
-            if (t.numTurns >= u.length) return {
-                kind: "noop",
-                runtime: "claude",
-                reason: "would drop entire conversation; use /clear instead",
-                triggered_at: n
-            };
-            let p = u[u.length - t.numTurns] - 1;
-            if (p < 0) return {
-                kind: "noop",
-                runtime: "claude",
-                reason: "no entries before the first dropped turn; use /clear instead",
-                triggered_at: n
-            };
-            let f = l[p].uuid;
-            return {
-                kind: "succeeded",
-                runtime: "claude",
-                sessionIdChanged: !0,
-                droppedTurns: t.numTurns,
-                cutoff_message_uuid: f,
-                triggered_at: n
             }
         }
     }
