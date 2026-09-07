@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: appendDrainRecord  (minified: od, daemon.pretty.js:35913)
+// symbol: appendDrainRecord  (minified: _d, daemon.pretty.js:36117)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendDrainRecord(e, t) {
-    await xe(e.usageDir);
+    await Te(e.usageDir);
     let n = drainRecordPath(e, t.session_key),
-        r = `${JSON.stringify(t)}
+        r = `${Si(t)}
 `;
-    await x0.appendFile(n, r, "utf8")
+    await n0.appendFile(n, r, "utf8")
 }

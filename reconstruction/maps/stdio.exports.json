@@ -1,11 +1,11 @@
 {
-  "buildInkTimeline": "qde",
+  "buildInkTimeline": "zde",
   "formatInkDateKey": "m4",
-  "formatInkTime": "Vde",
-  "main": "BUe",
-  "parseStdioCliOptions": "vUe",
-  "resolveIngressCwdAbs": "yUe",
-  "runInkChatbot": "RUe",
-  "runStdioChatbot": "DUe",
-  "shouldAppendFinalAssistantReply": "Wde"
+  "formatInkTime": "Wde",
+  "main": "UUe",
+  "parseStdioCliOptions": "FUe",
+  "resolveIngressCwdAbs": "QUe",
+  "runInkChatbot": "wUe",
+  "runStdioChatbot": "MUe",
+  "shouldAppendFinalAssistantReply": "Kde"
 }

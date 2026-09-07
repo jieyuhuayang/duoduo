@@ -2,974 +2,932 @@
   {
     "subsystem": "00-daemon-entry",
     "symbol": "claimDaemonRestartReason",
-    "mangled": "Ece",
-    "origLine": 50236,
-    "bytes": 631
+    "mangled": "$me",
+    "origLine": 59312,
+    "bytes": 850
   },
   {
     "subsystem": "00-daemon-entry",
     "symbol": "createDaemon",
-    "mangled": "Sst",
-    "origLine": 81955,
-    "bytes": 36395
+    "mangled": "Aut",
+    "origLine": 83506,
+    "bytes": 40782
   },
   {
     "subsystem": "00-daemon-entry",
     "symbol": "daemonRestartReasonPath",
-    "mangled": "i5e",
-    "origLine": 50233,
+    "mangled": "xet",
+    "origLine": 59309,
     "bytes": 99
   },
   {
     "subsystem": "00-daemon-entry",
+    "symbol": "deliverDaemonRestartWakes",
+    "mangled": "_ut",
+    "origLine": 82782,
+    "bytes": 793
+  },
+  {
+    "subsystem": "00-daemon-entry",
     "symbol": "getPendingRestartReason",
-    "mangled": "Ice",
-    "origLine": 50264,
-    "bytes": 53
+    "mangled": "Nme",
+    "origLine": 59342,
+    "bytes": 90
   },
   {
     "subsystem": "00-daemon-entry",
     "symbol": "setPendingRestartReason",
-    "mangled": "Tce",
-    "origLine": 50260,
-    "bytes": 61
+    "mangled": "Ame",
+    "origLine": 59338,
+    "bytes": 60
   },
   {
     "subsystem": "01-spine-wal",
     "symbol": "advanceConsumerWatermark",
-    "mangled": "Ya",
-    "origLine": 32105,
+    "mangled": "il",
+    "origLine": 32281,
     "bytes": 275
   },
   {
     "subsystem": "01-spine-wal",
     "symbol": "atomicAppendEvent",
-    "mangled": "fn",
-    "origLine": 31282,
-    "bytes": 473
+    "mangled": "en",
+    "origLine": 31474,
+    "bytes": 251
   },
   {
     "subsystem": "01-spine-wal",
     "symbol": "atomicWriteFileSync",
-    "mangled": "Z6e",
-    "origLine": 31247,
-    "bytes": 582
+    "mangled": "pJe",
+    "origLine": 31439,
+    "bytes": 570
   },
   {
     "subsystem": "01-spine-wal",
     "symbol": "computeDedupKey",
-    "mangled": "Lte",
-    "origLine": 78532,
-    "bytes": 493
+    "mangled": "Xne",
+    "origLine": 79985,
+    "bytes": 121
   },
   {
     "subsystem": "01-spine-wal",
     "symbol": "createSpineEvent",
-    "mangled": "dn",
-    "origLine": 31240,
+    "mangled": "Qt",
+    "origLine": 31432,
     "bytes": 126
   },
   {
     "subsystem": "01-spine-wal",
     "symbol": "readEventByIdSeek",
-    "mangled": "zc",
-    "origLine": 31314,
-    "bytes": 540
+    "mangled": "gJe",
+    "origLine": 31509,
+    "bytes": 446
   },
   {
     "subsystem": "02-gateway-rpc",
     "symbol": "appendBeforeExecuteGateway",
-    "mangled": "coe",
-    "origLine": 78864,
-    "bytes": 4553
+    "mangled": "xse",
+    "origLine": 80293,
+    "bytes": 4595
   },
   {
     "subsystem": "02-gateway-rpc",
     "symbol": "DAEMON_TOKEN_ENV_KEY",
-    "mangled": "MI",
-    "origLine": 58687,
+    "mangled": "DP",
+    "origLine": 62478,
     "bytes": 479
   },
   {
     "subsystem": "02-gateway-rpc",
     "symbol": "isLoopbackBindHost",
-    "mangled": "vst",
-    "origLine": 81922,
+    "mangled": "Out",
+    "origLine": 83473,
     "bytes": 249
   },
   {
     "subsystem": "02-gateway-rpc",
     "symbol": "resolveRemoteListenerConfig",
-    "mangled": "wst",
-    "origLine": 81929,
+    "mangled": "$ut",
+    "origLine": 83480,
     "bytes": 990
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "archiveLegacyRegistrySessionsDir",
-    "mangled": "Lme",
-    "origLine": 61003,
+    "mangled": "sye",
+    "origLine": 62929,
     "bytes": 2635
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "computeInstructionsFingerprint",
-    "mangled": "SC",
-    "origLine": 74084,
-    "bytes": 225
+    "mangled": "tw",
+    "origLine": 75616,
+    "bytes": 277
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "computeMissionFingerprint",
-    "mangled": "aot",
-    "origLine": 74133,
+    "mangled": "Wve",
+    "origLine": 75665,
     "bytes": 111
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "computeNonBoardInstructionsFingerprint",
-    "mangled": "A_e",
-    "origLine": 74093,
+    "mangled": "YH",
+    "origLine": 75625,
     "bytes": 147
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "createMetaSession",
-    "mangled": "Iot",
-    "origLine": 77533,
-    "bytes": 16756
+    "mangled": "Ult",
+    "origLine": 78994,
+    "bytes": 19582
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "createSessionManager",
-    "mangled": "fot",
-    "origLine": 74339,
-    "bytes": 140950
+    "mangled": "Ilt",
+    "origLine": 76852,
+    "bytes": 92718
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "drainSessionMailbox",
-    "mangled": "Nhe",
-    "origLine": 62309,
-    "bytes": 49330
+    "mangled": "Gye",
+    "origLine": 63874,
+    "bytes": 40462
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "readAllSessionSummaries",
-    "mangled": "j1",
-    "origLine": 36006,
+    "mangled": "SL",
+    "origLine": 36210,
     "bytes": 432
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "rehydrateSessionState",
-    "mangled": "Ete",
-    "origLine": 31601,
+    "mangled": "Une",
+    "origLine": 31763,
     "bytes": 1442
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "runInstructionsFingerprintGuard",
-    "mangled": "LB",
-    "origLine": 74138,
-    "bytes": 5094
-  },
-  {
-    "subsystem": "03-session-actor",
-    "symbol": "runMissionFingerprintGuard",
-    "mangled": "lot",
-    "origLine": 74285,
-    "bytes": 313
+    "mangled": "rO",
+    "origLine": 75670,
+    "bytes": 5030
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "SESSION_SCHEMA_VERSION",
-    "mangled": "wC",
-    "origLine": 77286,
-    "bytes": 529
+    "mangled": "zh",
+    "origLine": 73539,
+    "bytes": 95
   },
   {
     "subsystem": "03-session-actor",
     "symbol": "sweepTombstonedSessionRecords",
-    "mangled": "Pot",
-    "origLine": 78008,
-    "bytes": 1589
+    "mangled": "qlt",
+    "origLine": 79557,
+    "bytes": 1582
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "buildSystemPromptForChannelConfig",
-    "mangled": "Pm",
-    "origLine": 49241,
-    "bytes": 294
+    "mangled": "Um",
+    "origLine": 49447,
+    "bytes": 300
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "buildTransientUserBlocks",
-    "mangled": "Lhe",
-    "origLine": 63657,
-    "bytes": 3295
+    "mangled": "Xye",
+    "origLine": 65062,
+    "bytes": 3057
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "extractSystemPromptAppend",
-    "mangled": "Xpe",
-    "origLine": 58829,
+    "mangled": "Qfe",
+    "origLine": 56157,
     "bytes": 130
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "renderDaemonRestartHint",
-    "mangled": "yhe",
-    "origLine": 62102,
+    "mangled": "Mme",
+    "origLine": 59379,
     "bytes": 230
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "renderJobMissionBlock",
-    "mangled": "$ue",
-    "origLine": 49209,
-    "bytes": 1773
+    "mangled": "Wce",
+    "origLine": 49413,
+    "bytes": 1846
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "renderPromptLayers",
-    "mangled": "Aue",
-    "origLine": 49215,
-    "bytes": 650
+    "mangled": "Jce",
+    "origLine": 49420,
+    "bytes": 709
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "resolveMetaPromptText",
-    "mangled": "mb",
-    "origLine": 49198,
+    "mangled": "Sb",
+    "origLine": 49396,
     "bytes": 362
   },
   {
     "subsystem": "04-cognition-prompt",
     "symbol": "transcludeBroadcastBoard",
-    "mangled": "S_e",
-    "origLine": 73802,
+    "mangled": "Uve",
+    "origLine": 75465,
     "bytes": 155
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "appendDrainRecord",
-    "mangled": "od",
-    "origLine": 35913,
-    "bytes": 190
+    "mangled": "_d",
+    "origLine": 36117,
+    "bytes": 178
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "batchDrainItems",
-    "mangled": "r4",
-    "origLine": 63798,
-    "bytes": 935
+    "mangled": "fB",
+    "origLine": 65194,
+    "bytes": 1033
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "computeCodexTurnUsage",
-    "mangled": "Ype",
-    "origLine": 58805,
+    "mangled": "Xfe",
+    "origLine": 56133,
     "bytes": 792
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "drainRecordPath",
-    "mangled": "M1",
-    "origLine": 35910,
+    "mangled": "ga",
+    "origLine": 36114,
     "bytes": 85
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "handleDrainError",
-    "mangled": "zd",
-    "origLine": 64203,
+    "mangled": "mv",
+    "origLine": 65618,
     "bytes": 1709
   },
   {
     "subsystem": "05-drain-turn",
+    "symbol": "isAbortLikeError",
+    "mangled": "zm",
+    "origLine": 49295,
+    "bytes": 292
+  },
+  {
+    "subsystem": "05-drain-turn",
     "symbol": "readDrainRecords",
-    "mangled": "su",
-    "origLine": 35920,
-    "bytes": 569
+    "mangled": "hu",
+    "origLine": 36124,
+    "bytes": 410
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "readGlobalUsageTotals",
-    "mangled": "L1",
-    "origLine": 36023,
-    "bytes": 2556
+    "mangled": "kL",
+    "origLine": 36227,
+    "bytes": 3016
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "readRecentDrainRecords",
-    "mangled": "PGe",
-    "origLine": 36041,
+    "mangled": "B3e",
+    "origLine": 36245,
     "bytes": 502
   },
   {
     "subsystem": "05-drain-turn",
     "symbol": "summarizeDrainRecords",
-    "mangled": "id",
-    "origLine": 35941,
-    "bytes": 4197
+    "mangled": "yd",
+    "origLine": 36139,
+    "bytes": 4619
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "__resetClaudeProbeCacheForTest",
-    "mangled": "R9e",
-    "origLine": 49160,
+    "mangled": "M8e",
+    "origLine": 49358,
     "bytes": 84
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "__setClaudeVerifierForTest",
-    "mangled": "T9e",
-    "origLine": 49164,
+    "mangled": "j8e",
+    "origLine": 49362,
     "bytes": 79
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "AgentSdkPromptNotAcceptedAbortError",
-    "mangled": "oo",
-    "origLine": 49739,
-    "bytes": 1696
+    "mangled": "Ii",
+    "origLine": 49832,
+    "bytes": 1687
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "AgentSdkTurnInterruptedError",
-    "mangled": "ii",
-    "origLine": 49739,
-    "bytes": 1696
+    "mangled": "Vn",
+    "origLine": 49832,
+    "bytes": 1687
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "applyJobSdkConfigOverride",
-    "mangled": "RU",
-    "origLine": 49967,
-    "bytes": 828
+    "mangled": "$2",
+    "origLine": 59028,
+    "bytes": 993
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
-    "mangled": "b2",
-    "origLine": 58687,
+    "mangled": "M4",
+    "origLine": 62478,
     "bytes": 479
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "CLAUDE_CORE_TOOLS",
-    "mangled": "Im",
-    "origLine": 49739,
-    "bytes": 1696
+    "mangled": "Fm",
+    "origLine": 49832,
+    "bytes": 1687
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "claudeUnavailableReason",
-    "mangled": "pb",
-    "origLine": 49153,
+    "mangled": "wb",
+    "origLine": 49351,
     "bytes": 84
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "createAgentSdkAdapter",
-    "mangled": "Su",
-    "origLine": 49323,
-    "bytes": 19050
+    "mangled": "Dd",
+    "origLine": 49529,
+    "bytes": 14877
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "isAgentSdkPromptNotAcceptedAbortError",
-    "mangled": "fb",
-    "origLine": 49093,
+    "mangled": "vb",
+    "origLine": 49291,
     "bytes": 113
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "isAgentSdkTurnInterruptedError",
-    "mangled": "db",
-    "origLine": 49089,
+    "mangled": "bb",
+    "origLine": 49287,
     "bytes": 99
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "isClaudeAvailable",
-    "mangled": "SU",
-    "origLine": 49149,
+    "mangled": "aq",
+    "origLine": 49347,
     "bytes": 57
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "mergeClaudeToolLists",
-    "mangled": "que",
-    "origLine": 49873,
+    "mangled": "Gpe",
+    "origLine": 58934,
     "bytes": 126
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "parsePositiveMsEnv",
-    "mangled": "bU",
-    "origLine": 49317,
+    "mangled": "iq",
+    "origLine": 49523,
     "bytes": 153
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "primeClaudeAvailability",
-    "mangled": "E9e",
-    "origLine": 49156,
+    "mangled": "D8e",
+    "origLine": 49354,
     "bytes": 96
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "probeClaudeAvailability",
-    "mangled": "Cue",
-    "origLine": 49119,
+    "mangled": "Hce",
+    "origLine": 49317,
     "bytes": 865
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "splitDisallowedToolsForClaude",
-    "mangled": "Iue",
-    "origLine": 49079,
+    "mangled": "qce",
+    "origLine": 49277,
     "bytes": 198
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "verifyClaudeCodeRuntimeAvailable",
-    "mangled": "Oue",
-    "origLine": 49168,
+    "mangled": "Vce",
+    "origLine": 49366,
     "bytes": 1808
   },
   {
     "subsystem": "06-runtime-claude",
     "symbol": "writeHostClaudeCodeExecutableEnvConfig",
-    "mangled": "Hpe",
-    "origLine": 58616,
+    "mangled": "Nge",
+    "origLine": 62407,
     "bytes": 456
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "__setCodexAvailabilityForTests",
-    "mangled": "MXe",
-    "origLine": 58746,
+    "mangled": "HXe",
+    "origLine": 56074,
     "bytes": 70
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "ALADUO_TOOL_NAMESPACE",
-    "mangled": "zI",
-    "origLine": 59649,
-    "bytes": 7704
+    "mangled": "JI",
+    "origLine": 56917,
+    "bytes": 7500
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "buildBaseInstructions",
-    "mangled": "Qpe",
-    "origLine": 58833,
+    "mangled": "epe",
+    "origLine": 56161,
     "bytes": 694
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "buildCodexTurnInput",
-    "mangled": "E2",
-    "origLine": 58865,
+    "mangled": "g2",
+    "origLine": 56193,
     "bytes": 319
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "buildDeveloperInstructions",
-    "mangled": "eme",
-    "origLine": 58851,
+    "mangled": "tpe",
+    "origLine": 56179,
     "bytes": 993
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "checkCodexAvailability",
-    "mangled": "Mu",
-    "origLine": 58754,
+    "mangled": "Uu",
+    "origLine": 56082,
     "bytes": 1036
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "codexNotificationFilterDecision",
-    "mangled": "Kpe",
-    "origLine": 58801,
+    "mangled": "Yfe",
+    "origLine": 56129,
     "bytes": 281
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "codexUnavailableReason",
-    "mangled": "NXe",
-    "origLine": 58738,
+    "mangled": "qXe",
+    "origLine": 56066,
     "bytes": 51
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "createCodexAppServerAdapter",
-    "mangled": "jb",
-    "origLine": 58878,
-    "bytes": 21849
+    "mangled": "Fb",
+    "origLine": 56206,
+    "bytes": 19334
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "ensureAgentsMdSymlink",
-    "mangled": "I2",
-    "origLine": 58791,
+    "mangled": "b2",
+    "origLine": 56119,
     "bytes": 337
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "extractCodexGeneratedImageAttachment",
-    "mangled": "rme",
-    "origLine": 59410,
+    "mangled": "ipe",
+    "origLine": 56678,
     "bytes": 928
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "generatePartitionCodexAgents",
-    "mangled": "cQe",
-    "origLine": 60877,
+    "mangled": "prt",
+    "origLine": 62803,
     "bytes": 1957
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "hasImageGenerationRecord",
-    "mangled": "nme",
-    "origLine": 59394,
+    "mangled": "rpe",
+    "origLine": 56662,
     "bytes": 387
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "isCodexAvailable",
-    "mangled": "Mb",
-    "origLine": 58734,
+    "mangled": "Hd",
+    "origLine": 56062,
     "bytes": 52
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "parseAgentMarkdown",
-    "mangled": "Nme",
-    "origLine": 60951,
+    "mangled": "nye",
+    "origLine": 62877,
     "bytes": 616
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "primeCodexAvailability",
-    "mangled": "DXe",
-    "origLine": 58741,
+    "mangled": "BXe",
+    "origLine": 56069,
     "bytes": 144
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "renderAgentToml",
-    "mangled": "Dme",
-    "origLine": 60966,
+    "mangled": "rye",
+    "origLine": 62892,
     "bytes": 245
   },
   {
     "subsystem": "07-runtime-codex",
     "symbol": "resolveCodexSandbox",
-    "mangled": "th",
-    "origLine": 58750,
+    "mangled": "Qm",
+    "origLine": 56078,
     "bytes": 217
   },
   {
     "subsystem": "08-cadence-subconscious",
     "symbol": "createJobScheduler",
-    "mangled": "Mot",
-    "origLine": 78310,
-    "bytes": 1313
+    "mangled": "Vlt",
+    "origLine": 79753,
+    "bytes": 1442
   },
   {
     "subsystem": "08-cadence-subconscious",
     "symbol": "createOutboxDeliveryManager",
-    "mangled": "Lot",
-    "origLine": 78373,
-    "bytes": 2414
-  },
-  {
-    "subsystem": "08-cadence-subconscious",
-    "symbol": "enqueueCadenceItem",
-    "mangled": "Cot",
-    "origLine": 78074,
-    "bytes": 277
-  },
-  {
-    "subsystem": "08-cadence-subconscious",
-    "symbol": "markCadenceItemsDone",
-    "mangled": "Oot",
-    "origLine": 78122,
-    "bytes": 317
-  },
-  {
-    "subsystem": "08-cadence-subconscious",
-    "symbol": "mergeCadenceInbox",
-    "mangled": "Z_e",
-    "origLine": 78081,
-    "bytes": 1092
-  },
-  {
-    "subsystem": "08-cadence-subconscious",
-    "symbol": "parseCadenceQueue",
-    "mangled": "G_e",
-    "origLine": 78113,
-    "bytes": 216
+    "mangled": "Jlt",
+    "origLine": 79821,
+    "bytes": 2610
   },
   {
     "subsystem": "08-cadence-subconscious",
     "symbol": "PARTITION_CORE_TOOLS",
-    "mangled": "vU",
-    "origLine": 49739,
-    "bytes": 1696
+    "mangled": "oq",
+    "origLine": 49832,
+    "bytes": 1687
+  },
+  {
+    "subsystem": "08-cadence-subconscious",
+    "symbol": "resolveCadenceIntervalMs",
+    "mangled": "Ege",
+    "origLine": 62108,
+    "bytes": 231
   },
   {
     "subsystem": "08-cadence-subconscious",
     "symbol": "runCadenceTick",
-    "mangled": "$ot",
-    "origLine": 78130,
-    "bytes": 1092
+    "mangled": "Blt",
+    "origLine": 79617,
+    "bytes": 871
   },
   {
     "subsystem": "08-cadence-subconscious",
     "symbol": "scanAndSpawnDueJobs",
-    "mangled": "BB",
-    "origLine": 78168,
-    "bytes": 3282
+    "mangled": "i6",
+    "origLine": 79648,
+    "bytes": 3227
   },
   {
     "subsystem": "09-memory",
     "symbol": "buildMemoryCheckStatus",
-    "mangled": "y2",
-    "origLine": 58369,
+    "mangled": "N4",
+    "origLine": 62115,
     "bytes": 279
   },
   {
     "subsystem": "09-memory",
     "symbol": "collectMemoryLinks",
-    "mangled": "Km",
-    "origLine": 57571,
+    "mangled": "Gu",
+    "origLine": 60422,
     "bytes": 456
   },
   {
     "subsystem": "09-memory",
     "symbol": "computeBoardLayerHash",
-    "mangled": "$_e",
-    "origLine": 74089,
+    "mangled": "KH",
+    "origLine": 75621,
     "bytes": 110
   },
   {
     "subsystem": "09-memory",
     "symbol": "detectOrphanMemory",
-    "mangled": "bpe",
-    "origLine": 57965,
+    "mangled": "_ge",
+    "origLine": 61925,
     "bytes": 577
   },
   {
     "subsystem": "09-memory",
     "symbol": "enforceContractGate",
-    "mangled": "DI",
-    "origLine": 58258,
+    "mangled": "PP",
+    "origLine": 60899,
     "bytes": 485
   },
   {
     "subsystem": "09-memory",
     "symbol": "forgetMemoryEntry",
-    "mangled": "wpe",
-    "origLine": 57997,
+    "mangled": "vge",
+    "origLine": 61957,
     "bytes": 1333
   },
   {
     "subsystem": "09-memory",
     "symbol": "partitionInboxDir",
-    "mangled": "Dd",
-    "origLine": 56928,
+    "mangled": "iv",
+    "origLine": 59704,
     "bytes": 85
   },
   {
     "subsystem": "09-memory",
     "symbol": "partitionInboxDirFromVar",
-    "mangled": "Wm",
-    "origLine": 56932,
+    "mangled": "Wu",
+    "origLine": 59708,
     "bytes": 93
   },
   {
     "subsystem": "09-memory",
     "symbol": "resolveMemoryCheckFlags",
-    "mangled": "g2",
-    "origLine": 58360,
+    "mangled": "A4",
+    "origLine": 62099,
     "bytes": 185
   },
   {
     "subsystem": "09-memory",
     "symbol": "resolveMemoryDirs",
-    "mangled": "$u",
-    "origLine": 57174,
+    "mangled": "mi",
+    "origLine": 60035,
     "bytes": 258
   },
   {
     "subsystem": "09-memory",
     "symbol": "resolveMemoryLinkTargets",
-    "mangled": "Md",
-    "origLine": 57213,
+    "mangled": "Kd",
+    "origLine": 60074,
     "bytes": 128
   },
   {
     "subsystem": "09-memory",
     "symbol": "routeContractDecision",
-    "mangled": "u2",
-    "origLine": 58100,
-    "bytes": 180
+    "mangled": "P4",
+    "origLine": 62062,
+    "bytes": 183
   },
   {
     "subsystem": "09-memory",
     "symbol": "runBoardLint",
-    "mangled": "q7e",
-    "origLine": 57529,
-    "bytes": 1130
+    "mangled": "mtt",
+    "origLine": 60388,
+    "bytes": 847
   },
   {
     "subsystem": "09-memory",
     "symbol": "runGapLint",
-    "mangled": "hpe",
-    "origLine": 57869,
-    "bytes": 706
+    "mangled": "b4",
+    "origLine": 60985,
+    "bytes": 239
   },
   {
     "subsystem": "09-memory",
     "symbol": "runMemoryCheckTick",
-    "mangled": "_Xe",
-    "origLine": 58383,
-    "bytes": 2828
+    "mangled": "Fnt",
+    "origLine": 62129,
+    "bytes": 4419
   },
   {
     "subsystem": "09-memory",
     "symbol": "walkReachableMemory",
-    "mangled": "Ym",
-    "origLine": 57586,
+    "mangled": "Zu",
+    "origLine": 60437,
     "bytes": 482
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "applyHostModelEnvVars",
-    "mangled": "qpe",
-    "origLine": 58601,
+    "mangled": "$ge",
+    "origLine": 62392,
     "bytes": 499
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "clearHostModelEnvConfig",
-    "mangled": "Vpe",
-    "origLine": 58629,
+    "mangled": "Dge",
+    "origLine": 62420,
     "bytes": 231
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "clearHostModelEnvVars",
-    "mangled": "w2",
-    "origLine": 58597,
+    "mangled": "L4",
+    "origLine": 62388,
     "bytes": 102
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "HOST_MODEL_ENV_KEYS",
-    "mangled": "v2",
-    "origLine": 58687,
+    "mangled": "j4",
+    "origLine": 62478,
     "bytes": 479
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "hostDotEnvPath",
-    "mangled": "dl",
-    "origLine": 58534,
+    "mangled": "gl",
+    "origLine": 62325,
     "bytes": 136
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "initializeRuntime",
-    "mangled": "SQe",
-    "origLine": 61175,
-    "bytes": 1040
+    "mangled": "krt",
+    "origLine": 63101,
+    "bytes": 976
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "loadHostDotEnv",
-    "mangled": "TXe",
-    "origLine": 58674,
+    "mangled": "Gnt",
+    "origLine": 62465,
     "bytes": 330
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "parseDotEnv",
-    "mangled": "jI",
-    "origLine": 58519,
+    "mangled": "MP",
+    "origLine": 62310,
     "bytes": 428
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "readHostDaemonToken",
-    "mangled": "EXe",
-    "origLine": 58640,
+    "mangled": "Wnt",
+    "origLine": 62431,
     "bytes": 310
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "readHostDotEnvFile",
-    "mangled": "Wpe",
-    "origLine": 58665,
+    "mangled": "Mge",
+    "origLine": 62456,
     "bytes": 209
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "resolveRuntimePaths",
-    "mangled": "R7e",
-    "origLine": 56839,
-    "bytes": 3173
+    "mangled": "Get",
+    "origLine": 59619,
+    "bytes": 3021
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "writeHostDaemonToken",
-    "mangled": "RXe",
-    "origLine": 58652,
+    "mangled": "Jnt",
+    "origLine": 62443,
     "bytes": 407
   },
   {
     "subsystem": "10-runtime-host",
     "symbol": "writeHostModelEnvConfig",
-    "mangled": "Bpe",
-    "origLine": 58604,
+    "mangled": "Age",
+    "origLine": 62395,
     "bytes": 335
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "__setGrokAvailabilityForTests",
-    "mangled": "WXe",
-    "origLine": 59910,
+    "mangled": "QXe",
+    "origLine": 57167,
     "bytes": 69
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "checkGrokAvailability",
-    "mangled": "ju",
-    "origLine": 59913,
-    "bytes": 1346
+    "mangled": "qu",
+    "origLine": 57170,
+    "bytes": 483
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "createGrokAcpAdapter",
-    "mangled": "zb",
-    "origLine": 60104,
-    "bytes": 21836
+    "mangled": "Bb",
+    "origLine": 57312,
+    "bytes": 20277
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_ACP_COMPACT",
-    "mangled": "mme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "mpe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_ACP_EXT_PREFIX",
-    "mangled": "fme",
-    "origLine": 60700,
-    "bytes": 2397
-  },
-  {
-    "subsystem": "11-runtime-grok",
-    "symbol": "GROK_ACP_REWIND_EXECUTE",
-    "mangled": "gme",
-    "origLine": 60700,
-    "bytes": 2397
-  },
-  {
-    "subsystem": "11-runtime-grok",
-    "symbol": "GROK_ACP_REWIND_POINTS",
-    "mangled": "hme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "fpe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_ACP_SDK_CALL",
-    "mangled": "pme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "ppe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_AGENT_PROFILE",
-    "mangled": "dme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "dpe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_DISALLOWED_TOOLS",
-    "mangled": "cme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "cpe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_MCP_SDK_META",
-    "mangled": "yme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "hpe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_MCP_SERVER_NAME",
-    "mangled": "bme",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "ype",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "GROK_MCP_SERVERS_META",
-    "mangled": "_me",
-    "origLine": 60700,
-    "bytes": 2397
+    "mangled": "gpe",
+    "origLine": 57858,
+    "bytes": 2256
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "grokAcpExtMethod",
-    "mangled": "Lu",
-    "origLine": 59955,
+    "mangled": "qb",
+    "origLine": 57191,
     "bytes": 114
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "grokUnavailableReason",
-    "mangled": "HXe",
-    "origLine": 59902,
+    "mangled": "YXe",
+    "origLine": 57159,
     "bytes": 50
   },
   {
     "subsystem": "11-runtime-grok",
     "symbol": "isGrokAvailable",
-    "mangled": "BI",
-    "origLine": 59898,
+    "mangled": "x2",
+    "origLine": 57155,
     "bytes": 51
   },
   {
     "subsystem": "11-runtime-grok",
-    "symbol": "parseGrokRewindPoints",
-    "mangled": "wme",
-    "origLine": 59967,
-    "bytes": 456
-  },
-  {
-    "subsystem": "11-runtime-grok",
-    "symbol": "pickGrokRewindPromptIndex",
-    "mangled": "vme",
-    "origLine": 59960,
-    "bytes": 283
-  },
-  {
-    "subsystem": "11-runtime-grok",
     "symbol": "primeGrokAvailability",
-    "mangled": "VXe",
-    "origLine": 59905,
+    "mangled": "XXe",
+    "origLine": 57162,
     "bytes": 141
   }
 ]

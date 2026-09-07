@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: extractSystemPromptAppend  (minified: Xpe, daemon.pretty.js:58829)
+// symbol: extractSystemPromptAppend  (minified: Qfe, daemon.pretty.js:56157)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -46,6 +46,7 @@ const FP_KEYWORDS = [
 const FP_EXPLICIT = new Set([
   "resolveRuntimePaths", "SESSION_SCHEMA_VERSION", "initializeRuntime",
   "DEFAULT_DISALLOWED_TOOLS", "parsePositiveMsEnv",
+  "isAbortLikeError", "restartWakeReport",
 ]);
 // vendor names that slip through keyword matching (zod string-formats/registry)
 const VENDOR_DENY = new Set(["hostname", "$ZodRegistry", "globalRegistry", "registry"]);

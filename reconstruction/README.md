@@ -1,24 +1,24 @@
 # duoduo 源代码还原（Source Reconstruction）
 
-`@openduo/duoduo` v0.7.1 以 **esbuild `--minify` 压缩后的 JavaScript** 发布（作者立场：“代码是给 agent 读的，压缩只为省带宽”）。本目录把这套压缩产物**还原成可读、且经证明能同样运行**的源代码。
+`@openduo/duoduo` 以 **esbuild `--minify` 压缩后的 JavaScript** 发布（作者立场：“代码是给 agent 读的，压缩只为省带宽”）。本目录把这套压缩产物**还原成可读、且经证明能同样运行**的源代码，当前对齐 **v0.8.0**。
 
 ## 一句话结论
 
-**还原不是猜测，而是一条“语义保持”的可证明变换链**：压缩产物 → 反混淆（js-beautify，仅改排版）→ 无损拆包（按字节切分，拼接可字节还原）→ 作用域安全改名（Babel 绑定级重命名 + esbuild `__export` 助手里保留的**真实导出名**）。每一步都不改变语义，因此还原后的 `recon/*.recon.js` **与出厂产物是同一个程序**——这一点用 155 万节点的 AST 全等比对 + 隔离环境实机启动**双重证明**（见 [VERIFICATION.md](./VERIFICATION.md)）。
+**还原不是猜测，而是一条“语义保持”的可证明变换链**：压缩产物 → 反混淆（js-beautify，仅改排版）→ 无损拆包（按字节切分，拼接可字节还原）→ 作用域安全改名（Babel 绑定级重命名 + esbuild `__export` 助手里保留的**真实导出名**）。每一步都不改变语义，因此还原后的 `recon/*.recon.js` **与出厂产物是同一个程序**——这一点用 139 万节点的 AST 全等比对 + 隔离环境实机启动**双重证明**（见 [VERIFICATION.md](./VERIFICATION.md)，该报告记录的是 v0.7.1 验证轮次；v0.8.0 的同等证明已在本轮 `rebuild.sh` 中复现，三个 bundle 均 `RESULT: SEMANTICALLY EQUIVALENT`，first-party 树 133/133 三项校验全过）。
 
 ## 目录结构
 
 | 路径 | 内容 |
 |------|------|
-| `recon/daemon.recon.js` | **可运行的还原产物**（核心运行时）。与出厂 `daemon.js` 语义全等，仅把 139 个一等公民符号改回真实名。已在隔离 HOME + 备用端口实机启动，RPC（TCP 只读 + unix socket 全权）/WAL/cadence/三运行时探测全部正常。 |
+| `recon/daemon.recon.js` | **可运行的还原产物**（核心运行时）。与出厂 `daemon.js` 语义全等，仅把 133 个一等公民符号改回真实名（v0.8.0：新增 pi 第四运行时后 daemon 层导出面净减 6 个，详见 [`../docs/AGENT_INTERNALS_ANALYSIS.md`](../docs/AGENT_INTERNALS_ANALYSIS.md) §8）。已在隔离 HOME + 备用端口实机启动，RPC（TCP 只读 + unix socket 全权）/WAL/cadence/四运行时探测全部正常。 |
 | `recon/cli.recon.js` | 可运行还原产物（命令行）。`--help` 输出与出厂**逐字节一致**。 |
 | `recon/stdio.recon.js` | 可运行还原产物（stdio 通道）。`--help` 与出厂逐字节一致。 |
-| `first-party/` | **可读的一等公民源码树**：把 daemon 的 139 个首方（duoduo 自研）函数按 12 个子系统（新增 `11-runtime-grok`）拆成单文件，带真实函数名与原行号注释。用于**阅读**（运行请用 `recon/`）。 |
+| `first-party/` | **可读的一等公民源码树**：把 daemon 的 133 个首方（duoduo 自研）函数按 12 个子系统（含 `11-runtime-grok`；v0.8.0 新增的 pi 运行时在 daemon 层无独立导出面，未新增子系统目录，见 §8）拆成单文件，带真实函数名与原行号注释。用于**阅读**（运行请用 `recon/`）。 |
 | `maps/RENAME_TABLE.md` | minified 短名 → 真实原名 映射表（按子系统分组，标注来源与原行号）。 |
-| `maps/*.exports.json` | esbuild `__export` 助手中恢复出的**全部**导出名映射（daemon 739 / cli 32 / stdio 9）。 |
+| `maps/*.exports.json` | esbuild `__export` 助手中恢复出的**全部**导出名映射（daemon 733 / cli 34 / stdio 9）。 |
 | `maps/rename_*.json` | 实际应用的“首方”改名表（mangled→真实名）。 |
 | `maps/inferred_daemon.json` | 逆向推断的内部函数名（30 个，未被 `__export` 记录者）。 |
-| `maps/daemon.classification.json` | 628 个模块的首方/第三方分类结果。 |
+| `maps/daemon.classification.json` | 653 个模块的首方/第三方分类结果。 |
 | `maps/daemon.split-manifest.json` | 无损拆包清单（模块边界 + 字节偏移，可字节级重组）。 |
 | `tools/` | 可复现的还原流水线（Babel 脚本 + `rebuild.sh`），跨版本重定向流水线（`bump.sh`），以及两道防静默失败的闸门：`build_rename.mjs` 的导出名覆盖率闸门、`verify_first_party.mjs` 的可读树一致性检查。 |
 
@@ -28,7 +28,7 @@
 2. **拆包无损可证**：`split.mjs` 按 AST 顶层语句的**字节偏移**切分；`reassemble.mjs` 拼回后与原文件 `cmp` **零差异**。因此“模块边界”是从真实结构切出来的，不是臆测。
 3. **名字大多不是猜的**：esbuild 压缩时保留了 `__export(exports, { 真实名: () => 短名 })` 助手调用——这里**逐字保存了原始导出符号名**。daemon 由此恢复 739 个、cli 32 个真实名。少量未导出的内部函数名（daemon 中 30 个，标 *inferred*）才是逆向推断，且**即使名字推断有偏差也不影响正确性**（改名是作用域安全的纯替换）。
 4. **改名作用域安全**：`rename.mjs` 用 Babel 的绑定分析，只替换某个顶层绑定的**精确引用点**，绝不误伤同名的内层变量；有冲突就跳过。因此 AST 结构不变。
-5. **等价性被证明**：`ast_equiv.mjs` 把 `*.pretty.js` 与 `*.recon.js` 两棵 AST 逐节点并行比对，daemon 504,667 / cli 458,304 / stdio 408,291 个节点结构全等，标识符差异恰好等于改名表——**这是覆盖 100% 代码的静态全等证明**，比只跑到启动路径的“能跑起来”更强。
+5. **等价性被证明**：`ast_equiv.mjs` 把 `*.pretty.js` 与 `*.recon.js` 两棵 AST 逐节点并行比对，daemon 513,791 / cli 471,619 / stdio 408,286 个节点结构全等，标识符差异恰好等于改名表——**这是覆盖 100% 代码的静态全等证明**，比只跑到启动路径的“能跑起来”更强。
 
 ## 如何复现
 
@@ -65,9 +65,11 @@ OLD=/path/to/beautified/v0.6.1 NEW=/path/to/beautified/v0.6.2 bash tools/bump.sh
 
 这类"漏掉"不能靠记得去人工核对来防。现在 `build_rename.mjs` 带一道**覆盖率闸门**：每个恢复出的导出名都必须被交代过——判定为第一方，或记录在 `maps/vendor_baseline_<bundle>.json`；两者都不是就是相对基线新出现的名字，构建**直接失败**并列出它们（第一方→加关键词重跑；vendor→`--accept-vendor` 记账）。基线以跨构建稳定的**导出原名**为键。把 v0.7.1 手工补的关键词去掉重跑，闸门精确报出当初被吞掉的那 19 个名字并非零退出。
 
+**v0.7.1→v0.8.0（结构指纹撞车 + 一处纯逻辑简化）**：`bump.sh` 对 daemon 报出 13 个 `RE-ANCHOR` + 1 个 `AMBIGUOUS`。`RE-ANCHOR` 全部通过 `locate_by_anchor.mjs` 配合 `pair_changes.mjs` 输出的 `pairs_daemon.json` 定位成功；`AMBIGUOUS` 一例（`getPendingRestartReason`）是因为旧函数体退化成 `function(){return X}` 这种极简单形态，结构指纹与文件中另外 4 处无关的同形态 trivial getter 撞车——靠追踪与它配对的 setter（`setPendingRestartReason` 写的模块变量）在新版本里被谁读取，人工排除歧义。**另一处纯逻辑改动**：`computeDedupKey` 在 v0.8.0 丢弃了 `dedup.hash`/`dedup.text` 两条回退分支（网关事件去重键现在只认显式 `dedup.source_id`），这不是改名幻觉——新旧两版函数体经逐行核对确认，`grep dedup?.hash` 在新 bundle 里返回零命中。覆盖率闸门本轮拦住 2 个新公开导出（`isAbortLikeError`、`restartWakeReport`），确认均为第一方后加入 `FP_EXPLICIT`。`retarget_docs.mjs` 处理 892 处行号锚点，609 处经结构/导出名/顺序/骨架四种策略之一精确解出；`check_doc_anchors.mjs` 复核后在 `AGENT_INTERNALS_ANALYSIS.md` 的 `` `符号`(`行号`) `` 强校验格式下仍报出 53 处不成立（对应 43 个不重复的短名，多为从未被 `__export` 记录、只能靠字面量重新定位的纯内部函数）——这些是**已知且被工具标记**的过期锚点，未做无根据的猜测性修复，留待后续人工逐条核实。
+
 ## 边界与诚实声明
 
-- **第三方依赖未“还原”**：daemon 628 个模块里 604 个是内联的 npm 包（zod、fastify、ws 等），它们本就有公开源码，本目录只做**识别与分离**（`classification.json`），不改写。“还原”聚焦 duoduo **自研**代码。
+- **第三方依赖未“还原”**：daemon 653 个模块里约 623 个是内联的 npm 包（zod、fastify、ws 等），它们本就有公开源码，本目录只做**识别与分离**（`classification.json`），不改写。“还原”聚焦 duoduo **自研**代码。
 - **未导出内部函数**仍多为短名：只有被 `__export` 记录的符号能拿到权威原名；纯内部辅助函数（除 30 个已逆向命名者外）保持 minified 名——它们不影响运行，也不影响首方逻辑的可读性主干。
 - **`first-party/` 下的单文件不可独立运行**：它们引用其它顶层符号，仅供阅读；可运行工件是 `recon/*.recon.js` 整体。
 - `spawnSessionActor` / `wakeSessionActor` 位于 `createSessionManager` 的函数作用域内（非顶层绑定），改名器按设计不动它们，保留 minified 名。这类内层短名**每次构建都会漂移**，本文不再固定引用具体短名。

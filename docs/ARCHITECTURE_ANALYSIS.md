@@ -200,7 +200,7 @@ subconscious/
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
   - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
   - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (jb)`，daemon.pretty.js:58878-59369，详见 INTERNALS §8）。Grok 侧同样是**常驻子进程**，但走标准 ACP（Agent Client Protocol）协议 + `_x.ai/...` 供应商扩展方法命名空间，适配器是闭包工厂而非 class，spawn 时不带 `detached:!0`（`createGrokAcpAdapter (zb)`，daemon.pretty.js:60102-60391 一带）——三者均不是逐回合 spawn。
+- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (Fb)`，daemon.pretty.js:56206-59369，详见 INTERNALS §8）。Grok 侧同样是**常驻子进程**，但走标准 ACP（Agent Client Protocol）协议 + `_x.ai/...` 供应商扩展方法命名空间，适配器是闭包工厂而非 class，spawn 时不带 `detached:!0`（`createGrokAcpAdapter (Bb)`，daemon.pretty.js:57310-57592 一带）——三者均不是逐回合 spawn。
 - **v0.7.1 起 duoduo 自有工具在 Codex 侧被显式钉在模型可见的顶层工具列表**（`ALADUO_TOOL_NAMESPACE="aladuo"`），防止被 Codex 的 code-execution shim 折叠进模型看不见的间接调用层——这是 changelog "Codex tools stay where the model can see them" 的落地机制，只解决 Codex 一侧的可见性问题，不代表三后端工具面已拉平。
 - 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
 
@@ -272,12 +272,12 @@ Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信（走只读
 
 **重启与升级的实操要点**（confirmed，`cli.pretty.js`）：
 
-- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，走 `session.notify` RPC 给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`cli.pretty.js:71987`）。
-- **v0.7.1 起，从会话内让 agent 重启时若省掉 `-r`，CLI 不再只是警告——直接硬拒绝执行**：`reasonlessRestartRefusal (\$We)` 返回一段 `error: refusing to restart the daemon without --reason...` 并中止调用（`cli.pretty.js:71939-71943`），v0.6.2 时代"预告下个版本会拒绝"的警告已经兑现。它仍靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`cli.pretty.js:65358`）——`ps` 不可用或被 nohup/detach 包过时静默放行不拒绝。
-- `duoduo upgrade [version] [--wake …]` 优于手工两步，且 **v0.7.1 起把升级工作交给一个 detached 子进程**（`isDetachedUpgradeWorker`/`ALADUO_UPGRADE_DETACHED_WORKER` 环境变量标记，`cli.pretty.js:71944-71968`）执行，使升级触发的重启不会连带杀死正在执行升级的那个 CLI 进程本身——这正是 v0.7.0 changelog 承诺"下一版本修复"、v0.7.1 兑现的那个坑（旧版在会话内跑 `duoduo upgrade` 有几率被自己触发的重启杀死）。版本参数仍受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`cli.pretty.js:65429`）——从路径/URL/git 装包不被接受。
+- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，走 `session.notify` RPC 给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`，`cli.pretty.js:74114`）。
+- **v0.7.1 起，从会话内让 agent 重启时若省掉 `-r`，CLI 不再只是警告——直接硬拒绝执行**：`reasonlessRestartRefusal (\$We)` 返回一段 `error: refusing to restart the daemon without --reason...` 并中止调用（`cli.pretty.js:74050-74054`），v0.6.2 时代"预告下个版本会拒绝"的警告已经兑现。它仍靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`cli.pretty.js:67528`）——`ps` 不可用或被 nohup/detach 包过时静默放行不拒绝。
+- `duoduo upgrade [version] [--wake …]` 优于手工两步，且 **v0.7.1 起把升级工作交给一个 detached 子进程**（`isDetachedUpgradeWorker`/`ALADUO_UPGRADE_DETACHED_WORKER` 环境变量标记，`cli.pretty.js:74071-74095`）执行，使升级触发的重启不会连带杀死正在执行升级的那个 CLI 进程本身——这正是 v0.7.0 changelog 承诺"下一版本修复"、v0.7.1 兑现的那个坑（旧版在会话内跑 `duoduo upgrade` 有几率被自己触发的重启杀死）。版本参数仍受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`cli.pretty.js:67599`）——从路径/URL/git 装包不被接受。
 - `duoduo daemon token new [--force]`（**v0.7.1 新增子命令**，帮助文本 `cli.pretty.js:71786`）：生成 `ALADUO_DAEMON_TOKEN`（写入 `~/.config/duoduo/.env`，见下方"控制面"一节），是开启第三个可选、非 loopback、token 网关全权限监听器的前置步骤。
-- `duoduo daemon restart`（daemon 侧，不是 CLI 侧）在 `main()` 启动时会先 `loadHostDotEnv`（`daemon.pretty.js:58674`，`main` 函数体内解构导入）并重新应用 onboard 配置，这缓解了"daemon 重启后丢 PATH"的老坑；但仍建议把 `DUODUO_NODE_BIN` 持久化进 `~/.config/duoduo/.env`。
-- 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**（`zwe`，`cli.pretty.js:64964-64993`）；Linux/通用路径超时会先 SIGTERM 掉子进程再抛普通错误（`\$we`，`cli.pretty.js:65008-65037`），表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"，CLI 提示旧进程还在跑旧代码。
+- `duoduo daemon restart`（daemon 侧，不是 CLI 侧）在 `main()` 启动时会先 `loadHostDotEnv`（`daemon.pretty.js:62465`，`main` 函数体内解构导入）并重新应用 onboard 配置，这缓解了"daemon 重启后丢 PATH"的老坑；但仍建议把 `DUODUO_NODE_BIN` 持久化进 `~/.config/duoduo/.env`。
+- 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**（`zwe`，`cli.pretty.js:67135-67164`）；Linux/通用路径超时会先 SIGTERM 掉子进程再抛普通错误（`\$we`，`cli.pretty.js:67179-67208`），表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"，CLI 提示旧进程还在跑旧代码。
 
 ---
 

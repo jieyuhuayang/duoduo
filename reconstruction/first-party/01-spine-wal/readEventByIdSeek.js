@@ -1,24 +1,22 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: readEventByIdSeek  (minified: zc, daemon.pretty.js:31314)
+// symbol: readEventByIdSeek  (minified: gJe, daemon.pretty.js:31509)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function readEventByIdSeek(e, t) {
-    let n = await Hj(e, t);
-    if (!n) return null;
-    let r = qx.join(e.eventsDir, n.partition),
-        i = await Ux.open(r, "r");
+async function readEventByIdSeek(e, t, n) {
+    let r = Date.parse(n.notAfter);
+    if (!Number.isFinite(r)) return null;
+    let i = Op(new Date(r)),
+        o;
     try {
-        let o = Buffer.alloc(n.byte_len),
-            {
-                bytesRead: s
-            } = await i.read(o, 0, n.byte_len, n.byte_offset),
-            a = o.subarray(0, s).toString("utf8").trim();
-        if (!a) return null;
-        let l = eVe(a, t);
-        if (l) return l
-    } finally {
-        await i.close()
+        o = await yE.readdir(e.eventsDir)
+    } catch {
+        return null
     }
-    return tVe(r, t)
+    let s = o.filter(a => fJe.test(a) && a <= i).sort().reverse();
+    for (let a of s) {
+        let l = await Nne(_E.join(e.eventsDir, a), t);
+        if (l) return l
+    }
+    return null
 }
