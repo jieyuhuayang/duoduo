@@ -124,6 +124,36 @@ Use it to pre-empt context bloat on a long-lived channel session (e.g. an owner
 DM that has accumulated a large history) without waiting for the session to hit
 its own auto-compact threshold.
 
+## `duoduo session model` / `duoduo session effort`
+
+```
+duoduo session model  <target> [<model-id>|reset] [--json|--plain]
+duoduo session effort <target> [<level>|reset]    [--json|--plain]
+```
+
+The CLI form of the in-chat `/model` and `/effort` commands (duoduo 0.8.0+):
+set a channel session's model or reasoning effort without entering its chat —
+the SSH-friendly way to recover a session stuck on a bad model. `<target>` is
+a **session_key OR a display-name alias**.
+
+- No value → show the current view (stored override, runtime, live-query
+  state). `reset` → clear the override; the runtime default applies again.
+- Effort levels are `low | medium | high | xhigh`, rejected up front on a
+  typo. Model ids are accepted if they contain no whitespace — validity is
+  decided by the runtime on the next turn, exactly like in-chat `/model`.
+- The result prints the session manager's answer unchanged: `applied: live`
+  (running subprocess updated immediately), `stored` (takes effect on the
+  next drain), `stored_pending_rebuild` (a context-profile change forces a
+  subprocess rebuild first), and on a codex model set/reset additionally
+  `pending_model_fork: true` (the next drain forks the thread to apply it —
+  history is preserved).
+
+**Channel sessions only** — anything else is refused as `forbidden_kind`: a
+job's model comes from its job file, and a subconscious partition's
+model/effort come from its partition frontmatter, so a per-session override
+there would report success and never take effect. A target whose archival is
+in flight is refused as `archiving`. Every refusal exits 2.
+
 ## `duoduo session archive`
 
 ```

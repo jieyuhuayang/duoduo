@@ -17,7 +17,7 @@ chat_id owns a session and switching projects rotates cwd).
 
 Lifecycle: `status | stop | logs | start`.
 
-## Session lifecycle (v0.5.2+)
+## Session lifecycle
 
 The ACP bridge keeps the editor-side ACP session and the daemon-side
 duoduo session in lockstep. When the editor opens a new ACP session,

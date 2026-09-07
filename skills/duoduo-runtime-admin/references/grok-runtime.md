@@ -7,33 +7,38 @@ Use this reference before enabling or explaining Grok support.
 - `grok` CLI installed and on `PATH`
 - `grok login` completed on this machine
 
-Useful checks:
+Useful check:
 
 ```bash
 grok --version
-grok models
 ```
 
-The daemon treats grok as available when `grok --version` succeeds and
-`grok models` stdout+stderr contains `logged in` (case-insensitive). A
-`Settings fetch failed` line next to a successful login is ignored.
+The daemon treats grok as available when that command succeeds. It does
+**not** probe the login, and neither should you: `grok models` prints its
+auth header from the state it holds before refreshing, so on a logged-in
+host whose access token has just expired it reports "You are not
+authenticated." and still exits 0. Duoduo learns the login state from the
+first real session, the same way it does for Claude.
 
 ## Host-Mode Availability
 
 Grok is auto-detected. There is no `ALADUO_GROK_ENABLED` env var. If
-`grok` is on `PATH` and authenticated, the daemon exposes Grok as an
-available runtime alongside Claude and Codex. Otherwise Grok is hidden
-from runtime choices.
+`grok` is on `PATH`, the daemon exposes Grok as an available runtime
+alongside Claude and Codex. Otherwise Grok is hidden from runtime
+choices. A host that has the CLI but no login still advertises grok; the
+auth error arrives when a grok session actually starts.
 
 Do **not** set `GROK_HOME`. Do **not** inject `XAI_API_KEY`. Duoduo
 reuses the host user's `~/.grok`.
 
-The daemon probes at boot. If the user installs grok or runs
-`grok login` while the daemon is running, ask them to restart:
+The daemon probes at boot. If the user installs grok while the daemon is
+running, ask them to restart:
 
 ```bash
-duoduo daemon restart -r "grok login refreshed — re-probing runtimes"
+duoduo daemon restart -r "grok installed — re-probing runtimes"
 ```
+
+**`grok login` alone needs no restart** — login state enters no cache.
 
 ## Runtime Selection
 
@@ -42,7 +47,7 @@ Duoduo picks a runtime by specificity:
 1. Actor-level declaration, such as a channel descriptor, job frontmatter, or
    partition frontmatter.
 2. Channel-kind default in `kernel/config/<kind>.md`.
-3. Global default: `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, or `grok`).
+3. Global default: `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
 4. Conservative fallback: `claude`.
 
 Use `ALADUO_DEFAULT_RUNTIME=grok` only when the operator wants all actors

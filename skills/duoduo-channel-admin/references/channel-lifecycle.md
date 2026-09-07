@@ -18,7 +18,7 @@ the runtime version actually supports it. If a user asks for a build
 from source, that's only appropriate when the package is unpublished,
 a dev build is required, or they have a local unreleased tarball.
 
-### Install is pure write-to-disk (v0.5+)
+### Install is pure write-to-disk
 
 `duoduo channel install` writes the new package to disk and atomically
 swaps it in. It does **not** stop, restart, or otherwise touch any
@@ -37,10 +37,6 @@ This means:
   duoduo channel <kind> stop
   duoduo channel <kind> start
   ```
-- Pre-v0.5 behavior was different: install used to terminate the
-  running plugin and leave it stopped. Any automation written against
-  the old behavior should be updated to issue an explicit stop+start
-  when a version swap is desired.
 
 ## Lifecycle subcommands
 
@@ -56,7 +52,7 @@ duoduo channel <kind> logs
 There is no `restart` subcommand. When a full cycle is required
 (after reset, after env change), use `stop && start`.
 
-## `doctor` subcommand (v0.5+)
+## `doctor` subcommand
 
 Optional per-plugin self-diagnosis. Not every plugin exposes it — run
 `duoduo channel <kind> doctor` and if it's unrecognized, fall back to
