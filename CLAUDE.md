@@ -32,6 +32,46 @@ The reconstruction is a chain of **semantics-preserving** transforms (beautify �
 
 Do **not** hand-edit `recon/*.recon.js` as if it were source you can freely change — any edit must preserve AST equivalence, or the "runs identically" guarantee is void. Real symbol names come from esbuild's `__export` helper (authoritative, 739 recovered for daemon); a minority of internal function names are RE-*inferred* (flagged in `RENAME_TABLE.md`) — an inferred name being slightly off never affects correctness because renaming is scope-safe.
 
+## Checking whether upstream has anything new (run this before anything else)
+
+A sync check that compares against **unfetched** refs is comparing against the past, not
+the present. In an ephemeral container the clone happened at container start, and other
+sessions push to `origin` in between — so `origin/main` on disk can be many commits stale
+while looking perfectly authoritative. A scheduled run is exactly where this bites: nobody
+is watching, and the stale picture is self-consistent. Fetch first, always:
+
+```bash
+# 0) the clone only has `origin`; add upstream idempotently, then refresh EVERYTHING
+git remote get-url upstream >/dev/null 2>&1 || git remote add upstream https://github.com/openduo/duoduo.git
+git fetch --all --prune --tags
+
+cat docs/.pretty-anchor-target                  # 1) version this repo last reconstructed to
+git describe --tags --abbrev=0 upstream/main    # 2) latest upstream release tag
+npm view @openduo/duoduo version                # 3) latest published runtime (the thing reconstructed)
+git merge-base --is-ancestor upstream/main origin/main   # 4) has upstream fully landed in main?
+git log origin/main..upstream/main --oneline    # 4b) if (4) is false: exactly what is missing
+```
+
+**Decision rule**: (4) true **and** the three version strings agree ⇒ nothing to do, stop and
+say so. Any disagreement ⇒ the delta is real; merge, retarget the reconstruction, update
+`docs/`. Each signal is authoritative for a different question and they are not
+interchangeable: (4) alone answers "is there new upstream work", (2)/(3) answer "which
+version would we be retargeting to". A tag can lag the branch tip, so never let a matching
+tag stand in for the ancestry check.
+
+**"Did this work already land?" is answered by ancestry, never by PR metadata.** A PR shows
+`merged:false, state:closed` whenever its content reached the base by a direct push or a
+local merge instead of the GitHub merge button — both are normal here (PRs #1 and #2 both
+look unmerged in the API and both are fully in `main`). Reading that as "the work never
+landed" once produced a confident, wrong report that `main` was 13 commits behind, because
+it agreed with an equally stale `origin/main` — two signals that look independent but share
+one root cause. Only `git merge-base --is-ancestor <commit> origin/main`, against a
+freshly fetched ref, settles it.
+
+When a run reports its findings out of band (a push notification, an issue, a PR comment),
+every claim in it must have been verified in that same run against freshly fetched refs.
+Anything not re-verified does not go in.
+
 ## Reconstruction workflow (commands)
 
 The pipeline needs the **beautified bundles** as input (`{daemon,cli,stdio}.pretty.js`). These are *not committed* (multi-MB) — regenerate them from the installed npm package:
