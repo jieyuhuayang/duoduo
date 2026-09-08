@@ -2,6 +2,8 @@
 
 > 调研日期:2026-07-03  
 > 调研目标:深度理解三个项目各自的思路框架与逻辑,对比优劣,为构建**充分运用贝叶斯第一性原理、可持续自我迭代、擅长 Long-Horizon 金融预测任务的 agent** 提供选型与融合架构依据。  
+> ⚠️ duoduo 侧取证基于 **v0.7.1**,未随上游 v0.8.0 重定向:文中 2 处 daemon 行号锚点对 v0.8.0 已失效(2026-09-07 核实),对比结论与机制叙述不受影响。duoduo 在 v0.8.0 的变化(pi 成为第四运行时等)见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)。  
+> 
 > 取证方式:duoduo — 本仓库对 v0.7.1 minified 运行时的还原源码级逆向(入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md),逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md),全部机制主张带 `file:line` 且经活体 daemon 印证);hermes-agent 与 pi — 克隆源码后由独立分析 agent 系统性深读,关键论断带 `文件:行号` 证据。
 
 ---

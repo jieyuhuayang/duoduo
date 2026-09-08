@@ -5,6 +5,14 @@ import { parse } from "@babel/parser";
 import fs from "node:fs";
 
 const [, , PRETTY, RENAME, INFERRED, SUBSYS, OUT] = process.argv;
+// The table states which release it describes, so that string must never come
+// from a hardcoded default: a stale default silently mislabels correct data
+// (it sat at "v0.7.1" through the v0.8.0 bump). Demand it explicitly instead.
+const PKG_VERSION = process.env.PKG_VERSION;
+if (!PKG_VERSION) {
+  console.error("set PKG_VERSION (e.g. PKG_VERSION=v0.8.0) — it is stamped into the table and must match the bundle you passed in");
+  process.exit(2);
+}
 const src = fs.readFileSync(PRETTY, "utf8");
 const rename = JSON.parse(fs.readFileSync(RENAME, "utf8"));     // mangled -> real
 const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8")); // mangled -> real (subset)
@@ -34,7 +42,7 @@ const total = Object.keys(rename).length;
 
 let md = `# duoduo 首字符还原：符号名映射表（daemon）\n\n`;
 md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 \`daemon.pretty.js\`。\n\n`;
-md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` ${process.env.PKG_VERSION || "v0.7.1"}。\n`;
+md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` ${PKG_VERSION}。\n`;
 for (const sub of subs) {
   const rows = groups.get(sub).sort((a, b) => (a.line === "—" ? 1e9 : a.line) - (b.line === "—" ? 1e9 : b.line));
   md += `\n## ${sub}\n\n`;

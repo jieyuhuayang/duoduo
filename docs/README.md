@@ -1,6 +1,19 @@
 # duoduo 分析文档
 
-对 `@openduo/duoduo` **v0.7.1** 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
+对 `@openduo/duoduo` 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
+
+> **各文档的对齐版本不一致，看行号锚点前先看这里**（2026-09-07 核实）：
+>
+> | 文档 | 对齐版本 | 行号锚点状态 |
+> |---|---|---|
+> | [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) | **v0.8.0** | 已重定向，61/61 经 `check_doc_anchors.mjs` 核验成立 |
+> | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) | **v0.8.0**（部分复核，范围见其头部） | 已重定向 |
+> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | v0.7.1 | **未随 v0.8.0 重定向，44 处行号锚点已全部失效**，勿据以定位 v0.8.0 代码 |
+> | [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md) | v0.7.1 | **2 处行号锚点已失效**；机制结论本身不受影响 |
+>
+> 两份 v0.7.1 文档的**机制叙述**基本仍成立（v0.8.0 的实质变化见 `AGENT_INTERNALS_ANALYSIS.md` 中标注 v0.8.0 的段落），失效的是行号——esbuild 每次构建重新 mangle，行号不跨版本存活。
+>
+> 附带的工具盲区：`check_doc_anchors.mjs` 只校验「符号 + 行号」双冗余写法（符号名必须出现在所引行上才算成立），对只写行号、不带符号名的锚点视而不见——没有符号名就没有可交叉验证的冗余。上面两份文档恰好通篇是只写行号的形式，所以它们"全绿"只是没被检查，而不是被检查通过了。
 
 ## 先看这张阅读地图
 

@@ -2,6 +2,8 @@
 
 > 分析对象：`@openduo/duoduo` **v0.7.1**（还原源码级逆向 + 活体 daemon 实证）  
 > 
+> ⚠️ **本文未随上游 v0.8.0 重定向：文中 44 处 `daemon.pretty.js` 行号锚点对 v0.8.0 已全部失效**（2026-09-07 抽样核实——esbuild 每次构建重新 mangle 并移动全部行号，例如原本指向 `computeInstructionsFingerprint` 的那个锚点，在 v0.8.0 的同一行号上落进了 markdown 解析器内部）。**机制叙述本身基本仍成立**，失效的只是定位用的行号；要按行号复核请改用已对齐 v0.8.0 的 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)，v0.8.0 的实质变化（pi 成为第四运行时、`/undo` 与 Grok rewind 移除、weaver 拆分等）也记在那里。
+> 
 > 成文日期：2026-07-09（2026-07-29 随上游 v0.6.2 复核；2026-08-20 随上游 v0.7.1 复核更新）  
 > 
 > 读者定位：**Agent 产品经理 / 架构师**。目标是"快速入门 + 深度掌握细节原理"：每一节先给一句能转述给别人的结论和一个生活化类比，再往下钻到机制细节；细节主张带 `daemon.pretty.js:行号` 锚点（还原源码 `reconstruction/recon/daemon.recon.js` 行号与之一致），可逐条复核。  
