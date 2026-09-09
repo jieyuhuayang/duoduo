@@ -154,7 +154,7 @@
 | 若调裸 API，运行时必须自己造 | 租 harness 后白得的 |
 |---|---|
 | 工具执行环（读写文件/跑命令/循环回填结果） | Claude Code 内置全套工具与执行环 |
-| 子代理编排 | `.claude/agents/*.md` 由 SDK 自动加载成 Agent 工具（memory-weaver 的三段子代理就是这么挂上的） |
+| 子代理编排 | `.claude/agents/*.md` 由 SDK 自动加载成 Agent 工具（v0.7.x 时代 memory-weaver 的三段子代理即挂在此；v0.8 出厂脚手架已不再使用这条挂载，改为分区间平级分权，见 §潜意识） |
 | 会话持久化 | SDK 自管 jsonl 会话文件，duoduo 只保管一个 resume id |
 | 干预正在进行的推理的手段 | **hooks 即控制面**：PreToolUse 拦 Skip/后台 Bash，PostToolUse 注入插话（`75594`）——duoduo 把 SDK 的钩子当成运行时与模型之间的"神经接口" |
 | 工具扩展协议 | MCP（Claude）/ dynamicTools（Codex）现成 |
@@ -370,16 +370,18 @@ meta-prompt 的自我叙事值得引用，它是全系统的世界观（`bootstr
   │   文本任务单（.pending 文件）: 广播板超100行→压缩单；[[链接]]断了→修链单；某天的经验没消化→
   │   scan-gap"做梦"单；档案膨胀→收敛单；节点不可达→孤儿警告单…（56177-56750, 56904-56980）
   ▼
-cadence 队列 / 分区收件箱（checkbox 文件与 .pending 文件——LLM 是队列的一等消费者）
-  │ ②路由（LLM 分区 cadence-executor）: 只读 queue.md，把任务分发到目标分区收件箱，
-  │   然后把 `- [ ]` 改成 `- [x]`——"That single-character edit is the only mutation I perform"
+分区收件箱（.pending 文件——LLM 是队列的一等消费者）
+  │ ②直接投递：v0.8 起测量侧直接写目标分区收件箱。旧版那个"只读 queue.md、把 `- [ ]` 改成
+  │   `- [x]`"的纯路由分区 cadence-executor 已随 queue.md 机制一并退休（全 bundle 零命中）
   ▼
-memory-weaver（记忆编织，三段子代理流水线）
-  │  spine-scanner: "I am dreaming, not running ETL" —— 读事件日志 + 当前广播板，
-  │     给每条直觉打 STRENGTHENING/NEUTRAL/WEAKENING 轨迹标签，写证据碎片 fragment
-  │  entity-crystallizer: 碎片折进实体档案，并为每条广播行维护 effectiveness/<slug>.md 效果账本
-  │  intuition-updater: 唯一有权改广播板者，改任何一行前【必须先读】该行的效果账本 ——
-  │     "evidence decisions, not cosmetic compression decisions"（证据决策，不是美容压缩）
+gradient-distiller（产出梯度）: 只读 Spine 事件日志 + 当前广播板，把外部事件蒸馏成 text
+  │   gradient 碎片；每条碎片都回指 memory/CLAUDE.md 的具体某一行，好让落地侧无须再猜出处。
+  │   除碎片外几乎不写——它没有广播板写权限
+  ▼
+intuition-weaver（落地梯度）: 自称广播板、effectiveness/、entities/ 的【唯一写者】。目标是
+  │   让直觉层对未来行为的影响最大化——碎片给出每行的梯度，activation report 给出"这行指向的
+  │   东西到底有没有被读过"的接线温度，两者都是 loss。合法动作只有 add/rewrite/reorder/
+  │   retire/re-wire，受行预算、语域、来源边界、用户显式数值策略四条约束
   ▼
 pattern-tracker（模式追踪）: 把"人类纠正过我一次"炼成 lesson-*、把"这活我干了 N 遍"炼成
   │   groove-* 可调用流程；新节点必须同拍挂上可达的 [[wikilink]]（不许产生野知识）
@@ -573,7 +575,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 | 会话状态 / mailbox | `~/.aladuo/var/sessions/<sha256(key)>/{state.json, mailbox.md, mailbox/pending/}` |
 | outbox / 用量台账 | `~/.aladuo/var/outbox/…`；`~/.aladuo/var/usage/<sessionKey>.jsonl` |
 | kernel（git） | `~/aladuo/{CLAUDE.md, memory/, subconscious/}` |
-| 值班表 / cadence 队列 | `~/aladuo/subconscious/playlist.md`；`~/.aladuo/var/cadence/queue.md` |
+| 值班表 / 分区收件箱 | `~/aladuo/subconscious/playlist.md`；`~/aladuo/subconscious/<分区>/inbox/`（v0.7.1 的中转队列 `~/.aladuo/var/cadence/queue.md` 已随 cadence-executor 一并退休） |
 | 分区收件箱 | `~/.aladuo/var/subconscious/<partition>/inbox/*.pending` |
 | 控制面 | 全权：`~/.aladuo/run/daemon.sock`（unix socket，mode 0600）；只读：`POST 127.0.0.1:20233/rpc`（6 方法白名单）+ `GET /dashboard` |
 | 持久 env | `~/.config/duoduo/.env`（`DUODUO_NODE_BIN`、`ALADUO_CLAUDE_AUTH_SOURCE`、飞书凭据等） |
@@ -584,10 +586,12 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 
 | 分区 | 冷却/超时 | 一句话职责 |
 |---|---|---|
-| cadence-executor | 1 拍 / 10min | 纯路由器：把 cadence 队列的 checkbox 任务分发到目标分区收件箱 |
 | memory-committer | 3 拍 / 30min | kernel 的 git 守门员：五道审查门，只 `git add` + `git commit` |
-| memory-weaver | 5 拍 / 35min | 记忆编织：scanner 做梦 → crystallizer 结晶 → intuition-updater 凭证据改广播板 |
+| gradient-distiller | 5 拍 / 35min | 产出梯度：事件日志 → 回指广播板具体行的 text gradient 碎片（不写广播板） |
+| intuition-weaver | 5 拍 / 35min | 落地梯度：广播板/effectiveness/entities 的唯一写者，动作限 add/rewrite/reorder/retire/re-wire |
 | pattern-tracker | 7 拍 / 15min | 把纠错炼成 lesson-*、把重复炼成 groove-* 可调用技能 |
+
+> v0.7.x 的 `cadence-executor`（纯路由器）与 `memory-weaver`（三段子代理流水线）已被运行时显式退休：init 期把它们的 `schedule.enabled` 一次性翻成 `false` 并留下 `.retired` 标记，目录与历史都不删；且仅在该分区仍能自证是官方那一份时才动手。机制见 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) §6.3。
 
 ## 附录 C · 材料与可信度
 
