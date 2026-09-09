@@ -933,15 +933,15 @@ route.deliver                                 ← 会话→会话路由投递，
 
 ---
 
-### 论点 3 · 分区是无状态一次性 LLM 会话；playlist 是可自改写的纯文本状态机，且存在"确定性入队 + LLM 出队"两级路由
+### 论点 3 · 分区是无状态一次性 LLM 会话；playlist 是可自改写的纯文本状态机（v0.7.1 另有"确定性入队 + LLM 出队"两级路由，v0.8.0 起该层已整体移除）
 
 **所以呢：** 调度不硬编码 cron，而是 agent 自己能改写的 `playlist.md` checkbox 轮次 + 分区 frontmatter；每分区是一次性 SDK 会话，"除了写进文件的都不记得"，跨 tick 协作全靠 inbox 与共享 `memory/`。
 
 - **playlist 状态机**：分区加载器 `kv`(`60333`)、解析器 `Pnt`(`60416`)只解析 `## Current Round`，`- [x]`=done、`- [ ]`=未做，遇下一 `## ` 停。`DP`(`60435`)把 `- [ ] <name>`→`- [x]`、造 `- <ISO> executed=<name>`、splice 进 `## History`。整轮全勾时 `rge`(`60453`)用 `n=t.filter(s=>s.schedule.enabled)` 重建 round（confirmed；日志文案与 idle 判据本轮未重新逐行核对）。
 - **分区执行闭包 `I(S,D,$)`（`createMetaSession (vct)` 内，`79907`）**：无状态一次性 SDK 会话 `persistSession:!1`（`80063`）；提示词 `_ = S.promptContent + Ae（"### Partition" 块，80014）+ D（`_ct` 产出的 ## Runtime Context，每 tick 在 80275 算一次后传入）+ Q（`bct` 产出的 ## Inbox，80013）`（拼接见 `80019-80028`）；超时 `se=Math.max(1,S.schedule.max_duration_ms)`（`80044`）、`De=setTimeout(...)`（`80091`）、`j=await Promise.race([ze,ft])`（`80100`）。结果四分类由 `mct(S.name, iSe(j?.text))`（`80107-80108`，`mct` 定义 `79692`）判定——其中 `invalid_output` 是"跑成功但产物不合格"的唯一判定点。成功落 `agent.result tick_type:"subconscious"`（`80182`），失败落 `agent.error stage:"partition_execution"`（`80203`；runtime 不可用那条另走 `79929`）；并写一条 `appendDrainRecord (Od)` usage drain record（`80157`，`session_key: meta:subconscious:<partition>`）——这正是 `usage.get` 能显现潜意识开销的动态节点。runtime 由 frontmatter 选：`q=S.runtime, J=q ?? _o()`（`79910-79911`，frontmatter 解析在 `Int`，`60357`）。（confirmed）
 - **上下文注入**：`_ct`(`79782`)建 `## Runtime Context` + `### Key Paths`（kernel/memory/entities/topics/fragments/registry/events/jobs/subconscious 目录清单）；`bct`(`79789`)建 `## Inbox`（每条 pending 消息列 `- ${file}: ${message}`，处理后删文件 ack）。（confirmed）
-- **两级路由（易漏节点）**：`mergeCadenceInbox (Z_e)`（`78875`）只做**确定性**的 `.pending`→`queue.md` 合并；真正把 `queue.md` 的 checkbox 任务**路由进各分区 directed inbox** 的是 `cadence-executor` 这个 **LLM 分区**（其 `CLAUDE.md` 自述 dispatcher 角色："route checkbox tasks from the shared cadence queue into the directed inbox"）。即 `Z_e`（确定性入队）+ cadence-executor（LLM 出队分发）两级。（confirmed，磁盘实证）
-- **原"未证实推测"已解开**：`cadence-executor: enabled (cooldown 1, timeout 10min)` 在代码里搜不到，因为它是**用户数据里的分区名，不是代码**——磁盘实证 `subconscious/cadence-executor/CLAUDE.md` frontmatter `schedule:{enabled:true,cooldown_ticks:1,max_duration_ms:600000}`；`daemon config` 的 `[Subconscious]` 段就是逐分区渲染各自 frontmatter schedule（经 `z9e:55657` 解析）。10min≠默认 60s 只是该分区**覆盖了 `rU` 默认（`rU={enabled:!0,cooldown_ticks:1,max_duration_ms:6e4}`, `57705-57708`）**。四分区 `cadence-executor/memory-committer/memory-weaver/pattern-tracker` 的 cooldown 1/3/5/7、timeout 10/30/35/15min 均为 per-partition frontmatter 覆盖。（原"未证实/待查"→ confirmed：per-partition frontmatter 覆盖。**v0.8.0 更新**：`cadence-executor` 已删除、`memory-weaver` 已拆成 `gradient-distiller`+`intuition-weaver`，现四分区是 `gradient-distiller/intuition-weaver/pattern-tracker/memory-committer`，cooldown 5/5/7/3、timeout 35/35/15/30min，见 §6 开头更新块）
+- **两级路由（易漏节点；⚠️ 以下为 v0.7.1 基线，v0.8.0 起整层已不存在——四个 cadence 队列导出与 `queue.md` 字面量在当前 bundle 均零命中，测量侧改为直接写分区收件箱，见本节开头 v0.8.0 更新块）**：`mergeCadenceInbox`（v0.7.1 短名 `Z_e`）只做**确定性**的 `.pending`→`queue.md` 合并；真正把 `queue.md` 的 checkbox 任务**路由进各分区 directed inbox** 的是 `cadence-executor` 这个 **LLM 分区**（其 `CLAUDE.md` 自述 dispatcher 角色："route checkbox tasks from the shared cadence queue into the directed inbox"）。即 `Z_e`（确定性入队）+ cadence-executor（LLM 出队分发）两级。（confirmed，磁盘实证）
+- **原"未证实推测"已解开（同为 v0.7.1 基线取证；该分区已退休，出厂脚手架不再包含其目录）**：`cadence-executor: enabled (cooldown 1, timeout 10min)` 在代码里搜不到，因为它是**用户数据里的分区名，不是代码**——磁盘实证 `subconscious/cadence-executor/CLAUDE.md` frontmatter `schedule:{enabled:true,cooldown_ticks:1,max_duration_ms:600000}`；`daemon config` 的 `[Subconscious]` 段就是逐分区渲染各自 frontmatter schedule（经 `z9e:55657` 解析）。10min≠默认 60s 只是该分区**覆盖了 `rU` 默认（`rU={enabled:!0,cooldown_ticks:1,max_duration_ms:6e4}`, `57705-57708`）**。四分区 `cadence-executor/memory-committer/memory-weaver/pattern-tracker` 的 cooldown 1/3/5/7、timeout 10/30/35/15min 均为 per-partition frontmatter 覆盖。（原"未证实/待查"→ confirmed：per-partition frontmatter 覆盖。**v0.8.0 更新**：`cadence-executor` 已删除、`memory-weaver` 已拆成 `gradient-distiller`+`intuition-weaver`，现四分区是 `gradient-distiller/intuition-weaver/pattern-tracker/memory-committer`，cooldown 5/5/7/3、timeout 35/35/15/30min，见 §6 开头更新块）
 
 ---
 
@@ -978,8 +978,8 @@ route.deliver                                 ← 会话→会话路由投递，
 | 分区无状态、超时=max_duration_ms、四分类由 `xct` 判 | `persistSession:!1`;`Ae=Math.max(1,max_duration_ms)`;`Promise.race`;`QXe(name,Wme(text))` | `daemon.pretty.js:78494/78527/78529/78527/78542-78543` | confirmed |
 | 成功/失败落 Spine + usage drain record | `agent.result tick_type:"subconscious"`;`agent.error stage:"partition_execution"`;`Od` drain `cancelled:I==="timeout"` | `daemon.pretty.js:78569/77804/78544` | confirmed |
 | 上下文注入 iet(路径清单)/set(inbox) | `## Runtime Context`+`### Key Paths`；`## Inbox`(memory-weaver Stage1/2) | `daemon.pretty.js:78298/78691`、`78305/78309` | confirmed |
-| 两级路由：`Z_e` 确定性入队 + cadence-executor LLM 出队分发 | `Z_e` `.pending`→`queue.md`；cadence-executor CLAUDE.md 自述 dispatcher | `daemon.pretty.js:78875`；`subconscious/cadence-executor/CLAUDE.md` | confirmed |
-| cadence-executor 等四分区 = 用户数据分区，schedule 覆盖 rU 默认 | frontmatter `schedule:{enabled:true,cooldown_ticks:1,max_duration_ms:600000}`；`rU={...,cooldown_ticks:1,max_duration_ms:6e4}` | `subconscious/*/CLAUDE.md`；`daemon.pretty.js:57534/57705-57708`；`duoduo daemon config` | confirmed |
+| 两级路由：确定性入队 + cadence-executor LLM 出队分发（**v0.7.1 基线；v0.8.0 起整层移除**） | 当时 `mergeCadenceInbox` 做 `.pending`→`queue.md`；cadence-executor CLAUDE.md 自述 dispatcher | 当前 bundle 已无对应导出与 `queue.md` 字面量，出厂脚手架亦无该分区目录 | confirmed（含移除） |
+| 出厂四分区 = 用户数据分区，各自 frontmatter 覆盖代码里的 schedule 默认 | 如 `pattern-tracker` 的 `schedule:{enabled:true,cooldown_ticks:7,max_duration_ms:900000}`；代码默认 `N4={enabled:!0,cooldown_ticks:1,max_duration_ms:6e4}`（60s） | `subconscious/*/CLAUDE.md`；`N4`(`60549`)；`duoduo daemon config` | confirmed |
 | 契约门 `GP`：6 拒因 + null 放行，双重角色（逐项 + 整拍短路） | `kind-not-consumed`/`partition-absent`/`self-id-mismatch`/`partition-disabled`/`no-contract`/`parse-fail`；`if(!a&&!r) return o` | `daemon.pretty.js:61486-61498`、`61560`（Age）、`62736-62737`（整拍短路） | confirmed |
 | memory lint 只读、每类≤1条、受 check/forget 门；路由 `aB` | `orphan-states`/`board`/`entity`/`node`/`gap`/`orphan-newborn-island`/`orphan-forget`；`aB` 路由分区 | `daemon.pretty.js:58916/57095/57123/57128-58995`、`58646/57658` | confirmed |
 | 自编程硬边界：分区工具 allowlist（denylist 退役） | `Nz=["Bash","Read","Write","Edit","Grep","Glob","Agent"]`；`tools:H` | `daemon.pretty.js:49745`、`78481/78501` | confirmed |
@@ -989,10 +989,10 @@ route.deliver                                 ← 会话→会话路由投递，
 ### 关键数据结构 / 事件 / 文件格式（真实字面量）
 
 - **`playlist.md`**：`# Subconscious Playlist` / `## Current Round`（`- [ ] <name>` / `- [x] <name>`）/ `## History`（`- <ISO> executed=<name>`）。`I7e` 只解析 `## Current Round` 段。
-- **分区 frontmatter**：`schedule:{enabled:bool, cooldown_ticks:int, max_duration_ms:int}`（默认 `rU={enabled:!0,cooldown_ticks:1,max_duration_ms:6e4}`，per-partition 可覆盖，如 cadence-executor 覆盖为 600000）；可选 `runtime: claude|codex`；可选 `claude.tools`（追加进分区工具白名单）；`contract:{partition:string, consumes:string[]}`。
+- **分区 frontmatter**：`schedule:{enabled:bool, cooldown_ticks:int, max_duration_ms:int}`（默认 `N4`(`60549`)`={enabled:!0,cooldown_ticks:1,max_duration_ms:6e4}`，per-partition 可覆盖，如 `pattern-tracker` 覆盖为 900000）；可选 `runtime: claude|codex`；可选 `claude.tools`（追加进分区工具白名单）；`contract:{partition:string, consumes:string[]}`。
 - **分区状态文件**（read `Ab`, `78112`；write `j2`, `78142`）：`{last_started_at,last_finished_at,last_result,consecutive_failures,backoff_until}`，`last_result ∈ success|timeout|invalid_output|error`。
 - **定向 inbox**：`var/subconscious/<partition>/inbox/*.pending` 与 `*.json`（目录经 `partitionInboxDir (Sv)`, `57468`；由 `Jue` 列举）；pending body 为一行队列行、换行结尾。
-- **cadence 队列**：`var/cadence/queue.md`（checkbox 任务行），`.pending` 暂存文件在 tick 内由 `Z_e` 确定性合并入队，再由 cadence-executor LLM 分区出队分发到各 directed inbox。
+- **cadence 队列（v0.7.1 基线，v0.8.0 起已移除）**：`var/cadence/queue.md`（checkbox 任务行），`.pending` 暂存文件在 tick 内确定性合并入队，再由 cadence-executor LLM 分区出队分发到各 directed inbox。v0.8.0 起测量侧直接写分区收件箱，`queue.md` 这一中转层不复存在。
 - **Spine 事件**：`system.cadence_tick`（source `{kind:"system",name:"cadence"}`，payload `{count}`）、`agent.result`（`tick_type:"subconscious", partition, runtime`）、`agent.error`（`stage:"partition_execution", outcome`）、`job.spawn`。
 - **usage drain record**（`Od`, `78544`）：`session_key: meta:subconscious:<partition>`，含 `tool_calls/tool_errors/usage/cancelled(=I==="timeout")`——`usage.get` 可见。
 - **contract 门 `GP` 裁决集**：`null`（放行）/ `kind-not-consumed` / `partition-absent` / `self-yd-mismatch` / `partition-disabled` / `no-contract` / `parse-fail`。
@@ -1001,7 +1001,7 @@ route.deliver                                 ← 会话→会话路由投递，
 
 > **1. 两条定时器 + 独立门是清晰的关注点分离，别误读成"一个心跳两个环"。** 确定性维护（memory lint + 墓碑清扫 + 队列合并，幂等、跑在 37min 心跳上，重入门 `K`）与到期 cron 调度（`M6`，独立 60s job-scheduler，自己的定时器与门）各自独立；LLM 分区执行（非确定性）再复用心跳但用独立 `l`/`d` 门与 `K` 解耦。呼应本节结论：慢的 LLM 会话拖不垮维护与定时作业。
 
-> **2. playlist 是可被 agent 自己改写的纯文本状态机，调度分"确定性入队 + LLM 出队"两级。** 调度不是硬编码 cron，而是 `playlist.md` checkbox 轮次 + 分区 frontmatter；`Z_e` 只做确定性 `.pending`→`queue.md` 合并，真正的任务分发交给 cadence-executor 这个 LLM 分区。代价是依赖文件锁/单进程串行保证一致性。
+> **2. playlist 是可被 agent 自己改写的纯文本状态机。** 调度不是硬编码 cron，而是 `playlist.md` checkbox 轮次 + 分区 frontmatter。代价是依赖文件锁/单进程串行保证一致性。**v0.7.1 曾在此之上另有"确定性入队 + LLM 出队"两级路由**（`mergeCadenceInbox` 合并 `.pending`→`queue.md`，再由 cadence-executor 这个 LLM 分区分发），**v0.8.0 起整层移除**：四个 cadence 队列导出与 `queue.md` 字面量在当前 bundle 均零命中，测量侧直接写目标分区收件箱——少一次 LLM 往返，也少一个"分发分区自己不转就全线阻塞"的单点。
 
 > **3. 能力边界"软 + 硬"双层，机器真正强制的只有契约门 `GP` 与分区工具 allowlist。** 软边界写在提示词（禁改 spine/lock/其他分区 CLAUDE.md，模型可违反）；硬边界一是分区工具 allowlist（`PARTITION_CORE_TOOLS`，只放行 7 个核心工具 + frontmatter `claude.tools`，v0.5.10 起以白名单取代旧 denylist，PlanMode/WebFetch/WebSearch/EnterWorktree 因不在白名单天然禁用），二是 `GP` 契约门——它既逐项裁决 lint 产物能否进某分区 inbox（6 种拒因），又能在无契约 consume 时整拍短路掉 memory-check。关键不变量必须落在运行时强制、而非提示词。
 

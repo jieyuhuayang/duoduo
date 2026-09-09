@@ -155,16 +155,22 @@ subconscious/
 
 **调度模型**："每个 tick 唤醒潜意识的一块，做完工作就回去睡——无状态，除了写进文件的东西，不记得上次。" `playlist.md` 是 round-robin，每 tick 取下一个未勾选项，一轮跑完就用所有 enabled 分区重建。
 
-### 6.3 本机加载的 4 个分区（实测 `daemon config`）
+### 6.3 v0.8 起 bootstrap 出厂的 4 个分区
 
-| 分区 | cooldown | timeout | 职责（合约） |
+以下取自仓库内 `subconscious/<分区>/CLAUDE.md` 的 frontmatter（`schedule.cooldown_ticks` / `schedule.max_duration_ms` / `contract.consumes`），即上游出厂脚手架本身，非旧版实测快照：
+
+| 分区 | cooldown | timeout | 职责（合约 `consumes`） |
 |------|----------|---------|--------------|
-| `cadence-executor` | 1 tick | 10min | 执行节奏/cron 投递 |
-| `memory-committer` | 3 ticks | 30min | 提交记忆 |
-| `memory-weaver` | 5 ticks | 35min | 记忆编织：`entity-converge.v1`、`merge.v1`、`orphan-islands.v1`、`orphan-newborn.v1`、`scan-gap.v1`、`sink.v1` |
-| `pattern-tracker` | 7 ticks | 15min | 模式追踪：`node-converge.v1`、`orphan-newborn.v1`、`revise.v1` |
+| `memory-committer` | 3 ticks | 30min | kernel 的 git 守门员，只 `git add` + `git commit`（无 `contract:` 段） |
+| `gradient-distiller` | 5 ticks | 35min | 产出梯度：`scan-gap.v2` |
+| `intuition-weaver` | 5 ticks | 35min | 落地梯度：`fold-gap.v1`、`entity-converge.v1`、`merge.v1`、`orphan-islands.v1`、`orphan-newborn.v1`、`claude-compress.v1`、`claude-lint.v1`、`claude-flatten.v1`、`activation-report.v1` |
+| `pattern-tracker` | 7 ticks | 15min | 模式追踪：`node-converge.v1`、`revise.v1`、`orphan-newborn.v1` |
 
-`memory-weaver` 内部还通过 `.claude/agents/*.md` 定义子 Agent（`spine-scanner`、`entity-crystallizer`、`intuition-updater`），由 Claude SDK 自动加载并暴露给 `Agent` 工具——形成"分区协调器 → 专职子 Agent"的两级结构。
+**v0.8 的结构性变化是"两级子代理"塌缩成"两个平级分区的读写分权"。** 旧版 `memory-weaver` 一个分区靠 `.claude/agents/*.md` 挂三个子代理（`spine-scanner`→`entity-crystallizer`→`intuition-updater`）串起流水线；现在出厂脚手架里**已无任何 `.claude/agents/*.md`**，改由两个平级分区按"谁能写什么"切开：`gradient-distiller` 只读 Spine 事件日志与当前广播板，把外部事件蒸馏成**可回溯到 `memory/CLAUDE.md` 具体某一行**的 text gradient 碎片，除碎片外几乎不写；`intuition-weaver` 则自称"广播板、`memory/effectiveness/`、`memory/entities/` 的唯一写者"，合法动作限定为 add/rewrite/reorder/retire/re-wire，受行预算、语域、来源边界与用户显式数值策略四条约束。**"算梯度"与"应用梯度"由此落在两个不同的分区、两个不同的写权限域里**，而不再是同一个分区内部的三个子代理。
+
+**`cadence-executor` 与 `memory-weaver` 是被运行时显式"退休"的，不是被删掉的（confirmed）。** 退休名单 `zit`（`daemon.pretty.js:63369`）写死两条：`{memory-weaver, selfId:"contract"}` 与 `{cadence-executor, selfId:"contract-absent"}`，由 `Vye`（`63296`）在 init 期逐条交给 `qit`（`63309`）处理。`qit` 的四道闸门都在防"误伤用户自己的东西"：① charter 解析失败只告警不动手（`parse-fail`→`unreadable`）；② **自证闸**——`memory-weaver` 必须仍持有 valid contract、`cadence-executor` 必须仍无 contract，否则判为"这个目录名已被你挪作他用"，原样留下并记 `not-self-identified`；③ **一次性闸**——落 `<partitionStateDir>/<name>.retired` 标记（`Uit=".retired"`），标记已存在就跳过，且若用户事后重新 enable，日志明说"retirement runs once"并放手；④ 只有 `schedule.enabled === true` 才动。四闸全过才写标记、把 charter 的 `schedule.enabled` 翻成 `false`，正文原样保留。**退休 = 关掉调度并留痕，从不删除分区目录或其历史**——想继续跑，手工改回 `enabled: true` 即可，运行时不会再翻第二次。
+
+与之配套，v0.8 里 `cadence-executor` 赖以工作的 `queue.md` 路由机制**已从 bundle 整体消失**（全 bundle `queue.md` 字面量零命中），因此"潜意识靠一个纯路由分区分发任务"这一层在当前版本已不存在。
 
 ---
 

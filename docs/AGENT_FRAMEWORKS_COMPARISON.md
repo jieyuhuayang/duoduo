@@ -2,7 +2,7 @@
 
 > 调研日期:2026-07-03  
 > 调研目标:深度理解三个项目各自的思路框架与逻辑,对比优劣,为构建**充分运用贝叶斯第一性原理、可持续自我迭代、擅长 Long-Horizon 金融预测任务的 agent** 提供选型与融合架构依据。  
-> ⚠️ duoduo 侧取证基于 **v0.7.1**,未随上游 v0.8.0 重定向:文中 2 处 daemon 行号锚点对 v0.8.0 已失效(2026-09-07 核实),对比结论与机制叙述不受影响。duoduo 在 v0.8.0 的变化(pi 成为第四运行时等)见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)。  
+> ⚠️ 三方横向对比成文于 2026-07-03(duoduo 侧当时取证于 v0.7.1);duoduo 的机制叙述与行号锚点已于 **v0.8.1** 逐条重定向核实,潜意识分区改组(memory-weaver 三段子代理 → gradient-distiller + intuition-weaver 两分区分权、cadence-executor 退休)亦已并入正文。hermes-agent 与 pi 侧仍为成文时的版本,未随其上游更新。duoduo 的逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)。  
 > 
 > 取证方式:duoduo — 本仓库对 v0.7.1 minified 运行时的还原源码级逆向(入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md),逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md),全部机制主张带 `file:line` 且经活体 daemon 印证);hermes-agent 与 pi — 克隆源码后由独立分析 agent 系统性深读,关键论断带 `文件:行号` 证据。
 
@@ -245,7 +245,7 @@ Monorepo 五包 lockstep 发版,单进程模型(交互 TUI 进程即一切),**�
 
 1. **预测先于结果落盘(append-only prediction ledger)。** 每条预测 = 一个不可变事件:`{标的, 命题, 概率, 时限, 依据事件引用, 当时信念版本}`;结果到期后另一条 resolution 事件记录 outcome。校准指标(Brier / log score)从日志**纯函数复算**,agent 无法事后修饰。——这正是 duoduo WAL append-before-execute 的直接移植:把 `channel.message` 换成 `prediction.made` / `prediction.resolved` 事件类型。
 2. **先验显式化。** 信念库中每条主张带数值概率 + 证据链,不允许自由文本模糊表述。duoduo 的 dossier + 六模态标签(`[hypothesis]`→`[observation]`→`[superseded]`)是现成的认识论骨架,缺的只是给每条主张加 `p: 0.65, updated_at, evidence: [[...]]` frontmatter;其 effectiveness 轨迹(STRENGTHENING/WEAKENING)换成对数几率增量即是贝叶斯更新。
-3. **更新有可复算的审计链。** duoduo memory-weaver 的"事件→fragment→effectiveness→改板"流水线就是似然证据管道的形状:scanner 从事件日志提取证据(必须引用它所检验的信念行)、crystallizer 按信念行累积效果轨迹、updater 改信念前必读该行轨迹。**代码测量、模型裁决**:似然的证据收集可确定(代码),先验→后验的语义判断交模型,但模型的每次更新都必须引用证据文件——压制"LLM 编造统计"的幻觉。
+3. **更新有可复算的审计链。** duoduo 的"事件→fragment→effectiveness→改板"流水线就是似然证据管道的形状:证据侧从事件日志提取碎片(每条必须回指它所检验的那一行信念)、按信念行累积效果轨迹、改信念前必读该行轨迹。v0.8 把这条链从"一个分区挂三个子代理"改成**两个平级分区的读写分权**——`gradient-distiller` 只产碎片不写板,`intuition-weaver` 是板与 effectiveness 的唯一写者——**分权之后"谁改了信念、凭什么改"更难被绕过**,但审计链的形状不变。**代码测量、模型裁决**:似然的证据收集可确定(代码),先验→后验的语义判断交模型,但模型的每次更新都必须引用证据文件——压制"LLM 编造统计"的幻觉。
 4. **校准回路定期强制运行。** 无人盯着也要复盘:duoduo 的 cadence 潜意识 + hermes 的后台 review agent 是同一个思想的两种实现——预测结算后自动 fork 一个受限复盘 agent,计算分桶校准曲线,把系统性偏差写回信念库(例如"宏观事件类预测过度自信 +0.12,已在先验中扣减")。
 
 ### 6.2 数值层与语义层分工
