@@ -1,16 +1,16 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: AgentSdkPromptNotAcceptedAbortError  (minified: Ii, daemon.pretty.js:49832)
+// symbol: AgentSdkPromptNotAcceptedAbortError  (minified: wr, daemon.pretty.js:50390)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var CLAUDE_CORE_TOOLS, PARTITION_CORE_TOOLS, jce, A8e, N8e, AgentSdkTurnInterruptedError, AgentSdkPromptNotAcceptedAbortError, Ou, Nd, Bce, sq, Fce, q8e, Ki = N(() => {
+var CLAUDE_CORE_TOOLS, PARTITION_CORE_TOOLS, Ide, a7e, l7e, AgentSdkTurnInterruptedError, AgentSdkPromptNotAcceptedAbortError, qu, Jd, Nde, jq, Cde, g7e, lo = A(() => {
     "use strict";
-    ft();
-    rl();
-    dl();
-    nI();
+    mt();
+    ml();
+    Sl();
+    bI();
     CLAUDE_CORE_TOOLS = ["Bash", "Read", "Write", "Edit", "Grep", "Glob", "Agent", "TaskOutput", "TaskStop", "Skill", "ToolSearch", "TaskCreate", "TaskGet", "TaskUpdate", "TaskList", "SendMessage"], PARTITION_CORE_TOOLS = ["Bash", "Read", "Write", "Edit", "Grep", "Glob"];
-    jce = "Codebase and user instructions are shown below. Be sure to adhere to these instructions. IMPORTANT: These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.", A8e = "The `[[slug]]` links in this board are dossier entry points, not footnotes. When a line's trigger fires in your current task and the inline summary is not enough to judge or act on that entity safely, read the linked dossier before committing — do not stitch a plausible judgment from the summary alone. Most turns resolve from the summary; expand only when it would otherwise leave you guessing on a consequential call.", N8e = /\[\[[^\]]+\]\]/, AgentSdkTurnInterruptedError = class extends Error {
+    Ide = "Codebase and user instructions are shown below. Be sure to adhere to these instructions. IMPORTANT: These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.", a7e = "The `[[slug]]` links in this board are dossier entry points, not footnotes. When a line's trigger fires in your current task and the inline summary is not enough to judge or act on that entity safely, read the linked dossier before committing — do not stitch a plausible judgment from the summary alone. Most turns resolve from the summary; expand only when it would otherwise leave you guessing on a consequential call.", l7e = /\[\[[^\]]+\]\]/, AgentSdkTurnInterruptedError = class extends Error {
         constructor(t = "SDK turn interrupted during execution") {
             super(t), this.name = "AgentSdkTurnInterruptedError"
         }
@@ -19,6 +19,6 @@ var CLAUDE_CORE_TOOLS, PARTITION_CORE_TOOLS, jce, A8e, N8e, AgentSdkTurnInterrup
             super(t), this.name = "AgentSdkPromptNotAcceptedAbortError"
         }
     };
-    Bce = () => verifyClaudeCodeRuntimeAvailable(), sq = Bce, Fce = 5e3;
-    q8e = 2147483647
+    Nde = () => verifyClaudeCodeRuntimeAvailable(), jq = Nde, Cde = 5e3;
+    g7e = 2147483647
 });

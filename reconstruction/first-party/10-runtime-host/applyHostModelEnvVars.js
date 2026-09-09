@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: applyHostModelEnvVars  (minified: $ge, daemon.pretty.js:62392)
+// symbol: applyHostModelEnvVars  (minified: Rye, daemon.pretty.js:62979)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

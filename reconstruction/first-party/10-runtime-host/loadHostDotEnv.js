@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: loadHostDotEnv  (minified: Gnt, daemon.pretty.js:62465)
+// symbol: loadHostDotEnv  (minified: Tit, daemon.pretty.js:63052)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,7 +7,7 @@ async function loadHostDotEnv(e = process.env) {
     let t = hostDotEnvPath(e),
         n;
     try {
-        n = await rs.readFile(t, "utf8")
+        n = await ds.readFile(t, "utf8")
     } catch {
         return 0
     }

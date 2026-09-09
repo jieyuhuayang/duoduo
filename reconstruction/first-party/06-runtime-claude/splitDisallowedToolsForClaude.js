@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: splitDisallowedToolsForClaude  (minified: qce, daemon.pretty.js:49277)
+// symbol: splitDisallowedToolsForClaude  (minified: Ade, daemon.pretty.js:49824)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: checkGrokAvailability  (minified: qu, daemon.pretty.js:57170)
+// symbol: checkGrokAvailability  (minified: Qu, daemon.pretty.js:57710)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,7 +11,7 @@ async function checkGrokAvailability(e = "grok") {
     } = await import("node:util"), r = n(t);
     try {
         await r(e, ["--version"], {
-            timeout: eQe
+            timeout: Oet
         })
     } catch {
         return {

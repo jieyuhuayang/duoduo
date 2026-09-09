@@ -1,20 +1,20 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runCadenceTick  (minified: Blt, daemon.pretty.js:79617)
+// symbol: runCadenceTick  (minified: Sct, daemon.pretty.js:80443)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function runCadenceTick(e) {
     let {
         runMemoryCheckTick: t
-    } = await Promise.resolve().then(() => (D4(), Rge));
+    } = await Promise.resolve().then(() => (pB(), vye));
     await t(e, Date.now());
     try {
         let {
             sweepTombstonedSessionRecords: r
-        } = await Promise.resolve().then(() => (cwe(), uwe));
+        } = await Promise.resolve().then(() => (cSe(), uSe));
         await r(e)
     } catch (r) {
-        J("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {
+        W("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {
             error: r
         })
     }
@@ -26,7 +26,7 @@ async function runCadenceTick(e) {
         },
         payload: {}
     });
-    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await ol(e, r => ({
+    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await gl(e, r => ({
         ...r,
         cadence: {
             ...r.cadence,

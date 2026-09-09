@@ -1,15 +1,15 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: ALADUO_TOOL_NAMESPACE  (minified: JI, daemon.pretty.js:56917)
+// symbol: ALADUO_TOOL_NAMESPACE  (minified: cP, daemon.pretty.js:57457)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
+var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
     "use strict";
-    Xc();
-    ft();
-    dl();
-    ALADUO_TOOL_NAMESPACE = "aladuo", UXe = "features.code_mode.direct_only_tool_namespaces";
-    VXe = {
+    dd();
+    mt();
+    Sl();
+    ALADUO_TOOL_NAMESPACE = "aladuo", yet = "features.code_mode.direct_only_tool_namespaces";
+    wet = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -18,7 +18,7 @@ var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, WI = class extends zXe {
+    }, uP = class extends get {
         constructor(n, r, i) {
             super();
             this.binary = n;
@@ -34,7 +34,7 @@ var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = jXe(this.binary, ["app-server"], {
+            this.alive || (this.proc = pet(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -50,7 +50,7 @@ var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
                 this.alive = !1;
                 let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
                 this.rejectAllPending(i)
-            }), this.rl = iu(this.proc.stdout, n => this.handleLine(n)), iu(this.proc.stderr, n => {
+            }), this.rl = gu(this.proc.stdout, n => this.handleLine(n)), gu(this.proc.stderr, n => {
                 ke("[codex-stderr]", n)
             }))
         }
@@ -119,7 +119,7 @@ var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
             try {
                 i = JSON.parse(r)
             } catch {
-                J("[codex-transport] unparseable line:", r.slice(0, 200));
+                W("[codex-transport] unparseable line:", r.slice(0, 200));
                 return
             }
             if (i.id != null && (i.result !== void 0 || i.error !== void 0)) {
@@ -211,5 +211,5 @@ var ALADUO_TOOL_NAMESPACE, UXe, y2, _2, VXe, WI, Kfe, Vd = N(() => {
             for (let [r, i] of this.pending) i.reject(n), this.pending.delete(r)
         }
     };
-    Kfe = new Set
+    Upe = new Set
 });

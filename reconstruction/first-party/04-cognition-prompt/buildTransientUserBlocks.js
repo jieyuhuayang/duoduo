@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: Xye, daemon.pretty.js:65062)
+// symbol: buildTransientUserBlocks  (minified: K_e, daemon.pretty.js:65787)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,6 +10,7 @@ function buildTransientUserBlocks(e, t, n) {
         skipRewindInjected: !1,
         timeGapInjected: !1,
         jobTickInjected: !1,
+        jobReceiptsInjected: !1,
         daemonRestartHintInjected: !1,
         compactNoticeInjected: !1,
         boardUpdatedInjected: !1
@@ -30,23 +31,24 @@ function buildTransientUserBlocks(e, t, n) {
         u = !1,
         c = !1,
         d = !1,
-        p = !1;
+        p = !1,
+        f = !1;
     if (t.daemonRestartHint && (i.push({
             type: "text",
             text: renderDaemonRestartHint(t.daemonRestartHint.startedAt, getPendingRestartReason()),
             tag: "daemon-restart-hint"
-        }), c = !0), t.compactNotice && (i.push({
+        }), d = !0), t.compactNotice && (i.push({
             type: "text",
-            text: Krt(t.compactNotice),
+            text: Pot(t.compactNotice),
             tag: "smart-compact-notice"
-        }), d = !0), t.gatewayNotice) {
-        let w = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
+        }), p = !0), t.gatewayNotice) {
+        let v = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
 `);
         i.push({
             type: "text",
             text: `<system-reminder>
 
-${w}
+${v}
 
 IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
 
@@ -54,34 +56,38 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
             tag: "gateway-notice"
         }), o = !0
     }
-    let f = Yrt(t.timeGap);
-    f && (i.push({
+    let m = Cot(t.timeGap);
+    m && (i.push({
         type: "text",
-        text: f,
+        text: m,
         tag: "time-context"
     }), l = !0);
-    let h = t.isUserMessage !== !1 ? Jrt(t.skipRewind) : void 0;
-    h && (i.push({
+    let g = t.isUserMessage !== !1 ? Rot(t.skipRewind) : void 0;
+    g && (i.push({
         type: "text",
-        text: h,
+        text: g,
         tag: "skip-rewind"
     }), a = !0);
-    let g = Brt(t.interruptedContext);
-    return g && (i.push({
+    let y = Sot(t.interruptedContext);
+    return y && (i.push({
         type: "text",
         text: `<interrupted-context>
-${g}
+${y}
 </interrupted-context>`,
         tag: "interrupted-context"
-    }), s = !0), t.jobTick && (i.push({
+    }), s = !0), t.jobReceipts && (i.push({
         type: "text",
-        text: Qrt(t.jobTick),
+        text: t.jobReceipts,
+        tag: "job-receipts"
+    }), c = !0), t.jobTick && (i.push({
+        type: "text",
+        text: $ot(t.jobTick),
         tag: "job-tick"
     }), u = !0), t.boardUpdated && (i.push({
         type: "text",
-        text: Oye(t.boardUpdated.boardPath),
+        text: E_e(t.boardUpdated.boardPath),
         tag: "board-updated"
-    }), p = !0), i.push({
+    }), f = !0), i.push({
         type: "text",
         text: e,
         tag: "user-input"
@@ -92,8 +98,9 @@ ${g}
         skipRewindInjected: a,
         timeGapInjected: l,
         jobTickInjected: u,
-        daemonRestartHintInjected: c,
-        compactNoticeInjected: d,
-        boardUpdatedInjected: p
+        jobReceiptsInjected: c,
+        daemonRestartHintInjected: d,
+        compactNoticeInjected: p,
+        boardUpdatedInjected: f
     }
 }

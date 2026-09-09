@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createOutboxDeliveryManager  (minified: Jlt, daemon.pretty.js:79821)
+// symbol: createOutboxDeliveryManager  (minified: Rct, daemon.pretty.js:80647)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -13,7 +13,7 @@ function createOutboxDeliveryManager(e) {
 
     function l(h) {
         let g = h.session_key,
-            w = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(v => (J("[outbox-delivery] live delivery failed", {
+            w = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(v => (W("[outbox-delivery] live delivery failed", {
                 outboxId: h.id,
                 sessionKey: h.session_key,
                 error: v instanceof Error ? v.message : String(v)
@@ -29,7 +29,7 @@ function createOutboxDeliveryManager(e) {
         },
         c = () => {
             f().catch(h => {
-                J("[outbox-delivery] pending flush failed", {
+                W("[outbox-delivery] pending flush failed", {
                     error: h instanceof Error ? h.message : String(h)
                 })
             })
@@ -38,25 +38,25 @@ function createOutboxDeliveryManager(e) {
         if (s.has(h.id)) return !1;
         s.add(h.id);
         try {
-            if (h = await ha(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await Xp(t, h.id), !0;
-            if (await Goe(t, h.id)) return await gd(t, h, {
+            if (h = await Sa(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await dm(t, h.id), !0;
+            if (await Lse(t, h.id)) return await Pd(t, h, {
                 status: "sent"
             }), !0;
-            if (Wlt(h)) {
-                let b = await gd(t, h, {
+            if (Ect(h)) {
+                let b = await Pd(t, h, {
                     status: "sent"
                 });
-                return await Xp(t, b.id), !0
+                return await dm(t, b.id), !0
             }
             if (r.getSubscribers(h.session_key).length === 0) return !1;
-            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await gd(t, h, {
+            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await Pd(t, h, {
                 status: "failed",
                 error: "delivery failed"
             }), !1;
-            let v = await gd(t, h, {
+            let v = await Pd(t, h, {
                 status: "sent"
             });
-            return await Xp(t, v.id), Bi("delivered", v.id, {
+            return await dm(t, v.id), eo("delivered", v.id, {
                 outboxId: v.id,
                 sessionKey: v.session_key
             }), !0
@@ -71,7 +71,7 @@ function createOutboxDeliveryManager(e) {
         return p.add(h), h.then(() => p.delete(h), () => p.delete(h)), h
     }
     async function m() {
-        let h = await ise(t, i),
+        let h = await Gse(t, i),
             g = 0;
         for (let y of h) await l(y) && (g += 1);
         return g

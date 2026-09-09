@@ -1,15 +1,15 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: probeClaudeAvailability  (minified: Hce, daemon.pretty.js:49317)
+// symbol: probeClaudeAvailability  (minified: Dde, daemon.pretty.js:49864)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function probeClaudeAvailability() {
-    if (Ou) return Ou;
-    if (Nd) return Nd;
-    Nd = (async () => {
+    if (qu) return qu;
+    if (Jd) return Jd;
+    Jd = (async () => {
         let t = new Promise(i => {
                 try {
-                    sq(), i({
+                    jq(), i({
                         ok: !0
                     })
                 } catch (o) {
@@ -23,12 +23,12 @@ async function probeClaudeAvailability() {
             n = new Promise(i => {
                 setTimeout(() => i({
                     ok: !1,
-                    reason: `[agent-sdk] claude availability probe timed out after ${Fce}ms`
-                }), Fce)
+                    reason: `[agent-sdk] claude availability probe timed out after ${Cde}ms`
+                }), Cde)
             }),
             r = await Promise.race([t, n]);
-        return Ou = r, r
+        return qu = r, r
     })();
-    let e = await Nd;
-    return Nd = void 0, e
+    let e = await Jd;
+    return Jd = void 0, e
 }

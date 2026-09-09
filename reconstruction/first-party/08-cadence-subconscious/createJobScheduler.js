@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createJobScheduler  (minified: Vlt, daemon.pretty.js:79753)
+// symbol: createJobScheduler  (minified: xct, daemon.pretty.js:80579)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -8,7 +8,7 @@ function createJobScheduler(e) {
         paths: t,
         sessionManager: n,
         bus: r
-    } = e, i = e.intervalMs ?? Hlt, o = null, s = !1, a = null, l = !1;
+    } = e, i = e.intervalMs ?? kct, o = null, s = !1, a = null, l = !1;
     async function u() {
         if (s || l) {
             s && ke("[job-scheduler] scan skipped: previous scan still running");
@@ -38,7 +38,7 @@ function createJobScheduler(e) {
         start() {
             o || l || (r && r.on("job.created", c), a = u(), o = setInterval(() => {
                 a = u()
-            }, i), Q("[job-scheduler] started", {
+            }, i), ee("[job-scheduler] started", {
                 intervalMs: i
             }))
         },
@@ -49,7 +49,7 @@ function createJobScheduler(e) {
                 } catch {}
                 a = null
             }
-            Q("[job-scheduler] stopped")
+            ee("[job-scheduler] stopped")
         },
         isScanning() {
             return s
