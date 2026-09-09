@@ -42,7 +42,7 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 
 单 daemon 单进程,两个根目录:`~/aladuo`(内核/"内在世界",git 管理,自编程回滚点)与 `~/.aladuo`(运行时数据 `var/`、`run/`)。控制面自 v0.7.0 拆成三面:全权 JSON-RPC 走 unix socket(`~/.aladuo/run/daemon.sock`,mode 0600),loopback `:20233/rpc` 降为只读(6 方法白名单)+ 零依赖单文件 dashboard,带令牌的远程监听需显式开启。
 
-**机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:32065/31601`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引 + 有 session_key 才写 by_session 索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
+**机制一:事件溯源 WAL,append-before-execute(`daemon.pretty.js:31966/31931`,confirmed)。** 每条入站事件先原子写入 `var/events/YYYY-MM-DD.jsonl`(WAL 行 + by_id 索引,恒定两写;不存在按 session 切分的第二索引),**然后**才入队/执行。所有其他状态(会话、去重表、消费进度)都是可从"日志 + 指针"重建的派生视图,零数据库。实测 `daemon restart` 后 runtime_id 不变、会话与 WAL 从文件完整重建——**进程可丢弃,状态在文件里**。
 
 **机制二:双注入面上下文工程(`WT`@57186 / `Sde`@61156,confirmed)。** 稳定认知(身份/通道人格/记忆广播板)由 `buildSystemPromptForChannelConfig` 六层一次装进 system prompt 前缀,吃满 prompt cache;易变具身状态(时间流逝、被打断、job tick)由 `buildTransientUserBlocks` 每 turn 瞬态塞进 user 消息,不污染缓存前缀。Claude 与 Codex 共用同一装配器,Codex 只多一层 `<aladuo:system-context>` 壳。
 
