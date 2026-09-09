@@ -63,7 +63,7 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
 ~/.aladuo/var/
 ├── events/                 # 规范事件日志（WAL，真理之源）
 │   ├── 2026-06-30.jsonl    #   按天分片；单文件可达 10-30MB
-│   └── index/              #   by_session / by_id 索引
+│   └── index/              #   仅 by_id.jsonl 一个索引（无 by_session）
 ├── sessions/<hash>/        # 每会话状态 + mailbox/notes.jsonl
 ├── ingress/<hash>/         # 入站快照
 ├── outbox/                 # 出站投递（stdio/、replay/、index/、.pending_queue.jsonl）

@@ -569,7 +569,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 
 | 事项 | 路径 |
 |---|---|
-| WAL / 索引 | `~/.aladuo/var/events/YYYY-MM-DD.jsonl`（+ `index/by_id`、`by_session`） |
+| WAL / 索引 | `~/.aladuo/var/events/YYYY-MM-DD.jsonl`（+ `index/by_id.jsonl`，唯一索引） |
 | 会话状态 / mailbox | `~/.aladuo/var/sessions/<sha256(key)>/{state.json, mailbox.md, mailbox/pending/}` |
 | outbox / 用量台账 | `~/.aladuo/var/outbox/…`；`~/.aladuo/var/usage/<sessionKey>.jsonl` |
 | kernel（git） | `~/aladuo/{CLAUDE.md, memory/, subconscious/}` |
