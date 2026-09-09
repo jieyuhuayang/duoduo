@@ -38,45 +38,48 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
 ```
 外部输入 (channel.message)                                    [→Part III §5 Gateway 入站边界]
    │
-   ▼  ① 封装为不可变事件  createSpineEvent (Qt)  → id=evt_<uuid>, ts=ISO   [31240]  [→§4]
+   ▼  ① 封装为不可变事件  createSpineEvent (Yt)  → id=evt_<uuid>, ts=ISO   [31924，调用点 81121]  [→§4]
    │
-   ▼  ② 去重前置  computeDedupKey (Xne) 算 key                  [78532]        [→§4]
+   ▼  ② 去重前置  computeDedupKey (qre) 算 key                  [80811]        [→§4]
    │      命中重复 → 取回既有事件 + 重放上次 gateway 回执 → deduplicated:true，不 append
    │
-   ▼  ③ APPEND-BEFORE-EXECUTE：atomicAppendEvent (en) 原子写 WAL 分区  [31282]  [→Part III §4 铁律]
+   ▼  ③ APPEND-BEFORE-EXECUTE：atomicAppendEvent (Xt) 原子写 WAL 分区  [31966，调用点 81196]  [→Part III §4 铁律]
    │      var/events/YYYY-MM-DD.jsonl (UTC)，记 byte_offset/byte_len
-   │      → 写 by_id 索引 →（仅当事件有 session_key）写 by_session 索引
+   │      → 无条件写 by_id 索引（唯一索引；不存在 by_session 索引）
    │
-   ▼  ④ advanceConsumerWatermark (il) 推进 gateway 消费者 watermark  [32105]
+   ▼  ④ advanceConsumerWatermark (hl) 推进 gateway 消费者 watermark  [32773，调用点 81196]
    │      run/queue_offsets/gateway.json  (经 by_id 反查偏移)
    │
-   ▼  ⑤ Kj() 构造 status.json 内容                                [32128]
+   ▼  ⑤ gl() 更新 status.json（与 ③④ 同一行提交）                 [32834，调用点 81196]
    │
-   ▼  ⑥ 按 routing_hint.target 入队（appendBeforeExecuteGateway/coe）  [78725]  [→Part III §5 分流]
-   │      gateway → 同步处理不入队                                                [78536]
-   │      meta    → 写 meta:subconscious mailbox 指针                [78966]     [→Part IV §6]
-   │      session → 向 session_key mailbox append '- [ ] @evt(<id>)'   [78976]
+   ▼  ⑥ 按 routing_hint.target 入队（appendBeforeExecuteGateway/hae）  [81119]  [→Part III §5 分流]
+   │      分流决策 aae                                                            [80980]
+   │      gateway → 同步处理不入队
+   │      meta    → 写 meta:subconscious mailbox 指针                [81221]     [→Part IV §6]
+   │      session → 向 session_key mailbox append '- [ ] @evt(<id>)'   [81231]
    │
-   ▼  ⑦ bus.emit('spine.event', r) → session.wake                [78984]     [→Part II §3 actor 唤醒]
+   ▼  ⑦ bus.emit('spine.event', r) → session.wake                [81241]     [→Part II §3 actor 唤醒]
    │
-   ▼  ⑧ runner 读 mailbox 的 @evt 指针 → readEventByIdSeek (gJe) 经 by_id seek WAL 取正文  [31314]
+   ▼  ⑧ runner 读 mailbox 的 @evt 指针 → readEventByIdSeek (qGe) 经 by_id seek WAL 取正文  [32001]
    │
    ▼  ⑨ 装配上下文（两个正交注入面）                                          [→Part I §1 认知装配]
-   │      system-prompt 面：renderPromptLayers (Jce) 6 层叠装，buildSystemPromptForChannelConfig (Um) 包壳
-   │                        （身份→通道→实例→广播板→Runtime Context→job）  [49215/49236]
-   │      user-message 面：buildTransientUserBlocks (Xye) 瞬态块（restart-hint/time/skip/gateway/job-tick→user-input）  [63657]
+   │      system-prompt 面：renderPromptLayers (Lde) 6 层叠装，buildSystemPromptForChannelConfig (eh) 包壳
+   │                        （身份→通道→实例→广播板→Runtime Context→job）  [49967/49994]
+   │      user-message 面：buildTransientUserBlocks (K_e) 瞬态块
+   │                        （restart-hint/time/skip/gateway/job-receipts/job-tick→user-input）  [65787]
    │
-   ▼  ⑩ drain 合批 (drainSessionMailbox/Nhe) → createAgentSdkAdapter (Dd) → SDK query()  [62309/49323]  [→Part I §2 Turn/Drain]
+   ▼  ⑩ drain 合批 (drainSessionMailbox/W_e → batchDrainItems/HB) → createAgentSdkAdapter (Gd) → SDK query()
+   │                                                          [64516/65926/50087]  [→Part I §2 Turn/Drain]
    │      （单 turn 准入——一次只准入一个 turn，后到消息走 steering lane 显式注入
-   │        当前 turn，不再折进正跑的 turn 里导致会话永久 busy；createCodexAppServerAdapter (Fb) @58878
-   │        / pendingSteer，createSessionManager (Ilt) @74339）
-   │                                                          （后端 claude/codex/grok 路由 [→Part II §8]）
+   │        当前 turn，不再折进正跑的 turn 里导致会话永久 busy；createCodexAppServerAdapter (ev) @56730
+   │        / pendingSteer，createSessionManager (act) @77628）
+   │                                                  （后端 claude/codex/grok/pi 路由 [→Part II §8]）
    │
    ▼  ⑪ agent 产出 → append agent.tool_use / tool_result / result 回 WAL
-   │      更新 session state.json：last_event_id / last_event_at / sdk_session_id   [62950]
+   │      更新 session state.json：last_event_id / last_event_at / sdk_session_id   [65090/65425]
    │
    ▼  ⑫ 经验沉淀：日志 → 潜意识 cadence tick(≈37min) → 分区流水线（v0.8.0 起 memory-weaver 已拆为 gradient-distiller+intuition-weaver，见 §6 更新块）   [→Part IV §6§7]
-          → 回写 memory/CLAUDE.md 广播板 → 下一次前台会话经 Pm 再注入
+          → 回写 memory/CLAUDE.md 广播板 → 下一次前台会话经 transcludeBroadcastBoard (Uwe) 再注入  [76223]
 ```
 
 **闭环**：经验 → 事件日志 → 潜意识加工 → 广播板 → 系统提示 → 新的经验。这正是关键句 4（后台自治）与关键句 1（认知装配）合起来的闭环——后台把经验压成直觉层，前台每个新会话经 `eh` 自动加载。
@@ -644,15 +647,15 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 一切都从这条日志派生：会话状态、去重表、消费进度、status，都不是权威数据，而是可丢弃、可从 `var/events/YYYY-MM-DD.jsonl`（按 UTC 日期分区，`mk(e)` 用 `toISOString().slice(0,10)` 切日，`daemon.pretty.js:31729`）加索引重放出来的物化视图。下面四个论点分别回答：**写怎么保证不丢（写路径）、重复怎么处理（去重）、崩溃后怎么读回来（读路径与恢复）、外部怎么观测（读接口与事件全集）**。
 
-### 论点一 · 写路径：先落 WAL、再写指针，且每条事件是「WAL 行 + by_id 索引 +（有 session_key 才）by_session 索引」的原子单元
+### 论点一 · 写路径：先落 WAL、再写指针，且每条事件是「WAL 行 + by_id 索引」的两写原子单元
 
-**所以呢**：因为持久化严格早于任何副作用，崩溃后未处理的工作永远能从「mailbox 里的 `- [ ] @evt(yd)` 指针 + WAL 行」精确恢复；而单条 append 其实是三次协同写入，`hl`/`qGe` 等下游读路径都隐式依赖索引已落盘，构成 `append → 索引 → watermark` 的固定依赖链。
+**所以呢**：因为持久化严格早于任何副作用，崩溃后未处理的工作永远能从「mailbox 里的 `- [ ] @evt(yd)` 指针 + WAL 行」精确恢复；而单条 append 其实是两次协同写入，`hl`/`qGe` 等下游读路径都隐式依赖索引已落盘，构成 `append → 索引 → watermark` 的固定依赖链。
 
 **append-before-execute 的时序在代码里真的这样串联（confirmed）。** 沿网关摄入主函数 `hae`(`81119`) 的真实控制流：`Yt` 封装事件(`81121`)→`Xt(e,r)` 把不可变事件 append 进 Spine(`81196`)→`hl` 推进 watermark(`81196`，同行)→**之后**才在路由分支写 mailbox 指针（meta 分支 `81221`，session 分支 `81231`）。路由分叉由 `aae`(`80980`) 决策：`routing_hint.target ∈ {gateway, meta, session}` 决定指针写到 `meta:subconscious` 还是具体 session_key。
 
 **存在第二条同构摄入源 `route.deliver`（会话间路由投递，confirmed）。** 会话→会话的路由投递走 `route.deliver` 全链(`50282-50909`)：先 `tn(e,m)` append(`50883`)，后 `Ho(e,u,\`- [ ] @evt(${m.id})\`)` 写指针(`50903`)，且入口带 `ro()` archived 检查短路。它与 `hae` 是「先 append 后写指针」的同一契约，是 §4 应认清的第二类摄入源。
 
-**单条 append = 两写或三写原子单元（confirmed；by_session 有条件）。** `atomicAppendEvent (Xt)`(`31282`) 内部先 `atomicWriteFileSync (FGe)`(`31739`) 写 WAL 行，再**无条件**写 `by_id` 索引（`G6e`，`31765` 定义/`31776` 调用），最后**仅当事件带 `session_key`** 才写 `by_session` 索引（`t.session_key && GQ(...)`，`XQ` `31794` 定义/`31781` 调用，含 `session_key`+`ts`）。因此无 session_key 的事件（如 `system.cadence_tick`）是「WAL + by_id」两写；带 session_key 的会话事件才是三写。三者对应磁盘 append 与内存 Map 的同步更新——`advanceConsumerWatermark (hl)` 反查偏移、`readEventByIdSeek (qGe)` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
+**单条 append = 恒定两写原子单元，且只有 `by_id` 一个索引（confirmed）。** `atomicAppendEvent (Xt)`(`31966`) 只做两件事：先 `atomicWriteFileSync (FGe)`(`31931`) 写 WAL 行拿回 `{partition, byteOffset, byteLength}`，再**无条件**调 `zGe`(`31957`) 把 `{event_id, partition, byte_offset, byte_len}` 追加进 `by_id.jsonl`（路径由 `ME` 拼成 `<eventsIndexDir>/by_id.jsonl`，`31955`），并同步更新该文件对应的内存 Map（`i.map.set(t.event_id, t)`）。**不存在按 session 切分的第二索引**：`by_session` 在整个 bundle 里零字面量出现，也没有任何模板拼接出这个路径，无论事件带不带 `session_key` 走的都是同一条两写路径（会话维度的检索靠 mailbox 里的 `- [ ] @evt(<id>)` 指针，而不是靠索引文件）。磁盘 append 与内存 Map 的同步更新是同一个函数内的两步——`advanceConsumerWatermark (hl)` 反查偏移、`readEventByIdSeek (qGe)` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
 
 **字节区间与全序（confirmed）。** `atomicWriteFileSync (FGe)`(`31931`) 执行 `NE.open(i,"a")`(`31938`)→`stat().size` 取 **byte_offset**(`31940`，stat 早于 write)→`write().bytesWritten` 取 **byte_len**(`31941`)→`close`(`31949`)，故 `[offset, offset+len)` 恰为该事件行字节区间。全序由 per-file promise 链保证（应用层互斥，非 fsync/DB 事务）：`MGe`(`31911`) `.then(t,t)` 两回调相同，成功失败都续链，同一分区 append 顺序与偏移计算无竞态。**架构假设**：单 daemon 单进程写；跨进程并发写同一分区无保护。
 
