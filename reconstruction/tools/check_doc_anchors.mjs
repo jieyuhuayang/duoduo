@@ -73,12 +73,20 @@ if (RESOLVE) {
 // unrelated code, and when the end lands before the start the range is
 // backwards on its face — reported separately since no bundle lookup is
 // needed to know it is wrong.
-const LINESPEC = "`?(?:(?:daemon|cli|stdio)(?:\\.pretty)?\\.js:)?(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`?";
+//
+// A citation may name the bundle it points into (`stdio.pretty.js:63969`). Line
+// numbers are per-bundle, so such a citation is only meaningful against THAT
+// bundle: checked against daemon it is guaranteed to "fail" while being
+// perfectly correct. Capture the qualifier and skip the ones addressed to
+// another bundle — an unqualified citation still means the bundle passed in.
+const BUNDLE_NAME = (BUNDLE.split("/").pop() || "").replace(/\.pretty\.js$|\.js$/, "");
+const FILEQ = "(?:((?:daemon|cli|stdio))(?:\\.pretty)?\\.js:)?";
+const LINESPEC = "`?" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`?";
 const NAME = "`([A-Za-z_$][A-Za-z0-9_$]{1,5})`";
 const CITES = [
-  { re: new RegExp(NAME + "\\s*[（(]\\s*" + LINESPEC + "\\s*[）)]", "g"), n: 1, a: 2, b: 3 },
-  { re: new RegExp(NAME + "\\s*@\\s*" + LINESPEC, "g"), n: 1, a: 2, b: 3 },
-  { re: new RegExp("`(?:(?:daemon|cli|stdio)(?:\\.pretty)?\\.js:)?(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`\\s*[（(]\\s*([A-Za-z_$][A-Za-z0-9_$]{1,5})\\s*[）)]", "g"), n: 3, a: 1, b: 2 },
+  { re: new RegExp(NAME + "\\s*[（(]\\s*" + LINESPEC + "\\s*[）)]", "g"), n: 1, f: 2, a: 3, b: 4 },
+  { re: new RegExp(NAME + "\\s*@\\s*" + LINESPEC, "g"), n: 1, f: 2, a: 3, b: 4 },
+  { re: new RegExp("`" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`\\s*[（(]\\s*([A-Za-z_$][A-Za-z0-9_$]{1,5})\\s*[）)]", "g"), n: 4, f: 1, a: 2, b: 3 },
 ];
 
 // A cited line is good if the short name appears on it, or (with --resolve) if
@@ -91,15 +99,17 @@ const holds = (name, ln) => {
 };
 
 let checked = 0;
+let skipped = 0;
 const bad = [];
 const backwards = [];
 for (const f of docs) {
   const text = fs.readFileSync(f, "utf8");
   const seen = new Set();
-  for (const { re, n, a, b } of CITES) {
+  for (const { re, n, f: fq, a, b } of CITES) {
     for (const m of text.matchAll(re)) {
       if (seen.has(m.index)) continue;
       seen.add(m.index);
+      if (m[fq] && m[fq] !== BUNDLE_NAME) { skipped++; continue; }
       checked++;
       const name = m[n], from = Number(m[a]), to = m[b] ? Number(m[b]) : null;
       if (to !== null && to < from) backwards.push({ f, name, from, to });
@@ -111,7 +121,8 @@ for (const f of docs) {
   }
 }
 
-console.error(`checked ${checked} symbol/anchor citations across ${docs.length} file(s)`);
+console.error(`checked ${checked} symbol/anchor citations against ${BUNDLE_NAME} across ${docs.length} file(s)` +
+  (skipped ? ` (${skipped} skipped: explicitly addressed to another bundle — re-run with that bundle to check them)` : ""));
 if (backwards.length) {
   console.error(`${backwards.length} range(s) run backwards (end before start):`);
   for (const b of backwards) console.error(`  ${b.f}  \`${b.name}\` ${b.from}-${b.to}`);
