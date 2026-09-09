@@ -123,7 +123,7 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
 
 **prompt_mode 分叉**（confirmed）。v0.7.1 起这条分叉从 `eh`（buildSystemPromptForChannelConfig）内部搬到了它调用 `Lde`（renderPromptLayers）**之后**：`eh`（`daemon.pretty.js:49788-49796`）先拿 `Lde` 拼好的六层文本 `i`，`e?.prompt_mode==="override"` → 返回纯字符串 `i||""`，整体替换 Claude Code 预设；默认 `append` → `o=i.trim()||void 0`，非空则返回 `{type:"preset", preset:"claude_code", append:o}`，为空返回 `undefined`（即无 append）——**装配（六层拼接）与包壳（prompt_mode 分叉）现在是两个函数，不是一个函数内的两个分支**（详见 Part II §8 论点④）。
 
-**数据源**（confirmed）。调用链 `lB`（`64429`）在 `62810` 调 `Um(_, t, {content,jobId,cron,stateless}, n.memoryBoard)`。**Claude 的 kind/instance/prompt_mode/time_gap 全部来自 `_`（effective_config，`62788` 经 `Hi("effective_config_ms", …Mz)` 取得并缓存），不是来自 `uot`**（`uot` 的用途见论点四）。此外 `eh` 被调两次：批处理/admission 路径 `62810` 与 live streaming 路径 `63732`，同一装配复用于两种进场方式。
+**数据源**（confirmed）。调用链 `UB`（`64429`）在 `64462` 调 `Um(_, t, {content,jobId,cron,stateless}, n.memoryBoard)`。**Claude 的 kind/instance/prompt_mode/time_gap 全部来自 `_`（effective_config，经 `Hi("effective_config_ms", …Mz)` 取得并缓存），不是来自 `uot`**（`uot` 的用途见论点四）。此外 `eh` 被调两次：批处理/admission 路径 `64462` 与 live streaming 路径 `65272`，同一装配复用于两种进场方式。
 
 **广播板包装：OVERRIDE 前缀 + dossier 纪律**（confirmed）。第 4 层的 memoryBoard 整段被常量包装（`kue`/`S9e` 定义于 `49746`，使用于 `49774-49231`）：
 
@@ -138,9 +138,9 @@ u = jWe.test(d)
 
 即广播板整段以 OVERRIDE 前缀 `Hoe` 包装；含 wiki-link 时追加 dossier 纪律 `DWe`（"[[slug]] 是深档入口，触发时先读再行动"）。**注意：此 `Hoe` 包装对 Claude 与 Codex 同源同文**——因为 Codex 复用的正是 `eh` 的整段输出（详见论点三）。
 
-**广播板来源：`@include` transclusion**（confirmed）。`Bme(memoryBroadcastPath)`（`74560`）→ `qve`(`76238`)递归解析 `memory/CLAUDE.md`：用 `@path` 前缀语法（正则 `xme=/(?:^|\s)@((?:[^\s\\]|\\ )+)/g`，`74705`）提取 include，按深度上限 `wXe=5`（`73818` `if(n>=wXe)return[]`）递归内联，扩展名白名单 `SXe`（实测 106 个扩展名，`74705`）。每个被 transclude 的文件头是 `Contents of ${path} (project instructions, checked into the codebase):`（渲染器 `xXe:70986` + 后缀常量 `kXe:71122`），非裸冒号。
+**广播板来源：`@include` transclusion**（confirmed）。`Bme(memoryBroadcastPath)`（`74560`）→ `qwe`(`76238`)递归解析 `memory/CLAUDE.md`：用 `@path` 前缀语法（正则 `xme=/(?:^|\s)@((?:[^\s\\]|\\ )+)/g`，`74705`）提取 include，按深度上限 `wXe=5`（`73818` `if(n>=wXe)return[]`）递归内联，扩展名白名单 `SXe`（实测 106 个扩展名，`74705`）。每个被 transclude 的文件头是 `Contents of ${path} (project instructions, checked into the codebase):`（渲染器 `xXe:70986` + 后缀常量 `kXe:71122`），非裸冒号。
 
-- **去环细节**（confirmed）：visited 集主检的是 `t.has(s)`（`74579`），其中 `s=Eme(i)` 是 resolve+win32 小写后的路径（`Eme` 定义 `74617`），**不是 realpath**；realpath 由 `mlt`(`76272`)另行求得后在 `74583` 以 `t.add(s), t.add(Eme(a))` 额外加入 visited 兜住软链别名。即"resolve 主检 + realpath 补检"。
+- **去环细节**（confirmed）：visited 集主检的是 `t.has(s)`（`74579`），其中 `s=Eme(i)` 是 resolve+win32 小写后的路径（`Eme` 定义 `74617`），**不是 realpath**；realpath 由 `Jut`(`76272`)另行求得后在 `76246` 以 `t.add(o), t.add(jwe(a))` 额外加入 visited 兜住软链别名。即"resolve 主检 + realpath 补检"。
 
 **活体冷启动印证**（confirmed）。本机 `~/aladuo/memory/CLAUDE.md` 为 0 字节 → `$e.memoryBoard` 为空 → `76698` 不构造 memoryBoard（`$e.memoryBoard ? {path,content} : void 0`）→ `eh` 不注入第 4 层。这印证机制本身：广播板初始为空，由潜意识逐步写入 durable heuristics 后才在下一次会话被注入——**渐进式冷启动，而非硬编码知识**。
 
@@ -148,31 +148,36 @@ u = jWe.test(d)
 
 ### 论点二：易变具身状态由 `buildTransientUserBlocks (K_e)` 每 turn 瞬态塞进 user 消息
 
-**所以呢**：时间流逝、被打断、job 节拍、带外动作结果这些"每 turn 都可能变"的信号，若进 system prompt 会不断击穿缓存前缀。运行时把它们做成带 tag 的 text block，前置到用户输入之前、进 **user 消息而非 system prompt**，既让 agent 感知具身状态，又不污染缓存前缀。
+**所以呢**：时间流逝、被打断、job 节拍、job 完成回执、带外动作结果这些"每 turn 都可能变"的信号，若进 system prompt 会不断击穿缓存前缀。运行时把它们做成带 tag 的 text block，前置到用户输入之前、进 **user 消息而非 system prompt**，既让 agent 感知具身状态，又不污染缓存前缀。
 
-**块顺序**（confirmed）。`sfe(e,t,n)`（`63657`）返回 `blocks[]`，push 顺序逐条对上：
+**块顺序**（confirmed，v0.8.1 复核，行号已更新）。`buildTransientUserBlocks (K_e)`（`65787`）返回 `{blocks[], ...*Injected 标志}`，push 顺序逐条对上：
 
 ```
-daemon-restart-hint        （push 61083；tag 61086）
-  → smart-compact-notice    （61087；空闲自动 compact 后提示，tag 61090）
-  → gateway-notice          （61091；包 <system-reminder>，尾附
+daemon-restart-hint        （push 65817；tag 65820）
+  → smart-compact-notice    （65821；空闲自动 compact 后提示，tag 65824）
+  → gateway-notice          （65828；包 <system-reminder>，尾附
                               "this context may or may not be relevant…
-                               should not respond unless highly relevant" 61100）
-  → time-context            （61107；<time-context last_interaction=… current_time=…>）
-  → skip-rewind             （61113；仅 isUserMessage!==false 时）
-  → interrupted-context     （61121）
-  → job-tick                （61125；run_number/triggered_at）
-  → board-updated           （61129；广播板刚被潜意识写过的提示）
-  → user-input              （61133）
+                               should not respond unless highly relevant" 65834）
+  → time-context            （65841；<time-context last_interaction=… current_time=…>）
+  → skip-rewind             （65847；仅 isUserMessage!==false 时）
+  → interrupted-context     （65853；包 <interrupted-context>）
+  → job-receipts             （65859；**v0.8.1 新增**，见下）
+  → job-tick                （65863；run_number/triggered_at）
+  → board-updated           （65867；广播板刚被潜意识写过的提示）
+  → user-input              （65871）
 ```
 
-**首块 `daemon-restart-hint` 携带重启原因，且只到 channel 会话**（confirmed）。文本由 `renderDaemonRestartHint (Che)`（`62689`）拼成：底句 `[system] You're running under a new daemon process (started <ts>).`，若本次启动认领到了重启原因则追加 ` Restart reason, given by the caller: <reason> (requested <ts>).`。原因来自 `getPendingRestartReason (Ihe)`（`50822`）——一个模块级全局，由 boot 期一次性认领写入（见 §4 论点一末尾的"跨进程旁路"）。**是否注入由 `Dme`(`59964`)门控，非 `channel` 类会话直接判 `out-of-scope`**：`job:` / `meta:` / `cadence:` / `subconscious:` / `system:` 会话永远拿不到这个块，因此"重启原因会到达每个被唤醒的会话"这个直觉是错的。另有 `new-session`（无 `lastEventAt`）与 `grandfather`（无水位）两个阶段只写水位不注入。
+**首块 `daemon-restart-hint` 携带重启原因，且只到 channel 会话**（confirmed）。文本由 `renderDaemonRestartHint (Che)`（`62689`）拼成：底句 `[system] You're running under a new daemon process (started <ts>).`，若本次启动认领到了重启原因则追加 ` Restart reason, given by the caller: <reason> (requested <ts>).`。原因来自 `getPendingRestartReason (Ihe)`（`50822`）——一个模块级全局，由 boot 期一次性认领写入（见 §4 论点一末尾的"跨进程旁路"）。**是否注入由 `Phe`(`59964`)门控，非 `channel` 类会话直接判 `out-of-scope`**：`job:` / `meta:` / `cadence:` / `subconscious:` / `system:` 会话永远拿不到这个块，因此"重启原因会到达每个被唤醒的会话"这个直觉是错的。另有 `new-session`（无 `lastEventAt`）与 `grandfather`（无水位）两个阶段只写水位不注入。
 
-**slash 命令短路**（confirmed）。若用户输入 `e.trimStart().startsWith("/")`（`64307`），跳过全部注入只发 user-input 原文——命令式输入不该被时间/中断噪声污染。
+**v0.8.1 新增：job 完成回执改走 `job-receipts` 瞬态块，不再唤醒独立 turn（confirmed）。** CHANGELOG 原话："A finished job's completion receipt now arrives as context on the owner's next turn instead of waking a turn of its own"，代码证据链完整：批量组装器 `batchDrainItems (HB)`（`65926`）在挑选"驱动本轮的 mailbox 条目"时，对每条候选先 `tbe(c)`（`66013`）探测——`tbe` 内部先经 `ebe(e)`（`66007`：`e.type==="route.deliver" && payload.source_event_type==="job.complete"` 才返回内层 payload）取出 job 完成投递的内层 payload，再 `dn(t,"job_id")` 取 `job_id`；只要 `tbe(c)!==null`（即这条 mailbox 条目是一次 job 完成投递）就 `continue` 跳过（`65940`）——**job.complete 投递被排除在"本轮驱动条目"之外，不会单独催生一个 turn**。与 `HB` 平行的 `Jot`（`66062`）在同一次 `drainSessionMailbox (W_e)` 调用里对**全部**待处理 mailbox 条目（不止 `HB` 选中的那一批）重新扫一遍，专挑 `tbe(u)` 非空的条目按 `job_id` 分组、渲染成回执文本（单条直接用 `gC` 生成的 prompt、多条经 `Wot` 合并成"as one continuous update"），返回 `{text, eventIds}`；这份 `.text` 经 `W_e` 内 `jobReceipts: C?void 0:$?.text`（`64920`）传给 `UB`，最终作为 `K_e` 调用参数 `jobReceipts: o.jobReceipts`（`64456`）落进上面的 `job-receipts` 瞬态块（tag `"job-receipts"`，`65862`）——**随本轮"真正驱动 turn 的那条事件"一起，作为上下文顺带交付，而不是自己单独催生一次 drain/turn**。这些 job.complete 条目并未被静默丢弃：`Jot` 返回的 `eventIds` 会被 `W_e` 的 `pe()` 收进 `x`（`64686-64687`）随本轮一起 `markDone`（mailbox `.pending` 文件照常被 ack）。mid-turn steering 路径（admission callback 调用的另一条 `UB(t,E,{...})`，`78237`）**不传 `jobReceipts` 字段**，故该机制只在 `W_e` 主批处理路径生效。
 
-**time-gap 阈值的读取位置**（confirmed）。time-gap 阈值来自 effective config 的 `time_gap_minutes`，但**不在 `K_e` 内读取**：`YU:59676` 先算 `g=(_?.time_gap_minutes ?? rfe)*60*1e3`（`rfe=60` 分钟，定义在 `64604`）构造出 timeGap 对象再传入 `K_e`，`K_e` 只消费 `t.timeGap`。
+**`jobReceiptsInjected` 标志并入既有的注入追踪字段**：`K_e` 返回对象的 `*Injected` 标志集合（`gatewayNoticeInjected`/`interruptedContextInjected`/`skipRewindInjected`/`timeGapInjected`/`jobTickInjected`/`daemonRestartHintInjected`/`compactNoticeInjected`/`boardUpdatedInjected`，初始化于 `65789-65797`）v0.8.1 新增了 `jobReceiptsInjected`（`65794` 初始化 `!1`，`65859-65862` 命中时置 `c=!0`，随返回对象带出 `65882`），语义与其余标志一致——都是"这次调用是否真的往 blocks 里塞了这个 tag"的布尔回执，供调用方按需做消费后收尾（同一 `*Injected` 家族里 `gatewayNoticeInjected`/`interruptedContextInjected`/`skipRewindInjected` 三个在 `W_e` 内被用来门控 `pending_gateway_notice` 等 pending 字段的清空，`64908`）。`jobReceiptsInjected` 本身走的是另一条收尾路径：真正标记回执已消费的是 `Jot` 返回的 `eventIds` 经 `pe()` 并入 `x` 后随本轮一起 `markDone`（`64686-64687`），`jobReceiptsInjected` 只是把"job-receipts 块这次是否真的被塞进 blocks"这一布尔态并入既有的标志集合，不是新机制。
 
-**`/effort` 是运行时旋钮、不属任一注入面**（confirmed，v0.6.0）。`/effort` 网关命令设置每会话推理力度，落到 run-config 的 `effort` 字段——`tu:48365` `"effort" in t && t.effort && (r.effort=t.effort)` 直接透传给 Claude SDK，经 drain 装配随 sdkRunConfig 下发（`60785`/`61149` `effort:X.effort`、`58312` `effort:w`）。它既不进 `eh` 的 system-prompt 前缀、也不进 `K_e` 的瞬态 user 块——是与两个注入面正交的模型推理参数（类同 model 选择），故不影响缓存前缀。
+**slash 命令短路**（confirmed）。若用户输入 `e.trimStart().startsWith("/")`（`65799`），跳过全部注入只发 user-input 原文——命令式输入不该被时间/中断噪声污染。
+
+**time-gap 阈值的读取位置**（confirmed）。time-gap 阈值来自 effective config 的 `time_gap_minutes`，但**不在 `K_e` 内读取**：`Z_e`（`65750`）先算 `t=(e.timeGapMinutes ?? Tot)*60*1e3`（`Tot=60` 分钟，`66752`）构造出 timeGap 对象，`UB` 内 `w=Z_e({...})`（`64440`）算好后经 `timeGap:w`（`64455`）传入 `K_e`（`64450`），`K_e` 只消费 `t.timeGap`。
+
+**`/effort` 是运行时旋钮、不属任一注入面**（v0.6.0 引入，具体透传行号本轮未重新核对）。`/effort` 网关命令设置每会话推理力度，落到 run-config 的 `effort` 字段直接透传给 SDK。它既不进 `eh` 的 system-prompt 前缀、也不进 `K_e` 的瞬态 user 块——是与两个注入面正交的模型推理参数（类同 model 选择），故不影响缓存前缀。
 
 ---
 
@@ -208,17 +213,17 @@ daemon-restart-hint        （push 61083；tag 61086）
 **所以呢**：`eh` 装配的是前台会话的稳定认知。系统还有两处独立于 `eh` 的上下文机制：潜意识分区会话用另一套注入器（它没有前台对话历史，需要绝对路径 + 收件箱），以及 `uot` 产出的 instructions 指纹（它不进任何提示词，只驱动 resumed session 失效）。厘清这两条旁路，才能解释"为何 `uot` 要重算 identity/kind/instance 却不用于提示词"。
 
 **潜意识分区注入**（confirmed）。partition（`meta:subconscious`）不走 `eh`：
-- `Flt`（`79782`）：`## Runtime Context` + Timestamp + Sessions + `### Key Paths`（含 `memoryBroadcastPath` 等全绝对路径，`78301`）。
-- `zlt`（`79789`）：`## Inbox` + "After processing each item, delete the corresponding file … to ack it."（`78309`）——每条 `.pending` 文件，处理后删文件 ack。
-- 另有 **Session Mailbox 旁路** `RE`(`32620`)：`["# Session Mailbox","","## Inbox",""]`（`32449`）写盘供 agent 主动 Read，不进 system prompt——属"working notes"层。
+- `_ct`（`79782`）：`## Runtime Context` + Timestamp + Sessions + `### Key Paths`（含 `memoryBroadcastPath` 等全绝对路径）。
+- `bct`（`79789`）：`## Inbox` + "After processing each item, delete the corresponding file … to ack it."——每条 `.pending` 文件，处理后删文件 ack。
+- 另有 **Session Mailbox 旁路** `BE`(`32620`)：`["# Session Mailbox","","## Inbox",""]`（`32621`）写盘供 agent 主动 Read，不进 system prompt——属"working notes"层。
 
-**`uot` 的真正用途：instructions 指纹 / 漂移失效**（confirmed）。`Jve`(`76573`)确实存在——它与 `runInstructionsFingerprintGuard (SO)` **同在 `76412` 调用，且 UXe 的输出被喂入 O2 指纹守卫**（而非"被 O2 调用"）。但它**不进任一路的实际提示词**（Claude 用 `w_()`+effective_config，Codex 用 `eh` 输出）。它的实际用途有二：
+**`uot` 的真正用途：instructions 指纹 / 漂移失效**（confirmed）。`Jwe`(`76573`)确实存在——它与 `runInstructionsFingerprintGuard (SO)` **同在 `78150` 调用，且 `Jwe` 的输出被喂入 `SO` 指纹守卫**（而非"被 `SO` 调用"）。但它**不进任一路的实际提示词**（Claude 用 `w_()`+effective_config，Codex 用 `eh` 输出）。它的实际用途有二：
 1. 产出 `memoryBoard`（`75058` `transcludeBroadcastBoard (Bme)…rendered.trim()`）供 `eh` 两路复用——经 `76698` 打包成 `{path, content}` 进 drain 配置的 `memoryBoard`；
 2. 在 `76412` 喂给 `runInstructionsFingerprintGuard (SO)`（守卫定义在 `74896`）算 instructions 指纹做漂移检测——指纹 = `computeInstructionsFingerprint (bw)`（定义 `74842`）= `sha256(JSON.stringify([identity??"", kindPrompt??"", instancePrompt??"", memoryBoard??"", mission??""]))`（每元素带 `?? ""` 兜底）。
 
 **board 层与指令层解耦**（confirmed，v0.6）。`SO` 除全量指纹外，另算 board 层哈希 `zme(n.memoryBoard)`（`72258`；`computeBoardLayerHash` 定义 `74847`）与非 board 指纹 `Fme(n)`（`74902`；`computeNonBoardInstructionsFingerprint` 定义 `74851`，把 `memoryBoard` 置 undefined 后复用 `bw`）。当且仅当 board 层变而非 board 指纹不变时判 `boardOnlyDrift`（`74903`）——此时 gate2 触发但 **不再拆会话，只 pin streaming 前缀**（`75664` `"board-only drift — pinning streaming prefix (no teardown)"`）；仅真正的非 board 指令漂移才在 `76428`（`gate2Fired && runtime==="claude"`）发 `session.streaming_invalidated`（reason `"instructions_drift"`，`76430`）。即"广播板刷新不再白白击穿正在跑的 streaming 前缀，只有身份/人格/mission 真变了才失效"。
 
-即 `uot` 的 identity/kindPrompt/instancePrompt 只进指纹、不进提示词——它是驱动 resumed session 失效的独立信号面。此外 `Nye`(`64376`)/ `autoloadAdditionalDirectoryClaudeMd`（`60797`/`61161`，env 旗标在 `tu:48400`）门控 memoryBoard 与 additionalDirectories 的 CLAUDE.md 自动加载，是广播板之外第二条"文件即上下文"注入。
+即 `uot` 的 identity/kindPrompt/instancePrompt 只进指纹、不进提示词——它是驱动 resumed session 失效的独立信号面。此外 `I_e`(`64376`)/ `autoloadAdditionalDirectoryClaudeMd`（`65003`/`65305`，env 旗标在 `tu:48400`）门控 memoryBoard 与 additionalDirectories 的 CLAUDE.md 自动加载，是广播板之外第二条"文件即上下文"注入。
 
 ---
 
@@ -286,10 +291,10 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 **所以呢**：一个 batch 变成一次 SDK 调用，中间隔着一层把内部 run-config 翻成 SDK options 的适配器 `createAgentSdkAdapter (Gd)`。这一层的分支（systemPrompt / permissionMode / thinking）直接决定"发出去的 prompt 长什么样、缓存能不能吃满",错一个分支就打偏。
 
-- **query 本体**：从 `@anthropic-ai/claude-agent-sdk` 导入（`daemon:48110`/`62734`）。两种执行通道：非流式 `run`(`49588`)与流式 `createStreamingQuery`（`50172`-`49619`，`includePartialMessages:!0`）。
+- **query 本体**：从 `@anthropic-ai/claude-agent-sdk` 导入（`daemon:48110`/`62734`）。两种执行通道：非流式 `run`(`50146`)与流式 `createStreamingQuery`（`50378`，`includePartialMessages:!0`）。
 - **`permissionMode` 优先级（v0.6 已改为无条件兜底）**：`t.permissionMode ?? process.env.ALADUO_PERMISSION_MODE ?? "bypassPermissions"`（`daemon:48366`）。v0.5.8 曾把兜底做成"仅 host 模式才 `bypassPermissions`（`Ho(process.env)==="host"`）、否则 `void 0`"；v0.6.1 去掉了 host 条件判定，**最终兜底无条件落到 `bypassPermissions`**。
 - **`systemPrompt` 分支**：**仅当未设 `SYSTEM_PROMPT` 且存在 append 内容时**才用 `{type:"preset", preset:"claude_code", append:p}`（三元在 `49878`-`49890`，preset 字面量 `49888`）；一旦 `SYSTEM_PROMPT` 有值，用裸字符串（`u` 或 `u\n\np`），不走 preset。append 组装 `p = [resolveMetaPromptText(), c].filter().join`（`49880`），即 `resolveMetaPromptText() (w_)`（duoduo 基座提示，导出于 `49048`）拼 `APPEND_SYSTEM_PROMPT`。
-- **工具集（v0.5.10 已由 denylist 改为 allowlist）**：`allowedTools`/`mcpServers`/`additionalDirectories` 透传；`tools` 取 `[...new Set(t.tools)]` 作为**显式内建工具面**（`49894`）。`disallowedTools` 经 `splitDisallowedToolsForClaude (Ade)`（`49624`）拆成 `{mcpTools, builtIns}`，**只保留 `mcpTools` 作为 disallowedTools，builtIns 被忽略并告警**（"allowlist-only via claude.tools"，`49885`）；`allowedTools` 里不在工具面上的项由 `Uce`(`49819`)挑出并告警。旧的 `DEFAULT_DISALLOWED_TOOLS` denylist 已退役。
+- **工具集（v0.5.10 已由 denylist 改为 allowlist）**：`allowedTools`/`mcpServers`/`additionalDirectories` 透传；`tools` 取 `[...new Set(t.tools)]` 作为**显式内建工具面**（`49894`）。`disallowedTools` 经 `splitDisallowedToolsForClaude (Ade)`（`49624`）拆成 `{mcpTools, builtIns}`，**只保留 `mcpTools` 作为 disallowedTools，builtIns 被忽略并告警**（"allowlist-only via claude.tools"，`49885`）；`allowedTools` 里不在工具面上的项由 `$de`(`49819`)挑出并告警。旧的 `DEFAULT_DISALLOWED_TOOLS` denylist 已退役。
 - **thinking 开关**：`includePartialMessages` 触发时只置 `r.includePartialMessages=!0`（`daemon:48402`）；v0.5.8 里"强制 `maxThinkingTokens=0`"的分支已移除——适配器不再改写 thinking 预算（`maxThinkingTokens` 在 daemon 内仅剩错误提示串里出现，见论点四）。
 - **适配器选择 `X(y)`（`daemon:72457`）**：codex + codexAdapter → codexAdapter；`origin!=="channel"` 或无 `createStreamingQuery` → 一次性适配器 `o`；否则惰性长驻 `streamingAdapter`（经 `Oe(y,T)` 创建）。
 
@@ -301,7 +306,7 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 **(b) 单 turn 准入门控——一次只喂一个 turn，后到者走 steering。** 生成器 `xi()` 每次 `dequeue` 出一个 turn 项前先看 `Ne.currentTurn`：**若槽已被占（`currentTurn !== null && currentTurn !== ue`），新 turn 直接 `reject`（`daemon:71954`，"Streaming slot occupied — prompt not yielded"）**，不再像 v0.5.8 那样把新入列 prompt 灌进正在跑的 turn。占槽成功才 `currentTurn = ue`、`accepted = !1`，随后 `for await (let me of ue.input.prompt) yield me`（`74693`）。turn 的 `accepted` 在其 SDK `init` 事件到达时置真（`daemon:72294`：`hasAcceptedTurn=!0, Q.accepted=!0`）——**accepted 只标记"该 turn 的 prompt 已被 SDK 接纳"，不再作为"是否折入新 prompt"的开关**。所以合并已发生的 turn、以及未及入槽的后到消息，都改由 (c) 的 steering 通道处理，`streamingState` 里旧的 `orphanExecuting` 也换成了 `cliTurnTentative`（+ `loopPromise`）。
 
-**(c) mid-turn steering——park 在 admission callback，消费在 PostToolUse hook。** 入队/park 的**决策发生在 admission callback（`daemon:72827`）**，它是与 `W_e` 并行的第二条 SDK 入口：在已有 live streaming turn 时被调用，自己调 `lB`（`78237`）生成 `coalescedPromptText`，再按 runtime 分叉——claude 走"park/append `pendingSteer`"。park 判据 `!!ko && ko.accepted && !ko.skipCalled && !ht && !Sr.isNotifyOnly && Tn.length>0`（`76568`，`ko = Dn.currentTurn`；**v0.6.2 新增 `!skipCalled` 项**，已决定沉默的 turn 不再吸收新入站消息，落空后走 `y.pendingWake=!0, y.wakeResolver?.()`（`76634`）当新 turn 重新 drain）：已有 `pendingSteer` 且 `spawningTurn===ko` 则追加（`72947`，打印 "appended claude steer"），否则新 park（打印 "parked claude steer"，`76626`），`pendingSteer` 字段在 `75869`（`steerText/eventIds/claimedEventIds/enqueueAsNewTurn/spawningTurn/requeueLines/requeueEventIds/processedEventIds/settled`，v0.6.1 新增 `spawningTurn`）。**注入（消费）发生在 PostToolUse hook（matcher `"*"`，`75548`-`72788`）**：检查 `pendingSteer` → `settled` + `markDone` → 以 `hookSpecificOutput.additionalContext = ue.join("\n\n")`（`75594`）返回给 SDK。**v0.5.8 里独立的 `pendingNotifySteer`（把后台 Agent 完成回调冒泡进当前 turn）已在 v0.6.1 移除**：后台 Agent 完成改由 Claude CLI 原生续写单独负责（completion-owner `"claude-cli"`），duoduo 只把 `task_notification` 记成 WAL-only 生命周期事件，不再制造重复回调 turn。
+**(c) mid-turn steering——park 在 admission callback，消费在 PostToolUse hook。** 入队/park 的**决策发生在 admission callback（`daemon:72827`）**，它是与 `W_e` 并行的第二条 SDK 入口：在已有 live streaming turn 时被调用，自己调 `UB`（`78237`）生成 `coalescedPromptText`，再按 runtime 分叉——claude 走"park/append `pendingSteer`"。park 判据 `!!ko && ko.accepted && !ko.skipCalled && !ht && !Sr.isNotifyOnly && Tn.length>0`（`76568`，`ko = Dn.currentTurn`；**v0.6.2 新增 `!skipCalled` 项**，已决定沉默的 turn 不再吸收新入站消息，落空后走 `y.pendingWake=!0, y.wakeResolver?.()`（`76634`）当新 turn 重新 drain）：已有 `pendingSteer` 且 `spawningTurn===ko` 则追加（`72947`，打印 "appended claude steer"），否则新 park（打印 "parked claude steer"，`76626`），`pendingSteer` 字段在 `75869`（`steerText/eventIds/claimedEventIds/enqueueAsNewTurn/spawningTurn/requeueLines/requeueEventIds/processedEventIds/settled`，v0.6.1 新增 `spawningTurn`）。**注入（消费）发生在 PostToolUse hook（matcher `"*"`，`75548`-`72788`）**：检查 `pendingSteer` → `settled` + `markDone` → 以 `hookSpecificOutput.additionalContext = ue.join("\n\n")`（`75594`）返回给 SDK。**v0.5.8 里独立的 `pendingNotifySteer`（把后台 Agent 完成回调冒泡进当前 turn）已在 v0.6.1 移除**：后台 Agent 完成改由 Claude CLI 原生续写单独负责（completion-owner `"claude-cli"`），duoduo 只把 `task_notification` 记成 WAL-only 生命周期事件，不再制造重复回调 turn。
 
 **(d) 三态抢占边界——`G()` 置标志、`L(y)` 才扳机。** `pendingPreemptBoundary` 为三态 `"accept" | "tool_use" | "tool_result"` + hard/soft 两档强度。设值函数 `G(y,T,j)`（`daemon:71818`）：query 在时——tool_result 且有活跃工具则置 `tool_result`（`75324`）、未 accept 则置 `accept`/`defer_accept`（`74568`）、否则立即 `C(y)`；非流式路径另有 tool_use 与 `soft` 软抢占分支（`75328`）。**但 `G()` 只置 pending 标志；真正的 abort 由执行事件闭包 `L(y)`（`daemon:71813`：query 在则 `C(y)` interrupt、否则 `abortController.abort()`）消费**——`onExecutionEvent` 里 tool_use 到达时 `activeToolUseIds.add` + 若 `boundary==="tool_use"` 则清标志并 `L(y)`；tool_result 时 `delete` + 若 `boundary==="tool_result" && size===0` 则 `L(y)`（`76770`/`76770`）；accept 边界则在 `init` 处由 `C(y)` 兑现（`75908`）。二者分离正是"deferred preempt 何时兑现"的答案。Codex 路径改走 `turn/steer` RPC（`59965`），失败回退（`59971` "falling back to new turn"，`76544` "codex turn/steer landed"，`76551` "codex steer fell back to redrain"）。
 
@@ -337,7 +342,7 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 | streamingAdapter sessionId 粘连复用条件 + 指纹重建 | `streamingState && !closed && !needsRecreation && configSignature===j && (hasAcceptedTurn||initialSessionId===N)`；`Q(y)` 指纹含 `tools`；重建走 `W(y)` | daemon:71905 / 71654 / 71671 | confirmed |
 | 长驻流式输入靠队列驱动 generator | `async function* xi(){ ... for await (let me of ue.input.prompt) yield me }`；队列类 `Xh`；turn 入列 | daemon:71940 / 71135 / 72293 | confirmed |
 | **单 turn 准入**：槽已占则 reject 后到 turn，不折进正在跑的 turn；accepted 只标记 SDK 接纳 | `if (ye!==null && ye!==ue) ue.reject(new Ui("Streaming slot occupied ..."))`；`init` 处 `hasAcceptedTurn=!0, B.accepted=!0` | daemon:71954 / 72118 | confirmed |
-| steering 决策在 admission callback（park），消费在 PostToolUse hook（注入） | `lB` 生成 coalescedPromptText；park 判据 `!!ko&&ko.accepted&&!ko.skipCalled&&!ht&&!Sr.isNotifyOnly&&Tn.length>0`；"parked claude steer"；`additionalContext=ue.join("\n\n")` | daemon:72827 / 72941 / 72999 / 72006-72026 | confirmed |
+| steering 决策在 admission callback（park），消费在 PostToolUse hook（注入） | `UB` 生成 coalescedPromptText；park 判据 `!!ko&&ko.accepted&&!ko.skipCalled&&!ht&&!Sr.isNotifyOnly&&Tn.length>0`；"parked claude steer"；`additionalContext=ue.join("\n\n")` | daemon:72827 / 72941 / 72999 / 72006-72026 | confirmed |
 | notify-steer 路径已移除，后台 Agent 完成单一 owner | 无 `pendingNotifySteer`；`completion_owner:"claude-cli"`；`task_notification` recorded WAL-only | daemon:71883 / 71704 | confirmed |
 | 抢占三态 accept/tool_use/tool_result + hard/soft；`G()` 置标志、`L(y)` 扳机 abort | `G(y,T,j)` 三分支；`"defer_accept"`/`"defer_tool_use"`/`"defer_tool_result"`；`L(y)` 消费 `activeToolUseIds.add/delete` | daemon:71818-71645 / 72691 | confirmed |
 | Codex 走 turn/steer RPC，失败回退 redrain | `r.request("turn/steer",...)`；"falling back to new turn"；"codex steer fell back to redrain" | daemon:57981 / 57869 / 72746 | confirmed |
@@ -481,7 +486,7 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 - **会话磁盘布局** `var/sessions/<sha256(key)>/`：`state.json`、`meta.md`、`mailbox.md`（渲染标题 `["# Session Mailbox","","## Inbox",""]`，`32449`）、`mailbox/pending/`、`mailbox/notes.jsonl`、`inbox/`。归档态迁到 `var/sessions-archive/<sha256(key)>/`（`vf`→`$f`@`32022`；`ol()`→`ro()` 判归档 tombstone `32026`），归档进行中由 `Ni`/`JS`/`GS`（`fr`/`yk`/`_k`，对 `Tg`→`Hg` Set 增删查）抑制一切 wake/ingress，错误 `kind="session_archiving"`（`31703`）。
   - *注（confirmed）*：错误类的 RE 命名 `SessionArchivingError` 现由代码直证——minified 类符号为 `Of`（旧 `ZD`），其构造器显式 `this.name = "SessionArchivingError"` 并置 `kind="session_archiving"`（`32194-32198`）。
 - **state.json 字段**（`hae`→`_ae`@`50705`）：`session_key, cwd, plane, permission_profile, created_at, last_event_id, last_event_at, last_seen_daemon_started_at, source_channel_id, last_error`，v0.6 起新增 auto-compact 计量字段 `context_used_tokens, last_compact_at, compact_measured_floor(=compact_stats.post_total), compact_measured_at`；`display_name/kind/owner_session` 来自 meta（由 `gk`→`jk`@`76250` upsert，kind 在此从 origin 二次派生）。
-- **preempt 值来源** `_2`→`l6`(`83320`)：无斜杠命令→`"allow"`、首词 `/cancel`→`"force"`、其它斜杠命令→`"never"`；`Ue` 默认 `j=T?.preempt??"allow"`（`75351`）。内部 `G(actor,"soft"|"immediate",boundary)` 的 `soft` 是由 `allow` 派生的内部模式名，非外部档位。
+- **preempt 值来源** `_2`→`q6`(`83320`)：无斜杠命令→`"allow"`、首词 `/cancel`→`"force"`、其它斜杠命令→`"never"`；`Ue` 默认 `j=T?.preempt??"allow"`（`75351`）。内部 `G(actor,"soft"|"immediate",boundary)` 的 `soft` 是由 `allow` 派生的内部模式名，非外部档位。
 - **相关事件/RPC**：入口 `channel.ingress`/`session.notify`/`session.wake`（`emit("session.wake",{sessionKey,displayName,preempt})`）；隔离判定返回 `reason:"forbidden_kind"`/`"archiving"`/`"ambiguous"`/`"not_found"`。
 
 ### 给 Agent PM 的洞察
@@ -531,14 +536,14 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 **所以呢**：这是本子系统最关键的状态机分叉。因为 Claude 会话是 append-only jsonl（只能"算 cutoff → 下次 drain 才 fork 新 session"），而 Codex app-server 原生支持同步 `thread/rollback`，同名命令在"何时生效、session 是否连续"上根本不同。Grok 又是第三种形态——ACP 协议原生没有"rollback"，duoduo 自己在其上叠了一层"rewind"语义。PM 若设计撤销/回滚体验，不能承诺跨后端统一。
 
-> **v0.8.0 更新（confirmed，代码证据）：`/undo` 整条命令与 Grok 的 rewind 机制已从 daemon 里整体移除。** 全仓检索 `cutoff_message_uuid`/`pending_undo`/`thread/rollback`/`GROK_ACP_REWIND_*` 均为零命中；history-control 命令层的新版本（`Sit`，`daemon.pretty.js:66238`）现在只识别 `/compact` 一种命令，其余（含 `/undo`）一律落到 `` ✗ Unrecognized history-control command: ${r}. `` 的兜底分支。下面两条 `/undo`/Grok-rewind 的机制描述保留作为 **v0.7.1 及更早的历史基线**，其引用的行号/短名均未随 v0.8.0 重新核对，不代表当前行为。
+> **v0.8.0 更新（confirmed，代码证据）：`/undo` 整条命令与 Grok 的 rewind 机制已从 daemon 里整体移除。** 全仓检索 `cutoff_message_uuid`/`pending_undo`/`thread/rollback`/`GROK_ACP_REWIND_*` 均为零命中；history-control 命令层的新版本（`tst`，`daemon.pretty.js:66238`）现在只识别 `/compact` 一种命令，其余（含 `/undo`）一律落到 `` ✗ Unrecognized history-control command: ${r}. `` 的兜底分支。下面两条 `/undo`/Grok-rewind 的机制描述保留作为 **v0.7.1 及更早的历史基线**，其引用的行号/短名均未随 v0.8.0 重新核对，不代表当前行为。
 
 - **（v0.7.1 及更早基线）Grok /undo——供应商扩展方法拼出的"倒带"**：`GROK_ACP_REWIND_POINTS`/`GROK_ACP_REWIND_EXECUTE`（`_x.ai/rewind/points`/`_x.ai/rewind/execute`）两个扩展方法配合 `parseGrokRewindPoints (wme)`（`daemon.pretty.js:59967-60568`，解析响应体里的 `rewindPoints`/`rewind_points` 数组）与 `pickGrokRewindPromptIndex (vme)`（`59960-60552`，从去重排序后的 `promptIndex` 集合里数第 N 个往回取）——即 duoduo 自己去查一个"可回退点"列表，再选一个目标点执行 rewind，语义上更接近 Codex 的同步 rollback（有明确的目标点、同 session 内生效）而非 Claude 的延迟 fork（未见 grok 侧有 `sessionIdChanged`/cutoff 类字段，confirmed 机制存在，具体 UX 文案未逐行核对，标注 未证实推测）。
 
 - **（v0.7.1 及更早基线）`/undo`——Claude 延迟成 fork、Codex 同步 rollback**：Claude adapter `undo()` 只扫 jsonl 算 `cutoff_message_uuid`，返回 `{kind:"succeeded", runtime:"claude", sessionIdChanged:!0, cutoff_message_uuid:f}`（`49705-49734`），不真正改历史；命令层 `qet`（v0.7.1 行号 64052，该命令 v0.8.0 已移除，见上方更新块）写 `pending_undo:{from, upToMessageUuid, requested_at}`（`64749-64755`），回 `↩️ Undo queued (...)`（`64761`）；真正的 `V5e(he.from,{upToMessageId})`（forkSession，`63062`）推迟到 drain 头部执行，守卫 `X.pendingUndo && (n.runtime === "claude" || n.runtime === void 0)`（`60482`），失败则保留 `pending_undo` 并中止 drain（`63080-60390`）。Codex adapter `undo()` 直发 `thread/rollback{threadId, numTurns}`（`59303`）、同步生效、`sessionIdChanged:!1`（`58480`）；drain 头部 else 分支 `X.pendingUndo && n.runtime !== "claude" → (X.pendingUndo=void 0, Ii(...,"pending_undo"))`（`63101`）清掉 codex 会话遗留的 pending（confirmed，逐行核对，均为 v0.7.1 基线）。
 - **`/model`——Claude 试图即时、Codex 只能延迟 fork**：`setSessionModel` 内 `if (await p(y,T) === "codex")` → 写 `dt(...model_runtime: T!==null?"codex":null, pending_model_fork:!0, applied:"stored")`（`77860-77137`）；claude 路径 `ee="stored"; setModel 成功→ee="live"`，写 `model_runtime:"claude", pending_model_fork:null, applied:ee`（`77571-77934`）。codex 回执 `Codex session — a switch takes effect from the next message.`（`76781`）。runtime flip 时经 `!(i ? i!==s : s==="codex")` 守卫清空 `model/model_runtime/pending_model_fork`（`64946-64946`）（confirmed）。
 - **codex 侧 fork 时序的落地（与 claude `V5e` 对称的另一半）**：codex thread 生命周期三分支（`59597`）——`forkFrom → "thread/fork"`、`sessionId → "thread/resume"`、else → `"thread/start"`；`q8e`（`64954`，日志 `resolved pending_model_fork at codex drain start` 于 `64969`）在 drain 起点把 `forkFrom` 设为当前 sessionId，才让 codex 的 model 切换在下一条消息 fork 生效（confirmed）。
-- **`/compact`——门控只锁 claude，实际抵达回执的是 codex**：外层守卫 `V.event.routing_hint?.intent === "history-control"`（`63575`）；内层 `if (kr === "/compact" && (n.runtime === "claude" || n.runtime === void 0))`（`63600`）→ `oa(t)==="channel" ? Wt=!0 :（发 "only available in interactive sessions" + continue）`（`60990-63603`）。`oa(e)`（`64037`）把 `job:→"job"`、`meta:→"meta"`、`system:|cadence:→"system"`、含 `:` → `"channel"`，否则 unknown。**codex 根本不进这个拦截块**（守卫限 claude/void），落到命令层 `Sit`(`66238`)→ `r.compact()` → `📦 History compacted (runtime: ${u.runtime})`（`64727`）。所以：claude channel 走 `Wt=true` 透传 SDK 原生（不产该串），claude 非 channel 被拦，唯 codex compact 抵达 `64727`（confirmed，codex 路由链已补全）。
+- **`/compact`——门控只锁 claude，实际抵达回执的是 codex**：外层守卫 `V.event.routing_hint?.intent === "history-control"`（`63575`）；内层 `if (kr === "/compact" && (n.runtime === "claude" || n.runtime === void 0))`（`63600`）→ `oa(t)==="channel" ? Wt=!0 :（发 "only available in interactive sessions" + continue）`（`60990-63603`）。`oa(e)`（`64037`）把 `job:→"job"`、`meta:→"meta"`、`system:|cadence:→"system"`、含 `:` → `"channel"`，否则 unknown。**codex 根本不进这个拦截块**（守卫限 claude/void），落到命令层 `tst`(`66238`)→ `r.compact()` → `📦 History compacted (runtime: ${o.runtime})`（`66253`）。所以：claude channel 走 `Wt=true` 透传 SDK 原生（不产该串），claude 非 channel 被拦，唯 codex compact 抵达 `66253`（confirmed，codex 路由链已补全）。
 
 ### 论点④　骨架靠复用而非抹平：一套指令 + 一套溯源跨后端，但权限/thinking 面故意不对等
 
@@ -549,7 +554,7 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 - **同一套指令**：codex 会话启动 `OU(e)`（`59347`）若工作目录有 `CLAUDE.md` 而无 `AGENTS.md`，自动 `await n.symlink("CLAUDE.md","AGENTS.md")`（日志 `[codex] created AGENTS.md symlink`，`59352`）——让一套 system 指令喂两个后端（confirmed）。
 - **同一套溯源，两套口径**：usage 按 protocol 分桶（`35585`）——`anthropic → cache.anthropic.{drains,cache_read_tokens,cache_create_tokens,fresh_input_tokens}`；`codex → cache.codex.{drains,input_tokens,cached_tokens}`；其余 `unsupported_drains++`。Anthropic 有 cache_creation、Codex 只有 cached，口径不同但都落回同一 drain record（confirmed）。
-- **认证来源三态 + `claude_code_local` 短路**（仅 host 模式）：`zKe(e)`（`81593`）三值枚举 `claude_code_local|anthropic_api_key|compatible_endpoint`；env 读取 `z4`(`83167`)取 `ALADUO_CLAUDE_AUTH_SOURCE ?? ALADUO_AUTH_SOURCE`（`80751`，非法值→void 0）。分派体 `t === "claude_code_local" → return e`（`81690`，提前返回不注入 ANTHROPIC_*）；否则 `for (n of xet){ let r=cr(n,null); r.source!=="unset" && (e[Eet(n)]=r) }`（`81691-81694`）注入覆盖。活体 `duoduo daemon config` → `claude_auth_source: claude_code_local (env)`，与短路路径一致（confirmed，含活体印证）。
+- **认证来源三态 + `claude_code_local` 短路**（仅 host 模式）：`Iit(e)`（`83163`）三值枚举 `claude_code_local|anthropic_api_key|compatible_endpoint`；env 读取 `_B`(`83167`)取 `ALADUO_CLAUDE_AUTH_SOURCE ?? ALADUO_AUTH_SOURCE`，经 `Iit` 校验非法值→void 0。分派体 `t === "claude_code_local" → return e`（`81690`，提前返回不注入 ANTHROPIC_*）；否则 `for (n of xet){ let r=cr(n,null); r.source!=="unset" && (e[Eet(n)]=r) }`（`81691-81694`）注入覆盖。活体 `duoduo daemon config` → `claude_auth_source: claude_code_local (env)`，与短路路径一致（confirmed，含活体印证）。
 - **claude 工具面 v0.5.10 起由 denylist 翻转为 allowlist**：旧的 `DEFAULT_DISALLOWED_TOOLS` 黑名单已**移除**，改为固定核心集 `CLAUDE_CORE_TOOLS`（`Fp`，`49745`：`["Bash","Read","Write","Edit","Grep","Glob","Agent","TaskOutput","TaskStop","Skill","ToolSearch","TaskCreate","TaskGet","TaskUpdate","TaskList","SendMessage"]`）+ channel descriptor 的 `claude.tools` 嵌套键按需追加可选工具；`splitDisallowedToolsForClaude`（`Ade`，`49626`）按 `mcp__` 前缀把工具名拆成 `{mcpTools, builtIns}`（confirmed）。
 - **duoduo 向 codex 叠加自有工具，但 codex 内置工具不可禁用**：`disallowedTools` 被显式忽略并告警 `[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled`（`59510`）；另一面握手中 `experimentalApi: !!n.dynamicTools?.length`（**两处 initialize 站点** `58075` 与 `58115`）门控，随后 `for (m of n.dynamicTools) f.set(m.name, m.handler); r.setToolHandlers(f)`（`59459-58081`，第二站点 `58121`）（confirmed）。
 - **权限与 thinking 面故意不对等**：codex 沙箱经 `lm()`/`ALADUO_CODEX_SANDBOX`（`59306`）映射 `read-only | workspace-write(默认) | danger-full-access`，握手固定 `approvalPolicy:"never"`（`58139`/`58155`/`58163`）；`optOutNotificationMethods`（`58076`/`58116`）显式退订 codex 的 reasoning 增量流（`item/reasoning/*Delta`），直接决定 codex thinking 是否回传前端。claude 侧无对应沙箱枚举与退订开关——这是"两后端权限/推理可见性不对等"的开关点。v0.6.0 起 `/effort` 让每会话独立设定推理力度（levels `Vk = ["low","medium","high","xhigh"]`，`79503`；网关命令处理 `80148`，经 `getSessionEffort`/`setSessionEffort`；`reasoningEffort` 随 run-config 下达），而 v0.5.10 修复了流式 Claude turn 误将 thinking 强制关闭的 bug——claude 侧 thinking 现按会话推理力度如实回传（confirmed）。
@@ -643,20 +648,20 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 **所以呢**：因为持久化严格早于任何副作用，崩溃后未处理的工作永远能从「mailbox 里的 `- [ ] @evt(yd)` 指针 + WAL 行」精确恢复；而单条 append 其实是三次协同写入，`hl`/`qGe` 等下游读路径都隐式依赖索引已落盘，构成 `append → 索引 → watermark` 的固定依赖链。
 
-**append-before-execute 的时序在代码里真的这样串联（confirmed）。** 沿网关摄入主函数 `hae`(`81119`) 的真实控制流：`Yt` 封装事件(`78866`)→`tn(e,r)` 把不可变事件 append 进 Spine(`79744`)→`hl`/`Aa` 推进 watermark 与 status→**之后**才在路由分支写 mailbox 指针（meta 分支 `Ho(...)` `79769`，session 分支 `79779`）。路由分叉由 `yse`(`80980`) 决策：`routing_hint.target ∈ {gateway, meta, session}` 决定指针写到 `meta:subconscious` 还是具体 session_key。
+**append-before-execute 的时序在代码里真的这样串联（confirmed）。** 沿网关摄入主函数 `hae`(`81119`) 的真实控制流：`Yt` 封装事件(`81121`)→`Xt(e,r)` 把不可变事件 append 进 Spine(`81196`)→`hl` 推进 watermark(`81196`，同行)→**之后**才在路由分支写 mailbox 指针（meta 分支 `81221`，session 分支 `81231`）。路由分叉由 `aae`(`80980`) 决策：`routing_hint.target ∈ {gateway, meta, session}` 决定指针写到 `meta:subconscious` 还是具体 session_key。
 
 **存在第二条同构摄入源 `route.deliver`（会话间路由投递，confirmed）。** 会话→会话的路由投递走 `route.deliver` 全链(`50282-50909`)：先 `tn(e,m)` append(`50883`)，后 `Ho(e,u,\`- [ ] @evt(${m.id})\`)` 写指针(`50903`)，且入口带 `ro()` archived 检查短路。它与 `hae` 是「先 append 后写指针」的同一契约，是 §4 应认清的第二类摄入源。
 
 **单条 append = 两写或三写原子单元（confirmed；by_session 有条件）。** `atomicAppendEvent (Xt)`(`31282`) 内部先 `atomicWriteFileSync (FGe)`(`31739`) 写 WAL 行，再**无条件**写 `by_id` 索引（`G6e`，`31765` 定义/`31776` 调用），最后**仅当事件带 `session_key`** 才写 `by_session` 索引（`t.session_key && GQ(...)`，`XQ` `31794` 定义/`31781` 调用，含 `session_key`+`ts`）。因此无 session_key 的事件（如 `system.cadence_tick`）是「WAL + by_id」两写；带 session_key 的会话事件才是三写。三者对应磁盘 append 与内存 Map 的同步更新——`advanceConsumerWatermark (hl)` 反查偏移、`readEventByIdSeek (qGe)` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
 
-**字节区间与全序（confirmed）。** `d2e()` 执行 `fk.open(i,"a")`(`31746`)→`stat().size` 取 **byte_offset**(`31748`，stat 早于 write)→`write().bytesWritten` 取 **byte_len**(`31749`)→`close`(`31949`)，故 `[offset, offset+len)` 恰为该事件行字节区间。全序由 per-file promise 链保证（应用层互斥，非 fsync/DB 事务）：`cJe`(`31911`) `.then(t,t)` 两回调相同，成功失败都续链，同一分区 append 顺序与偏移计算无竞态。**架构假设**：单 daemon 单进程写；跨进程并发写同一分区无保护。
+**字节区间与全序（confirmed）。** `atomicWriteFileSync (FGe)`(`31931`) 执行 `NE.open(i,"a")`(`31938`)→`stat().size` 取 **byte_offset**(`31940`，stat 早于 write)→`write().bytesWritten` 取 **byte_len**(`31941`)→`close`(`31949`)，故 `[offset, offset+len)` 恰为该事件行字节区间。全序由 per-file promise 链保证（应用层互斥，非 fsync/DB 事务）：`MGe`(`31911`) `.then(t,t)` 两回调相同，成功失败都续链，同一分区 append 顺序与偏移计算无竞态。**架构假设**：单 daemon 单进程写；跨进程并发写同一分区无保护。
 
 | 机制主张 | 证据 | 位置 | 置信 |
 |---|---|---|---|
-| 网关摄入先 append 后写指针 | `hae`：`Xt`(80370)→`hl`(80370)→分支写 `- [ ] @evt(yd)`(78966/78976) | daemon 78864-78990 | confirmed |
-| route.deliver 同构（含 archived 短路） | `Xt`(50325，日志 "[route] route event appended") | daemon 50300-50340 一带 | confirmed |
-| 路由分叉由 Ene 决策 | `routing_hint.target ∈ {gateway,meta,session}` | daemon 75331 | confirmed |
-| 单 append = WAL+by_id（无条件）+by_session（**仅当 session_key**）| `Xt`→`FGe`(31439)；`G6e`(31273 定义/31284 调用) 无条件 / `t.session_key && XQ`(31302 定义/31289 调用) | daemon 31247/31282 | confirmed |
+| 网关摄入先 append 后写指针 | `hae`：`Xt`(81196)→`hl`(81196)→分支写 `- [ ] @evt(yd)`(81221/81231) | daemon 81119-81251 | confirmed |
+| route.deliver 同构（含 walOnly 短路） | `ec`：`Xt`(58938，日志 "[route] route event appended")；`walOnly` 时短路进 "[route] wal-only route event (no mailbox, no wake)"(58945) | daemon 58883-58990 一带 | confirmed |
+| 路由分叉由 `aae` 决策 | `routing_hint.target ∈ {gateway,meta,session}` | daemon 80980 | confirmed |
+| 单 append = WAL+by_id（无条件）+by_session（**仅当 session_key**）| `Xt`→`FGe`(31931)；`zGe`(31957 定义/31968 调用) 无条件 | daemon 31931/31966 | confirmed |
 | byte_offset=写前 stat().size，byte_len=bytesWritten | open→stat→write→close | daemon 30666-30684 | confirmed |
 | 全序=per-file promise 链 | `W6e` `.then(t,t)` | daemon 30646 | confirmed |
 | UTC 日切分区 | `mk(e)` `toISOString().slice(0,10)` | daemon 30656 | confirmed |
@@ -678,15 +683,15 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 > **唯一一条有意不走 WAL 的跨进程状态**（confirmed）。`<varDir>/daemon-restart-reason.json` 是个例外：CLI 在停掉旧 daemon **之前**原子写入 `{reason, requested_at, requested_by_agent}`，新 daemon 的 `main()` 在 `claimDaemonRestartReason (Rhe)`（`50794`）里读一次、**在 JSON.parse 之前就无条件删除**、存进模块级全局（`50818`/`50822`），再由 `daemon-restart-hint` 瞬态块带给 channel 会话（见 §1 论点二）。它没有事件 ID、没有 `by_id` 索引、没有 TTL、没有 daemon 身份标识——任何一次启动都会认领当时躺在那里的文件，畸形文件被销毁且无日志。破例的理由成立：**它必须在 daemon 存在之前就写好**，而 WAL 的写入者是 daemon 自己。代价是这条通道不可重放、不可审计。
 
-**命中即幂等重放（confirmed）。** `hae` 重复分支(`79716`)：`p.duplicate && p.existing?.event_id` → `ml(e, p.existing.event_id)`(`79717`) 取回原事件 → `Kf(e, f.yd)`(`79719`) 反查该事件上次生成的 gateway outbox 记录 → 返回 `{deduplicated:true, gatewayResponse:m?.payload.text, gatewayOutboxId:m?.yd, routing.enqueued:false}`。`Yp`(`35936`) 按 event_id 反查 outbox（`xHe` 索引→`Go`，回退 `Gf.find` `in_reply_to_event_id`）。**不重写 mailbox、`enqueued:false`** 均确认——把完整网关回执重放给渠道，这是「去重即幂等重放」的产品语义。
+**命中即幂等重放（confirmed）。** `hae` 重复分支(`81166`)：`p.duplicate && p.existing?.event_id` → `md(e, p.existing.event_id, {notAfter})`(`81167`) 取回原事件 → `cm(e, f.id)`(`81171`) 反查该事件上次生成的 gateway outbox 记录 → 返回 `{deduplicated:true, gatewayResponse:m?.payload.text, gatewayOutboxId:m?.id, routing.enqueued:false}`（`81178-81181`）。`cm`(`35936`) 按 event_id 反查 outbox：内部先经索引加载器 `G9e`(`35985`) 取 `Map<event_id,…>`，命中后再经 `Sa` 读出具体 outbox 记录。**不重写 mailbox、`enqueued:false`** 均确认——把完整网关回执重放给渠道，这是「去重即幂等重放」的产品语义。
 
-**满即整表 clear（confirmed，真实近似幂等风险）。** 去重存储 `TE`(`80764`)：`maxEntries = n.maxEntries ?? 1e4`(`79286`)，`record()` 中 `entries.size >= maxEntries && entries.clear()`(`79310`)——**满即整表清空（非 LRU）**。磁盘日志经 `W3e`(`80974`) = `registryDir/dedup.jsonl`(`79524`) 仍增长但 clear 后不再 load，故短时间内旧 key 去重能力真的会丢失；`by_id` 不参与 dedup 判定。活体确认路径 `/home/linewalker/.aladuo/var/registry/dedup.jsonl`。
+**满即整表 clear（confirmed，真实近似幂等风险）。** 去重存储 `HE`(`80764`)：`maxEntries = n.maxEntries ?? 1e4`(`80769`)，`record()` 中 `entries.size >= maxEntries && entries.clear()`(`80793`)——**满即整表清空（非 LRU）**。磁盘日志经 `v5e`(`80974`) = `registryDir/dedup.jsonl`(`80975`) 仍增长但 clear 后不再 load，故短时间内旧 key 去重能力真的会丢失；`by_id` 不参与 dedup 判定。活体确认路径 `/home/linewalker/.aladuo/var/registry/dedup.jsonl`。
 
 ### 论点三 · 读路径与恢复：索引随机读 + 消费者 watermark + rehydrate，把「日志 + 指针」还原成活会话
 
 **所以呢**：正因为写侧同时落了索引，读侧才能 O(1) 随机读、消费者才能续跑、进程重启才能从文件重建活会话集——这是「派生视图可重建」这条塔尖结论的兑现方式。
 
-**索引与随机读（confirmed）。** 两个 append-only 索引懒加载入内存 Map 并随 append 增量更新：`by_id.jsonl` `{event_id, partition, byte_offset, byte_len}`(`31777-31780`) 支撑 `ml()` 随机读 `read(o,0,n.byte_len,n.byte_offset)`(`31815`)；`by_session.jsonl` 追加 `session_key`+`ts`(`31782-31787`)，同 key 累积成 list。首次访问由 `yJe`(`32028`)/`_Je`(`32037`) 整文件流式 load 进 Map，之后随 append 增量更新——**这正是「随机读 O(1)」的前提**。解析失败回退整文件顺扫（具体回退函数未逐行重新定位，标注**未证实推测**具体新行号，机制本身 confirmed）。指针化的价值：mailbox 只存 `@evt(yd)` 不存正文，避免正文双写与漂移。
+**索引与随机读（confirmed，v0.8.1 复核结论有更正）。** 全仓检索 `by_session` 字面量已零命中（新旧两版 `eventsIndexDir` 下都只挂了一个索引文件），**"两个 append-only 索引"这一旧描述不成立**：只有单个 `by_id.jsonl` `{event_id, partition, byte_offset, byte_len}`（`atomicAppendEvent (Xt)` 写入侧 `zGe`(`31957`)，字段体见调用点 `31968-31973`）懒加载入内存 Map 并随 append 增量更新，支撑随机读 `read(o,0,t.byte_len,t.byte_offset)`(`readEventById` 随机读实现 `UGe`，`31990`，经 `md`(`31975`) 对外暴露)。首次访问由 `yJe`→`BGe`(`32028`)/`_Je`→`HGe`(`32037`) 整文件流式 load 进 Map，之后随 append 增量更新——**这正是「随机读 O(1)」的前提**。索引缺失/未命中时回退整文件顺扫，回退函数已重新定位为 `readEventByIdSeek (qGe)`(`32001`)，由 `md` 在索引查无结果时调用（机制 confirmed）。指针化的价值：mailbox 只存 `@evt(yd)` 不存正文，避免正文双写与漂移。
 
 **消费者 watermark（confirmed）。** `Ca()`(`32597`) 先 `u1(e,n)`(`32598`) 经 by_id 反查偏移，再 `o4e` 写 `run/queue_offsets/<consumer>.json`，字段 `{updated_at, partition, byte_offset, last_event_id}`（活体 `jobs.json` 逐字段吻合）。全部 `Ca()` 调用点仅 6 处，对应三个消费者：
 
@@ -766,8 +771,8 @@ route.deliver                                 ← 会话→会话路由投递，
 
 **所以呢**：这是本节最值得抄的一条。routing target 三态（`gateway` / `meta` / `session`）在**入站边界**就决定一条消息要不要真正唤醒一个 agent。`/status /config /model /effort /debug` 这类命令在网关层被内联短路、根本不进模型；只有带内容的消息才唤醒 session。对话式 agent 想省 token，这就是「入站即分流、能不进模型就不进」的实现样板。
 
-- **真正的 target 决策在入口 wrapper `Nne` → `AGe`，不在 `hae` 内。** handler 收到 channel.ingress/command 后，先由 `Nne`（message，`79616`）/ `py`（command，`79641`）做**斜杠命令解析**再调 `hae`——`Nne` 里 `ej(t.text)` 判斜杠命令、`Wk` 取命令名、`rj` 判 intent，再喂 `J3e`(`81060`)裁 target：带参内容 → `session`，`status/config/debug` 类 intent 或纯命令 → `gateway`（内联短路、不进模型），`history-control` 类（`/compact /clear /undo`）→ `session`。这一层命令预处理是「洞察 #5」的真实机制所在。网关命令清单常量 `_se`(`80990`)已含 v0.6.0 新增的 `/effort`（每会话推理力度开关，intent 归类为 `config`→gateway，`78800`，内联处理落 `GHe@75869`）与 `/model`；v0.6.0 移除 `container` 模式后 `/cd` 已从 daemon 完全消失、`navigate` intent 随之退役。
-- **`yse` 只是读取器，不是决策器。** `yse`(`80980`)仅 `return routing_hint.target ∈ {gateway,meta,session} ? … : "session"`——它读回 `AGe` 已写进 `routing_hint` 的结果。`hae` 内 `d = Ene(r)`（**落点 `79756`**）据此分三路。
+- **真正的 target 决策在入口 wrapper `mae`，不在 `hae` 内。** handler 收到 channel.message 后先由 `mae`(`81066`) 做**斜杠命令解析**再调 `hae`——`mae` 里解析出命令/意图后喂 `w5e`(`81060`)裁 target：带参内容 → `session`，`status/config/debug` 类 intent 或纯命令 → `gateway`（内联短路、不进模型），`history-control` 类（`/compact /clear /undo`）→ `session`（`81064`）。这一层命令预处理是「洞察 #5」的真实机制所在。网关命令清单常量 `lae`(`80990`)已含 `/effort`（每会话推理力度开关）与 `/model` 等。
+- **`aae` 只是读取器，不是决策器。** `aae`(`80980`)仅 `return routing_hint.target ∈ {gateway,meta,session} ? … : "session"`——它读回 `mae`/`w5e` 已写进 `routing_hint` 的结果。`hae` 内 `d = aae(r)`（**落点 `81208`**）据此分三路。
 - **三路的落地形态**：`gateway` → `hae` 内联分支应答（`79759`），返回 responseText/outboxId 并 log `[gateway] gateway-targeted event (no enqueue)`，**完全不入队、不唤醒**；`meta` → 写 mailbox key `"meta:subconscious"`（`79771`）；`session` → 写 `t.sessionKey` 的 mailbox（`79781`）。
 - **channel.ingress 的入站守卫**：`fr(g.session_key)` 命中归档中 → `-32011`（`82136-79165`）；workspace 不可用 → `-32010, message:k.guidance`（`78389-79180`）。`source_kind` 缺省按传输层推断 `g.source_kind ?? (_?.wsSubscriberId ? "ws" : "rpc")`（`79168`）。
 
@@ -790,7 +795,7 @@ route.deliver                                 ← 会话→会话路由投递，
 - **RPC 形态 = drain，且门控于 `return_mask` 含 `"final"`。** `E = k.includes("final")`（`83199`）；`R = E ? await Kz({… limit: g.limit ?? Number(process.env.ALADUO_PULL_LIMIT ?? 50) …}) : []`（`79299/83218`），返回 `records / next_cursor(R[last].yd) / idle(R.length===0)`（`79302-78511`）。不含 `final` 则 records 恒为空。
 - **WS 形态 = 打开持久订阅 +（含 `final`）回放 backlog，records 不在 RPC result 里返回。** WS 上下文里 channel.pull **直接短路、根本不 drain**：`if(_?.wsSubscriberId) return await Oet({…}), v.result={opened:!0, …}, v`（`79282-79294`）——不调 `eF`、result 里无 records。真正的排空在 WS 外层 message handler：`I.result && !I.error` 后 `c.subscribe`（`83581`）打开订阅，再由 `Dae`（decl `81369`）以 `session.output` 通知形式回放 outbox backlog（`79643`）。**`eF` drain 仅 RPC 路径独有**。
 - **replay 窗口去重**：`ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0`（`83611`），期间用 `g = new Set` 抑制重复（`suppressed duplicate output during replay window`，`83588`）；`onDelivered` 推进游标 `Qz`、`Rl` 标 sent、`Xf` 写 `.sent_ids`（`83622-79649`）。WS 送信器 `k(R, $=!0)`（`78740-79560`）正常推 `session.output` 时若 `$` 且有 consumerId 则 `Qz` 推进投递游标；replay 期用 `k(Nt,!1)` 关闭该副作用、改由 `onDelivered` 推进——这是「replay 不重复推进游标」的关键。
-- **订阅注册表 `W2`(`82537`)做 sessionKey→订阅者扇出。** `Map<sessionKey,Set<yd>>` + `Map<yd,subscriber>`，按每订阅者 `returnMask`（默认 `["final","stream"]`，`80964`）过滤：`final`→`session.output`（`80972`）、`stream`→`session.stream`（`80999`）、`tool`→`session.execution`（`81024`）、`stream_end`（`81047`）；发送异常自动摘除订阅者。`returnMask` 值域校验器是 `q2`（`80888`：`final|stream|stream_end|tool`，空回退 `["final","stream"]`），默认掩码常量在 `Vz@76554`。
+- **订阅注册表 `x4`(`82537`)做 sessionKey→订阅者扇出。** `Map<sessionKey,Set<yd>>` + `Map<yd,subscriber>`，按每订阅者 `returnMask`（默认 `["final","stream"]`，`82542`）过滤：`final`→`session.output`（`82550`）、`stream`→`session.stream`（`82577`）、`tool`→`session.execution`（`82604`）、`stream_end`→`session.stream_end`（`82634`）；发送异常自动摘除订阅者。`returnMask` 值域校验器是 `L6`（`83308`：`final|stream|stream_end|tool`，空回退 `["final","stream"]`）。
 - **stream_end reason 能力降级契约**：`zU` 内 `m==="interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`81048`），与 WS 订阅透传 `acceptStreamEndReasons`（`78800`）一致——daemon 按消费者声明的能力把不认识的 reason 降级为 `"interrupted"`，老插件优雅退化。
 - **零依赖契约包 `@openduo/protocol@0.6.0`**（`"dependencies":{}`、`"main":"src/index.ts"`，源码 `.ts` 随包发布，位于 `@openduo/duoduo/node_modules/@openduo/protocol/src/`）：`rpc.ts` 信封与守卫、`channel.ts` 全部 params + 校验器 + `outboxToOutbound`、`outbox.ts` `OutboxRecord`/`TurnMeta`、`notifications.ts` 4 种下推、`channel-binding.ts` `ChannelType`。通道插件以 npm tarball 安装（`cli.pretty.js`：`mkdtemp aladuo-channel-plugin-`、`tar -xzf`、`package.installing` 标记）。
 - **outbox 落盘**：id `obx_${randomUUID()}`（`35607`），路径 `join(outboxDir, t, `${n}.json`)`（`35611`）；双索引 `by_event.jsonl`（`35756`）/`by_id.jsonl`（`35854`）+ `.sent_ids`（`35760`）+ `replay/`（`35835`）+ `.pending_queue.jsonl`（`36175`）。
@@ -807,8 +812,8 @@ route.deliver                                 ← 会话→会话路由投递，
 | RPC 是 if/else 链而非 Map；链含 system./session./job./usage./spine./channel.* 全套 handler；仅未匹配 →-32601 | `async function m(h,_)` 起 78078；`system.runtime.info`/`session.*`/`job.*`/`usage.get`/`spine.tail`/`channel.file.upload`；链尾 `-32601` + 活体 `bogus.method→-32601` | daemon:78257/78146/78165/78285/78367/78428/78512/78521-78522 | confirmed |
 | 请求体守卫 S_ = isJsonRpcRequest；/rpc 未过 400，WS 未过 -32600 | `S_`：`t.jsonrpc==="2.0" && typeof t.method=="string"`；活体 `{"method":"x"}→400` | daemon:76148-75973 / 78538 / 78593-78599 | confirmed |
 | WAL：事件先 append 再入队 | `await tn(e,r)`（append 事件日志，75724）在 `Ho(…,"- [ ] @evt(…)")` 入队之前 | daemon:75724 / 75571/75581 | confirmed |
-| routing target 决策在 One→JHe（斜杠命令/intent），Ene 仅读取器 | `AGe`：intent status/config/debug 或纯命令 →gateway、history-control →session；`yse` return target∈{…}?…:"session" | daemon:75590 / 75331 | confirmed |
-| Dne 内 Ene 落点 + spine.event emit | `d=Ene(r)`（75558）；`bus.emit("spine.event",r)`（75591） | daemon:75736 / 75591 | confirmed |
+| routing target 决策在 `mae`→`w5e`（斜杠命令/intent），`aae` 仅读取器 | `w5e`：intent status/config/debug 或纯命令 →gateway、history-control →session；`aae` return target∈{…}?…:"session" | daemon:81060 / 80980 | confirmed |
+| `hae` 内 `aae` 落点 + spine.event emit | `d=aae(r)`（81208）；`bus.emit("spine.event",r)`（81241） | daemon:81208 / 81241 | confirmed |
 | session.wake 由调用方按 routing.enqueued 触发（非 Dne 内） | `X.routing.enqueued && emit("session.wake"…)` | daemon:77941 / 78233 / 78277 | confirmed |
 | gateway 目标事件内联应答、不入队 | `[gateway] gateway-targeted event (no enqueue)`；meta 写 `"meta:subconscious"` | daemon:75738-75569 | confirmed |
 | protocol 零依赖契约包，源码随包发布（嵌套路径） | `"dependencies":{}`、`"main":"src/index.ts"`；`ChannelRpcMethods = describe｜spawn｜ingress｜command｜pull｜ack` | @openduo/duoduo/node_modules/@openduo/protocol@0.6.0/src/{channel,rpc}.ts | confirmed |
@@ -895,9 +900,9 @@ route.deliver                                 ← 会话→会话路由投递，
 
 - **37min 心跳**：`let G=Mme("ALADUO_CADENCE_INTERVAL_MS",222e4,1e3)`（`daemon.pretty.js:83850`），env 可覆盖、带 `1e3` 最小 clamp；活体 `duoduo daemon config` → `interval_ms: 37min (2,220,000ms) (default)`。单个 `setInterval` 回调体第一个表达式就是 `f.emit("cadence.tick")`（`83856`），**在 `if(...,K){...skipped...;return}` 重入门之前**；随后 `K=!0; s(d).then(...).finally(()=>K=!1)` 才跑维护环（`s`=runCadenceTick，调用点 `79828`）。故潜意识总线不受维护环 `K` 阻塞。（confirmed）
 - **60s job-scheduler 是另一条定时器**：pid0 里 `C=o({paths,sessionManager})`（`79803`）、`C.start()`（`79807`）单独启动（默认间隔 `met=6e4`=60s，`79151`），到期 cron 扫描 `scanAndSpawnDueJobs (M6)`（`78956`）。与 37min 心跳完全解耦，不属维护环。（confirmed）
-- **v0.6.1 调度作业建时校验 + 复合时长**：建作业在 `createJob` 内先过校验器 `xue`（`56581`，调用点 `55829`）——空调度、非法 cron（交 `CronExpressionParser.parse`，`56068`）、畸形时长均在**建作业时**抛错拒绝，而非跑时静默失败。时长由复合解析器 `Db`(`55859`)按 `/(\d+)([smhdw])/g` 逐段累加，故 `@in 2h30m` / `@every 1d6h4m` 合法，残串不覆盖整串即 `Invalid duration format`（`56045`）；`a2`(`55870`)再挡"超出可表示时间范围"的超范围延迟。（confirmed。注：ajv 的 `compositeRule` 是无关 vendor 噪声，不在此路径）
+- **v0.6.1 调度作业建时校验 + 复合时长**：建作业在 `createJob` 内先过校验器 `xue`（`56581`，调用点 `55829`）——空调度、非法 cron（交 `CronExpressionParser.parse`，`56068`）、畸形时长均在**建作业时**抛错拒绝，而非跑时静默失败。时长由复合解析器 `Kb`(`55859`)按 `/(\d+)([smhdw])/g` 逐段累加，故 `@in 2h30m` / `@every 1d6h4m` 合法，残串不覆盖整串即 `Invalid duration format`（`55866`）；`L2`(`55870`)再挡"超出可表示时间范围"的超范围延迟。（confirmed。注：ajv 的 `compositeRule` 是无关 vendor 噪声，不在此路径）
 - **维护环 `runCadenceTick (Sct)`（`78923`）顺序**：`await pm(e),await hm(e)`（`78919`）→ `runMemoryCheckTick`（`78923`）→ `sweepTombstonedSessionRecords`（`78928`，try/catch 非致命）→ `mergeCadenceInbox (Z_e)`（`78934`）→ `parseCadenceQueue (G_e)`（`78147`）→ 构造 `type:"system.cadence_tick"`（字面量在 `78937`，`payload.count` 在 `78948`）→ `atomicAppendEvent (Xt)` 持久化 + `advanceConsumerWatermark (hl)` + `Ca(...cadence:{last_tick:r.ts})`（`78158`）。（confirmed）
-- **`pm/hm` 是 broadcast lint，`Z_e` 才是队列合并**：`fge`(`62371`)`stat(memoryBroadcastPath)`、`fge`(`62371`)`readFile` → 检测未解析 wiki 链，断链时 `enqueuedLintTask:!0`、日志 `"[memory] CLAUDE.md has unresolved wiki links; queued lint task"`（`62581`）；`mergeCadenceInbox (Z_e)`（`78875`）读 `cadenceInboxDir` 的 `.pending`、`fet(r,i)` 合并进 `cadenceQueuePath`（`78901`）、`78904` unlink 已并文件、返回 `i.length`。（confirmed）
+- **`pm/hm` 是 broadcast lint，`Z_e` 才是队列合并**：`sye`(`62371`)读 `memoryBoardPath` 并检测未解析 wiki 链（`Yrt=/\[\[([^\]\n]+)\]\]/g`，`62396`），断链时选中一条 `CLAUDE_LINT` 任务、`pendingFilename:"claude-lint.md.pending"`、目标分区 `intuition-weaver`（`Krt`，`62396`）；`mergeCadenceInbox (Z_e)`（`78875`）读 `cadenceInboxDir` 的 `.pending`、`fet(r,i)` 合并进 `cadenceQueuePath`（`78901`）、`78904` unlink 已并文件、返回 `i.length`。（confirmed，`Z_e` 相关行号本轮未重新核对）
 - **（v0.5.10，channel 会话侧的空闲节流）channel 空闲自动 compact**：channel 会话配置新增 `auto_compact_idle_minutes` / `auto_compact_min_context_tokens`（解析于 `Mk`，`35050`；字段落位 `35060`/`35061`）——空闲超阈值且上下文 token 超阈值时自动压缩会话历史。默认关闭、按会话配置，属 channel 会话生命周期而非潜意识分区，但同属"定时 + 阈值门控省成本"家族。（confirmed）
 
 ---
@@ -909,7 +914,7 @@ route.deliver                                 ← 会话→会话路由投递，
 - **总线挂载、非自持定时器**：`createMetaSession (vct)`（`78315`）内 `n.on("cadence.tick",x)`（`78745`），日志 `"[meta-session] started, listening for cadence ticks"`（`78755`）。`x`（`78731`）是去重包装：记在途 promise `p`，若 `l||d` 直接 `g()` 不追踪。（confirmed）
 - **门一 · 重入 + 停机**：`74524 if(l||d){...skipping tick...;return}`——`l`=processing、`d`=stopRequested，**独立于维护环 `K` 的第二套门**。（confirmed）
 - **门二 · 内存指纹活动门**：`75470` 处 `let[k,E,R,$,I]=await Promise.all([KI(memoryFragmentsDir),KI(memoryEntitiesDir),KI(memoryTopicsDir),net(t),ret(t)]),P=[...].join(":"),C=eet(P)`；`74535 if(m!==null&&C===m){...activity gate: skipping tick (fingerprint unchanged)...}` 整跳。（confirmed）
-- **门三 · cooldown / backoff（round-robin 选择器 `w`, `75446`）**：逐项 `74512 done→skip`；`74514 !C||!enabled→return P`（交由 `b` 用 `xI` 勾掉推进）；`74516 backoff(A2)→continue`；cooldown 判定在 `78661-78672`：`G=Math.max(0,C.schedule.cooldown_ticks),K=_.get(P.name); if(K===void 0||R-K>=G) return P`（`_`=分区→上次 tick 序号 Map，`75164`）。失败退避 `z2`（`78149-78155`）是**线性、非指数**：`success/invalid_output→null`（`78144`）；timeout `74052 if(t<=2)return null` 后 `min(t*i,JXe)`（`78161`）；error `74056 if(t<=1)return null` 后 `min(t*2*i,GXe)`（`78155`）；常量 `JXe=72e5(2h)/GXe=144e5(4h)/N2=222e4`（`78166`）。`o4`(`60590`)读 `backoff_until` 判定退避中；`b` 选取后再读一遍全分区 state，用 `zB` 过滤出本拍 `backedOff`（`77577`）。（confirmed）
+- **门三 · cooldown / backoff（round-robin 选择器 `w`, `75446`）**：逐项 `74512 done→skip`；`74514 !C||!enabled→return P`（交由 `b` 用 `xI` 勾掉推进）；`74516 backoff(A2)→continue`；cooldown 判定在 `78661-78672`：`G=Math.max(0,C.schedule.cooldown_ticks),K=_.get(P.name); if(K===void 0||R-K>=G) return P`（`_`=分区→上次 tick 序号 Map，`75164`）。失败退避 `L4`（`60594-60605`）是**线性、非指数**：`success/invalid_output→null`（`60595`）；timeout `60598 if(t<=2)return null` 后 `min(t*i,Ant)`（`60599`）；error `60602 if(t<=1)return null` 后 `min(t*2*i,Nnt)`（`60603`）；常量 `Ant=72e5(2h)/Nnt=144e5(4h)/bh=222e4`（`60617`）。`j4`(`60590`)读 `backoff_until` 判定退避中；`b` 选取后再读一遍全分区 state，用 `zB` 过滤出本拍 `backedOff`（`77577`）。（confirmed）
 - **选取 + 空闲补跑**：`74548 K=await b(L,G,h)`；`74549-74550 if(K?.name&&u>1&&(!r||r.activeCount()<=1)) for(W=1;W<u&&await b(...);W++)`，`u=maxPartitionsPerIdleTick??2`（`75164`）。（confirmed）
 - **同拍二次 broadcast lint（易漏节点）**：除维护环 `Iet:74949` 外，`g` 里在分区选取**之前**又跑一遍 `await pm(t),await hm(t)`（`78689`）。（confirmed）
 
@@ -919,9 +924,9 @@ route.deliver                                 ← 会话→会话路由投递，
 
 **所以呢：** 调度不硬编码 cron，而是 agent 自己能改写的 `playlist.md` checkbox 轮次 + 分区 frontmatter；每分区是一次性 SDK 会话，"除了写进文件的都不记得"，跨 tick 协作全靠 inbox 与共享 `memory/`。
 
-- **playlist 状态机**：分区加载器 `sv`(`60333`)、解析器 `Ket`(`60416`)只解析 `## Current Round`，`- [x]`=done、`- [ ]`=未做，遇下一 `## ` 停。`gP`(`60435`)把 `- [ ] <name>`→`- [x]`（`57613`）、造 `- <ISO> executed=<name>`（`57615`）、splice 进 `## History`（`57076-57077`）。整轮全勾时 `uhe`(`60453`)用 `n=t.filter(o=>o.schedule.enabled)`（`57623`，按 name 排序 `57526`）重建 round，日志 `"[playlist] rebuilt round" {count,names}`（`57120`）；`b` 内 `74235 if(await jce(t)===0) return null` 进 idle。（confirmed）
+- **playlist 状态机**：分区加载器 `kv`(`60333`)、解析器 `Pnt`(`60416`)只解析 `## Current Round`，`- [x]`=done、`- [ ]`=未做，遇下一 `## ` 停。`DP`(`60435`)把 `- [ ] <name>`→`- [x]`、造 `- <ISO> executed=<name>`、splice 进 `## History`。整轮全勾时 `rge`(`60453`)用 `n=t.filter(s=>s.schedule.enabled)` 重建 round（confirmed；日志文案与 idle 判据本轮未重新逐行核对）。
 - **分区执行 `v`（`77584`）**：无状态一次性 SDK 会话 `persistSession:!1`（`78494`）；提示词 `74343 A = 正文 + "### Partition"(ze 74338) + E(iet 上下文, 调用点 74547) + st(set inbox, 74337)`；超时 `Ae=Math.max(1,k.schedule.max_duration_ms)`（`78527`）、`74395 setTimeout(()=>M(Ke),Ae)`、`74398 P=await Promise.race([Ce,en])`。结果四分类由 `QXe(k.name,Wme(P?.text))`（`78542-78543`）判定——其中 `invalid_output` 是"跑成功但产物不合格"的唯一判定点。成功落 `agent.result tick_type:"subconscious"`（`78569`），失败落 `agent.error stage:"partition_execution"`（`77804`）；并写一条 `Od` usage drain record（`78544`，`session_key: meta:subconscious:<partition>`，`cancelled:I==="timeout"`）——这正是 `usage.get` 能显现潜意识开销的动态节点。runtime 由 frontmatter claude/codex 选（`z9e 55657` 解析、`v` 内 `78370-78380` 选取）。（confirmed）
-- **上下文注入**：`Flt`(`79782`)建 `## Runtime Context` + `### Key Paths`（kernel/memory/entities/topics/fragments/registry/events/jobs/cadence inbox·queue/subconscious 目录清单）；`zlt`(`79789`)建 `## Inbox`（含 memory-weaver 专属 Stage1/Stage2 提示，`78309`）。（confirmed）
+- **上下文注入**：`_ct`(`79782`)建 `## Runtime Context` + `### Key Paths`（kernel/memory/entities/topics/fragments/registry/events/jobs/subconscious 目录清单）；`bct`(`79789`)建 `## Inbox`（每条 pending 消息列 `- ${file}: ${message}`，处理后删文件 ack）。（confirmed）
 - **两级路由（易漏节点）**：`mergeCadenceInbox (Z_e)`（`78875`）只做**确定性**的 `.pending`→`queue.md` 合并；真正把 `queue.md` 的 checkbox 任务**路由进各分区 directed inbox** 的是 `cadence-executor` 这个 **LLM 分区**（其 `CLAUDE.md` 自述 dispatcher 角色："route checkbox tasks from the shared cadence queue into the directed inbox"）。即 `Z_e`（确定性入队）+ cadence-executor（LLM 出队分发）两级。（confirmed，磁盘实证）
 - **原"未证实推测"已解开**：`cadence-executor: enabled (cooldown 1, timeout 10min)` 在代码里搜不到，因为它是**用户数据里的分区名，不是代码**——磁盘实证 `subconscious/cadence-executor/CLAUDE.md` frontmatter `schedule:{enabled:true,cooldown_ticks:1,max_duration_ms:600000}`；`daemon config` 的 `[Subconscious]` 段就是逐分区渲染各自 frontmatter schedule（经 `z9e:55657` 解析）。10min≠默认 60s 只是该分区**覆盖了 `rU` 默认（`rU={enabled:!0,cooldown_ticks:1,max_duration_ms:6e4}`, `57705-57708`）**。四分区 `cadence-executor/memory-committer/memory-weaver/pattern-tracker` 的 cooldown 1/3/5/7、timeout 10/30/35/15min 均为 per-partition frontmatter 覆盖。（原"未证实/待查"→ confirmed：per-partition frontmatter 覆盖。**v0.8.0 更新**：`cadence-executor` 已删除、`memory-weaver` 已拆成 `gradient-distiller`+`intuition-weaver`，现四分区是 `gradient-distiller/intuition-weaver/pattern-tracker/memory-committer`，cooldown 5/5/7/3、timeout 35/35/15/30min，见 §6 开头更新块）
 
@@ -932,7 +937,7 @@ route.deliver                                 ← 会话→会话路由投递，
 **所以呢：** 自治 agent 的"自我修改"必须区分"提示词约束"（软、模型可违反）与"运行时强制"（硬、不可绕过）。软边界写在提示词；机器强制的关键不变量只落在契约门与工具白名单两处，memory lint 只做只读测量。
 
 - **契约门 `GP`（`61486`）= 6 拒因 + null 放行**：`partition-absent`（`58815`）/ `self-yd-mismatch`（`58816`）/ `partition-disabled`（`58817`）/ switch `valid→consumes.has(e)?null:"kind-not-consumed"`（`58820`）/ `no-contract→n?null:"no-contract"`（`58822`）/ `parse-fail→n?null:"parse-fail"`（`58824`）——第三参 `n`(flagFallback) 可放行后两者。（契约状态由 `hU:56860` 读分区 CLAUDE.md 的 `contract:` frontmatter 产出）（confirmed）
-- **`GP` 是双重角色门（易漏节点）**：不仅逐项裁决投递，还能**整拍短路** lint——`runMemoryCheckTick (_it)`（`57095`）里 `56992 a=OKe(()=>mle(o)); 56993 if(!a&&!r) return s`，`Fhe`(`61560`)内部对所有契约调 `GP`，若无任何契约 consume 任何 kind（且未开 forget），整个 memory-check tick 直接空返。（confirmed）
+- **`GP` 是双重角色门（易漏节点）**：不仅逐项裁决投递，还能**整拍短路** lint——`runMemoryCheckTick (_it)`（`62716`）里 `62736 a=bit(()=>Age(s)); 62737 if(!a&&!r) return o`，`Age`(`61560`)内部对所有契约调 `GP`，若无任何契约 consume 任何 kind（且未开 forget），整个 memory-check tick 直接空返。（confirmed）
 - **lint 全程只读、每类每 tick 至多一条、契约门控**：受 `dB`（`62686`）读的 `ALADUO_EXP_MEMORY_CHECK`(check) 与 `ALADUO_EXP_MEMORY_FORGET&&check`(forget，依赖前者) 开关。子步（经 `nd` try/catch 包装，`57702`）：`57001 orphan-states`（无条件）；check 门内 `57006 board-lint / 57008 entity-lint / 57010 node-lint / 57012 gap-lint / 57014 orphan-newborn-island`；forget 门内 `57019 orphan-forget`。投递经 `IP`（`58220`，调用点 `58966`）→ posted/withheld，投递前按 `aB`（`62649`）按内存节点路径路由到分区名（`rel.startsWith("topics/")&&(slug lesson-/groove-)?"pattern-tracker":"memory-weaver"`，`orphan-forget` 分支 `57027 hle(o,hU(p))`）。活体 `daemon status`：`memory_check: check=off forget=off (posting governed by partition contracts below)` + 4 条 contract。（confirmed）
 - **自编程硬边界 = 分区工具 allowlist（v0.5.10 denylist→allowlist）**：v0.5.8 的 `DEFAULT_DISALLOWED_TOOLS` denylist 已退役，分区会话改由**白名单**界定能力：`PARTITION_CORE_TOOLS (Nz)=["Bash","Read","Write","Edit","Grep","Glob","Agent"]`（`49745`）→ `H=[...new Set([...Nz,...k.claudeTools??[]])]`（`78481`）→ SDK `run({...,tools:H})`（`78501`）。分区只能用这 7 个核心工具 + frontmatter `claude.tools` 显式追加项；`EnterPlanMode`/`ExitPlanMode`/`WebFetch`/`WebSearch`/`EnterWorktree` 等因不在白名单而天然禁用，无需 denylist。（confirmed）
 - **`system.cadence_tick` 是 Spine 事件、非 RPC（动态印证）**：活体 `spine.tail` 复现 `system.cadence_tick` 事件流，紧随 `agent.tool_use/tool_result(memory-weaver)` → `agent.result tick_type=subconscious partition=memory-weaver` → `pattern-tracker`，动态印证 round-robin 顺序执行分区、每分区落 `agent.result`。（confirmed，动态）
@@ -989,7 +994,7 @@ route.deliver                                 ← 会话→会话路由投递，
 
 > **4. 多重"不空转"节流把固定节拍变成事件驱动的自适应节奏。** 活动门（内存指纹未变即跳过）、`cooldown_ticks`（每分区最小间隔）、失败**线性**退避（`z2`，2h/4h 封顶且前 1–2 次宽限）、`maxPartitionsPerIdleTick`（空闲多跑但有上限、仅活跃会话≤1 补跑）。可复用的省成本模式：定时轮询 + 变更指纹门控 + 每任务冷却 + 失败退避。
 
-> **5. 无状态分区 + 文件即记忆，开销在 usage drain record 里可观测。** 每分区一次性 SDK 会话，"除了写进文件的都不记得"；跨 tick 协作全靠 inbox `.pending` 与共享 `memory/`，每次执行写一条 `session_key: meta:subconscious:<partition>` 的 drain record，`usage.get` 可显现潜意识开销。代价是每 tick 冷启动的上下文重建，靠 `Flt` 注入路径 + `zlt` inbox 摘要弥补。
+> **5. 无状态分区 + 文件即记忆，开销在 usage drain record 里可观测。** 每分区一次性 SDK 会话，"除了写进文件的都不记得"；跨 tick 协作全靠 inbox `.pending` 与共享 `memory/`，每次执行写一条 `session_key: meta:subconscious:<partition>` 的 drain record，`usage.get` 可显现潜意识开销。代价是每 tick 冷启动的上下文重建，靠 `_ct` 注入路径 + `bct` inbox 摘要弥补。
 
 
 ---
@@ -1019,7 +1024,7 @@ memoryDir/
 
 > 口径：`Ti` 的组成 = memoryDir + boardPath（文件）+ 3 个子目录（entities/topics/effectiveness）；`fragments/` 与 `state/meta-memory-state.json` **都不在 `Ti` 内**。
 
-**A2 · 可达性 BFS 把"效用"算成不动点。** 种子来自 `td(e).filter(uU)`（`58128`），其中 `cf`（`60661`）用手写解析器 `Zd`(`60636`)扫 board 上全部 `[[...]]`——`$b` 遇第一个 `]` 即止（`57736`）。`um(e,t)`（`58126`）从种子 BFS 到不动点（`58130`–`58140`），reader `ic`（`61009`）读每个 slug 的 `topics/<slug>.md` + `entities/<slug>.md`。**不在可达集内的 topics 节点 = orphan**，这是整个 lint/orphan 体系的核心几何。
+**A2 · 可达性 BFS 把"效用"算成不动点。** 种子来自 `td(e).filter(uU)`，其中 `cf` 用手写解析器 `uf`(`60636`)扫 board 上全部 `[[...]]`——遇第一个 `]` 即止（内联扫描循环，`60644`）。`um(e,t)` 从种子 BFS 到不动点，reader `ic` 读每个 slug 的 `topics/<slug>.md` + `entities/<slug>.md`（该三个符号本轮未重新逐行定位新行号）。**不在可达集内的 topics 节点 = orphan**，这是整个 lint/orphan 体系的核心几何。
 
 **A3 · effectiveness 是附属证据层，不能独立支撑可达性。** `ic` 仅当 topics/entities 至少一存在（`i.length>0`，`58117`）才追加读 `effectiveness/<slug>.md`（`58118`–`58119`）。即：孤立的 effectiveness 文件不阻止其 slug 成为 orphan——effectiveness 是轨迹证据，不是节点本体。这处"非对称守卫"由 `58117` 逐字印证。
 
@@ -1031,7 +1036,7 @@ memoryDir/
 
 **所以呢**：整个 `runMemoryCheckTick` 是一台"体检仪"而非"手术刀"。它把五类 lint 的最差单条结果打包成 `.pending` 证据文件投递给潜意识分区收件箱，自己绝不 touch 任何知识内容。三个约束——每类单条节流、契约门控、只读——共同保证测量廉价、可审计、无副作用。
 
-**B1 · 主循环逐 lint `try/catch` 隔离，且投递执行器是 `IP` 而非门控函数。** `_it`（`57095`=`runMemoryCheckTick`，导出于 `58907`）逐个用 `nd(...)` 包裹（`57702` try/catch），单个子 lint 崩溃不中断其余。真正的**投递执行器是 `IP`（`61433`）**：它 `mkdirSync(inbox)` → 写 `pendingFilename` → 分类 posted/withheld/errors（`58785`–`58254`），`already-pending`（`58247`）与 `--force`（`58782`）逻辑都在这里；`_it` 的闭包把每个 lint 的 selected 结果喂给 `IP`（调用点 `58966`）。门控函数 `GP` 只是 `IP` 内部的 gate 判定，不是投递本身。
+**B1 · 主循环逐 lint `try/catch` 隔离，且投递执行器是 `JP` 而非门控函数。** `_it`（`62716`=`runMemoryCheckTick`，导出于 `62677`）逐个子 lint try/catch 隔离，单个子 lint 崩溃不中断其余。真正的**投递执行器是 `JP`（`61433`）**：它 `mkdirSync(inbox)` → 写 `pendingFilename` → 分类 posted/withheld/errors，`already-pending`（`61460`/`61475`）与 `--force`（`61464`）逻辑都在这里；`_it` 的闭包把每个 lint 的 selected 结果喂给 `JP`（调用点 `62743`）。门控函数 `GP` 只是 `JP` 内部的 gate 判定（`GP` 声明 `61486`），不是投递本身。
 
 **B2 · 五类 lint，kind 全部 `.v1`。** 五个调用点（`57669`–`58989`）：
 
@@ -1053,11 +1058,11 @@ kind 值全部带 `.v1`（`ai` 表 `57854`–`57728`）。
 
 **B4 · 每类每 tick 至多一条（`yU=1`）。** `yU=1`（`58494`）是每类 lint 的默认 limit：`Que`/`rle`/`sle` 都 `slice(0,n)` 只取**最差 1 条**（help 的 `--limit=N default 1`）。即每 tick 每类最多投一个 worst-first 信号——这是"测量廉价"的核心节流。
 
-**B5 · 契约门控 `GP`：只有声明 `consumes` 的分区才收到对应信号。** `GP`(`61486`)分支：partition-absent / self-id-mismatch / `!enabled` → withheld；contract valid → `consumes.has(kind) ? 放行 : 'kind-not-consumed'`；no-contract / parse-fail → 回退 flagFallback（= check flag）。契约解析本体 `c2`（`58123`，旧名 `gU`）返回 5 态（partition-absent / parse-fail / no-contract / self-id-mismatch / valid），`yhe`(`60756`)把 consumes 名规范化补 `.v1`；`TP`(`61427`)把每分区契约缓存进 `e.contracts` Map，同 tick 内 `GP`/`$pe`/`Ape` 复用同一份，避免反复解析 frontmatter。
+**B5 · 契约门控 `GP`：只有声明 `consumes` 的分区才收到对应信号。** `GP`(`61486`)分支：partition-absent / self-id-mismatch / `!enabled` → withheld；contract valid → `consumes.has(kind) ? 放行 : 'kind-not-consumed'`；no-contract / parse-fail → 回退 flagFallback（= check flag）。契约解析本体 `c2`（旧名 `gU`，本轮未重新定位新行号）返回 5 态（partition-absent / parse-fail / no-contract / self-id-mismatch / valid），`dge`(`60756`)把 consumes 名规范化补 `.v1`；`WP`(`61427`)把每分区契约缓存进 `e.contracts` Map，同 tick 内 `GP`/`$pe`/`Ape` 复用同一份，避免反复解析 frontmatter。
 
-**B6 · 前置短路：没有下游读者就不测量。** `Fhe`(`61560`)在跑任何 lint 前遍历所有 `ai` × `IKe=['pattern-tracker','memory-weaver']`（`57057`），任一 kind 过闸即测量；`if(!a && !r) return`（`57655`）——"有没有订阅者"是是否测量的前置门。
+**B6 · 前置短路：没有下游读者就不测量（v0.8.1 复核：候选分区集已扩大）。** `Age`(`61560`)在跑任何 lint 前遍历所有 `Object.values(Mn)`（全部 lint kind）× `Z4`（`61577`，现为 `['pattern-tracker','gradient-distiller','intuition-weaver','memory-weaver']`——**已从 v0.7.1 时代的两分区扩到四分区**，与 §B7/`aB` 处"MERGE→intuition-weaver、SCAN_GAP→gradient-distiller"的路由改动一致），任一 kind 过闸即测量（`GP(i,r,e.flagFallback)===null`）；`_it` 内 `if(!a && !r) return o`（`62737`）——"有没有订阅者"是是否测量的前置门。
 
-> 注意 `aB`(`62649`)并非通用"路由"：它**仅两处调用**——orphan-newborn 分区路由（`57991`）和 forget 警告门 `zhe`(`61569`)。**各 lint 信号的 partition 是每类硬编码的，并不走 `aB`**：v0.8.0 里 REVISE/NODE_CONVERGE 仍→`pattern-tracker`；MERGE 已确认改→`intuition-weaver`（`60991`）；SCAN_GAP 已确认改→`gradient-distiller`（`61795`）；SINK 判据已整条移除（见 B3）；ENTITY_CONVERGE/ORPHAN_ISLANDS 的硬编码目标本轮未重新逐行核对，v0.7.1 时是 `memory-weaver`，该分区已不存在于 `subconscious/` 目录，其信号大概率也已改投 `intuition-weaver` 或 `gradient-distiller`（未证实推测，行号需重新定位）。`aB` 只决定 lesson-/groove- 孤儿告警投给哪个分区。
+> 注意 `aB`(`62649`)并非通用"路由"：它**仅两处调用**——orphan-newborn 分区路由（`57991`）和 forget 警告门 `Nge`(`61569`)。**各 lint 信号的 partition 是每类硬编码的，并不走 `aB`**：v0.8.0 里 REVISE/NODE_CONVERGE 仍→`pattern-tracker`；MERGE 已确认改→`intuition-weaver`（`60991`）；SCAN_GAP 已确认改→`gradient-distiller`（`61795`）；SINK 判据已整条移除（见 B3）；ENTITY_CONVERGE/ORPHAN_ISLANDS 的硬编码目标本轮未重新逐行核对，v0.7.1 时是 `memory-weaver`，该分区已不存在于 `subconscious/` 目录，其信号大概率也已改投 `intuition-weaver` 或 `gradient-distiller`（未证实推测，行号需重新定位）。`aB` 只决定 lesson-/groove- 孤儿告警投给哪个分区。
 
 ---
 
@@ -1087,7 +1092,7 @@ git -c user.name=aladuo -c user.email=aladuo@local commit -m <msg> -- <files>   
 失败 → git reset --quiet -- <files>  +  git checkout -- <files>       (56668–56674)
 ```
 
-> 注意 commit 命令语义：`-c` 是 **git 顶层 config 开关（位于子命令 `commit` 之前）**，非 `commit -c`（后者 = 复用某提交的 message）。`Lnt`(`62661`)生成 commit message，confirmed。
+> 注意 commit 命令语义：`-c` 是 **git 顶层 config 开关（位于子命令 `commit` 之前）**，非 `commit -c`（后者 = 复用某提交的 message）。`yit`(`62661`)生成 commit message，confirmed。
 
 **C4 · "不可警告即不可遗忘"。** forget 前 `hle(o,hU(p))`（`59003`）：STALE 节点若其目标分区**不消费 orphan-newborn 信号**则 `sparedUnwarnable`——连警告都收不到就永远不能被静默删。
 
@@ -1145,7 +1150,7 @@ intuition-updater   编辑某 board 行前【必须先读】该行的 effectiven
 | indeg 源 `jKe` | 定义 `58618`、调用点 `58469` | daemon `58618` | confirmed |
 | mtimeMs≤0→STALE 仅当 indeg=0；indeg≥1 恒 ISLAND | 判定优先级 | daemon `57978` | confirmed |
 | 主循环 `_it`=runMemoryCheckTick，五 lint 逐个 `nd` try/catch | 导出 `58907` | daemon `57095`(`57702`) | confirmed |
-| 投递执行器是 `IP`；already-pending/--force 在其内 | mkdir+write+分类 | daemon `58220`(`58782`/`58247`/`58785`–`58254`) | confirmed |
+| 投递执行器是 `JP`；already-pending/--force 在其内 | mkdir+write+分类 | daemon `61433`(`61464`/`61460`/`61475`) | confirmed |
 | board-lint REVISE/SINK/MERGE 均含 `trajectory!=='NO-EFF'`；partition 硬编码 pattern-tracker | `Rit` | daemon `58069`(`58077`/`58081`/`58089`) | confirmed |
 | node-lint References 仅 groove 合法；escalated→WASTED-COMPUTE | `bKe`/`wKe` | daemon `58227`–`58228`/`58242`(`58249`/`58281`) | confirmed |
 | gap-lint 黑名单过滤内部 kind | `X7e = new Set([...])`；`nXe` 按 source.kind 过滤计数 | daemon `58409`(`58442`/`58418`) | confirmed |
@@ -1216,8 +1221,8 @@ intuition-updater   编辑某 board 行前【必须先读】该行的 effectiven
 | per-turn 瞬态注入 | `63657-64379` (sfe) |
 | Codex 装配 | 复用 `eh` 输出，经 `Hpe` 桥接抽字符串 `59385`；`Vpe`/`Wpe`（`59389-59297`）在当前路径为不可达死代码（构造 `ev` 未传 instructions），详见 §1 论点三 |
 | 潜意识分区注入 | `78298-77354` (iet/set) |
-| 事件封装/原子写 | `31732` (en=createSpineEvent)/`31719` (c2e 串行 mutex)/`31739` (d2e=atomicWriteFileSync)/`31776` (tn=atomicAppendEvent) |
-| append-before-execute | `78864` (Dne)，实际 append `Xt` @`79744`，紧随 watermark `hl` |
+| 事件封装/原子写 | `31924` (`Yt`=createSpineEvent)/`31911` (`MGe` 串行 mutex)/`31931` (`FGe`=atomicWriteFileSync)/`31966` (`Xt`=atomicAppendEvent) |
+| append-before-execute | `81119` (`hae`)，实际 append `Xt` @`81196`，紧随 watermark `hl`（同行 `81196`） |
 | 去重 bX / checkAndRecordDetailed | `79328-76123`，dedup 存储类 Sk `79282`（clear 于 `79312`），dup 分支 `79710-79729` |
 | 随机读 ml / by_id | `31806-31331`，by_id 索引 u1 `31332` |
 | watermark Ca | `32597` |
