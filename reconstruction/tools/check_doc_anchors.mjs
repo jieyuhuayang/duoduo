@@ -57,28 +57,78 @@ if (RESOLVE) {
   };
 }
 
-// `Name`(`12345`) and `Name`（`12345`) — both bracket styles, optional inner backticks
-const CITE = /`([A-Za-z_$][A-Za-z0-9_$]{1,5})`\s*[（(]\s*`?(\d{4,6})`?\s*[）)]/g;
+// The docs cite anchors in FOUR interchangeable syntaxes. Checking only the
+// first is how a retarget can report "all citations hold" over widespread rot:
+// the unchecked forms keep whatever the previous release left behind, and
+// nothing downstream looks at them (v0.8.1 shipped an Appendix A that
+// contradicted its own body this way).
+//
+//   A  `Name`(12345)          `Name`（`12345`）      both bracket styles
+//   B  `Name`@12345           the @ separator
+//   C  `Name`(`daemon.pretty.js:12345`)             file-qualified
+//   D  `daemon.pretty.js:12345-12399` (Name)        reversed, as in Appendix A
+//
+// Any of them may carry a RANGE (`12345-12399`). Both endpoints are checked:
+// a retarget that remaps only the start silently leaves the end pointing into
+// unrelated code, and when the end lands before the start the range is
+// backwards on its face — reported separately since no bundle lookup is
+// needed to know it is wrong.
+//
+// A citation may name the bundle it points into (`stdio.pretty.js:63969`). Line
+// numbers are per-bundle, so such a citation is only meaningful against THAT
+// bundle: checked against daemon it is guaranteed to "fail" while being
+// perfectly correct. Capture the qualifier and skip the ones addressed to
+// another bundle — an unqualified citation still means the bundle passed in.
+const BUNDLE_NAME = (BUNDLE.split("/").pop() || "").replace(/\.pretty\.js$|\.js$/, "");
+const FILEQ = "(?:((?:daemon|cli|stdio))(?:\\.pretty)?\\.js:)?";
+const LINESPEC = "`?" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`?";
+const NAME = "`([A-Za-z_$][A-Za-z0-9_$]{1,5})`";
+const CITES = [
+  { re: new RegExp(NAME + "\\s*[（(]\\s*" + LINESPEC + "\\s*[）)]", "g"), n: 1, f: 2, a: 3, b: 4 },
+  { re: new RegExp(NAME + "\\s*@\\s*" + LINESPEC, "g"), n: 1, f: 2, a: 3, b: 4 },
+  { re: new RegExp("`" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`\\s*[（(]\\s*([A-Za-z_$][A-Za-z0-9_$]{1,5})\\s*[）)]", "g"), n: 4, f: 1, a: 2, b: 3 },
+];
+
+// A cited line is good if the short name appears on it, or (with --resolve) if
+// the declaration enclosing it bears that name — an anchor into a body is
+// legitimate. A range's end line is almost never the header, so for ranges the
+// enclosing-declaration test is the only meaningful one.
+const holds = (name, ln) => {
+  if ((lines[ln - 1] ?? "").includes(name)) return true;
+  return RESOLVE && declFor(ln) === name;
+};
 
 let checked = 0;
+let skipped = 0;
 const bad = [];
+const backwards = [];
 for (const f of docs) {
   const text = fs.readFileSync(f, "utf8");
-  for (const m of text.matchAll(CITE)) {
-    checked++;
-    const name = m[1], ln = Number(m[2]);
-    const line = lines[ln - 1] ?? "";
-    if (line.includes(name)) continue;
-    // The anchor often points INTO a function body rather than at its header;
-    // that is legitimate as long as the enclosing declaration bears the name.
-    if (RESOLVE && declFor(ln) === name) continue;
-    bad.push({ f, name, ln, line: line.trim().slice(0, 70), real: RESOLVE ? declFor(ln) : null });
+  const seen = new Set();
+  for (const { re, n, f: fq, a, b } of CITES) {
+    for (const m of text.matchAll(re)) {
+      if (seen.has(m.index)) continue;
+      seen.add(m.index);
+      if (m[fq] && m[fq] !== BUNDLE_NAME) { skipped++; continue; }
+      checked++;
+      const name = m[n], from = Number(m[a]), to = m[b] ? Number(m[b]) : null;
+      if (to !== null && to < from) backwards.push({ f, name, from, to });
+      for (const ln of to === null ? [from] : [from, to]) {
+        if (holds(name, ln)) continue;
+        bad.push({ f, name, ln, line: (lines[ln - 1] ?? "").trim().slice(0, 70), real: RESOLVE ? declFor(ln) : null });
+      }
+    }
   }
 }
 
-console.error(`checked ${checked} symbol/anchor citations across ${docs.length} file(s)`);
-if (!bad.length) { console.error("all citations hold"); process.exit(0); }
-console.error(`${bad.length} do NOT hold:`);
+console.error(`checked ${checked} symbol/anchor citations against ${BUNDLE_NAME} across ${docs.length} file(s)` +
+  (skipped ? ` (${skipped} skipped: explicitly addressed to another bundle — re-run with that bundle to check them)` : ""));
+if (backwards.length) {
+  console.error(`${backwards.length} range(s) run backwards (end before start):`);
+  for (const b of backwards) console.error(`  ${b.f}  \`${b.name}\` ${b.from}-${b.to}`);
+}
+if (!bad.length && !backwards.length) { console.error("all citations hold"); process.exit(0); }
+if (bad.length) console.error(`${bad.length} do NOT hold:`);
 for (const b of bad) {
   console.error(`  ${b.f}  \`${b.name}\`(${b.ln})`);
   console.error(`      line ${b.ln} is: ${b.line}`);

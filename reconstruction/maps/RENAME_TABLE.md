@@ -2,197 +2,197 @@
 
 下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 `daemon.pretty.js`。
 
-共 133 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.0。
+共 133 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.1。
 
 ## 00-daemon-entry
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `xet` | `daemonRestartReasonPath` | inferred | 59309 |
-| `$me` | `claimDaemonRestartReason` | inferred | 59312 |
-| `Ame` | `setPendingRestartReason` | inferred | 59338 |
-| `Nme` | `getPendingRestartReason` | inferred | 59342 |
-| `_ut` | `deliverDaemonRestartWakes` | __export | 82782 |
-| `Aut` | `createDaemon` | __export | 83506 |
+| `rnt` | `daemonRestartReasonPath` | inferred | 59923 |
+| `Rhe` | `claimDaemonRestartReason` | inferred | 59926 |
+| `The` | `setPendingRestartReason` | inferred | 59952 |
+| `Ihe` | `getPendingRestartReason` | inferred | 59956 |
+| `Yct` | `deliverDaemonRestartWakes` | __export | 83736 |
+| `fdt` | `createDaemon` | __export | 84498 |
 
 ## 01-spine-wal
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `Qt` | `createSpineEvent` | inferred | 31432 |
-| `pJe` | `atomicWriteFileSync` | inferred | 31439 |
-| `en` | `atomicAppendEvent` | inferred | 31474 |
-| `gJe` | `readEventByIdSeek` | inferred | 31509 |
-| `il` | `advanceConsumerWatermark` | inferred | 32281 |
-| `Xne` | `computeDedupKey` | inferred | 79985 |
+| `Yt` | `createSpineEvent` | inferred | 31924 |
+| `FGe` | `atomicWriteFileSync` | inferred | 31931 |
+| `Xt` | `atomicAppendEvent` | inferred | 31966 |
+| `qGe` | `readEventByIdSeek` | inferred | 32001 |
+| `hl` | `advanceConsumerWatermark` | inferred | 32773 |
+| `qre` | `computeDedupKey` | inferred | 80811 |
 
 ## 02-gateway-rpc
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `DP` | `DAEMON_TOKEN_ENV_KEY` | __export | 62478 |
-| `xse` | `appendBeforeExecuteGateway` | inferred | 80293 |
-| `Out` | `isLoopbackBindHost` | __export | 83473 |
-| `$ut` | `resolveRemoteListenerConfig` | __export | 83480 |
+| `eC` | `DAEMON_TOKEN_ENV_KEY` | __export | 63065 |
+| `hae` | `appendBeforeExecuteGateway` | inferred | 81119 |
+| `cdt` | `isLoopbackBindHost` | __export | 84465 |
+| `ddt` | `resolveRemoteListenerConfig` | __export | 84472 |
 
 ## 03-session-actor
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `Une` | `rehydrateSessionState` | inferred | 31763 |
-| `SL` | `readAllSessionSummaries` | __export | 36210 |
-| `sye` | `archiveLegacyRegistrySessionsDir` | __export | 62929 |
-| `Gye` | `drainSessionMailbox` | inferred | 63874 |
-| `zh` | `SESSION_SCHEMA_VERSION` | __export | 73539 |
-| `tw` | `computeInstructionsFingerprint` | __export | 75616 |
-| `YH` | `computeNonBoardInstructionsFingerprint` | __export | 75625 |
-| `Wve` | `computeMissionFingerprint` | __export | 75665 |
-| `rO` | `runInstructionsFingerprintGuard` | __export | 75670 |
-| `Ilt` | `createSessionManager` | __export | 76852 |
-| `Ult` | `createMetaSession` | __export | 78994 |
-| `qlt` | `sweepTombstonedSessionRecords` | __export | 79557 |
+| `Ore` | `rehydrateSessionState` | inferred | 32255 |
+| `QL` | `readAllSessionSummaries` | __export | 36757 |
+| `e_e` | `archiveLegacyRegistrySessionsDir` | __export | 63516 |
+| `W_e` | `drainSessionMailbox` | inferred | 64516 |
+| `Xh` | `SESSION_SCHEMA_VERSION` | __export | 74297 |
+| `bw` | `computeInstructionsFingerprint` | __export | 76374 |
+| `P6` | `computeNonBoardInstructionsFingerprint` | __export | 76383 |
+| `Wwe` | `computeMissionFingerprint` | __export | 76423 |
+| `SO` | `runInstructionsFingerprintGuard` | __export | 76428 |
+| `act` | `createSessionManager` | __export | 77628 |
+| `vct` | `createMetaSession` | __export | 79799 |
+| `wct` | `sweepTombstonedSessionRecords` | __export | 80383 |
 
 ## 04-cognition-prompt
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `Sb` | `resolveMetaPromptText` | __export | 49396 |
-| `Wce` | `renderJobMissionBlock` | __export | 49413 |
-| `Jce` | `renderPromptLayers` | __export | 49420 |
-| `Um` | `buildSystemPromptForChannelConfig` | __export | 49447 |
-| `Qfe` | `extractSystemPromptAppend` | __export | 56157 |
-| `Mme` | `renderDaemonRestartHint` | inferred | 59379 |
-| `Xye` | `buildTransientUserBlocks` | inferred | 65062 |
-| `Uve` | `transcludeBroadcastBoard` | inferred | 75465 |
+| `jb` | `resolveMetaPromptText` | __export | 49943 |
+| `jde` | `renderJobMissionBlock` | __export | 49960 |
+| `Lde` | `renderPromptLayers` | __export | 49967 |
+| `eh` | `buildSystemPromptForChannelConfig` | __export | 49994 |
+| `Hpe` | `extractSystemPromptAppend` | __export | 56681 |
+| `Che` | `renderDaemonRestartHint` | inferred | 59993 |
+| `K_e` | `buildTransientUserBlocks` | inferred | 65787 |
+| `Uwe` | `transcludeBroadcastBoard` | inferred | 76223 |
 
 ## 05-drain-turn
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `ga` | `drainRecordPath` | __export | 36114 |
-| `_d` | `appendDrainRecord` | __export | 36117 |
-| `hu` | `readDrainRecords` | __export | 36124 |
-| `yd` | `summarizeDrainRecords` | __export | 36139 |
-| `kL` | `readGlobalUsageTotals` | __export | 36227 |
-| `B3e` | `readRecentDrainRecords` | __export | 36245 |
-| `zm` | `isAbortLikeError` | __export | 49295 |
-| `Xfe` | `computeCodexTurnUsage` | __export | 56133 |
-| `fB` | `batchDrainItems` | inferred | 65194 |
-| `mv` | `handleDrainError` | inferred | 65618 |
+| `xa` | `drainRecordPath` | __export | 36661 |
+| `Od` | `appendDrainRecord` | __export | 36664 |
+| `Ru` | `readDrainRecords` | __export | 36671 |
+| `Cd` | `summarizeDrainRecords` | __export | 36686 |
+| `eF` | `readGlobalUsageTotals` | __export | 36774 |
+| `y5e` | `readRecentDrainRecords` | __export | 36792 |
+| `Qm` | `isAbortLikeError` | __export | 49842 |
+| `Bpe` | `computeCodexTurnUsage` | __export | 56657 |
+| `HB` | `batchDrainItems` | inferred | 65926 |
+| `$v` | `handleDrainError` | inferred | 66356 |
 
 ## 06-runtime-claude
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `qce` | `splitDisallowedToolsForClaude` | __export | 49277 |
-| `bb` | `isAgentSdkTurnInterruptedError` | __export | 49287 |
-| `vb` | `isAgentSdkPromptNotAcceptedAbortError` | __export | 49291 |
-| `Hce` | `probeClaudeAvailability` | __export | 49317 |
-| `aq` | `isClaudeAvailable` | __export | 49347 |
-| `wb` | `claudeUnavailableReason` | __export | 49351 |
-| `D8e` | `primeClaudeAvailability` | __export | 49354 |
-| `M8e` | `__resetClaudeProbeCacheForTest` | __export | 49358 |
-| `j8e` | `__setClaudeVerifierForTest` | __export | 49362 |
-| `Vce` | `verifyClaudeCodeRuntimeAvailable` | __export | 49366 |
-| `iq` | `parsePositiveMsEnv` | __export | 49523 |
-| `Dd` | `createAgentSdkAdapter` | __export | 49529 |
-| `Ii` | `AgentSdkPromptNotAcceptedAbortError` | __export | 49832 |
-| `Vn` | `AgentSdkTurnInterruptedError` | __export | 49832 |
-| `Fm` | `CLAUDE_CORE_TOOLS` | __export | 49832 |
-| `Gpe` | `mergeClaudeToolLists` | inferred | 58934 |
-| `$2` | `applyJobSdkConfigOverride` | inferred | 59028 |
-| `Nge` | `writeHostClaudeCodeExecutableEnvConfig` | __export | 62407 |
-| `M4` | `CLAUDE_CODE_EXECUTABLE_ENV_KEY` | __export | 62478 |
+| `Ade` | `splitDisallowedToolsForClaude` | __export | 49824 |
+| `Nb` | `isAgentSdkTurnInterruptedError` | __export | 49834 |
+| `Db` | `isAgentSdkPromptNotAcceptedAbortError` | __export | 49838 |
+| `Dde` | `probeClaudeAvailability` | __export | 49864 |
+| `Lq` | `isClaudeAvailable` | __export | 49894 |
+| `Mb` | `claudeUnavailableReason` | __export | 49898 |
+| `u7e` | `primeClaudeAvailability` | __export | 49901 |
+| `c7e` | `__resetClaudeProbeCacheForTest` | __export | 49905 |
+| `d7e` | `__setClaudeVerifierForTest` | __export | 49909 |
+| `Mde` | `verifyClaudeCodeRuntimeAvailable` | __export | 49913 |
+| `Dq` | `parsePositiveMsEnv` | __export | 50070 |
+| `Gd` | `createAgentSdkAdapter` | __export | 50087 |
+| `wr` | `AgentSdkPromptNotAcceptedAbortError` | __export | 50390 |
+| `Cr` | `AgentSdkTurnInterruptedError` | __export | 50390 |
+| `Xm` | `CLAUDE_CORE_TOOLS` | __export | 50390 |
+| `Fme` | `mergeClaudeToolLists` | inferred | 59490 |
+| `u4` | `applyJobSdkConfigOverride` | inferred | 59620 |
+| `Iye` | `writeHostClaudeCodeExecutableEnvConfig` | __export | 62994 |
+| `mB` | `CLAUDE_CODE_EXECUTABLE_ENV_KEY` | __export | 63065 |
 
 ## 07-runtime-codex
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `Hd` | `isCodexAvailable` | __export | 56062 |
-| `qXe` | `codexUnavailableReason` | __export | 56066 |
-| `BXe` | `primeCodexAvailability` | __export | 56069 |
-| `HXe` | `__setCodexAvailabilityForTests` | __export | 56074 |
-| `Qm` | `resolveCodexSandbox` | __export | 56078 |
-| `Uu` | `checkCodexAvailability` | __export | 56082 |
-| `b2` | `ensureAgentsMdSymlink` | __export | 56119 |
-| `Yfe` | `codexNotificationFilterDecision` | __export | 56129 |
-| `epe` | `buildBaseInstructions` | __export | 56161 |
-| `tpe` | `buildDeveloperInstructions` | __export | 56179 |
-| `g2` | `buildCodexTurnInput` | __export | 56193 |
-| `Fb` | `createCodexAppServerAdapter` | __export | 56206 |
-| `rpe` | `hasImageGenerationRecord` | __export | 56662 |
-| `ipe` | `extractCodexGeneratedImageAttachment` | __export | 56678 |
-| `JI` | `ALADUO_TOOL_NAMESPACE` | __export | 56917 |
-| `prt` | `generatePartitionCodexAgents` | __export | 62803 |
-| `nye` | `parseAgentMarkdown` | __export | 62877 |
-| `rye` | `renderAgentToml` | __export | 62892 |
+| `of` | `isCodexAvailable` | __export | 56586 |
+| `_et` | `codexUnavailableReason` | __export | 56590 |
+| `bet` | `primeCodexAvailability` | __export | 56593 |
+| `vet` | `__setCodexAvailabilityForTests` | __export | 56598 |
+| `fh` | `resolveCodexSandbox` | __export | 56602 |
+| `Xu` | `checkCodexAvailability` | __export | 56606 |
+| `K2` | `ensureAgentsMdSymlink` | __export | 56643 |
+| `qpe` | `codexNotificationFilterDecision` | __export | 56653 |
+| `Vpe` | `buildBaseInstructions` | __export | 56685 |
+| `Wpe` | `buildDeveloperInstructions` | __export | 56703 |
+| `J2` | `buildCodexTurnInput` | __export | 56717 |
+| `ev` | `createCodexAppServerAdapter` | __export | 56730 |
+| `Gpe` | `hasImageGenerationRecord` | __export | 57198 |
+| `Zpe` | `extractCodexGeneratedImageAttachment` | __export | 57214 |
+| `cP` | `ALADUO_TOOL_NAMESPACE` | __export | 57457 |
+| `Wit` | `generatePartitionCodexAgents` | __export | 63390 |
+| `Kye` | `parseAgentMarkdown` | __export | 63464 |
+| `Yye` | `renderAgentToml` | __export | 63479 |
 
 ## 08-cadence-subconscious
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `oq` | `PARTITION_CORE_TOOLS` | __export | 49832 |
-| `Ege` | `resolveCadenceIntervalMs` | __export | 62108 |
-| `Blt` | `runCadenceTick` | __export | 79617 |
-| `i6` | `scanAndSpawnDueJobs` | __export | 79648 |
-| `Vlt` | `createJobScheduler` | __export | 79753 |
-| `Jlt` | `createOutboxDeliveryManager` | __export | 79821 |
+| `Mq` | `PARTITION_CORE_TOOLS` | __export | 50390 |
+| `bye` | `resolveCadenceIntervalMs` | __export | 62695 |
+| `Sct` | `runCadenceTick` | __export | 80443 |
+| `M6` | `scanAndSpawnDueJobs` | __export | 80474 |
+| `xct` | `createJobScheduler` | __export | 80579 |
+| `Rct` | `createOutboxDeliveryManager` | __export | 80647 |
 
 ## 09-memory
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `iv` | `partitionInboxDir` | __export | 59704 |
-| `Wu` | `partitionInboxDirFromVar` | __export | 59708 |
-| `mi` | `resolveMemoryDirs` | inferred | 60035 |
-| `Kd` | `resolveMemoryLinkTargets` | inferred | 60074 |
-| `mtt` | `runBoardLint` | inferred | 60388 |
-| `Gu` | `collectMemoryLinks` | inferred | 60422 |
-| `Zu` | `walkReachableMemory` | inferred | 60437 |
-| `PP` | `enforceContractGate` | inferred | 60899 |
-| `Wtt` | `runGapLint` | inferred | 61232 |
-| `_ge` | `detectOrphanMemory` | inferred | 61925 |
-| `vge` | `forgetMemoryEntry` | inferred | 61957 |
-| `P4` | `routeContractDecision` | inferred | 62062 |
-| `A4` | `resolveMemoryCheckFlags` | __export | 62099 |
-| `N4` | `buildMemoryCheckStatus` | __export | 62115 |
-| `Fnt` | `runMemoryCheckTick` | __export | 62129 |
-| `KH` | `computeBoardLayerHash` | __export | 75621 |
+| `Sv` | `partitionInboxDir` | __export | 60318 |
+| `nc` | `partitionInboxDirFromVar` | __export | 60322 |
+| `Ti` | `resolveMemoryDirs` | inferred | 60622 |
+| `cf` | `resolveMemoryLinkTargets` | inferred | 60661 |
+| `Jnt` | `runBoardLint` | inferred | 60975 |
+| `ic` | `collectMemoryLinks` | inferred | 61009 |
+| `oc` | `walkReachableMemory` | inferred | 61024 |
+| `GP` | `enforceContractGate` | inferred | 61486 |
+| `Ert` | `runGapLint` | inferred | 61819 |
+| `fye` | `detectOrphanMemory` | inferred | 62512 |
+| `mye` | `forgetMemoryEntry` | inferred | 62544 |
+| `aB` | `routeContractDecision` | inferred | 62649 |
+| `dB` | `resolveMemoryCheckFlags` | __export | 62686 |
+| `fB` | `buildMemoryCheckStatus` | __export | 62702 |
+| `_it` | `runMemoryCheckTick` | __export | 62716 |
+| `I6` | `computeBoardLayerHash` | __export | 76379 |
 
 ## 10-runtime-host
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `Get` | `resolveRuntimePaths` | __export | 59619 |
-| `MP` | `parseDotEnv` | __export | 62310 |
-| `gl` | `hostDotEnvPath` | __export | 62325 |
-| `L4` | `clearHostModelEnvVars` | __export | 62388 |
-| `$ge` | `applyHostModelEnvVars` | __export | 62392 |
-| `Age` | `writeHostModelEnvConfig` | __export | 62395 |
-| `Dge` | `clearHostModelEnvConfig` | __export | 62420 |
-| `Wnt` | `readHostDaemonToken` | __export | 62431 |
-| `Jnt` | `writeHostDaemonToken` | __export | 62443 |
-| `Mge` | `readHostDotEnvFile` | __export | 62456 |
-| `Gnt` | `loadHostDotEnv` | __export | 62465 |
-| `j4` | `HOST_MODEL_ENV_KEYS` | __export | 62478 |
-| `krt` | `initializeRuntime` | __export | 63101 |
+| `Tnt` | `resolveRuntimePaths` | __export | 60233 |
+| `tC` | `parseDotEnv` | __export | 62897 |
+| `Il` | `hostDotEnvPath` | __export | 62912 |
+| `gB` | `clearHostModelEnvVars` | __export | 62975 |
+| `Rye` | `applyHostModelEnvVars` | __export | 62979 |
+| `Tye` | `writeHostModelEnvConfig` | __export | 62982 |
+| `Pye` | `clearHostModelEnvConfig` | __export | 63007 |
+| `Eit` | `readHostDaemonToken` | __export | 63018 |
+| `Rit` | `writeHostDaemonToken` | __export | 63030 |
+| `Cye` | `readHostDotEnvFile` | __export | 63043 |
+| `Tit` | `loadHostDotEnv` | __export | 63052 |
+| `hB` | `HOST_MODEL_ENV_KEYS` | __export | 63065 |
+| `not` | `initializeRuntime` | __export | 63688 |
 
 ## 11-runtime-grok
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
-| `x2` | `isGrokAvailable` | __export | 57155 |
-| `YXe` | `grokUnavailableReason` | __export | 57159 |
-| `XXe` | `primeGrokAvailability` | __export | 57162 |
-| `QXe` | `__setGrokAvailabilityForTests` | __export | 57167 |
-| `qu` | `checkGrokAvailability` | __export | 57170 |
-| `qb` | `grokAcpExtMethod` | __export | 57191 |
-| `Bb` | `createGrokAcpAdapter` | __export | 57312 |
-| `mpe` | `GROK_ACP_COMPACT` | __export | 57858 |
-| `fpe` | `GROK_ACP_EXT_PREFIX` | __export | 57858 |
-| `ppe` | `GROK_ACP_SDK_CALL` | __export | 57858 |
-| `dpe` | `GROK_AGENT_PROFILE` | __export | 57858 |
-| `cpe` | `GROK_DISALLOWED_TOOLS` | __export | 57858 |
-| `hpe` | `GROK_MCP_SDK_META` | __export | 57858 |
-| `ype` | `GROK_MCP_SERVER_NAME` | __export | 57858 |
-| `gpe` | `GROK_MCP_SERVERS_META` | __export | 57858 |
+| `t4` | `isGrokAvailable` | __export | 57695 |
+| `Iet` | `grokUnavailableReason` | __export | 57699 |
+| `Pet` | `primeGrokAvailability` | __export | 57702 |
+| `Cet` | `__setGrokAvailabilityForTests` | __export | 57707 |
+| `Qu` | `checkGrokAvailability` | __export | 57710 |
+| `rv` | `grokAcpExtMethod` | __export | 57731 |
+| `iv` | `createGrokAcpAdapter` | __export | 57852 |
+| `ome` | `GROK_ACP_COMPACT` | __export | 58398 |
+| `rme` | `GROK_ACP_EXT_PREFIX` | __export | 58398 |
+| `ime` | `GROK_ACP_SDK_CALL` | __export | 58398 |
+| `nme` | `GROK_AGENT_PROFILE` | __export | 58398 |
+| `tme` | `GROK_DISALLOWED_TOOLS` | __export | 58398 |
+| `sme` | `GROK_MCP_SDK_META` | __export | 58398 |
+| `ame` | `GROK_MCP_SERVERS_META` | __export | 58398 |
+| `lme` | `GROK_MCP_SERVER_NAME` | __export | 58398 |
