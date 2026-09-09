@@ -213,7 +213,7 @@
 ## 1.5 探测、选择与降级
 
 - **探测不对称**：Claude 探测是纯文件系统检查（SDK 装没装、平台二进制在不在），5 秒超时、结果缓存、并发去重（`49666-49715`）——**不验证登录态**；Codex 探测是 `codex --version` + `codex login status` 两连（各 5 秒，`59310-59340`）——**验证登录态**。
-- **选择链**：job frontmatter `runtime` > 通道绑定 > 通道种类配置 > env `ALADUO_DEFAULT_RUNTIME` > `claude`（`31087/31986`）。**Claude 是保守默认**。
+- **选择链**：job frontmatter `runtime` > 通道绑定 > 通道种类配置 > env `ALADUO_DEFAULT_RUNTIME` > 兜底常量 "claude"。链尾那一环由 `_o`（`31656`–`31661`）实现：env 缺失、空串、或值不在合法 runtime 枚举内，三种情况一律回落 "claude"。**Claude 是保守默认**。
 - **降级**：channel/job 会话请求 codex 但探测失败 → 回退 claude 并记警告（`78208-78241`）；潜意识分区请求的后端不可用 → 记 `runtime_unavailable` 错误并退避，不静默换脑（`75164-77652`）。
 - **认证三态**（Claude 侧）：`claude_code_local`（用本机 Claude Code 登录态，短路不注入任何 ANTHROPIC_* env，且启动时反向清除残留 key 防劫持，`81580`）/ `anthropic_api_key` / `compatible_endpoint`（任意 Anthropic 兼容端点：设 `ANTHROPIC_BASE_URL`+`AUTH_TOKEN`，并把 OPUS/SONNET/HAIKU 三个默认模型全指到同一个第三方模型，`59127-57891`）。
 
