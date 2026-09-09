@@ -10,9 +10,12 @@ with. The dashboard was rebuilt on the OpenDuo design system. The rest is
 fixes and a dependency refresh: the agent SDK, pi, and security updates across
 the whole tree.
 
-**Upgrading is routine** — reinstall, restart the daemon. Channels are
-unchanged in this release and do not need reinstalling. Two behaviour changes
-to know about:
+**Reinstall the Feishu gateway too.** Its source is unchanged, but it bundles
+its dependencies, so it carries its own copy of one of the packages this
+release patches — the fix does not reach it through the core upgrade. Install
+`@openduo/channel-feishu@0.8.1` and stop then start the channel. The ACP bridge
+is genuinely unchanged and stays at 0.8.0. Otherwise upgrading is routine:
+reinstall, restart the daemon. Two behaviour changes to know about:
 
 - **Sessions may switch model on upgrade.** If you set a model default for a
   runtime, duoduo's own default now wins over the underlying CLI's config for
@@ -60,7 +63,9 @@ to know about:
 - Agent SDK 0.3.258 → 0.3.266, pi 0.84.4 → 0.85.1.
 - Security updates across the dependency tree: every high-severity advisory is
   resolved, and the one remaining moderate has no upstream fix and sits in a
-  code path this project never executes.
+  code path this project never executes. The Feishu gateway is republished at
+  0.8.1 for this reason alone — a bundled gateway does not inherit a fix from
+  the core package, it has to be rebuilt and reinstalled.
 - duoduo now explicitly opts out of the agent SDK's new system-prompt recording
   default. With recording on, a conversation freezes its system prompt and tool
   definitions at its first request and replays them until it compacts — which
