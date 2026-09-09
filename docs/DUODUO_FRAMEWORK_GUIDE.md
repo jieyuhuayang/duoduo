@@ -72,10 +72,51 @@
 
 ---
 
+## 背景：先认识两位主角 —— Claude Code 与 Claude Agent SDK
+
+> **关键句**：本文通篇说的 "Claude Code" 是一个**跑在终端里、会自己动手干活的编码 agent**；"Claude Agent SDK" 是把这套 agent 能力**封装成一个库**，让别的程序（比如 duoduo）能像调函数一样把它当大脑用。**duoduo 租的就是后者。**
+
+如果你此前没接触过这两个名字，先花两分钟把它们分清，后面全文无障碍。
+
+**Claude Code —— 一个"带手的大脑"，不是聊天框。**
+它是 Anthropic 官方的命令行工具（终端里的 `claude` 命令）。和"网页版聊天"最大的区别是：它不止会"说"，还会**自己动手**——读写你的文件、跑终端命令、看报错再改、一轮轮循环直到把任务做完。你丢给它一句"把这个 bug 修了"，它会自己翻代码、改文件、跑测试、再看结果。这套"感知→动手→看结果→再动手"的循环，业内叫 **agentic harness（自带手脚的外壳）**。记住这个词：duoduo 最值钱的地方，正是把这套"手脚"整个租走、自己一行都不用造（详见 §1.0）。
+
+**Claude Agent SDK —— 把那套"手脚"装进一个可编程的库。**
+在终端里敲 `claude` 是给人用的。但若你想让**另一个程序**自动驱动它——不靠人坐在键盘前，而是代码里调一下就跑一轮——你需要的是 SDK（软件开发工具包）。它提供 TypeScript 的 `@anthropic-ai/claude-agent-sdk` 和 Python 的 `claude-agent-sdk` 两个包，核心就一个函数：`query()`。你的程序调一次 `query("帮我……")`，它就替你走完一整轮 agent 工作，把结果流式吐回来。
+
+**两者关系：SDK 是"遥控器"，Claude Code 是"那台会干活的机器"。**
+
+| | Claude Code（CLI） | Claude Agent SDK |
+|---|---|---|
+| 给谁用 | 人，坐在终端前 | 程序，自动调用 |
+| 长什么样 | `claude` 命令 | 代码里的 `query()` 函数 |
+| 本质关系 | 真正干活的本体 | 底层其实就是**把 Claude Code 拉起来**替你跑 |
+
+**类比**：Claude Code 是一台全自动咖啡机（自己磨豆、加水、出品）；SDK 是这台机器的**遥控接口**——你的程序按一下，机器就走完整套流程。duoduo 从头到尾没造过咖啡机，它只是握着遥控器、在对的时机按键（并管好谁先谁后、怎么记账、怎么容错）。
+
+> **落到 duoduo**：它用的是 SDK（TypeScript 版，进程内直接 import），一次对话 turn = 一次 `query()` 调用。至于"SDK 底层怎么把 Claude Code 这台机器拉起来"，duoduo 自己不管——那是 SDK 的职责。这一层若你好奇，读下面这一小节；不好奇可直接跳到术语表。
+
+### 给技术读者：SDK 到底怎么"拉起" Claude Code（可跳过）
+
+以下为 Anthropic 官方文档所述的 SDK 自身行为，与 duoduo 的代码无关：
+
+- **`query()` = spawn 一个子进程，靠 stdio 对话。** 你的程序调 `query()` 时，SDK 会**另起一个独立的 `claude` CLI 进程**，通过标准输入/输出（stdin/stdout）与它交换结构化消息。官方 Hosting 页原话："the SDK spawns a separate `claude` CLI process and talks to it over stdio"。
+- **拉起的是"原生二进制"，不是 `node cli.js`。** Claude Code 本体是 JS 写的：历史上 `npm i -g` 装完，`claude` 命令背后其实是 `node cli.js`（依赖你机器上装了 Node、且版本合适）。而 SDK 现在把 **Node 运行时 + 打包后的 JS 编译成一个自包含的原生可执行文件**（类似 Node SEA / `bun build --compile`），作为**平台专属的 npm 可选依赖**随 SDK 一起装——好处是直接 `spawn('claude')` 就能跑，不再受用户机器有没有 Node、装哪个版本影响。
+- **SDK 怎么找到这个二进制**（优先级由高到低）：① 显式指定——TS 的 `pathToClaudeCodeExecutable` / Python 的 `cli_path`；② 默认用 npm 包内 bundle 的那个；③ 兜底搜系统 `PATH` 里的 `claude`。
+- **两种启动姿势**：`query()` 按需 spawn（SDK 管生命周期）vs `startup()` 预启动并复用同一个子进程（长驻 agent 省启动开销）。
+- **官方文档在哪讲**（截至本文成文）：架构说得最清楚的是 [Hosting — The subprocess model](https://code.claude.com/docs/en/agent-sdk/hosting)；参数与行为见 [TypeScript SDK reference](https://code.claude.com/docs/en/agent-sdk/typescript) 与 [Python SDK reference](https://code.claude.com/docs/en/agent-sdk/python)；CLI 侧的 `-p` / `stream-json` 输出格式见 [Headless](https://code.claude.com/docs/en/headless)。
+- **文档的边界**：官方把"是什么架构 + 怎么配置"写得很清楚，但 **stdin 上的消息字节级 schema、子进程启动的具体参数、control-request 协议**这些实现细节留白了——要抠到那层得读两个 SDK 的 GitHub 源码（TS `src/transports/`、Python `claude_agent_sdk/transport.py`）。
+
+> **一个易混点**：本文 §1.1 标题"进程内 SDK，不 spawn CLI"说的是 **duoduo 这一层**不自己起子进程（区别于 Codex 那条"常驻子进程"的路线）；而 **SDK 内部**照样会 spawn 上面这个 `claude` 子进程。两句话不矛盾，是两个层级的事。
+
+---
+
 ## 术语表（先读这个，全文无障碍）
 
 | 术语 | 含义 | 类比 |
 |---|---|---|
+| **Claude Code** | Anthropic 官方的终端编码 agent（`claude` 命令）：会自己读写文件、跑命令、循环到做完 | 会自己动手的全自动咖啡机 |
+| **Claude Agent SDK** | 把 Claude Code 能力封装成库（核心 `query()`）供程序调用；底层 spawn 一个 `claude` 子进程 | 那台咖啡机的遥控接口 |
 | **daemon** | 常驻后台的单进程运行时，一切的宿主 | 这位"AI 同事"的躯体 |
 | **runtime（后端）** | `claude` 或 `codex` 二选一的推理引擎 | 租用的大脑 |
 | **Spine / WAL** | 只追加的事件日志 `var/events/YYYY-MM-DD.jsonl`，唯一真理之源 | 会计总账 |
