@@ -43,9 +43,18 @@ for (const s of ast.program.body) {
 }
 const declFor = (ln) => { let best=null; for(const d of decls) if(d.a<=ln&&ln<=d.b&&(!best||d.a>best.a)) best=d; return best?best.name:null; };
 const lines = src.split("\n");
-let blank=0, vend=0, ok=0; const ex=[];
+let blank=0, vend=0, ok=0, back=0; const ex=[];
 for (const f of docs) {
   const t = fs.readFileSync(f,"utf8");
+  // A bare range whose end precedes its start is wrong without any lookup —
+  // usually a retarget that moved one endpoint and not the other.
+  for (const m of t.matchAll(/`(\d{4,6})`\s*[-–]\s*`?(\d{4,6})`?/g)) {
+    if (Number(m[2]) < Number(m[1])) {
+      back++;
+      const docLine = t.slice(0, m.index).split("\n").length;
+      if (ex.length < 12) ex.push(`${f.split("/").pop()} L${docLine}: ${m[1]}-${m[2]} -> RANGE RUNS BACKWARDS`);
+    }
+  }
   for (const m of t.matchAll(/`(\d{4,6})`/g)) {
     const pre = t.slice(Math.max(0,m.index-130), m.index);
     if (/`[A-Za-z_$][A-Za-z0-9_$]{1,5}`\s*[@（(]\s*$/.test(pre)) continue;
@@ -61,6 +70,7 @@ for (const f of docs) {
 console.log(`bare anchors examined            : ${blank+vend+ok}`);
 console.log(`  REFUTED - lands on a blank line: ${blank}`);
 console.log(`  REFUTED - lands in vendor code : ${vend}`);
+console.log(`  REFUTED - range runs backwards : ${back}`);
 console.log(`  not refutable by this check     : ${ok}  (NOT the same as verified)`);
 if (ex.length) { console.log(`\nrefuted:`); ex.forEach(e=>console.log("  "+e)); }
-process.exit(blank + vend > 0 ? 1 : 0);
+process.exit(blank + vend + back > 0 ? 1 : 0);
