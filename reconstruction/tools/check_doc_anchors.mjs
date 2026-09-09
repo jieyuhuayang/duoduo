@@ -82,7 +82,11 @@ if (RESOLVE) {
 const BUNDLE_NAME = (BUNDLE.split("/").pop() || "").replace(/\.pretty\.js$|\.js$/, "");
 const FILEQ = "(?:((?:daemon|cli|stdio))(?:\\.pretty)?\\.js:)?";
 const LINESPEC = "`?" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`?";
-const NAME = "`([A-Za-z_$][A-Za-z0-9_$]{1,5})`";
+// CLAUDE.md prescribes the "真名 (短名)" form — `atomicAppendEvent (Xt)`(`31966`).
+// Only the short name exists in the bundle, so that is what gets checked; but
+// the backticked span is then not a bare identifier, and matching only bare
+// identifiers silently skipped every citation written the prescribed way.
+const NAME = "`(?:[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*)?([A-Za-z_$][A-Za-z0-9_$]{1,5})\\)?`";
 const CITES = [
   { re: new RegExp(NAME + "\\s*[（(]\\s*" + LINESPEC + "\\s*[）)]", "g"), n: 1, f: 2, a: 3, b: 4 },
   { re: new RegExp(NAME + "\\s*@\\s*" + LINESPEC, "g"), n: 1, f: 2, a: 3, b: 4 },

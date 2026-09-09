@@ -399,7 +399,7 @@ memory-committer（git 守门员）: 逐行审查工作区变更，只允许 git
 
 三个设计点值得单独咀嚼：
 
-1. **"效用 = 图可达性"**。一条知识还有没有用，不看时间戳不看访问计数，而看它能否从广播板沿 `[[slug]]` 链接被走到（BFS 闭包，`58126`）。走不到的就是孤儿，再按"有无引用/是否新生"分 ISLAND / NEWBORN（48 小时宽限）/ STALE 三态——只有 STALE 才可能被删，且删除是 `git rm` 软删 + "没被警告过就不许删"（`57965-58576`）。**遗忘被设计成可逆的、有正当程序的。**
+1. **"效用 = 图可达性"**。一条知识还有没有用，不看时间戳不看访问计数，而看它能否从广播板沿 `[[slug]]` 链接被走到（BFS 闭包 `walkReachableMemory (oc)`(`61024`)，链接采集 `collectMemoryLinks (ic)`(`61009`)）。走不到的就是孤儿，再按"有无引用/是否新生"分 ISLAND / NEWBORN（48 小时宽限）/ STALE 三态——只有 STALE 才可能被删，且删除是 `git rm` 软删 + "没被警告过就不许删"（`forgetMemoryEntry (mye)`(`62544`)）。**遗忘被设计成可逆的、有正当程序的。**
 2. **证据链压制幻觉**。scanner 的碎片必须写明它检验的是广播板哪一行（`claude_md_ref`），updater 改行前必读该行效果账本——"事件→证据→效果→改写"可复算，LLM 不能空口宣布"这条经验很有效"。
 3. **噪声进不了记忆**。weaver 的证据源门与 committer 的内外门共用同一个 deny-list：`{cadence, meta, system, runner, route, gateway}`——**系统自己的运行噪声在制度上无法变成长期记忆**，只有外部世界的事件才配成为经验。
 
@@ -488,7 +488,7 @@ agent 的"自我"有两条独立演化线，duoduo 用四个机制把它们干�
 | **工具 allowlist**（`CLAUDE_CORE_TOOLS` = `Xm`(`50396`)；拆分 `splitDisallowedToolsForClaude` = `Ade`(`49824`)） | 无人值守挂死 / 逃逸 / 失控扩面 | v0.5.10 起从 denylist 反转为 allowlist：会话默认只发放固定核心集 `CLAUDE_CORE_TOOLS`（Bash/Read/Write/Edit/Grep/Glob/Agent/TaskOutput/TaskStop/Skill/ToolSearch/Task{Create,Get,Update,List}/SendMessage），WebSearch/WebFetch/Workflow/Monitor/Cron* 等一律**默认关闭**，需在 channel descriptor 的 `claude.tools` 嵌套键显式追加才发放（叠加发生在 `V_e`(`64487`)，`tools = n(e.tools, t?.claudeTools)`）；分区侧另有 `PARTITION_CORE_TOOLS` = `Mq`(`50396`)（与 `Xm` 同行声明，只有 Bash/Read/Write/Edit/Grep/Glob 六件）。`splitDisallowedToolsForClaude` 按 `mcp__` 前缀把工具名拆成 `{mcpTools, builtIns}`。旧的 `DEFAULT_DISALLOWED_TOOLS` 已退役——"没在白名单里"即"关闭"，比逐项 deny 更难被绕过。（confirmed。注意 Codex 侧内置工具无法禁用，此闸只对 Claude 完整生效） |
 | **契约门 `enforceContractGate`**（`58258`） | 记忆信号误投 / 版本错配 | 分区 frontmatter 未声明 `consumes` 某信号 → 不投递；目录名≠声明名 → 不投递（防提示词被复制冒名）；无任何订阅者 → 整拍不测量 |
 | **写锁与归档屏障**（`62904/63007/76104`） | 并发写坏状态 | 跨进程 drain 写锁（pid+心跳+stale 抢占）、进程内按 key 互斥、归档中会话拒绝一切唤醒 |
-| **孤儿 GC 三重保险**（`57965-58576`） | 误删记忆 | 双实验 flag AND + 48h 新生宽限 + 必须先被警告 + git 软删 + 失败自动 git 回滚 + `.git/index.lock` 存在即放弃 |
+| **孤儿 GC 三重保险**（判定 `detectOrphanMemory (fye)`(`62512`)、软删 `forgetMemoryEntry (mye)`(`62544`)） | 误删记忆 | 双实验 flag AND + 48h 新生宽限 + 必须先被警告 + git 软删 + 失败自动 git 回滚 + `.git/index.lock` 存在即放弃 |
 | **指纹守卫**（`74896`） | 自我漂移不生效/静默生效 | 指令五元组指纹漂移 → 按后端语义显式重建/fork 会话，日志留痕 |
 | **Spine 只追加** | 篡改历史 | 事件日志无更新/删除路径；提示词同时声明"that's my unalterable history"（软硬同向） |
 
