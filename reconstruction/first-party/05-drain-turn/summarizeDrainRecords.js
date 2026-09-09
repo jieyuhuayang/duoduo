@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: summarizeDrainRecords  (minified: yd, daemon.pretty.js:36139)
+// symbol: summarizeDrainRecords  (minified: Cd, daemon.pretty.js:36686)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

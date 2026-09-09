@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderPromptLayers  (minified: Jce, daemon.pretty.js:49420)
+// symbol: renderPromptLayers  (minified: Lde, daemon.pretty.js:49967)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -16,11 +16,11 @@ The channel through which this session receives and delivers messages, and the r
         u;
     if (r && r.content.trim().length > 0) {
         let d = r.content.trim();
-        u = N8e.test(d) ? `${jce}
+        u = l7e.test(d) ? `${Ide}
 
 ${d}
 
-${A8e}` : `${jce}
+${a7e}` : `${Ide}
 
 ${d}`
     }

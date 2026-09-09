@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: parseAgentMarkdown  (minified: nye, daemon.pretty.js:62877)
+// symbol: parseAgentMarkdown  (minified: Kye, daemon.pretty.js:63464)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseAgentMarkdown(e, t) {
-    let n = (0, tye.default)(t, ur),
+    let n = (0, Zye.default)(t, cr),
         r = n.data ?? {},
-        i = js.basename(e, ".md"),
+        i = Vs.basename(e, ".md"),
         s = (typeof r.name == "string" && r.name.trim().length > 0 ? r.name.trim() : void 0) ?? i,
         a = typeof r.description == "string" && r.description.trim().length > 0 ? r.description.trim() : `Agent ${s}`,
         l = n.content.replace(/^\s+/, "").replace(/\s+$/, "");

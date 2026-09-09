@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: readGlobalUsageTotals  (minified: kL, daemon.pretty.js:36227)
+// symbol: readGlobalUsageTotals  (minified: eF, daemon.pretty.js:36774)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,7 +7,7 @@ async function readGlobalUsageTotals(e, t) {
     await Te(e.usageDir);
     let n;
     try {
-        n = await n0.readdir(e.usageDir)
+        n = await b0.readdir(e.usageDir)
     } catch {
         return summarizeDrainRecords([])
     }

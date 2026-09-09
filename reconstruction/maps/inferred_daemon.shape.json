@@ -1,6 +1,6 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-09-07",
+  "recorded": "2026-09-09",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -168,13 +168,6 @@
         "spine.event"
       ]
     },
-    "batchDrainItems": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [
-        "regular"
-      ]
-    },
     "runBoardLint": {
       "kind": "function",
       "params": 2,
@@ -211,34 +204,6 @@
         "topics/"
       ]
     },
-    "buildTransientUserBlocks": {
-      "kind": "function",
-      "params": 3,
-      "literals": [
-        "\n\nIMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.\n\n</system-reminder>",
-        "\n</interrupted-context>",
-        "- applied_at: ",
-        "- command: ",
-        "- command_name: ",
-        "- current_cwd: ",
-        "- result: ",
-        "<interrupted-context>\n",
-        "<system-reminder>\n\n",
-        "This action was executed by a gateway command outside the model context.",
-        "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.",
-        "[Session Runtime Notice]",
-        "board-updated",
-        "daemon-restart-hint",
-        "gateway-notice",
-        "interrupted-context",
-        "job-tick",
-        "skip-rewind",
-        "smart-compact-notice",
-        "text",
-        "time-context",
-        "user-input"
-      ]
-    },
     "claimDaemonRestartReason": {
       "kind": "async function",
       "params": 1,
@@ -260,6 +225,45 @@
       "params": 2,
       "literals": [
         "instance"
+      ]
+    },
+    "getPendingRestartReason": {
+      "kind": "function",
+      "params": 0,
+      "literals": []
+    },
+    "batchDrainItems": {
+      "kind": "async function",
+      "params": 3,
+      "literals": []
+    },
+    "buildTransientUserBlocks": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "\n\nIMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.\n\n</system-reminder>",
+        "\n</interrupted-context>",
+        "- applied_at: ",
+        "- command: ",
+        "- command_name: ",
+        "- current_cwd: ",
+        "- result: ",
+        "<interrupted-context>\n",
+        "<system-reminder>\n\n",
+        "This action was executed by a gateway command outside the model context.",
+        "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.",
+        "[Session Runtime Notice]",
+        "board-updated",
+        "daemon-restart-hint",
+        "gateway-notice",
+        "interrupted-context",
+        "job-receipts",
+        "job-tick",
+        "skip-rewind",
+        "smart-compact-notice",
+        "text",
+        "time-context",
+        "user-input"
       ]
     },
     "drainSessionMailbox": {
@@ -286,16 +290,11 @@
         "agent.error",
         "auto",
         "channel",
-        "channel.message",
         "claude",
         "codex",
-        "compact_boundary"
+        "compact_boundary",
+        "default"
       ]
-    },
-    "getPendingRestartReason": {
-      "kind": "function",
-      "params": 0,
-      "literals": []
     }
   }
 }
