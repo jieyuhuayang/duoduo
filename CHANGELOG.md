@@ -2,6 +2,76 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.1] - 2026-09-09
+
+duoduo now owns which model and how much reasoning effort each runtime gets,
+instead of inheriting whatever the underlying CLI happened to be configured
+with. The dashboard was rebuilt on the OpenDuo design system. The rest is
+fixes and a dependency refresh: the agent SDK, pi, and security updates across
+the whole tree.
+
+**Reinstall the Feishu gateway too.** Its source is unchanged, but it bundles
+its dependencies, so it carries its own copy of one of the packages this
+release patches — the fix does not reach it through the core upgrade. Install
+`@openduo/channel-feishu@0.8.1` and stop then start the channel. The ACP bridge
+is genuinely unchanged and stays at 0.8.0. Otherwise upgrading is routine:
+reinstall, restart the daemon. Two behaviour changes to know about:
+
+- **Sessions may switch model on upgrade.** If you set a model default for a
+  runtime, duoduo's own default now wins over the underlying CLI's config for
+  duoduo sessions. Set nothing and the previous behaviour is unchanged. On
+  Codex, a live conversation whose model changes forks once at its next turn —
+  history is preserved.
+- **Partition and job prompt edits are picked up again.** Edits that preserved
+  the file's timestamp (`cp -p`, `ditto`, editors that restore times) used to be
+  invisible to the running daemon until a restart. They now take effect at the
+  next tick.
+
+### Highlights
+
+- **Model defaults you own, per runtime.** Set a default model for Claude,
+  Codex, pi or Grok, globally or per channel kind or per channel instance, with
+  the most specific layer winning. The dashboard and the usage ledger record the
+  model that actually served each turn, not the one that was requested — so a
+  gateway quietly substituting a model is visible instead of invisible.
+- **Effort defaults, the same shape.** Reasoning effort gets the same
+  global → kind → instance layering as the model, so a session's effort no
+  longer depends on the underlying CLI's own configuration file.
+- **The dashboard, rebuilt.** Restyled on the OpenDuo design system at the same
+  structure and density, with click-to-filter on the stream and a strip of
+  pinned facts under the stream title.
+
+### Fixes
+
+- A message you send while the agent is mid-turn on something it started by
+  itself now gets its own turn. It used to be folded into that turn, which could
+  produce a reply that was discarded outright.
+- A finished job's completion receipt now arrives as context on the owner's next
+  turn instead of waking a turn of its own.
+- Job scheduling and dispatch: a run settles against the definition it started
+  with rather than one edited mid-flight, and the wording of job receipts now
+  states what delivery actually does — a job produces no turn of its own, a
+  daemon restart delivers nothing, so do not promise to follow up.
+- pi: worker generations no longer overlap, a batch survives an abort the worker
+  never engaged, and a provider error that pi settles without raising is now
+  surfaced instead of arriving as an empty answer.
+- Subconscious partitions running on Claude honour a configured model profile,
+  so naming a routed model in a partition no longer fails at the endpoint.
+
+### Dependencies and security
+
+- Agent SDK 0.3.258 → 0.3.266, pi 0.84.4 → 0.85.1.
+- Security updates across the dependency tree: every high-severity advisory is
+  resolved, and the one remaining moderate has no upstream fix and sits in a
+  code path this project never executes. The Feishu gateway is republished at
+  0.8.1 for this reason alone — a bundled gateway does not inherit a fix from
+  the core package, it has to be rebuilt and reinstalled.
+- duoduo now explicitly opts out of the agent SDK's new system-prompt recording
+  default. With recording on, a conversation freezes its system prompt and tool
+  definitions at its first request and replays them until it compacts — which
+  would silently stop prompt and memory-board edits from ever reaching a running
+  session.
+
 ## [v0.8.0] - 2026-09-04
 
 pi joins Claude, Codex and Grok as a fourth agent runtime. `duoduo spine` opens
