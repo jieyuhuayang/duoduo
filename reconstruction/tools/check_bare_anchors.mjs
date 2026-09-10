@@ -19,18 +19,30 @@
 // Exit 1 if any bare anchor is refuted. "plausible" means only "not refutable
 // by this check" — never read it as verified.
 //
+// NOTE on the vendor arm: it used to compare the enclosing declaration's
+// MANGLED name against a baseline of ORIGINAL export names, so it could only
+// fire on an accidental collision -- it had been silently dead. It now takes
+// the export-block report and the per-module classification, and refutes
+// against the mangled names a vendor MODULE exports, which is the same
+// question asked in the one namespace where both sides are comparable.
+//
 // Usage:
-//   node check_bare_anchors.mjs <bundle.pretty.js> <vendor_baseline.json> <doc.md...>
+//   node check_bare_anchors.mjs <bundle.pretty.js> <blocks.json> <modules.json> <doc.md...>
 import fs from "node:fs";
 import { parse } from "@babel/parser";
-const [BUNDLE, VENDOR, ...docs] = process.argv.slice(2);
-if (!BUNDLE || !VENDOR || !docs.length) {
-  console.error("usage: node check_bare_anchors.mjs <bundle.pretty.js> <vendor_baseline.json> <doc.md...>");
+const [BUNDLE, BLOCKS, MODULES, ...docs] = process.argv.slice(2);
+if (!BUNDLE || !BLOCKS || !MODULES || !docs.length) {
+  console.error("usage: node check_bare_anchors.mjs <bundle.pretty.js> <blocks.json> <modules.json> <doc.md...>");
   process.exit(2);
 }
 const src = fs.readFileSync(BUNDLE, "utf8");
-const vj = JSON.parse(fs.readFileSync(VENDOR, "utf8"));
-const vendor = new Set(Array.isArray(vj) ? vj : (vj.vendor ?? []));
+const blocksReport = JSON.parse(fs.readFileSync(BLOCKS, "utf8"));
+const modules = JSON.parse(fs.readFileSync(MODULES, "utf8"));
+const matches = (block, record) => record.marker.filter(n => new Set(block.names).has(n)).length >= Math.min(2, record.marker.length);
+const vendor = new Set();
+for (const b of blocksReport.blocks) {
+  if ((modules.vendor || []).some(r => matches(b, r))) for (const m of b.mangled) vendor.add(m);
+}
 const ast = parse(src, { sourceType: "module", ranges: true });
 const starts = [0];
 for (let i = 0; i < src.length; i++) if (src[i] === "\n") starts.push(i + 1);

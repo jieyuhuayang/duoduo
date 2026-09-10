@@ -41,7 +41,7 @@ async function drainSessionMailbox(e, t, n = {}) {
     async function y(b) {
         try {
             let I = n.getStreamGeneration?.(),
-                P = XL(p, h !== void 0 && I !== void 0 && I !== h);
+                P = detectInProcessBreak(p, h !== void 0 && I !== void 0 && I !== h);
             await appendDrainRecord(e, {
                 id: q_e.randomUUID(),
                 session_key: t,

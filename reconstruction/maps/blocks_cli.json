@@ -1,0 +1,134 @@
+{
+  "bundle": "cli",
+  "source": "/Users/lilu/Projects/duoduo/reconstruction/tools/../.build/beautified/cli.pretty.js",
+  "helper": "KC",
+  "helperCandidates": {
+    "KC": 5
+  },
+  "blockCount": 5,
+  "namesInBlocks": 20,
+  "distinctNamesInBlocks": 20,
+  "entryExportCount": 14,
+  "blocks": [
+    {
+      "index": 0,
+      "line": 20397,
+      "count": 13,
+      "marker": [
+        "PLIST_LABEL",
+        "generatePlist",
+        "getLaunchdPid"
+      ],
+      "names": [
+        "PLIST_LABEL",
+        "generatePlist",
+        "getLaunchdPid",
+        "getRunAtLoad",
+        "getUid",
+        "installAndLoad",
+        "isAquaSession",
+        "isServiceLoaded",
+        "kickstart",
+        "plistPath",
+        "setRunAtLoad",
+        "uninstall",
+        "unload"
+      ],
+      "mangled": [
+        "Pb",
+        "$$",
+        "Dp",
+        "XQ",
+        "bp",
+        "$Q",
+        "zQ",
+        "y_",
+        "JQ",
+        "p1",
+        "Ub",
+        "jQ",
+        "E1"
+      ]
+    },
+    {
+      "index": 1,
+      "line": 62266,
+      "count": 4,
+      "marker": [
+        "renderCompactResult",
+        "renderConfigResult",
+        "renderSessionList"
+      ],
+      "names": [
+        "renderCompactResult",
+        "renderConfigResult",
+        "renderSessionList",
+        "runSessionSubcommand"
+      ],
+      "mangled": [
+        "yge",
+        "Rge",
+        "Ige",
+        "TKe"
+      ]
+    },
+    {
+      "index": 2,
+      "line": 63380,
+      "count": 1,
+      "marker": [
+        "runPromptsSubcommand"
+      ],
+      "names": [
+        "runPromptsSubcommand"
+      ],
+      "mangled": [
+        "JKe"
+      ]
+    },
+    {
+      "index": 3,
+      "line": 65378,
+      "count": 1,
+      "marker": [
+        "runMemoryCommand"
+      ],
+      "names": [
+        "runMemoryCommand"
+      ],
+      "mangled": [
+        "wJe"
+      ]
+    },
+    {
+      "index": 4,
+      "line": 65984,
+      "count": 1,
+      "marker": [
+        "runSpineCommand"
+      ],
+      "names": [
+        "runSpineCommand"
+      ],
+      "mangled": [
+        "VJe"
+      ]
+    }
+  ],
+  "entryExports": {
+    "defaultExistingDaemonChoice": "eEe",
+    "inferOnboardConfigFromProbe": "Aje",
+    "isDetachedUpgradeWorker": "_je",
+    "isInstallTargetFilePath": "cje",
+    "main": "Rje",
+    "parseExistingDaemonChoice": "dje",
+    "parseRestartArgs": "pje",
+    "parseRootCli": "uje",
+    "parseUpgradeArgs": "Sje",
+    "printHelp": "tEe",
+    "readOption": "JN",
+    "reasonlessRestartRefusal": "Eje",
+    "restartWakeReport": "mje",
+    "runUpgradeChannelPhase": "Tje"
+  }
+}

@@ -1,0 +1,1153 @@
+{
+  "bundle": "daemon",
+  "version": "v0.8.1",
+  "source": "/Users/lilu/Projects/duoduo/reconstruction/tools/../.build/beautified/daemon.pretty.js",
+  "symbolCount": 143,
+  "notTopLevel": [],
+  "symbols": {
+    "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
+      "mangled": "rae",
+      "line": 36809,
+      "endLine": 36814,
+      "kind": "var (uninitialised)",
+      "bytes": 78,
+      "signature": "dc10870716faf83809c9"
+    },
+    "appendDrainRecord": {
+      "mangled": "Od",
+      "line": 36664,
+      "endLine": 36670,
+      "kind": "async function",
+      "bytes": 150,
+      "signature": "13596a0de7ea049c86bc"
+    },
+    "detectInProcessBreak": {
+      "mangled": "XL",
+      "line": 36649,
+      "endLine": 36655,
+      "kind": "function",
+      "bytes": 197,
+      "signature": "4965cfb830707e426de5"
+    },
+    "drainRecordPath": {
+      "mangled": "xa",
+      "line": 36661,
+      "endLine": 36663,
+      "kind": "function",
+      "bytes": 72,
+      "signature": "94ee99a122f6c5bf7101"
+    },
+    "readAllSessionSummaries": {
+      "mangled": "QL",
+      "line": 36757,
+      "endLine": 36773,
+      "kind": "async function",
+      "bytes": 378,
+      "signature": "e8b3a9f6dd85cf4919e8"
+    },
+    "readDrainRecords": {
+      "mangled": "Ru",
+      "line": 36671,
+      "endLine": 36684,
+      "kind": "async function",
+      "bytes": 383,
+      "signature": "c77304fe2706cbe09ac6"
+    },
+    "readGlobalUsageTotals": {
+      "mangled": "eF",
+      "line": 36774,
+      "endLine": 36791,
+      "kind": "async function",
+      "bytes": 2926,
+      "signature": "4efd28c61d78a8303090"
+    },
+    "readRecentDrainRecords": {
+      "mangled": "y5e",
+      "line": 36792,
+      "endLine": 36808,
+      "kind": "async function",
+      "bytes": 469,
+      "signature": "de03d95a3570c6cac0ae"
+    },
+    "summarizeDrainRecords": {
+      "mangled": "Cd",
+      "line": 36686,
+      "endLine": 36756,
+      "kind": "function",
+      "bytes": 4600,
+      "signature": "f371181cbd5beae34583"
+    },
+    "AgentSdkPromptNotAcceptedAbortError": {
+      "mangled": "wr",
+      "line": 50390,
+      "endLine": 50408,
+      "kind": "var (uninitialised)",
+      "bytes": 1474,
+      "signature": "dc10870716faf83809c9"
+    },
+    "AgentSdkTurnInterruptedError": {
+      "mangled": "Cr",
+      "line": 50390,
+      "endLine": 50408,
+      "kind": "var (uninitialised)",
+      "bytes": 1474,
+      "signature": "dc10870716faf83809c9"
+    },
+    "CLAUDE_CORE_TOOLS": {
+      "mangled": "Xm",
+      "line": 50390,
+      "endLine": 50408,
+      "kind": "var (uninitialised)",
+      "bytes": 1474,
+      "signature": "dc10870716faf83809c9"
+    },
+    "PARTITION_CORE_TOOLS": {
+      "mangled": "Mq",
+      "line": 50390,
+      "endLine": 50408,
+      "kind": "var (uninitialised)",
+      "bytes": 1474,
+      "signature": "dc10870716faf83809c9"
+    },
+    "__resetClaudeProbeCacheForTest": {
+      "mangled": "c7e",
+      "line": 49905,
+      "endLine": 49907,
+      "kind": "function",
+      "bytes": 57,
+      "signature": "7e57ce4af58596a603ea"
+    },
+    "__setClaudeVerifierForTest": {
+      "mangled": "d7e",
+      "line": 49909,
+      "endLine": 49911,
+      "kind": "function",
+      "bytes": 56,
+      "signature": "9bd1f279f87ba2d7114e"
+    },
+    "buildSystemPromptForChannelConfig": {
+      "mangled": "eh",
+      "line": 49994,
+      "endLine": 50003,
+      "kind": "function",
+      "bytes": 254,
+      "signature": "79cee7ca4ceae255e9a4"
+    },
+    "claudeUnavailableReason": {
+      "mangled": "Mb",
+      "line": 49898,
+      "endLine": 49900,
+      "kind": "function",
+      "bytes": 63,
+      "signature": "2b63d12a48e281f8a46a"
+    },
+    "createAgentSdkAdapter": {
+      "mangled": "Gd",
+      "line": 50087,
+      "endLine": 50389,
+      "kind": "function",
+      "bytes": 14819,
+      "signature": "79e59d73c63ead5d7519"
+    },
+    "eventToMessageGenerator": {
+      "mangled": "Fq",
+      "line": 50032,
+      "endLine": 50059,
+      "kind": "async function",
+      "bytes": 653,
+      "signature": "b46e2c43075c3e637395"
+    },
+    "findDeadAllowedToolEntries": {
+      "mangled": "$de",
+      "line": 49819,
+      "endLine": 49822,
+      "kind": "function",
+      "bytes": 136,
+      "signature": "62474ef812d65c4a306a"
+    },
+    "isAbortLikeError": {
+      "mangled": "Qm",
+      "line": 49842,
+      "endLine": 49853,
+      "kind": "function",
+      "bytes": 278,
+      "signature": "96ae4975ef7deb022787"
+    },
+    "isAgentSdkPromptNotAcceptedAbortError": {
+      "mangled": "Db",
+      "line": 49838,
+      "endLine": 49840,
+      "kind": "function",
+      "bytes": 45,
+      "signature": "4752be52ad41f5d4ee5e"
+    },
+    "isAgentSdkTurnInterruptedError": {
+      "mangled": "Nb",
+      "line": 49834,
+      "endLine": 49836,
+      "kind": "function",
+      "bytes": 45,
+      "signature": "4752be52ad41f5d4ee5e"
+    },
+    "isClaudeAvailable": {
+      "mangled": "Lq",
+      "line": 49894,
+      "endLine": 49896,
+      "kind": "function",
+      "bytes": 42,
+      "signature": "6b3374eb2a1d74f2087e"
+    },
+    "parsePositiveMsEnv": {
+      "mangled": "Dq",
+      "line": 50070,
+      "endLine": 50074,
+      "kind": "function",
+      "bytes": 137,
+      "signature": "205d9be3333e1ba5c407"
+    },
+    "primeClaudeAvailability": {
+      "mangled": "u7e",
+      "line": 49901,
+      "endLine": 49903,
+      "kind": "async function",
+      "bytes": 56,
+      "signature": "9fec08e600a292fe9792"
+    },
+    "probeClaudeAvailability": {
+      "mangled": "Dde",
+      "line": 49864,
+      "endLine": 49892,
+      "kind": "async function",
+      "bytes": 845,
+      "signature": "dfd9163ae96eb94f760b"
+    },
+    "renderJobMissionBlock": {
+      "mangled": "jde",
+      "line": 49960,
+      "endLine": 49965,
+      "kind": "function",
+      "bytes": 1828,
+      "signature": "d92e38893116bccbd991"
+    },
+    "renderPromptLayers": {
+      "mangled": "Lde",
+      "line": 49967,
+      "endLine": 49992,
+      "kind": "function",
+      "bytes": 657,
+      "signature": "b3e87e72e34b24460693"
+    },
+    "resolveMetaPromptText": {
+      "mangled": "jb",
+      "line": 49943,
+      "endLine": 49952,
+      "kind": "function",
+      "bytes": 343,
+      "signature": "da4a2081de46a3184308"
+    },
+    "splitDisallowedToolsForClaude": {
+      "mangled": "Ade",
+      "line": 49824,
+      "endLine": 49832,
+      "kind": "function",
+      "bytes": 172,
+      "signature": "e4fe02d69e86f60d1702"
+    },
+    "stringToMessageGenerator": {
+      "mangled": "vI",
+      "line": 50060,
+      "endLine": 50068,
+      "kind": "async function",
+      "bytes": 143,
+      "signature": "3ed7f0252731d9df15e9"
+    },
+    "verifyClaudeCodeRuntimeAvailable": {
+      "mangled": "Mde",
+      "line": 49913,
+      "endLine": 49941,
+      "kind": "function",
+      "bytes": 1779,
+      "signature": "d32ab2ecb282e9202e97"
+    },
+    "ALADUO_TOOL_NAMESPACE": {
+      "mangled": "cP",
+      "line": 57457,
+      "endLine": 57666,
+      "kind": "var (uninitialised)",
+      "bytes": 7462,
+      "signature": "dc10870716faf83809c9"
+    },
+    "__setCodexAvailabilityForTests": {
+      "mangled": "vet",
+      "line": 56598,
+      "endLine": 56600,
+      "kind": "function",
+      "bytes": 43,
+      "signature": "7ea7abc9bb57e750e666"
+    },
+    "buildBaseInstructions": {
+      "mangled": "Vpe",
+      "line": 56685,
+      "endLine": 56701,
+      "kind": "function",
+      "bytes": 676,
+      "signature": "251af650781f7ec7c6d1"
+    },
+    "buildCodexTurnInput": {
+      "mangled": "J2",
+      "line": 56717,
+      "endLine": 56728,
+      "kind": "function",
+      "bytes": 302,
+      "signature": "47ba569782c2599e015b"
+    },
+    "buildDeveloperInstructions": {
+      "mangled": "Wpe",
+      "line": 56703,
+      "endLine": 56715,
+      "kind": "function",
+      "bytes": 951,
+      "signature": "ecfd9fd5411caffea250"
+    },
+    "checkCodexAvailability": {
+      "mangled": "Xu",
+      "line": 56606,
+      "endLine": 56642,
+      "kind": "async function",
+      "bytes": 1016,
+      "signature": "a3603d974f8a0a36221a"
+    },
+    "codexNotificationFilterDecision": {
+      "mangled": "qpe",
+      "line": 56653,
+      "endLine": 56655,
+      "kind": "function",
+      "bytes": 253,
+      "signature": "70adf714d97c3c0c4edb"
+    },
+    "codexUnavailableReason": {
+      "mangled": "_et",
+      "line": 56590,
+      "endLine": 56592,
+      "kind": "function",
+      "bytes": 32,
+      "signature": "8ca000545cca471237b5"
+    },
+    "computeCodexTurnUsage": {
+      "mangled": "Bpe",
+      "line": 56657,
+      "endLine": 56679,
+      "kind": "function",
+      "bytes": 774,
+      "signature": "79fa9c2fe36d6fff395b"
+    },
+    "createCodexAppServerAdapter": {
+      "mangled": "ev",
+      "line": 56730,
+      "endLine": 57172,
+      "kind": "function",
+      "bytes": 19704,
+      "signature": "c4ac0f8aff746bfe9840"
+    },
+    "ensureAgentsMdSymlink": {
+      "mangled": "K2",
+      "line": 56643,
+      "endLine": 56651,
+      "kind": "async function",
+      "bytes": 318,
+      "signature": "ef13261e4ced82fd7473"
+    },
+    "extractCodexGeneratedImageAttachment": {
+      "mangled": "Zpe",
+      "line": 57214,
+      "endLine": 57240,
+      "kind": "function",
+      "bytes": 895,
+      "signature": "36e20e9587823e3b78b0"
+    },
+    "extractSystemPromptAppend": {
+      "mangled": "Hpe",
+      "line": 56681,
+      "endLine": 56683,
+      "kind": "function",
+      "bytes": 108,
+      "signature": "75dbd97c2e4dd55a6c33"
+    },
+    "hasImageGenerationRecord": {
+      "mangled": "Gpe",
+      "line": 57198,
+      "endLine": 57212,
+      "kind": "function",
+      "bytes": 366,
+      "signature": "9e355cccf673560022c8"
+    },
+    "isCodexAvailable": {
+      "mangled": "of",
+      "line": 56586,
+      "endLine": 56588,
+      "kind": "function",
+      "bytes": 38,
+      "signature": "7a911690d69f50d865a2"
+    },
+    "mapItemCompletedToExecEvent": {
+      "mangled": "Qpe",
+      "line": 57384,
+      "endLine": 57456,
+      "kind": "function",
+      "bytes": 2782,
+      "signature": "8c1b08c29a736674d570"
+    },
+    "mapItemStartedToExecEvent": {
+      "mangled": "Xpe",
+      "line": 57273,
+      "endLine": 57382,
+      "kind": "function",
+      "bytes": 3552,
+      "signature": "6eb8f54d33fd2a280212"
+    },
+    "primeCodexAvailability": {
+      "mangled": "bet",
+      "line": 56593,
+      "endLine": 56596,
+      "kind": "async function",
+      "bytes": 105,
+      "signature": "70fb740f32bb97f45de8"
+    },
+    "resolveCodexSandbox": {
+      "mangled": "fh",
+      "line": 56602,
+      "endLine": 56605,
+      "kind": "function",
+      "bytes": 200,
+      "signature": "26de7277858a5191e5f4"
+    },
+    "GROK_ACP_COMPACT": {
+      "mangled": "ome",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_ACP_EXT_PREFIX": {
+      "mangled": "rme",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_ACP_SDK_CALL": {
+      "mangled": "ime",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_AGENT_PROFILE": {
+      "mangled": "nme",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_DISALLOWED_TOOLS": {
+      "mangled": "tme",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_MCP_SDK_META": {
+      "mangled": "sme",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_MCP_SERVERS_META": {
+      "mangled": "ame",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "GROK_MCP_SERVER_NAME": {
+      "mangled": "lme",
+      "line": 58398,
+      "endLine": 58451,
+      "kind": "var (uninitialised)",
+      "bytes": 1960,
+      "signature": "dc10870716faf83809c9"
+    },
+    "__setGrokAvailabilityForTests": {
+      "mangled": "Cet",
+      "line": 57707,
+      "endLine": 57709,
+      "kind": "function",
+      "bytes": 43,
+      "signature": "7ea7abc9bb57e750e666"
+    },
+    "checkGrokAvailability": {
+      "mangled": "Qu",
+      "line": 57710,
+      "endLine": 57729,
+      "kind": "async function",
+      "bytes": 464,
+      "signature": "c001cb99f77aeaded593"
+    },
+    "createGrokAcpAdapter": {
+      "mangled": "iv",
+      "line": 57852,
+      "endLine": 58397,
+      "kind": "function",
+      "bytes": 20006,
+      "signature": "034f6a5d58521e4b3bde"
+    },
+    "grokAcpExtMethod": {
+      "mangled": "rv",
+      "line": 57731,
+      "endLine": 57734,
+      "kind": "function",
+      "bytes": 84,
+      "signature": "03372bdb924b430d807b"
+    },
+    "grokUnavailableReason": {
+      "mangled": "Iet",
+      "line": 57699,
+      "endLine": 57701,
+      "kind": "function",
+      "bytes": 32,
+      "signature": "8ca000545cca471237b5"
+    },
+    "isGrokAvailable": {
+      "mangled": "t4",
+      "line": 57695,
+      "endLine": 57697,
+      "kind": "function",
+      "bytes": 38,
+      "signature": "7a911690d69f50d865a2"
+    },
+    "primeGrokAvailability": {
+      "mangled": "Pet",
+      "line": 57702,
+      "endLine": 57705,
+      "kind": "async function",
+      "bytes": 104,
+      "signature": "a36998383195e51cc3a5"
+    },
+    "partitionInboxDir": {
+      "mangled": "Sv",
+      "line": 60318,
+      "endLine": 60320,
+      "kind": "function",
+      "bytes": 48,
+      "signature": "b8acb7641c8ac269b6fe"
+    },
+    "partitionInboxDirFromVar": {
+      "mangled": "nc",
+      "line": 60322,
+      "endLine": 60324,
+      "kind": "function",
+      "bytes": 71,
+      "signature": "fe6be80ac5b689f4574f"
+    },
+    "resolveRuntimePaths": {
+      "mangled": "Tnt",
+      "line": 60233,
+      "endLine": 60316,
+      "kind": "function",
+      "bytes": 3007,
+      "signature": "cd2652d22929ee30a6e2"
+    },
+    "buildMemoryCheckStatus": {
+      "mangled": "fB",
+      "line": 62702,
+      "endLine": 62715,
+      "kind": "function",
+      "bytes": 238,
+      "signature": "94096f1fc648ae744fc1"
+    },
+    "resolveCadenceIntervalMs": {
+      "mangled": "bye",
+      "line": 62695,
+      "endLine": 62700,
+      "kind": "function",
+      "bytes": 210,
+      "signature": "8b121f8746f4554fbeeb"
+    },
+    "resolveMemoryCheckFlags": {
+      "mangled": "dB",
+      "line": 62686,
+      "endLine": 62693,
+      "kind": "function",
+      "bytes": 164,
+      "signature": "b84faec4c27cbe6e0ab8"
+    },
+    "runMemoryCheckTick": {
+      "mangled": "_it",
+      "line": 62716,
+      "endLine": 62830,
+      "kind": "async function",
+      "bytes": 4315,
+      "signature": "bdef2f5781e718b8142f"
+    },
+    "CLAUDE_CODE_EXECUTABLE_ENV_KEY": {
+      "mangled": "mB",
+      "line": 63065,
+      "endLine": 63069,
+      "kind": "var (uninitialised)",
+      "bytes": 353,
+      "signature": "dc10870716faf83809c9"
+    },
+    "DAEMON_TOKEN_ENV_KEY": {
+      "mangled": "eC",
+      "line": 63065,
+      "endLine": 63069,
+      "kind": "var (uninitialised)",
+      "bytes": 353,
+      "signature": "dc10870716faf83809c9"
+    },
+    "HOST_MODEL_ENV_KEYS": {
+      "mangled": "hB",
+      "line": 63065,
+      "endLine": 63069,
+      "kind": "var (uninitialised)",
+      "bytes": 353,
+      "signature": "dc10870716faf83809c9"
+    },
+    "applyHostModelEnvVars": {
+      "mangled": "Rye",
+      "line": 62979,
+      "endLine": 62981,
+      "kind": "function",
+      "bytes": 462,
+      "signature": "ef17dc636ec799d5ae27"
+    },
+    "clearHostModelEnvConfig": {
+      "mangled": "Pye",
+      "line": 63007,
+      "endLine": 63017,
+      "kind": "async function",
+      "bytes": 199,
+      "signature": "d76f7d86a1c53c7b15ea"
+    },
+    "clearHostModelEnvVars": {
+      "mangled": "gB",
+      "line": 62975,
+      "endLine": 62977,
+      "kind": "function",
+      "bytes": 66,
+      "signature": "372ecdd1b305453910c1"
+    },
+    "hostDotEnvPath": {
+      "mangled": "Il",
+      "line": 62912,
+      "endLine": 62915,
+      "kind": "function",
+      "bytes": 124,
+      "signature": "5f3b6ad3c09fa812157a"
+    },
+    "loadHostDotEnv": {
+      "mangled": "Tit",
+      "line": 63052,
+      "endLine": 63064,
+      "kind": "async function",
+      "bytes": 298,
+      "signature": "4b0d9e083b188c9c6522"
+    },
+    "parseDotEnv": {
+      "mangled": "tC",
+      "line": 62897,
+      "endLine": 62910,
+      "kind": "function",
+      "bytes": 419,
+      "signature": "28d27399261192ac2e94"
+    },
+    "readHostDaemonToken": {
+      "mangled": "Eit",
+      "line": 63018,
+      "endLine": 63029,
+      "kind": "async function",
+      "bytes": 255,
+      "signature": "07baa29c8c6d1d57249c"
+    },
+    "readHostDotEnvFile": {
+      "mangled": "Cye",
+      "line": 63043,
+      "endLine": 63051,
+      "kind": "async function",
+      "bytes": 173,
+      "signature": "abc4768fb4b01ce8d3d5"
+    },
+    "writeHostClaudeCodeExecutableEnvConfig": {
+      "mangled": "Iye",
+      "line": 62994,
+      "endLine": 63006,
+      "kind": "async function",
+      "bytes": 353,
+      "signature": "94681a7f566eadccecef"
+    },
+    "writeHostDaemonToken": {
+      "mangled": "Rit",
+      "line": 63030,
+      "endLine": 63042,
+      "kind": "async function",
+      "bytes": 342,
+      "signature": "9a215e570ca78fecb490"
+    },
+    "writeHostModelEnvConfig": {
+      "mangled": "Tye",
+      "line": 62982,
+      "endLine": 62993,
+      "kind": "async function",
+      "bytes": 303,
+      "signature": "c42c9752849deb1f2ddf"
+    },
+    "generatePartitionCodexAgents": {
+      "mangled": "Wit",
+      "line": 63390,
+      "endLine": 63453,
+      "kind": "async function",
+      "bytes": 1905,
+      "signature": "eb612ce949d8dc35a151"
+    },
+    "parseAgentMarkdown": {
+      "mangled": "Kye",
+      "line": 63464,
+      "endLine": 63477,
+      "kind": "function",
+      "bytes": 601,
+      "signature": "5741d754ac21275d433e"
+    },
+    "renderAgentToml": {
+      "mangled": "Yye",
+      "line": 63479,
+      "endLine": 63491,
+      "kind": "function",
+      "bytes": 233,
+      "signature": "bc3e83b70367bc916f09"
+    },
+    "archiveLegacyRegistrySessionsDir": {
+      "mangled": "e_e",
+      "line": 63516,
+      "endLine": 63604,
+      "kind": "async function",
+      "bytes": 2606,
+      "signature": "c72337fd65fb1ea1768a"
+    },
+    "initializeRuntime": {
+      "mangled": "not",
+      "line": 63688,
+      "endLine": 63697,
+      "kind": "async function",
+      "bytes": 933,
+      "signature": "4c2c60c2e18c77bbb803"
+    },
+    "SESSION_SCHEMA_VERSION": {
+      "mangled": "Xh",
+      "line": 74297,
+      "endLine": 74300,
+      "kind": "var (uninitialised)",
+      "bytes": 55,
+      "signature": "dc10870716faf83809c9"
+    },
+    "computeBoardLayerHash": {
+      "mangled": "I6",
+      "line": 76379,
+      "endLine": 76381,
+      "kind": "function",
+      "bytes": 91,
+      "signature": "48c2b203c18b2c91c4c6"
+    },
+    "computeInstructionsFingerprint": {
+      "mangled": "bw",
+      "line": 76374,
+      "endLine": 76377,
+      "kind": "function",
+      "bytes": 249,
+      "signature": "ac7aac2e3fc796728c78"
+    },
+    "computeMissionFingerprint": {
+      "mangled": "Wwe",
+      "line": 76423,
+      "endLine": 76427,
+      "kind": "function",
+      "bytes": 61,
+      "signature": "6c0a5d34337d511b754d"
+    },
+    "computeNonBoardInstructionsFingerprint": {
+      "mangled": "P6",
+      "line": 76383,
+      "endLine": 76388,
+      "kind": "function",
+      "bytes": 83,
+      "signature": "eb3dcc052d40d53c15fe"
+    },
+    "createSessionManager": {
+      "mangled": "act",
+      "line": 77628,
+      "endLine": 79612,
+      "kind": "function",
+      "bytes": 94437,
+      "signature": "2edf7e3f5689d16ef01a"
+    },
+    "diffStreamingConfigSignature": {
+      "mangled": "wO",
+      "line": 76390,
+      "endLine": 76421,
+      "kind": "function",
+      "bytes": 1127,
+      "signature": "08ae5c5d35ce31612ef9"
+    },
+    "runInstructionsFingerprintGuard": {
+      "mangled": "SO",
+      "line": 76428,
+      "endLine": 76572,
+      "kind": "async function",
+      "bytes": 4863,
+      "signature": "3cfc0bfc16782b2d7504"
+    },
+    "createMetaSession": {
+      "mangled": "vct",
+      "line": 79799,
+      "endLine": 80347,
+      "kind": "function",
+      "bytes": 20100,
+      "signature": "2bcbc972fef6d5b36842"
+    },
+    "sweepTombstonedSessionRecords": {
+      "mangled": "wct",
+      "line": 80383,
+      "endLine": 80431,
+      "kind": "async function",
+      "bytes": 1557,
+      "signature": "42c85eeb3366d29de62a"
+    },
+    "runCadenceTick": {
+      "mangled": "Sct",
+      "line": 80443,
+      "endLine": 80473,
+      "kind": "async function",
+      "bytes": 809,
+      "signature": "8f9bb79467ea864bd196"
+    },
+    "scanAndSpawnDueJobs": {
+      "mangled": "M6",
+      "line": 80474,
+      "endLine": 80561,
+      "kind": "async function",
+      "bytes": 3182,
+      "signature": "e97951eacacefce62b31"
+    },
+    "createJobScheduler": {
+      "mangled": "xct",
+      "line": 80579,
+      "endLine": 80631,
+      "kind": "function",
+      "bytes": 1412,
+      "signature": "58af0e86413e67445dab"
+    },
+    "createOutboxDeliveryManager": {
+      "mangled": "Rct",
+      "line": 80647,
+      "endLine": 80729,
+      "kind": "function",
+      "bytes": 2586,
+      "signature": "b940d35f255120db958f"
+    },
+    "createDaemon": {
+      "mangled": "fdt",
+      "line": 84498,
+      "endLine": 85426,
+      "kind": "function",
+      "bytes": 41012,
+      "signature": "ccd9867337597ee8acfd"
+    },
+    "deliverDaemonRestartWakes": {
+      "mangled": "Yct",
+      "line": 83736,
+      "endLine": 83759,
+      "kind": "async function",
+      "bytes": 772,
+      "signature": "96ae675a51a0db749998"
+    },
+    "isLoopbackBindHost": {
+      "mangled": "cdt",
+      "line": 84465,
+      "endLine": 84470,
+      "kind": "function",
+      "bytes": 234,
+      "signature": "3fa7404604edb978e2f3"
+    },
+    "main": {
+      "mangled": "pdt",
+      "line": 85427,
+      "endLine": 85587,
+      "kind": "async function",
+      "bytes": 5852,
+      "signature": "dc0e889ff1cdf7ce81f0"
+    },
+    "resolveRemoteListenerConfig": {
+      "mangled": "ddt",
+      "line": 84472,
+      "endLine": 84496,
+      "kind": "function",
+      "bytes": 951,
+      "signature": "fda4c6bd788bc72a2215"
+    },
+    "createSpineEvent": {
+      "mangled": "Yt",
+      "line": 31924,
+      "endLine": 31930,
+      "kind": "function",
+      "bytes": 112,
+      "signature": "965aac03636e005def8b"
+    },
+    "advanceConsumerWatermark": {
+      "mangled": "hl",
+      "line": 32773,
+      "endLine": 32781,
+      "kind": "async function",
+      "bytes": 253,
+      "signature": "6ea77f5a00df46550b9a"
+    },
+    "transcludeBroadcastBoard": {
+      "mangled": "Uwe",
+      "line": 76223,
+      "endLine": 76229,
+      "kind": "async function",
+      "bytes": 134,
+      "signature": "fb5b65b5053929703601"
+    },
+    "handleDrainError": {
+      "mangled": "$v",
+      "line": 66356,
+      "endLine": 66411,
+      "kind": "async function",
+      "bytes": 1669,
+      "signature": "22d5fbdfbaa8eedd9e66"
+    },
+    "rehydrateSessionState": {
+      "mangled": "Ore",
+      "line": 32255,
+      "endLine": 32294,
+      "kind": "async function",
+      "bytes": 1424,
+      "signature": "d711af30a986f3ea61c0"
+    },
+    "walkReachableMemory": {
+      "mangled": "oc",
+      "line": 61024,
+      "endLine": 61040,
+      "kind": "function",
+      "bytes": 421,
+      "signature": "0907c34c8f121041d156"
+    },
+    "collectMemoryLinks": {
+      "mangled": "ic",
+      "line": 61009,
+      "endLine": 61022,
+      "kind": "function",
+      "bytes": 440,
+      "signature": "782b8b3d68065d1693ac"
+    },
+    "resolveMemoryLinkTargets": {
+      "mangled": "cf",
+      "line": 60661,
+      "endLine": 60665,
+      "kind": "function",
+      "bytes": 106,
+      "signature": "6ebcd88b04b7587341b8"
+    },
+    "resolveMemoryDirs": {
+      "mangled": "Ti",
+      "line": 60622,
+      "endLine": 60630,
+      "kind": "function",
+      "bytes": 243,
+      "signature": "4c1d6d1f961515d270ab"
+    },
+    "detectOrphanMemory": {
+      "mangled": "fye",
+      "line": 62512,
+      "endLine": 62533,
+      "kind": "function",
+      "bytes": 562,
+      "signature": "052b4b9f7be1206083ef"
+    },
+    "enforceContractGate": {
+      "mangled": "GP",
+      "line": 61486,
+      "endLine": 61498,
+      "kind": "function",
+      "bytes": 468,
+      "signature": "fe1f429c34ac6fde2dd3"
+    },
+    "forgetMemoryEntry": {
+      "mangled": "mye",
+      "line": 62544,
+      "endLine": 62578,
+      "kind": "function",
+      "bytes": 1319,
+      "signature": "90e14513bde2fa50f5a9"
+    },
+    "mergeClaudeToolLists": {
+      "mangled": "Fme",
+      "line": 59490,
+      "endLine": 59492,
+      "kind": "function",
+      "bytes": 109,
+      "signature": "0d75ed9abe419d03a91f"
+    },
+    "daemonRestartReasonPath": {
+      "mangled": "rnt",
+      "line": 59923,
+      "endLine": 59925,
+      "kind": "function",
+      "bytes": 79,
+      "signature": "cb4e1869cfd1a605f717"
+    },
+    "setPendingRestartReason": {
+      "mangled": "The",
+      "line": 59952,
+      "endLine": 59954,
+      "kind": "function",
+      "bytes": 40,
+      "signature": "bc2178e291c7b7f3c744"
+    },
+    "renderDaemonRestartHint": {
+      "mangled": "Che",
+      "line": 59993,
+      "endLine": 59996,
+      "kind": "function",
+      "bytes": 210,
+      "signature": "f29a835b15f1606bbe2b"
+    },
+    "atomicAppendEvent": {
+      "mangled": "Xt",
+      "line": 31966,
+      "endLine": 31974,
+      "kind": "async function",
+      "bytes": 220,
+      "signature": "46d7eddd4951ab536e83"
+    },
+    "atomicWriteFileSync": {
+      "mangled": "FGe",
+      "line": 31931,
+      "endLine": 31952,
+      "kind": "async function",
+      "bytes": 554,
+      "signature": "9396f4ca646b9bcf5fce"
+    },
+    "readEventByIdSeek": {
+      "mangled": "qGe",
+      "line": 32001,
+      "endLine": 32017,
+      "kind": "async function",
+      "bytes": 432,
+      "signature": "93918d39e45cf23d6df8"
+    },
+    "appendBeforeExecuteGateway": {
+      "mangled": "hae",
+      "line": 81119,
+      "endLine": 81251,
+      "kind": "async function",
+      "bytes": 4509,
+      "signature": "822718d251b421b538a9"
+    },
+    "runBoardLint": {
+      "mangled": "Jnt",
+      "line": 60975,
+      "endLine": 60996,
+      "kind": "function",
+      "bytes": 838,
+      "signature": "d33c7386c97cce2f8e2c"
+    },
+    "runGapLint": {
+      "mangled": "Ert",
+      "line": 61819,
+      "endLine": 61853,
+      "kind": "function",
+      "bytes": 1110,
+      "signature": "bc2350419b31a692eefb"
+    },
+    "routeContractDecision": {
+      "mangled": "aB",
+      "line": 62649,
+      "endLine": 62651,
+      "kind": "function",
+      "bytes": 164,
+      "signature": "1cb36821a824f9877285"
+    },
+    "claimDaemonRestartReason": {
+      "mangled": "Rhe",
+      "line": 59926,
+      "endLine": 59950,
+      "kind": "async function",
+      "bytes": 809,
+      "signature": "6eb1a4f069e86e111bd5"
+    },
+    "computeDedupKey": {
+      "mangled": "qre",
+      "line": 80811,
+      "endLine": 80814,
+      "kind": "function",
+      "bytes": 109,
+      "signature": "a5d5d53d8c8cf7393cb0"
+    },
+    "applyJobSdkConfigOverride": {
+      "mangled": "u4",
+      "line": 59620,
+      "endLine": 59639,
+      "kind": "function",
+      "bytes": 953,
+      "signature": "3ce0efee893cf837cd33"
+    },
+    "getPendingRestartReason": {
+      "mangled": "Ihe",
+      "line": 59956,
+      "endLine": 59958,
+      "kind": "function",
+      "bytes": 70,
+      "signature": "e2e1c18eaff2c714e8ce"
+    },
+    "batchDrainItems": {
+      "mangled": "HB",
+      "line": 65926,
+      "endLine": 65962,
+      "kind": "async function",
+      "bytes": 953,
+      "signature": "c5c55926e2a345b253ee"
+    },
+    "buildTransientUserBlocks": {
+      "mangled": "K_e",
+      "line": 65787,
+      "endLine": 65887,
+      "kind": "function",
+      "bytes": 3200,
+      "signature": "2ec322f18920da64f50b"
+    },
+    "drainSessionMailbox": {
+      "mangled": "W_e",
+      "line": 64516,
+      "endLine": 65484,
+      "kind": "async function",
+      "bytes": 43251,
+      "signature": "d726478a70de1ac51f93"
+    },
+    "classifyModelContextRequirement": {
+      "mangled": "IB",
+      "line": 63845,
+      "endLine": 63865,
+      "kind": "function",
+      "bytes": 526,
+      "signature": "39d22792fe30676147ac"
+    }
+  }
+}

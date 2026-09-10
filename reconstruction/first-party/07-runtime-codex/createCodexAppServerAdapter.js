@@ -211,14 +211,14 @@ function createCodexAppServerAdapter(e, t) {
                                 case "item/started": {
                                     if (!me) break;
                                     me.type === "agentMessage" && typeof me.id == "string" && me.phase === "commentary" && x.add(me.id);
-                                    let be = Xpe(me);
+                                    let be = mapItemStartedToExecEvent(me);
                                     be && c.onExecutionEvent?.(be);
                                     break
                                 }
                                 case "item/completed": {
                                     if (!me) break;
                                     pe(me);
-                                    let be = Qpe(me);
+                                    let be = mapItemCompletedToExecEvent(me);
                                     be && c.onExecutionEvent?.(be);
                                     break
                                 }

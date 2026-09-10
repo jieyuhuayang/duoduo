@@ -36628,9 +36628,9 @@ var YL = A(() => {
 });
 var tF = {};
 Ln(tF, {
-    IN_PROCESS_BREAK_HIT_RATIO_FLOOR: () => rae,
+    IN_PROCESS_BREAK_HIT_RATIO_FLOOR: () => IN_PROCESS_BREAK_HIT_RATIO_FLOOR,
     appendDrainRecord: () => appendDrainRecord,
-    detectInProcessBreak: () => XL,
+    detectInProcessBreak: () => detectInProcessBreak,
     drainRecordPath: () => drainRecordPath,
     readAllSessionSummaries: () => readAllSessionSummaries,
     readDrainRecords: () => readDrainRecords,
@@ -36646,12 +36646,12 @@ import {
     createReadStream as h5e
 } from "node:fs";
 
-function XL(e, t) {
+function detectInProcessBreak(e, t) {
     if (!e || t) return !1;
     let n = e.cache_read_input_tokens ?? 0,
         r = e.cache_creation_input_tokens ?? 0,
         i = n + r;
-    return i <= 0 ? !1 : n / i < rae
+    return i <= 0 ? !1 : n / i < IN_PROCESS_BREAK_HIT_RATIO_FLOOR
 }
 
 function g5e(e) {
@@ -36806,11 +36806,11 @@ async function readRecentDrainRecords(e, t) {
     }
     return r.sort((i, o) => new Date(o.drain_started_at).getTime() - new Date(i.drain_started_at).getTime()), r.slice(0, t)
 }
-var rae, bl = A(() => {
+var IN_PROCESS_BREAK_HIT_RATIO_FLOOR, bl = A(() => {
     "use strict";
     dd();
     yr();
-    rae = .5
+    IN_PROCESS_BREAK_HIT_RATIO_FLOOR = .5
 });
 
 function H(e, t, n) {
@@ -49787,8 +49787,8 @@ Ln(wI, {
     buildSystemPromptForChannelConfig: () => buildSystemPromptForChannelConfig,
     claudeUnavailableReason: () => claudeUnavailableReason,
     createAgentSdkAdapter: () => createAgentSdkAdapter,
-    eventToMessageGenerator: () => Fq,
-    findDeadAllowedToolEntries: () => $de,
+    eventToMessageGenerator: () => eventToMessageGenerator,
+    findDeadAllowedToolEntries: () => findDeadAllowedToolEntries,
     isAbortLikeError: () => isAbortLikeError,
     isAgentSdkPromptNotAcceptedAbortError: () => isAgentSdkPromptNotAcceptedAbortError,
     isAgentSdkTurnInterruptedError: () => isAgentSdkTurnInterruptedError,
@@ -49800,7 +49800,7 @@ Ln(wI, {
     renderPromptLayers: () => renderPromptLayers,
     resolveMetaPromptText: () => resolveMetaPromptText,
     splitDisallowedToolsForClaude: () => splitDisallowedToolsForClaude,
-    stringToMessageGenerator: () => vI,
+    stringToMessageGenerator: () => stringToMessageGenerator,
     verifyClaudeCodeRuntimeAvailable: () => verifyClaudeCodeRuntimeAvailable
 });
 import {
@@ -49816,7 +49816,7 @@ import {
     query as Tde
 } from "@anthropic-ai/claude-agent-sdk";
 
-function $de(e, t) {
+function findDeadAllowedToolEntries(e, t) {
     let n = new Set(t);
     return e.filter(r => r.startsWith("mcp__") ? !1 : !n.has(r === "Task" ? "Agent" : r))
 }
@@ -50029,7 +50029,7 @@ function h7e(e, t) {
         return null
     }
 }
-async function* Fq(e, t, n) {
+async function* eventToMessageGenerator(e, t, n) {
     let r = [];
     if (t && t.length > 0)
         for (let o of t) {
@@ -50057,7 +50057,7 @@ async function* Fq(e, t, n) {
         }
     }
 }
-async function* vI(e) {
+async function* stringToMessageGenerator(e) {
     yield {
         type: "user",
         message: {
@@ -50110,7 +50110,7 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
         if (r.systemPrompt !== void 0 && (r.systemPrompt = y7e(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let l = [...new Set(t.tools)];
             if (r.tools = l, gt("info", `[claude-sdk] built-in tool surface (${l.length}): ${l.join(",")}`), t.allowedTools?.length) {
-                let u = $de(t.allowedTools, l);
+                let u = findDeadAllowedToolEntries(t.allowedTools, l);
                 u.length > 0 && W(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${u.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
             }
         }
@@ -50249,7 +50249,7 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
                     }, j), typeof x == "object" && x?.unref && x.unref()))
                 };
             async function* oe() {
-                let L = typeof t.prompt == "string" ? vI(t.prompt) : t.prompt;
+                let L = typeof t.prompt == "string" ? stringToMessageGenerator(t.prompt) : t.prompt;
                 for await (let M of L) yield M;
                 await O
             }
@@ -56561,8 +56561,8 @@ Ln(Y2, {
     extractSystemPromptAppend: () => extractSystemPromptAppend,
     hasImageGenerationRecord: () => hasImageGenerationRecord,
     isCodexAvailable: () => isCodexAvailable,
-    mapItemCompletedToExecEvent: () => Qpe,
-    mapItemStartedToExecEvent: () => Xpe,
+    mapItemCompletedToExecEvent: () => mapItemCompletedToExecEvent,
+    mapItemStartedToExecEvent: () => mapItemStartedToExecEvent,
     primeCodexAvailability: () => primeCodexAvailability,
     resolveCodexSandbox: () => resolveCodexSandbox
 });
@@ -56935,14 +56935,14 @@ function createCodexAppServerAdapter(e, t) {
                                 case "item/started": {
                                     if (!me) break;
                                     me.type === "agentMessage" && typeof me.id == "string" && me.phase === "commentary" && x.add(me.id);
-                                    let be = Xpe(me);
+                                    let be = mapItemStartedToExecEvent(me);
                                     be && c.onExecutionEvent?.(be);
                                     break
                                 }
                                 case "item/completed": {
                                     if (!me) break;
                                     pe(me);
-                                    let be = Qpe(me);
+                                    let be = mapItemCompletedToExecEvent(me);
                                     be && c.onExecutionEvent?.(be);
                                     break
                                 }
@@ -57270,7 +57270,7 @@ function Ype(e, t) {
     }))
 }
 
-function Xpe(e) {
+function mapItemStartedToExecEvent(e) {
     let t = e.type,
         n = e.id;
     switch (t) {
@@ -57381,7 +57381,7 @@ function Xpe(e) {
     }
 }
 
-function Qpe(e) {
+function mapItemCompletedToExecEvent(e) {
     let t = e.type,
         n = e.id;
     switch (t) {
@@ -63842,7 +63842,7 @@ function i_e(e, t) {
     }
 }
 
-function IB({
+function classifyModelContextRequirement({
     model: e,
     mergedCatalog: t,
     hostMaxContextTokens: n
@@ -63985,7 +63985,7 @@ async function dot(e, t) {
     }
 }
 async function Eh(e) {
-    let t = IB({
+    let t = classifyModelContextRequirement({
         model: e.model,
         mergedCatalog: e.mergedCatalog,
         hostMaxContextTokens: e.hostMaxContextTokens
@@ -63993,7 +63993,7 @@ async function Eh(e) {
     if (e.model) return t;
     let n = await dot(e.cwd, e.daemonEnv);
     if (!n) return t;
-    let r = IB({
+    let r = classifyModelContextRequirement({
         model: n.model,
         mergedCatalog: e.mergedCatalog,
         hostMaxContextTokens: e.hostMaxContextTokens
@@ -64551,7 +64551,7 @@ async function drainSessionMailbox(e, t, n = {}) {
     async function y(b) {
         try {
             let I = n.getStreamGeneration?.(),
-                P = XL(p, h !== void 0 && I !== void 0 && I !== h);
+                P = detectInProcessBreak(p, h !== void 0 && I !== void 0 && I !== h);
             await appendDrainRecord(e, {
                 id: q_e.randomUUID(),
                 session_key: t,
@@ -66653,7 +66653,7 @@ async function pst(e, t, n, r) {
         b = !Ov(c),
         I = b ? void 0 : u,
         T = b ? u : void 0,
-        P = () => c === "pi" ? cst(s) : Fq(s, I, v),
+        P = () => c === "pi" ? cst(s) : eventToMessageGenerator(s, I, v),
         k = P(),
         S = ($, C, O) => {
             let j = l ? l() : a,
@@ -76387,7 +76387,7 @@ function computeNonBoardInstructionsFingerprint(e) {
     })
 }
 
-function wO(e, t) {
+function diffStreamingConfigSignature(e, t) {
     let n = l => {
             try {
                 return JSON.parse(l)
@@ -76977,7 +76977,7 @@ function eSe(e) {
             y;
         if (g && !g.closed)
             if (g.configSignature !== m) {
-                let X = wO(g.configSignature, m);
+                let X = diffStreamingConfigSignature(g.configSignature, m);
                 gt("warn", "[kv-cache] respawn: signature-mismatch", {
                     sessionKey: u.sessionKey,
                     generation: u.streamingGeneration,
@@ -77609,7 +77609,7 @@ Ln(nSe, {
     computeMissionFingerprint: () => computeMissionFingerprint,
     computeNonBoardInstructionsFingerprint: () => computeNonBoardInstructionsFingerprint,
     createSessionManager: () => createSessionManager,
-    diffStreamingConfigSignature: () => wO,
+    diffStreamingConfigSignature: () => diffStreamingConfigSignature,
     runInstructionsFingerprintGuard: () => runInstructionsFingerprintGuard
 });
 import {
@@ -80052,7 +80052,7 @@ ${D}`,
                     effective: null
                 }),
                 ze = le.run({
-                    prompt: J === "pi" ? _ : vI(_),
+                    prompt: J === "pi" ? _ : stringToMessageGenerator(_),
                     cwd: S.dir,
                     model: J === "claude" ? Ie.effectiveModel ?? ae : J === "pi" ? void 0 : ae,
                     effort: J === "pi" ? void 0 : L,
@@ -85424,7 +85424,7 @@ Content-Length: 0\r
         }
     }
 }
-async function pdt() {
+async function main() {
     let {
         resolveRuntimePaths: e
     } = await Promise.resolve().then(() => (yh(), tge)), {
@@ -85585,9 +85585,9 @@ async function pdt() {
         };
     process.on("SIGTERM", () => te("SIGTERM")), process.on("SIGINT", () => te("SIGINT"))
 }
-process.env.ALADUO_DISABLE_DAEMON_AUTO_MAIN !== "1" && import.meta.url === Ict(process.argv[1]).href && pdt().catch(e => {
+process.env.ALADUO_DISABLE_DAEMON_AUTO_MAIN !== "1" && import.meta.url === Ict(process.argv[1]).href && main().catch(e => {
     Me("[pid0] fatal startup error", e), process.exit(1)
 });
 export {
-    createDaemon as createDaemon, deliverDaemonRestartWakes as deliverDaemonRestartWakes, isLoopbackBindHost as isLoopbackBindHost, pdt as main, resolveRemoteListenerConfig as resolveRemoteListenerConfig
+    createDaemon as createDaemon, deliverDaemonRestartWakes as deliverDaemonRestartWakes, isLoopbackBindHost as isLoopbackBindHost, main as main, resolveRemoteListenerConfig as resolveRemoteListenerConfig
 };

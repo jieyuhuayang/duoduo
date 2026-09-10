@@ -2,7 +2,9 @@
 
 目标命题：**还原后的 `recon/*.recon.js` 与出厂 `dist/release/*.js` 是同一个程序，能同样运行。**
 
-采用六条相互独立的证据，从“结构无损”到“语义全等”到“实机运行”层层加固，第五条覆盖**跨版本重定向**，第六条覆盖**可读树与 bundle 的一致性**——前五条只证明 `recon/*.recon.js`，都不看 `first-party/` 一眼，而那里出错是静默的。以下为实测输出（2026-08-20，Node v22.22.2 与 v22.17.0 两台各跑一遍，产物字节一致，`@openduo/duoduo` **v0.7.1**）。
+采用七条相互独立的证据，从"结构无损"到"语义全等"到"实机运行"层层加固：第五条覆盖**跨版本重定向**，第六条覆盖**可读树与 bundle 的一致性**（前五条只证明 `recon/*.recon.js`，都不看 `first-party/` 一眼，而那里出错是静默的），第七条覆盖**文档引用与符号身份的一致性**。
+
+> **本文的实测输出记录的是 2026-08-20 的 v0.7.1 验证轮次**（Node v22.22.2 与 v22.17.0 两台各跑一遍，产物字节一致），其中的逐条数字与故障复盘按当时原样保留，因为它们是具体事故的记录。**当前版本的权威计数在 [`maps/pipeline_report.json`](./maps/pipeline_report.json)**，由每次 `rebuild.sh` 生成；本文末尾的汇总表已对齐最新一轮。数字不再手工复述——正是手工复述让"恢复出多少个真名"在四份文档里漂移成了 712、733、739 三个值。
 
 ---
 
@@ -162,7 +164,9 @@ stdio : old=745  new=868  matched=730   changedOld=15   unmatchedNew=137  (pureN
 
 另有一处**工具口径缺口**：`tools/build_rename.mjs` 的 first-party 关键词白名单没有 `grok`/`namespace` 类关键词，导致首次跑 `rebuild.sh` 时 19 个 Grok 符号与 `ALADUO_TOOL_NAMESPACE` 被判定为"非第一方"而不改名（`first-party rename entries: 120`），`first-party/11-runtime-grok/` 整个子系统不存在——**而三条等价性证据全部照常通过**：不改名不影响无损拆包，也不影响 AST 全等（改名表里没有它们，自然没有不一致），daemon 照常启动。这类缺失只有靠人读才能发现。
 
-补关键词只能修掉这一次。真正的修复是**不再信任这份启发式是完整的**：`build_rename.mjs` 现在带一道覆盖率闸门——每个从 `__export` 恢复出的导出名都必须**被交代过**，要么判定为第一方，要么记录在 `maps/vendor_baseline_<bundle>.json` 里；两者都不是，就说明它是相对基线**新出现**的名字，构建直接失败并列出这些名字，由人判定归属（第一方→加关键词；vendor→`--accept-vendor` 记账）。基线以**导出原名**为键（跨构建稳定），而非每次重新 mangle 的短名。
+补关键词只能修掉这一次。当时的修复是给 `build_rename.mjs` 加一道**覆盖率闸门**：每个恢复出的导出名都必须被交代过，否则构建失败。那道闸门止住了血，但没治病——它仍然按名字判定归属，只是要求把判不出来的名字显式记账，而记账过的名字从此不再被审视。v0.8.1 的复盘显示这条路本身就是错的：8 个身处自研模块的符号被判成第三方并记进了基线，此后永久免检。
+
+**现在按模块判定**：esbuild 为每个源模块生成一个 `__export` 块，`maps/modules_<bundle>.json` 逐块记录归属，匹配不上任何记录的块直接让构建失败并列出该块全部导出名。判断粒度从「一个名字」升到「一个模块」，新版本冒出来的是「多了 1 个模块要判断」，而模块的身份不依赖名字长什么样——这正是 Grok 那一次失败的根因所在。
 
 回放验证：把 v0.7.1 手工补的那几个关键词去掉、重跑闸门，它精确报出当初被静默吞掉的那 19 个名字并以非零码退出。同一个缺口再发生一次，会是构建失败，而不是一个没人注意到的空目录。
 
@@ -191,20 +195,33 @@ RESULT: first-party tree is consistent with the bundle
 
 ---
 
-## 汇总
+## 汇总（最新一轮：v0.8.1，计数源自 `maps/pipeline_report.json`）
 
-| 证据 | daemon | cli | stdio |
-|------|--------|-----|-------|
-| 无损拆包（cmp 零差异） | ✓ 628 模块 | ✓ 485 | ✓ 399 |
-| 真实原名恢复（`__export`） | 739 | 32 | 9 |
-| AST 全等（节点数 / 改名命中） | ✓ 504667 / 543 | ✓ 458304 / 41 | ✓ 408291 / 18 |
-| `node --check` 语法 | ✓ | ✓ | ✓ |
-| 实机运行 | ✓ 实启 RPC(TCP只读+socket全权) + 三运行时探测 | ✓ --help 逐字节一致 | ✓ --help 逐字节一致 |
-| 跨版本身份迁移 | ✓ 1814 指纹匹配 + 4 处锚点复位，全部 30/30 推断名成功迁移 | ✓ 1110 指纹匹配 | ✓ 730 指纹匹配 |
-| 导出名覆盖率闸门 | ✓ 739 = 109 第一方 + 630 基线，无未交代名 | ✓ 32 = 14 + 18 | ✓ 9 = 7 + 2 |
-| 可读树与 bundle 一致 | ✓ 139/139 切片·改名表·行锚点 | — | — |
+覆盖面已收敛到**有一等公民导出表的 bundle**。`stdio` 移出（9 个真名、7 个改名，却要提交 3.3MB 产物）；`pi-worker`、`channel-acp`、`feishu-gateway` 不接入（分别恢复 0、0、1 个真名——前两个是入口 bundle，自身模块被内联，恢复出的 621 个名字 100% 是内联 zod）。
 
-**命题成立**：三个入口的还原产物均与出厂 v0.7.1 语义全等，且可正确、同样效果地运行（含新增的 unix socket 控制面与三运行时探测的实机复现）。
+| 证据 | daemon | cli |
+|------|--------|-----|
+| 无损拆包（cmp 零差异） | ✓ | ✓ |
+| `__export` 块（= 源模块） | 24（15 自研 / 9 第三方） | 5（5 自研 / 0 第三方） |
+| 一等公民真名（块内 + 入口导出） | 107 + 5 | 20 + 14 |
+| 逆向推断的内部名 | 31 | 0 |
+| 改名条目 / 实际改写引用 | 143 / 568 | 34 / 124 |
+| AST 全等（节点数） | ✓ 143 改名，0 跳过 | ✓ 34 改名，0 跳过 |
+| `node --check` 语法 | ✓ | ✓ |
+| 实机运行 | ✓ 实启 RPC(TCP只读+socket全权) + 运行时探测 | ✓ --help 逐字节一致 |
+| 模块闸门 | ✓ 24 个块全部有归属记录 | ✓ 5 个块全部有归属记录 |
+| 可读树与 bundle 一致 | ✓ 143/143 切片·改名表·行锚点 | — |
+| 文档引用身份一致 | ✓ 0 个消失符号，0 个错短名 | ✓ |
+
+### 本轮修掉的三处静默失败
+
+1. **拆包证明在大小写不敏感的文件系统上无法成立。** 压缩标识符常常只差大小写（daemon 61 对、cli 64 对，如 `Rw` 与 `rW`），而分片文件按标识符命名，于是在 macOS 与 Windows 上后写的文件覆盖前一个：模块树内容错乱，字节还原比对失败。文件名改为大小写唯一后两个 bundle 均恢复 `byte-identical`。
+2. **关键词分类漏判 8 个自研符号**（`diffStreamingConfigSignature`、`detectInProcessBreak`、`IN_PROCESS_BREAK_HIT_RATIO_FLOOR`、`eventToMessageGenerator`、`stringToMessageGenerator`、`findDeadAllowedToolEntries`、`mapItemCompletedToExecEvent`、`mapItemStartedToExecEvent`），且它们已被记进 vendor 基线，闸门从此不再报警。改为按模块判定后全部找回并进入可读树。
+3. **`check_bare_anchors.mjs` 的 vendor 判据一直是死的**：它拿声明的**短名**去比对一张**导出原名**表，只有偶然同名才可能命中。改为比对第三方模块导出的短名后，第一次运行就refute 掉一条此前无人发现的错误锚点。
+
+另有一个文档侧发现：`classifyModelContextRequirement` 被 `AGENT_INTERNALS_ANALYSIS.md` 当作真名使用，却从未记录在 `maps/inferred_daemon.json` 里——既无从校验，也不在可读树中。现已补录。
+
+**命题成立**：所覆盖入口的还原产物均与出厂产物语义全等，且可正确、同样效果地运行（含 unix socket 控制面与运行时探测的实机复现）。
 
 ---
 
@@ -214,15 +231,15 @@ RESULT: first-party tree is consistent with the bundle
 export PATH="$HOME/.local/node-v22.17.0-linux-x64/bin:$PATH"
 cd reconstruction/tools && npm install
 
-# 0) 取出厂产物并反混淆（用 npm install 到隔离前缀，不改动本机全局安装的实例）
+# 0) 取出厂产物（装到隔离前缀，不改动本机全局安装的实例）。
+#    反混淆已收进 rebuild.sh，js-beautify 在 tools/package.json 里锁定版本。
 SP=/tmp/duoduo-recon && mkdir -p "$SP/pkgs"
-npm install --prefix "$SP/pkgs/v0.7.1" @openduo/duoduo@0.7.1
-mkdir -p "$SP/beautified/v0.7.1"
-PKG="$SP/pkgs/v0.7.1/node_modules/@openduo/duoduo/dist/release"
-for b in daemon cli stdio; do npx js-beautify "$PKG/$b.js" > "$SP/beautified/v0.7.1/$b.pretty.js"; done
+npm install --prefix "$SP/pkgs/v0.8.1" @openduo/duoduo@0.8.1
+PKG="$SP/pkgs/v0.8.1/node_modules/@openduo/duoduo/dist/release"
 
-# 1) 证据一~三（split→cmp→exports→rename→ast_equiv）
-BEAUTIFIED="$SP/beautified/v0.7.1" bash rebuild.sh
+# 1) 证据一~三、六、七（beautify→split→cmp→export blocks→模块闸门→rename
+#    →ast_equiv→符号索引→可读树→引用身份），并生成 maps/pipeline_report.json
+PKG="$PKG" PKG_VERSION=v0.8.1 bash rebuild.sh
 
 # 2) 证据五（仅版本升级时需要；先跑它，复核并更新 maps/inferred_*.json，
 #    再确认 build_rename.mjs 的关键词白名单覆盖了本轮新子系统，最后重跑 rebuild.sh）

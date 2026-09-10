@@ -1,0 +1,63 @@
+{
+  "generatedBy": "reconstruction/tools/rebuild.sh",
+  "package": "v0.8.1",
+  "note": "Generated. Do not hand-edit, and do not restate these numbers in prose — cite this file.",
+  "bundles": {
+    "daemon": {
+      "prettyLines": 85592,
+      "exportBlocks": 24,
+      "firstPartyBlocks": 15,
+      "vendorBlocks": 9,
+      "namesInBlocks": 1001,
+      "distinctNamesInBlocks": 728,
+      "firstPartyNamesFromBlocks": 107,
+      "namesFromEntryExports": 5,
+      "inferredNames": 31,
+      "renameEntries": 143,
+      "renamesApplied": 143,
+      "referencesRewritten": 568,
+      "renamesSkippedMissing": 0,
+      "renamesSkippedCollision": 0,
+      "indexedSymbols": 143
+    },
+    "cli": {
+      "prettyLines": 74753,
+      "exportBlocks": 5,
+      "firstPartyBlocks": 5,
+      "vendorBlocks": 0,
+      "namesInBlocks": 20,
+      "distinctNamesInBlocks": 20,
+      "firstPartyNamesFromBlocks": 20,
+      "namesFromEntryExports": 14,
+      "inferredNames": 0,
+      "renameEntries": 34,
+      "renamesApplied": 34,
+      "referencesRewritten": 124,
+      "renamesSkippedMissing": 0,
+      "renamesSkippedCollision": 0,
+      "indexedSymbols": 34
+    }
+  },
+  "firstPartyTree": {
+    "files": 143,
+    "subsystems": 12,
+    "bySubsystem": {
+      "00-daemon-entry": 7,
+      "01-spine-wal": 6,
+      "02-gateway-rpc": 4,
+      "03-session-actor": 13,
+      "04-cognition-prompt": 8,
+      "05-drain-turn": 12,
+      "06-runtime-claude": 23,
+      "07-runtime-codex": 20,
+      "08-cadence-subconscious": 6,
+      "09-memory": 16,
+      "10-runtime-host": 13,
+      "11-runtime-grok": 15
+    }
+  },
+  "totals": {
+    "coveredBundles": 2,
+    "firstPartySymbols": 177
+  }
+}

@@ -259,7 +259,7 @@ ${D}`,
                     effective: null
                 }),
                 ze = le.run({
-                    prompt: J === "pi" ? _ : vI(_),
+                    prompt: J === "pi" ? _ : stringToMessageGenerator(_),
                     cwd: S.dir,
                     model: J === "claude" ? Ie.effectiveModel ?? ae : J === "pi" ? void 0 : ae,
                     effort: J === "pi" ? void 0 : L,

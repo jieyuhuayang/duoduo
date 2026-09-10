@@ -49,7 +49,7 @@
 | [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | Agent 内部逻辑（逐行证据） | 8 个子系统（认知装配 / Turn-Drain / Session Actor / Spine-WAL / Gateway / Cadence-潜意识 / 记忆 / 双后端抽象）的机制主张全集，每条带 `file:line` + `confirmed/未证实推测` 置信标注，经还原源码复核与对抗验证 | 1221 行 · 07-29 对齐 v0.6.2 |
 | [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 系统 / 部署级 | 项目定位、六大创新的实测印证、进程与文件系统模型、崩溃恢复实证、可观测性、可复现的本机部署记录与验证清单 | 356 行 · 07-01（07-29 复核更新） |
 | [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | 跨项目对比调研 | duoduo vs hermes-agent vs pi：设计哲学、十维度对比、优劣总评，及面向"贝叶斯 + 自我迭代 + long-horizon 金融预测 agent"的融合架构与落地路线 | 325 行 · 07-03 |
-| [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 源码还原方法论 | 反混淆 → 字节无损拆包 → 从 esbuild `__export` 恢复 712 个真名 → 作用域安全改名 → 48 万节点 AST 全等 + 隔离实启双重证明；外加跨版本身份承接（跟随上游发版）；方法可迁移到任何 esbuild 产物 | 94 行 · 07-29 |
+| [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 源码还原方法论 | 反混淆 → 字节无损拆包 → 按 `__export` 块恢复真名并逐模块判定归属 → 作用域安全改名 → AST 全等 + 隔离实启双重证明 → 建符号索引让文档引用按身份而非行号自我维护；外加跨版本身份承接（跟随上游发版）；方法可迁移到任何 esbuild 产物 | 2026-09-10 随流水线重构更新 |
 
 ## 关键结论一句话
 

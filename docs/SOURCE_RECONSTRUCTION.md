@@ -11,9 +11,13 @@
 | 论点 | 手段 | 保证 |
 |------|------|------|
 | **一 · 排版与拆包不损语义** | js-beautify（只改空白）+ AST 字节切分拆包 | 拼接可 `cmp` 字节还原 → 拆分零损失 |
-| **二 · 名字大多是恢复而非编造** | 抽取 esbuild `__export(exports,{原名:()=>短名})` | daemon 恢复 712 个真实导出名，与既有逆向交叉印证 |
-| **三 · 改名与运行被独立证明** | Babel 作用域安全改名 + 48 万节点 AST 全等 + 隔离实启 | 还原产物 = 出厂产物（同一 AST），且实机 RPC/WAL/cadence 正常 |
-| **四 · 跟随上游升级不靠沿用旧表** | 结构指纹跨版本承接身份 + 逐声明归一化 diff | 短名全量漂移下仍能证明“同一个函数”，且真实变更面被裁出来 |
+| **二 · 名字大多是恢复而非编造** | 抽取 esbuild `__export(exports,{原名:()=>短名})` 与顶层 `export {}` | 真实导出名逐字保留，与既有逆向交叉印证 |
+| **二 b · 归属是判定而非猜测** | 一个 `__export` 块即一个源模块，逐**模块**标注自研/第三方 | 新版本冒出的是「多了 1 个模块要判断」，而不是「多了 N 个陌生名字」 |
+| **三 · 改名与运行被独立证明** | Babel 作用域安全改名 + 近百万节点 AST 全等 + 隔离实启 | 还原产物 = 出厂产物（同一 AST），且实机 RPC/WAL/cadence 正常 |
+| **四 · 跟随上游升级不靠沿用旧表** | 结构指纹跨版本承接身份 + 逐声明归一化 diff | 短名全量漂移下仍能证明"同一个函数"，且真实变更面被裁出来 |
+| **五 · 文档引用按身份而非坐标** | 符号索引（真名 → 行号 + 结构签名）+ 引用校验 | 符号消失或短名对不上才算失败；行号是派生量，机械重生成 |
+
+> 本文不复述计数。每次 `rebuild.sh` 生成的 `reconstruction/maps/pipeline_report.json` 是当前版本全部计数的权威来源。
 
 ---
 
@@ -33,8 +37,9 @@
 
 **所以呢**：还原后能看到 `buildSystemPromptForChannelConfig`、`createSessionManager`、`runCadenceTick` 这些真名，绝大多数是从产物里**读出来**的，不是我起的。
 
-- **来源**：esbuild 为每个 ESM 模块生成 `__export(exports, { 导出名: () => 本地短名 })`。`tools/exports_map.mjs` 自动识别该助手（v0.6.2 的 daemon=`Un`、cli=`vo`）并抽取映射。
-- **产出**：daemon **712**、cli **739**、stdio **9** 个真实符号名。其中首方（duoduo 自研）子集经关键词过滤得到 daemon 82 个权威名，例如（短名为 v0.6.2 构建）：
+- **来源**：esbuild 为每个 ESM 模块生成 `__export(exports, { 导出名: () => 本地短名 })`，另有 bundle 顶层 `export { 短名 as 导出名 }` 记录入口模块自身的导出面。`tools/export_blocks.mjs` 按调用点形状自动识别该助手，并**按块分组**输出。
+- **为什么必须按块分组**：块边界就是源模块边界，而"某个名字属不属于 duoduo"只有在模块粒度上才是可判定的。压平成一张大表还会丢信息——daemon 的 24 个块共有 1001 个名字但只有 728 个互异，zod 从多个模块导出同名的 `bigint`/`date`/`string`，压平后后写者覆盖前者。
+- **产出**：一等公民真名（当前计数见 `reconstruction/maps/pipeline_report.json`），例如（短名为 v0.6.2 构建）：
 
   ```
   JE  → buildSystemPromptForChannelConfig      tu  → createAgentSdkAdapter
@@ -78,17 +83,20 @@
 | **好读的自研逻辑** | `reconstruction/first-party/`（112 个函数，按 11 子系统分文件，带真名与原行号） |
 | **短名↔真名对照** | `reconstruction/maps/RENAME_TABLE.md` |
 | **全部恢复的导出名** | `reconstruction/maps/*.exports.json` |
-| **自研/第三方分类** | `reconstruction/maps/daemon.classification.json` |
+| **自研/第三方分类** | `reconstruction/maps/modules_daemon.json`（逐 `__export` 块，即逐源模块） |
 | **一键复现流水线** | `reconstruction/tools/rebuild.sh` |
 | **跟随上游升级** | `reconstruction/tools/bump.sh`（先跑它，再跑 `rebuild.sh`） |
 
 ## 方法可迁移性
 
-本流水线不依赖 duoduo 的任何特有约定，适用于任何 **esbuild 打包** 的 minified Node 产物：结构化识别包装助手 → 字节无损拆包 → `__export` 恢复导出名 → Babel 作用域安全改名 → AST 全等自证；版本升级时再叠一层结构指纹身份承接。全部工具在 `reconstruction/tools/`（19 个脚本 + 2 个流水线，纯 Babel，无外部服务）：
+本流水线不依赖 duoduo 的任何特有约定，适用于任何 **esbuild 打包** 的 minified Node 产物：结构化识别包装助手 → 字节无损拆包 → 按 `__export` 块恢复导出名并逐模块判定归属 → Babel 作用域安全改名 → AST 全等自证 → 建符号索引；版本升级时再叠一层结构指纹身份承接。全部工具在 `reconstruction/tools/`（纯 Babel，无外部服务）：
 
 | 阶段 | 工具 |
 |------|------|
-| 单版本还原 | `split.mjs` → `reassemble.mjs` → `exports_map.mjs` → `build_rename.mjs` → `rename.mjs` → `ast_equiv.mjs`（`rebuild.sh` 串起来） |
-| 可读化产出 | `classify.mjs`、`extract_functions.mjs`、`gen_rename_table.mjs` |
+| 单版本还原 | `split.mjs` → `reassemble.mjs` → `export_blocks.mjs` → `build_rename.mjs` → `rename.mjs` → `ast_equiv.mjs` → `symbol_index.mjs`（`rebuild.sh` 串起来，含美化步骤） |
+| 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs` |
+| 防静默失败 | `build_rename.mjs` 的模块闸门、`verify_inferred.mjs`、`verify_first_party.mjs`、`verify_citations.mjs` |
 | 跨版本升级 | `fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`locate_by_anchor.mjs`（`bump.sh` 串起来） |
-| 文档随版本迁移 | `remap_doc_anchors.mjs`（算锚点新位置）、`retarget_docs.mjs`（改行号）、`retarget_symbols.mjs`（改短名） |
+| 遗留裸行号锚点迁移 | `remap_doc_anchors.mjs`（算锚点新位置）、`retarget_docs.mjs`（改行号）、`retarget_symbols.mjs`（改短名）；写成真名形式的引用不需要这一层 |
+
+**两处可迁移的教训。** 其一，按名字猜归属必然漏：模块的导出名可以整块不含任何可识别词（duoduo 的 Grok 模块只导出 `GROK_ACP_*` 常量），而模块边界是打包器自己留下的、不会说谎的结构。其二，分片文件按标识符命名时必须做**大小写唯一化**：压缩标识符常常只差大小写（`Rw` 与 `rW`），在 macOS 与 Windows 上后写的文件会覆盖前一个，而字节还原比对因此失败——这个失败看起来像拆包算法有问题，其实是文件系统语义。

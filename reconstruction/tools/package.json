@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "esbuild-minified bundle -> readable, provably-equivalent source (split/rename/verify)",
+  "description": "esbuild-minified bundle -> readable, provably-equivalent source (beautify/split/classify/rename/verify)",
   "scripts": {
     "rebuild": "bash rebuild.sh"
   },
@@ -11,6 +11,7 @@
     "@babel/generator": "^7",
     "@babel/parser": "^7",
     "@babel/traverse": "^7",
-    "@babel/types": "^7"
+    "@babel/types": "^7",
+    "js-beautify": "2.0.3"
   }
 }

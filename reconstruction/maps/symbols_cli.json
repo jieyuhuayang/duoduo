@@ -1,0 +1,281 @@
+{
+  "bundle": "cli",
+  "version": "v0.8.1",
+  "source": "/Users/lilu/Projects/duoduo/reconstruction/tools/../.build/beautified/cli.pretty.js",
+  "symbolCount": 34,
+  "notTopLevel": [],
+  "symbols": {
+    "PLIST_LABEL": {
+      "mangled": "Pb",
+      "line": 20560,
+      "endLine": 20563,
+      "kind": "var (uninitialised)",
+      "bytes": 93,
+      "signature": "dc10870716faf83809c9"
+    },
+    "generatePlist": {
+      "mangled": "$$",
+      "line": 20450,
+      "endLine": 20484,
+      "kind": "function",
+      "bytes": 995,
+      "signature": "137516581ac333be4f53"
+    },
+    "getLaunchdPid": {
+      "mangled": "Dp",
+      "line": 20493,
+      "endLine": 20507,
+      "kind": "async function",
+      "bytes": 356,
+      "signature": "407239491887d8eb6d45"
+    },
+    "getRunAtLoad": {
+      "mangled": "XQ",
+      "line": 20534,
+      "endLine": 20542,
+      "kind": "async function",
+      "bytes": 229,
+      "signature": "fa2bf9fb4177e27ff5ae"
+    },
+    "getUid": {
+      "mangled": "bp",
+      "line": 20431,
+      "endLine": 20436,
+      "kind": "async function",
+      "bytes": 103,
+      "signature": "2e2544615f97aae38dbb"
+    },
+    "installAndLoad": {
+      "mangled": "$Q",
+      "line": 20508,
+      "endLine": 20518,
+      "kind": "async function",
+      "bytes": 296,
+      "signature": "30adc50b6335a1da4636"
+    },
+    "isAquaSession": {
+      "mangled": "zQ",
+      "line": 20424,
+      "endLine": 20426,
+      "kind": "function",
+      "bytes": 123,
+      "signature": "31ef8b14f376d17b25d6"
+    },
+    "isServiceLoaded": {
+      "mangled": "y_",
+      "line": 20485,
+      "endLine": 20492,
+      "kind": "async function",
+      "bytes": 154,
+      "signature": "4ffa2e18b973367b956e"
+    },
+    "kickstart": {
+      "mangled": "JQ",
+      "line": 20519,
+      "endLine": 20522,
+      "kind": "async function",
+      "bytes": 101,
+      "signature": "5bf13919283e4aac605a"
+    },
+    "plistPath": {
+      "mangled": "p1",
+      "line": 20428,
+      "endLine": 20430,
+      "kind": "function",
+      "bytes": 93,
+      "signature": "09fd58caf83f16373590"
+    },
+    "setRunAtLoad": {
+      "mangled": "Ub",
+      "line": 20543,
+      "endLine": 20559,
+      "kind": "async function",
+      "bytes": 522,
+      "signature": "0ea49fb845f4f1474c75"
+    },
+    "uninstall": {
+      "mangled": "jQ",
+      "line": 20529,
+      "endLine": 20533,
+      "kind": "async function",
+      "bytes": 84,
+      "signature": "f0c9a0bdc2afac179d4b"
+    },
+    "unload": {
+      "mangled": "E1",
+      "line": 20523,
+      "endLine": 20528,
+      "kind": "async function",
+      "bytes": 122,
+      "signature": "fd9e19de6220e85cc1d3"
+    },
+    "renderCompactResult": {
+      "mangled": "yge",
+      "line": 62746,
+      "endLine": 62764,
+      "kind": "function",
+      "bytes": 1270,
+      "signature": "413eb2d2ed5a7daad3c1"
+    },
+    "renderConfigResult": {
+      "mangled": "Rge",
+      "line": 63116,
+      "endLine": 63168,
+      "kind": "function",
+      "bytes": 2792,
+      "signature": "2223afd1bc2ce940a269"
+    },
+    "renderSessionList": {
+      "mangled": "Ige",
+      "line": 62375,
+      "endLine": 62380,
+      "kind": "function",
+      "bytes": 243,
+      "signature": "99e719a10cba71f06a19"
+    },
+    "runSessionSubcommand": {
+      "mangled": "TKe",
+      "line": 62278,
+      "endLine": 62319,
+      "kind": "async function",
+      "bytes": 846,
+      "signature": "bda73453363f030aa01c"
+    },
+    "runPromptsSubcommand": {
+      "mangled": "JKe",
+      "line": 63383,
+      "endLine": 63415,
+      "kind": "async function",
+      "bytes": 971,
+      "signature": "c5ef7b04113eb7bcdf81"
+    },
+    "runMemoryCommand": {
+      "mangled": "wJe",
+      "line": 65381,
+      "endLine": 65408,
+      "kind": "async function",
+      "bytes": 681,
+      "signature": "7e8d480ecf558bdcfe1e"
+    },
+    "runSpineCommand": {
+      "mangled": "VJe",
+      "line": 65989,
+      "endLine": 66008,
+      "kind": "async function",
+      "bytes": 424,
+      "signature": "3775e89bf21df25d4c63"
+    },
+    "defaultExistingDaemonChoice": {
+      "mangled": "eEe",
+      "line": 73898,
+      "endLine": 73900,
+      "kind": "function",
+      "bytes": 58,
+      "signature": "f51997d110478ed414c6"
+    },
+    "inferOnboardConfigFromProbe": {
+      "mangled": "Aje",
+      "line": 73907,
+      "endLine": 73914,
+      "kind": "function",
+      "bytes": 220,
+      "signature": "3e7e6a2e751162dc4a98"
+    },
+    "isDetachedUpgradeWorker": {
+      "mangled": "_je",
+      "line": 74124,
+      "endLine": 74126,
+      "kind": "function",
+      "bytes": 53,
+      "signature": "e1a0ebf93dff428ac4ea"
+    },
+    "isInstallTargetFilePath": {
+      "mangled": "cje",
+      "line": 73852,
+      "endLine": 73854,
+      "kind": "function",
+      "bytes": 120,
+      "signature": "1d9383afbdc1a28a5b85"
+    },
+    "main": {
+      "mangled": "Rje",
+      "line": 74673,
+      "endLine": 74733,
+      "kind": "async function",
+      "bytes": 1684,
+      "signature": "88ace6f85bb08094bd6d"
+    },
+    "parseExistingDaemonChoice": {
+      "mangled": "dje",
+      "line": 73902,
+      "endLine": 73905,
+      "kind": "function",
+      "bytes": 171,
+      "signature": "c7b1ba7c446b4ee49fdc"
+    },
+    "parseRestartArgs": {
+      "mangled": "pje",
+      "line": 74069,
+      "endLine": 74099,
+      "kind": "function",
+      "bytes": 1269,
+      "signature": "894c0ad27d5862ee73d4"
+    },
+    "parseRootCli": {
+      "mangled": "uje",
+      "line": 73856,
+      "endLine": 73896,
+      "kind": "function",
+      "bytes": 1075,
+      "signature": "5a95f580c40af7378948"
+    },
+    "parseUpgradeArgs": {
+      "mangled": "Sje",
+      "line": 74322,
+      "endLine": 74347,
+      "kind": "function",
+      "bytes": 1149,
+      "signature": "40c40c2b252f6f6eb70a"
+    },
+    "printHelp": {
+      "mangled": "tEe",
+      "line": 73947,
+      "endLine": 73949,
+      "kind": "function",
+      "bytes": 1250,
+      "signature": "f13a66af70b77f268495"
+    },
+    "readOption": {
+      "mangled": "JN",
+      "line": 73916,
+      "endLine": 73935,
+      "kind": "function",
+      "bytes": 456,
+      "signature": "468af1cafb527dd8f07e"
+    },
+    "reasonlessRestartRefusal": {
+      "mangled": "Eje",
+      "line": 74101,
+      "endLine": 74105,
+      "kind": "function",
+      "bytes": 548,
+      "signature": "a002c5ceb1e1c6dd0319"
+    },
+    "restartWakeReport": {
+      "mangled": "mje",
+      "line": 74107,
+      "endLine": 74121,
+      "kind": "function",
+      "bytes": 665,
+      "signature": "625e5e8b640610277703"
+    },
+    "runUpgradeChannelPhase": {
+      "mangled": "Tje",
+      "line": 74348,
+      "endLine": 74414,
+      "kind": "async function",
+      "bytes": 2924,
+      "signature": "2819275d5f6bca3ed8fb"
+    }
+  }
+}

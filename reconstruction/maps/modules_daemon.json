@@ -1,0 +1,215 @@
+{
+  "bundle": "daemon",
+  "recordedAt": "@openduo/duoduo v0.8.1",
+  "note": "Per-module first-party/vendor decision. esbuild emits one __export block per source module, so this is a structural fact about the bundle, not a guess from names. A block is matched to a record when 2 of its 3 marker names are present, which tolerates exports being added or removed between releases. A block matching neither list stops the build: a new upstream module is one decision, not N unknown names.",
+  "vendor": [
+    {
+      "marker": [
+        "BIGINT_FORMAT_RANGES",
+        "Class",
+        "NUMBER_FORMAT_RANGES"
+      ],
+      "names": 63,
+      "note": "zod core/util"
+    },
+    {
+      "marker": [
+        "base64",
+        "base64url",
+        "bigint"
+      ],
+      "names": 59,
+      "note": "zod core/regexes"
+    },
+    {
+      "marker": [
+        "ar",
+        "az",
+        "be"
+      ],
+      "names": 52,
+      "note": "zod locales"
+    },
+    {
+      "marker": [
+        "$ZodAny",
+        "$ZodArray",
+        "$ZodAsyncError"
+      ],
+      "names": 274,
+      "note": "zod core schema classes"
+    },
+    {
+      "marker": [
+        "endsWith",
+        "gt",
+        "gte"
+      ],
+      "names": 29,
+      "note": "zod classic/checks"
+    },
+    {
+      "marker": [
+        "ZodISODate",
+        "ZodISODateTime",
+        "ZodISODuration"
+      ],
+      "names": 8,
+      "note": "zod classic/iso"
+    },
+    {
+      "marker": [
+        "ZodAny",
+        "ZodArray",
+        "ZodBase64"
+      ],
+      "names": 166,
+      "note": "zod classic/schemas"
+    },
+    {
+      "marker": [
+        "bigint",
+        "boolean",
+        "date"
+      ],
+      "names": 5,
+      "note": "zod classic/coerce"
+    },
+    {
+      "marker": [
+        "$brand",
+        "$input",
+        "$output"
+      ],
+      "names": 238,
+      "note": "zod classic/external (public surface)"
+    }
+  ],
+  "firstParty": [
+    {
+      "marker": [
+        "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
+        "appendDrainRecord",
+        "detectInProcessBreak"
+      ],
+      "names": 9,
+      "note": "drain records and usage totals"
+    },
+    {
+      "marker": [
+        "AgentSdkPromptNotAcceptedAbortError",
+        "AgentSdkTurnInterruptedError",
+        "CLAUDE_CORE_TOOLS"
+      ],
+      "names": 24,
+      "note": "Claude Agent SDK runtime adapter"
+    },
+    {
+      "marker": [
+        "ALADUO_TOOL_NAMESPACE",
+        "__setCodexAvailabilityForTests",
+        "buildBaseInstructions"
+      ],
+      "names": 19,
+      "note": "Codex app-server runtime adapter"
+    },
+    {
+      "marker": [
+        "GROK_ACP_COMPACT",
+        "GROK_ACP_EXT_PREFIX",
+        "GROK_ACP_SDK_CALL"
+      ],
+      "names": 15,
+      "note": "Grok ACP runtime adapter"
+    },
+    {
+      "marker": [
+        "partitionInboxDir",
+        "partitionInboxDirFromVar",
+        "resolveRuntimePaths"
+      ],
+      "names": 3,
+      "note": "runtime path resolution"
+    },
+    {
+      "marker": [
+        "buildMemoryCheckStatus",
+        "resolveCadenceIntervalMs",
+        "resolveMemoryCheckFlags"
+      ],
+      "names": 4,
+      "note": "cadence interval and memory-check flags"
+    },
+    {
+      "marker": [
+        "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
+        "DAEMON_TOKEN_ENV_KEY",
+        "HOST_MODEL_ENV_KEYS"
+      ],
+      "names": 14,
+      "note": "host-mode env config and .env loading"
+    },
+    {
+      "marker": [
+        "generatePartitionCodexAgents",
+        "parseAgentMarkdown",
+        "renderAgentToml"
+      ],
+      "names": 3,
+      "note": "partition agent file generation"
+    },
+    {
+      "marker": [
+        "archiveLegacyRegistrySessionsDir",
+        "initializeRuntime"
+      ],
+      "names": 2,
+      "note": "runtime initialization"
+    },
+    {
+      "marker": [
+        "SESSION_SCHEMA_VERSION",
+        "computeBoardLayerHash",
+        "computeInstructionsFingerprint"
+      ],
+      "names": 8,
+      "note": "session manager and instruction fingerprints"
+    },
+    {
+      "marker": [
+        "createMetaSession"
+      ],
+      "names": 1,
+      "note": "meta session"
+    },
+    {
+      "marker": [
+        "sweepTombstonedSessionRecords"
+      ],
+      "names": 1,
+      "note": "tombstoned session sweep"
+    },
+    {
+      "marker": [
+        "runCadenceTick",
+        "scanAndSpawnDueJobs"
+      ],
+      "names": 2,
+      "note": "cadence tick and job scan"
+    },
+    {
+      "marker": [
+        "createJobScheduler"
+      ],
+      "names": 1,
+      "note": "job scheduler"
+    },
+    {
+      "marker": [
+        "createOutboxDeliveryManager"
+      ],
+      "names": 1,
+      "note": "outbox delivery"
+    }
+  ]
+}

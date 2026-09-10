@@ -29,7 +29,7 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
         if (r.systemPrompt !== void 0 && (r.systemPrompt = y7e(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let l = [...new Set(t.tools)];
             if (r.tools = l, gt("info", `[claude-sdk] built-in tool surface (${l.length}): ${l.join(",")}`), t.allowedTools?.length) {
-                let u = $de(t.allowedTools, l);
+                let u = findDeadAllowedToolEntries(t.allowedTools, l);
                 u.length > 0 && W(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${u.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
             }
         }
@@ -168,7 +168,7 @@ ${p}` : l ? r.systemPrompt = l : p && (r.systemPrompt = {
                     }, j), typeof x == "object" && x?.unref && x.unref()))
                 };
             async function* oe() {
-                let L = typeof t.prompt == "string" ? vI(t.prompt) : t.prompt;
+                let L = typeof t.prompt == "string" ? stringToMessageGenerator(t.prompt) : t.prompt;
                 for await (let M of L) yield M;
                 await O
             }

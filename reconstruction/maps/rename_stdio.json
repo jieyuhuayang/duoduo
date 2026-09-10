@@ -1,9 +1,0 @@
-{
-  "zde": "buildInkTimeline",
-  "m4": "formatInkDateKey",
-  "Wde": "formatInkTime",
-  "FUe": "parseStdioCliOptions",
-  "wUe": "runInkChatbot",
-  "MUe": "runStdioChatbot",
-  "Kde": "shouldAppendFinalAssistantReply"
-}

@@ -1,6 +1,6 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-09-09",
+  "recorded": "2026-09-10",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -294,6 +294,14 @@
         "codex",
         "compact_boundary",
         "default"
+      ]
+    },
+    "classifyModelContextRequirement": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "explicit-1m",
+        "native-claude"
       ]
     }
   }

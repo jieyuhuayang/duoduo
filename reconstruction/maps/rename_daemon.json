@@ -1,5 +1,7 @@
 {
+  "rae": "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
   "Od": "appendDrainRecord",
+  "XL": "detectInProcessBreak",
   "xa": "drainRecordPath",
   "QL": "readAllSessionSummaries",
   "Ru": "readDrainRecords",
@@ -15,6 +17,8 @@
   "eh": "buildSystemPromptForChannelConfig",
   "Mb": "claudeUnavailableReason",
   "Gd": "createAgentSdkAdapter",
+  "Fq": "eventToMessageGenerator",
+  "$de": "findDeadAllowedToolEntries",
   "Qm": "isAbortLikeError",
   "Db": "isAgentSdkPromptNotAcceptedAbortError",
   "Nb": "isAgentSdkTurnInterruptedError",
@@ -26,6 +30,7 @@
   "Lde": "renderPromptLayers",
   "jb": "resolveMetaPromptText",
   "Ade": "splitDisallowedToolsForClaude",
+  "vI": "stringToMessageGenerator",
   "Mde": "verifyClaudeCodeRuntimeAvailable",
   "cP": "ALADUO_TOOL_NAMESPACE",
   "vet": "__setCodexAvailabilityForTests",
@@ -42,6 +47,8 @@
   "Hpe": "extractSystemPromptAppend",
   "Gpe": "hasImageGenerationRecord",
   "of": "isCodexAvailable",
+  "Qpe": "mapItemCompletedToExecEvent",
+  "Xpe": "mapItemStartedToExecEvent",
   "bet": "primeCodexAvailability",
   "fh": "resolveCodexSandbox",
   "ome": "GROK_ACP_COMPACT",
@@ -91,6 +98,7 @@
   "Wwe": "computeMissionFingerprint",
   "P6": "computeNonBoardInstructionsFingerprint",
   "act": "createSessionManager",
+  "wO": "diffStreamingConfigSignature",
   "SO": "runInstructionsFingerprintGuard",
   "vct": "createMetaSession",
   "wct": "sweepTombstonedSessionRecords",
@@ -101,6 +109,7 @@
   "fdt": "createDaemon",
   "Yct": "deliverDaemonRestartWakes",
   "cdt": "isLoopbackBindHost",
+  "pdt": "main",
   "ddt": "resolveRemoteListenerConfig",
   "Yt": "createSpineEvent",
   "hl": "advanceConsumerWatermark",
@@ -131,5 +140,6 @@
   "Ihe": "getPendingRestartReason",
   "HB": "batchDrainItems",
   "K_e": "buildTransientUserBlocks",
-  "W_e": "drainSessionMailbox"
+  "W_e": "drainSessionMailbox",
+  "IB": "classifyModelContextRequirement"
 }

@@ -2,7 +2,7 @@
 
 下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 `daemon.pretty.js`。
 
-共 133 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.1。
+共 143 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.1。
 
 ## 00-daemon-entry
 
@@ -14,6 +14,7 @@
 | `Ihe` | `getPendingRestartReason` | inferred | 59956 |
 | `Yct` | `deliverDaemonRestartWakes` | __export | 83736 |
 | `fdt` | `createDaemon` | __export | 84498 |
+| `pdt` | `main` | __export | 85427 |
 
 ## 01-spine-wal
 
@@ -46,6 +47,7 @@
 | `Xh` | `SESSION_SCHEMA_VERSION` | __export | 74297 |
 | `bw` | `computeInstructionsFingerprint` | __export | 76374 |
 | `P6` | `computeNonBoardInstructionsFingerprint` | __export | 76383 |
+| `wO` | `diffStreamingConfigSignature` | __export | 76390 |
 | `Wwe` | `computeMissionFingerprint` | __export | 76423 |
 | `SO` | `runInstructionsFingerprintGuard` | __export | 76428 |
 | `act` | `createSessionManager` | __export | 77628 |
@@ -69,12 +71,14 @@
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
+| `XL` | `detectInProcessBreak` | __export | 36649 |
 | `xa` | `drainRecordPath` | __export | 36661 |
 | `Od` | `appendDrainRecord` | __export | 36664 |
 | `Ru` | `readDrainRecords` | __export | 36671 |
 | `Cd` | `summarizeDrainRecords` | __export | 36686 |
 | `eF` | `readGlobalUsageTotals` | __export | 36774 |
 | `y5e` | `readRecentDrainRecords` | __export | 36792 |
+| `rae` | `IN_PROCESS_BREAK_HIT_RATIO_FLOOR` | __export | 36809 |
 | `Qm` | `isAbortLikeError` | __export | 49842 |
 | `Bpe` | `computeCodexTurnUsage` | __export | 56657 |
 | `HB` | `batchDrainItems` | inferred | 65926 |
@@ -84,6 +88,7 @@
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
+| `$de` | `findDeadAllowedToolEntries` | __export | 49819 |
 | `Ade` | `splitDisallowedToolsForClaude` | __export | 49824 |
 | `Nb` | `isAgentSdkTurnInterruptedError` | __export | 49834 |
 | `Db` | `isAgentSdkPromptNotAcceptedAbortError` | __export | 49838 |
@@ -94,6 +99,8 @@
 | `c7e` | `__resetClaudeProbeCacheForTest` | __export | 49905 |
 | `d7e` | `__setClaudeVerifierForTest` | __export | 49909 |
 | `Mde` | `verifyClaudeCodeRuntimeAvailable` | __export | 49913 |
+| `Fq` | `eventToMessageGenerator` | __export | 50032 |
+| `vI` | `stringToMessageGenerator` | __export | 50060 |
 | `Dq` | `parsePositiveMsEnv` | __export | 50070 |
 | `Gd` | `createAgentSdkAdapter` | __export | 50087 |
 | `wr` | `AgentSdkPromptNotAcceptedAbortError` | __export | 50390 |
@@ -103,6 +110,7 @@
 | `u4` | `applyJobSdkConfigOverride` | inferred | 59620 |
 | `Iye` | `writeHostClaudeCodeExecutableEnvConfig` | __export | 62994 |
 | `mB` | `CLAUDE_CODE_EXECUTABLE_ENV_KEY` | __export | 63065 |
+| `IB` | `classifyModelContextRequirement` | inferred | 63845 |
 
 ## 07-runtime-codex
 
@@ -122,6 +130,8 @@
 | `ev` | `createCodexAppServerAdapter` | __export | 56730 |
 | `Gpe` | `hasImageGenerationRecord` | __export | 57198 |
 | `Zpe` | `extractCodexGeneratedImageAttachment` | __export | 57214 |
+| `Xpe` | `mapItemStartedToExecEvent` | __export | 57273 |
+| `Qpe` | `mapItemCompletedToExecEvent` | __export | 57384 |
 | `cP` | `ALADUO_TOOL_NAMESPACE` | __export | 57457 |
 | `Wit` | `generatePartitionCodexAgents` | __export | 63390 |
 | `Kye` | `parseAgentMarkdown` | __export | 63464 |

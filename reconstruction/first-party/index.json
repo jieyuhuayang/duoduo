@@ -36,6 +36,13 @@
   },
   {
     "subsystem": "00-daemon-entry",
+    "symbol": "main",
+    "mangled": "pdt",
+    "origLine": 85427,
+    "bytes": 5925
+  },
+  {
+    "subsystem": "00-daemon-entry",
     "symbol": "setPendingRestartReason",
     "mangled": "The",
     "origLine": 59952,
@@ -144,7 +151,7 @@
     "symbol": "createMetaSession",
     "mangled": "vct",
     "origLine": 79799,
-    "bytes": 20553
+    "bytes": 20575
   },
   {
     "subsystem": "03-session-actor",
@@ -155,10 +162,17 @@
   },
   {
     "subsystem": "03-session-actor",
+    "symbol": "diffStreamingConfigSignature",
+    "mangled": "wO",
+    "origLine": 76390,
+    "bytes": 1153
+  },
+  {
+    "subsystem": "03-session-actor",
     "symbol": "drainSessionMailbox",
     "mangled": "W_e",
     "origLine": 64516,
-    "bytes": 43678
+    "bytes": 43696
   },
   {
     "subsystem": "03-session-actor",
@@ -274,6 +288,13 @@
   },
   {
     "subsystem": "05-drain-turn",
+    "symbol": "detectInProcessBreak",
+    "mangled": "XL",
+    "origLine": 36649,
+    "bytes": 244
+  },
+  {
+    "subsystem": "05-drain-turn",
     "symbol": "drainRecordPath",
     "mangled": "xa",
     "origLine": 36661,
@@ -285,6 +306,13 @@
     "mangled": "$v",
     "origLine": 66356,
     "bytes": 1712
+  },
+  {
+    "subsystem": "05-drain-turn",
+    "symbol": "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
+    "mangled": "rae",
+    "origLine": 36809,
+    "bytes": 136
   },
   {
     "subsystem": "05-drain-turn",
@@ -358,6 +386,13 @@
   },
   {
     "subsystem": "06-runtime-claude",
+    "symbol": "classifyModelContextRequirement",
+    "mangled": "IB",
+    "origLine": 63845,
+    "bytes": 555
+  },
+  {
+    "subsystem": "06-runtime-claude",
     "symbol": "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
     "mangled": "mB",
     "origLine": 63065,
@@ -382,7 +417,21 @@
     "symbol": "createAgentSdkAdapter",
     "mangled": "Gd",
     "origLine": 50087,
-    "bytes": 14929
+    "bytes": 14974
+  },
+  {
+    "subsystem": "06-runtime-claude",
+    "symbol": "eventToMessageGenerator",
+    "mangled": "Fq",
+    "origLine": 50032,
+    "bytes": 674
+  },
+  {
+    "subsystem": "06-runtime-claude",
+    "symbol": "findDeadAllowedToolEntries",
+    "mangled": "$de",
+    "origLine": 49819,
+    "bytes": 159
   },
   {
     "subsystem": "06-runtime-claude",
@@ -439,6 +488,13 @@
     "mangled": "Ade",
     "origLine": 49824,
     "bytes": 198
+  },
+  {
+    "subsystem": "06-runtime-claude",
+    "symbol": "stringToMessageGenerator",
+    "mangled": "vI",
+    "origLine": 50060,
+    "bytes": 165
   },
   {
     "subsystem": "06-runtime-claude",
@@ -515,7 +571,7 @@
     "symbol": "createCodexAppServerAdapter",
     "mangled": "ev",
     "origLine": 56730,
-    "bytes": 19945
+    "bytes": 19991
   },
   {
     "subsystem": "07-runtime-codex",
@@ -551,6 +607,20 @@
     "mangled": "of",
     "origLine": 56586,
     "bytes": 52
+  },
+  {
+    "subsystem": "07-runtime-codex",
+    "symbol": "mapItemCompletedToExecEvent",
+    "mangled": "Qpe",
+    "origLine": 57384,
+    "bytes": 2806
+  },
+  {
+    "subsystem": "07-runtime-codex",
+    "symbol": "mapItemStartedToExecEvent",
+    "mangled": "Xpe",
+    "origLine": 57273,
+    "bytes": 3574
   },
   {
     "subsystem": "07-runtime-codex",

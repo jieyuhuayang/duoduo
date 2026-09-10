@@ -127,9 +127,17 @@ for (const seg of segments) {
   const text = src.slice(seg.start, seg.end);
   if (seg.kind === "module") {
     let base = seg.name;
-    // guard against duplicate declared names across scopes (shouldn't happen at top level)
-    const n = (seenNames.get(base) || 0) + 1;
-    seenNames.set(base, n);
+    // Disambiguate CASE-INSENSITIVELY. Minified identifiers routinely differ
+    // only by case (Rw vs rW, pV vs PV: 61 such pairs in daemon, 64 in cli), and
+    // on a case-insensitive filesystem — macOS APFS by default, and Windows —
+    // the second write silently overwrites the first. That corrupts the module
+    // tree and breaks the byte-identical reassembly proof, which is this
+    // pipeline's headline invariant. Keying the counter on the lowercased name
+    // makes the on-disk layout portable; the manifest still records the true
+    // `name`, so nothing is lost.
+    const key = base.toLowerCase();
+    const n = (seenNames.get(key) || 0) + 1;
+    seenNames.set(key, n);
     const fname = n > 1 ? `${base}__${n}.${seg.wrapperKind}.js` : `${base}.${seg.wrapperKind}.js`;
     fs.writeFileSync(path.join(OUTDIR, "modules", fname), text);
     manifest.push({ kind: "module", name: seg.name, wrapperKind: seg.wrapperKind, file: `modules/${fname}`, bytes: text.length, start: seg.start, end: seg.end });
