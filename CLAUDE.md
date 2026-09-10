@@ -16,6 +16,7 @@ When someone says "analyze duoduo's logic" or "restore the source," they mean wo
 
 - `docs/AGENT_INTERNALS_ANALYSIS.md` — the primary artifact: 8 runtime subsystems reverse-engineered from the minified bundle, pyramid-structured, every mechanism claim carries a `file:line` anchor into `daemon.pretty.js` and a `confirmed` / `未证实推测` confidence tag. Cross-validated against the reconstructed source.
 - `docs/ARCHITECTURE_ANALYSIS.md` — system/deployment-level view (process model, filesystem layout, crash recovery, RPC/dashboard), backed by live-daemon observation.
+- `docs/DUODUO_FRAMEWORK_GUIDE.md` — the entry point for product managers: a first-principles explanation of the runtime ("what the model lacks, the runtime supplies"), written for a reader who only knows what an LLM is. Deliberately carries **no** line anchors or short names; its Appendix C maps each section to the evidence sections of `AGENT_INTERNALS_ANALYSIS.md`, and Appendix D lists the upstream changes it absorbed.
 - `docs/SOURCE_RECONSTRUCTION.md` — the reconstruction methodology.
 - `reconstruction/recon/{daemon,cli,stdio}.recon.js` — runnable reconstructed source, **provably semantically identical** to the shipped bundles (only first-party symbols renamed).
 - `reconstruction/first-party/<NN-subsystem>/*.js` — the 133 first-party functions extracted into a readable per-subsystem tree (real names, original `daemon.pretty.js` line in header). **Read-only reference — not independently runnable.**
@@ -163,5 +164,6 @@ A **thin runtime + foundation model**: the runtime owns only what the model can'
 ## Writing / editing the analysis docs
 
 - Anchor every mechanism claim with a `file:line` into `daemon.pretty.js` (default) and a `confirmed` / `未证实推测` tag; prefer the "真名 (短名)" form, e.g. `atomicAppendEvent (Qt)`. Never present an unverified inference as fact.
+- **Exception: `docs/DUODUO_FRAMEWORK_GUIDE.md` carries no anchors and no short names, on purpose.** It is the product-manager guide: plain literal language (no metaphors, flourish, or coined labels — say what the mechanism does), every term explained at first use, conclusion-first. Its credibility comes from Appendix C (section → `AGENT_INTERNALS_ANALYSIS.md` evidence section), not from inline citations. When upstream changes a mechanism, update the prose and Appendix D (version delta); do not "fix" it by adding line numbers.
 - Docs are written **conclusion-first (Pyramid Principle)**: central idea → MECE key sentences → answer-first sections. Preserve that when extending.
 - When a claim is corrected, update the doc **in place to the latest verified conclusion** — no errata notes, strikethroughs, or revision-history appendices in `docs/`. Credibility comes from every claim staying re-checkable against the reconstructed source via its `file:line` anchor (git history preserves the old wording if ever needed).

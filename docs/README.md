@@ -8,19 +8,19 @@
 > |---|---|---|
 > | [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) | **v0.8.0** | 已重定向，61/61 经 `check_doc_anchors.mjs` 核验成立 |
 > | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) | **v0.8.0**（部分复核，范围见其头部） | 已重定向 |
-> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | v0.7.1 | **未随 v0.8.0 重定向，44 处行号锚点已全部失效**，勿据以定位 v0.8.0 代码 |
+> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | **v0.8.1**（2026-09-10 重写） | **不含行号锚点，设计如此**：面向产品经理的入门指南，每节的证据经其附录 C 指向 `AGENT_INTERNALS_ANALYSIS.md` 的对应小节 |
 > | [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md) | v0.7.1 | **2 处行号锚点已失效**；机制结论本身不受影响 |
 >
-> 两份 v0.7.1 文档的**机制叙述**基本仍成立（v0.8.0 的实质变化见 `AGENT_INTERNALS_ANALYSIS.md` 中标注 v0.8.0 的段落），失效的是行号——esbuild 每次构建重新 mangle，行号不跨版本存活。
+> v0.7.1 文档的**机制叙述**基本仍成立（v0.8.0 的实质变化见 `AGENT_INTERNALS_ANALYSIS.md` 中标注 v0.8.0 的段落），失效的是行号——esbuild 每次构建重新 mangle，行号不跨版本存活。
 >
-> 附带的工具盲区：`check_doc_anchors.mjs` 只校验「符号 + 行号」双冗余写法（符号名必须出现在所引行上才算成立），对只写行号、不带符号名的锚点视而不见——没有符号名就没有可交叉验证的冗余。上面两份文档恰好通篇是只写行号的形式，所以它们"全绿"只是没被检查，而不是被检查通过了。
+> 附带的工具盲区：`check_doc_anchors.mjs` 只校验「符号 + 行号」双冗余写法（符号名必须出现在所引行上才算成立），对只写行号、不带符号名的锚点视而不见——没有符号名就没有可交叉验证的冗余。`AGENT_FRAMEWORKS_COMPARISON.md` 恰好通篇是只写行号的形式，所以它"全绿"只是没被检查，而不是被检查通过了。
 
 ## 先看这张阅读地图
 
 | 你是谁 / 你想知道什么 | 从这里开始 |
 |---|---|
-| **第一次接触 duoduo**，想快速建立全貌 | [FRAMEWORK_GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 的"一句话结论 + 一页总览"（15 分钟） |
-| **产品经理 / 架构师**，想吃透设计思路（自我迭代、双大脑、渠道打通） | [FRAMEWORK_GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 全文（1 小时） |
+| **第一次接触 duoduo**，想快速建立全貌 | [FRAMEWORK_GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 第 0 节（一句话结论、"模型缺什么运行时补什么"、术语表）加各部分开头的关键句（15 分钟） |
+| **产品经理 / 架构师**，想吃透设计思路（自我迭代、四个推理引擎、渠道打通） | [FRAMEWORK_GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 全文（1 小时） |
 | **工程师**，要逐机制核对证据（行号、字面量、置信度） | [AGENT_INTERNALS_ANALYSIS](./AGENT_INTERNALS_ANALYSIS.md)（8 子系统证据文档） |
 | **要实际部署 / 运维**它 | [ARCHITECTURE_ANALYSIS](./ARCHITECTURE_ANALYSIS.md)（含可复现部署记录与坑） |
 | **做技术选型**，比较 duoduo / hermes-agent / pi | [AGENT_FRAMEWORKS_COMPARISON](./AGENT_FRAMEWORKS_COMPARISON.md)（含融合架构建议） |
@@ -45,7 +45,7 @@
 
 | 文档 | 视角 | 一句话 | 规模/鲜度 |
 |------|------|--------|----------|
-| [DUODUO_FRAMEWORK_GUIDE.md](./DUODUO_FRAMEWORK_GUIDE.md) | 框架与思路全解（PM 深度指南） | 按四个设计问题组织：**借脑**（如何租用 Claude Code / Codex）、**立身**（一条消息的一生 + 渠道/飞书打通）、**成长**（自我迭代闭环，本文核心）、**守护**（软硬边界/失败语义/成本）；每节"结论+类比"先行，锚点后置，附十二条可搬走的设计 | 550 行 · 07-09（渠道实包核验） |
+| [DUODUO_FRAMEWORK_GUIDE.md](./DUODUO_FRAMEWORK_GUIDE.md) | 框架指南（写给产品经理） | 从"模型缺什么、运行时补什么"出发，按四个问题组织：**推理引擎**（Claude Code / Codex / Grok / pi 怎么接、怎么共用一份提示词）、**消息处理**（一条消息的处理流程 + 渠道 + 定时任务）、**自我迭代**（记忆流水线、边界、升级解耦，本文核心）、**边界、成本与失败**（硬边界清单、成本控制、失败语义表）；结论先行、不写行号、不用比喻，附十二条可复用的设计与 v0.7.1→v0.8.1 变化表 | 873 行 · 2026-09-10 重写，对齐 v0.8.1 |
 | [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | Agent 内部逻辑（逐行证据） | 8 个子系统（认知装配 / Turn-Drain / Session Actor / Spine-WAL / Gateway / Cadence-潜意识 / 记忆 / 双后端抽象）的机制主张全集，每条带 `file:line` + `confirmed/未证实推测` 置信标注，经还原源码复核与对抗验证 | 1221 行 · 07-29 对齐 v0.6.2 |
 | [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 系统 / 部署级 | 项目定位、六大创新的实测印证、进程与文件系统模型、崩溃恢复实证、可观测性、可复现的本机部署记录与验证清单 | 356 行 · 07-01（07-29 复核更新） |
 | [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | 跨项目对比调研 | duoduo vs hermes-agent vs pi：设计哲学、十维度对比、优劣总评，及面向"贝叶斯 + 自我迭代 + long-horizon 金融预测 agent"的融合架构与落地路线 | 325 行 · 07-03 |
@@ -53,7 +53,7 @@
 
 ## 关键结论一句话
 
-duoduo 是一个"薄运行时 + 基础模型"的长驻自治 Agent：运行时只拥有模型拥不住的东西——**持久化、生命周期、调度、并发**，推理全部委派给租来的 agentic harness（Claude Code / Codex）。其"智能可持久、会成长"由三件事兑现：**append-before-execute 的文件 WAL**（一切状态可信可重建）、**双注入面提示词装配**（稳定认知吃缓存、易变状态进瞬时块）、**cadence 潜意识把经验蒸馏回广播板**（成长的每一步都是 kernel git 仓库里可回滚的 commit）。
+duoduo 是一个"薄运行时 + 基础模型"的长驻自治 Agent：运行时只拥有模型拥不住的东西——**持久化、生命周期、调度、并发**，推理全部委派给租来的 agentic harness（Claude Code / Codex / Grok / pi）。其"智能可持久、会成长"由三件事兑现：**append-before-execute 的文件 WAL**（一切状态可信可重建）、**双注入面提示词装配**（稳定认知吃缓存、易变状态进瞬时块）、**cadence 潜意识把经验蒸馏回广播板**（成长的每一步都是 kernel git 仓库里可回滚的 commit）。
 
 ## 证据与可信度约定（全部文档通用）
 
