@@ -85,7 +85,7 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
 
 | 文件 | 作用 | 变更后是否需重启 daemon |
 |------|------|------------------------|
-| `~/.config/duoduo/.env` | host 模式持久化的环境变量（如 `ALADUO_*`、`DUODUO_NODE_BIN`） | **需要** `duoduo daemon restart`（daemon 是分离的后台进程，不热加载） |
+| `~/.config/duoduo/.env` | host 模式持久化的环境变量（`ALADUO_*`、`ANTHROPIC_*`、渠道凭据等），由 daemon 在 `main()` 启动时自己读入 `process.env`（只补未设置的键）。**不含 `DUODUO_NODE_BIN`**：它唯一的读者是 `bin/duoduo` bash wrapper，而 wrapper 不读此文件——放启动 `duoduo` 的 shell 启动文件，见 §10.4 | **需要** `duoduo daemon restart`（daemon 是分离的后台进程，不热加载） |
 | `~/.config/duoduo/config.json` | onboard 向导写入的选择（认证来源等） | — |
 | `kernel/config/<kind>.md` | 按通道种类的默认值与种类级提示词 | 下一回合/新会话绑定时生效（`<kind>` 取自事件的 `source.kind`；`job.md` 虽随 v0.6.2 发布但不会被 job 运行加载，见 §5） |
 | `var/channels/<id>/descriptor.md` | 单个通道实例的覆盖与实例级提示词 | 同上；仅当凭证/进程 env 变化才需重启通道 |
@@ -284,7 +284,7 @@ Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信（走只读
 - **v0.7.1 起，从会话内让 agent 重启时若省掉 `-r`，CLI 不再只是警告——直接硬拒绝执行**：`reasonlessRestartRefusal (\$We)` 返回一段 `error: refusing to restart the daemon without --reason...` 并中止调用（`cli.pretty.js:71990-71994`），v0.6.2 时代"预告下个版本会拒绝"的警告已经兑现。它仍靠 `ps -Ao pid,ppid` 向上走祖先链判断本进程是不是 daemon 的后代（`cli.pretty.js:65358`）——`ps` 不可用或被 nohup/detach 包过时静默放行不拒绝。
 - `duoduo upgrade [version] [--wake …]` 优于手工两步，且 **v0.7.1 起把升级工作交给一个 detached 子进程**（`isDetachedUpgradeWorker`/`ALADUO_UPGRADE_DETACHED_WORKER` 环境变量标记，`cli.pretty.js:71995-72019`）执行，使升级触发的重启不会连带杀死正在执行升级的那个 CLI 进程本身——这正是 v0.7.0 changelog 承诺"下一版本修复"、v0.7.1 兑现的那个坑（旧版在会话内跑 `duoduo upgrade` 有几率被自己触发的重启杀死）。版本参数仍受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/`（`cli.pretty.js:65429`）——从路径/URL/git 装包不被接受。
 - `duoduo daemon token new [--force]`（**v0.7.1 新增子命令**，帮助文本 `cli.pretty.js:71837`）：生成 `ALADUO_DAEMON_TOKEN`（写入 `~/.config/duoduo/.env`，见下方"控制面"一节），是开启第三个可选、非 loopback、token 网关全权限监听器的前置步骤。
-- `duoduo daemon restart`（daemon 侧，不是 CLI 侧）在 `main()` 启动时会先 `loadHostDotEnv`（`daemon.pretty.js:59230`，`main` 函数体内解构导入）并重新应用 onboard 配置，这缓解了"daemon 重启后丢 PATH"的老坑；但仍建议把 `DUODUO_NODE_BIN` 持久化进 `~/.config/duoduo/.env`。
+- `duoduo daemon restart`（daemon 侧，不是 CLI 侧）在 `main()` 启动时会先 `loadHostDotEnv`（短名 `Tit`（`daemon.pretty.js:63052`）；`main` 函数体内解构导入并调用于 `daemon.pretty.js:85446-85454`）把 `~/.config/duoduo/.env` 读进 `process.env`（只补未设置或为空的键，不覆盖已有值），再重新应用 onboard 配置——所以 `ALADUO_CLAUDE_AUTH_SOURCE` 等 `ALADUO_*` 键写进 `.env` 即可跨重启生效。**`DUODUO_NODE_BIN` 不在此列**（confirmed，v0.8.1 npm 包实查）：`dist/release/{daemon,cli,feishu-gateway,pi-worker}.js` 四个产物里都没有这个字面量，唯一读者是 `bin/duoduo` bash wrapper 的 `NODE_BIN="${DUODUO_NODE_BIN:-node}"`（`bin/duoduo:21`）——wrapper 在任何 JS 跑起来之前执行、也不 source `.env`；CLI 拉起 daemon 用的是 `process.execPath`（入口解析 `X$`（`cli.pretty.js:67133-67139`）；通用路径 `hPe`（`cli.pretty.js:67230-67244`）以 `env: process.env` 派生），渠道进程同理，都不再经过 wrapper。因此"PATH 被重置后 `duoduo` 找不到 node"的持久解法是把 `DUODUO_NODE_BIN` export 在启动 `duoduo` 的 shell 启动文件（或进程管理器的环境）里；写进 `.env` 只会随 daemon 的 `process.env` 透传给它派生的会话，帮不到 wrapper 本身。附带一个 macOS 差异：launchd 路径 `EPe` 写进 plist 的 env 是白名单 `_Pe`（`cli.pretty.js:67222-67228`）——只放行 `ALADUO_*`/`ANTHROPIC_*`/`CLAUDE_CODE_EXECUTABLE`/`PATH`/`HOME`/`LANG`/`LC_ALL`，由 `EPe`（`cli.pretty.js:67186-67203`）写入，shell 里 export 的其它变量到不了 daemon，`.env` 在那里是白名单之外的键进入 daemon 的唯一通道。
 - 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**（`zwe`，`cli.pretty.js:65015-65044`）；Linux/通用路径超时会先 SIGTERM 掉子进程再抛普通错误（`\$we`，`cli.pretty.js:65059-65088`），表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"，CLI 提示旧进程还在跑旧代码。
 
 ---
@@ -323,10 +323,11 @@ export ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local   # 依赖本机已 claude lo
 export DUODUO_ONBOARD_YES=1
 duoduo onboard
 
-# 4) 持久化关键 env（保证重启后仍生效）
-#    ~/.config/duoduo/.env:
-#      DUODUO_NODE_BIN=/home/.../node
+# 4) 持久化关键 env（保证重启后仍生效）——两个变量归两个地方
+#    ~/.config/duoduo/.env（daemon 启动时自己读入，ALADUO_* 归这里）:
 #      ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local
+#    ~/.bashrc（启动 duoduo 的 shell；bin/duoduo wrapper 只认进程环境、不读 .env）:
+#      export DUODUO_NODE_BIN="$HOME/.local/node-v22.17.0-linux-x64/bin/node"
 
 # 5) 启动并验证
 duoduo daemon start          # → healthy, pid, runtime_mode=host, v0.6.1
@@ -337,7 +338,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 
 **两个部署要点（坑）**：
 1. **无交互 TTY** → 必须用 `duoduo onboard` + 环境变量（`ALADUO_RUNTIME_MODE`、`ALADUO_CLAUDE_AUTH_SOURCE`、`DUODUO_ONBOARD_YES=1`），缺失时 onboard 以 code 2 退出并打印完整 env 配方。
-2. **daemon 是分离后台进程，且 PATH 可能被重置** → 用 `DUODUO_NODE_BIN` 指向 node 绝对路径，并把认证来源写进 `~/.config/duoduo/.env`，否则重启后丢配置。
+2. **daemon 是分离后台进程，且 PATH 可能被重置** → 把 `DUODUO_NODE_BIN`（node 绝对路径）export 在启动 `duoduo` 的 shell 启动文件或进程管理器环境里——它只被 `bin/duoduo` wrapper 读取，wrapper 不读 `.env`；认证来源 `ALADUO_CLAUDE_AUTH_SOURCE` 则写进 `~/.config/duoduo/.env`（daemon 启动时自己读入），否则重启后丢配置。机制见 §10.4。
 
 **验证清单（全部 ✅）**：
 
@@ -377,7 +378,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 |----|----|
 | 内核目录 kernel_dir | `~/aladuo`（git 管理） |
 | 运行时目录 runtime_dir | `~/.aladuo`（`var/` 事件溯源数据） |
-| 持久化 env | `~/.config/duoduo/.env` |
+| 持久化 env | `~/.config/duoduo/.env`（`ALADUO_*` 等，daemon 启动时读入）；`DUODUO_NODE_BIN` 例外——只被 `bin/duoduo` wrapper 读，放启动 `duoduo` 的 shell 启动文件/进程管理器环境（§10.4） |
 | onboard 选择 | `~/.config/duoduo/config.json` |
 | Dashboard | `http://localhost:20233/dashboard` |
 | RPC | 全权：`<runDir>/daemon.sock`（unix socket，mode 0600）；只读：`POST http://localhost:20233/rpc`（6 个白名单方法，其余 `-32601`） |

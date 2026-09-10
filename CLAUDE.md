@@ -148,7 +148,7 @@ export DUODUO_NODE_BIN="$(command -v node)" ALADUO_RUNTIME_MODE=host \
 duoduo onboard && duoduo daemon start && duoduo daemon status
 ```
 
-The daemon is a **detached background process that does not hot-reload** and may lose PATH on restart — persist `DUODUO_NODE_BIN` + `ALADUO_CLAUDE_AUTH_SOURCE` in `~/.config/duoduo/.env`, and restart with `duoduo daemon restart` after config changes.
+The daemon is a **detached background process that does not hot-reload** — restart with `duoduo daemon restart` after config changes. Two different persistence homes, do not conflate them. `ALADUO_CLAUDE_AUTH_SOURCE` and the other `ALADUO_*` keys go in `~/.config/duoduo/.env`, which the daemon itself reads at boot (`loadHostDotEnv`, fills only unset keys). `DUODUO_NODE_BIN` does **not**: its only reader in the shipped package is the `bin/duoduo` bash wrapper (`NODE_BIN="${DUODUO_NODE_BIN:-node}"`), which runs before any JavaScript and never sources `.env` — none of the four `dist/release/*.js` bundles contain the literal, and the CLI spawns the daemon and channel processes via `process.execPath`. So to survive a PATH reset (`bash -lc`, GUI process managers), export it in the shell startup file or the process manager's environment that launches `duoduo`. Putting it in `.env` only propagates it to the sessions the daemon spawns; it does not help the wrapper find node.
 
 ## duoduo runtime architecture (the big picture the docs decode)
 
