@@ -61,7 +61,11 @@ key directly in the job's instruction body:
 Notify target: lark:<channel-id>:<user-id>:<session-hash>
 ```
 
-Get this key from `duoduo session list` or from the session's own `CLAUDE.md`.
+Get this key once, while you are writing the job: `duoduo session list` on the
+host, `ViewSessions` with no argument from inside a session (it lists every
+active session and marks your own), or the session's own `CLAUDE.md`. Then
+write it into the instruction body — the lookup happens at authoring time, not
+at run time.
 
 **If Notify returns a candidate list**: stop immediately. Do not
 self-select from the list, do not retry with a different key, do not

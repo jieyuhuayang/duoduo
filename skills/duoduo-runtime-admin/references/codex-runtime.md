@@ -89,6 +89,23 @@ until the next fork/cold resume, so follow config edits with
 app-server shares `~/.codex` with manual `codex` use on the same host — the
 trim applies to both.
 
+## A codex session keeps the tool list it started with
+
+The same staleness applies to duoduo's own tools, and it bites after an
+upgrade: a codex thread caches the tool table it was given at thread start, so
+a duoduo release that renames a tool or drops an action is invisible to a
+session already running. That session keeps calling the old name and the
+daemon answers with an error naming the verb that replaced it — the model has
+no way to discover the new surface on its own.
+
+Tell the owner of each live codex session to run `/reset` after such an
+upgrade. A daemon restart is not enough — the cached list belongs to the
+thread, not to the daemon. Say what it costs before they run it: `/reset`
+starts that session on a fresh thread, so its conversation history goes with
+the stale tool list. Claude sessions are handed their tool list on every turn
+and need nothing; a Pi session picks the change up when its worker is next
+rebuilt.
+
 ## Caveats
 
 - Codex project trust is local to the machine. Multi-host deployments need

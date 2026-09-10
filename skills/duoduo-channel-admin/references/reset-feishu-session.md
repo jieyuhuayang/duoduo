@@ -143,4 +143,5 @@ restart forces the plugin to reload the pruned list.
   different `source_channel_id` shapes and are not touched. To archive
   those manually, run `duoduo session archive <session_key>` directly.
 - Jobs. Job sessions persist independently under `var/jobs/`; archive
-  them via `ManageJob(action=archive)` on the agent side instead.
+  them with `duoduo job archive <id>`, which takes the job off the
+  schedule and archives its session in the same call.

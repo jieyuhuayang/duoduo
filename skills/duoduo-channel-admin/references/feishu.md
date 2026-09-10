@@ -234,9 +234,10 @@ What a turn looks like with the card on:
 - Under `keep` the finished panel holds the interim text but not the answer's
   lines; the answer lives only in the result card.
 
-Internal drains — a Notify wake, a job result — never get a process card: the
-card belongs to the message a person sent. Their output arrives as plain text
-and leaves a card that is still being written untouched.
+Internal drains — a Notify wake, a job result, a turn a session scheduled for
+itself — never get a process card: the card belongs to the message a person
+sent. Their output arrives as plain text and leaves a card that is still being
+written untouched.
 
 The daemon side gained two optional fields on `session.execution`
 (`anchor_event_id`, `is_sidechain`) in the same release; an older daemon still
