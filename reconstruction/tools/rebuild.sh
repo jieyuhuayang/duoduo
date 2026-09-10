@@ -95,6 +95,13 @@ if [ -d "$DOCS" ]; then
   echo "==== doc anchors ===="
   node "$HERE/check_doc_anchors.mjs" --resolve "$BEAUTIFIED/daemon.pretty.js" "$DOCS"/*.md \
     || echo "  (review the above; known false positives are prose words in backticks)"
+  # The gate above only sees `Name`(NNNN) pairs. Bare line numbers carry no name
+  # to check against, so they survive a retarget untouched — this refutes the
+  # subset that provably cannot be a citation (blank line / vendor code).
+  echo "==== bare anchors ===="
+  node "$HERE/check_bare_anchors.mjs" "$BEAUTIFIED/daemon.pretty.js" \
+       "$HERE/../maps/vendor_baseline_daemon.json" "$DOCS"/*.md \
+    || echo "  (the refuted ones above cannot be correct citations — fix or drop them)"
 fi
 
 [ "$rc" -eq 0 ] || exit 1

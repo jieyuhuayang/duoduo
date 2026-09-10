@@ -82,9 +82,19 @@ if (RESOLVE) {
 const BUNDLE_NAME = (BUNDLE.split("/").pop() || "").replace(/\.pretty\.js$|\.js$/, "");
 const FILEQ = "(?:((?:daemon|cli|stdio))(?:\\.pretty)?\\.js:)?";
 const LINESPEC = "`?" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`?";
-const NAME = "`([A-Za-z_$][A-Za-z0-9_$]{1,5})`";
+// CLAUDE.md prescribes the "真名 (短名)" form — `atomicAppendEvent (Xt)`(`31966`).
+// Only the short name exists in the bundle, so that is what gets checked; but
+// the backticked span is then not a bare identifier, and matching only bare
+// identifiers silently skipped every citation written the prescribed way.
+const NAME = "`(?:[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*)?([A-Za-z_$][A-Za-z0-9_$]{1,5})\\)?`";
+// The parenthetical does not have to close right after the number — the docs
+// often annotate inside it (`zGe`(31957 定义/31968 调用), `X2`（`65255`，…）).
+// Requiring the closing bracket dropped those on the floor: too "attached" for
+// the bare-anchor check to look at, too unclosed for this one. The `Name`(
+// prefix already carries the precision, so the trailer only has to ensure the
+// number was not cut out of a longer one.
 const CITES = [
-  { re: new RegExp(NAME + "\\s*[（(]\\s*" + LINESPEC + "\\s*[）)]", "g"), n: 1, f: 2, a: 3, b: 4 },
+  { re: new RegExp(NAME + "\\s*[（(]\\s*" + LINESPEC + "(?![0-9])", "g"), n: 1, f: 2, a: 3, b: 4 },
   { re: new RegExp(NAME + "\\s*@\\s*" + LINESPEC, "g"), n: 1, f: 2, a: 3, b: 4 },
   { re: new RegExp("`" + FILEQ + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`\\s*[（(]\\s*([A-Za-z_$][A-Za-z0-9_$]{1,5})\\s*[）)]", "g"), n: 4, f: 1, a: 2, b: 3 },
 ];
