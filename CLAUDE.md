@@ -82,8 +82,11 @@ Anything not re-verified does not go in.
 The pipeline needs the **beautified bundles** as input (`{daemon,cli,stdio}.pretty.js`). These are *not committed* (multi-MB) — regenerate them from the installed npm package:
 
 ```bash
-# 0) tooling: Node is at ~/.local/node-v22.17.0-linux-x64/bin (NOT on default PATH — export it)
-export PATH="$HOME/.local/node-v22.17.0-linux-x64/bin:$PATH"
+# 0) tooling: locate Node rather than hardcoding it. A previous pin to
+#    ~/.local/node-v22.17.0-linux-x64/bin broke when the container was rebuilt
+#    with Node somewhere else, and every tool below then failed at once.
+command -v node >/dev/null || export PATH="/opt/node22/bin:$PATH"   # container default
+node --version   # expect v22.x
 cd reconstruction/tools && npm install        # installs @babel/{parser,traverse,generator,types}
 
 # 1) get the shipped bundles into a SCRATCH install.
