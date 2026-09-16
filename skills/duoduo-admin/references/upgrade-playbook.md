@@ -120,7 +120,7 @@ documented here so the agent can skip the script entirely):
 duoduo --version                       # installed version (see note below)
 npm view @openduo/duoduo version       # latest published
 duoduo daemon status                   # daemon running?
-duoduo channel list                    # any feishu / wechat / acp?
+duoduo channel list                    # any feishu / acp?
 grep -E '^FEISHU_(BOT_OWNER|ALLOW_FROM|DM_POLICY|GROUP_POLICY|GROUP_CMD_USERS)=' \
   ~/.config/duoduo/.env                # security env snapshot
 ls ~/.aladuo/var/channels/feishu-*/descriptor.md 2>/dev/null

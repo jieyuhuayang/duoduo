@@ -138,7 +138,7 @@ restart forces the plugin to reload the pruned list.
   archive` refuses (exit code 2, reason=`active`) when the target has a
   live actor. Cancel the session first (e.g. via `/cancel` on the chat,
   or by stopping the feishu plugin so its actors drop) and retry.
-- Sessions belonging to other channel kinds (stdio, ACP, WeChat). The
+- Sessions belonging to other channel kinds (stdio, ACP). The
   grep filter is scoped to one feishu channel_id; other kinds have
   different `source_channel_id` shapes and are not touched. To archive
   those manually, run `duoduo session archive <session_key>` directly.

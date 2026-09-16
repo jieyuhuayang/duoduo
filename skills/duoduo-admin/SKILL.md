@@ -192,8 +192,8 @@ user wants to file an issue or asks you to prepare one.
 
 ## Route The Request
 
-- Channel installation, channel lifecycle, Feishu setup, WeChat packaging, or
-  channel prompt/workspace changes:
+- Channel installation, channel lifecycle, Feishu setup, or channel
+  prompt/workspace changes:
   read [../duoduo-channel-admin/SKILL.md](../duoduo-channel-admin/SKILL.md)
   and let that workflow own the implementation.
 - Runtime flags such as Codex, debug logs, telemetry, cadence, or daemon
