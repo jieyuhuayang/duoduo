@@ -66,7 +66,7 @@ once — `set_alias` failing does NOT remove it from `list`.
 ## `duoduo session notify`
 
 ```
-duoduo session notify <target> -m "<message>" [--source <label>]
+duoduo session notify <target> -m "<message>" [--source <label>] [--force]
 ```
 
 Wakes a session and delivers a message to it. `<target>` is a **session_key OR a
@@ -82,6 +82,20 @@ to `session.notify`); use it so the receiver knows the origin (e.g.
 target that resolves to a `meta` / `subconscious` / `system` session is refused
 with `forbidden_kind` (exit 2). The subconscious and kernel plane run on their
 own cadence and must never receive an externally-injected, unscheduled turn.
+
+**No-consumer refusal (0.8.2+).** A notification into a *channel* session exists
+to make a person know. If nobody has taken that session's output for
+`ALADUO_NOTIFY_UNCONSUMED_HOURS` (default 1 hour, `0` disables) while replies
+sit unread, the delivery is refused with `no_consumer` (exit 2): nothing is
+written to the inbox, the session is not woken, and one `route.deliver
+REFUSED` line lands in the Spine (`duoduo spine tail`). The refusal text
+names the sessions a consumer has taken output from within that window so the
+caller can re-target, or says explicitly that none has. `--force` delivers
+anyway; `daemon restart --wake` / `upgrade --wake` always force, since a restart
+notice cannot pick another target. The in-session `Notify` tool gets the same
+refusal and has no force — an agent that can re-target re-targets, and should
+open the re-sent message by saying what it is and which session it was meant
+for. Job targets are never refused on this ground.
 
 Other refusals (all exit 2, no delivery): `ambiguous` (the alias matches more
 than one session — the candidates are listed; re-run with a specific

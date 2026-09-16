@@ -188,9 +188,12 @@ external script — one entry point):
 - `duoduo session alias <key> "<name>"` — give a session a human label, so it
   is legible in `list` and usable as a `notify` target. Unnamed sessions show
   `—` (they are NOT auto-labelled with their key).
-- `duoduo session notify <target> -m "<msg>"` — reach a session by key OR alias
-  now and deliver a source-tagged notification. Only `channel`/`job` targets
-  are allowed; the subconscious/kernel plane is isolated and refused.
+- `duoduo session notify <target> -m "<msg>" [--force]` — reach a session by
+  key OR alias now and deliver a source-tagged notification. Only
+  `channel`/`job` targets are allowed; the subconscious/kernel plane is
+  isolated and refused. A channel session nobody has read for an hour is
+  refused with `no_consumer` (0.8.2+; the reply names sessions that do have a
+  reader; `--force` overrides).
 - `duoduo session wake <target> --in <duration> | --at <iso>` (new since
   v0.8.1) — schedule ONE future turn of that session, with the context read
   from stdin. Notify delivers now; wake delivers later. Same target rule as

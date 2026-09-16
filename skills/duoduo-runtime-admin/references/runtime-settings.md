@@ -60,6 +60,12 @@ binary or env from your shell.
   are persisted separately and read with the `usage.get` RPC (`perf` block); they
   cover the inside of a drain rather than these cross-component hops.
 - `ALADUO_CADENCE_INTERVAL_MS`
+- `ALADUO_NOTIFY_UNCONSUMED_HOURS` (0.8.2+): default `1`, `0` disables. A
+  `Notify` / `duoduo session notify` into a channel session nobody has taken
+  output from for this long, while replies sit unread, is refused with
+  `no_consumer` instead of waking the session (`--force` overrides on the CLI;
+  restart/upgrade `--wake` always force). Shown in `duoduo daemon config`
+  under `transfer`.
 - `ALADUO_SPINE_INDEX_RETENTION_DAYS`: positive integer, default `7`. At daemon
   boot, the derived by-id index drops rows older than `today UTC - N`; the Spine
   WAL partitions are untouched. A larger value keeps more bare-id lookups in
