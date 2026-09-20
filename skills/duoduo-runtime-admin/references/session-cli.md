@@ -147,7 +147,7 @@ daemon was down fires on the first scan after it comes back), and it does not
 interrupt a turn already in progress — it queues behind it. A woken session
 decides for itself what to do with the context, including saying nothing.
 
-Agents have the same capability in-session as the `Wake` tool, which targets
+Agents have the same capability in-session as the `RemindDuoduo` tool, which targets
 the caller and needs no key. Use the CLI form to schedule a turn of a session
 you are not in — from a script or a watcher on the daemon's own machine.
 Scheduling a wake is a mutation, so it goes over the local socket like
