@@ -312,11 +312,16 @@ See the grok-runtime reference under `duoduo-runtime-admin`. Do not set
 ## Built-in tool surface change landing in v0.5.10
 
 v0.5.10 flips the claude runtime's built-in tool surface from a denylist to
-an **allowlist**: every session gets a fixed 16-tool core, and descriptors
+an **allowlist**: every session gets a fixed core set, and descriptors
 add extras via the nested `claude.tools` frontmatter key (kind ∪ instance
 union, additive-only). No file migration is required — upgrade + daemon
 restart applies it to every session's next turn, and rollback is safe (older
 versions ignore the `claude:` block).
+
+The core was 16 names in v0.5.10 and is **15 from v0.8.2**: the Agent SDK
+deleted `TaskOutput`, the tool a model used to poll a background agent for its
+output. Background agents now notify the model when they settle, so nothing
+replaced it. Subconscious partitions get a 6-name file-work core.
 
 Two descriptor recipes change meaning; check for them during preflight:
 
