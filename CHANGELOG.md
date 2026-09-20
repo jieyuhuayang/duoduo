@@ -2,6 +2,99 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.2] - 2026-09-20
+
+Mostly about being told when something did not happen. A notification sent into
+a session nobody is reading is now refused instead of disappearing, a session
+can schedule its own next turn, and ending or re-timing a job is a shell verb
+rather than a tool call. Underneath, the agent SDK and the dependency tree both
+move forward.
+
+**Reinstall the channels too.** The Feishu gateway bundles its dependencies and
+carries its own copy of a package this release patches, and the ACP bridge has
+a fix of its own — neither reaches a host through the core upgrade. Install
+`@openduo/channel-feishu@0.8.2` and `@openduo/channel-acp@0.8.2`, then stop and
+start each channel. Otherwise upgrading is routine: reinstall, restart the
+daemon.
+
+Three behaviour changes to know about:
+
+- **A tool was renamed.** `Wake` is now `RemindDuoduo`, and `ManageSession` is
+  now `ViewSessions`. Records, blocks and CLI verbs still say wake. A Codex
+  session sees the new names only after `/reset`.
+- **`ManageJob` no longer ends or re-times a job.** It keeps creating, listing
+  and reading them; archiving, interrupting and rescheduling moved to
+  `duoduo job`. This is deliberate — those are operator actions, and an agent
+  reaching for them mid-turn was usually a mistake.
+- **`duoduo daemon enable-autostart` and `disable-autostart` are gone.** They
+  did not do what their names promised on either platform.
+
+### Highlights
+
+- **Notify refuses a session nobody reads.** Delivering into a foreground
+  session whose last consumer take is older than
+  `ALADUO_NOTIFY_UNCONSUMED_HOURS` (default off until set) now fails with a
+  message naming the sessions that *do* have a reader, instead of writing into
+  a void. `--force` overrides it. `duoduo daemon status` grew a block listing
+  each channel session's last consumer take and its current subscribers, so the
+  state behind a refusal is visible before you hit one. A job's own completion
+  notice still reaches its owner regardless.
+- **A session can schedule its own next turn.** `RemindDuoduo` books one future
+  turn of the calling session — no key, no target. For a job session it is one
+  more fire of its own schedule. Cancel a pending one with
+  `duoduo job archive <id>`.
+- **Job lifecycle from the shell.** `duoduo job list | read | archive |
+  interrupt | reschedule`. Interrupting carries a reason, and the reason opens
+  the job's next run, so the session learns why it was cut off rather than
+  guessing.
+- **The model is told when a human ended its turn**, instead of the turn simply
+  stopping and the next one starting from a gap it cannot explain.
+- **`duoduo --version` answers without a daemon.**
+
+### Ecosystem
+
+- **The ambient channel and a reference backend for it are open source**, in
+  their own repository at `openduo/ambient`. Ambient is a room-listening
+  surface: duoduo hears what is said near it and decides whether it was
+  addressed. The backend published alongside it is a reference implementation —
+  enough to run the channel end to end and to build a different one against.
+  Nothing in this release depends on it; `@openduo/duoduo` ships exactly the
+  four packages it always has.
+
+### Runtime and dependencies
+
+- **Agent SDK 0.3.278** (from 0.3.266). Two upstream changes reach duoduo:
+  - Switching a session to a model id the CLI does not recognize now takes
+    effect on the next turn, at the cost of one restart of that session's
+    process, instead of being acknowledged and then quietly ignored for the
+    life of the process. History is preserved across the restart.
+  - The built-in tool for polling a background agent's output was withdrawn
+    upstream and is no longer offered to sessions. Background agents report
+    when they finish, which is the mechanism duoduo already used.
+- **Dependency refresh** across the tree — Fastify, undici, zod, cron-parser,
+  the Feishu SDK and the dev toolchain. No advisory was outstanding against
+  this tree before or after; this keeps it that way.
+
+### Fixes
+
+- The daemon tolerates a torn dedup line instead of failing the read, writes
+  every `.env` at `0600`, and guards the by-id index against out-of-range
+  lookups.
+- A channel waits for a pending ingress before deciding which turn a reply
+  belongs to — a slash command sent onto a live process card no longer detaches
+  from the message that triggered it.
+- The Feishu process card prefers a step's description over its raw command, so
+  a turn's shell activity reads as statements rather than command lines.
+- Grok reports context occupancy from the sibling last-call total, so the
+  footer stops under-reporting.
+- `duoduo session wake` refuses the kernel plane rather than accepting a target
+  it cannot reach, and `duoduo job read` renders a scheduled wake.
+- The dashboard streams usage summaries and bounds event tail reads.
+- Several CLI messages corrected to state what actually happened: where a
+  handled mark lands, which id a failure suggests re-running, and a stdio
+  client-setup rejection surfacing as an error instead of an unhandled
+  rejection.
+
 ## [v0.8.1] - 2026-09-09
 
 duoduo now owns which model and how much reasoning effort each runtime gets,
