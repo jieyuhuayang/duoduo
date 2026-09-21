@@ -1,12 +1,12 @@
 ---
 name: duoduo-channel-admin
-description: "Install, start, stop, inspect, reset, and configure duoduo host-mode channels. Use when the request involves: channel lifecycle (install/list/start/stop/status/logs), Feishu setup card or /setup command, Feishu owner DM / main session / FEISHU_BOT_OWNER configuration, the 'main session is locked' refusal, stale card error, resetting a bound Feishu chat, WeChat QR login or packaging, ACP editor integration, channel descriptor editing (kind vs instance). Also trigger for Chinese: 拉起 feishu 通道, 拉起微信 channel, 配置 channel 提示词, 改 stdio 的 workspace, 查看 channel 状态, 飞书机器人怎么配, 设置 owner, 清除 session, 重置 channel."
+description: "Install, start, stop, inspect, reset, and configure duoduo host-mode channels. Use when the request involves: channel lifecycle (install/list/start/stop/status/logs), Feishu setup card or /setup command, Feishu owner DM / main session / FEISHU_BOT_OWNER configuration, the 'main session is locked' refusal, stale card error, resetting a bound Feishu chat, ACP editor integration, channel descriptor editing (kind vs instance). Also trigger for Chinese: 拉起 feishu 通道, 配置 channel 提示词, 改 stdio 的 workspace, 查看 channel 状态, 飞书机器人怎么配, 设置 owner, 清除 session, 重置 channel."
 ---
 
 # Duoduo Channel Admin
 
 Host-mode channel lifecycle and channel-facing configuration. Route
-by kind (Feishu / WeChat / ACP) and by task (install / configure /
+by kind (Feishu / ACP) and by task (install / configure /
 diagnose / reset).
 
 ## Start with discovery
@@ -36,8 +36,6 @@ matches the request to avoid polluting context with unrelated detail.
   session contract (owner DM auto-spawn), `FEISHU_BOT_OWNER` security
   hygiene, 200340 triage, reset walkthrough, stale-card guard,
   accepted v0.5 limits.
-- **WeChat** (微信) → read [references/wechat.md](references/wechat.md).
-  Covers install, start, QR login, state-dir resolution.
 - **ACP** (编辑器) → read [references/acp.md](references/acp.md).
   Covers install, editor integration semantics.
 

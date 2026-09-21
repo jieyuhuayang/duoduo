@@ -56,7 +56,9 @@ hour, etc.).
 
 Create the brain as a duoduo job with `cron: keepalive`. A keepalive job
 stays resident — it does not archive itself after a run, and it costs
-nothing while dormant.
+nothing while dormant. It also never ends on its own: when the pipeline
+is retired, the owner runs `duoduo job archive <id>` on the host, which
+takes it off the schedule and archives its session with it.
 
 Minimal job frontmatter:
 
@@ -163,7 +165,7 @@ layer script.
 | | `/loop` | mechanical-brain |
 |---|---|---|
 | Drive | Agent schedules its own next wake | External script triggers on event |
-| Idle cost | Token spend every tick (ScheduleWakeup) | Zero — brain dormant between events |
+| Idle cost | Token spend every tick, including the ones that find nothing | Zero — brain dormant between events |
 | Latency | Bounded by chosen interval | Near-real-time (as fast as mechanical layer polls) |
 | Best for | Active polling, self-paced tasks | Low-frequency external events |
 

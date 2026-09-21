@@ -117,10 +117,10 @@ Reproduce each probe manually (every section of the script is
 documented here so the agent can skip the script entirely):
 
 ```bash
-duoduo --version                       # installed version
+duoduo --version                       # installed version (see note below)
 npm view @openduo/duoduo version       # latest published
 duoduo daemon status                   # daemon running?
-duoduo channel list                    # any feishu / wechat / acp?
+duoduo channel list                    # any feishu / acp?
 grep -E '^FEISHU_(BOT_OWNER|ALLOW_FROM|DM_POLICY|GROUP_POLICY|GROUP_CMD_USERS)=' \
   ~/.config/duoduo/.env                # security env snapshot
 ls ~/.aladuo/var/channels/feishu-*/descriptor.md 2>/dev/null
@@ -128,6 +128,11 @@ for d in ~/.aladuo/var/channels/feishu-*/; do
   grep -E '^bound_by:' "${d}descriptor.md" || echo "  (no bound_by — pre-v0.5)"
 done
 ```
+
+`duoduo --version` failing with a daemon WebSocket error is not a broken
+install: the flag hit the chat path instead of printing, a bug present in
+every build up to and including v0.8.1 and fixed after it. Read the version
+off `duoduo daemon status` and carry on with the branch decision.
 
 Then decide the branch by hand:
 
@@ -307,11 +312,16 @@ See the grok-runtime reference under `duoduo-runtime-admin`. Do not set
 ## Built-in tool surface change landing in v0.5.10
 
 v0.5.10 flips the claude runtime's built-in tool surface from a denylist to
-an **allowlist**: every session gets a fixed 16-tool core, and descriptors
+an **allowlist**: every session gets a fixed core set, and descriptors
 add extras via the nested `claude.tools` frontmatter key (kind ∪ instance
 union, additive-only). No file migration is required — upgrade + daemon
 restart applies it to every session's next turn, and rollback is safe (older
 versions ignore the `claude:` block).
+
+The core was 16 names in v0.5.10 and is **15 from v0.8.2**: the Agent SDK
+deleted `TaskOutput`, the tool a model used to poll a background agent for its
+output. Background agents now notify the model when they settle, so nothing
+replaced it. Subconscious partitions get a 6-name file-work core.
 
 Two descriptor recipes change meaning; check for them during preflight:
 
@@ -455,6 +465,36 @@ never deleted; `npm install` merges, it does not remove.
 The two replacement partitions arrive through the normal bootstrap
 merge on upgrade. Their prompts, like all shipped partition prompts,
 are NOT auto-upgraded afterwards — see the refresh section below.
+
+## Agent tool-surface change landing after v0.8.1
+
+The release after v0.8.1 moves job lifecycle off the agent's tool surface and
+onto the CLI, and gives a session a way to schedule its own next turn. Nothing
+on disk migrates; the change is what the model sees and what the operator
+types.
+
+- Ending and re-timing a job are shell verbs — `duoduo job archive`,
+  `duoduo job interrupt` (which takes a required reason), and
+  `duoduo job reschedule`, beside the existing `list` and `read`. The agent
+  tool keeps creating, listing and reading jobs, and no longer archives or
+  reschedules them.
+- A session can schedule one future turn of itself, and an operator can
+  schedule one for a session with `duoduo session wake <key> --in <duration>`
+  (context on stdin). Pending wakes show up in `duoduo job list` and are
+  cancelled with `duoduo job archive <wake-id>`.
+- The session-inspection tool is read-only and now lists every active session
+  when called with no argument, which is how an agent finds a target to notify.
+
+**The upgrade step people miss: live codex sessions keep the old tool list.** A
+codex thread caches its tools at thread start, so after the upgrade it keeps
+calling the retired actions; the daemon answers with an error naming the verb
+that replaced them, but the model cannot discover the new surface by itself.
+Have each codex session's owner run `/reset`, and say first that this starts
+the session on a fresh thread and drops its history. Claude and Pi sessions
+need nothing.
+
+One bug fix worth knowing during preflight: `duoduo --version` used to exit
+with a daemon WebSocket error instead of printing a version. It prints now.
 
 ## Stdio output behavior in v0.5.3
 

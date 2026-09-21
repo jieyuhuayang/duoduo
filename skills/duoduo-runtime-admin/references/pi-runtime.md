@@ -532,7 +532,7 @@ issues:
 - **`permission_profile` does not apply to pi in v1.** Pi runs as a
   bypass peer, exactly like Codex and Grok. Claude remains the only
   runtime with the permission ladder.
-- **No `Agent` / `TaskOutput` / `TaskStop` on pi.** Delegation is
+- **No `Agent` / `TaskStop` on pi.** Delegation is
   `ManageJob` (spawn a job, get notified). Subconscious partitions
   that want pi-native subagents can install a project `.pi/extensions`
   package themselves — that is pi's own mechanism, not duoduo's.

@@ -1,7 +1,7 @@
 # Channel lifecycle (cross-kind conventions)
 
 This reference holds conventions that apply to **every** channel
-plugin. Kind-specific behavior (Feishu setup card, WeChat QR, ACP
+plugin. Kind-specific behavior (Feishu setup card, ACP
 init) is in that kind's reference file.
 
 ## Installer conventions
@@ -74,7 +74,7 @@ duoduo channel <kind> start
 Channel credentials live in `~/.config/duoduo/.env`. After editing
 that file:
 
-- Channel-scoped keys (FEISHU_*, WECHAT_*, …) → restart only the
+- Channel-scoped keys (FEISHU_*, …) → restart only the
   affected channel plugin.
 - Daemon-scoped keys (ALADUO_*) → `duoduo daemon restart`; channel
   plugins may or may not need a restart depending on whether they

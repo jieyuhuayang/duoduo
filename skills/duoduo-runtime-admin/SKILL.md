@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon-level settings, diagnostics, and the `duoduo session` / `duoduo spine` CLIs. Use for: daemon status, config and logs; agent runtime setup and selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious partition prompts; the `duoduo memory` CLI; reading the Spine event log; archiving or pruning the usage ledger; model profiles for third-party models (context-window caps, endpoint routing, subagent tier aliases); codex tool-surface trimming; pi compaction sizing and one-character replies; session management (list, alias, wake/notify by name, archive). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 读 spine/事件日志, 清理 usage, 给会话起名, 唤醒/通知 session, 归档会话, 模型 profile, 配置模型上下文窗口, 裁剪 codex 工具, pi 会话只回一个字. Does NOT handle channel-kind settings (Feishu/WeChat/ACP) — those live in duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon settings, diagnostics, and the `duoduo session` / `duoduo job` / `duoduo spine` CLIs. Use for: daemon status, config, logs; runtime selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious prompts; the `duoduo memory` CLI; reading the Spine log; pruning the usage ledger; model profiles for third-party models (context caps, routing, subagent tiers); codex tool trimming; pi compaction sizing; session management (list, alias, notify or wake by name, archive); job lifecycle from the CLI (list, read, archive, interrupt, reschedule). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 读 spine, 清理 usage, 给会话起名, 唤醒/通知 session, 归档会话, 归档任务, 打断任务, 让任务再跑一次, 模型 profile, 裁剪 codex 工具, pi 只回一个字. Does NOT handle channel-kind settings (Feishu/ACP) — see duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -188,9 +188,17 @@ external script — one entry point):
 - `duoduo session alias <key> "<name>"` — give a session a human label, so it
   is legible in `list` and usable as a `notify` target. Unnamed sessions show
   `—` (they are NOT auto-labelled with their key).
-- `duoduo session notify <target> -m "<msg>"` — wake a session by key OR alias
-  and deliver a source-tagged notification. Only `channel`/`job` targets are
-  allowed; the subconscious/kernel plane is isolated and refused.
+- `duoduo session notify <target> -m "<msg>" [--force]` — reach a session by
+  key OR alias now and deliver a source-tagged notification. Only
+  `channel`/`job` targets are allowed; the subconscious/kernel plane is
+  isolated and refused. A channel session nobody has read for an hour is
+  refused with `no_consumer` (0.8.2+; the reply names sessions that do have a
+  reader; `--force` overrides).
+- `duoduo session wake <target> --in <duration> | --at <iso>` (new since
+  v0.8.1) — schedule ONE future turn of that session, with the context read
+  from stdin. Notify delivers now; wake delivers later. Same target rule as
+  notify: `channel`/`job` only, the subconscious/kernel plane refused. Cancel
+  it before it fires with `duoduo job archive <wake-id>`.
 - `duoduo session model <target> [<id>|reset]` / `duoduo session effort
   <target> [<level>|reset]` (0.8.0+) — inspect or set a channel session's
   model / reasoning effort from the CLI, same knobs as in-chat `/model` and
@@ -201,6 +209,42 @@ When the user says "name this session X" / "把这个会话叫 X", or wants to w
 one session from another by name, this is the surface. Read
 [references/session-cli.md](references/session-cli.md) for full usage, the
 isolation boundary, output/`--json` discipline, and the refusal reasons.
+
+## Job Lifecycle (`duoduo job …`, new since v0.8.1)
+
+Scheduled jobs are inspected and ended from the CLI. The in-session tool
+creates, lists and reads them; every verb that ends or re-times a job is a
+shell command, so a human at a terminal, an agent going through Bash, and an
+external script all reach for the same one.
+
+- `duoduo job list [--json]` — active jobs with schedule, pending one-off fire,
+  last run and last result. Pending wakes are listed here too, typed `wake`,
+  whether a session scheduled one for itself or an operator scheduled it with
+  `duoduo session wake`.
+- `duoduo job read <id> [--json]` — one job's definition, mission, and last run
+  including its error.
+- `duoduo job archive <id>` — stop future scheduling. Nothing is deleted: the
+  job's files move to `var/jobs/archive/` and its session is archived with it.
+  A run already in progress runs to its end. This is also how a pending wake is
+  cancelled.
+- `duoduo job interrupt <id> -r "<reason>"` — request the end of the run in
+  progress. `-r` is required, and the reason is what that job is told on its
+  next run, so write what changed rather than "stop". How the run settles is
+  the job's own lifecycle, not the command's: a one-shot that was never
+  re-armed is archived and its owner is told it failed, any other job stays
+  scheduled, and a run cut off before it had taken up its turn is preserved as
+  if it never started. Do not read "interrupted" in the receipt as "that run is
+  dead" — it means the request was accepted.
+- `duoduo job reschedule <id> <when>` — one extra fire at `@in 30m` or an ISO
+  timestamp with an explicit zone. The schedule class is never changed.
+
+Two verbs, two meanings, and they are easy to swap by accident: `archive` stops
+future runs and leaves the current one alone, `interrupt` ends the current run
+and leaves the schedule alone. A wedged recurring job usually wants both.
+
+State the reach of `interrupt` honestly when a user asks: the runtime is asked
+to stop. A tool that ignores its abort signal is not killed, and work the run
+detached into a background process is not reached at all.
 
 ## Spine Inspection (`duoduo spine …`, 0.8.0+)
 

@@ -37,8 +37,15 @@ Resolve `kernel_dir` and `runtime_dir` with `duoduo daemon config`.
 
 The claude runtime exposes a fixed **allowlist core** to every session:
 
-`Bash, Read, Write, Edit, Grep, Glob, Agent, TaskOutput, TaskStop, Skill,
+`Bash, Read, Write, Edit, Grep, Glob, Agent, TaskStop, Skill,
 ToolSearch, TaskCreate, TaskGet, TaskUpdate, TaskList, SendMessage`
+
+Fifteen names as of v0.8.2. It was sixteen before: `TaskOutput` was the tool a
+model used to poll a background `Agent` for its output, and the Agent SDK
+deleted it — a background agent now notifies the model when it settles, so
+there is nothing to poll and nothing replaced the entry. A descriptor that
+still lists `TaskOutput` under `claude.tools` is naming a tool that no longer
+exists; drop it.
 
 Everything else the SDK ships (WebSearch, WebFetch, TodoWrite, Workflow,
 Monitor, Cron*, ScheduleWakeup, plan/worktree tools, …) is absent by default.

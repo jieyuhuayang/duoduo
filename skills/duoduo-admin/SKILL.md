@@ -47,6 +47,12 @@ duoduo --version
 npm view @openduo/duoduo version
 ```
 
+If `duoduo --version` exits with a daemon WebSocket error instead of printing
+a version, the answer is yes: that failure is a bug in every build up to and
+including v0.8.1, and upgrading fixes it. Take the installed version from
+`duoduo daemon status` meanwhile — it reports the same number and does not go
+through the path that fails.
+
 Standard upgrade path (works for minor bumps within the same major):
 
 ```bash
@@ -186,8 +192,8 @@ user wants to file an issue or asks you to prepare one.
 
 ## Route The Request
 
-- Channel installation, channel lifecycle, Feishu setup, WeChat packaging, or
-  channel prompt/workspace changes:
+- Channel installation, channel lifecycle, Feishu setup, or channel
+  prompt/workspace changes:
   read [../duoduo-channel-admin/SKILL.md](../duoduo-channel-admin/SKILL.md)
   and let that workflow own the implementation.
 - Runtime flags such as Codex, debug logs, telemetry, cadence, or daemon

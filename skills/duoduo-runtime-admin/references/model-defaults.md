@@ -78,6 +78,12 @@ menu, not the universe, and refusing an unlisted id would block every
 compatible endpoint the host can reach. An id no backend serves fails when the
 next turn runs, with an error naming the id — the same way a bad `/model` does.
 
+From v0.8.2, switching a live session to an id the Claude CLI does not itself
+recognize costs one restart of that session's process: the CLI refuses the
+change in place, so the new model is delivered by starting the process on it
+instead. Conversation history is preserved. You may notice the next reply
+taking longer than usual; nothing else about the switch differs.
+
 These keys decide **which** model, not how it is reached. Credentials and
 endpoints still come from the runtime's own configuration, and on Claude a
 model may additionally be routed by a model profile. See

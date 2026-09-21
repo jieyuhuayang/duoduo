@@ -1,6 +1,6 @@
 ---
 name: duoduo-loop
-description: "Set up, manage, and troubleshoot recurring loops on a duoduo install — the /loop command and the background jobs it creates. Use when the user wants duoduo to do something repeatedly or on a schedule, watch something until it finishes, run a long-term tracker, or inspect/stop/pause/re-pace an existing loop. Also trigger for Chinese: 定时任务, 循环任务, 周期任务, 每天帮我, 每小时, 盯着…直到, 持续跟进, 长期跟踪, 看看我的循环, 停掉那个 loop, 暂停循环, 改一下节奏, 让多多定期做某事."
+description: "Set up, manage, and troubleshoot recurring loops on a duoduo install — the /loop command and the background jobs it creates. Use when the user wants duoduo to do something repeatedly or on a schedule, watch something until it finishes, run a long-term tracker, or inspect/stop/pause/re-pace/interrupt an existing loop. Also trigger for Chinese: 定时任务, 循环任务, 周期任务, 每天帮我, 每小时, 盯着…直到, 持续跟进, 长期跟踪, 看看我的循环, 停掉那个 loop, 暂停循环, 改一下节奏, 打断卡住的那一轮, 让多多定期做某事."
 ---
 
 # Duoduo Loop
@@ -74,19 +74,37 @@ created.
 
 ## Managing running loops
 
-All management happens in chat, with the host CLI as the inspection
-fallback:
+All management happens in chat, and every verb also exists as a host
+command you can run yourself:
 
 - **List** — "show me my loops" → ids, schedules, and the last result of
-  each. On the host, each loop is one markdown file under
-  `<runtime_dir>/var/jobs/active/`.
-- **Stop** — "stop <id>" → the job is archived to
-  `<runtime_dir>/var/jobs/archive/` and can be restored from there.
+  each. On the host, `duoduo job list`; each loop is also one markdown
+  file under `<runtime_dir>/var/jobs/active/`.
+- **Inspect one** — "what's the state of <id>?" → its schedule, last run,
+  last result, and the mission it was given. On the host,
+  `duoduo job read <id>`.
+- **Stop** — "stop <id>" → `duoduo job archive <id>`. It comes off the
+  schedule and its files move to `<runtime_dir>/var/jobs/archive/`, where
+  they can be restored. A run already under way is left to finish.
+- **End the run in progress** — `duoduo job interrupt <id> -r "<reason>"`
+  asks the current run to stop. What follows is the loop's own shape: a
+  recurring loop stays on its schedule and opens its next run knowing the
+  reason you gave, while a self-paced loop that had not yet booked its next
+  check ends there and reports the failure to whoever owns it. Stopping a
+  loop for good is `archive` — two verbs, and a wedged loop often wants
+  both.
 - **Pause / wake (trackers)** — a long-term tracker pauses by simply
   sleeping past its next wake; mention it in chat ("pick that <topic>
   tracker back up") to wake it with its memory intact.
-- **Re-pace** — "make <id> daily instead" → the agent reschedules it in
-  place.
+- **Re-pace** — "make <id> daily instead" → the agent edits the loop's
+  schedule in place. Know the cost before asking for it on a long-term
+  tracker: a loop's conversation is keyed to its schedule, so changing the
+  cadence starts it on a fresh one and the accumulated judgment stays
+  behind in the old session.
+- **One extra run, cadence untouched** — on the host,
+  `duoduo job reschedule <id> "@in 30m"`. It adds a single fire and leaves
+  the schedule alone: the right verb for "look once more tonight", and the
+  wrong one for re-pacing.
 
 ## Cost notes
 
@@ -99,9 +117,16 @@ spends checks where the action is and stops by itself.
 
 - **"The schedule came and went, nothing happened"** — run
   `duoduo daemon status` first; the scheduler lives in the daemon, so a
-  stopped daemon means a silent calendar. Then ask the agent to read the
-  job ("what's the state of <id>?") — the listing's last result and last
-  error say what happened on the most recent fire.
+  stopped daemon means a silent calendar. Then read the job —
+  `duoduo job read <id>`, or ask the agent "what's the state of <id>?" —
+  its last result and last error say what happened on the most recent
+  fire.
+- **"It has been on the same run for hours"** — `duoduo job read <id>`
+  shows a run that started and never finished. End it with
+  `duoduo job interrupt <id> -r "<what went wrong>"`; if the loop has
+  another run booked, that run opens knowing why it was cut off. The
+  runtime is asked to stop, which reaches the model and its tools but not
+  a process the run detached into the background.
 - **"It pings me too much"** — ask for signal-only delivery: "switch that
   loop to alerting me only on anomalies". Monitoring loops created through
   the plan default to signal-only; every-run reports are the opt-in.

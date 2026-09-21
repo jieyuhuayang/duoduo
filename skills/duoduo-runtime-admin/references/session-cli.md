@@ -2,8 +2,8 @@
 
 Reference for the session-management subcommands. Load this when the user (or
 you, the agent, on the user's behalf) wants to **name a session**, **list /
-inspect sessions**, **wake another session by name**, **compact a session's
-context**, or **archive a session**.
+inspect sessions**, **wake another session by name**, **schedule a future turn
+of a session**, **compact a session's context**, or **archive a session**.
 
 All are thin clients over the daemon's `/rpc`. They print **Markdown by
 default** (human- and agent-readable) and accept **`--json`** for machine
@@ -66,7 +66,7 @@ once — `set_alias` failing does NOT remove it from `list`.
 ## `duoduo session notify`
 
 ```
-duoduo session notify <target> -m "<message>" [--source <label>]
+duoduo session notify <target> -m "<message>" [--source <label>] [--force]
 ```
 
 Wakes a session and delivers a message to it. `<target>` is a **session_key OR a
@@ -82,6 +82,20 @@ to `session.notify`); use it so the receiver knows the origin (e.g.
 target that resolves to a `meta` / `subconscious` / `system` session is refused
 with `forbidden_kind` (exit 2). The subconscious and kernel plane run on their
 own cadence and must never receive an externally-injected, unscheduled turn.
+
+**No-consumer refusal (0.8.2+).** A notification into a *channel* session exists
+to make a person know. If nobody has taken that session's output for
+`ALADUO_NOTIFY_UNCONSUMED_HOURS` (default 1 hour, `0` disables) while replies
+sit unread, the delivery is refused with `no_consumer` (exit 2): nothing is
+written to the inbox, the session is not woken, and one `route.deliver
+REFUSED` line lands in the Spine (`duoduo spine tail`). The refusal text
+names the sessions a consumer has taken output from within that window so the
+caller can re-target, or says explicitly that none has. `--force` delivers
+anyway; `daemon restart --wake` / `upgrade --wake` always force, since a restart
+notice cannot pick another target. The in-session `Notify` tool gets the same
+refusal and has no force — an agent that can re-target re-targets, and should
+open the re-sent message by saying what it is and which session it was meant
+for. Job targets are never refused on this ground.
 
 Other refusals (all exit 2, no delivery): `ambiguous` (the alias matches more
 than one session — the candidates are listed; re-run with a specific
@@ -100,6 +114,45 @@ file changes it. The danger is not a key that no longer exists — that is
 reported plainly — but a key that still resolves to an **archived** session,
 which accepts the delivery and reports success into an inbox nobody drains.
 Aliases are checked against live sessions, so a stale one fails loudly instead.
+
+## `duoduo session wake` (new since v0.8.1)
+
+```
+echo "<context>" | duoduo session wake <session-key> --in <duration>
+echo "<context>" | duoduo session wake <session-key> --at <iso-timestamp>
+```
+
+Schedules **one future turn** of that session. `notify` delivers now; `wake`
+delivers later. `--in` takes a duration (`90m`, `1d6h`); `--at` takes an ISO
+8601 timestamp with an explicit zone.
+
+**The context is read from stdin and must not be empty.** It is the only input
+the woken turn receives — write it for a reader who remembers nothing about
+why it was scheduled: what to look at, where the evidence lives, what to do if
+it is not there.
+
+The target is resolved the same way `notify` resolves one: a **session_key OR a
+display-name alias**, and it must already exist — a key nobody owns is refused
+as `not_found` rather than accepted and delivered to nobody, and an alias
+matching several sessions is refused as ambiguous. **The same isolation
+boundary applies:** only `channel` and `job` sessions can be woken, and a
+target that resolves to a `meta` / `subconscious` / `system` session is refused
+with `forbidden_kind` — the kernel plane runs on its own cadence and takes no
+injected turn, scheduled or immediate. The command prints the wake id and the
+time it fires; `duoduo job list` shows pending wakes typed `wake`, and
+`duoduo job archive <wake-id>` cancels one before it fires.
+
+It fires once, it survives a daemon restart (a wake whose time passed while the
+daemon was down fires on the first scan after it comes back), and it does not
+interrupt a turn already in progress — it queues behind it. A woken session
+decides for itself what to do with the context, including saying nothing.
+
+Agents have the same capability in-session as the `RemindDuoduo` tool, which targets
+the caller and needs no key. Use the CLI form to schedule a turn of a session
+you are not in — from a script or a watcher on the daemon's own machine.
+Scheduling a wake is a mutation, so it goes over the local socket like
+`notify` and every `duoduo job` write: there is no remote form of this command,
+and the daemon's TCP port serves reads only.
 
 ## `duoduo session compact`
 
