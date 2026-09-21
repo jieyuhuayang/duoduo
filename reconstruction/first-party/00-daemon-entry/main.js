@@ -1,83 +1,83 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: main  (minified: pdt, daemon.pretty.js:85427)
+// symbol: main  (minified: Nyt, daemon.pretty.js:91451)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function main() {
     let {
         resolveRuntimePaths: e
-    } = await Promise.resolve().then(() => (yh(), tge)), {
+    } = await Promise.resolve().then(() => (gg(), ive)), {
         initializeRuntime: t
-    } = await Promise.resolve().then(() => (n_e(), t_e)), {
+    } = await Promise.resolve().then(() => (oSe(), iSe)), {
         createAgentSdkAdapter: n
-    } = await Promise.resolve().then(() => (lo(), wI)), {
+    } = await Promise.resolve().then(() => (vo(), bC)), {
         createSessionManager: r
-    } = await Promise.resolve().then(() => (rSe(), nSe)), {
+    } = await Promise.resolve().then(() => (u0e(), a0e)), {
         createMetaSession: i
-    } = await Promise.resolve().then(() => (sSe(), oSe)), {
+    } = await Promise.resolve().then(() => (d0e(), c0e)), {
         runCadenceTick: o
-    } = await Promise.resolve().then(() => (j6(), dSe)), {
+    } = await Promise.resolve().then(() => (yJ(), g0e)), {
         createJobScheduler: s
-    } = await Promise.resolve().then(() => (pSe(), fSe)), {
+    } = await Promise.resolve().then(() => (_0e(), y0e)), {
         createOutboxDeliveryManager: a
-    } = await Promise.resolve().then(() => (hSe(), mSe)), {
-        clearHostModelEnvVars: l,
-        loadHostDotEnv: u
-    } = await Promise.resolve().then(() => (yB(), Oye));
-    process.on("unhandledRejection", z => {
-        Me("[pid0] unhandled promise rejection (contained, daemon survives)", z)
-    }), process.on("uncaughtException", z => {
-        Me("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", z), process.exit(1)
+    } = await Promise.resolve().then(() => (v0e(), b0e)), {
+        clearHostModelEnvVars: u,
+        loadHostDotEnv: l
+    } = await Promise.resolve().then(() => (Y6(), Nwe));
+    process.on("unhandledRejection", M => {
+        Le("[pid0] unhandled promise rejection (contained, daemon survives)", M)
+    }), process.on("uncaughtException", M => {
+        Le("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", M), process.exit(1)
     });
-    let c = await u();
-    c > 0 && ee(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), _B(process.env) === "claude_code_local" && l(process.env);
+    let c = await l();
+    c > 0 && Q(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), X6(process.env) === "claude_code_local" && u(process.env);
     let d = e(),
-        p = await A4(d);
-    if (!p.acquired) throw new Error(`Runtime lock already held by pid=${p.lock?.pid??"unknown"} at ${p.lockPath}`);
+        f = await f6(d);
+    if (!f.acquired) throw new Error(`Runtime lock already held by pid=${f.lock?.pid??"unknown"} at ${f.lockPath}`);
     try {
         await t(d);
-        let z = await Rre(d, {
-            retentionDays: Ere()
+        let M = await ose(d, {
+            retentionDays: ise()
         });
-        ee(`[pid0] spine by-id index retention: kept=${z.kept} dropped=${z.dropped} cutoff=${z.cutoff}`)
-    } catch (z) {
-        throw await AP(d), z
+        Q(`[pid0] spine by-id index retention: kept=${M.kept} dropped=${M.dropped} cutoff=${M.cutoff}`)
+    } catch (M) {
+        throw await B$(d), M
     }
-    let f = await whe(d);
-    ee(`[pid0] session index populated: ${f.size()} entries`), await Nme(EP(d));
+    let p = await cg(d);
+    Q(`[pid0] session index populated: ${p.size()} entries`), await Y_e(M$(d));
     let m = await claimDaemonRestartReason(d);
-    setPendingRestartReason(m), m && ee("[pid0] restart reason claimed", {
+    setPendingRestartReason(m), m && Q("[pid0] restart reason claimed", {
         requested_at: m.requested_at,
         requested_by_agent: m.requested_by_agent,
         wake_targets: m.wake_targets
     });
-    let h = Mme(),
+    let h = Q_e(),
         {
             probeClaudeAvailability: g
-        } = await Promise.resolve().then(() => (lo(), wI)),
+        } = await Promise.resolve().then(() => (vo(), bC)),
         {
             primeCodexAvailability: y,
-            isCodexAvailable: w
-        } = await Promise.resolve().then(() => (sf(), Y2)),
+            isCodexAvailable: v
+        } = await Promise.resolve().then(() => (Df(), IV)),
         {
-            primeGrokAvailability: v,
-            isGrokAvailable: b,
+            primeGrokAvailability: b,
+            isGrokAvailable: _,
             grokUnavailableReason: I
-        } = await Promise.resolve().then(() => (ph(), n4)),
-        [T] = await Promise.all([g(), y(), v()]),
-        P = w(),
-        k = b(),
-        S = T.ok ? n() : void 0;
-    ee("[pid0] available runtimes at boot", {
-        claude: T.ok,
-        codex: P,
-        grok: k,
+        } = await Promise.resolve().then(() => (ug(), OV)),
+        [E] = await Promise.all([g(), y(), b()]),
+        R = v(),
+        x = _(),
+        S = E.ok ? n() : void 0;
+    Q("[pid0] available runtimes at boot", {
+        claude: E.ok,
+        codex: R,
+        grok: x,
         pi: !0,
-        claudeReason: T.ok ? void 0 : T.reason,
-        grokReason: k ? void 0 : I()
+        claudeReason: E.ok ? void 0 : E.reason,
+        grokReason: x ? void 0 : I()
     });
-    let D = x4(),
-        $ = r({
+    let D = u6(),
+        A = r({
             paths: d,
             bus: h,
             sdk: S,
@@ -91,19 +91,19 @@ async function main() {
             bus: h,
             sdk: S,
             subscriptions: D,
-            sessionManager: $,
-            sessionIndex: f,
+            sessionManager: A,
+            sessionIndex: p,
             runtimeLockAlreadyHeld: !0
         }),
-        O = Number(process.env.ALADUO_PORT ?? process.env.PORT ?? 20233);
-    await C.start(O, "127.0.0.1"), gt("info", `[pid0] aladuo daemon started on :${O}, pid=${process.pid}`), await $.start(), m?.wake_targets?.length && await deliverDaemonRestartWakes(d, h, f, m).catch(z => {
-        Me("[pid0] restart wake delivery error", z)
+        $ = Number(process.env.ALADUO_PORT ?? process.env.PORT ?? 20233);
+    await C.start($, "127.0.0.1"), wt("info", `[pid0] aladuo daemon started on :${$}, pid=${process.pid}`), await A.start(), m?.wake_targets?.length && await deliverDaemonRestartWakes(d, h, p, m).catch(M => {
+        Le("[pid0] restart wake delivery error", M)
     }), D.setAttachmentCallbacks({
-        onAttach: (z, V) => {
-            $.attachChannel(z, V)
+        onAttach: (M, ue) => {
+            A.attachChannel(M, ue)
         },
-        onDetach: (z, V) => {
-            $.detachChannel(z, V)
+        onDetach: (M, ue) => {
+            A.detachChannel(M, ue)
         }
     });
     let j = a({
@@ -111,56 +111,56 @@ async function main() {
         bus: h,
         subscriptions: D
     });
-    j.start(), j.flushPending().catch(z => {
-        Me("[pid0] outbox initial flush error", z)
+    j.start(), j.flushPending().catch(M => {
+        Le("[pid0] outbox initial flush error", M)
     });
-    let x = s({
+    let k = s({
         paths: d,
-        sessionManager: $,
+        sessionManager: A,
         bus: h
     });
-    x.start();
-    let F = Lhe({
+    k.start();
+    let L = Ybe({
         paths: d,
-        sessionManager: $,
-        sessionIndex: f,
+        sessionManager: A,
+        sessionIndex: p,
         bus: h
     });
-    F.start();
-    let q = kSe("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
-    ee("[pid0] cadence rhythm", {
-        cadenceIntervalMs: q
+    L.start();
+    let B = T0e("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
+    Q("[pid0] cadence rhythm", {
+        cadenceIntervalMs: B
     });
-    let J = !1,
-        le = setInterval(() => {
-            if (h.emit("cadence.tick"), J) {
-                ke("[pid0] cadence tick skipped: still processing previous tick");
+    let G = !1,
+        ce = setInterval(() => {
+            if (h.emit("cadence.tick"), G) {
+                Ee("[pid0] cadence tick skipped: still processing previous tick");
                 return
             }
-            J = !0;
-            let z = Date.now();
+            G = !0;
+            let M = Date.now();
             o(d).then(() => {
-                ke("[pid0] cadence tick complete", {
-                    durationMs: Date.now() - z
+                Ee("[pid0] cadence tick complete", {
+                    durationMs: Date.now() - M
                 })
-            }).catch(V => {
-                Me("[pid0] cadence tick error", V)
+            }).catch(ue => {
+                Le("[pid0] cadence tick error", ue)
             }).finally(() => {
-                J = !1
+                G = !1
             })
-        }, q);
-    gt("info", `[pid0] cadence timer started, interval=${q}ms`);
-    let oe = i({
+        }, B);
+    wt("info", `[pid0] cadence timer started, interval=${B}ms`);
+    let J = i({
         paths: d,
         bus: h,
         sdk: S,
-        sessionManager: $,
-        cadenceIntervalMs: q
+        sessionManager: A,
+        cadenceIntervalMs: B
     });
-    oe.start();
-    let X = !1,
-        te = async z => {
-            X || (X = !0, gt("info", `[pid0] received ${z}, shutting down...`), await x.stop(), await F.stop(), clearInterval(le), h.emit("shutdown"), await oe.stop(), await $.stop(), await j.stop(), await C.stop(), h.removeAllListeners(), gt("info", "[pid0] shutdown complete"), process.exit(0))
+    J.start();
+    let ee = !1,
+        le = async M => {
+            ee || (ee = !0, wt("info", `[pid0] received ${M}, shutting down...`), await k.stop(), await L.stop(), clearInterval(ce), h.emit("shutdown"), await J.stop(), await A.stop(), await j.stop(), await C.stop(), h.removeAllListeners(), wt("info", "[pid0] shutdown complete"), process.exit(0))
         };
-    process.on("SIGTERM", () => te("SIGTERM")), process.on("SIGINT", () => te("SIGINT"))
+    process.on("SIGTERM", () => le("SIGTERM")), process.on("SIGINT", () => le("SIGINT"))
 }

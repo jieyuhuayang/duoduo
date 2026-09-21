@@ -1,75 +1,75 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: createDaemon  (minified: fdt, daemon.pretty.js:84498)
+// symbol: createDaemon  (minified: Ayt, daemon.pretty.js:90421)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createDaemon(e) {
-    let t = (0, CO.default)({
+    let t = (0, zA.default)({
             logger: !1
         }),
-        n = (0, CO.default)({
+        n = (0, zA.default)({
             logger: !1
         }),
         r = null,
         i = new Set(["127.0.0.1", "localhost", "::1"]),
-        o = (S, D, $, C, O) => {
+        o = (S, D, A, C, $) => {
             if (String(S.headers.upgrade ?? "").toLowerCase() === "websocket") {
                 D.hijack();
-                let x = D.raw.socket ?? S.raw.socket;
-                x && !x.destroyed && (x.write(`HTTP/1.1 ${$} ${C}\r
+                let k = D.raw.socket ?? S.raw.socket;
+                k && !k.destroyed && (k.write(`HTTP/1.1 ${A} ${C}\r
 Connection: close\r
 Content-Length: 0\r
 \r
-`), x.destroy());
+`), k.destroy());
                 return
             }
-            return D.code($).send(O)
+            return D.code(A).send($)
         },
-        s = (S, D, $) => o(S, D, 403, "Forbidden", {
+        s = (S, D, A) => o(S, D, 403, "Forbidden", {
             error: "forbidden",
-            reason: $
+            reason: A
         }),
         a = (S, D) => o(S, D, 401, "Unauthorized", {
             error: "unauthorized"
         }),
         {
-            paths: l,
-            bus: u
+            paths: u,
+            bus: l
         } = e,
-        c = new Io(l),
-        d = e.sessionIndex ?? She();
-    xse((S, D) => {
+        c = new Br(u),
+        d = e.sessionIndex ?? f_e();
+    nle((S, D) => {
         if (D === "removed") {
             d.remove(S);
             return
         }
-        Mi(S, async () => {
-            if (!Qn(S)) try {
-                let [$, C] = await Promise.all([ct(l, S), As(l, S)]);
-                v4(d, S, $, C)
+        Bi(S, async () => {
+            if (!or(S)) try {
+                let [A, C] = await Promise.all([ht(u, S), Qs(u, S)]);
+                DV(d, S, A, C)
             } catch {}
         }).catch(() => {})
-    }), Pre(S => {
+    }), use(S => {
         d.remove(S)
     });
     let m = {
-            version: Tct(import.meta.url)("../../package.json").version,
-            runtime_id: Uct(l.runtimeDir),
+            version: Ggt(import.meta.url)("../../package.json").version,
+            runtime_id: lyt(u.runtimeDir),
             runtime_mode: "host",
-            runtime_dir: Ji.resolve(l.runtimeDir),
-            work_dir: Ji.resolve(l.workDir),
-            kernel_dir: Ji.resolve(l.kernelDir)
+            runtime_dir: ro.resolve(u.runtimeDir),
+            work_dir: ro.resolve(u.workDir),
+            kernel_dir: ro.resolve(u.kernelDir)
         },
-        h = e.subscriptions ?? x4();
-    h.start(u);
+        h = e.subscriptions ?? u6();
+    h.start(l);
     let g = 0,
         y = !1,
-        w = null,
-        v = new Map,
+        v = null,
         b = new Map,
+        _ = new Map,
         I = new Set(["spine.tail", "system.status", "usage.get", "job.list"]);
-    async function T(S, D) {
-        (I.has(S.method) ? wre : ke)("[daemon] rpc request", {
+    async function E(S, D) {
+        (I.has(S.method) ? ese : Ee)("[daemon] rpc request", {
             id: S.id ?? null,
             method: S.method,
             session_key: typeof S.params == "object" && S.params !== null ? S.params.session_key : void 0,
@@ -79,76 +79,76 @@ Content-Length: 0\r
                 jsonrpc: "2.0",
                 id: S.id ?? null
             },
-            O;
+            $;
         if (typeof S.params == "object" && S.params !== null && "worker_token" in S.params) {
             let {
-                worker_token: x,
-                ...F
+                worker_token: k,
+                ...L
             } = S.params;
-            if (O = Ude(x), !O) return W("[daemon] rejected pi worker RPC: unknown token", {
+            if ($ = Mhe(k), !$) return Z("[daemon] rejected pi worker RPC: unknown token", {
                 method: S.method
             }), C.error = {
                 code: -32001,
                 message: "invalid pi worker token"
             }, C;
-            if (!zde.has(S.method)) return W("[daemon] rejected pi worker RPC: method not whitelisted", {
+            if (!Dhe.has(S.method)) return Z("[daemon] rejected pi worker RPC: method not whitelisted", {
                 method: S.method,
-                session_key: O.session_key
+                session_key: $.session_key
             }), C.error = {
                 code: -32601,
                 message: `Method not available to pi worker callers: ${S.method}`
             }, C;
-            S.params = F
+            S.params = L
         }
         let j = {
-            cancelSession: async x => {
+            cancelSession: async k => {
                 if (!e.sessionManager) return {
                     interrupted: !1,
                     reason: "session_manager_unavailable"
                 };
-                let F = await e.sessionManager.interruptSession(x);
+                let L = await e.sessionManager.interruptSession(k);
                 return {
-                    interrupted: F.interrupted,
-                    reason: F.reason
+                    interrupted: L.interrupted,
+                    reason: L.reason
                 }
             },
-            clearSession: async x => e.sessionManager ? e.sessionManager.clearSdkSession(x) : {
+            clearSession: async k => e.sessionManager ? e.sessionManager.clearSdkSession(k) : {
                 cleared: !1,
                 reason: "session_manager_unavailable"
             },
             listActors: () => {
                 if (!e.sessionManager) return new Map;
-                let x = e.sessionManager.listActors(),
-                    F = new Map;
-                for (let [q, J] of x) F.set(q, {
-                    sessionKey: J.sessionKey,
-                    status: J.status,
-                    health: J.health,
-                    idleSince: J.idleSince,
-                    origin: J.origin
+                let k = e.sessionManager.listActors(),
+                    L = new Map;
+                for (let [B, G] of k) L.set(B, {
+                    sessionKey: G.sessionKey,
+                    status: G.status,
+                    health: G.health,
+                    idleSince: G.idleSince,
+                    origin: G.origin
                 });
-                return F
+                return L
             },
-            listPersistentSessions: () => d.listUserVisible().map(x => ({
-                session_key: x.session_key,
-                cwd: x.cwd,
-                created_at: x.created_at,
-                last_event_at: x.last_event_at,
-                last_error: x.last_error
+            listPersistentSessions: () => d.listUserVisible().map(k => ({
+                session_key: k.session_key,
+                cwd: k.cwd,
+                created_at: k.created_at,
+                last_event_at: k.last_event_at,
+                last_error: k.last_error
             })),
-            getSessionModel: async (x, F) => e.sessionManager ? e.sessionManager.getSessionModelView(x, F) : {
+            getSessionModel: async (k, L) => e.sessionManager ? e.sessionManager.getSessionModelView(k, L) : {
                 runtime: "claude",
                 hasLiveQuery: !1
             },
-            setSessionModel: async (x, F, q) => e.sessionManager ? e.sessionManager.setSessionModel(x, F, q) : {
+            setSessionModel: async (k, L, B) => e.sessionManager ? e.sessionManager.setSessionModel(k, L, B) : {
                 ok: !1,
                 reason: "not_running"
             },
-            getSessionEffort: async (x, F) => e.sessionManager ? e.sessionManager.getSessionEffortView(x, F) : {
+            getSessionEffort: async (k, L) => e.sessionManager ? e.sessionManager.getSessionEffortView(k, L) : {
                 runtime: "claude",
                 hasLiveQuery: !1
             },
-            setSessionEffort: async (x, F) => e.sessionManager ? e.sessionManager.setSessionEffort(x, F) : {
+            setSessionEffort: async (k, L) => e.sessionManager ? e.sessionManager.setSessionEffort(k, L) : {
                 ok: !1,
                 reason: "not_running"
             }
@@ -158,580 +158,681 @@ Content-Length: 0\r
                 ok: !0
             }, C.__triggerShutdown = !0;
             else if (S.method === "system.runtime.info") {
-                if (!uE(S.params)) throw new tn("Invalid params");
-                if (!lE(m)) throw new Error("invalid runtime info");
-                let x = S.params ?? {};
-                if (x.source_kind) {
-                    let q = {
-                        new_session_workspace: (await Oa(l, {
-                            channel_kind: x.source_kind
+                if (!T0(S.params)) throw new qt("Invalid params");
+                if (!I0(m)) throw new Error("invalid runtime info");
+                let k = S.params ?? {};
+                if (k.source_kind) {
+                    let B = {
+                        new_session_workspace: (await Za(u, {
+                            channel_kind: k.source_kind
                         }))?.new_session_workspace
                     };
                     C.result = {
                         ...m,
-                        channel_defaults: q
+                        channel_defaults: B
                     }
                 } else C.result = m
             } else if (S.method === "channel.describe") {
-                if (!EE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await Vct(l, d, x)
+                if (!H0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await pyt(u, d, k)
             } else if (S.method === "session.archive") {
-                if (!cE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await Wct(l, e.sessionManager, d, x)
+                if (!P0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await myt(u, e.sessionManager, d, k)
             } else if (S.method === "session.list") {
-                if (!dE(S.params)) throw new tn("Invalid params");
-                let x = S.params ?? {};
-                C.result = await Zct(d, c, x)
+                if (!C0(S.params)) throw new qt("Invalid params");
+                let k = S.params ?? {};
+                C.result = await h$(d, c, k)
             } else if (S.method === "session.set_alias") {
-                if (!fE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await Kct(l, d, x)
+                if (!$0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await gyt(u, d, k)
             } else if (S.method === "session.notify") {
-                if (!pE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await ESe(l, u, d, x)
-            } else if (S.method === "job.manage" || S.method === "session.manage" || S.method === "notify.send") {
-                if (!O) return C.error = {
+                if (!A0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await $0e(u, l, d, k)
+            } else if (S.method === "session.wake") {
+                if (!O0(S.params)) throw new qt("Invalid params");
+                C.result = await yyt(u, d, S.params)
+            } else if (S.method === "job.manage" || S.method === "session.manage" || S.method === "notify.send" || S.method === "wake.set") {
+                if (!$) return C.error = {
                     code: -32001,
                     message: `${S.method} requires a pi worker token`
                 }, C;
-                if (typeof S.params != "object" || S.params === null) throw new tn("Invalid params");
+                if (typeof S.params != "object" || S.params === null) throw new qt("Invalid params");
                 if (S.method === "job.manage") {
-                    let x = await mh(S.params, {
-                        paths: l,
-                        sessionKey: O.session_key,
-                        callerJobCron: O.job_cron,
+                    let k = await lg(S.params, {
+                        paths: u,
+                        sessionKey: $.session_key,
+                        callerJobCron: $.job_cron,
                         callerRuntime: "pi",
-                        bus: u
+                        bus: l
                     });
                     C.result = {
-                        output: x
+                        output: k
                     }
                 } else if (S.method === "notify.send") {
-                    let x = await gh(S.params, {
-                        paths: l,
-                        bus: u,
-                        sessionKey: O.session_key,
-                        sessionContextKind: O.session_context_kind,
-                        jobScheduleType: O.job_schedule_type
+                    let k = await hg(S.params, {
+                        paths: u,
+                        bus: l,
+                        sessionKey: $.session_key,
+                        sessionContextKind: $.session_context_kind,
+                        jobScheduleType: $.job_schedule_type
                     });
-                    x.startsWith("Error:") || e.sessionManager?.markAgentNotified(O.session_key), C.result = {
-                        output: x
+                    k.startsWith("Error:") || e.sessionManager?.markAgentNotified($.session_key), C.result = {
+                        output: k
                     }
-                } else {
-                    let x = await hh(S.params, {
-                        paths: l,
-                        sessionKey: O.session_key,
-                        getSessionStatus: F => e.sessionManager?.listActors().get(F)?.status
+                } else if (S.method === "wake.set") {
+                    let k = await pg(S.params, {
+                        paths: u,
+                        sessionKey: $.session_key,
+                        sessionContextKind: $.session_context_kind
                     });
                     C.result = {
-                        output: x
+                        output: k
+                    }
+                } else {
+                    let k = await fg(S.params, {
+                        paths: u,
+                        sessionKey: $.session_key,
+                        getSessionStatus: L => e.sessionManager?.listActors().get(L)?.status
+                    });
+                    C.result = {
+                        output: k
                     }
                 }
             } else if (S.method === "session.model") {
-                if (!mE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await Xct(d, j, x)
+                if (!N0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await byt(d, j, k)
             } else if (S.method === "session.effort") {
-                if (!hE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await Qct(d, j, x)
+                if (!D0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await vyt(d, j, k)
             } else if (S.method === "session.compact") {
-                if (!gE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await edt(l, u, d, j, x)
+                if (!M0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await wyt(u, l, d, j, k)
             } else if (S.method === "session.config") {
-                if (!yE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await ndt(l, d, x)
+                if (!j0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await kyt(u, d, k)
             } else if (S.method === "channel.spawn") {
-                if (!RE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                C.result = await adt(l, x)
+                if (!W0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                C.result = await Tyt(u, k)
             } else if (S.method === "channel.ingress") {
-                if (!vE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                if (gSe("channel.ingress", x, D), Qn(x.session_key)) return C.error = {
+                if (!z0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                if (w0e("channel.ingress", k, D), or(k.session_key)) return C.error = {
                     code: -32011,
-                    message: `Session is being archived. Retry after session.archive completes. session_key=${x.session_key}`
+                    message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
-                let F = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    q = await ySe({
-                        paths: l,
-                        sessionKey: x.session_key,
-                        cwdAbs: x.cwd_abs,
-                        channelKind: F,
-                        channelId: x.channel_id
+                let L = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
+                    B = await S0e({
+                        paths: u,
+                        sessionKey: k.session_key,
+                        cwdAbs: k.cwd_abs,
+                        channelKind: L,
+                        channelId: k.channel_id
                     });
-                if (!q.ok) return C.error = {
+                if (!B.ok) return C.error = {
                     code: -32010,
-                    message: q.guidance
+                    message: B.guidance
                 }, C;
-                let J = await mae(l, {
-                    sessionKey: x.session_key,
-                    sourceKind: F,
-                    sourceName: x.channel_id ?? D?.wsSubscriberId,
-                    sourceChannelId: x.channel_id,
-                    text: x.text ?? "",
-                    attachments: x.attachments,
-                    dedupSourceId: x.idempotency_key,
+                let G = await Zle(u, {
+                    sessionKey: k.session_key,
+                    sourceKind: L,
+                    sourceName: k.channel_id ?? D?.wsSubscriberId,
+                    sourceChannelId: k.channel_id,
+                    text: k.text ?? "",
+                    attachments: k.attachments,
+                    dedupSourceId: k.idempotency_key,
                     rawPayload: {
                         jsonrpc: S.jsonrpc,
                         method: S.method,
                         params: S.params
                     }
                 }, {
-                    bus: u,
+                    bus: l,
                     gatewayCommands: j
                 });
-                x.channel_id && await Qe(l, x.session_key, {
-                    source_channel_id: x.channel_id
-                }), eo("ingress_received", J.event.id, {
-                    sessionKey: x.session_key
-                }), J.routing.enqueued && u.emit("session.wake", {
-                    sessionKey: x.session_key,
-                    displayName: x.display_name,
-                    preempt: q6(x.text)
+                k.channel_id && await rt(u, k.session_key, {
+                    source_channel_id: k.channel_id
+                }), fo("ingress_received", G.event.id, {
+                    sessionKey: k.session_key
+                }), G.routing.enqueued && l.emit("session.wake", {
+                    sessionKey: k.session_key,
+                    displayName: k.display_name,
+                    preempt: SJ(k.text)
                 });
-                let le = yv(F) ? q.effectiveConfig?.kind_config : void 0,
-                    oe = {
-                        event_id: J.event.id,
-                        gateway_response: J.gatewayResponse,
-                        outbox_id: J.gatewayOutboxId,
-                        ...le ? {
-                            kind_config: le
+                let ce = Lw(L) ? B.effectiveConfig?.kind_config : void 0,
+                    J = {
+                        event_id: G.event.id,
+                        gateway_response: G.gatewayResponse,
+                        outbox_id: G.gatewayOutboxId,
+                        ...ce ? {
+                            kind_config: ce
                         } : {}
                     };
-                C.result = oe
+                C.result = J
             } else if (S.method === "channel.command") {
-                if (!kE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                if (gSe("channel.command", x, D), Qn(x.session_key)) return C.error = {
+                if (!B0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                if (w0e("channel.command", k, D), or(k.session_key)) return C.error = {
                     code: -32011,
-                    message: `Session is being archived. Retry after session.archive completes. session_key=${x.session_key}`
+                    message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
-                let F = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    q = await ySe({
-                        paths: l,
-                        sessionKey: x.session_key,
-                        cwdAbs: x.cwd_abs,
-                        channelKind: F,
-                        channelId: x.channel_id
+                let L = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
+                    B = await S0e({
+                        paths: u,
+                        sessionKey: k.session_key,
+                        cwdAbs: k.cwd_abs,
+                        channelKind: L,
+                        channelId: k.channel_id
                     });
-                if (!q.ok) return C.error = {
+                if (!B.ok) return C.error = {
                     code: -32010,
-                    message: q.guidance
+                    message: B.guidance
                 }, C;
-                let J = await C_(l, {
-                    sessionKey: x.session_key,
-                    sourceKind: F,
-                    sourceName: x.channel_id ?? D?.wsSubscriberId,
-                    sourceChannelId: x.channel_id,
-                    command: x.command,
-                    dedupSourceId: x.idempotency_key,
+                let G = await $b(u, {
+                    sessionKey: k.session_key,
+                    sourceKind: L,
+                    sourceName: k.channel_id ?? D?.wsSubscriberId,
+                    sourceChannelId: k.channel_id,
+                    command: k.command,
+                    dedupSourceId: k.idempotency_key,
                     rawPayload: {
                         jsonrpc: S.jsonrpc,
                         method: S.method,
                         params: S.params
                     }
                 }, {
-                    bus: u,
+                    bus: l,
                     gatewayCommands: j
                 });
-                J.routing.enqueued && u.emit("session.wake", {
-                    sessionKey: x.session_key,
-                    preempt: q6(x.command)
+                G.routing.enqueued && l.emit("session.wake", {
+                    sessionKey: k.session_key,
+                    preempt: SJ(k.command)
                 }), C.result = {
-                    event_id: J.event.id,
-                    gateway_response: J.gatewayResponse,
-                    outbox_id: J.gatewayOutboxId
+                    event_id: G.event.id,
+                    gateway_response: G.gatewayResponse,
+                    outbox_id: G.gatewayOutboxId
                 }
             } else if (S.method === "channel.file.upload") {
-                if (!wE(S.params)) throw new tn("Invalid params");
-                let x = S.params,
-                    F = await jme(l, x.session_key, x.name, x.mime, x.content_base64, {
+                if (!U0(S.params)) throw new qt("Invalid params");
+                let k = S.params,
+                    L = await ebe(u, k.session_key, k.name, k.mime, k.content_base64, {
                         receivedVia: D?.wsSubscriberId ? "ws" : "rpc",
                         sourceName: D?.wsSubscriberId
                     });
-                C.result = F
+                C.result = L
             } else if (S.method === "channel.file.download") {
-                if (!SE(S.params)) throw new tn("Invalid params");
-                let x = S.params,
-                    F = await Lme(x.path);
+                if (!q0(S.params)) throw new qt("Invalid params");
+                let k = S.params,
+                    L = await tbe(k.path);
                 C.result = {
-                    content_base64: F
+                    content_base64: L
                 }
             } else if (S.method === "channel.pull") {
-                if (!qp(S.params)) throw new tn("Invalid params");
-                let x = S.params,
-                    F = x.consumer_id.trim(),
-                    q = L6(x.return_mask),
-                    J = q.includes("final");
-                if (D?.wsSubscriberId) return await zct({
-                    paths: l,
-                    sessionKey: x.session_key,
-                    declaredBy: F,
-                    capabilities: x.channel_capabilities
+                if (!_m(S.params)) throw new qt("Invalid params");
+                let k = S.params,
+                    L = k.consumer_id.trim(),
+                    B = _J(k.return_mask),
+                    G = B.includes("final");
+                if (D?.wsSubscriberId) return await uyt({
+                    paths: u,
+                    sessionKey: k.session_key,
+                    declaredBy: L,
+                    capabilities: k.channel_capabilities
                 }), C.result = {
                     opened: !0,
-                    session_key: x.session_key,
-                    consumer_id: F,
-                    cursor: x.cursor,
-                    return_mask: q
+                    session_key: k.session_key,
+                    consumer_id: L,
+                    cursor: k.cursor,
+                    return_mask: B
                 }, C;
-                let le = J ? await P4({
-                    paths: l,
-                    sessionKey: x.session_key,
-                    consumerId: F,
-                    limit: x.limit ?? Number(process.env.ALADUO_PULL_LIMIT ?? 50),
-                    cursorOverride: x.cursor
+                let ce = G ? await Pw({
+                    paths: u,
+                    sessionKey: k.session_key,
+                    consumerId: L,
+                    limit: k.limit ?? Number(process.env.ALADUO_PULL_LIMIT ?? 50),
+                    cursorOverride: k.cursor
                 }) : [];
                 C.result = {
-                    session_key: x.session_key,
-                    consumer_id: F,
-                    return_mask: q,
-                    records: le,
-                    next_cursor: le.length > 0 ? le[le.length - 1].id : void 0,
-                    idle: le.length === 0
+                    session_key: k.session_key,
+                    consumer_id: L,
+                    return_mask: B,
+                    records: ce,
+                    next_cursor: ce.length > 0 ? ce[ce.length - 1].id : void 0,
+                    idle: ce.length === 0
                 }
             } else if (S.method === "channel.ack") {
-                if (!xE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                if (Qn(x.session_key)) return C.error = {
+                if (!V0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                if (or(k.session_key)) return C.error = {
                     code: -32002,
-                    message: `Session is being archived. Retry after session.archive completes. session_key=${x.session_key}`
+                    message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
-                let F = x.consumer_id.trim(),
-                    q = x.cursor.trim(),
-                    J = x.session_key.indexOf(":"),
-                    le = J > 0 ? x.session_key.slice(0, J) : null,
-                    oe = null;
-                if (le && (oe = await Sa(l, le, q)), !oe || oe.session_key !== x.session_key) {
-                    let te = await Dse(l, x.session_key, q);
-                    return te ? (await I4(l, x.session_key, F, te), C.result = {
-                        session_key: x.session_key,
-                        consumer_id: F,
-                        committed_cursor: te.id,
+                let L = k.consumer_id.trim(),
+                    B = k.cursor.trim(),
+                    G = k.session_key.indexOf(":"),
+                    ce = G > 0 ? k.session_key.slice(0, G) : null,
+                    J = null;
+                if (ce && (J = await La(u, ce, B)), !J || J.session_key !== k.session_key) {
+                    let le = await ple(u, k.session_key, B);
+                    return le ? (await zV(u, k.session_key, L, le), C.result = {
+                        session_key: k.session_key,
+                        consumer_id: L,
+                        committed_cursor: le.id,
                         committed: !0
                     }, C) : (C.error = {
                         code: -32602,
                         message: "Invalid cursor"
                     }, C)
                 }
-                let X = await Ds(l, q);
-                if (!X) try {
-                    await p0(l, x.session_key), X = await Ds(l, q)
+                let ee = await ea(u, B);
+                if (!ee) try {
+                    await jR(u, k.session_key), ee = await ea(u, B)
                 } catch {}
-                X ? await Vhe(l, x.session_key, F, X) : await I4(l, x.session_key, F, oe), C.result = {
-                    session_key: x.session_key,
-                    consumer_id: F,
-                    committed_cursor: oe.id,
+                ee ? await k_e(u, k.session_key, L, ee) : await zV(u, k.session_key, L, J), C.result = {
+                    session_key: k.session_key,
+                    consumer_id: L,
+                    committed_cursor: J.id,
                     committed: !0
                 }
             } else if (S.method === "job.create") {
-                if (!TE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
-                await c.init(), await c.createJob(x.id, {
-                    cron: x.cron,
-                    owner_session: x.owner_session,
-                    cwd_rel: x.cwd_rel,
-                    runtime: _o()
-                }, x.instruction);
-                let F = createSpineEvent({
+                if (!J0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                await c.init(), await c.createJob(k.id, {
+                    cron: k.cron,
+                    owner_session: k.owner_session,
+                    cwd_rel: k.cwd_rel,
+                    runtime: Co()
+                }, k.instruction);
+                let L = createSpineEvent({
                     type: "job.spawn",
                     source: {
                         kind: "job",
-                        name: x.id
+                        name: k.id
                     },
                     payload: {
-                        job_id: x.id,
-                        cron: x.cron
+                        job_id: k.id,
+                        cron: k.cron
                     }
                 });
-                await atomicAppendEvent(l, F), C.result = {
-                    id: x.id,
-                    cron: x.cron
+                await atomicAppendEvent(u, L), C.result = {
+                    id: k.id,
+                    cron: k.cron
                 }
             } else if (S.method === "job.get") {
-                if (!IE(S.params)) throw new tn("Invalid params");
-                let x = S.params;
+                if (!Z0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
                 await c.init();
-                let F = await c.classifyActiveJob(x.id);
-                if (F.kind === "active") C.result = {
-                    ...rf(F.job),
+                let L = await c.getWakeRecord(k.id).catch(() => null);
+                if (L) return C.result = {
+                    kind: "active",
+                    type: "wake",
+                    id: L.id,
+                    owner_session: L.frontmatter.owner_session,
+                    run_at: L.state.run_at ?? null,
+                    created_at: L.frontmatter.created_at,
+                    content: L.context
+                }, C;
+                let B = await c.classifyActiveJob(k.id);
+                if (B.kind === "active") C.result = {
+                    ...Af(B.job),
                     kind: "active"
                 };
-                else if (F.kind === "invalid") C.error = {
-                    code: t_.INVALID_ACTIVE,
-                    message: `Job '${x.id}' active job file exists but is invalid: ${F.reason}`
+                else if (B.kind === "invalid") C.error = {
+                    code: bm.INVALID_ACTIVE,
+                    message: `Job '${k.id}' active job file exists but is invalid: ${B.reason}`
                 };
                 else {
-                    let q = await c.getArchivedJob(x.id);
-                    q ? C.result = {
-                        ...rf(q),
+                    let G = await c.getArchivedJob(k.id);
+                    G ? C.result = {
+                        ...Af(G),
                         kind: "archived",
                         archived: !0
                     } : C.error = {
-                        code: t_.NOT_FOUND,
+                        code: bm.NOT_FOUND,
                         message: "Job not found"
                     }
                 }
             } else if (S.method === "job.list") {
-                if (!PE(S.params)) throw new tn("Invalid params");
+                if (!G0(S.params)) throw new qt("Invalid params");
                 await c.init();
-                let x = zpe(await c.listJobs());
+                let k = Mye(await c.listJobs()).map(G => ({
+                        type: "job",
+                        ...G
+                    })),
+                    L = (await c.listWakeRecords()).map(G => ({
+                        type: "wake",
+                        id: G.id,
+                        owner_session: G.frontmatter.owner_session,
+                        run_at: G.state.run_at ?? null,
+                        created_at: G.frontmatter.created_at
+                    }));
                 S.params?.summary ? C.result = {
-                    jobs: x.map(({
-                        content: q,
-                        path: J,
-                        ...le
-                    }) => le)
+                    jobs: [...k.map(({
+                        content: G,
+                        path: ce,
+                        ...J
+                    }) => J), ...L]
                 } : C.result = {
-                    jobs: x
+                    jobs: [...k, ...L]
+                }
+            } else if (S.method === "job.archive") {
+                if (!K0(S.params)) throw new qt("Invalid params");
+                let k = S.params;
+                await c.init();
+                let L = await c.getJob(k.id),
+                    B = await c.archiveJob(k.id),
+                    G = L?.session_key ?? vc({
+                        jobId: k.id,
+                        cron: L?.frontmatter.cron,
+                        cwdRel: L?.frontmatter.cwd_rel
+                    });
+                await ab(u, G), C.result = {
+                    id: k.id,
+                    archived: !0,
+                    session_key: G,
+                    sidecar_orphan_path: B.sidecarOrphanPath ?? null
+                }
+            } else if (S.method === "job.reschedule") {
+                if (!Y0(S.params)) throw new qt("Invalid params");
+                let k = S.params,
+                    L = k.when.trim();
+                if (!L) throw new qt("job.reschedule requires a non-empty 'when': '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone.");
+                await c.init();
+                let B = await c.getJob(k.id),
+                    G = await c.rescheduleJob(k.id, L);
+                C.result = {
+                    id: k.id,
+                    run_at: G,
+                    cron: B?.frontmatter.cron ?? null
+                }
+            } else if (S.method === "job.interrupt") {
+                if (!X0(S.params)) throw new qt("Invalid params");
+                let k = S.params,
+                    L = k.reason.trim();
+                if (!L) throw new qt("job.interrupt requires a non-empty 'reason' — it is what the interrupted session is told.");
+                await c.init();
+                let B = await c.getJob(k.id) ?? await c.getArchivedJob(k.id);
+                if (!B) C.error = {
+                    code: bm.NOT_FOUND,
+                    message: `Job '${k.id}' not found`
+                };
+                else if (!e.sessionManager) C.error = {
+                    code: -32603,
+                    message: "Internal error",
+                    data: "session manager unavailable"
+                };
+                else {
+                    await rt(u, B.session_key, {
+                        pending_gateway_notice: {
+                            source: "gateway_command",
+                            command: `job interrupt ${k.id}`,
+                            command_name: "interrupt",
+                            result_summary: L,
+                            created_at: new Date().toISOString()
+                        }
+                    });
+                    let G = await e.sessionManager.interruptSession(B.session_key);
+                    G.interrupted || await No(u, B.session_key, "pending_gateway_notice").catch(() => {}), C.result = {
+                        id: k.id,
+                        session_key: B.session_key,
+                        interrupted: G.interrupted,
+                        outcome: G.reason
+                    }
                 }
             } else if (S.method === "usage.get") {
-                let x = S.params,
-                    F = typeof x?.session_key == "string" ? x.session_key : void 0,
-                    q = typeof x?.mode == "string" ? x.mode : void 0,
-                    J;
-                if (x?.since !== void 0 && (J = new Date(x.since), isNaN(J.getTime()) && (J = void 0)), q === "totals") {
-                    let le = await readGlobalUsageTotals(l, J);
+                let k = S.params,
+                    L = typeof k?.session_key == "string" ? k.session_key : void 0,
+                    B = typeof k?.mode == "string" ? k.mode : void 0,
+                    G;
+                if (k?.since !== void 0 && (G = new Date(k.since), isNaN(G.getTime()) && (G = void 0)), B === "totals") {
+                    let ce = await readGlobalUsageTotals(u, G);
                     C.result = {
-                        totals: le
+                        totals: ce
                     }
-                } else if (F) {
-                    let le = await readDrainRecords(l, F, J),
-                        oe = summarizeDrainRecords(le);
+                } else if (L) {
+                    let ce = await readDrainRecords(u, L, G),
+                        J = summarizeDrainRecords(ce);
                     C.result = {
                         sessions: {
-                            [F]: {
-                                summary: oe,
-                                records: le
+                            [L]: {
+                                summary: J,
+                                records: ce
                             }
                         }
                     }
                 } else {
-                    let le = await readAllSessionSummaries(l, J),
-                        oe = {};
-                    for (let [X, te] of Object.entries(le)) oe[X] = {
-                        summary: te
+                    let ce = await readAllSessionSummaries(u, G),
+                        J = {};
+                    for (let [ee, le] of Object.entries(ce)) J[ee] = {
+                        summary: le
                     };
                     C.result = {
-                        sessions: oe
+                        sessions: J
                     }
                 }
             } else if (S.method === "system.status") {
-                if (!CE(S.params)) throw new tn("Invalid params");
-                let [x, F] = await Promise.all([c_(l), _h(l)]), q = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), le = new Set, oe = [], X = z => {
-                    let V = z?.last_served_model ?? null,
-                        pe = z?.model ?? null;
+                if (!Q0(S.params)) throw new qt("Invalid params");
+                let [k, L] = await Promise.all([db(u), yg(u)]), B = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, G = e.sessionManager?.listActors(), ce = new Set, J = [], ee = ue => {
+                    let $e = ue?.last_served_model ?? null,
+                        se = ue?.model ?? null;
                     return {
-                        served: V,
-                        pending: pe !== null && pe !== V ? pe : null
+                        served: $e,
+                        pending: se !== null && se !== $e ? se : null
                     }
+                }, le = async ue => lr(ue) !== "channel" ? {} : {
+                    last_cursor_advance_at: await I$(u, ue),
+                    final_subscriber_count: h.finalSubscriberCount(ue)
                 };
-                if (J)
-                    for (let [z, V] of J) {
-                        if (V.status === "ended" || !b4(z)) continue;
-                        le.add(z);
-                        let pe = d.get(z);
-                        oe.push({
-                            session_key: z,
-                            display_name: pe?.display_name ?? null,
-                            status: V.status,
-                            health: pe?.last_error ? "error" : V.health,
-                            last_event_at: pe?.last_event_at ?? null,
-                            created_at: pe?.created_at ?? null,
-                            cwd: pe?.cwd ?? null,
-                            last_error: pe?.last_error ?? null,
-                            runtime: V.runtime,
-                            model: X(pe),
-                            in_flight_tools: V.activeToolCalls.length > 0 ? V.activeToolCalls.map(ae => ({
-                                tool_name: ae.toolName,
-                                started_at: new Date(ae.startedAtMs).toISOString()
-                            })) : void 0
+                if (G)
+                    for (let [ue, $e] of G) {
+                        if ($e.status === "ended" || !NV(ue)) continue;
+                        ce.add(ue);
+                        let se = d.get(ue);
+                        J.push({
+                            session_key: ue,
+                            display_name: se?.display_name ?? null,
+                            status: $e.status,
+                            health: se?.last_error ? "error" : $e.health,
+                            last_event_at: se?.last_event_at ?? null,
+                            created_at: se?.created_at ?? null,
+                            cwd: se?.cwd ?? null,
+                            last_error: se?.last_error ?? null,
+                            runtime: $e.runtime,
+                            model: ee(se),
+                            in_flight_tools: $e.activeToolCalls.length > 0 ? $e.activeToolCalls.map(N => ({
+                                tool_name: N.toolName,
+                                started_at: new Date(N.startedAtMs).toISOString()
+                            })) : void 0,
+                            ...await le(ue)
                         })
                     }
-                for (let z of d.listUserVisible()) le.has(z.session_key) || oe.push({
-                    session_key: z.session_key,
-                    display_name: z.display_name ?? null,
+                for (let ue of d.listUserVisible()) ce.has(ue.session_key) || J.push({
+                    session_key: ue.session_key,
+                    display_name: ue.display_name ?? null,
                     status: "idle",
-                    health: z.last_error ? "error" : "ok",
-                    last_event_at: z.last_event_at ?? null,
-                    created_at: z.created_at ?? null,
-                    cwd: z.cwd ?? null,
-                    last_error: z.last_error ?? null,
-                    model: X(z)
+                    health: ue.last_error ? "error" : "ok",
+                    last_event_at: ue.last_event_at ?? null,
+                    created_at: ue.created_at ?? null,
+                    cwd: ue.cwd ?? null,
+                    last_error: ue.last_error ?? null,
+                    model: ee(ue),
+                    ...await le(ue.session_key)
                 });
-                let te = {
+                let M = {
                     health: {
-                        gateway: x?.health?.gateway ?? "down",
-                        meta_session: x?.health?.meta_session ?? "down"
+                        gateway: k?.health?.gateway ?? "down",
+                        meta_session: k?.health?.meta_session ?? "down"
                     },
                     cadence: {
-                        mode: x?.cadence?.mode ?? "unknown",
-                        last_tick: x?.cadence?.last_tick ?? null,
-                        interval_ms: q
+                        mode: k?.cadence?.mode ?? "unknown",
+                        last_tick: k?.cadence?.last_tick ?? null,
+                        interval_ms: B
                     },
-                    sessions: oe,
+                    sessions: J,
                     subconscious: {
-                        partitions: F.items.map(z => ({
-                            name: z.name,
-                            done: z.done
+                        partitions: L.items.map(ue => ({
+                            name: ue.name,
+                            done: ue.done
                         }))
                     },
-                    memory_check: buildMemoryCheckStatus(l)
+                    memory_check: buildMemoryCheckStatus(u)
                 };
-                C.result = te
+                C.result = M
             } else if (S.method === "system.config") {
-                if (!OE(S.params)) throw new tn("Invalid params");
-                C.result = await Mct(l)
+                if (!eR(S.params)) throw new qt("Invalid params");
+                C.result = await iyt(u)
             } else if (S.method === "spine.tail") {
-                if (!$E(S.params)) throw new tn("Invalid params");
-                let x = S.params ?? {},
-                    F = await Qhe(l, {
-                        limit: x.limit,
-                        after_id: x.after_id
+                if (!tR(S.params)) throw new qt("Invalid params");
+                let k = S.params ?? {},
+                    L = await nve(u, {
+                        limit: k.limit,
+                        after_id: k.after_id
                     });
-                C.result = F
+                C.result = L
             } else C.error = {
                 code: -32601,
                 message: "Method not found"
             }
-        } catch (x) {
-            x instanceof tn ? C.error = {
-                code: x.code,
-                message: x.message
+        } catch (k) {
+            k instanceof qt ? C.error = {
+                code: k.code,
+                message: k.message
             } : C.error = {
                 code: -32603,
                 message: "Internal error",
-                data: String(x)
+                data: String(k)
             }
         }
         return C
     }
-    let P = (S, {
+    let R = (S, {
         hostGuard: D,
-        readOnly: $,
+        readOnly: A,
         bearerToken: C
     }) => {
         if (C) {
-            let O = kw.createHash("sha256").update(C).digest();
-            S.addHook("onRequest", async (j, x) => {
-                let F = j.url ?? "";
-                if (!(F.startsWith("/rpc") || F.startsWith("/ws"))) return;
-                let q = j.headers.authorization,
-                    J = typeof q == "string" && q.startsWith("Bearer ") ? q.slice(7).trim() : "";
-                if (!J) return W("[daemon] rejected request: missing/invalid bearer", {
-                    url: F
-                }), a(j, x);
-                let le = kw.createHash("sha256").update(J).digest();
-                if (!kw.timingSafeEqual(le, O)) return W("[daemon] rejected request: bearer mismatch", {
-                    url: F
-                }), a(j, x)
+            let $ = qS.createHash("sha256").update(C).digest();
+            S.addHook("onRequest", async (j, k) => {
+                let L = j.url ?? "";
+                if (!(L.startsWith("/rpc") || L.startsWith("/ws"))) return;
+                let B = j.headers.authorization,
+                    G = typeof B == "string" && B.startsWith("Bearer ") ? B.slice(7).trim() : "";
+                if (!G) return Z("[daemon] rejected request: missing/invalid bearer", {
+                    url: L
+                }), a(j, k);
+                let ce = qS.createHash("sha256").update(G).digest();
+                if (!qS.timingSafeEqual(ce, $)) return Z("[daemon] rejected request: bearer mismatch", {
+                    url: L
+                }), a(j, k)
             })
         }
-        D && S.addHook("onRequest", async (O, j) => {
-            let x = O.url ?? "";
-            if (!(x.startsWith("/rpc") || x.startsWith("/ws"))) return;
-            let q = O.headers.host,
-                J = q ? ldt(q) : null;
-            if (!J || !i.has(J)) return W("[daemon] rejected request: Host header not allowed", {
-                url: x,
-                host: q ?? null
-            }), s(O, j, "Host header not allowed");
-            let le = O.headers.origin;
-            if (le !== void 0) {
-                let oe = udt(le);
-                if (!oe || !i.has(oe)) return W("[daemon] rejected request: Origin not allowed", {
-                    url: x,
-                    origin: le
-                }), s(O, j, "Origin not allowed")
+        D && S.addHook("onRequest", async ($, j) => {
+            let k = $.url ?? "";
+            if (!(k.startsWith("/rpc") || k.startsWith("/ws"))) return;
+            let B = $.headers.host,
+                G = B ? Pyt(B) : null;
+            if (!G || !i.has(G)) return Z("[daemon] rejected request: Host header not allowed", {
+                url: k,
+                host: B ?? null
+            }), s($, j, "Host header not allowed");
+            let ce = $.headers.origin;
+            if (ce !== void 0) {
+                let J = Cyt(ce);
+                if (!J || !i.has(J)) return Z("[daemon] rejected request: Origin not allowed", {
+                    url: k,
+                    origin: ce
+                }), s($, j, "Origin not allowed")
             }
-        }), $ ? S.get("/ws", async (O, j) => (W("[daemon] pre-hardening client dialed /ws on the read-only port", {
-            remote_address: O.ip,
-            user_agent: O.headers["user-agent"] ?? null
+        }), A ? S.get("/ws", async ($, j) => (Z("[daemon] pre-hardening client dialed /ws on the read-only port", {
+            remote_address: $.ip,
+            user_agent: $.headers["user-agent"] ?? null
         }), j.code(426).header("connection", "close").send({
             error: "upgrade_required",
             message: "This TCP port serves the daemon's read-only HTTP surface; it has no WebSocket endpoint and rejects all write methods. Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead. If a channel gateway is stuck retrying this port, reinstall/upgrade the channel and restart it (`duoduo channel <kind> stop`, then `start`) so it picks up the socket transport.",
-            socket_path: l.daemonSocketPath
-        }))) : S.register(SSe.default), S.get("/healthz", async () => yae()), S.get("/dashboard", async (O, j) => {
-            let x = Ji.join(l.bootstrapDir, "dashboard.html");
+            socket_path: u.daemonSocketPath
+        }))) : S.register(I0e.default), S.get("/healthz", async () => Yle()), S.get("/dashboard", async ($, j) => {
+            let k = ro.join(u.bootstrapDir, "dashboard.html");
             try {
-                let F = await ys.readFile(x, "utf8");
-                return j.type("text/html").send(F)
+                let L = await Ms.readFile(k, "utf8");
+                return j.type("text/html").send(L)
             } catch {
                 return j.code(404).send("Dashboard not found")
             }
-        }), S.get("/readyz", async (O, j) => await gae(l) ? {
+        }), S.get("/readyz", async ($, j) => await Kle(u) ? {
             status: "ok"
         } : j.code(503).send({
             status: "not_ready"
-        })), S.post("/rpc", async (O, j) => {
-            let x = O.body;
-            if (!e_(x)) return W("[daemon] invalid JSON-RPC request"), j.code(400).send({
+        })), S.post("/rpc", async ($, j) => {
+            let k = $.body;
+            if (!eb(k)) return Z("[daemon] invalid JSON-RPC request"), j.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
-            if ($ && !Cct.has(x.method)) return W("[daemon] rejected write method on read-only port", {
-                method: x.method,
-                id: x.id ?? null
+            if (A && !Xgt.has(k.method)) return Z("[daemon] rejected write method on read-only port", {
+                method: k.method,
+                id: k.id ?? null
             }), j.code(200).send({
                 jsonrpc: "2.0",
-                id: x.id ?? null,
+                id: k.id ?? null,
                 error: {
                     code: -32601,
                     message: "Method not available on read-only endpoint"
                 }
             });
-            let F = await T(x),
-                q = F.__triggerShutdown;
-            q && delete F.__triggerShutdown, await j.code(200).send(F), q && setImmediate(() => process.kill(process.pid, "SIGTERM"))
-        }), $ || S.register(async function(O) {
-            O.get("/ws", {
+            let L = await E(k),
+                B = L.__triggerShutdown;
+            B && delete L.__triggerShutdown, await j.code(200).send(L), B && setImmediate(() => process.kill(process.pid, "SIGTERM"))
+        }), A || S.register(async function($) {
+            $.get("/ws", {
                 websocket: !0
             }, j => {
-                let x = `ws_${++g}`,
-                    F = null,
-                    q = "",
-                    J = null;
-                ee("[daemon] ws connected", {
-                    subscriberId: x
+                let k = `ws_${++g}`,
+                    L = null,
+                    B = "",
+                    G = null;
+                Q("[daemon] ws connected", {
+                    subscriberId: k
                 });
-                let le = (te, z = !0) => {
-                        let V = te.method === "session.output" ? te.params?.record?.id : void 0;
-                        if (!(J && V && J.has(V))) {
+                let ce = (le, M = !0) => {
+                        let ue = le.method === "session.output" ? le.params?.record?.id : void 0;
+                        if (!(G && ue && G.has(ue))) {
                             try {
-                                j.send(JSON.stringify(te))
-                            } catch (pe) {
-                                throw pe instanceof Error ? pe : new Error(String(pe))
+                                j.send(JSON.stringify(le))
+                            } catch ($e) {
+                                throw $e instanceof Error ? $e : new Error(String($e))
                             }
-                            if (J && V && J.add(V), z && te.method === "session.output") {
+                            if (G && ue && G.add(ue), M && le.method === "session.output") {
                                 let {
-                                    session_key: pe,
-                                    record: ae
-                                } = te.params;
-                                if (!q) return;
-                                let L = q,
-                                    U = (v.get(x) ?? Promise.resolve()).then(() => T4(l, pe, L, ae).catch(G => {
-                                        W("[daemon] failed to advance delivery cursor", {
-                                            subscriberId: x,
-                                            sessionKey: pe,
-                                            consumerId: L,
-                                            error: String(G)
+                                    session_key: $e,
+                                    record: se
+                                } = le.params;
+                                if (!B) return;
+                                let N = B,
+                                    q = (b.get(k) ?? Promise.resolve()).then(() => FV(u, $e, N, se).catch(Y => {
+                                        Z("[daemon] failed to advance delivery cursor", {
+                                            subscriberId: k,
+                                            sessionKey: $e,
+                                            consumerId: N,
+                                            error: String(Y)
                                         })
                                     }));
-                                v.set(x, U), U.then(() => {
-                                    v.get(x) === U && v.delete(x)
+                                b.set(k, q), q.then(() => {
+                                    b.get(k) === q && b.delete(k)
                                 })
                             }
                         }
                     },
-                    oe = async te => {
-                        let z;
+                    J = async le => {
+                        let M;
                         try {
-                            z = JSON.parse(te.toString())
+                            M = JSON.parse(le.toString())
                         } catch {
                             j.send(JSON.stringify({
                                 jsonrpc: "2.0",
@@ -743,7 +844,7 @@ Content-Length: 0\r
                             }));
                             return
                         }
-                        if (!e_(z)) {
+                        if (!eb(M)) {
                             j.send(JSON.stringify({
                                 jsonrpc: "2.0",
                                 id: null,
@@ -754,27 +855,27 @@ Content-Length: 0\r
                             }));
                             return
                         }
-                        let V = await T(z, {
-                                wsSubscriberId: x
+                        let ue = await E(M, {
+                                wsSubscriberId: k
                             }),
-                            pe = null,
-                            ae = "",
-                            L;
-                        if (z.method === "channel.pull" && V.result && !V.error && qp(z.params)) {
-                            let U = z.params,
-                                G = U.session_key,
-                                ne = U.consumer_id.trim(),
-                                Q = L6(U.return_mask);
-                            F && h.unsubscribe(x), F = G, q = ne, pe = G, ae = ne, L = U.cursor, ee("[daemon] ws pull stream opened", {
-                                subscriberId: x,
-                                sessionKey: G,
-                                consumerId: ne
-                            }), J = new Set, h.subscribe({
-                                id: x,
-                                sessionKey: G,
-                                returnMask: Q,
-                                acceptStreamEndReasons: U.channel_capabilities?.outbound?.accept_stream_end_reasons,
-                                send: Ae => le(Ae),
+                            $e = null,
+                            se = "",
+                            N;
+                        if (M.method === "channel.pull" && ue.result && !ue.error && _m(M.params)) {
+                            let q = M.params,
+                                Y = q.session_key,
+                                Se = q.consumer_id.trim(),
+                                ye = _J(q.return_mask);
+                            L && h.unsubscribe(k), L = Y, B = Se, $e = Y, se = Se, N = q.cursor, Q("[daemon] ws pull stream opened", {
+                                subscriberId: k,
+                                sessionKey: Y,
+                                consumerId: Se
+                            }), G = new Set, h.subscribe({
+                                id: k,
+                                sessionKey: Y,
+                                returnMask: ye,
+                                acceptStreamEndReasons: q.channel_capabilities?.outbound?.accept_stream_end_reasons,
+                                send: Be => ce(Be),
                                 close: () => {
                                     try {
                                         j.close()
@@ -782,153 +883,153 @@ Content-Length: 0\r
                                 }
                             })
                         }
-                        if (pe) {
-                            let U = qp(z.params) ? z.params : void 0;
-                            if (!L6(U?.return_mask).includes("final")) {
-                                J = null, j.send(JSON.stringify(V));
+                        if ($e) {
+                            let q = _m(M.params) ? M.params : void 0;
+                            if (!_J(q?.return_mask).includes("final")) {
+                                G = null, j.send(JSON.stringify(ue));
                                 return
                             }
-                            let Q = pe,
-                                Ae = Number(process.env.ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0),
-                                _ = Number.isFinite(Ae) ? Ae : 0;
+                            let ye = $e,
+                                Be = Number(process.env.ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0),
+                                w = Number.isFinite(Be) ? Be : 0;
                             try {
-                                let E = await Jhe({
-                                    paths: l,
-                                    sessionKey: Q,
-                                    consumerId: ae,
-                                    limit: _,
-                                    cursorOverride: L,
-                                    send: N => le(N, !1),
-                                    onDelivered: async N => {
-                                        await T4(l, Q, ae, N);
-                                        let K = await Sa(l, N.channel_kind, N.id);
-                                        K && K.status !== "sent" && await Pd(l, K, {
+                                let P = await E_e({
+                                    paths: u,
+                                    sessionKey: ye,
+                                    consumerId: se,
+                                    limit: w,
+                                    cursorOverride: N,
+                                    send: z => ce(z, !1),
+                                    onDelivered: async z => {
+                                        await FV(u, ye, se, z);
+                                        let F = await La(u, z.channel_kind, z.id);
+                                        F && F.status !== "sent" && await Xd(u, F, {
                                             status: "sent"
-                                        }), await dm(l, N.id)
+                                        }), await qm(u, z.id)
                                     }
                                 });
-                                E > 0 && ke("[daemon] replayed outbox backlog", {
-                                    subscriberId: x,
-                                    sessionKey: Q,
-                                    consumerId: ae,
-                                    replayed: E
+                                P > 0 && Ee("[daemon] replayed outbox backlog", {
+                                    subscriberId: k,
+                                    sessionKey: ye,
+                                    consumerId: se,
+                                    replayed: P
                                 })
-                            } catch (E) {
-                                W("[daemon] backlog replay failed", {
-                                    subscriberId: x,
-                                    sessionKey: Q,
-                                    consumerId: ae,
-                                    error: String(E)
+                            } catch (P) {
+                                Z("[daemon] backlog replay failed", {
+                                    subscriberId: k,
+                                    sessionKey: ye,
+                                    consumerId: se,
+                                    error: String(P)
                                 })
                             }
-                            J = null
+                            G = null
                         }
-                        let M = V.__triggerShutdown;
-                        M && delete V.__triggerShutdown, j.send(JSON.stringify(V)), M && setImmediate(() => process.kill(process.pid, "SIGTERM"))
+                        let U = ue.__triggerShutdown;
+                        U && delete ue.__triggerShutdown, j.send(JSON.stringify(ue)), U && setImmediate(() => process.kill(process.pid, "SIGTERM"))
                     };
-                j.on("message", te => {
-                    let z = oe(te).catch(ae => {
-                            W("[daemon] ws message handler failed", {
-                                subscriberId: x,
-                                error: String(ae)
+                j.on("message", le => {
+                    let M = J(le).catch(se => {
+                            Z("[daemon] ws message handler failed", {
+                                subscriberId: k,
+                                error: String(se)
                             })
                         }),
-                        V = b.get(x) ?? Promise.resolve(),
-                        pe = Promise.all([V, z]).then(() => {});
-                    b.set(x, pe), pe.then(() => {
-                        b.get(x) === pe && b.delete(x)
+                        ue = _.get(k) ?? Promise.resolve(),
+                        $e = Promise.all([ue, M]).then(() => {});
+                    _.set(k, $e), $e.then(() => {
+                        _.get(k) === $e && _.delete(k)
                     })
                 });
-                let X = () => {
-                    F && h.unsubscribe(x)
+                let ee = () => {
+                    L && h.unsubscribe(k)
                 };
                 j.on("close", () => {
-                    X(), ee("[daemon] ws closed", {
-                        subscriberId: x,
-                        sessionKey: F
+                    ee(), Q("[daemon] ws closed", {
+                        subscriberId: k,
+                        sessionKey: L
                     })
                 }), j.on("error", () => {
-                    X(), W("[daemon] ws error", {
-                        subscriberId: x,
-                        sessionKey: F
+                    ee(), Z("[daemon] ws error", {
+                        subscriberId: k,
+                        sessionKey: L
                     })
                 })
             })
         })
     };
-    P(t, {
+    R(t, {
         hostGuard: !0,
         readOnly: !0
-    }), P(n, {
+    }), R(n, {
         hostGuard: !1,
         readOnly: !1
     });
-    let k = l.daemonSocketPath;
+    let x = u.daemonSocketPath;
     return {
         app: t,
         socketApp: n,
         get remoteApp() {
             return r
         },
-        bus: u,
+        bus: l,
         subscriptions: h,
         async start(S) {
             let D = resolveRemoteListenerConfig(process.env, S);
             if (!e.runtimeLockAlreadyHeld) {
-                let O = await A4(l);
-                if (!O.acquired) throw new Error(`Runtime lock already held by pid=${O.lock?.pid??"unknown"} at ${O.lockPath}`)
+                let $ = await f6(u);
+                if (!$.acquired) throw new Error(`Runtime lock already held by pid=${$.lock?.pid??"unknown"} at ${$.lockPath}`)
             }
             y = !0;
-            let $ = !1;
+            let A = !1;
             try {
-                let j = Buffer.byteLength(k);
-                if (j > 104) throw new Error(`daemon socket path is too long (${j} bytes > 104-byte unix-socket limit): ${k}. Shorten it via a shorter ALADUO_RUNTIME_DIR or set ALADUO_DAEMON_SOCKET to a shorter absolute path.`);
-                let x = Ji.dirname(k),
-                    F;
+                let j = Buffer.byteLength(x);
+                if (j > 104) throw new Error(`daemon socket path is too long (${j} bytes > 104-byte unix-socket limit): ${x}. Shorten it via a shorter ALADUO_RUNTIME_DIR or set ALADUO_DAEMON_SOCKET to a shorter absolute path.`);
+                let k = ro.dirname(x),
+                    L;
                 try {
-                    F = await ys.stat(x)
-                } catch (oe) {
-                    throw new Error(`daemon socket directory is not accessible: ${x} (${String(oe)}). Point ALADUO_DAEMON_SOCKET at an absolute path inside a directory you own with mode 0700.`)
+                    L = await Ms.stat(k)
+                } catch (J) {
+                    throw new Error(`daemon socket directory is not accessible: ${k} (${String(J)}). Point ALADUO_DAEMON_SOCKET at an absolute path inside a directory you own with mode 0700.`)
                 }
-                let q = process.getuid?.(),
-                    J = F.mode & 511;
-                if (J !== 448 || q !== void 0 && F.uid !== q) throw new Error(`daemon socket directory must be owned by this user and mode 0700 (found mode 0${J.toString(8)}, uid ${F.uid}): ${x}. Use the default ALADUO_RUNTIME_DIR/run or point ALADUO_DAEMON_SOCKET at a 0700 directory you own.`);
-                let le = null;
+                let B = process.getuid?.(),
+                    G = L.mode & 511;
+                if (G !== 448 || B !== void 0 && L.uid !== B) throw new Error(`daemon socket directory must be owned by this user and mode 0700 (found mode 0${G.toString(8)}, uid ${L.uid}): ${k}. Use the default ALADUO_RUNTIME_DIR/run or point ALADUO_DAEMON_SOCKET at a 0700 directory you own.`);
+                let ce = null;
                 try {
-                    le = await ys.lstat(k)
+                    ce = await Ms.lstat(x)
                 } catch {
-                    le = null
+                    ce = null
                 }
-                if (le)
-                    if (le.isSocket()) await ys.unlink(k);
-                    else throw new Error(`daemon socket path is occupied by a non-socket file: ${k}. Refusing to delete it — check ALADUO_DAEMON_SOCKET.`);
+                if (ce)
+                    if (ce.isSocket()) await Ms.unlink(x);
+                    else throw new Error(`daemon socket path is occupied by a non-socket file: ${x}. Refusing to delete it — check ALADUO_DAEMON_SOCKET.`);
                 await n.listen({
-                    path: k
-                }), $ = !0, await ys.chmod(k, 384), await t.listen({
+                    path: x
+                }), A = !0, await Ms.chmod(x, 384), await t.listen({
                     port: S,
                     host: "127.0.0.1"
-                }), D.enabled && (r = (0, CO.default)({
+                }), D.enabled && (r = (0, zA.default)({
                     logger: !1
-                }), P(r, {
+                }), R(r, {
                     hostGuard: !1,
                     readOnly: !1,
                     bearerToken: D.token
                 }), await r.listen({
                     port: D.port,
                     host: D.host
-                }), gt("info", `[daemon] remote full-access listener on ${D.host}:${D.port} (bearer-gated)`))
-            } catch (O) {
-                throw await t.close().catch(() => {}), await n.close().catch(() => {}), r && (await r.close().catch(() => {}), r = null), $ && await ys.unlink(k).catch(() => {}), y && (await AP(l), y = !1), O
+                }), wt("info", `[daemon] remote full-access listener on ${D.host}:${D.port} (bearer-gated)`))
+            } catch ($) {
+                throw await t.close().catch(() => {}), await n.close().catch(() => {}), r && (await r.close().catch(() => {}), r = null), A && await Ms.unlink(x).catch(() => {}), y && (await B$(u), y = !1), $
             }
-            let C = kSe("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
-            w = setInterval(() => {
-                Khe(l).catch(() => {})
-            }, C), w.unref?.()
+            let C = T0e("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
+            v = setInterval(() => {
+                eve(u).catch(() => {})
+            }, C), v.unref?.()
         },
         async stop() {
             h.stop();
             let S = [t.close(), n.close()];
-            r && S.push(r.close()), await Promise.all(S), r = null, await Promise.allSettled(b.values()), await Promise.allSettled(v.values()), await ys.unlink(k).catch(() => {}), w && (clearInterval(w), w = null), y && (await AP(l), y = !1)
+            r && S.push(r.close()), await Promise.all(S), r = null, await Promise.allSettled(_.values()), await Promise.allSettled(b.values()), await Ms.unlink(x).catch(() => {}), v && (clearInterval(v), v = null), y && (await B$(u), y = !1)
         }
     }
 }

@@ -1,8 +1,8 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: partitionInboxDirFromVar  (minified: nc, daemon.pretty.js:60322)
+// symbol: partitionInboxDirFromVar  (minified: Rc, daemon.pretty.js:66182)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function partitionInboxDirFromVar(e, t) {
-    return bt.join(e, "subconscious", t, "inbox")
+    return kt.join(e, "subconscious", t, "inbox")
 }

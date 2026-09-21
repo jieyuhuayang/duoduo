@@ -44,7 +44,7 @@
 # 前置：Node>=18、npm；在 tools/ 目录 npm install
 npm install --prefix /tmp/duoduo-pkg @openduo/duoduo@0.8.1
 PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release \
-PKG_VERSION=v0.8.1 bash tools/rebuild.sh
+PKG_VERSION=v0.8.2 bash tools/rebuild.sh
 #  美化→拆包→导出块→模块闸门→改名→node --check→AST 全等→符号索引
 #  →可读树一致性→引用身份→行号锚点（仅提示）→生成 pipeline_report.json
 #  两个 bundle 并发（JOBS=1 转串行）；BEAUTIFIED=<dir> 可跳过美化步骤

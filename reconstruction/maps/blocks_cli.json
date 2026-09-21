@@ -1,19 +1,19 @@
 {
   "bundle": "cli",
-  "source": "/Users/lilu/Projects/duoduo/reconstruction/tools/../.build/beautified/cli.pretty.js",
-  "helper": "KC",
+  "source": "/tmp/pretty082/cli.pretty.js",
+  "helper": "mm",
   "helperCandidates": {
-    "KC": 5
+    "mm": 6
   },
-  "blockCount": 5,
-  "namesInBlocks": 20,
-  "distinctNamesInBlocks": 20,
-  "entryExportCount": 14,
+  "blockCount": 6,
+  "namesInBlocks": 25,
+  "distinctNamesInBlocks": 25,
+  "entryExportCount": 15,
   "blocks": [
     {
       "index": 0,
-      "line": 20397,
-      "count": 13,
+      "line": 20710,
+      "count": 11,
       "marker": [
         "PLIST_LABEL",
         "generatePlist",
@@ -23,36 +23,32 @@
         "PLIST_LABEL",
         "generatePlist",
         "getLaunchdPid",
-        "getRunAtLoad",
         "getUid",
         "installAndLoad",
         "isAquaSession",
         "isServiceLoaded",
         "kickstart",
         "plistPath",
-        "setRunAtLoad",
         "uninstall",
         "unload"
       ],
       "mangled": [
-        "Pb",
-        "$$",
-        "Dp",
-        "XQ",
-        "bp",
-        "$Q",
-        "zQ",
-        "y_",
-        "JQ",
-        "p1",
-        "Ub",
-        "jQ",
-        "E1"
+        "qb",
+        "_J",
+        "vp",
+        "b_",
+        "rk",
+        "tk",
+        "D_",
+        "ik",
+        "nk",
+        "ok",
+        "y1"
       ]
     },
     {
       "index": 1,
-      "line": 62266,
+      "line": 62561,
       "count": 4,
       "marker": [
         "renderCompactResult",
@@ -66,43 +62,71 @@
         "runSessionSubcommand"
       ],
       "mangled": [
-        "yge",
-        "Rge",
-        "Ige",
-        "TKe"
+        "Vge",
+        "qge",
+        "Yge",
+        "y$e"
       ]
     },
     {
       "index": 2,
-      "line": 63380,
-      "count": 1,
+      "line": 63614,
+      "count": 7,
       "marker": [
-        "runPromptsSubcommand"
+        "jobHelp",
+        "parseJobCli",
+        "renderInterruptReceipt"
       ],
       "names": [
-        "runPromptsSubcommand"
+        "jobHelp",
+        "parseJobCli",
+        "renderInterruptReceipt",
+        "renderJobList",
+        "renderJobRead",
+        "renderRpcError",
+        "runJobSubcommand"
       ],
       "mangled": [
-        "JKe"
+        "nU",
+        "Kge",
+        "jge",
+        "$ge",
+        "Jge",
+        "Xge",
+        "nJe"
       ]
     },
     {
       "index": 3,
-      "line": 65378,
+      "line": 63996,
       "count": 1,
       "marker": [
-        "runMemoryCommand"
+        "runPromptsSubcommand"
       ],
       "names": [
-        "runMemoryCommand"
+        "runPromptsSubcommand"
       ],
       "mangled": [
-        "wJe"
+        "iJe"
       ]
     },
     {
       "index": 4,
-      "line": 65984,
+      "line": 65994,
+      "count": 1,
+      "marker": [
+        "runMemoryCommand"
+      ],
+      "names": [
+        "runMemoryCommand"
+      ],
+      "mangled": [
+        "Uje"
+      ]
+    },
+    {
+      "index": 5,
+      "line": 66612,
       "count": 1,
       "marker": [
         "runSpineCommand"
@@ -111,24 +135,25 @@
         "runSpineCommand"
       ],
       "mangled": [
-        "VJe"
+        "Zje"
       ]
     }
   ],
   "entryExports": {
-    "defaultExistingDaemonChoice": "eEe",
-    "inferOnboardConfigFromProbe": "Aje",
-    "isDetachedUpgradeWorker": "_je",
-    "isInstallTargetFilePath": "cje",
-    "main": "Rje",
-    "parseExistingDaemonChoice": "dje",
-    "parseRestartArgs": "pje",
-    "parseRootCli": "uje",
-    "parseUpgradeArgs": "Sje",
-    "printHelp": "tEe",
-    "readOption": "JN",
-    "reasonlessRestartRefusal": "Eje",
-    "restartWakeReport": "mje",
-    "runUpgradeChannelPhase": "Tje"
+    "defaultExistingDaemonChoice": "REe",
+    "inferOnboardConfigFromProbe": "TXe",
+    "isDetachedUpgradeWorker": "vXe",
+    "isInstallTargetFilePath": "hXe",
+    "main": "QXe",
+    "parseExistingDaemonChoice": "SXe",
+    "parseRestartArgs": "bXe",
+    "parseRootCli": "CXe",
+    "parseUpgradeArgs": "wXe",
+    "printHelp": "bEe",
+    "readCliPackageVersion": "yXe",
+    "readOption": "tv",
+    "reasonlessRestartRefusal": "DXe",
+    "restartWakeReport": "NXe",
+    "runUpgradeChannelPhase": "xXe"
   }
 }

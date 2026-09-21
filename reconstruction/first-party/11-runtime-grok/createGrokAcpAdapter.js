@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: createGrokAcpAdapter  (minified: iv, daemon.pretty.js:57852)
+// symbol: createGrokAcpAdapter  (minified: vw, daemon.pretty.js:63118)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,183 +11,186 @@ function createGrokAcpAdapter(e) {
         o = e.promptTimeoutMs ?? 36e5,
         s = null,
         a = null,
-        l = 1,
-        u = new Map,
+        u = 1,
+        l = new Map,
         c = !1,
         d = null,
-        p = Eet(),
-        f = null,
+        f = Ost(),
+        p = null,
         m = null,
         h = !1,
         g = null,
-        y, w = !1,
-        v = async _ => {
-            w = !0;
+        y, v = !1,
+        b = async F => {
+            v = !0;
             try {
-                return await pe("session/load", _)
+                return await U("session/load", F)
             } finally {
-                w = !1
+                v = !1
             }
-        }, b = [], I, T, P = !1, k = 0, S, D, $, C, O, j = () => {
-            I = void 0, T = void 0, P = !1
-        }, x = () => {
-            let _ = b.join("");
-            b.length = 0, _ && Promise.resolve(e.onDetachedTurn?.({
-                text: _
-            })).catch(E => {
-                W("grok detached-turn sink failed", {
-                    error: E instanceof Error ? E.message : String(E)
+        }, _ = [], I, E, R = !1, x = new Set, S = null, D = 0, A, C, $, j, k, L = () => {
+            I = void 0, E = void 0, R = !1, x.clear()
+        }, B = () => {
+            let F = S;
+            return S = null, F ? ig(F.reason, F.toolInFlight) : null
+        }, G = () => {
+            let F = _.join("");
+            _.length = 0, F && Promise.resolve(e.onDetachedTurn?.({
+                text: F
+            })).catch(V => {
+                Z("grok detached-turn sink failed", {
+                    error: V instanceof Error ? V.message : String(V)
                 })
             })
-        }, F = _ => {
-            if (!s || w) return;
-            let E = Ei(_.params),
-                N = Ei(E.update),
-                K = String(N.sessionUpdate ?? "");
-            if (K === "agent_message_chunk") {
-                let B = fP(N.content);
-                if (!B) return;
+        }, ce = F => {
+            if (!s || v) return;
+            let V = Ai(F.params),
+                K = Ai(V.update),
+                fe = String(K.sessionUpdate ?? "");
+            if (fe === "agent_message_chunk") {
+                let oe = c$(K.content);
+                if (!oe) return;
                 if (g) {
-                    g.markFirstToken(), g.textParts.push(B), g.onStream?.(B);
+                    g.markFirstToken(), g.textParts.push(oe), g.onStream?.(oe);
                     return
                 }
                 if (y) {
-                    y(B);
+                    y(oe);
                     return
                 }
-                b.push(B);
+                _.push(oe);
                 return
             }
-            if (K === "turn_completed") {
-                g || x();
+            if (fe === "turn_completed") {
+                g || G();
                 return
             }
             if (g) {
-                if (K === "agent_thought_chunk") {
-                    let B = fP(N.content);
-                    B && g.onExecutionEvent?.({
+                if (fe === "agent_thought_chunk") {
+                    let oe = c$(K.content);
+                    oe && g.onExecutionEvent?.({
                         type: "thought_chunk",
-                        text: B
+                        text: oe
                     });
                     return
                 }
-                if (K === "tool_call") {
-                    let B = String(N.toolCallId ?? N.tool_call_id ?? ""),
-                        se = Det(N);
-                    if (!B) return;
-                    Met(N) && (P = !0), g.onExecutionEvent?.({
+                if (fe === "tool_call") {
+                    let oe = String(K.toolCallId ?? K.tool_call_id ?? ""),
+                        xe = qst(K);
+                    if (!oe) return;
+                    Bst(K) && (R = !0), x.add(oe), g.onExecutionEvent?.({
                         type: "tool_use",
-                        toolUseId: B,
-                        toolName: se,
-                        input: N.rawInput ?? N.raw_input ?? {}
+                        toolUseId: oe,
+                        toolName: xe,
+                        input: K.rawInput ?? K.raw_input ?? {}
                     });
                     return
                 }
-                if (K === "tool_call_update") {
-                    let B = String(N.status ?? "");
-                    if (B !== "completed" && B !== "failed") return;
-                    let se = String(N.toolCallId ?? N.tool_call_id ?? "");
-                    if (!se) return;
-                    g.onExecutionEvent?.({
+                if (fe === "tool_call_update") {
+                    let oe = String(K.status ?? "");
+                    if (oe !== "completed" && oe !== "failed") return;
+                    let xe = String(K.toolCallId ?? K.tool_call_id ?? "");
+                    if (!xe) return;
+                    x.delete(xe), g.onExecutionEvent?.({
                         type: "tool_result",
-                        toolUseId: se,
-                        isError: B === "failed",
-                        summary: fP(N.content) || B
+                        toolUseId: xe,
+                        isError: oe === "failed",
+                        summary: c$(K.content) || oe
                     })
                 }
             }
-        }, q = _ => {
-            if (typeof _ == "string") {
-                C = {
+        }, J = F => {
+            if (typeof F == "string") {
+                j = {
                     mode: "override",
-                    layers: _
+                    layers: F
                 };
                 return
             }
-            C = {
+            j = {
                 mode: "append",
-                layers: _?.append ?? ""
+                layers: F?.append ?? ""
             }
-        }, J = _ => {
-            let E = {
+        }, ee = F => {
+            let V = {
                 agentProfile: GROK_AGENT_PROFILE
             };
-            return e.mcpServerFactory && (E[GROK_MCP_SERVERS_META] = [{
+            return e.mcpServerFactory && (V[GROK_MCP_SERVERS_META] = [{
                 name: GROK_MCP_SERVER_NAME,
-                serverId: p
-            }]), C ? C.mode === "override" ? (E.systemPromptOverride = C.layers, E) : (_ === "new" && C.layers.length > 0 && (E.rules = C.layers), E) : E
+                serverId: f
+            }]), j ? j.mode === "override" ? (V.systemPromptOverride = j.layers, V) : (F === "new" && j.layers.length > 0 && (V.rules = j.layers), V) : V
         }, le = () => {
-            C?.mode === "override" && (O = C.layers)
-        }, oe = _ => {
-            let E = _.result ?? _,
-                N = E._meta ?? {};
-            return typeof E.sessionId == "string" && E.sessionId || typeof N.sessionId == "string" && N.sessionId || void 0
-        }, X = async () => {
-            if (!a || C?.mode !== "override" || O === C.layers) return;
-            let _ = await v({
+            j?.mode === "override" && (k = j.layers)
+        }, M = F => {
+            let V = F.result ?? F,
+                K = V._meta ?? {};
+            return typeof V.sessionId == "string" && V.sessionId || typeof K.sessionId == "string" && K.sessionId || void 0
+        }, ue = async () => {
+            if (!a || j?.mode !== "override" || k === j.layers) return;
+            let F = await b({
                     sessionId: a,
                     cwd: n,
                     mcpServers: [],
-                    _meta: J("load")
+                    _meta: ee("load")
                 }),
-                E = oe(_);
-            if (E !== void 0 && E !== a) throw new Error(`session/load did not resume ${a} (got ${String(E)}); refusing to fork`);
-            S = dP(_) ?? S, le()
-        }, te = async () => {
-            !e.mcpServerFactory || f || (m = e.mcpServerFactory(), f = new X2, await m.instance.connect(f))
-        }, z = async () => {
-            let _ = f,
-                E = m;
-            f = null, m = null;
+                V = M(F);
+            if (V !== void 0 && V !== a) throw new Error(`session/load did not resume ${a} (got ${String(V)}); refusing to fork`);
+            A = l$(F) ?? A, le()
+        }, $e = async () => {
+            !e.mcpServerFactory || p || (m = e.mcpServerFactory(), p = new TV, await m.instance.connect(p))
+        }, se = async () => {
+            let F = p,
+                V = m;
+            p = null, m = null;
             try {
-                await _?.close()
+                await F?.close()
             } catch {}
             try {
-                await E?.instance.close()
+                await V?.instance.close()
             } catch {}
-        }, V = _ => {
+        }, N = F => {
             if (!s?.stdin.writable) throw new Error("grok ACP stdin is closed");
-            s.stdin.write(`${JSON.stringify(_)}
+            s.stdin.write(`${JSON.stringify(F)}
 `)
-        }, pe = (_, E, N = 3e4, K) => {
+        }, U = (F, V, K = 3e4, fe) => {
             if (!s) return Promise.reject(new Error("grok ACP process is not running"));
-            if (K?.aborted) return Promise.reject(new AgentSdkTurnInterruptedError);
-            let B = l++;
-            return V({
+            if (fe?.aborted) return Promise.reject(new AgentSdkTurnInterruptedError);
+            let oe = u++;
+            return N({
                 jsonrpc: "2.0",
-                id: B,
-                method: _,
-                params: E
-            }), new Promise((se, me) => {
-                let be = !1,
-                    De = N > 0 ? setTimeout(() => {
-                        $t(() => me(new Error(`${_} timed out after ${N}ms`)))
-                    }, N) : void 0,
-                    Be = () => {
-                        $t(() => me(new AgentSdkTurnInterruptedError))
+                id: oe,
+                method: F,
+                params: V
+            }), new Promise((xe, Re) => {
+                let gt = !1,
+                    Xe = K > 0 ? setTimeout(() => {
+                        Pe(() => Re(new Error(`${F} timed out after ${K}ms`)))
+                    }, K) : void 0,
+                    Ve = () => {
+                        Pe(() => Re(new AgentSdkTurnInterruptedError))
                     },
-                    $t = ot => {
-                        be || (be = !0, u.delete(B), De && clearTimeout(De), K?.removeEventListener("abort", Be), ot())
+                    Pe = Qe => {
+                        gt || (gt = !0, l.delete(oe), Xe && clearTimeout(Xe), fe?.removeEventListener("abort", Ve), Qe())
                     };
-                K?.addEventListener("abort", Be, {
+                fe?.addEventListener("abort", Ve, {
                     once: !0
-                }), u.set(B, {
-                    resolve: ot => $t(() => se(ot)),
-                    reject: ot => $t(() => me(ot))
+                }), l.set(oe, {
+                    resolve: Qe => Pe(() => xe(Qe)),
+                    reject: Qe => Pe(() => Re(Qe))
                 })
             })
-        }, ae = async (_, E) => {
-            let N = se => {
+        }, q = async (F, V) => {
+            let K = xe => {
                 try {
-                    V({
+                    N({
                         jsonrpc: "2.0",
-                        id: _,
-                        ...se
+                        id: F,
+                        ...xe
                     })
                 } catch {}
             };
-            if (!f) {
-                N({
+            if (!p) {
+                K({
                     error: {
                         code: -32603,
                         message: "aladuo MCP server is not attached"
@@ -195,9 +198,9 @@ function createGrokAcpAdapter(e) {
                 });
                 return
             }
-            let K = E ?? {};
-            if (K.serverId !== p) {
-                N({
+            let fe = V ?? {};
+            if (fe.serverId !== f) {
+                K({
                     error: {
                         code: -32602,
                         message: "unknown MCP serverId"
@@ -205,11 +208,11 @@ function createGrokAcpAdapter(e) {
                 });
                 return
             }
-            let B = K.message;
-            if (typeof B == "string") try {
-                B = JSON.parse(B)
+            let oe = fe.message;
+            if (typeof oe == "string") try {
+                oe = JSON.parse(oe)
             } catch {
-                N({
+                K({
                     error: {
                         code: -32602,
                         message: "sdk_call message is not valid JSON"
@@ -217,8 +220,8 @@ function createGrokAcpAdapter(e) {
                 });
                 return
             }
-            if (!B || typeof B != "object") {
-                N({
+            if (!oe || typeof oe != "object") {
+                K({
                     error: {
                         code: -32602,
                         message: "sdk_call missing message"
@@ -227,86 +230,86 @@ function createGrokAcpAdapter(e) {
                 return
             }
             try {
-                let se = await f.dispatch(B);
-                N({
-                    result: se
+                let xe = await p.dispatch(oe);
+                K({
+                    result: xe
                 })
-            } catch (se) {
-                N({
+            } catch (xe) {
+                K({
                     error: {
                         code: -32603,
-                        message: se instanceof Error ? se.message : String(se)
+                        message: xe instanceof Error ? xe.message : String(xe)
                     }
                 })
             }
-        }, L = _ => {
+        }, Y = F => {
             try {
-                let E = _.trim();
-                if (!E) return;
-                let N;
+                let V = F.trim();
+                if (!V) return;
+                let K;
                 try {
-                    N = JSON.parse(E)
+                    K = JSON.parse(V)
                 } catch {
                     return
                 }
-                if (typeof N.method == "string" && N.id !== void 0) {
-                    if ($et(N.method)) {
-                        ke(`grok ACP ${N.method}`), ae(N.id, N.params);
+                if (typeof K.method == "string" && K.id !== void 0) {
+                    if (Fst(K.method)) {
+                        Ee(`grok ACP ${K.method}`), q(K.id, K.params);
                         return
                     }
-                    V({
+                    N({
                         jsonrpc: "2.0",
-                        id: N.id,
+                        id: K.id,
                         error: {
                             code: -32601,
-                            message: `grok adapter does not implement ${N.method}`
+                            message: `grok adapter does not implement ${K.method}`
                         }
                     });
                     return
                 }
-                if (typeof N.method == "string") {
-                    let K = Ei(N.params),
-                        B = zet(K.update);
-                    B && (B.modelId && (S = B.modelId), D = B.reasoningEffort), Let(N.method) && F(N), e.onNotification?.(N.method), ke(`grok ACP notification ${N.method}`);
+                if (typeof K.method == "string") {
+                    let fe = Ai(K.params),
+                        oe = Jst(fe.update);
+                    oe && (oe.modelId && (A = oe.modelId), C = oe.reasoningEffort), Hst(K.method) && ce(K), e.onNotification?.(K.method), Ee(`grok ACP notification ${K.method}`);
                     return
                 }
-                if (typeof N.id == "number") {
-                    let K = u.get(N.id);
-                    if (!K) return;
-                    u.delete(N.id), N.error ? K.reject(new Error(JSON.stringify(N.error))) : K.resolve(N)
+                if (typeof K.id == "number") {
+                    let fe = l.get(K.id);
+                    if (!fe) return;
+                    l.delete(K.id), K.error ? fe.reject(new Error(JSON.stringify(K.error))) : fe.resolve(K)
                 }
             } catch {}
-        }, M = () => {
+        }, Se = () => {
             if (s) return;
-            let _ = {
+            let F = {
                 ...process.env,
                 ...i
             };
-            delete _.GROK_HOME;
-            let E = Ret(t, ["agent", "--always-approve", "--no-leader", "stdio"], {
+            delete F.GROK_HOME;
+            let V = Ast(t, ["agent", "--always-approve", "--no-leader", "stdio"], {
                 cwd: n,
-                env: _,
+                env: F,
                 stdio: ["pipe", "pipe", "pipe"]
             });
-            s = E, E.stderr.resume(), E.on("error", N => {
-                U(N)
-            }), ke(`grok ACP spawn pid=${E.pid??"unknown"}`), gu(E.stdout, L, {
+            s = V, V.stderr.resume(), V.on("error", K => {
+                ye(K)
+            }), Ee(`grok ACP spawn pid=${V.pid??"unknown"}`), Ll(V.stdout, Y, {
                 onEof: () => {
-                    !c && s === E && E.kill("SIGKILL")
+                    !c && s === V && V.kill("SIGKILL")
                 }
-            }), E.on("exit", () => {
-                U(new Error("grok ACP process exited"))
+            }), V.on("exit", () => {
+                ye(new Error("grok ACP process exited"))
             })
-        }, U = _ => {
-            c || (a && (r = a), a = null, d = null), S = void 0, $ = void 0, D = void 0, O = void 0, s = null;
-            for (let E of u.values()) E.reject(_);
-            u.clear()
-        }, G = async () => {
+        }, ye = F => {
+            c || (a && (r = a), a = null, d = null), A = void 0, $ = void 0, C = void 0, k = void 0, s = null;
+            for (let V of l.values()) V.reject(F);
+            l.clear()
+        }, Be = async () => {
             if (a) return a;
             if (d) return d;
             d = (async () => {
-                M();
-                let E = (await pe("initialize", {
+                Se();
+                let V = (await U("initialize", {
                         protocolVersion: 1,
                         clientInfo: {
                             name: "duoduo",
@@ -329,219 +332,228 @@ function createGrokAcpAdapter(e) {
                             } : {}
                         }
                     })).result ?? {},
-                    N = E.authMethods ?? E.auth_methods,
-                    K = N?.find(be => be.id === "cached_token") ?? N?.[0];
-                if (K?.id && await pe("authenticate", {
-                        methodId: K.id,
+                    K = V.authMethods ?? V.auth_methods,
+                    fe = K?.find(gt => gt.id === "cached_token") ?? K?.[0];
+                if (fe?.id && await U("authenticate", {
+                        methodId: fe.id,
                         _meta: {
                             headless: !0
                         }
-                    }), await te(), r) {
-                    let be = await v({
+                    }), await $e(), r) {
+                    let gt = await b({
                             sessionId: r,
                             cwd: n,
                             mcpServers: [],
-                            _meta: J("load")
+                            _meta: ee("load")
                         }),
-                        De = oe(be);
-                    if (De !== r) throw new Error(`session/load did not resume ${r} (got ${String(De)}); refusing to session/new`);
-                    return a = De, S = dP(be) ?? S, le(), a
+                        Xe = M(gt);
+                    if (Xe !== r) throw new Error(`session/load did not resume ${r} (got ${String(Xe)}); refusing to session/new`);
+                    return a = Xe, A = l$(gt) ?? A, le(), a
                 }
-                let B = await pe("session/new", {
+                let oe = await U("session/new", {
                         cwd: n,
                         mcpServers: [],
-                        _meta: J("new")
+                        _meta: ee("new")
                     }),
-                    me = (B.result ?? B).sessionId;
-                if (typeof me != "string" || me.length === 0) throw new Error("session/new did not return sessionId");
-                return a = me, r = me, S = dP(B) ?? S, le(), a
+                    Re = (oe.result ?? oe).sessionId;
+                if (typeof Re != "string" || Re.length === 0) throw new Error("session/new did not return sessionId");
+                return a = Re, r = Re, A = l$(oe) ?? A, le(), a
             })();
             try {
                 return await d
-            } catch (_) {
-                throw d = null, await ne(), _
+            } catch (F) {
+                throw d = null, await w(), F
             }
-        }, ne = async () => {
+        }, w = async () => {
             if (c) return;
-            c = !0, d = null, a = null, j(), g = null, y = void 0, x(), await z();
-            let _ = s;
-            if (s = null, !_) {
+            c = !0, d = null, a = null, L(), g = null, y = void 0, G(), await se();
+            let F = s;
+            if (s = null, !F) {
                 c = !1;
                 return
             }
-            _.kill("SIGTERM"), await new Promise(E => {
-                let N = setTimeout(() => {
-                    _.kill("SIGKILL"), E()
+            F.kill("SIGTERM"), await new Promise(V => {
+                let K = setTimeout(() => {
+                    F.kill("SIGKILL"), V()
                 }, 2e3);
-                _.once("exit", () => {
-                    clearTimeout(N), E()
+                F.once("exit", () => {
+                    clearTimeout(K), V()
                 })
             }), c = !1
-        }, Q = async _ => {
-            let E = await G();
-            D = void 0;
-            let N = {
-                sessionId: E,
-                modelId: _.modelId
+        }, P = async F => {
+            let V = await Be();
+            C = void 0;
+            let K = {
+                sessionId: V,
+                modelId: F.modelId
             };
-            typeof _.reasoningEffort == "string" && (N._meta = {
-                reasoningEffort: _.reasoningEffort
+            typeof F.reasoningEffort == "string" && (K._meta = {
+                reasoningEffort: F.reasoningEffort
             });
-            let K = await pe("session/set_model", N);
-            if (S = nv(dP(K), _.modelId) ?? S, typeof _.reasoningEffort != "string") {
+            let fe = await U("session/set_model", K);
+            if (A = _w(l$(fe), F.modelId) ?? A, typeof F.reasoningEffort != "string") {
                 $ = void 0;
                 return
             }
-            let B = Fet(K) ?? D;
-            if (B !== _.reasoningEffort) throw new Error(`grok did not apply reasoningEffort=${_.reasoningEffort}` + (B === void 0 ? " (RPC succeeded with no confirmation; grok warns-and-ignores unsupported effort)" : ` (got ${B})`));
-            $ = _.reasoningEffort
-        }, Ae = _ => _ instanceof Error ? _.message : String(_);
+            let oe = Wst(fe) ?? C;
+            if (oe !== F.reasoningEffort) throw new Error(`grok did not apply reasoningEffort=${F.reasoningEffort}` + (oe === void 0 ? " (RPC succeeded with no confirmation; grok warns-and-ignores unsupported effort)" : ` (got ${oe})`));
+            $ = F.reasoningEffort
+        }, z = F => F instanceof Error ? F.message : String(F);
     return {
-        connect: G,
-        shutdown: ne,
-        currentModelId: () => S,
+        connect: Be,
+        shutdown: w,
+        currentModelId: () => A,
         hasSession: () => a !== null,
-        setModel: Q,
+        setModel: P,
         compact: async () => {
-            let _ = new Date().toISOString();
-            if (!a && !C) return {
+            let F = new Date().toISOString();
+            if (!a && !j) return {
                 kind: "noop",
                 runtime: "grok",
                 reason: "session is not started yet — send a message first, then /compact",
-                triggered_at: _
+                triggered_at: F
             };
             try {
-                let E = await G();
-                return await pe(GROK_ACP_COMPACT, {
-                    sessionId: E
+                let V = await Be();
+                return await U(GROK_ACP_COMPACT, {
+                    sessionId: V
                 }, 0), {
                     kind: "succeeded",
                     runtime: "grok",
-                    triggered_at: _
+                    triggered_at: F
                 }
-            } catch (E) {
+            } catch (V) {
                 return {
                     kind: "failed",
                     runtime: "grok",
-                    error: Ae(E),
-                    triggered_at: _
+                    error: z(V),
+                    triggered_at: F
                 }
             }
         },
         activeTurnId: () => I,
-        activeTurnStartedAt: () => T,
-        activeTurnSkipObserved: () => P,
-        steerActiveTurn: async (_, E, N) => {
-            if (!a || I !== E) return !1;
-            let K = await eme(N);
-            if (!a || I !== E) return !1;
-            let B = {
+        activeTurnStartedAt: () => E,
+        activeTurnSkipObserved: () => R,
+        steerActiveTurn: async (F, V, K) => {
+            if (!a || I !== V) return !1;
+            let fe = await Kye(K);
+            if (!a || I !== V) return !1;
+            let oe = {
                 sessionId: a,
-                text: _
+                text: F
             };
-            K.length > 0 && (B.content = [{
+            fe.length > 0 && (oe.content = [{
                 type: "text",
-                text: _
-            }, ...K]);
+                text: F
+            }, ...fe]);
             try {
-                return await pe(grokAcpExtMethod("interject"), B), !0
+                return await U(grokAcpExtMethod("interject"), oe), !0
             } catch {
                 return !1
             }
         },
-        run: async _ => {
-            let E = await Aet(_.prompt),
-                N = await eme(_.attachments),
-                K = [...E.trim() ? [{
+        run: async F => {
+            let V = await zst(F.prompt),
+                K = await Kye(F.attachments),
+                fe = [...V.trim() ? [{
                     type: "text",
-                    text: E
-                }] : [], ...N];
-            if (K.length === 0) return {
+                    text: V
+                }] : [], ...K];
+            if (fe.length === 0) return {
                 text: "",
                 usage: void 0
             };
             if (h) throw new Error("grok adapter run() is already in flight for this session");
             h = !0;
             try {
-                y = void 0, x(), q(_.systemPrompt);
-                let B = await G();
-                if (await X(), _.abortController?.signal.aborted) throw new AgentSdkTurnInterruptedError;
-                let se = _.model,
-                    me = _.effort;
-                if (se || me) {
-                    let ot = se ?? S;
-                    if (me && !ot) W("grok effort re-apply skipped — no current model id", {
-                        effort: me
+                y = void 0, G(), J(F.systemPrompt);
+                let oe = await Be();
+                if (await ue(), F.abortController?.signal.aborted) throw new AgentSdkTurnInterruptedError;
+                let xe = F.model,
+                    Re = F.effort;
+                if (xe || Re) {
+                    let we = xe ?? A;
+                    if (Re && !we) Z("grok effort re-apply skipped — no current model id", {
+                        effort: Re
                     });
-                    else if (ot && (!!(se && se !== S) || !!(me && me !== $))) try {
-                        await Q({
-                            modelId: ot,
-                            reasoningEffort: me
+                    else if (we && (!!(xe && xe !== A) || !!(Re && Re !== $))) try {
+                        await P({
+                            modelId: we,
+                            reasoningEffort: Re
                         })
-                    } catch (et) {
-                        let Ie = et instanceof Error ? et.message : String(et);
-                        if (typeof me == "string" && Ie.includes("reasoningEffort")) W("grok effort re-apply was not confirmed — continuing the turn", {
-                            modelId: ot,
-                            effort: me,
-                            error: Ie
+                    } catch (On) {
+                        let Lt = On instanceof Error ? On.message : String(On);
+                        if (typeof Re == "string" && Lt.includes("reasoningEffort")) Z("grok effort re-apply was not confirmed — continuing the turn", {
+                            modelId: we,
+                            effort: Re,
+                            error: Lt
                         });
-                        else throw et
+                        else throw On
                     }
                 }
-                let be = Date.now(),
-                    De, Be = [];
-                I = `grok-turn-${++k}`, T = be, P = !1, g = {
-                    onStream: _.onStream,
-                    onExecutionEvent: _.onExecutionEvent,
-                    textParts: Be,
+                let gt = Date.now(),
+                    Xe, Ve = [];
+                I = `grok-turn-${++D}`, E = gt, R = !1, g = {
+                    onStream: F.onStream,
+                    onExecutionEvent: F.onExecutionEvent,
+                    textParts: Ve,
                     markFirstToken: () => {
-                        De === void 0 && (De = Date.now() - be)
+                        Xe === void 0 && (Xe = Date.now() - gt)
                     }
                 };
-                let $t = () => {
-                    j();
+                let Pe = () => {
+                    let we = og(F.abortController?.signal.reason);
+                    we && (S = {
+                        reason: we,
+                        toolInFlight: x.size > 0
+                    }), L();
                     try {
-                        V({
+                        N({
                             jsonrpc: "2.0",
                             method: "session/cancel",
                             params: {
-                                sessionId: B
+                                sessionId: oe
                             }
                         })
                     } catch {}
                 };
-                _.abortController?.signal.addEventListener("abort", $t, {
+                F.abortController?.signal.addEventListener("abort", Pe, {
                     once: !0
                 });
+                let Qe = B();
+                Qe && fe.unshift({
+                    type: "text",
+                    text: Qe
+                });
                 try {
-                    _.onTurnAcknowledged?.();
-                    let ot = await pe("session/prompt", {
-                        sessionId: B,
-                        prompt: K
-                    }, o, _.abortController?.signal);
-                    if (_.abortController?.signal.aborted) throw new AgentSdkTurnInterruptedError;
-                    let Gt = ot.result ?? ot;
+                    F.onTurnAcknowledged?.();
+                    let we = await U("session/prompt", {
+                        sessionId: oe,
+                        prompt: fe
+                    }, o, F.abortController?.signal);
+                    if (F.abortController?.signal.aborted) throw new AgentSdkTurnInterruptedError;
+                    let Fe = we.result ?? we;
                     return {
-                        sessionId: B,
-                        text: Be.join(""),
-                        usage: jet(Gt),
-                        firstTokenLatencyMs: De
+                        sessionId: oe,
+                        text: Ve.join(""),
+                        usage: mapGrokUsageToDrainUsage(Fe),
+                        firstTokenLatencyMs: Xe
                     }
-                } catch (ot) {
-                    if (ot instanceof AgentSdkTurnInterruptedError) throw ot;
-                    if (_.abortController?.signal.aborted) throw new AgentSdkTurnInterruptedError;
+                } catch (we) {
+                    if (we instanceof AgentSdkTurnInterruptedError) throw we;
+                    if (F.abortController?.signal.aborted) throw new AgentSdkTurnInterruptedError;
                     try {
-                        V({
+                        N({
                             jsonrpc: "2.0",
                             method: "session/cancel",
                             params: {
-                                sessionId: B
+                                sessionId: oe
                             }
                         })
                     } catch {}
-                    throw ot
+                    throw we
                 } finally {
-                    _.abortController?.signal.removeEventListener("abort", $t), y = s && _.abortController?.signal.aborted ? _.onStream : void 0, g = null, j()
+                    F.abortController?.signal.removeEventListener("abort", Pe), y = s && F.abortController?.signal.aborted ? F.onStream : void 0, g = null, L()
                 }
             } finally {
                 h = !1

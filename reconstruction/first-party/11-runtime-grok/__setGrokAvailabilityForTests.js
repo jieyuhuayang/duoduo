@@ -1,8 +1,8 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: __setGrokAvailabilityForTests  (minified: Cet, daemon.pretty.js:57707)
+// symbol: __setGrokAvailabilityForTests  (minified: jst, daemon.pretty.js:62970)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function __setGrokAvailabilityForTests(e) {
-    Q2 = e, e4 = void 0
+    PV = e, CV = void 0
 }

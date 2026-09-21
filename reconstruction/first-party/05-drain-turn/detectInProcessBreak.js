@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: detectInProcessBreak  (minified: XL, daemon.pretty.js:36649)
+// symbol: detectInProcessBreak  (minified: sU, daemon.pretty.js:36733)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

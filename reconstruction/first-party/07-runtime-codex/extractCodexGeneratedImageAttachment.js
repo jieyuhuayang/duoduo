@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: extractCodexGeneratedImageAttachment  (minified: Zpe, daemon.pretty.js:57214)
+// symbol: extractCodexGeneratedImageAttachment  (minified: Hye, daemon.pretty.js:62476)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -8,8 +8,8 @@ function extractCodexGeneratedImageAttachment(e) {
         n = new Set;
     for (; t.length > 0;) {
         let r = t.pop();
-        if (!(!Qb(r) || n.has(r))) {
-            if (n.add(r), Jpe(r)) {
+        if (!(!gw(r) || n.has(r))) {
+            if (n.add(r), Bye(r)) {
                 let i = r.saved_path ?? r.savedPath;
                 if (typeof i == "string" && i.trim().length > 0) return {
                     path: i,
@@ -24,7 +24,7 @@ function extractCodexGeneratedImageAttachment(e) {
             }
             for (let i of ["payload", "event", "msg", "item"]) {
                 let o = r[i];
-                Qb(o) && t.push(o)
+                gw(o) && t.push(o)
             }
         }
     }

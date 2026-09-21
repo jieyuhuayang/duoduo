@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: grokAcpExtMethod  (minified: rv, daemon.pretty.js:57731)
+// symbol: grokAcpExtMethod  (minified: bw, daemon.pretty.js:62994)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

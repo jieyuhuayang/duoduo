@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createOutboxDeliveryManager  (minified: Rct, daemon.pretty.js:80647)
+// symbol: createOutboxDeliveryManager  (minified: Zgt, daemon.pretty.js:86706)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,25 +11,25 @@ function createOutboxDeliveryManager(e) {
         maxAttempts: i = 5
     } = e, o = !1, s = new Set, a = new Map;
 
-    function l(h) {
+    function u(h) {
         let g = h.session_key,
-            w = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(v => (W("[outbox-delivery] live delivery failed", {
+            v = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(b => (Z("[outbox-delivery] live delivery failed", {
                 outboxId: h.id,
                 sessionKey: h.session_key,
-                error: v instanceof Error ? v.message : String(v)
+                error: b instanceof Error ? b.message : String(b)
             }), !1));
-        return a.set(g, w), w.then(() => {
-            a.get(g) === w && a.delete(g)
-        }), w
+        return a.set(g, v), v.then(() => {
+            a.get(g) === v && a.delete(g)
+        }), v
     }
-    let u = ({
+    let l = ({
             record: h
         }) => {
-            l(h)
+            u(h)
         },
         c = () => {
-            f().catch(h => {
-                W("[outbox-delivery] pending flush failed", {
+            p().catch(h => {
+                Z("[outbox-delivery] pending flush failed", {
                     error: h instanceof Error ? h.message : String(h)
                 })
             })
@@ -38,51 +38,51 @@ function createOutboxDeliveryManager(e) {
         if (s.has(h.id)) return !1;
         s.add(h.id);
         try {
-            if (h = await Sa(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await dm(t, h.id), !0;
-            if (await Lse(t, h.id)) return await Pd(t, h, {
+            if (h = await La(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await qm(t, h.id), !0;
+            if (await gle(t, h.id)) return await Xd(t, h, {
                 status: "sent"
             }), !0;
-            if (Ect(h)) {
-                let b = await Pd(t, h, {
+            if (Jgt(h)) {
+                let _ = await Xd(t, h, {
                     status: "sent"
                 });
-                return await dm(t, b.id), !0
+                return await qm(t, _.id), !0
             }
             if (r.getSubscribers(h.session_key).length === 0) return !1;
-            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await Pd(t, h, {
+            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await Xd(t, h, {
                 status: "failed",
                 error: "delivery failed"
             }), !1;
-            let v = await Pd(t, h, {
+            let b = await Xd(t, h, {
                 status: "sent"
             });
-            return await dm(t, v.id), eo("delivered", v.id, {
-                outboxId: v.id,
-                sessionKey: v.session_key
+            return await qm(t, b.id), fo("delivered", b.id, {
+                outboxId: b.id,
+                sessionKey: b.session_key
             }), !0
         } finally {
             s.delete(h.id)
         }
     }
-    let p = new Set;
+    let f = new Set;
 
-    function f() {
+    function p() {
         let h = m();
-        return p.add(h), h.then(() => p.delete(h), () => p.delete(h)), h
+        return f.add(h), h.then(() => f.delete(h), () => f.delete(h)), h
     }
     async function m() {
-        let h = await Gse(t, i),
+        let h = await Rle(t, i),
             g = 0;
-        for (let y of h) await l(y) && (g += 1);
+        for (let y of h) await u(y) && (g += 1);
         return g
     }
     return {
         start() {
-            o || (o = !0, n.on("session.output", u), n.on("cadence.tick", c))
+            o || (o = !0, n.on("session.output", l), n.on("cadence.tick", c))
         },
         async stop() {
-            o && (o = !1, n.off("session.output", u), n.off("cadence.tick", c), await Promise.allSettled([...p, ...a.values()]))
+            o && (o = !1, n.off("session.output", l), n.off("cadence.tick", c), await Promise.allSettled([...f, ...a.values()]))
         },
-        flushPending: f
+        flushPending: p
     }
 }

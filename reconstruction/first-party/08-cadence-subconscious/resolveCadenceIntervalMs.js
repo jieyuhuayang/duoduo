@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: resolveCadenceIntervalMs  (minified: bye, daemon.pretty.js:62695)
+// symbol: resolveCadenceIntervalMs  (minified: Swe, daemon.pretty.js:68555)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveCadenceIntervalMs() {
     let e = process.env.ALADUO_CADENCE_INTERVAL_MS;
-    if (!e || e.trim() === "") return bh;
+    if (!e || e.trim() === "") return _g;
     let t = Number(e);
-    return !Number.isFinite(t) || !Number.isInteger(t) || t < 1e3 ? bh : t
+    return !Number.isFinite(t) || !Number.isInteger(t) || t < 1e3 ? _g : t
 }

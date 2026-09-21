@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: handleDrainError  (minified: $v, daemon.pretty.js:66356)
+// symbol: handleDrainError  (minified: Xw, daemon.pretty.js:72231)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,30 +10,30 @@ async function handleDrainError(e, t, n) {
 
 ${i}
 
-` + nst(r, n.hintContext);
-    for (let l of n.precedingRecords ?? []) n.bus?.emit("session.output", {
-        sessionKey: l.session_key,
-        record: l
+` + wft(r, n.hintContext);
+    for (let u of n.precedingRecords ?? []) n.bus?.emit("session.output", {
+        sessionKey: u.session_key,
+        record: u
     });
-    if (n.anchor.event.source?.name === "idle-compact") ee("[runner] idle-compact drain error — spine only, no channel record", {
+    if (n.anchor.event.source?.name === "idle-compact") Q("[runner] idle-compact drain error — spine only, no channel record", {
         sessionKey: t,
         stage: n.stage
     });
     else try {
-        let l = await ac(e, t, {
+        let u = await $c(e, t, {
             item: n.anchor.item,
             event: n.anchor.event,
             outputText: o
         });
-        for (let u of l.records) n.bus?.emit("session.output", {
-            sessionKey: u.session_key,
-            record: u
+        for (let l of u.records) n.bus?.emit("session.output", {
+            sessionKey: l.session_key,
+            record: l
         })
-    } catch (l) {
-        ee("[runner] failed to emit drain-error outbox record", {
+    } catch (u) {
+        Q("[runner] failed to emit drain-error outbox record", {
             sessionKey: t,
             stage: n.stage,
-            emitError: l instanceof Error ? l.message : String(l)
+            emitError: u instanceof Error ? u.message : String(u)
         })
     }
     let a = createSpineEvent({
@@ -51,11 +51,11 @@ ${i}
     });
     try {
         await atomicAppendEvent(e, a)
-    } catch (l) {
-        ee("[runner] failed to append agent.error to spine", {
+    } catch (u) {
+        Q("[runner] failed to append agent.error to spine", {
             sessionKey: t,
             stage: n.stage,
-            spineError: l instanceof Error ? l.message : String(l)
+            spineError: u instanceof Error ? u.message : String(u)
         })
     }
 }

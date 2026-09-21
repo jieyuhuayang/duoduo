@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveRemoteListenerConfig  (minified: ddt, daemon.pretty.js:84472)
+// symbol: resolveRemoteListenerConfig  (minified: Oyt, daemon.pretty.js:90395)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,21 +10,21 @@ function resolveRemoteListenerConfig(e, t) {
         o = !!n,
         s = !!i,
         a = !!r,
-        l = o && !isLoopbackBindHost(n);
-    if (l && !a) throw new Error("remote exposure requires ALADUO_DAEMON_TOKEN; run `duoduo daemon token new`");
+        u = o && !isLoopbackBindHost(n);
+    if (u && !a) throw new Error("remote exposure requires ALADUO_DAEMON_TOKEN; run `duoduo daemon token new`");
     if (!(o && s && a)) {
-        if (l && a && !s) throw new Error("remote exposure requires an explicit ALADUO_REMOTE_PORT (a TCP port distinct from the read-only port); set ALADUO_REMOTE_PORT");
+        if (u && a && !s) throw new Error("remote exposure requires an explicit ALADUO_REMOTE_PORT (a TCP port distinct from the read-only port); set ALADUO_REMOTE_PORT");
         return {
             enabled: !1
         }
     }
-    let u = Number(i);
-    if (!Number.isInteger(u) || u < 1 || u > 65535) throw new Error(`ALADUO_REMOTE_PORT must be a valid TCP port (1-65535), got: ${i}`);
-    if (u === t) throw new Error(`ALADUO_REMOTE_PORT (${u}) must differ from the read-only port (${t})`);
+    let l = Number(i);
+    if (!Number.isInteger(l) || l < 1 || l > 65535) throw new Error(`ALADUO_REMOTE_PORT must be a valid TCP port (1-65535), got: ${i}`);
+    if (l === t) throw new Error(`ALADUO_REMOTE_PORT (${l}) must differ from the read-only port (${t})`);
     return {
         enabled: !0,
         host: n,
-        port: u,
+        port: l,
         token: r
     }
 }

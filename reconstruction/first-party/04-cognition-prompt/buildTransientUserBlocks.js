@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: K_e, daemon.pretty.js:65787)
+// symbol: buildTransientUserBlocks  (minified: QSe, daemon.pretty.js:71662)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -27,28 +27,28 @@ function buildTransientUserBlocks(e, t, n) {
         o = !1,
         s = !1,
         a = !1,
-        l = !1,
         u = !1,
+        l = !1,
         c = !1,
         d = !1,
-        p = !1,
-        f = !1;
+        f = !1,
+        p = !1;
     if (t.daemonRestartHint && (i.push({
             type: "text",
             text: renderDaemonRestartHint(t.daemonRestartHint.startedAt, getPendingRestartReason()),
             tag: "daemon-restart-hint"
         }), d = !0), t.compactNotice && (i.push({
             type: "text",
-            text: Pot(t.compactNotice),
+            text: Gdt(t.compactNotice),
             tag: "smart-compact-notice"
-        }), p = !0), t.gatewayNotice) {
-        let v = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
+        }), f = !0), t.gatewayNotice) {
+        let b = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
 `);
         i.push({
             type: "text",
             text: `<system-reminder>
 
-${v}
+${b}
 
 IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
 
@@ -56,19 +56,19 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
             tag: "gateway-notice"
         }), o = !0
     }
-    let m = Cot(t.timeGap);
+    let m = Kdt(t.timeGap);
     m && (i.push({
         type: "text",
         text: m,
         tag: "time-context"
-    }), l = !0);
-    let g = t.isUserMessage !== !1 ? Rot(t.skipRewind) : void 0;
+    }), u = !0);
+    let g = t.isUserMessage !== !1 ? Wdt(t.skipRewind) : void 0;
     g && (i.push({
         type: "text",
         text: g,
         tag: "skip-rewind"
     }), a = !0);
-    let y = Sot(t.interruptedContext);
+    let y = qdt(t.interruptedContext);
     return y && (i.push({
         type: "text",
         text: `<interrupted-context>
@@ -81,13 +81,13 @@ ${y}
         tag: "job-receipts"
     }), c = !0), t.jobTick && (i.push({
         type: "text",
-        text: $ot(t.jobTick),
+        text: Xdt(t.jobTick),
         tag: "job-tick"
-    }), u = !0), t.boardUpdated && (i.push({
+    }), l = !0), t.boardUpdated && (i.push({
         type: "text",
-        text: E_e(t.boardUpdated.boardPath),
+        text: TSe(t.boardUpdated.boardPath),
         tag: "board-updated"
-    }), f = !0), i.push({
+    }), p = !0), i.push({
         type: "text",
         text: e,
         tag: "user-input"
@@ -96,11 +96,11 @@ ${y}
         gatewayNoticeInjected: o,
         interruptedContextInjected: s,
         skipRewindInjected: a,
-        timeGapInjected: l,
-        jobTickInjected: u,
+        timeGapInjected: u,
+        jobTickInjected: l,
         jobReceiptsInjected: c,
         daemonRestartHintInjected: d,
-        compactNoticeInjected: p,
-        boardUpdatedInjected: f
+        compactNoticeInjected: f,
+        boardUpdatedInjected: p
     }
 }

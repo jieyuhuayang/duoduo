@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: drainSessionMailbox  (minified: W_e, daemon.pretty.js:64516)
+// symbol: drainSessionMailbox  (minified: GSe, daemon.pretty.js:70374)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function drainSessionMailbox(e, t, n = {}) {
-    let r = vo(t);
-    if (!(await f_e(e, r)).acquired) return {
+    let r = Oo(t);
+    if (!(await hSe(e, r)).acquired) return {
         processed: 0,
         skipped: 0,
         lockAcquired: !1,
@@ -14,55 +14,55 @@ async function drainSessionMailbox(e, t, n = {}) {
     let o = n.lockHeartbeatIntervalMs ?? 3e4,
         s = setInterval(async () => {
             try {
-                await p_e(e, r)
+                await gSe(e, r)
             } catch {}
         }, o);
-    s.unref?.(), eo("drain_started", t, {
+    s.unref?.(), fo("drain_started", t, {
         sessionKey: t
     });
     let a = Date.now(),
-        l = 0,
         u = 0,
+        l = 0,
         c = 0,
-        d, p, f, m = {},
+        d, f, p, m = {},
         h = n.getStreamGeneration?.();
 
-    function g(b) {
-        if (b) {
-            if (!p) {
-                p = {
-                    ...b
+    function g(_) {
+        if (_) {
+            if (!f) {
+                f = {
+                    ..._
                 };
                 return
             }
-            p.input_tokens = (p.input_tokens ?? 0) + (b.input_tokens ?? 0), p.output_tokens = (p.output_tokens ?? 0) + (b.output_tokens ?? 0), p.cache_creation_input_tokens = (p.cache_creation_input_tokens ?? 0) + (b.cache_creation_input_tokens ?? 0), p.cache_read_input_tokens = (p.cache_read_input_tokens ?? 0) + (b.cache_read_input_tokens ?? 0), p.total_cost_usd = (p.total_cost_usd ?? 0) + (b.total_cost_usd ?? 0), !p.protocol && b.protocol && (p.protocol = b.protocol), !p.model && b.model && (p.model = b.model), b.context_used_tokens !== void 0 && (p.context_used_tokens = b.context_used_tokens)
+            f.input_tokens = (f.input_tokens ?? 0) + (_.input_tokens ?? 0), f.output_tokens = (f.output_tokens ?? 0) + (_.output_tokens ?? 0), f.cache_creation_input_tokens = (f.cache_creation_input_tokens ?? 0) + (_.cache_creation_input_tokens ?? 0), f.cache_read_input_tokens = (f.cache_read_input_tokens ?? 0) + (_.cache_read_input_tokens ?? 0), f.total_cost_usd = (f.total_cost_usd ?? 0) + (_.total_cost_usd ?? 0), !f.protocol && _.protocol && (f.protocol = _.protocol), !f.model && _.model && (f.model = _.model), _.context_used_tokens !== void 0 && (f.context_used_tokens = _.context_used_tokens)
         }
     }
-    async function y(b) {
+    async function y(_) {
         try {
             let I = n.getStreamGeneration?.(),
-                P = detectInProcessBreak(p, h !== void 0 && I !== void 0 && I !== h);
+                R = detectInProcessBreak(f, h !== void 0 && I !== void 0 && I !== h);
             await appendDrainRecord(e, {
-                id: q_e.randomUUID(),
+                id: HSe.randomUUID(),
                 session_key: t,
                 sdk_session_id: d,
                 drain_started_at: new Date(a).toISOString(),
                 drain_duration_ms: Date.now() - a,
-                sdk_duration_ms: l,
-                events_processed: b.processedCount,
-                events_skipped: b.skippedCount,
-                tool_calls: u,
+                sdk_duration_ms: u,
+                events_processed: _.processedCount,
+                events_skipped: _.skippedCount,
+                tool_calls: l,
                 tool_errors: c,
-                output_chars: b.replyText?.length ?? 0,
-                cancelled: b.cancelled,
-                usage: p,
+                output_chars: _.replyText?.length ?? 0,
+                cancelled: _.cancelled,
+                usage: f,
                 perf: Object.keys(m).length > 0 ? m : void 0,
-                compact: f,
-                suspected_in_process_break: P ? !0 : void 0
+                compact: p,
+                suspected_in_process_break: R ? !0 : void 0
             })
         } catch {}
     }
-    let w = {
+    let v = {
         input_tokens: 0,
         cache_read: 0,
         cache_create: 0,
@@ -70,78 +70,78 @@ async function drainSessionMailbox(e, t, n = {}) {
         total_cost_usd: 0
     };
 
-    function v() {
-        if (!p) return;
-        let b = p.input_tokens ?? 0,
-            I = p.cache_read_input_tokens ?? 0,
-            T = p.cache_creation_input_tokens ?? 0,
-            P = p.output_tokens ?? 0,
-            k = p.total_cost_usd ?? 0,
-            S = b_e({
-                protocol: p.protocol,
-                input_tokens: b - w.input_tokens,
-                cache_read_input_tokens: I - w.cache_read,
-                cache_creation_input_tokens: T - w.cache_create
+    function b() {
+        if (!f) return;
+        let _ = f.input_tokens ?? 0,
+            I = f.cache_read_input_tokens ?? 0,
+            E = f.cache_creation_input_tokens ?? 0,
+            R = f.output_tokens ?? 0,
+            x = f.total_cost_usd ?? 0,
+            S = SSe({
+                protocol: f.protocol,
+                input_tokens: _ - v.input_tokens,
+                cache_read_input_tokens: I - v.cache_read,
+                cache_creation_input_tokens: E - v.cache_create
             }),
             D = {
                 elapsed_ms: Date.now() - a,
-                total_input_tokens: p.input_tokens === void 0 ? void 0 : S.totalInput,
-                cache_hit_rate: v_e(S),
-                output_tokens: p.output_tokens === void 0 ? void 0 : P - w.output_tokens,
-                total_cost_usd: p.total_cost_usd === void 0 ? void 0 : k - w.total_cost_usd,
-                model: p.model,
-                context_used_tokens: p.context_used_tokens,
-                protocol: p.protocol
+                total_input_tokens: f.input_tokens === void 0 ? void 0 : S.totalInput,
+                cache_hit_rate: kSe(S),
+                output_tokens: f.output_tokens === void 0 ? void 0 : R - v.output_tokens,
+                total_cost_usd: f.total_cost_usd === void 0 ? void 0 : x - v.total_cost_usd,
+                model: f.model,
+                context_used_tokens: f.context_used_tokens,
+                protocol: f.protocol
             };
-        return w = {
-            input_tokens: b,
+        return v = {
+            input_tokens: _,
             cache_read: I,
-            cache_create: T,
-            output_tokens: P,
-            total_cost_usd: k
+            cache_create: E,
+            output_tokens: R,
+            total_cost_usd: x
         }, D
     }
     try {
         try {
-            await po(m, "mailbox_merge_ms", async () => qE(e, t))
-        } catch (Se) {
-            if (Dre(Se)) return {
+            await xo(m, "mailbox_merge_ms", async () => fR(e, t))
+        } catch (ve) {
+            if (mse(ve)) return {
                 processed: 0,
                 skipped: 0,
                 lockAcquired: !0,
                 cancelled: !1,
                 mergeTransientFailure: !0
             };
-            throw Se
+            throw ve
         }
-        let b = await po(m, "mailbox_parse_ms", async () => l_(e, t));
-        if (b.length === 0) return {
+        let _ = await xo(m, "mailbox_parse_ms", async () => lb(e, t));
+        if (_.length === 0) return {
             processed: 0,
             skipped: 0,
             lockAcquired: !0,
             cancelled: !1
         };
-        if (b.some(Se => !Se.eventId)) {
-            let Se = await jre(e, t);
-            if (Se.removed > 0) {
-                await u_(e, t, `orphan_cleanup=${Se.removed}`);
-                let ve = await l_(e, t);
-                if (ve.length === 0) return {
+        if (_.some(ve => !ve.eventId)) {
+            let ve = await gse(e, t);
+            if (ve.removed > 0) {
+                await cb(e, t, `orphan_cleanup=${ve.removed}`);
+                let _e = await lb(e, t);
+                if (_e.length === 0) return {
                     processed: 0,
                     skipped: 0,
                     lockAcquired: !0,
                     cancelled: !1
                 };
-                b = ve
+                _ = _e
             }
         }
-        await po(m, "mailbox_render_ms", async () => BE(e, t, b));
-        let T = n.batchSize ?? FB,
-            P = n.mergeWindowMs ?? zB,
-            k = n.sdk ?? createAgentSdkAdapter(),
-            S = await batchDrainItems(e, b, {
-                fallbackBatchSize: T,
-                mergeWindowMs: P,
+        await xo(m, "mailbox_render_ms", async () => pR(e, t, _));
+        let E = n.batchSize ?? bH,
+            R = n.mergeWindowMs ?? vH,
+            x = n.sdk ?? createAgentSdkAdapter(),
+            S = await batchDrainItems(e, _, {
+                fallbackBatchSize: E,
+                mergeWindowMs: R,
                 perf: m
             });
         if (S.items.length === 0) return {
@@ -151,824 +151,833 @@ async function drainSessionMailbox(e, t, n = {}) {
             cancelled: !1
         };
         let D = S.items,
-            $ = await Jot(e, t, b, S.events, m),
+            A = await fft(e, t, _, S.events, m),
             C = !1,
-            O = !1,
+            $ = !1,
             j = !1,
-            x = [],
-            F = 0,
-            q = !1,
-            J = [],
-            le = !1,
-            oe, X, te, z = [],
-            V = async (Se, ve) => {
-                Se.length !== 0 && await wo(e, t, Se).catch(ie => {
-                    W("[runner] eager markDone failed (will retry at drain end)", {
+            k = [],
+            L = 0,
+            B = !1,
+            G = [],
+            ce = !1,
+            J, ee, le, M = [],
+            ue = async (ve, _e) => {
+                ve.length !== 0 && await Ao(e, t, ve).catch(ae => {
+                    Z("[runner] eager markDone failed (will retry at drain end)", {
                         sessionKey: t,
-                        stage: ve,
-                        eventIds: Se,
-                        error: ie instanceof Error ? ie.message : String(ie)
+                        stage: _e,
+                        eventIds: ve,
+                        error: ae instanceof Error ? ae.message : String(ae)
                     })
                 })
-            }, pe = () => {
-                if (!O || j) return [];
+            }, $e = () => {
+                if (!$ || j) return [];
                 j = !0;
-                let Se = $?.eventIds ?? [];
-                return x.push(...Se), Se
-            }, ae = (Se, ve) => {
-                Se && (oe = ve ?? Se.payload.text, X = Se.id, te = Se)
-            }, L = async () => (await wo(e, t, x), await u_(e, t, `processed=${x.length} skipped=${F} cancelled=true`), await y({
+                let ve = A?.eventIds ?? [];
+                return k.push(...ve), ve
+            }, se = (ve, _e) => {
+                ve && (J = _e ?? ve.payload.text, ee = ve.id, le = ve)
+            }, N = async () => (await Ao(e, t, k), await cb(e, t, `processed=${k.length} skipped=${L} cancelled=true`), await y({
                 cancelled: !0,
-                processedCount: x.length,
-                skippedCount: F,
-                replyText: oe
+                processedCount: k.length,
+                skippedCount: L,
+                replyText: J
             }), {
-                processed: x.length,
-                skipped: F,
+                processed: k.length,
+                skipped: L,
                 lockAcquired: !0,
                 cancelled: !0,
-                lastReplyText: oe,
-                lastOutboxId: X,
-                lastOutboxRecord: te,
-                outboxRecords: z
-            }), M = await po(m, "session_state_ms", async () => ct(e, t)), U = Th(e, t, M ?? void 0), G = n.jobContext?.stateless === !0;
-        U.forkFrom && (n.runtime !== "codex" || G) && (U.forkFrom = void 0, await Ns(e, t, "pending_fork_to").catch(() => {})), await rst(e, t, {
-            snapshotModel: M?.model,
-            snapshotModelRuntime: M?.model_runtime,
+                turnSkipped: B,
+                sdkTurns: G,
+                lastReplyText: J,
+                lastOutboxId: ee,
+                lastOutboxRecord: le,
+                outboxRecords: M
+            }), U = await xo(m, "session_state_ms", async () => ht(e, t)), q = Rg(e, t, U ?? void 0), Y = n.jobContext?.stateless === !0;
+        q.forkFrom && (n.runtime !== "codex" || Y) && (q.forkFrom = void 0, await No(e, t, "pending_fork_to").catch(() => {})), await Sft(e, t, {
+            snapshotModel: U?.model,
+            snapshotModelRuntime: U?.model_runtime,
             activeRuntime: n.runtime ?? "claude",
-            sessionInfo: U
-        }), M?.pending_model_fork && await ist(e, t, {
-            snapshotModel: M.model,
+            sessionInfo: q
+        }), U?.pending_model_fork && await kft(e, t, {
+            snapshotModel: U.model,
             runtime: n.runtime,
-            statelessJob: G,
-            sessionInfo: U
+            statelessJob: Y,
+            sessionInfo: q
         });
-        let ne = M?.pending_gateway_notice,
-            Q = M?.pending_interrupted_context,
-            Ae = M?.pending_skip_rewind,
-            _ = !1,
-            E = !1,
-            N = !1,
+        let Se = U?.pending_gateway_notice,
+            ye = U?.pending_interrupted_context,
+            Be = U?.pending_skip_rewind,
+            w = !1,
+            P = !1,
+            z = !1,
+            F = !1,
+            V = Zdt(U),
             K = !1,
-            B = Iot(M),
-            se = !1,
-            me = Phe({
-                currentDaemonStartedAt: NB,
+            fe = qbe({
+                currentDaemonStartedAt: mH,
                 sessionKey: t,
-                lastEventAt: M?.last_event_at,
-                lastSeenDaemonStartedAt: M?.last_seen_daemon_started_at
+                lastEventAt: U?.last_event_at,
+                lastSeenDaemonStartedAt: U?.last_seen_daemon_started_at
             });
-        me.writeLastSeenAtEntry && await Qe(e, t, {
-            last_seen_daemon_started_at: me.writeLastSeenAtEntry
+        fe.writeLastSeenAtEntry && await rt(e, t, {
+            last_seen_daemon_started_at: fe.writeLastSeenAtEntry
         }).catch(() => {});
-        let be = me.inject ? {
-                startedAt: NB
+        let oe = fe.inject ? {
+                startedAt: mH
             } : void 0,
-            De = me.writeLastSeenOnInjectSuccess,
-            Be = !1,
-            $t = mo(t) === "channel" ? n.boardHash : void 0,
-            ot = x_e({
-                currentBoardHash: $t,
-                lastSeenBoardHash: M?.last_seen_board_hash
+            xe = fe.writeLastSeenOnInjectSuccess,
+            Re = !1,
+            gt = Eo(t) === "channel" ? n.boardHash : void 0,
+            Xe = ISe({
+                currentBoardHash: gt,
+                lastSeenBoardHash: U?.last_seen_board_hash
             });
-        ot.writeLastSeenAtEntry && await Qe(e, t, {
-            last_seen_board_hash: ot.writeLastSeenAtEntry
+        Xe.writeLastSeenAtEntry && await rt(e, t, {
+            last_seen_board_hash: Xe.writeLastSeenAtEntry
         }).catch(() => {});
-        let Gt = ot.inject && n.memoryBoard ? {
+        let Ve = Xe.inject && n.memoryBoard ? {
                 boardPath: n.memoryBoard.path
             } : void 0,
-            Fe = ot.writeLastSeenOnInjectSuccess,
-            et = !1,
-            Ie = M?.last_event_at,
-            ze = !1,
-            ft = [],
-            fr, Ut;
-        for (let Se of D) {
-            if (!Se.eventId) {
-                F += 1;
+            Pe = Xe.writeLastSeenOnInjectSuccess,
+            Qe = !1,
+            we = U?.last_event_at,
+            Fe = !1,
+            yt = [],
+            On, Lt;
+        for (let ve of D) {
+            if (!ve.eventId) {
+                L += 1;
                 continue
             }
-            let ve = Se.eventId;
-            if (n.excludeEventIds?.has(ve)) {
-                F += 1;
+            let _e = ve.eventId;
+            if (n.excludeEventIds?.has(_e)) {
+                L += 1;
                 continue
             }
-            let ie = await po(m, "outbox_lookup_ms", async () => cm(e, ve));
-            if (ie) {
-                x.push(ve), oe = ie.payload.text, X = ie.id;
+            let ae = await xo(m, "outbox_lookup_ms", async () => Um(e, _e));
+            if (ae) {
+                k.push(_e), J = ae.payload.text, ee = ae.id;
                 continue
             }
-            let Je = Se.createdAt ? {
-                    notAfter: Se.createdAt
+            let Ze = ve.createdAt ? {
+                    notAfter: ve.createdAt
                 } : void 0,
-                Ne = S.events.get(ve) ?? await po(m, "event_read_ms", async () => md(e, ve, Je));
-            if (!Ne) {
-                W(`[runner] mailbox event unresolved: session_key=${t} event_id=${ve} not_after=${Je?.notAfter??"none"} item_file=${Se.file??"none"}`), F += 1;
+                Ae = S.events.get(_e) ?? await xo(m, "event_read_ms", async () => Md(e, _e, Ze));
+            if (!Ae) {
+                Z(`[runner] mailbox event unresolved: session_key=${t} event_id=${_e} not_after=${Ze?.notAfter??"none"} item_file=${ve.file??"none"}`), L += 1;
                 continue
             }
-            ft.push({
-                item: Se,
-                event: Ne,
-                prompt: gC(Ne, t)
+            yt.push({
+                item: ve,
+                event: Ae,
+                prompt: RO(Ae, t)
             })
         }
-        if (n.onBatchContext && ft.length > 0) {
-            let Se = 0;
-            for (let ie of ft)
-                if (ie.event.type === "route.deliver") {
-                    let Je = Bi(ie.event.payload) ? ie.event.payload : void 0,
-                        Ne = Bi(Je?.payload) ? Je.payload : void 0,
-                        rt = typeof Ne?.notify_depth == "number" ? Ne.notify_depth : 0;
-                    rt > Se && (Se = rt)
-                } let ve = ft.map(ie => ie.item.eventId).filter(ie => !!ie);
+        if (n.onBatchContext && yt.length > 0) {
+            let ve = 0;
+            for (let ae of yt)
+                if (ae.event.type === "route.deliver") {
+                    let Ze = Qi(ae.event.payload) ? ae.event.payload : void 0,
+                        Ae = Qi(Ze?.payload) ? Ze.payload : void 0,
+                        pt = typeof Ae?.notify_depth == "number" ? Ae.notify_depth : 0;
+                    pt > ve && (ve = pt)
+                } let _e = yt.map(ae => ae.item.eventId).filter(ae => !!ae);
             n.onBatchContext({
-                maxNotifyDepth: Se,
-                eventIds: ve
+                maxNotifyDepth: ve,
+                eventIds: _e
             })
         }
-        let pr = async Se => {
+        let br = async ve => {
             let {
-                guidance: ve,
-                stage: ie,
-                payloadExtra: Je,
-                noteSuffix: Ne
-            } = Se;
-            if (mo(t) === "channel") {
-                for (let rt of ft) {
-                    if (rt.event.source?.name === "idle-compact") {
+                guidance: _e,
+                stage: ae,
+                payloadExtra: Ze,
+                noteSuffix: Ae
+            } = ve;
+            if (Eo(t) === "channel") {
+                for (let pt of yt) {
+                    if (pt.event.source?.name === "idle-compact") {
                         await handleDrainError(e, t, {
-                            anchor: rt,
-                            error: new Error(ve),
-                            stage: ie,
-                            userText: ve,
-                            payloadExtra: Je,
+                            anchor: pt,
+                            error: new Error(_e),
+                            stage: ae,
+                            userText: _e,
+                            payloadExtra: Ze,
                             bus: n.bus
-                        }), rt.item.eventId && x.push(rt.item.eventId);
+                        }), pt.item.eventId && k.push(pt.item.eventId);
                         continue
                     }
-                    let Rr = await ac(e, t, {
-                        item: rt.item,
-                        event: rt.event,
-                        outputText: ve,
-                        sdkSessionId: U.sessionId
+                    let Or = await $c(e, t, {
+                        item: pt.item,
+                        event: pt.event,
+                        outputText: _e,
+                        sdkSessionId: q.sessionId
                     });
-                    z.push(...Rr.records), ae(Rr.primaryRecord), rt.item.eventId && x.push(rt.item.eventId)
+                    M.push(...Or.records), se(Or.primaryRecord), pt.item.eventId && k.push(pt.item.eventId)
                 }
-                return await wo(e, t, x), await u_(e, t, `processed=${x.length} skipped=${F} ${Ne}`), {
-                    processed: x.length,
-                    skipped: F,
+                return await Ao(e, t, k), await cb(e, t, `processed=${k.length} skipped=${L} ${Ae}`), {
+                    processed: k.length,
+                    skipped: L,
                     lockAcquired: !0,
                     cancelled: !1,
-                    lastReplyText: oe,
-                    lastOutboxId: X,
-                    lastOutboxRecord: te,
-                    outboxRecords: z
+                    lastReplyText: J,
+                    lastOutboxId: ee,
+                    lastOutboxRecord: le,
+                    outboxRecords: M
                 }
             }
             throw await handleDrainError(e, t, {
-                anchor: ft[0],
-                error: new Error(ve),
-                stage: ie,
-                userText: ve,
-                payloadExtra: Je,
-                precedingRecords: z,
+                anchor: yt[0],
+                error: new Error(_e),
+                stage: ae,
+                userText: _e,
+                payloadExtra: Ze,
+                precedingRecords: M,
                 bus: n.bus
-            }), new Error(ve)
-        }, ng = {
+            }), new Error(_e)
+        }, ty = {
             runtime: n.runtime,
             usesStreamingAdapter: n.usesStreamingAdapter,
             abortController: n.abortController,
             onTurnRejected: () => {
-                O = !1, n.onSdkTurnRejected?.()
+                $ = !1, n.onSdkTurnRejected?.()
             },
-            effort: U.effort,
-            cwd: U.cwd,
-            settingSources: U.settingSources,
+            effort: q.effort,
+            cwd: q.cwd,
+            settingSources: q.settingSources,
             persistSession: n.persistSession,
             mcpServers: n.mcpServers,
             mcpServersFactory: n.mcpServersFactory,
             holdInputOpenForBackgroundAgents: n.holdInputOpenForBackgroundAgents,
             boardHash: n.boardHash
-        }, Ze = ost(U.cwd);
-        if (ft.length > 0 && Ze) return pr({
-            guidance: sst(t, U.cwd, Ze),
+        }, Ye = xft(q.cwd);
+        if (yt.length > 0 && Ye) return br({
+            guidance: Eft(t, q.cwd, Ye),
             stage: "workspace_unavailable",
             payloadExtra: {
                 outcome: "workspace_unavailable",
-                cwd: U.cwd,
-                reason: Ze
+                cwd: q.cwd,
+                reason: Ye
             },
             noteSuffix: "workspace_unavailable=true"
         });
-        let mr = n.runtime ?? "claude",
-            Rn = n.runtimeUnavailableReason ?? (n.runtime === "claude" ? claudeUnavailableReason() : void 0);
-        if (ft.length > 0 && Rn) return pr({
-            guidance: ast(Rn, mr),
+        let vr = n.runtime ?? "claude",
+            Pn = n.runtimeUnavailableReason ?? (n.runtime === "claude" ? claudeUnavailableReason() : void 0);
+        if (yt.length > 0 && Pn) return br({
+            guidance: Rft(Pn, vr),
             stage: "runtime_unavailable",
             payloadExtra: {
                 outcome: "runtime_unavailable",
-                runtime: mr,
+                runtime: vr,
                 runtime_source: n.runtime ? "explicit" : "default"
             },
-            noteSuffix: `runtime_unavailable=${mr}`
+            noteSuffix: `runtime_unavailable=${vr}`
         });
-        let He = Se => async ve => {
-            if (ve.type === "system" && ve.subtype === "init" && ve.data && typeof ve.data.session_id == "string" && (fr = ve.data.session_id, U.sessionId && fr !== U.sessionId && W("[runner] SDK session ID mismatch — context lost", {
+        let He = ve => async _e => {
+            if (_e.type === "system" && _e.subtype === "init" && _e.data && typeof _e.data.session_id == "string" && (On = _e.data.session_id, q.sessionId && On !== q.sessionId && Z("[runner] SDK session ID mismatch — context lost", {
                     sessionKey: t,
-                    requestedSessionId: U.sessionId,
-                    actualSessionId: fr
-                })), ve.type === "system" && ve.subtype === "compact_boundary" && ve.data && typeof ve.data == "object") {
-                let ie = ve.data,
-                    Je = ie.trigger;
-                (Je === "manual" || Je === "auto") && (Ut = {
-                    trigger: Je,
-                    pre_tokens: typeof ie.pre_tokens == "number" ? ie.pre_tokens : void 0,
-                    post_tokens: typeof ie.post_tokens == "number" ? ie.post_tokens : void 0
+                    requestedSessionId: q.sessionId,
+                    actualSessionId: On
+                })), _e.type === "system" && _e.subtype === "compact_boundary" && _e.data && typeof _e.data == "object") {
+                let ae = _e.data,
+                    Ze = ae.trigger;
+                (Ze === "manual" || Ze === "auto") && (Lt = {
+                    trigger: Ze,
+                    pre_tokens: typeof ae.pre_tokens == "number" ? ae.pre_tokens : void 0,
+                    post_tokens: typeof ae.post_tokens == "number" ? ae.post_tokens : void 0
                 })
             }
-            return ve.type === "tool_use" ? u += 1 : ve.type === "tool_result" && ve.isError && (c += 1), Se(ve)
-        }, Br = async () => {
-            let Se = fr ?? U.sessionId;
-            !Se || n.skipSessionIdUpdate || G || await Qe(e, t, {
-                sdk_session_id: Se
+            return _e.type === "tool_use" ? l += 1 : _e.type === "tool_result" && _e.isError && (c += 1), ve(_e)
+        }, Qr = async () => {
+            let ve = On ?? q.sessionId;
+            !ve || n.skipSessionIdUpdate || Y || await rt(e, t, {
+                sdk_session_id: ve
             })
-        }, Er = async (Se, ve) => {
-            await Br(), !(await ct(e, t))?.pending_skip_rewind && await Dot(e, t, Aot(Se, ve ? Q : void 0))
-        }, nn = async Se => {
-            Se.gatewayNoticeInjected && !_ && (await Not(e, t), _ = !0), Se.interruptedContextInjected && !E && (await Mot(e, t), E = !0), Se.skipRewindInjected && !N && (await jot(e, t), N = !0)
+        }, $r = async (ve, _e) => {
+            await Qr(), !(await ht(e, t))?.pending_skip_rewind && await tft(e, t, Qdt(ve, _e ? ye : void 0))
+        }, ln = async ve => {
+            ve.gatewayNoticeInjected && !w && (await eft(e, t), w = !0), ve.interruptedContextInjected && !P && (await nft(e, t), P = !0), ve.skipRewindInjected && !z && (await rft(e, t), z = !0)
         };
-        if (zot(ft, t)) {
-            let Se = await UB(e, t, n, ft, U, {
-                    pendingGatewayNotice: ne,
-                    pendingInterruptedContext: Q,
-                    pendingSkipRewind: Ae,
-                    lastEventAtWatermark: Ie,
-                    timeGapConsumed: K,
-                    daemonRestartHint: Be ? void 0 : be,
-                    compactNotice: se ? void 0 : B,
-                    boardUpdated: et ? void 0 : Gt,
-                    jobReceipts: C ? void 0 : $?.text
+        if (sft(yt, t)) {
+            let ve = await wH(e, t, n, yt, q, {
+                    pendingGatewayNotice: Se,
+                    pendingInterruptedContext: ye,
+                    pendingSkipRewind: Be,
+                    lastEventAtWatermark: we,
+                    timeGapConsumed: F,
+                    daemonRestartHint: Re ? void 0 : oe,
+                    compactNotice: K ? void 0 : V,
+                    boardUpdated: Qe ? void 0 : Ve,
+                    jobReceipts: C ? void 0 : A?.text
                 }, m, He),
                 {
-                    anchor: ve,
-                    resumeSessionId: ie,
-                    forkFromSessionId: Je,
-                    handleExecutionEvent: Ne,
-                    attachments: rt,
-                    batchEventIds: Rr,
-                    coalescedPromptText: sn,
-                    injectionResult: Pn,
-                    systemPrompt: at,
-                    sdkRunConfig: Xe
-                } = Se,
-                fn = await O_e(e, Se.anchorChannelConfig, n.jobContext?.sdkConfig),
-                jn = P_e({
+                    anchor: _e,
+                    resumeSessionId: ae,
+                    forkFromSessionId: Ze,
+                    handleExecutionEvent: Ae,
+                    attachments: pt,
+                    batchEventIds: Or,
+                    coalescedPromptText: pn,
+                    injectionResult: An,
+                    systemPrompt: dt,
+                    sdkRunConfig: it
+                } = ve,
+                bn = await NSe(e, ve.anchorChannelConfig, n.jobContext?.sdkConfig),
+                Bn = OSe({
                     jobModel: n.jobContext?.model,
-                    sessionModel: U.model,
-                    config: Se.anchorChannelConfig,
-                    kindlessConfig: fn,
+                    sessionModel: q.model,
+                    config: ve.anchorChannelConfig,
+                    kindlessConfig: bn,
                     runtime: n.runtime
                 }),
-                rr = C_e({
+                cr = ASe({
                     jobEffort: n.jobContext?.effort,
-                    sessionEffort: U.effort,
-                    config: Se.anchorChannelConfig,
-                    kindlessConfig: fn,
+                    sessionEffort: q.effort,
+                    config: ve.anchorChannelConfig,
+                    kindlessConfig: bn,
                     runtime: n.runtime
                 }),
-                Zn = await A_e(e, t, {
+                nr = await MSe(e, t, {
                     runtime: n.runtime,
-                    model: jn.model,
-                    modelOrigin: jn.configLayer,
-                    cwd: U.cwd,
-                    effective: Se.anchorChannelConfig,
-                    kindlessConfig: fn,
+                    model: Bn.model,
+                    modelOrigin: Bn.configLayer,
+                    cwd: q.cwd,
+                    effective: ve.anchorChannelConfig,
+                    kindlessConfig: bn,
                     jobOverlay: n.jobContext?.sdkConfig
                 }, {
-                    anchor: ve,
-                    precedingRecords: z,
+                    anchor: _e,
+                    precedingRecords: M,
                     bus: n.bus
                 });
-            K = Se.timeGapConsumed;
-            let Tr = Se.injectionResult.jobReceiptsInjected;
-            Tr && (C = !0), !Be && Se.injectionResult.daemonRestartHintInjected && (Be = !0, De && await Qe(e, t, {
-                last_seen_daemon_started_at: De
-            }).catch(() => {})), !et && Se.injectionResult.boardUpdatedInjected && (et = !0, Fe && await Qe(e, t, {
-                last_seen_board_hash: Fe
-            }).catch(() => {})), eo("sdk_start", ve.event.id, {
-                eventIds: Rr,
-                coalesced: ft.length > 1
+            F = ve.timeGapConsumed;
+            let Ar = ve.injectionResult.jobReceiptsInjected;
+            Ar && (C = !0), !Re && ve.injectionResult.daemonRestartHintInjected && (Re = !0, xe && await rt(e, t, {
+                last_seen_daemon_started_at: xe
+            }).catch(() => {})), !Qe && ve.injectionResult.boardUpdatedInjected && (Qe = !0, Pe && await rt(e, t, {
+                last_seen_board_hash: Pe
+            }).catch(() => {})), fo("sdk_start", _e.event.id, {
+                eventIds: Or,
+                coalesced: yt.length > 1
             });
-            let Tn = Date.now(),
-                No;
+            let Cn = Date.now(),
+                Ro = {
+                    anchorEventId: _e.event.id,
+                    consumed: !0,
+                    skipped: !1,
+                    hadOutput: !1
+                };
+            G.push(Ro);
+            let io;
             try {
-                let an = Se.isNotifyOnly || Se.anchorChannelConfig?.stream === !1 || !n.onStream ? void 0 : (Ar, dt) => n.onStream(Ar, dt, ve.event.id);
-                J.push({
-                    anchorEventId: ve.event.id,
-                    skipped: !1
-                }), No = await U_e(e, t, k, {
-                    ...ng,
+                let Nn = ve.isNotifyOnly || ve.anchorChannelConfig?.stream === !1 || !n.onStream ? void 0 : (et, wr) => n.onStream(et, wr, _e.event.id);
+                io = await VSe(e, t, x, {
+                    ...ty,
                     onTurnAcknowledged: () => {
-                        Tr && (O = !0), n.onSdkTurnStarted?.({
-                            notifyOnly: Se.isNotifyOnly
+                        Ar && ($ = !0), n.onSdkTurnStarted?.({
+                            notifyOnly: ve.isNotifyOnly
                         })
                     },
-                    prompt: Pn.blocks,
-                    onStream: an,
-                    anchorEventId: ve.event.id,
-                    onExecutionEvent: Ne,
-                    sessionId: ie,
-                    forkFrom: Je,
-                    model: Zn.effectiveModel ?? jn.model,
-                    effort: rr.effort,
-                    effortOrigin: rr.configLayer,
-                    claudeContextRequirement: Zn.requirement,
-                    claudeModelAliases: Zn.aliases,
-                    claudeSettingsPath: Zn.settingsPath,
-                    permissionMode: Xe.permissionMode,
-                    allowedTools: Xe.allowedTools,
-                    disallowedTools: Xe.disallowedTools,
-                    tools: Xe.tools,
-                    additionalDirectories: Xe.additionalDirectories,
-                    autoloadAdditionalDirectoryClaudeMd: I_e(n.runtime, n.memoryBoard, Xe.additionalDirectories, e.memoryDir),
-                    attachments: rt,
-                    systemPrompt: at
+                    prompt: An.blocks,
+                    onStream: Nn,
+                    anchorEventId: _e.event.id,
+                    onExecutionEvent: Ae,
+                    sessionId: ae,
+                    forkFrom: Ze,
+                    model: nr.effectiveModel ?? Bn.model,
+                    effort: cr.effort,
+                    effortOrigin: cr.configLayer,
+                    claudeContextRequirement: nr.requirement,
+                    claudeModelAliases: nr.aliases,
+                    claudeSettingsPath: nr.settingsPath,
+                    permissionMode: it.permissionMode,
+                    allowedTools: it.allowedTools,
+                    disallowedTools: it.disallowedTools,
+                    tools: it.tools,
+                    additionalDirectories: it.additionalDirectories,
+                    autoloadAdditionalDirectoryClaudeMd: $Se(n.runtime, n.memoryBoard, it.additionalDirectories, e.memoryDir),
+                    attachments: pt,
+                    systemPrompt: dt
                 })
-            } catch (qt) {
-                if (isAgentSdkTurnInterruptedError(qt)) {
-                    await nn(Pn);
-                    for (let an of ft) an.item.eventId && x.push(an.item.eventId);
-                    return pe(), L()
+            } catch (Wt) {
+                if (isAgentSdkTurnInterruptedError(Wt)) {
+                    await ln(An);
+                    for (let Nn of yt) Nn.item.eventId && k.push(Nn.item.eventId);
+                    return $e(), N()
                 }
-                if (isAgentSdkPromptNotAcceptedAbortError(qt)) return L();
-                if (isAbortLikeError(qt)) {
-                    for (let an of ft) an.item.eventId && x.push(an.item.eventId);
-                    return pe(), await Er(sn, Pn.interruptedContextInjected), L()
+                if (isAgentSdkPromptNotAcceptedAbortError(Wt)) return Ro.consumed = !1, N();
+                if (isAbortLikeError(Wt)) {
+                    for (let Nn of yt) Nn.item.eventId && k.push(Nn.item.eventId);
+                    return $e(), await $r(pn, An.interruptedContextInjected), N()
                 }
                 throw await handleDrainError(e, t, {
-                    anchor: ve,
-                    error: qt,
+                    anchor: _e,
+                    error: Wt,
                     stage: "sdk_turn",
                     hintContext: {
                         runtime: n.runtime,
-                        modelOverride: n.jobContext?.model ? void 0 : U.model
+                        modelOverride: n.jobContext?.model ? void 0 : q.model
                     },
-                    precedingRecords: z,
+                    precedingRecords: M,
                     bus: n.bus
-                }), qt
+                }), Wt
             }
-            let Sn = No.sdkResult;
-            if (l += Date.now() - Tn, await D_e(e, t, n.runtime, Sn), Sn.sessionId && (d = Sn.sessionId), g(Sn.usage), typeof Sn.firstTokenLatencyMs == "number" && (MB(m, "sdk_ttft_ms_total", Sn.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), eo("sdk_end", ve.event.id, {
-                    eventIds: Rr,
-                    sdkDurationMs: Date.now() - Tn,
-                    usedFallback: Sn.usedFallback
+            let nn = io.sdkResult;
+            if (u += Date.now() - Cn, await LSe(e, t, n.runtime, nn), nn.skipped && (Ro.skipped = !0, B = !0), nn.sessionId && (d = nn.sessionId), g(nn.usage), typeof nn.firstTokenLatencyMs == "number" && (gH(m, "sdk_ttft_ms_total", nn.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), fo("sdk_end", _e.event.id, {
+                    eventIds: Or,
+                    sdkDurationMs: Date.now() - Cn,
+                    usedFallback: nn.usedFallback
                 }), n.abortController?.signal.aborted) {
-                await Er(sn, Pn.interruptedContextInjected);
-                for (let qt of ft) qt.item.eventId && x.push(qt.item.eventId);
-                return pe(), L()
+                await $r(pn, An.interruptedContextInjected);
+                for (let Wt of yt) Wt.item.eventId && k.push(Wt.item.eventId);
+                return $e(), N()
             }
-            if (await nn(Pn), Sn.skipped) q = !0, J[J.length - 1].skipped = !0, ee("[runner] Skip called — suppressing outbox", {
+            if (await ln(An), nn.skipped) Q("[runner] Skip called — suppressing outbox", {
                 sessionKey: t,
-                eventId: ve.event.id
+                eventId: _e.event.id
             });
             else {
-                let qt = L_e(ve.event, Sn),
-                    an = await po(m, "outbox_emit_ms", async () => ac(e, t, {
-                        item: ve.item,
-                        event: ve.event,
-                        outputText: qt,
-                        sdkSessionId: Sn.sessionId,
-                        batchedEventIds: ft.map(Ar => Ar.event.id),
-                        attachments: No.outboundAttachments,
-                        turnMeta: v()
+                let Wt = USe(_e.event, nn),
+                    Nn = await xo(m, "outbox_emit_ms", async () => $c(e, t, {
+                        item: _e.item,
+                        event: _e.event,
+                        outputText: Wt,
+                        sdkSessionId: nn.sessionId,
+                        batchedEventIds: yt.map(et => et.event.id),
+                        attachments: io.outboundAttachments,
+                        turnMeta: b()
                     }));
-                if (z.push(...an.records), an.primaryRecord) {
-                    eo("outbox_written", ve.event.id, {
-                        outboxId: an.primaryRecord.id,
-                        eventIds: Rr
-                    }), ae(an.primaryRecord);
-                    for (let Ar of ft.slice(0, -1)) Ar.item.eventId && await VL(e, Ar.item.eventId, an.primaryRecord)
+                if (M.push(...Nn.records), Nn.primaryRecord) {
+                    Ro.hadOutput = !0, fo("outbox_written", _e.event.id, {
+                        outboxId: Nn.primaryRecord.id,
+                        eventIds: Or
+                    }), se(Nn.primaryRecord);
+                    for (let et of yt.slice(0, -1)) et.item.eventId && await Qz(e, et.item.eventId, Nn.primaryRecord)
                 }
             }
-            for (let qt of ft) qt.item.eventId && x.push(qt.item.eventId);
-            let Pi = pe();
-            if (Sn.skipped) {
-                let qt = [...ft.map(an => an.item.eventId).filter(an => !!an), ...Pi];
-                await V(qt, "skip-turn")
+            for (let Wt of yt) Wt.item.eventId && k.push(Wt.item.eventId);
+            let iu = $e();
+            if (nn.skipped) {
+                let Wt = [...yt.map(Nn => Nn.item.eventId).filter(Nn => !!Nn), ...iu];
+                await ue(Wt, "skip-turn")
             }
-            if (Sn.usedFallback && Sn.resumeError) {
-                let qt = createSpineEvent({
+            if (nn.usedFallback && nn.resumeError) {
+                let Wt = createSpineEvent({
                     type: "agent.error",
                     source: {
                         kind: "runner",
                         name: "runner"
                     },
-                    session_key: ve.event.session_key ?? t,
+                    session_key: _e.event.session_key ?? t,
                     payload: {
                         stage: "resume",
-                        session_id: U.sessionId,
-                        error: Sn.resumeError
+                        session_id: q.sessionId,
+                        error: nn.resumeError
                     }
                 });
-                await atomicAppendEvent(e, qt)
+                await atomicAppendEvent(e, Wt)
             }
-            await po(m, "session_upsert_ms", async () => {
-                let qt = {
-                    cwd: U.cwd,
-                    plane: U.plane,
-                    permission_profile: U.permissionProfile,
-                    last_event_id: ve.event.id,
-                    last_event_at: ve.event.ts
+            await xo(m, "session_upsert_ms", async () => {
+                let Wt = {
+                    cwd: q.cwd,
+                    plane: q.plane,
+                    permission_profile: q.permissionProfile,
+                    last_event_id: _e.event.id,
+                    last_event_at: _e.event.ts
                 };
-                p?.context_used_tokens !== void 0 && (qt.context_used_tokens = p.context_used_tokens);
-                let an = $_e(p);
-                if (an && (qt.last_served_model = an), Ut) {
-                    let Ar = Ut;
-                    Ut = void 0, le = !0;
-                    let dt = ve.event.ts ?? new Date().toISOString(),
-                        Hr = await F_e(e, t, M?.compact_stats?.measured_at),
-                        Dt = z_e({
+                f?.context_used_tokens !== void 0 && (Wt.context_used_tokens = f.context_used_tokens);
+                let Nn = DSe(f);
+                if (Nn && (Wt.last_served_model = Nn), Lt) {
+                    let et = Lt;
+                    Lt = void 0, ce = !0;
+                    let wr = _e.event.ts ?? new Date().toISOString(),
+                        Gt = await qSe(e, t, U?.compact_stats?.measured_at),
+                        Ot = BSe({
                             completion: {
                                 hadBoundary: !0,
-                                history_pre: Ar.pre_tokens,
-                                history_post: Ar.post_tokens,
-                                origin: Ar.trigger
+                                history_pre: et.pre_tokens,
+                                history_post: et.post_tokens,
+                                origin: et.trigger
                             },
-                            preTotal: M?.context_used_tokens,
-                            postTotal: p?.context_used_tokens,
+                            preTotal: U?.context_used_tokens,
+                            postTotal: f?.context_used_tokens,
                             idleMs: void 0,
-                            measuredAt: dt,
+                            measuredAt: wr,
                             sessionKey: t,
-                            gapCounts: Hr
+                            gapCounts: Gt
                         });
-                    qt.last_compact_at = dt, qt.compact_stats = Dt, f = Dt, ee("[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack", {
+                    Wt.last_compact_at = wr, Wt.compact_stats = Ot, p = Ot, Q("[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack", {
                         sessionKey: t,
-                        eventId: ve.event.id,
-                        trigger: Ar.trigger,
-                        pre_tokens: Ar.pre_tokens,
-                        post_tokens: Ar.post_tokens
+                        eventId: _e.event.id,
+                        trigger: et.trigger,
+                        pre_tokens: et.pre_tokens,
+                        post_tokens: et.post_tokens
                     })
                 }
-                Sn.sessionId && !G && (qt.sdk_session_id = Sn.sessionId), Je && (qt.pending_fork_to = null), await Qe(e, t, qt)
-            }), ve.event.ts && (Ie = ve.event.ts)
+                nn.sessionId && !Y && (Wt.sdk_session_id = nn.sessionId), Ze && (Wt.pending_fork_to = null), await rt(e, t, Wt)
+            }), _e.event.ts && (we = _e.event.ts)
         } else {
-            let Se = n.resume === !1 || G ? void 0 : U.sessionId,
-                ve = n.resume === !1 || n.runtime !== "codex" || G ? void 0 : U.forkFrom;
-            for (let ie of ft) {
-                let Je = !1,
-                    Ne;
-                if (ie.event.routing_hint?.intent === "history-control") {
-                    let ht = Bi(ie.event.payload) ? ie.event.payload : void 0,
-                        Ua = (ht?.text ?? ht?.command ?? "").trim(),
-                        qa = /^(\S+)/.exec(Ua)?.[1]?.toLowerCase() ?? "";
-                    if (qa === "/compact" && ie.event.source?.name === "idle-compact" && Yot(ie.event.ts, {
+            let ve = n.resume === !1 || Y ? void 0 : q.sessionId,
+                _e = n.resume === !1 || n.runtime !== "codex" || Y ? void 0 : q.forkFrom;
+            for (let ae of yt) {
+                let Ze = !1,
+                    Ae;
+                if (ae.event.routing_hint?.intent === "history-control") {
+                    let vt = Qi(ae.event.payload) ? ae.event.payload : void 0,
+                        ga = (vt?.text ?? vt?.command ?? "").trim(),
+                        ou = /^(\S+)/.exec(ga)?.[1]?.toLowerCase() ?? "";
+                    if (ou === "/compact" && ae.event.source?.name === "idle-compact" && gft(ae.event.ts, {
                             actorSpawnedAt: n.actorSpawnedAt,
                             actorLastTurnCompletedAt: n.actorLastTurnCompletedAt
                         })) {
-                        ee("[runner] dropping stale idle-compact item (no SDK call)", {
+                        Q("[runner] dropping stale idle-compact item (no SDK call)", {
                             sessionKey: t,
-                            eventId: ie.event.id,
-                            itemTs: ie.event.ts,
+                            eventId: ae.event.id,
+                            itemTs: ae.event.ts,
                             actorSpawnedAt: n.actorSpawnedAt,
                             actorLastTurnCompletedAt: n.actorLastTurnCompletedAt
-                        }), ie.item.eventId && (x.push(ie.item.eventId), await V([ie.item.eventId], "stale-idle-compact")), ie.event.ts && (Ie = ie.event.ts);
+                        }), ae.item.eventId && (k.push(ae.item.eventId), await ue([ae.item.eventId], "stale-idle-compact")), ae.event.ts && (we = ae.event.ts);
                         continue
                     }
-                    if (qa === "/compact" && (n.runtime === "claude" || n.runtime === void 0))
-                        if (mo(t) === "channel") Je = !0;
+                    if (ou === "/compact" && (n.runtime === "claude" || n.runtime === void 0))
+                        if (Eo(t) === "channel") Ze = !0;
                         else {
-                            let _c = "ℹ️ /compact is only available in interactive sessions.",
-                                wf = await ac(e, t, {
-                                    item: ie.item,
-                                    event: ie.event,
-                                    outputText: _c,
-                                    sdkSessionId: Se
+                            let qc = "ℹ️ /compact is only available in interactive sessions.",
+                                Xf = await $c(e, t, {
+                                    item: ae.item,
+                                    event: ae.event,
+                                    outputText: qc,
+                                    sdkSessionId: ve
                                 });
-                            z.push(...wf.records), ae(wf.primaryRecord, _c), ie.item.eventId && (x.push(ie.item.eventId), await wo(e, t, [ie.item.eventId]).catch(Sf => {
-                                W("[runner] history-control mailbox finalize failed (will be retried at drain end)", {
+                            M.push(...Xf.records), se(Xf.primaryRecord, qc), ae.item.eventId && (k.push(ae.item.eventId), await Ao(e, t, [ae.item.eventId]).catch(Qf => {
+                                Z("[runner] history-control mailbox finalize failed (will be retried at drain end)", {
                                     sessionKey: t,
-                                    eventId: ie.item.eventId,
-                                    error: Sf instanceof Error ? Sf.message : String(Sf)
+                                    eventId: ae.item.eventId,
+                                    error: Qf instanceof Error ? Qf.message : String(Qf)
                                 })
-                            })), ie.event.ts && (Ie = ie.event.ts);
+                            })), ae.event.ts && (we = ae.event.ts);
                             continue
-                        } if (!Je) {
-                        let _c = await tst({
+                        } if (!Ze) {
+                        let qc = await vft({
                             paths: e,
                             sessionKey: t,
-                            sdk: k,
+                            sdk: x,
                             sessionInfo: {
-                                ...U,
-                                sessionId: Se
+                                ...q,
+                                sessionId: ve
                             },
-                            cmdToken: qa
+                            cmdToken: ou
                         });
-                        if (!(qa === "/compact" && ie.event.source?.name === "idle-compact")) {
-                            let Sf = await ac(e, t, {
-                                item: ie.item,
-                                event: ie.event,
-                                outputText: _c,
-                                sdkSessionId: Se
+                        if (!(ou === "/compact" && ae.event.source?.name === "idle-compact")) {
+                            let Qf = await $c(e, t, {
+                                item: ae.item,
+                                event: ae.event,
+                                outputText: qc,
+                                sdkSessionId: ve
                             });
-                            z.push(...Sf.records), ae(Sf.primaryRecord, _c)
+                            M.push(...Qf.records), se(Qf.primaryRecord, qc)
                         }
-                        ie.item.eventId && (x.push(ie.item.eventId), await V([ie.item.eventId], "history-control")), ie.event.ts && (Ie = ie.event.ts);
+                        ae.item.eventId && (k.push(ae.item.eventId), await ue([ae.item.eventId], "history-control")), ae.event.ts && (we = ae.event.ts);
                         continue
                     }
                 }
-                let rt = He(nbe(e, t, ie.event.session_key ?? t, n.onExecutionEvent, ie.event.id)),
-                    Rr = Bi(ie.event.payload) ? ie.event.payload : void 0,
-                    sn = qB(ie.event.payload),
-                    Pn = applyJobSdkConfigOverride(await po(m, "effective_config_ms", async () => c4(e, ie.event)), n.jobContext?.sdkConfig),
-                    at = await O_e(e, Pn, n.jobContext?.sdkConfig),
-                    Xe = P_e({
+                let pt = He(ske(e, t, ae.event.session_key ?? t, n.onExecutionEvent, ae.event.id)),
+                    Or = Qi(ae.event.payload) ? ae.event.payload : void 0,
+                    pn = SH(ae.event.payload),
+                    An = applyJobSdkConfigOverride(await xo(m, "effective_config_ms", async () => KV(e, ae.event)), n.jobContext?.sdkConfig),
+                    dt = await NSe(e, An, n.jobContext?.sdkConfig),
+                    it = OSe({
                         jobModel: n.jobContext?.model,
-                        sessionModel: U.model,
-                        config: Pn,
-                        kindlessConfig: at,
+                        sessionModel: q.model,
+                        config: An,
+                        kindlessConfig: dt,
                         runtime: n.runtime
                     }),
-                    fn = C_e({
+                    bn = ASe({
                         jobEffort: n.jobContext?.effort,
-                        sessionEffort: U.effort,
-                        config: Pn,
-                        kindlessConfig: at,
+                        sessionEffort: q.effort,
+                        config: An,
+                        kindlessConfig: dt,
                         runtime: n.runtime
                     }),
-                    jn = await A_e(e, t, {
+                    Bn = await MSe(e, t, {
                         runtime: n.runtime,
-                        model: Xe.model,
-                        modelOrigin: Xe.configLayer,
-                        cwd: U.cwd,
-                        effective: Pn,
-                        kindlessConfig: at,
+                        model: it.model,
+                        modelOrigin: it.configLayer,
+                        cwd: q.cwd,
+                        effective: An,
+                        kindlessConfig: dt,
                         jobOverlay: n.jobContext?.sdkConfig
                     }, {
-                        anchor: ie,
-                        precedingRecords: z,
+                        anchor: ae,
+                        precedingRecords: M,
                         bus: n.bus
                     }),
-                    rr = ve,
-                    Zn = n.resume === !1 || rr || G ? void 0 : Se,
-                    Tr = hC(ie.event),
-                    Tn = mo(t) === "channel",
-                    No = Z_e({
-                        consumed: K,
-                        timeGapMinutes: Pn?.time_gap_minutes,
-                        isChannelSession: Tn,
-                        isUserMessage: Tr,
-                        lastEventAt: Ie,
-                        currentEventAt: ie.event.ts
+                    cr = _e,
+                    nr = n.resume === !1 || cr || Y ? void 0 : ve,
+                    Ar = EO(ae.event),
+                    Cn = Eo(t) === "channel",
+                    Ro = XSe({
+                        consumed: F,
+                        timeGapMinutes: An?.time_gap_minutes,
+                        isChannelSession: Cn,
+                        isUserMessage: Ar,
+                        lastEventAt: we,
+                        currentEventAt: ae.event.ts
                     }),
-                    Sn = Tn && !Tr,
-                    Pi, qt = ie.prompt;
-                if (ie.event.type === "job.spawn" && n.jobContext) {
-                    let ht = Bi(Rr?.tick) ? Rr.tick : void 0;
-                    if (ht) {
-                        let Wr = ht.run_number,
-                            Ua = ht.triggered_at,
-                            qa = ht.previous_run_at;
-                        typeof Wr == "number" && typeof Ua == "string" && (Pi = {
-                            run_number: Wr,
-                            triggered_at: Ua,
-                            previous_run_at: typeof qa == "string" ? qa : null,
+                    io = Cn && !Ar,
+                    nn, iu = ae.prompt;
+                if (ae.event.type === "job.spawn" && n.jobContext) {
+                    let vt = Qi(Or?.tick) ? Or.tick : void 0;
+                    if (vt) {
+                        let Dr = vt.run_number,
+                            ga = vt.triggered_at,
+                            ou = vt.previous_run_at;
+                        typeof Dr == "number" && typeof ga == "string" && (nn = {
+                            run_number: Dr,
+                            triggered_at: ga,
+                            previous_run_at: typeof ou == "string" ? ou : null,
                             cron: n.jobContext.cron
                         })
                     }
-                    Pi && (qt = Oot)
+                    nn && (iu = Ydt)
                 }
-                let an = !Be && be ? be : void 0,
-                    dt = (Pn?.auto_compact_idle_minutes ?? 0) > 0 && !se && B ? B : void 0,
-                    Hr = !et && Gt ? Gt : void 0,
-                    Dt = C ? void 0 : $?.text,
-                    Mt = buildTransientUserBlocks(qt, {
-                        gatewayNotice: _ ? void 0 : ne,
-                        interruptedContext: E ? void 0 : Q,
-                        skipRewind: N ? void 0 : Ae,
-                        isUserMessage: Tr,
-                        timeGap: No,
-                        jobTick: Pi,
-                        jobReceipts: Dt,
-                        daemonRestartHint: an,
-                        compactNotice: dt,
-                        boardUpdated: Hr
-                    }, U),
-                    Vr = Mt.jobReceiptsInjected;
-                Vr && (C = !0), K = K || Mt.timeGapInjected, Mt.compactNoticeInjected && (se = !0), !Be && Mt.daemonRestartHintInjected && (Be = !0, De && await Qe(e, t, {
-                    last_seen_daemon_started_at: De
-                }).catch(() => {})), !et && Mt.boardUpdatedInjected && (et = !0, Fe && await Qe(e, t, {
-                    last_seen_board_hash: Fe
+                let Wt = !Re && oe ? oe : void 0,
+                    et = (An?.auto_compact_idle_minutes ?? 0) > 0 && !K && V ? V : void 0,
+                    wr = !Qe && Ve ? Ve : void 0,
+                    Gt = C ? void 0 : A?.text,
+                    Ot = buildTransientUserBlocks(iu, {
+                        gatewayNotice: w ? void 0 : Se,
+                        interruptedContext: P ? void 0 : ye,
+                        skipRewind: z ? void 0 : Be,
+                        isUserMessage: Ar,
+                        timeGap: Ro,
+                        jobTick: nn,
+                        jobReceipts: Gt,
+                        daemonRestartHint: Wt,
+                        compactNotice: et,
+                        boardUpdated: wr
+                    }, q),
+                    ei = Ot.jobReceiptsInjected;
+                ei && (C = !0), F = F || Ot.timeGapInjected, Ot.compactNoticeInjected && (K = !0), !Re && Ot.daemonRestartHintInjected && (Re = !0, xe && await rt(e, t, {
+                    last_seen_daemon_started_at: xe
+                }).catch(() => {})), !Qe && Ot.boardUpdatedInjected && (Qe = !0, Pe && await rt(e, t, {
+                    last_seen_board_hash: Pe
                 }).catch(() => {}));
-                let _s = buildSystemPromptForChannelConfig(Pn, t, H_e(n.jobContext), n.memoryBoard, n.runtime),
-                    ho = V_e(n, Pn),
-                    Xs, li = Date.now(),
-                    TSe = n.onStream ? (ht, Wr) => n.onStream(ht, Wr, ie.event.id) : void 0;
-                J.push({
-                    anchorEventId: ie.event.id,
-                    skipped: !1
-                });
+                let js = buildSystemPromptForChannelConfig(An, t, JSe(n.jobContext), n.memoryBoard, n.runtime),
+                    Io = ZSe(n, An),
+                    ha, gi = Date.now(),
+                    A0e = n.onStream ? (vt, Dr) => n.onStream(vt, Dr, ae.event.id) : void 0,
+                    Yf = {
+                        anchorEventId: ae.event.id,
+                        consumed: !0,
+                        skipped: !1,
+                        hadOutput: !1
+                    };
+                G.push(Yf);
                 try {
-                    Xs = await U_e(e, t, k, {
-                        ...ng,
+                    ha = await VSe(e, t, x, {
+                        ...ty,
                         onTurnAcknowledged: () => {
-                            Vr && (O = !0), n.onSdkTurnStarted?.({
-                                notifyOnly: Sn
+                            ei && ($ = !0), n.onSdkTurnStarted?.({
+                                notifyOnly: io
                             })
                         },
-                        prompt: Mt.blocks,
-                        onStream: TSe,
-                        anchorEventId: ie.event.id,
-                        onExecutionEvent: rt,
-                        sessionId: Zn,
-                        forkFrom: rr,
-                        model: jn.effectiveModel ?? Xe.model,
-                        effort: fn.effort,
-                        effortOrigin: fn.configLayer,
-                        claudeContextRequirement: jn.requirement,
-                        claudeModelAliases: jn.aliases,
-                        claudeSettingsPath: jn.settingsPath,
-                        permissionMode: ho.permissionMode,
-                        allowedTools: ho.allowedTools,
-                        disallowedTools: ho.disallowedTools,
-                        tools: ho.tools,
-                        additionalDirectories: ho.additionalDirectories,
-                        autoloadAdditionalDirectoryClaudeMd: I_e(n.runtime, n.memoryBoard, ho.additionalDirectories, e.memoryDir),
-                        attachments: sn,
-                        systemPrompt: _s
+                        prompt: Ot.blocks,
+                        onStream: A0e,
+                        anchorEventId: ae.event.id,
+                        onExecutionEvent: pt,
+                        sessionId: nr,
+                        forkFrom: cr,
+                        model: Bn.effectiveModel ?? it.model,
+                        effort: bn.effort,
+                        effortOrigin: bn.configLayer,
+                        claudeContextRequirement: Bn.requirement,
+                        claudeModelAliases: Bn.aliases,
+                        claudeSettingsPath: Bn.settingsPath,
+                        permissionMode: Io.permissionMode,
+                        allowedTools: Io.allowedTools,
+                        disallowedTools: Io.disallowedTools,
+                        tools: Io.tools,
+                        additionalDirectories: Io.additionalDirectories,
+                        autoloadAdditionalDirectoryClaudeMd: $Se(n.runtime, n.memoryBoard, Io.additionalDirectories, e.memoryDir),
+                        attachments: pn,
+                        systemPrompt: js
                     })
-                } catch (ht) {
-                    if (isAgentSdkTurnInterruptedError(ht)) {
-                        await nn(Mt), ie.item.eventId && x.push(ie.item.eventId), pe(), ze = !0;
+                } catch (vt) {
+                    if (isAgentSdkTurnInterruptedError(vt)) {
+                        await ln(Ot), ae.item.eventId && k.push(ae.item.eventId), $e(), Fe = !0;
                         break
                     }
-                    if (isAgentSdkPromptNotAcceptedAbortError(ht)) {
-                        ze = !0;
+                    if (isAgentSdkPromptNotAcceptedAbortError(vt)) {
+                        Yf.consumed = !1, Fe = !0;
                         break
                     }
-                    if (isAbortLikeError(ht)) {
-                        ie.item.eventId && x.push(ie.item.eventId), pe(), await Er(ie.prompt, Mt.interruptedContextInjected), ze = !0;
+                    if (isAbortLikeError(vt)) {
+                        ae.item.eventId && k.push(ae.item.eventId), $e(), await $r(ae.prompt, Ot.interruptedContextInjected), Fe = !0;
                         break
                     }
                     throw await handleDrainError(e, t, {
-                        anchor: ie,
-                        error: ht,
+                        anchor: ae,
+                        error: vt,
                         stage: "sdk_turn",
                         hintContext: {
                             runtime: n.runtime,
-                            modelOverride: n.jobContext?.model ? void 0 : U.model
+                            modelOverride: n.jobContext?.model ? void 0 : q.model
                         },
-                        precedingRecords: z,
+                        precedingRecords: M,
                         bus: n.bus
-                    }), ht
+                    }), vt
                 }
-                let Nr = Xs.sdkResult;
-                if (await D_e(e, t, n.runtime, Nr), l += Date.now() - li, Nr.sessionId && (d = Nr.sessionId), g(Nr.usage), typeof Nr.firstTokenLatencyMs == "number" && (MB(m, "sdk_ttft_ms_total", Nr.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), n.abortController?.signal.aborted) {
-                    await Er(ie.prompt, Mt.interruptedContextInjected), ze = !0, ie.item.eventId && x.push(ie.item.eventId), pe();
+                let Nr = ha.sdkResult;
+                if (await LSe(e, t, n.runtime, Nr), Nr.skipped && (Yf.skipped = !0, B = !0), u += Date.now() - gi, Nr.sessionId && (d = Nr.sessionId), g(Nr.usage), typeof Nr.firstTokenLatencyMs == "number" && (gH(m, "sdk_ttft_ms_total", Nr.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), n.abortController?.signal.aborted) {
+                    await $r(ae.prompt, Ot.interruptedContextInjected), Fe = !0, ae.item.eventId && k.push(ae.item.eventId), $e();
                     break
                 }
-                if (await nn(Mt), !Nr.skipped && !Je) {
-                    let ht = L_e(ie.event, Nr),
-                        Wr = await po(m, "outbox_emit_ms", async () => ac(e, t, {
-                            item: ie.item,
-                            event: ie.event,
-                            outputText: ht,
+                if (await ln(Ot), !Nr.skipped && !Ze) {
+                    let vt = USe(ae.event, Nr),
+                        Dr = await xo(m, "outbox_emit_ms", async () => $c(e, t, {
+                            item: ae.item,
+                            event: ae.event,
+                            outputText: vt,
                             sdkSessionId: Nr.sessionId,
-                            attachments: Xs.outboundAttachments,
-                            turnMeta: v()
+                            attachments: ha.outboundAttachments,
+                            turnMeta: b()
                         }));
-                    z.push(...Wr.records), ae(Wr.primaryRecord)
-                } else if (Je) ee("[runner] in-band /compact turn — suppressing empty outbox", {
+                    M.push(...Dr.records), Dr.primaryRecord && (Yf.hadOutput = !0), se(Dr.primaryRecord)
+                } else if (Ze) Q("[runner] in-band /compact turn — suppressing empty outbox", {
                     sessionKey: t,
-                    eventId: ie.event.id
+                    eventId: ae.event.id
                 });
                 else {
-                    q = !0, J[J.length - 1].skipped = !0, ee("[runner] Skip called — suppressing outbox", {
+                    Q("[runner] Skip called — suppressing outbox", {
                         sessionKey: t,
-                        eventId: ie.event.id
+                        eventId: ae.event.id
                     });
-                    let ht = pe();
-                    (ie.item.eventId || ht.length > 0) && await V([...ie.item.eventId ? [ie.item.eventId] : [], ...ht], "skip-turn")
+                    let vt = $e();
+                    (ae.item.eventId || vt.length > 0) && await ue([...ae.item.eventId ? [ae.item.eventId] : [], ...vt], "skip-turn")
                 }
-                let rg = ie.event.source?.name === "idle-compact";
-                if (Ut) {
-                    let ht = Ut;
-                    if (Ut = void 0, Ne = {
+                let ny = ae.event.source?.name === "idle-compact";
+                if (Lt) {
+                    let vt = Lt;
+                    if (Lt = void 0, Ae = {
                             hadBoundary: !0,
-                            history_pre: ht.pre_tokens,
-                            history_post: ht.post_tokens,
-                            origin: rg ? "idle-compact" : ht.trigger
-                        }, ht.trigger === "manual" && !rg) {
-                        let Wr = Kot(ht),
-                            Ua = await ac(e, t, {
-                                item: ie.item,
-                                event: ie.event,
-                                outputText: Wr,
-                                sdkSessionId: Nr.sessionId ?? Se
+                            history_pre: vt.pre_tokens,
+                            history_post: vt.post_tokens,
+                            origin: ny ? "idle-compact" : vt.trigger
+                        }, vt.trigger === "manual" && !ny) {
+                        let Dr = hft(vt),
+                            ga = await $c(e, t, {
+                                item: ae.item,
+                                event: ae.event,
+                                outputText: Dr,
+                                sdkSessionId: Nr.sessionId ?? ve
                             });
-                        z.push(...Ua.records), ae(Ua.primaryRecord, Wr)
-                    } else ee("[runner] compact_boundary — telemetry only, no channel ack", {
+                        M.push(...ga.records), ga.primaryRecord && (Yf.hadOutput = !0), se(ga.primaryRecord, Dr)
+                    } else Q("[runner] compact_boundary — telemetry only, no channel ack", {
                         sessionKey: t,
-                        eventId: ie.event.id,
-                        trigger: ht.trigger,
-                        idleCompact: rg,
-                        pre_tokens: ht.pre_tokens,
-                        post_tokens: ht.post_tokens
+                        eventId: ae.event.id,
+                        trigger: vt.trigger,
+                        idleCompact: ny,
+                        pre_tokens: vt.pre_tokens,
+                        post_tokens: vt.post_tokens
                     })
-                } else if (Je)
-                    if (Ne = {
+                } else if (Ze)
+                    if (Ae = {
                             hadBoundary: !1,
-                            origin: rg ? "idle-compact" : "manual"
-                        }, rg) ee("[runner] idle-compact no-op (nothing to compact) — no channel ack", {
+                            origin: ny ? "idle-compact" : "manual"
+                        }, ny) Q("[runner] idle-compact no-op (nothing to compact) — no channel ack", {
                         sessionKey: t,
-                        eventId: ie.event.id
+                        eventId: ae.event.id
                     });
                     else {
-                        let ht = "ℹ️ Nothing to compact.",
-                            Wr = await ac(e, t, {
-                                item: ie.item,
-                                event: ie.event,
-                                outputText: ht,
-                                sdkSessionId: Nr.sessionId ?? Se
+                        let vt = "ℹ️ Nothing to compact.",
+                            Dr = await $c(e, t, {
+                                item: ae.item,
+                                event: ae.event,
+                                outputText: vt,
+                                sdkSessionId: Nr.sessionId ?? ve
                             });
-                        z.push(...Wr.records), ae(Wr.primaryRecord, ht)
-                    } if (ie.item.eventId && x.push(ie.item.eventId), pe(), Nr.usedFallback && Nr.resumeError) {
-                    let ht = createSpineEvent({
+                        M.push(...Dr.records), Dr.primaryRecord && (Yf.hadOutput = !0), se(Dr.primaryRecord, vt)
+                    } if (ae.item.eventId && k.push(ae.item.eventId), $e(), Nr.usedFallback && Nr.resumeError) {
+                    let vt = createSpineEvent({
                         type: "agent.error",
                         source: {
                             kind: "runner",
                             name: "runner"
                         },
-                        session_key: ie.event.session_key ?? t,
+                        session_key: ae.event.session_key ?? t,
                         payload: {
                             stage: "resume",
-                            session_id: U.sessionId,
+                            session_id: q.sessionId,
                             error: Nr.resumeError
                         }
                     });
-                    await atomicAppendEvent(e, ht)
+                    await atomicAppendEvent(e, vt)
                 }
-                await po(m, "session_upsert_ms", async () => {
-                    let ht = {
-                        cwd: U.cwd,
-                        plane: U.plane,
-                        permission_profile: U.permissionProfile,
-                        last_event_id: ie.event.id,
-                        last_event_at: ie.event.ts
+                await xo(m, "session_upsert_ms", async () => {
+                    let vt = {
+                        cwd: q.cwd,
+                        plane: q.plane,
+                        permission_profile: q.permissionProfile,
+                        last_event_id: ae.event.id,
+                        last_event_at: ae.event.ts
                     };
-                    p?.context_used_tokens !== void 0 && (ht.context_used_tokens = p.context_used_tokens);
-                    let Wr = $_e(p);
-                    Wr && (ht.last_served_model = Wr);
-                    let Ua = DB(ie.event.payload, "idle_ms"),
-                        qa = DB(ie.event.payload, "threshold_at_fire");
-                    if (Ne) {
-                        le = !0;
-                        let OO = ie.event.ts ?? new Date().toISOString(),
-                            _c = await F_e(e, t, M?.compact_stats?.measured_at),
-                            wf = z_e({
-                                completion: Ne,
-                                preTotal: M?.context_used_tokens,
-                                postTotal: p?.context_used_tokens,
-                                idleMs: Ua,
-                                thresholdAtFire: qa,
-                                measuredAt: OO,
+                    f?.context_used_tokens !== void 0 && (vt.context_used_tokens = f.context_used_tokens);
+                    let Dr = DSe(f);
+                    Dr && (vt.last_served_model = Dr);
+                    let ga = hH(ae.event.payload, "idle_ms"),
+                        ou = hH(ae.event.payload, "threshold_at_fire");
+                    if (Ae) {
+                        ce = !0;
+                        let UA = ae.event.ts ?? new Date().toISOString(),
+                            qc = await qSe(e, t, U?.compact_stats?.measured_at),
+                            Xf = BSe({
+                                completion: Ae,
+                                preTotal: U?.context_used_tokens,
+                                postTotal: f?.context_used_tokens,
+                                idleMs: ga,
+                                thresholdAtFire: ou,
+                                measuredAt: UA,
                                 sessionKey: t,
-                                gapCounts: _c
+                                gapCounts: qc
                             });
-                        ht.last_compact_at = OO, ht.compact_stats = wf, f = wf
+                        vt.last_compact_at = UA, vt.compact_stats = Xf, p = Xf
                     }
-                    Nr.sessionId && !G && (ht.sdk_session_id = Nr.sessionId), rr && (ht.pending_fork_to = null), await Qe(e, t, ht)
-                }), Ne?.origin === "idle-compact" && await est(e, {
+                    Nr.sessionId && !Y && (vt.sdk_session_id = Nr.sessionId), cr && (vt.pending_fork_to = null), await rt(e, t, vt)
+                }), Ae?.origin === "idle-compact" && await bft(e, {
                     sessionKey: t,
-                    preTokens: M?.context_used_tokens,
-                    postTokens: p?.context_used_tokens,
-                    idleMs: DB(ie.event.payload, "idle_ms")
-                }), rr && (ve = void 0), Nr.sessionId && !G && (Se = Nr.sessionId), ie.event.ts && (Ie = ie.event.ts)
+                    preTokens: U?.context_used_tokens,
+                    postTokens: f?.context_used_tokens,
+                    idleMs: hH(ae.event.payload, "idle_ms")
+                }), cr && (_e = void 0), Nr.sessionId && !Y && (ve = Nr.sessionId), ae.event.ts && (we = ae.event.ts)
             }
         }
-        return await po(m, "mailbox_finalize_ms", async () => {
-            if (await wo(e, t, x), x.length > 0 || F > 0) {
-                let Se = `processed=${x.length} skipped=${F}${X?` outbox=${X}`:""}`;
-                await u_(e, t, Se)
+        return await xo(m, "mailbox_finalize_ms", async () => {
+            if (await Ao(e, t, k), k.length > 0 || L > 0) {
+                let ve = `processed=${k.length} skipped=${L}${ee?` outbox=${ee}`:""}`;
+                await cb(e, t, ve)
             }
         }), await y({
-            cancelled: ze,
-            processedCount: x.length,
-            skippedCount: F,
-            replyText: oe
+            cancelled: Fe,
+            processedCount: k.length,
+            skippedCount: L,
+            replyText: J
         }), {
-            processed: x.length,
-            skipped: F,
+            processed: k.length,
+            skipped: L,
             lockAcquired: !0,
-            cancelled: ze,
-            turnSkipped: q,
-            sdkTurns: J,
-            compacted: le,
-            lastReplyText: oe,
-            lastOutboxId: X,
-            lastOutboxRecord: te,
-            outboxRecords: z
+            cancelled: Fe,
+            turnSkipped: B,
+            sdkTurns: G,
+            compacted: ce,
+            lastReplyText: J,
+            lastOutboxId: ee,
+            lastOutboxRecord: le,
+            outboxRecords: M
         }
     } finally {
-        clearInterval(s), await m_e(e, r)
+        clearInterval(s), await ySe(e, r)
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: readHostDaemonToken  (minified: Eit, daemon.pretty.js:63018)
+// symbol: readHostDaemonToken  (minified: Hct, daemon.pretty.js:68878)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,7 +7,7 @@ async function readHostDaemonToken(e = process.env) {
     let t = hostDotEnvPath(e),
         n;
     try {
-        n = await ds.readFile(t, "utf8")
+        n = await Cs.readFile(t, "utf8")
     } catch (i) {
         if (i.code === "ENOENT") return;
         throw i

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: batchDrainItems  (minified: HB, daemon.pretty.js:65926)
+// symbol: batchDrainItems  (minified: xH, daemon.pretty.js:71801)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -12,28 +12,28 @@ async function batchDrainItems(e, t, n) {
         i = [],
         o = null,
         s = !0,
-        a = LB,
-        l = () => qot(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
-    for (let u of t) {
-        if (i.length >= l()) break;
-        let c = await Y_e(e, u, r, n.perf);
-        if (c && tbe(c) !== null) continue;
+        a = _H,
+        u = () => uft(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
+    for (let l of t) {
+        if (i.length >= u()) break;
+        let c = await eke(e, l, r, n.perf);
+        if (c && ike(c) !== null) continue;
         if (i.length === 0) {
-            a = j_e(c), i.push(u), o = c ? M_e(c.ts) : null, o === null && (s = !1);
+            a = zSe(c), i.push(l), o = c ? FSe(c.ts) : null, o === null && (s = !1);
             continue
         }
-        if (j_e(c) !== a) break;
+        if (zSe(c) !== a) break;
         if (!s) {
-            i.push(u);
+            i.push(l);
             continue
         }
-        let p = c ? M_e(c.ts) : null;
-        if (o === null || p === null) {
-            s = !1, i.push(u);
+        let f = c ? FSe(c.ts) : null;
+        if (o === null || f === null) {
+            s = !1, i.push(l);
             continue
         }
-        if (Math.abs(p - o) > n.mergeWindowMs) break;
-        i.push(u), o = p
+        if (Math.abs(f - o) > n.mergeWindowMs) break;
+        i.push(l), o = f
     }
     return {
         items: i,

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: stringToMessageGenerator  (minified: vI, daemon.pretty.js:50060)
+// symbol: stringToMessageGenerator  (minified: _C, daemon.pretty.js:55186)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

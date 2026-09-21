@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: applyJobSdkConfigOverride  (minified: u4, daemon.pretty.js:59620)
+// symbol: applyJobSdkConfigOverride  (minified: GV, daemon.pretty.js:65585)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -11,15 +11,15 @@ function applyJobSdkConfigOverride(e, t) {
         disallowedTools: t.disallowedTools ?? e.disallowedTools,
         additionalDirectories: t.additionalDirectories ?? e.additionalDirectories,
         claudeTools: mergeClaudeToolLists(e.claudeTools, t.claudeTools),
-        claudeModelProfiles: l4(e.claudeModelProfiles, t.claudeModelProfiles, n => ({
+        claudeModelProfiles: ZV(e.claudeModelProfiles, t.claudeModelProfiles, n => ({
             ...n,
             source: "instance"
         })),
-        claudeModelProfileIssues: IP(e.claudeModelProfileIssues, t.claudeModelProfileIssues),
-        claudeModelAliases: Hme(e.claudeModelAliases, t.claudeModelAliases),
-        claudeModelAliasIssues: IP(e.claudeModelAliasIssues, t.claudeModelAliasIssues),
+        claudeModelProfileIssues: F$(e.claudeModelProfileIssues, t.claudeModelProfileIssues),
+        claudeModelAliases: abe(e.claudeModelAliases, t.claudeModelAliases),
+        claudeModelAliasIssues: F$(e.claudeModelAliasIssues, t.claudeModelAliasIssues),
         piExtensions: t.piExtensions ?? e.piExtensions,
         piSkills: t.piSkills ?? e.piSkills,
-        piConfigIssues: Vme(e.piConfigIssues, t.piConfigIssues)
+        piConfigIssues: ube(e.piConfigIssues, t.piConfigIssues)
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderDaemonRestartHint  (minified: Che, daemon.pretty.js:59993)
+// symbol: renderDaemonRestartHint  (minified: Bbe, daemon.pretty.js:65853)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -101,8 +101,51 @@ PKG="/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release"
 #    then verify the first-party tree, the citations and the legacy line anchors,
 #    and write maps/pipeline_report.json. Bundles run concurrently; JOBS=1 forces
 #    sequential when bisecting a failure. BEAUTIFIED=<dir> skips the beautify step.
-PKG="$PKG" PKG_VERSION=v0.8.1 bash rebuild.sh
+PKG="$PKG" PKG_VERSION=v0.8.2 bash rebuild.sh
 ```
+
+**On a version bump, `rebuild.sh` is the second step, not the first — run `bump.sh` before it.**
+`maps/inferred_<bundle>.json` is keyed by *mangled* names, and esbuild re-mangles every
+identifier on every build, so those keys silently mean different code in the new release.
+Running `rebuild.sh` straight at a new version is not a no-op failure: it renames real
+functions to wrong names and every downstream check still passes, because renaming is
+scope-safe and the tree only proves internal agreement. At v0.8.1 → v0.8.2 this put 21 of
+31 inferred names on the wrong declaration. The correct order:
+
+```bash
+# OLD/NEW are dirs of *.pretty.js. Beautify the OLD release with the SAME pinned
+# js-beautify (tools/node_modules/.bin/js-beautify), or the line numbers won't
+# compare: a correct OLD side reproduces maps/pipeline_report.json's prettyLines.
+OLD=/tmp/pretty_prev NEW=/tmp/pretty_new bash tools/bump.sh   # fingerprint-match, carry names
+cp .build/bump/inferred_daemon.json maps/inferred_daemon.json # after reviewing it
+#  → anything bump.sh reports as RE-ANCHOR must be relocated BY HAND with
+#    locate_by_anchor.mjs (pick a string literal unique to that function body) and
+#    confirmed against the old body before it is written back.
+BEAUTIFIED=$NEW PKG_VERSION=<ver> bash tools/rebuild.sh
+```
+
+`verify_inferred.mjs check` is the only gate that can catch a mis-anchored inferred name;
+after the map is reviewed, re-record the baseline (`verify_inferred.mjs record`) or the
+next bump checks against a stale shape.
+
+**`rebuild.sh` verifies the first-party tree; it does not regenerate it, and it does not
+promote anything.** After a bump, copy `.build/daemon.recon.js` → `recon/`, copy the
+generated `rename_*/symbols_*/blocks_*.json` → `maps/`, re-run `extract_functions.mjs`
+(the tree is stale otherwise, and a symbol added this release simply won't be in it), then
+`gen_rename_table.mjs`. `verify_first_party.mjs` proves only that the tree, the rename map
+and `recon/` agree with **each other** — all three can be stale together and still pass.
+
+**Doc retargeting has one correct order, and the line step is one-shot.**
+`retarget_docs.mjs apply` is not idempotent (a new line number that is also an old key gets
+moved twice) and it stamps `docs/.pretty-anchor-target` to refuse a second run, so it must
+come *before* `verify_citations.mjs --fix` writes new line numbers into the docs. Run:
+`remap_doc_anchors.mjs` (build the map) → `retarget_docs.mjs apply --stamp` (bulk lines) →
+`retarget_symbols.mjs` (short names, order-independent) → `verify_citations.mjs --fix`
+(residue). Pass `--bundle daemon=<pretty.js>` to `verify_citations.mjs`: without it every
+line check passes **vacuously** and reports zero drift on thoroughly stale anchors.
+`retarget_symbols.mjs` deliberately leaves identifiers inside quoted code expressions alone
+(they are usually function-locals), so short names quoted mid-snippet stay stale and need a
+hand pass; `check_bare_anchors.mjs` catches the subset that is refutable.
 
 Beautification is now *inside* the pipeline, with `js-beautify` pinned to an exact version
 in `tools/package.json`. It used to be a manual `npx` prerequisite — which meant every line

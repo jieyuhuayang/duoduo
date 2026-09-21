@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: parseDotEnv  (minified: tC, daemon.pretty.js:62897)
+// symbol: parseDotEnv  (minified: dO, daemon.pretty.js:68757)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

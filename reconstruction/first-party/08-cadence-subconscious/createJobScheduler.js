@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createJobScheduler  (minified: xct, daemon.pretty.js:80579)
+// symbol: createJobScheduler  (minified: Wgt, daemon.pretty.js:86635)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -8,48 +8,51 @@ function createJobScheduler(e) {
         paths: t,
         sessionManager: n,
         bus: r
-    } = e, i = e.intervalMs ?? kct, o = null, s = !1, a = null, l = !1;
-    async function u() {
-        if (s || l) {
-            s && ke("[job-scheduler] scan skipped: previous scan still running");
+    } = e, i = e.intervalMs ?? Hgt, o = null, s = !1, a = null, u = !1;
+    async function l() {
+        if (s || u) {
+            s && Ee("[job-scheduler] scan skipped: previous scan still running");
             return
         }
         s = !0;
         let d = Date.now();
         try {
-            let p = await scanAndSpawnDueJobs(t, n);
-            ke("[job-scheduler] scan complete", {
-                scanned: p.scanned,
-                spawned: p.spawned.length,
-                spawnedIds: p.spawned,
+            let f = await scanAndSpawnDueJobs(t, n, {
+                bus: r
+            });
+            Ee("[job-scheduler] scan complete", {
+                scanned: f.scanned,
+                spawned: f.spawned.length,
+                spawnedIds: f.spawned,
+                wakesFired: f.wakesFired.length,
                 durationMs: Date.now() - d
             })
-        } catch (p) {
-            Me("[job-scheduler] scan error", p)
+        } catch (f) {
+            Le("[job-scheduler] scan error", f)
         } finally {
             s = !1
         }
     }
 
     function c() {
-        s || l || (a = u())
+        s || u || (a = l())
     }
     return {
         start() {
-            o || l || (r && r.on("job.created", c), a = u(), o = setInterval(() => {
-                a = u()
-            }, i), ee("[job-scheduler] started", {
+            o || u || (r && r.on("job.created", c), a = l(), o = setInterval(() => {
+                a = l()
+            }, i), Q("[job-scheduler] started", {
                 intervalMs: i
             }))
         },
         async stop() {
-            if (l = !0, r && r.off("job.created", c), o && (clearInterval(o), o = null), a) {
+            if (u = !0, r && r.off("job.created", c), o && (clearInterval(o), o = null), a) {
                 try {
                     await a
                 } catch {}
                 a = null
             }
-            ee("[job-scheduler] stopped")
+            Q("[job-scheduler] stopped")
         },
         isScanning() {
             return s

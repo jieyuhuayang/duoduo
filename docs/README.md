@@ -6,14 +6,16 @@
 >
 > | 文档 | 对齐版本 | 行号锚点状态 |
 > |---|---|---|
-> | [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) | **v0.8.0** | 已重定向，61/61 经 `check_doc_anchors.mjs` 核验成立 |
-> | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) | **v0.8.0**（部分复核，范围见其头部） | 已重定向 |
-> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | **v0.8.1**（2026-09-10 重写） | **不含行号锚点，设计如此**：面向产品经理的入门指南，每节的证据经其附录 C 指向 `AGENT_INTERNALS_ANALYSIS.md` 的对应小节 |
-> | [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md) | v0.7.1 | **2 处行号锚点已失效**；机制结论本身不受影响 |
+> | [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) | **v0.8.2** | 已重定向；`真名 (短名)` 式引用经 `verify_citations.mjs` 全绿 |
+> | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) | **v0.8.2**（部分复核，范围见其头部） | 已重定向 |
+> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | **v0.8.2** | **不含行号锚点，设计如此**：面向产品经理的入门指南，每节的证据经其附录 C 指向 `AGENT_INTERNALS_ANALYSIS.md` 的对应小节 |
+> | [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md) | v0.7.1（机制叙述）/ v0.8.2（锚点） | 短名与行号随 v0.8.2 一并重定向；**机制结论本身仍停在 v0.7.1，未逐条重新验证** |
 >
-> v0.7.1 文档的**机制叙述**基本仍成立（v0.8.0 的实质变化见 `AGENT_INTERNALS_ANALYSIS.md` 中标注 v0.8.0 的段落），失效的是行号——esbuild 每次构建重新 mangle，行号不跨版本存活。
+> 锚点为什么必须每版重定向：esbuild 每次构建重新 mangle，短名与行号都不跨版本存活；机制叙述则通常跨版本成立。两者的失效节奏不同，所以「对齐版本」这一列对同一份文档可能有两个答案。
 >
-> 附带的工具盲区：`check_doc_anchors.mjs` 只校验「符号 + 行号」双冗余写法（符号名必须出现在所引行上才算成立），对只写行号、不带符号名的锚点视而不见——没有符号名就没有可交叉验证的冗余。`AGENT_FRAMEWORKS_COMPARISON.md` 恰好通篇是只写行号的形式，所以它"全绿"只是没被检查，而不是被检查通过了。
+> **现在由什么来保证。**权威是符号身份而不是行号：`verify_citations.mjs` 把每条 `真名 (短名)`（行号）引用拿去 `maps/symbols_daemon.json` 里解析——符号消失或短名对不上直接**失败构建**，行号漂移则是可再生的，`--fix` 就地改写。本轮（v0.8.2）结果：50 条形式化引用 + 82 处裸符号提及，0 个符号消失、0 个短名错误、0 个行号越界。
+>
+> **仍然存在的盲区，别读成"全绿"。**上面那 50 条之外，全文还有约 728 处**只写行号、不带符号名**的裸锚点。没有符号名就没有可交叉验证的冗余，因此它们原则上不可校验；`check_bare_anchors.mjs` 只能证伪其中一个小子集（落在空行、落进第三方代码、区间反向），本轮该检查 0 处被证伪——**这是"没抓到错"，不是"已验证正确"**。写新引用一律用 `真名 (短名)` 形式，不要再添裸行号。
 
 ## 先看这张阅读地图
 

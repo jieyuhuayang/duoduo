@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildDeveloperInstructions  (minified: Wpe, daemon.pretty.js:56703)
+// symbol: buildDeveloperInstructions  (minified: qye, daemon.pretty.js:61947)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

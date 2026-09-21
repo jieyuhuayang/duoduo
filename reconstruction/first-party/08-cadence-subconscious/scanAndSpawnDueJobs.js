@@ -1,64 +1,65 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: scanAndSpawnDueJobs  (minified: M6, daemon.pretty.js:80474)
+// symbol: scanAndSpawnDueJobs  (minified: gJ, daemon.pretty.js:86474)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function scanAndSpawnDueJobs(e, t, n) {
-    let r = new Io(e);
+    let r = new Br(e);
     await r.init();
     let i = await r.listJobs(),
         o = n?.now ?? new Date,
-        s = [];
-    for (let a of i) {
-        let l = a.state.last_scheduled_at ?? a.state.last_run_at,
-            u = a.state.last_scheduled_at ? new Date(a.state.last_scheduled_at).getTime() : Number.NaN,
-            c = a.state.last_run_started_at ? new Date(a.state.last_run_started_at).getTime() : Number.NaN,
-            d = !Number.isFinite(c) || Number.isFinite(u) && c < u;
-        if (oP(a.frontmatter.cron) && a.state.last_scheduled_at && d && (a.state.last_result === "unknown" || a.state.last_result === "failure") && (l = null), !Ope(a.frontmatter.cron, l, o, a.frontmatter.created_at, a.state.run_at ?? null)) continue;
-        if (a.state.last_result === "failure" && a.state.last_scheduled_at) {
-            let y = new Date(a.state.last_scheduled_at).getTime();
-            if (o.getTime() - y < 3e5) {
-                ke("[cadence] skip due job: failure backoff", {
-                    jobId: a.id,
-                    lastScheduledAt: a.state.last_scheduled_at,
+        s = [],
+        a = await Vgt(e, r, o, n?.bus);
+    for (let u of i) {
+        let l = u.state.last_scheduled_at ?? u.state.last_run_at,
+            c = u.state.last_scheduled_at ? new Date(u.state.last_scheduled_at).getTime() : Number.NaN,
+            d = u.state.last_run_started_at ? new Date(u.state.last_run_started_at).getTime() : Number.NaN,
+            f = !Number.isFinite(d) || Number.isFinite(c) && d < c;
+        if (r$(u.frontmatter.cron) && u.state.last_scheduled_at && f && (u.state.last_result === "unknown" || u.state.last_result === "failure") && (l = null), !Rye(u.frontmatter.cron, l, o, u.frontmatter.created_at, u.state.run_at ?? null)) continue;
+        if (u.state.last_result === "failure" && u.state.last_scheduled_at) {
+            let v = new Date(u.state.last_scheduled_at).getTime();
+            if (o.getTime() - v < 3e5) {
+                Ee("[cadence] skip due job: failure backoff", {
+                    jobId: u.id,
+                    lastScheduledAt: u.state.last_scheduled_at,
                     backoffMs: 3e5
                 });
                 continue
             }
         }
-        let p = Yu({
-            jobId: a.id,
-            cron: a.frontmatter.cron,
-            cwdRel: a.frontmatter.cwd_rel
+        let p = vc({
+            jobId: u.id,
+            cron: u.frontmatter.cron,
+            cwdRel: u.frontmatter.cwd_rel
         });
-        if (Qn(p)) {
-            ke("[cadence] skip due job: session is being archived", {
-                jobId: a.id,
+        if (or(p)) {
+            Ee("[cadence] skip due job: session is being archived", {
+                jobId: u.id,
                 sessionKey: p
             });
             continue
         }
-        let f = t.getActor(p);
-        if (f && f.status !== "ended") {
-            ke("[cadence] skip due job: already running", {
-                jobId: a.id,
+        let m = t.getActor(p);
+        if (m && m.status !== "ended") {
+            Ee("[cadence] skip due job: already running", {
+                jobId: u.id,
                 sessionKey: p,
-                actorStatus: f.status
+                actorStatus: m.status
             });
             continue
         }
         try {
-            await r.updateState(a.id, {
+            await r.updateState(u.id, {
                 last_scheduled_at: o.toISOString()
             })
-        } catch (g) {
-            W("[cadence] skip due job: claim state write failed, retrying next scan", {
-                jobId: a.id,
-                error: g instanceof Error ? g.message : String(g)
+        } catch (y) {
+            Z("[cadence] skip due job: claim state write failed, retrying next scan", {
+                jobId: u.id,
+                error: y instanceof Error ? y.message : String(y)
             });
             continue
         }
-        let m = createSpineEvent({
+        let h = createSpineEvent({
             type: "job.spawn",
             source: {
                 kind: "cadence",
@@ -66,28 +67,30 @@ async function scanAndSpawnDueJobs(e, t, n) {
             },
             session_key: p,
             payload: {
-                job_id: a.id,
-                cron: a.frontmatter.cron,
+                job_id: u.id,
+                cron: u.frontmatter.cron,
                 tick: {
-                    run_number: (a.state.run_count ?? 0) + 1,
+                    run_number: (u.state.run_count ?? 0) + 1,
                     triggered_at: o.toISOString(),
-                    previous_run_at: a.state.last_run_at ?? null
+                    previous_run_at: u.state.last_run_at ?? null
                 }
             }
         });
-        await atomicAppendEvent(e, m);
-        let h = `- [ ] @evt(${m.id}) job:${a.id}`;
-        await $s(e, p, h), t.spawnJobSession(a.id, p), s.push(a.id), ee("[cadence] spawned due job", {
-            jobId: a.id,
+        await atomicAppendEvent(e, h);
+        let g = `- [ ] @evt(${h.id}) job:${u.id}`;
+        await Xs(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), Q("[cadence] spawned due job", {
+            jobId: u.id,
             sessionKey: p,
-            cron: a.frontmatter.cron
+            cron: u.frontmatter.cron
         })
     }
-    return ke("[cadence] job scan complete", {
+    return Ee("[cadence] job scan complete", {
         scanned: i.length,
-        spawned: s.length
+        spawned: s.length,
+        wakesFired: a.length
     }), {
         scanned: i.length,
-        spawned: s
+        spawned: s,
+        wakesFired: a
     }
 }

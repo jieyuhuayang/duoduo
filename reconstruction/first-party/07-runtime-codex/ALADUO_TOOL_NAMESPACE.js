@@ -1,15 +1,16 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: ALADUO_TOOL_NAMESPACE  (minified: cP, daemon.pretty.js:57457)
+// symbol: ALADUO_TOOL_NAMESPACE  (minified: u$, daemon.pretty.js:62719)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
+var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
     "use strict";
-    dd();
+    Fl();
     mt();
-    Sl();
-    ALADUO_TOOL_NAMESPACE = "aladuo", yet = "features.code_mode.direct_only_tool_namespaces";
-    wet = {
+    hw();
+    Bu();
+    ALADUO_TOOL_NAMESPACE = "aladuo", Est = "features.code_mode.direct_only_tool_namespaces";
+    Pst = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -18,7 +19,7 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, uP = class extends get {
+    }, a$ = class extends xst {
         constructor(n, r, i) {
             super();
             this.binary = n;
@@ -34,7 +35,7 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = pet(this.binary, ["app-server"], {
+            this.alive || (this.proc = wst(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -50,8 +51,8 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
                 this.alive = !1;
                 let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
                 this.rejectAllPending(i)
-            }), this.rl = gu(this.proc.stdout, n => this.handleLine(n)), gu(this.proc.stderr, n => {
-                ke("[codex-stderr]", n)
+            }), this.rl = Ll(this.proc.stdout, n => this.handleLine(n)), Ll(this.proc.stderr, n => {
+                Ee("[codex-stderr]", n)
             }))
         }
         request(n, r, i) {
@@ -71,15 +72,15 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
                         method: n,
                         params: r
                     }), i) {
-                    let l = () => {
-                        let u = this.pending.get(o);
-                        if (u) {
+                    let u = () => {
+                        let l = this.pending.get(o);
+                        if (l) {
                             this.pending.delete(o);
                             let c = new Error(`request ${n} aborted`);
-                            c.name = "AbortError", u.reject(c)
+                            c.name = "AbortError", l.reject(c)
                         }
                     };
-                    i.addEventListener("abort", l, {
+                    i.addEventListener("abort", u, {
                         once: !0
                     })
                 }
@@ -119,7 +120,7 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
             try {
                 i = JSON.parse(r)
             } catch {
-                W("[codex-transport] unparseable line:", r.slice(0, 200));
+                Z("[codex-transport] unparseable line:", r.slice(0, 200));
                 return
             }
             if (i.id != null && (i.result !== void 0 || i.error !== void 0)) {
@@ -149,27 +150,27 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
             this.onToolCallSettled = n
         }
         handleServerRequest(n) {
-            if (ke("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
+            if (Ee("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
                 let r = n.params,
                     i = r?.tool,
                     o = r?.arguments ?? {},
                     s = i ? this.onToolCallObserved?.(i) : void 0,
                     a = i ? this.toolHandlers.get(i) : void 0;
                 if (a) {
-                    a(o).then(l => {
-                        i && this.onToolCallSettled?.(i, l.success, s), this.respond(n.id, {
-                            success: l.success,
+                    a(o).then(u => {
+                        i && this.onToolCallSettled?.(i, u.success, s), this.respond(n.id, {
+                            success: u.success,
                             contentItems: [{
                                 type: "inputText",
-                                text: l.text
+                                text: u.text
                             }]
                         })
-                    }).catch(l => {
+                    }).catch(u => {
                         i && this.onToolCallSettled?.(i, !1, s), this.respond(n.id, {
                             success: !1,
                             contentItems: [{
                                 type: "inputText",
-                                text: `Error: ${l instanceof Error?l.message:String(l)}`
+                                text: `Error: ${u instanceof Error?u.message:String(u)}`
                             }]
                         })
                     });
@@ -211,5 +212,5 @@ var ALADUO_TOOL_NAMESPACE, yet, G2, Z2, wet, uP, Upe, sf = A(() => {
             for (let [r, i] of this.pending) i.reject(n), this.pending.delete(r)
         }
     };
-    Upe = new Set
+    jye = new Set
 });

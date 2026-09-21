@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: enforceContractGate  (minified: GP, daemon.pretty.js:61486)
+// symbol: enforceContractGate  (minified: iO, daemon.pretty.js:67346)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

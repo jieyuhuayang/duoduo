@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: mapItemCompletedToExecEvent  (minified: Qpe, daemon.pretty.js:57384)
+// symbol: mapItemCompletedToExecEvent  (minified: Gye, daemon.pretty.js:62646)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -25,7 +25,7 @@ function mapItemCompletedToExecEvent(e) {
             };
         case "webSearch":
             return {
-                type: "tool_result", toolUseId: n, toolName: "WebSearch", isError: !1, summary: xet(e.action, e.query ?? "")
+                type: "tool_result", toolUseId: n, toolName: "WebSearch", isError: !1, summary: $st(e.action, e.query ?? "")
             };
         case "plan":
             return {
@@ -36,7 +36,7 @@ function mapItemCompletedToExecEvent(e) {
             return {
                 type: "tool_result",
                 toolUseId: n,
-                toolName: `CollabAgent${Kpe(r)}`,
+                toolName: `CollabAgent${Wye(r)}`,
                 isError: e.status === "failed",
                 summary: `status=${e.status} receivers=${JSON.stringify(e.receiverThreadIds??[])}`
             }
@@ -73,6 +73,6 @@ function mapItemCompletedToExecEvent(e) {
         case "functionCallOutput":
             return null;
         default:
-            return Ype("completed", t), null
+            return Jye("completed", t), null
     }
 }

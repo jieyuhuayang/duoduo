@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: archiveLegacyRegistrySessionsDir  (minified: e_e, daemon.pretty.js:63516)
+// symbol: archiveLegacyRegistrySessionsDir  (minified: rSe, daemon.pretty.js:69374)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -7,88 +7,88 @@ async function archiveLegacyRegistrySessionsDir(e) {
     let t = e.registrySessionsDir,
         n;
     try {
-        n = await Jn.readdir(t)
+        n = await er.readdir(t)
     } catch {
         return !1
     }
     if (n.length === 0) {
         try {
-            await Jn.rmdir(t)
+            await er.rmdir(t)
         } catch {}
         return !1
     }
     let r = 0,
         i = 0;
-    for (let u of n) {
-        if (!u.endsWith(".json") || u === "sessions.snapshot.json" || u === ".initialized") continue;
+    for (let l of n) {
+        if (!l.endsWith(".json") || l === "sessions.snapshot.json" || l === ".initialized") continue;
         let c;
         try {
-            c = decodeURIComponent(u.slice(0, -5))
+            c = decodeURIComponent(l.slice(0, -5))
         } catch {
             continue
         }
-        let d = Gn.join(t, u),
-            p;
+        let d = tr.join(t, l),
+            f;
         try {
-            p = await Jn.readFile(d, "utf8")
+            f = await er.readFile(d, "utf8")
         } catch {
             continue
         }
-        let f;
+        let p;
         try {
-            f = JSON.parse(p)
+            p = JSON.parse(f)
         } catch {
             continue
         }
         let m = {
             session_key: c
         };
-        for (let T of ["cwd", "plane", "permission_profile", "created_at", "last_event_id", "last_event_at"]) {
-            let P = f[T];
-            typeof P == "string" && P.length > 0 && (m[T] = P)
+        for (let E of ["cwd", "plane", "permission_profile", "created_at", "last_event_id", "last_event_at"]) {
+            let R = p[E];
+            typeof R == "string" && R.length > 0 && (m[E] = R)
         }
-        let h = Zit.createHash("sha256").update(c).digest("hex"),
-            g = Gn.join(e.sessionsDir, h),
-            y = Gn.join(g, "state.json"),
-            w = Gn.join(e.varDir, "sessions-archive"),
-            v = !1;
+        let h = hdt.createHash("sha256").update(c).digest("hex"),
+            g = tr.join(e.sessionsDir, h),
+            y = tr.join(g, "state.json"),
+            v = tr.join(e.varDir, "sessions-archive"),
+            b = !1;
         try {
-            let T = await Jn.readdir(w);
-            for (let P of T)
-                if (P === h || P.startsWith(`${h}.`)) {
-                    v = !0;
+            let E = await er.readdir(v);
+            for (let R of E)
+                if (R === h || R.startsWith(`${h}.`)) {
+                    b = !0;
                     break
                 }
         } catch {}
-        if (v) {
+        if (b) {
             i++;
             continue
         }
-        let b = null;
+        let _ = null;
         try {
-            b = JSON.parse(await Jn.readFile(y, "utf8"))
+            _ = JSON.parse(await er.readFile(y, "utf8"))
         } catch {
-            b = null
+            _ = null
         }
         let I = {
             ...m,
-            ...b ?? {}
+            ..._ ?? {}
         };
         I.session_key = c, I.updated_at = new Date().toISOString(), delete I.status, delete I.idle_since, delete I.health;
         try {
-            await Te(g), await Jn.writeFile(y, JSON.stringify(I, null, 2) + `
+            await Oe(g), await er.writeFile(y, JSON.stringify(I, null, 2) + `
 `, "utf8"), r++
         } catch {
             i++
         }
     }
     let o = new Date().toISOString().replace(/[:.]/g, "-"),
-        s = Gn.join(e.varDir, `registry.legacy.${o}`),
-        a = Gn.join(s, "sessions");
-    await Te(s);
-    let l = a;
+        s = tr.join(e.varDir, `registry.legacy.${o}`),
+        a = tr.join(s, "sessions");
+    await Oe(s);
+    let u = a;
     try {
-        await Jn.access(l), l = `${a}.${process.pid}`
+        await er.access(u), u = `${a}.${process.pid}`
     } catch {}
-    return await Jn.rename(t, l), W(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${l}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
+    return await er.rename(t, u), Z(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${u}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
 }

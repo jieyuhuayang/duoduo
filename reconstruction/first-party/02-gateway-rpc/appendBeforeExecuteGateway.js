@@ -1,10 +1,10 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: appendBeforeExecuteGateway  (minified: hae, daemon.pretty.js:81119)
+// symbol: appendBeforeExecuteGateway  (minified: Gle, daemon.pretty.js:87194)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendBeforeExecuteGateway(e, t, n) {
-    t.sourceChannelId !== void 0 && x_(t.sourceChannelId);
+    t.sourceChannelId !== void 0 && Eb(t.sourceChannelId);
     let r = createSpineEvent({
             type: t.eventType,
             source: {
@@ -42,24 +42,24 @@ async function appendBeforeExecuteGateway(e, t, n) {
                 tags: t.routingHint.tags
             } : void 0
         }),
-        i = await v5e(e),
+        i = await OXe(e),
         o = computeDedupKey(r);
     if (o) {
-        let p = await i.checkAndRecordDetailed({
+        let f = await i.checkAndRecordDetailed({
             key: o,
             ts: r.ts,
             event_id: r.id
         });
-        if (p.duplicate && p.existing?.event_id) {
-            let f = await md(e, p.existing.event_id, {
-                notAfter: p.existing.ts
+        if (f.duplicate && f.existing?.event_id) {
+            let p = await Md(e, f.existing.event_id, {
+                notAfter: f.existing.ts
             });
-            if (f) {
-                let m = await cm(e, f.id);
-                return await iae(e, t.sourceKind, t.sourceChannelId), {
-                    event: f,
+            if (p) {
+                let m = await Um(e, p.id);
+                return await Fle(e, t.sourceKind, t.sourceChannelId), {
+                    event: p,
                     routing: {
-                        target: aae(f),
+                        target: Ule(p),
                         enqueued: !1
                     },
                     deduplicated: !0,
@@ -69,7 +69,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
             }
         }
     }
-    let s = await I5e(e, {
+    let s = await zXe(e, {
         sessionKey: t.sessionKey,
         sourceKind: t.sourceKind,
         sourceName: t.sourceName,
@@ -80,44 +80,44 @@ async function appendBeforeExecuteGateway(e, t, n) {
         rawPayload: t.rawPayload,
         routingHint: t.routingHint
     }, r);
-    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await gl(e, p => ({
-        ...p,
+    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await Du(e, f => ({
+        ...f,
         spine: {
-            ...p.spine,
-            event_log: $d.join(e.eventsDir, Hp(new Date(r.ts)))
+            ...f.spine,
+            event_log: ef.join(e.eventsDir, wm(new Date(r.ts)))
         },
         health: {
-            ...p.health,
+            ...f.health,
             gateway: "ok"
         }
     }), new Date(r.ts));
-    let a, l = !1,
-        u, c, d = aae(r);
+    let a, u = !1,
+        l, c, d = Ule(r);
     if (d === "gateway") {
-        let p = await S5e(e, r, n?.bus, n?.gatewayCommands);
-        u = p.responseText, c = p.outboxId, ke("[gateway] gateway-targeted event (no enqueue)", {
+        let f = await NXe(e, r, n?.bus, n?.gatewayCommands);
+        l = f.responseText, c = f.outboxId, Ee("[gateway] gateway-targeted event (no enqueue)", {
             id: r.id,
             type: r.type,
             intent: r.routing_hint?.intent,
             raw_path: s,
-            handled: p.handled
+            handled: f.handled
         })
     } else if (d === "meta") {
-        let p = "meta:subconscious",
-            f = `- [ ] @evt(${r.id})`;
-        a = await $s(e, p, f), l = !0, eo("mailbox_enqueued", r.id, {
-            sessionKey: p
-        }), ke("[gateway] meta-targeted event", {
+        let f = "meta:subconscious",
+            p = `- [ ] @evt(${r.id})`;
+        a = await Xs(e, f, p), u = !0, fo("mailbox_enqueued", r.id, {
+            sessionKey: f
+        }), Ee("[gateway] meta-targeted event", {
             id: r.id,
             type: r.type,
             raw_path: s,
             mailboxFile: a
         })
     } else {
-        let p = `- [ ] @evt(${r.id})`;
-        a = await $s(e, t.sessionKey, p), l = !0, eo("mailbox_enqueued", r.id, {
+        let f = `- [ ] @evt(${r.id})`;
+        a = await Xs(e, t.sessionKey, f), u = !0, fo("mailbox_enqueued", r.id, {
             sessionKey: t.sessionKey
-        }), ke("[gateway] session-targeted event", {
+        }), Ee("[gateway] session-targeted event", {
             id: r.id,
             type: r.type,
             session_key: t.sessionKey,
@@ -125,14 +125,14 @@ async function appendBeforeExecuteGateway(e, t, n) {
             mailboxFile: a
         })
     }
-    return n?.bus && n.bus.emit("spine.event", r), await iae(e, t.sourceKind, t.sourceChannelId), {
+    return n?.bus && n.bus.emit("spine.event", r), await Fle(e, t.sourceKind, t.sourceChannelId), {
         event: r,
         mailboxFile: a,
         routing: {
             target: d,
-            enqueued: l
+            enqueued: u
         },
-        gatewayResponse: u,
+        gatewayResponse: l,
         gatewayOutboxId: c
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: mapItemStartedToExecEvent  (minified: Xpe, daemon.pretty.js:57273)
+// symbol: mapItemStartedToExecEvent  (minified: Zye, daemon.pretty.js:62535)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -45,7 +45,7 @@ function mapItemStartedToExecEvent(e) {
             return {
                 type: "tool_use",
                 toolUseId: n,
-                toolName: `CollabAgent${Kpe(r)}`,
+                toolName: `CollabAgent${Wye(r)}`,
                 input: {
                     tool: r,
                     receiverThreadIds: e.receiverThreadIds,
@@ -110,6 +110,6 @@ function mapItemStartedToExecEvent(e) {
         case "functionCallOutput":
             return null;
         default:
-            return Ype("started", t), null
+            return Jye("started", t), null
     }
 }
