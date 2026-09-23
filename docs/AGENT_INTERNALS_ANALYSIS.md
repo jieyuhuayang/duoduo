@@ -38,49 +38,51 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
 ```
 外部输入 (channel.message)                                    [→Part III §5 Gateway 入站边界]
    │
-   ▼  ① 封装为不可变事件  createSpineEvent (on)  → id=evt_<uuid>, ts=ISO   [32001，调用点 87196]  [→§4]
+   ▼  ① 封装为不可变事件  createSpineEvent (on)  → id=evt_<uuid>, ts=ISO   [→§4]
    │
-   ▼  ② 去重前置  computeDedupKey (vse) 算 key                  [86887，调用点 87234]        [→§4]
+   ▼  ② 去重前置  computeDedupKey (vse) 算 key  [→§4]
    │      命中重复 → 取回既有事件 + 重放上次 gateway 回执 → deduplicated:true，不 append
    │
-   ▼  ③ APPEND-BEFORE-EXECUTE：atomicAppendEvent (sn) 追加写 WAL 分区 + by_id 索引  [32043，调用点 87271]  [→Part III §4 铁律]
+   ▼  ③ APPEND-BEFORE-EXECUTE：atomicAppendEvent (sn) 追加写 WAL 分区 + by_id 索引  [→Part III §4 铁律]
    │      var/events/YYYY-MM-DD.jsonl (UTC)，记 byte_offset/byte_len
    │      → 无条件写 by_id 索引（唯一索引；不存在 by_session 索引）
    │
-   ▼  ④ advanceConsumerWatermark (Nu) 推进 gateway 消费者 watermark  [32858，调用点 87271]
+   ▼  ④ advanceConsumerWatermark (Nu) 推进 gateway 消费者 watermark
    │      run/queue_offsets/gateway.json  (经 by_id 反查偏移)
    │
-   ▼  ⑤ gl() 更新 status.json（与 ③④ 同一行提交）                 [32834，调用点 81196]
+   ▼  ⑤ Du() 更新 registry/status.json（与 ③④ 同一行提交）
    │
-   ▼  ⑥ 按 routing_hint.target 入队（appendBeforeExecuteGateway/Gle）  [87194]  [→Part III §5 分流]
-   │      分流决策 aae                                                            [80980]
+   ▼  ⑥ 按 routing_hint.target 入队（appendBeforeExecuteGateway/Gle）  [→Part III §5 分流]
+   │      target 由入口 Zle 经 AXe 决定，Gle 内由 Ule 读出
    │      gateway → 同步处理不入队
-   │      meta    → 写 meta:subconscious mailbox 指针                [81221]     [→Part IV §6]
-   │      session → 向 session_key mailbox append '- [ ] @evt(<id>)'   [81231]
+   │      meta    → 写 meta:subconscious mailbox 指针     [→Part IV §6]
+   │      session → 向 session_key mailbox append '- [ ] @evt(<id>)'
    │
-   ▼  ⑦ bus.emit('spine.event', r) → session.wake                [81241]     [→Part II §3 actor 唤醒]
+   ▼  ⑦ bus.emit('spine.event', r) → session.wake     [→Part II §3 actor 唤醒]
    │
-   ▼  ⑧ runner 读 mailbox 的 @evt 指针 → readEventById (Md) 查 by_id 索引按字节偏移读 WAL 取正文  [32052]
+   ▼  ⑧ runner 读 mailbox 的 @evt 指针 → readEventById (Md) 查 by_id 索引按字节偏移读 WAL 取正文
    │
    ▼  ⑨ 装配上下文（两个正交注入面）                                          [→Part I §1 认知装配]
    │      system-prompt 面：renderPromptLayers (Ahe) 6 层叠装，buildSystemPromptForChannelConfig (Wh) 包壳
-   │                        （身份→通道→实例→广播板→Runtime Context→job）  [49967/49994]
+   │                        （身份→通道→实例→广播板→Runtime Context→job）
    │      user-message 面：buildTransientUserBlocks (QSe) 瞬态块
-   │                        （restart-hint/time/skip/gateway/job-receipts/job-tick→user-input）  [65787]
+   │                        （restart-hint/time/skip/gateway/job-receipts/job-tick→user-input）
    │
    ▼  ⑩ drain 合批 (drainSessionMailbox/GSe → batchDrainItems/xH) → createAgentSdkAdapter (Ef) → SDK query()
-   │                                                          [64516/65926/50087]  [→Part I §2 Turn/Drain]
+   │                                                          [→Part I §2 Turn/Drain]
    │      （单 turn 准入——一次只准入一个 turn，后到消息走 steering lane 显式注入
-   │        当前 turn，不再折进正跑的 turn 里导致会话永久 busy；createCodexAppServerAdapter (yw) @61974
-   │        / pendingSteer，createSessionManager (Tgt) @83621）
+   │        当前 turn，不再折进正跑的 turn 里导致会话永久 busy；createCodexAppServerAdapter (yw)
+   │        / pendingSteer，createSessionManager (Tgt)）
    │                                                  （后端 claude/codex/grok/pi 路由 [→Part II §8]）
    │
    ▼  ⑪ agent 产出 → append agent.tool_use / tool_result / result 回 WAL
-   │      更新 session state.json：last_event_id / last_event_at / sdk_session_id   [65090/65425]
+   │      更新 session state.json：last_event_id / last_event_at / sdk_session_id
    │
    ▼  ⑫ 经验沉淀：日志 → 潜意识 cadence tick(≈37min) → 分区流水线（v0.8.0 起 memory-weaver 已拆为 gradient-distiller+intuition-weaver，见 §6 更新块）   [→Part IV §6§7]
-          → 回写 memory/CLAUDE.md 广播板 → 下一次前台会话经 transcludeBroadcastBoard (HEe) 再注入  [82179]
+          → 回写 memory/CLAUDE.md 广播板 → 下一次前台会话经 transcludeBroadcastBoard (HEe) 再注入
 ```
+
+**图中各步的代码位置（v0.8.2）**：① `createSpineEvent (on)`（`32001`），调用点 `createSpineEvent (on)`（`87196`）；② `computeDedupKey (vse)`（`86887`），调用点 `o = vse(r)`（`87234`）；③④⑤ 同一行 `await sn(e, r), await Nu(e, "gateway"`（`87271`）：`atomicAppendEvent (sn)`（`32043`）、`advanceConsumerWatermark (Nu)`（`32858`），status 写入器 `Du`（`32919`）经 `gR`（`32877`）落到 `registryDir/status.json`；⑥ `appendBeforeExecuteGateway (Gle)`（`87194-87326`），target 由 `Zle`（`87141`）内 `s = AXe(t, i, r)`（`87145`）决定，`Gle` 内 `d = Ule(r)`（`87283`）读出，meta 分支 `"meta:subconscious"`（`87294`），session 分支 `@evt(${r.id})`（`87305`）；⑦ `n.bus.emit("spine.event", r)`（`87316`）；⑧ `readEventById (Md)`（`32052`）；⑨ `renderPromptLayers (Ahe)`（`55093`）、`buildSystemPromptForChannelConfig (Wh)`（`55120`）、`buildTransientUserBlocks (QSe)`（`71662`）；⑩ `drainSessionMailbox (GSe)`（`70374`）、`batchDrainItems (xH)`（`71801`）、`createAgentSdkAdapter (Ef)`（`55213`）、`createCodexAppServerAdapter (yw)`（`61974`）、`createSessionManager (Tgt)`（`83621`）；⑪ `last_event_id`（`70954`/`71292`），`sdk_session_id` 在 `Wt.sdk_session_id = nn.sessionId`（`70986`）与 `vt.sdk_session_id = Nr.sessionId`（`71316`）；⑫ `transcludeBroadcastBoard (HEe)`（`82179`）。
 
 **闭环**：经验 → 事件日志 → 潜意识加工 → 广播板 → 系统提示 → 新的经验。这正是关键句 4（后台自治）与关键句 1（认知装配）合起来的闭环——后台把经验压成直觉层，前台每个新会话经 `Wh` 自动加载。
 
@@ -134,9 +136,9 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
 l = grt.test(d)
   ? `${khe}\n\n${d}\n\n${hrt}`   // 含 [[slug]]
   : `${khe}\n\n${d}`;            // 不含
-// grt = /\[\[[^\]]+\]\]/                                   （55523）
-// khe = "…IMPORTANT: These instructions OVERRIDE any default behavior…you MUST follow them exactly"  （55523）
-// hrt = "The `[[slug]]` links…are dossier entry points, not footnotes…"  （55523）
+// grt = /\[\[[^\]]+\]\]/
+// khe = "…IMPORTANT: These instructions OVERRIDE any default behavior…you MUST follow them exactly"
+// hrt = "The `[[slug]]` links…are dossier entry points, not footnotes…"
 ```
 
 即广播板整段以 OVERRIDE 前缀 `khe` 包装；含 wiki-link 时追加 dossier 纪律 `hrt`（"[[slug]] 是深档入口，触发时先读再行动"）。**注意：此 `khe` 包装对 Claude 与 Codex 同源同文**——因为 Codex 复用的正是 `Wh` 的整段输出（详见论点三）。
@@ -153,22 +155,24 @@ l = grt.test(d)
 
 **所以呢**：时间流逝、被打断、job 节拍、job 完成回执、带外动作结果这些"每 turn 都可能变"的信号，若进 system prompt 会不断击穿缓存前缀。运行时把它们做成带 tag 的 text block，前置到用户输入之前、进 **user 消息而非 system prompt**，既让 agent 感知具身状态，又不污染缓存前缀。
 
-**块顺序**（confirmed，v0.8.1 复核，行号已更新）。`buildTransientUserBlocks (QSe)`（`71662`）返回 `{blocks[], ...*Injected 标志}`，push 顺序逐条对上：
+**块顺序**（confirmed，v0.8.2 复核）。`buildTransientUserBlocks (QSe)`（`71662`）返回 `{blocks[], ...*Injected 标志}`，push 顺序逐条对上：
 
 ```
-daemon-restart-hint        （push 65817；tag 65820）
-  → smart-compact-notice    （65821；空闲自动 compact 后提示，tag 65824）
-  → gateway-notice          （65828；包 <system-reminder>，尾附
+daemon-restart-hint
+  → smart-compact-notice    （空闲自动 compact 后提示）
+  → gateway-notice          （包 <system-reminder>，尾附
                               "this context may or may not be relevant…
-                               should not respond unless highly relevant" 65834）
-  → time-context            （65841；<time-context last_interaction=… current_time=…>）
-  → skip-rewind             （65847；仅 isUserMessage!==false 时）
-  → interrupted-context     （65853；包 <interrupted-context>）
-  → job-receipts             （65859；**v0.8.1 新增**，见下）
-  → job-tick                （65863；run_number/triggered_at）
-  → board-updated           （65867；广播板刚被潜意识写过的提示）
-  → user-input              （65871）
+                               should not respond unless highly relevant"）
+  → time-context            （<time-context last_interaction=… current_time=…>）
+  → skip-rewind             （仅 isUserMessage!==false 时）
+  → interrupted-context     （包 <interrupted-context>）
+  → job-receipts            （**v0.8.1 新增**，见下）
+  → job-tick                （run_number/triggered_at）
+  → board-updated           （广播板刚被潜意识写过的提示）
+  → user-input
 ```
+
+各块在 `buildTransientUserBlocks (QSe)`（`71662-71762`）内的 push 点（v0.8.2）：`tag: "daemon-restart-hint"`（`71695`）、`tag: "smart-compact-notice"`（`71699`）、`tag: "gateway-notice"`（`71712`，尾句 `should not respond to this context unless it is highly relevant`（`71709`））、`tag: "time-context"`（`71719`）、`t.isUserMessage !== !1 ? Wdt(t.skipRewind)`（`71721`）与 `tag: "skip-rewind"`（`71725`）、`tag: "interrupted-context"`（`71733`）、`tag: "job-receipts"`（`71737`）、`tag: "job-tick"`（`71741`）、`tag: "board-updated"`（`71745`）、`tag: "user-input"`（`71749`）。
 
 **首块 `daemon-restart-hint` 携带重启原因，且只到 channel 会话**（confirmed）。文本由 `renderDaemonRestartHint (Bbe)`（`65853`）拼成：底句 `[system] You're running under a new daemon process (started <ts>).`，若本次启动认领到了重启原因则追加 ` Restart reason, given by the caller: <reason> (requested <ts>).`。原因来自 `getPendingRestartReason (Ube)`（`65816`）——一个模块级全局，由 boot 期一次性认领写入（见 §4 论点一末尾的"跨进程旁路"）。**是否注入由 `qbe`(`65824`)门控，非 `channel` 类会话直接判 `out-of-scope`**：`job:` / `meta:` / `cadence:` / `subconscious:` / `system:` 会话永远拿不到这个块，因此"重启原因会到达每个被唤醒的会话"这个直觉是错的。另有 `new-session`（无 `lastEventAt`）与 `grandfather`（无水位）两个阶段只写水位不注入。
 
@@ -524,7 +528,7 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 > **v0.8.0 更新（confirmed，代码证据）：枚举从三值扩到四值，`pi` 加入且是唯一"内嵌、无需外部 CLI"的后端。** 全仓唯一权威枚举字面量已变为 `["claude", "codex", "grok", "pi"]`（`daemon.pretty.js:31664`，取代 v0.7.1 时的 `Ex=["claude","codex","grok"]`）。`pi` 与另外三者有一处本质不同：`available_runtimes` 探测里 claude/codex/grok 都要探测成功才 push，**`pi` 无条件 push，不做可用性门控**（`e.push("pi")`（`63770`）在三个条件 push 之后无条件执行）——错误文案直说原因：`The pi runtime is embedded in duoduo — there is no separate CLI to probe`（`72217`），pi 自己的进程是 duoduo 包内自带的 `pi-worker.js`（`dist/release/pi-worker.js`，本轮**未**逆向，不在 daemon/cli/stdio 三宿主的既有还原范围内），而不是像 `codex`/`grok` 那样要求用户另装并登录一个外部 CLI。pi 的模型 id 走自己的 canonical 校验 `provider/modelId`（`63823`），凭据来自用户 pi agent 目录的 `models.json`/`auth.json`（`72229`附近的报错文案），与 Claude/Codex/Grok 各自的账号体系完全独立。`prompt_mode` 语义上 pi 与 claude/grok 同组、codex 例外（`consumed by the claude, grok, and pi runtimes; on codex it is a no-op`（`63959`））。job-config 叠加口复用同一个 `applyJobSdkConfigOverride`（见 §1 论点五 v0.8.0 更新块的 `piExtensions`/`piSkills`/`piConfigIssues`）。下文论点①②、证据表与 PM 洞察 1/3 已按四值枚举逐行改写并重新锚定到 v0.8.0（选择链两处 + actor spawn 分支 + 专属报错文案，均 confirmed）；论点③④（命令层分叉、装配器复用）pi 是否同样落在既有描述里**本轮未逐行核对**（未证实推测；job-config 叠加口这一条例外，已确认复用）。
 
-**领起结论：`runtime` 是一个 `claude`/`codex`/`grok`/`pi` 四值字符串枚举（v0.7.1 新增 grok；v0.8.0 新增 pi，且 pi 是三个非 Claude 后端里唯一内嵌于 duoduo 自身、无需安装、无可用性探针的），却仍是一层"薄名字、厚差异"的抽象——duoduo 不抹平进程内 SDK（claude）、常驻 JSON-RPC 子进程（codex app-server）、常驻 ACP 子进程（grok agent CLI）、内嵌 worker 子进程（pi）四种进程模型的差异，而是在选择链（显式声明 > channel/job frontmatter > `ALADUO_DEFAULT_RUNTIME` > `claude`）与命令层按 `runtime` 分支*诚实路由*，靠共享的 prompt 装配器与 protocol 分桶会计跨后端复用同一套指令与溯源。** 下面四个论点自上而下展开这句：①名字很薄（四值枚举、单一权威源 + 诚实的选择链）；②差异很厚（四种不对称的执行形态与探测机制——**codex 不可用时静默降级到 claude，grok 不可用时绝不降级、直接报错，pi 干脆没有探测这一步**，三种互不相同的失败模式并存）；③命令层不假装对等（undo/model/compact 逐 runtime 分叉，grok 走独立的 ACP rewind 机制——**v0.8.0 更新：grok 的 ACP rewind 机制本身已被移除，见 §2**）；④骨架靠复用而非抹平（共享装配器 + 分桶 + 认证短路 + 工具命名空间钉顶，但权限/thinking 面故意不对等）。
+**领起结论：`runtime` 是一个 `claude`/`codex`/`grok`/`pi` 四值字符串枚举（v0.7.1 新增 grok；v0.8.0 新增 pi，且 pi 是三个非 Claude 后端里唯一内嵌于 duoduo 自身、无需安装、无可用性探针的），却仍是一层"薄名字、厚差异"的抽象——duoduo 不抹平进程内 SDK（claude）、常驻 JSON-RPC 子进程（codex app-server）、常驻 ACP 子进程（grok agent CLI）、内嵌 worker 子进程（pi）四种进程模型的差异，而是在选择链（显式声明 > channel/job frontmatter > `ALADUO_DEFAULT_RUNTIME` > `claude`）与命令层按 `runtime` 分支*诚实路由*，靠共享的 prompt 装配器与 protocol 分桶会计跨后端复用同一套指令与溯源。** 下面四个论点自上而下展开这句：①名字很薄（四值枚举、单一权威源 + 诚实的选择链）；②差异很厚（四种不对称的执行形态与探测机制——**codex 不可用时静默降级到 claude，grok 不可用时绝不降级、直接报错，pi 干脆没有探测这一步**，三种互不相同的失败模式并存）；③命令层不假装对等（`/model` 与 `/compact` 逐 runtime 分叉；v0.8.0 起 `/undo` 与 Grok 的 ACP rewind 整体移除，运行时不再提供任何撤销命令）；④骨架靠复用而非抹平（共享装配器 + 分桶 + 认证短路 + 工具命名空间钉顶，但权限/thinking 面故意不对等）。
 
 ---
 
@@ -549,17 +553,13 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 - **失败模式三分：codex 静默降级，grok 绝不降级，pi 无从谈论"降级"**——actor spawn 时（`createSessionManager (Tgt)`（`84064-84088`）内部未导出的 spawn 逻辑一带）对 job/channel 两种 origin 都是同一套模式：`He==="codex"` 分支里 `$r=await m(); $r.ok ? w.runtime="codex" : (w.runtime="claude", 打印"...falling back to claude"警告)`（`84070-84071`）；`He==="grok"` 分支里**先无条件 `w.runtime="grok"`**，再 `$r=await b(); $r.ok || (br=$r.reason, 打印"...grok is unavailable"警告，不改 runtime)`（`84079-84080`）；而 `He==="pi"` 分支只有一行 `w.runtime="pi"`（`84086`）——**没有 await、没有 ok 判断、没有警告日志**，比 grok 分支还要少一步。也即 codex 不可用时用户拿到的是一个**换了后端**的会话（可能默默发生），grok 不可用时用户拿到的是一个**注定失败**的会话（直到 drain 阶段 `drainSessionMailbox` 读到未清空的不可用原因才抛错：`Agent runtime 'grok' is unavailable. ... Install the grok CLI, run 'grok login', then send the message again.`（`72353`）），而 pi 的会话从不会因"运行时不可用"失败——它唯一会晚发作的失败源是"没有模型指针"：`This pi session has no model yet. Request was not executed. ... Nothing to install: the pi runtime ships inside duoduo.`（`daemon.pretty.js:72354` 一带，与前两者共用同一个错误组装函数，但分支内容完全是另一套叙事）。这印证了 v0.7.1 changelog 对 grok 的字面承诺，也说明 v0.8.0 给 pi 选的是第三条路——不是"检测后报错"，也不是"检测后降级"，而是"压根不检测，把判断权交给下一层"（confirmed，三处分支逐行核对；显式声明与 frontmatter 派生两条选择链上 pi 与 grok 同样不门控，见论点①中两处 `"pi"`（`82644`/`82653`））。
 - **`available_runtimes` 由三探针 + 一次无条件 push 拼装**：会话探针遍历 `isClaudeAvailable()/isCodexAvailable()/isGrokAvailable()` 依次 push，随后**无条件** `e.push("pi")`（`daemon.pretty.js:63770`，confirmed：`aq()&&e.push("claude"), Hd()&&e.push("codex"), x2()&&e.push("grok"), e.length===0&&e.push("claude"), e.push("pi")`——pi 不经过任何门控函数，是数组里唯一一个无条件追加的成员；v0.7.1 时的 boot 日志活体印证 `available runtimes at boot { claude: true, codex: false, grok: false, grokReason: "..." }` 对前三者仍成立）。
 
-### 论点③　命令层不假装对等：undo/model/compact 按 `runtime === "claude"` 诚实分叉，grok 走独立的 ACP rewind
+### 论点③　命令层不假装对等：`/model` 与 `/compact` 按 runtime 诚实分叉，撤销命令已整体移除
 
-**所以呢**：这是本子系统最关键的状态机分叉。因为 Claude 会话是 append-only jsonl（只能"算 cutoff → 下次 drain 才 fork 新 session"），而 Codex app-server 原生支持同步 `thread/rollback`，同名命令在"何时生效、session 是否连续"上根本不同。Grok 又是第三种形态——ACP 协议原生没有"rollback"，duoduo 自己在其上叠了一层"rewind"语义。PM 若设计撤销/回滚体验，不能承诺跨后端统一。
+**所以呢**：这是本子系统最关键的状态机分叉。Claude 会话是 append-only jsonl，Codex app-server 以 thread 为单位管理历史，同名命令在"何时生效、session 是否连续"上根本不同：`/model` 在 Claude 上能当场生效（`setModel` 成功即 `applied:"live"`），在 Codex 上只能先存下，到下一条消息 fork 出新 thread 才生效；`/compact` 在 claude channel 会话里透传给 SDK 原生处理，只有 codex 会话走到命令层回执。撤销则干脆不提供：v0.8.0 起 `/undo` 与 Grok 的 rewind 都已移除。PM 设计模型切换、压缩或撤销体验时，不能承诺跨后端统一，也不能依赖运行时提供撤销。
 
-> **v0.8.0 更新（confirmed，代码证据）：`/undo` 整条命令与 Grok 的 rewind 机制已从 daemon 里整体移除。** 全仓检索 `cutoff_message_uuid`/`pending_undo`/`thread/rollback`/`GROK_ACP_REWIND_*` 均为零命中；history-control 命令层的新版本（`vft`（`72113`））现在只识别 `/compact` 一种命令，其余（含 `/undo`）一律落到 `` ✗ Unrecognized history-control command: ${r}. `` 的兜底分支。下面两条 `/undo`/Grok-rewind 的机制描述保留作为 **v0.7.1 及更早的历史基线**，其引用的行号/短名均未随 v0.8.0 重新核对，不代表当前行为。
-
-- **（v0.7.1 及更早基线）Grok /undo——供应商扩展方法拼出的"倒带"**：`GROK_ACP_REWIND_POINTS`/`GROK_ACP_REWIND_EXECUTE`（`_x.ai/rewind/points`/`_x.ai/rewind/execute`）两个扩展方法配合 `parseGrokRewindPoints`（v0.7.1 短名 `wme`，解析响应体里的 `rewindPoints`/`rewind_points` 数组）与 `pickGrokRewindPromptIndex`（v0.7.1 短名 `vme`，从去重排序后的 `promptIndex` 集合里数第 N 个往回取；两者连同 `GROK_ACP_REWIND_*` 常量在 v0.8.1 bundle 里已零命中，故不再给行号）——即 duoduo 自己去查一个"可回退点"列表，再选一个目标点执行 rewind，语义上更接近 Codex 的同步 rollback（有明确的目标点、同 session 内生效）而非 Claude 的延迟 fork（未见 grok 侧有 `sessionIdChanged`/cutoff 类字段，confirmed 机制存在，具体 UX 文案未逐行核对，标注 未证实推测）。
-
-- **（v0.7.1 及更早基线）`/undo`——Claude 延迟成 fork、Codex 同步 rollback**：Claude adapter `undo()` 只扫 jsonl 算 `cutoff_message_uuid`，返回 `{kind:"succeeded", runtime:"claude", sessionIdChanged:!0, cutoff_message_uuid:f}`，不真正改历史；命令层 `qet`（v0.7.1 行号 64052，该命令 v0.8.0 已移除，见上方更新块）写 `pending_undo:{from, upToMessageUuid, requested_at}`，回 `↩️ Undo queued (...)`；真正的 `V5e(he.from,{upToMessageId})`（forkSession）推迟到 drain 头部执行，守卫 `X.pendingUndo && (n.runtime === "claude" || n.runtime === void 0)`，失败则保留 `pending_undo` 并中止 drain。Codex adapter `undo()` 直发 `thread/rollback{threadId, numTurns}`、同步生效、`sessionIdChanged:!1`；drain 头部 else 分支 `X.pendingUndo && n.runtime !== "claude" → (X.pendingUndo=void 0, Ii(...,"pending_undo"))`清掉 codex 会话遗留的 pending（confirmed，逐行核对，均为 v0.7.1 基线）。
+- **撤销命令已整体移除（v0.8.0 起）**：v0.8.2 bundle 中 `cutoff_message_uuid`、`pending_undo`、`thread/rollback`、`GROK_ACP_REWIND` 均零命中，`rewind` 只剩 Skip 机制的 `skip-rewind`/`pending_skip_rewind`。history-control 命令层 `vft`（`72113`）只识别 `if (r === "/compact")`（`72119`），其余命令（含 `/undo`）一律落到兜底回执 `Unrecognized history-control command`（`72132`）。v0.7.1 及更早三个后端的撤销语义各不相同，见本节 PM 洞察 2（confirmed）。
 - **`/model`——Claude 试图即时、Codex 只能延迟 fork**：`setSessionModel` 内 `if (V === "codex")`（`V = await I(w, F)`）→ 写 `rt(...model_runtime: P!==null?"codex":null, pending_model_fork:!0)` 并返回 `applied:"stored"`（`85333-85345`）；claude 路径 `Re="stored"; setModel 成功→Re="live"`，写 `model_runtime:"claude", pending_model_fork:null, applied:Re`（`85370-85401`）。codex 回执 `Codex session — a switch takes effect from the next message.`（`87631`/`87703`）。runtime flip 时经 `!(i ? i!==o : o==="codex" || o==="pi")` 守卫清空 `model/model_runtime/pending_model_fork`（`72293-72296`）（confirmed）。
-- **codex 侧 fork 时序的落地（与 claude `V5e` 对称的另一半）**：codex thread 生命周期三分支（`createCodexAppServerAdapter (yw)`（`62106`）内）——`forkFrom → "thread/fork"`、`sessionId → "thread/resume"`、else → `"thread/start"`（fork 失败另有 `thread/fork failed, falling back to thread/start`（`62112`）回退）；`kft`（`72304-72324`，日志 `resolved pending_model_fork at codex drain start`（`72319`））在 drain 起点把 `forkFrom` 设为当前 sessionId，才让 codex 的 model 切换在下一条消息 fork 生效（confirmed）。
+- **codex 侧 `/model` 的 fork 时序**：codex thread 生命周期三分支（`createCodexAppServerAdapter (yw)`（`62106`）内）——`forkFrom → "thread/fork"`、`sessionId → "thread/resume"`、else → `"thread/start"`（fork 失败另有 `thread/fork failed, falling back to thread/start`（`62112`）回退）；`kft`（`72304-72324`，日志 `resolved pending_model_fork at codex drain start`（`72319`））在 drain 起点把 `forkFrom` 设为当前 sessionId，才让 codex 的 model 切换在下一条消息 fork 生效（confirmed）。
 - **`/compact`——门控只锁 claude，实际抵达回执的是 codex**：外层守卫 `ae.event.routing_hint?.intent === "history-control"`（`70994`）；内层 `if (ou === "/compact" && (n.runtime === "claude" || n.runtime === void 0))`（`71011`）→ `Eo(t)==="channel" ? Ze=!0 :（发 "only available in interactive sessions" + continue）`（`71012-71014`）。`Eo`（`71438`）把 `job:→"job"`、`meta:→"meta"`、`system:|cadence:→"system"`、含 `:` → `"channel"`，否则 unknown。**codex 根本不进这个拦截块**（守卫限 claude/void），落到命令层 `vft`(`72113`)→ `r.compact()` → `📦 History compacted (runtime: ${o.runtime})`（`72128`）。所以：claude channel 走 `Ze=true` 透传 SDK 原生（不产该串），claude 非 channel 被拦，唯 codex compact 抵达 `vft`（`72128`）的回执（confirmed，codex 路由链已补全）。
 
 ### 论点④　骨架靠复用而非抹平：一套指令 + 一套溯源跨后端，但权限/thinking 面故意不对等
@@ -677,13 +677,13 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 | 机制主张 | 证据 | 位置 | 置信 |
 |---|---|---|---|
-| 网关摄入先 append 后写指针 | `Gle`：`atomicAppendEvent (sn)`(87271)→`advanceConsumerWatermark (Nu)`(87271)→分支写 `- [ ] @evt(id)`(87296/87306) | daemon 87194-87326 | confirmed |
-| route.deliver 同构（含 walOnly 短路） | `Ps`：`atomicAppendEvent (sn)`(64413，日志 "[route] route event appended")；`walOnly` 时短路进 "[route] wal-only route event (no mailbox, no wake)"(64420) | daemon 64358-64484 | confirmed |
-| 路由分叉由 `aae` 决策 | `routing_hint.target ∈ {gateway,meta,session}` | daemon 80980 | confirmed |
-| 单 append = WAL+by_id **恒定两写**，无 by_session 第二索引 | `sn`→`appendEventToPartition (Z9e)`(32044)；`G9e`(32034 定义/32045 调用) 无条件；全 bundle 无 `by_session` 字面量 | daemon 32008/32034/32043 | confirmed |
-| byte_offset=写前 stat().size，byte_len=bytesWritten | open→stat→write→close | daemon 30666-30684 | confirmed |
-| 全序=per-file promise 链 | `W6e` `.then(t,t)` | daemon 30646 | confirmed |
-| UTC 日切分区 | `mk(e)` `toISOString().slice(0,10)` | daemon 30656 | confirmed |
+| 网关摄入先 append 后写指针 | `appendBeforeExecuteGateway (Gle)`：`atomicAppendEvent (sn)`（`87271`）→`advanceConsumerWatermark (Nu)`（`87271`）→按 target 分支写指针 `@evt(${r.id})`（`87295`/`87305`） | `appendBeforeExecuteGateway (Gle)`（`87194-87326`） | confirmed |
+| route.deliver 同构（含 walOnly 短路） | `Ps`：`createSpineEvent (on)`（`64398`）构造后 `atomicAppendEvent (sn)`（`64413`），日志 `"[route] route event appended"`（`64413`）；`walOnly` 时短路进 `"[route] wal-only route event (no mailbox, no wake)"`（`64420`） | `Ps`（`64358-64484`） | confirmed |
+| 路由分叉：target 在入口 `Zle` 经 `AXe` 决定，`Gle` 内只读取 | `s = AXe(t, i, r)`（`87145`）；`Gle` 内 `d = Ule(r)`（`87283`）后按 `routing_hint.target ∈ {gateway,meta,session}` 分支，meta 写 `"meta:subconscious"`（`87294`） | `Zle`（`87141`）；`AXe`（`87135`） | confirmed |
+| 单 append = WAL+by_id **恒定两写**，无 by_session 第二索引 | `sn`→`appendEventToPartition (Z9e)`（`32044`）；by_id 写入 `G9e`（`32034`）由 `return await G9e(e, {`（`32045`）无条件调用；全 bundle 无 `by_session` 字面量 | `atomicAppendEvent (sn)`（`32043-32051`） | confirmed |
+| byte_offset=写前 stat().size，byte_len=bytesWritten | open→stat→write→close：`oR.open(i, "a")`（`32015`）、`(await s.stat()).size`（`32017`）、`(await s.write(o)).bytesWritten`（`32018`）、`await s.close()`（`32026`） | `appendEventToPartition (Z9e)`（`32008-32029`） | confirmed |
+| 全序=per-file promise 链 | `(tse.get(e) ?? Promise.resolve()).then(t, t)`（`31989`） | `H9e`（`31988`） | confirmed |
+| UTC 日切分区 | `e.toISOString().slice(0,10)` 拼 `.jsonl` | `wm`（`31997`） | confirmed |
 
 ### 论点二 · 去重：只认渠道给的幂等键，命中即幂等重放而非静默丢弃
 
@@ -735,17 +735,17 @@ channel.message / channel.command / channel.attached
 agent.result / agent.error / agent.tool_use / agent.tool_result
 job.spawn / job.complete / job.fail
 system.cadence_tick
-route.deliver                                 ← 会话→会话路由投递，tn(49150)
+route.deliver                                 ← 会话→会话路由投递（构造点 Ps，见下表）
 ```
 
 `GROUND_TRUTH` 中的 `channel.ack/ingress/pull/spawn/describe`、`session.*`、`job.completed/spawned` 等**未见** `on`+`sn` 构造点，属 RPC/bus 而非 Spine 落库，原文正确地未纳入。潜意识产出**复用** `agent.result`：`source.kind=meta`, `name=subconscious:<partition>`(`86177`), `payload.tick_type='subconscious'`(`86182`)，活体亦印证。
 
 | 机制主张 | 证据 | 位置 | 置信 |
 |---|---|---|---|
-| spine.tail limit clamp [1,500] 默认 200 | `Bue` `clamp(...??200,1,500)` | daemon 77105 | confirmed |
-| after_id 未命中回退前一日 | `setUTCDate(-1)` + 拼接 | daemon 77128-77135 | confirmed |
-| 落库事件含 route.deliver | `createSpineEvent (on)`(64398)+`atomicAppendEvent (sn)`(64413) | daemon 64358-64484 | confirmed |
-| 潜意识复用 agent.result | `tick_type:'subconscious'` | daemon 74435/74440 | confirmed |
+| spine.tail limit clamp [1,500] 默认 200 | `Math.min(Math.max(t?.limit ?? 200, 1), 500)` | `nve`（`88999`）；`Math.max(t?.limit ?? 200, 1)`（`89000`） | confirmed |
+| after_id 当日未命中且未收满时回退前一日 | `setUTCDate(-1)` 后以剩余额度倒读，找到游标才拼接 | `s.setUTCDate(s.getUTCDate() - 1)`（`89008`）；`[...a.events, ...o.events]`（`89011`） | confirmed |
+| 落库事件含 route.deliver | `type: "route.deliver"`（`64399`）经 `createSpineEvent (on)`（`64398`）+`atomicAppendEvent (sn)`（`64413`） | `Ps`（`64358-64484`） | confirmed |
+| 潜意识复用 agent.result | `type: "agent.result"` 带 `tick_type: "subconscious"` | `tick_type: "subconscious"`（`86182`） | confirmed |
 
 > **给 Agent PM 的洞察**
 > - **真理之源 = 纯文件 JSONL WAL，零数据库依赖**：所有派生态（会话状态/去重/消费进度/status）都可从「日志 + 指针」重建，极简、天然可审计、git-friendly——这正是本节塔尖结论的运营含义。
@@ -1096,11 +1096,13 @@ kind 值全部带显式版本后缀，注册表是十二键的 `Un`(`66620-66636
 **C1 · Orphan 三态状态机（`hwe`(`68372`)）给 STALE 之前留足宽限。** `hwe` 套壳 `$ct`(`68323`)（真正算 orphans/indeg/mtime），状态判定（`a = o.indeg >= 1 ? "ISLAND" : s < r ? "NEWBORN" : "STALE"`（`68385`））：
 
 ```
-age = mtimeMs>0 ? (refTimestampMs - mtimeMs)/dye : +∞     (dye = 3600*1e3, 62670)
+age = mtimeMs>0 ? (refTimestampMs - mtimeMs)/mwe : +∞     (mwe = 3600*1e3，即按小时计)
 indeg >= 1                → ISLAND    （被别的档案引用，但 board 不可达）
-else age < r              → NEWBORN   （r = newbornHours ?? QP，QP=48h：太新，给宽限）
+else age < r              → NEWBORN   （r = newbornHours ?? lO，lO=48h：太新，给宽限）
 else                      → STALE     （旧且孤立：可删）
 ```
+
+代码位置（v0.8.2）：`(t.refTimestampMs - o.mtimeMs) / mwe`（`68384`）、`mwe = 3600 * 1e3, lO = 48`（`68530`）、`let r = t.newbornHours ?? lO`（`68380`）。
 
 `indeg` 来源 `Nct`(`68481`)（调用点 `Nct`（`68336`））。`$ct` 同时对每个 orphan 现算 `indeg=s.get`（`68358`）与 `referencedBy=Dct`(`68492`)（`referencedBy: Dct(l, n)`（`68359`），列出具体引用文件），ISLAND note 正文（`Act`(`68454`)）就靠 `referencedBy` 生成"referenced-by"清单（表头 `referenced-by`（`68456`）、逐行 `s.referencedBy.join(" ")`（`68459`））。**注意优先级**：`mtimeMs<=0 → 直接 STALE` 仅当 `indeg=0` 时成立；`indeg>=1` 时无论 age 都判 ISLAND（`o.indeg >= 1 ? "ISLAND"`（`68385`））。
 
@@ -1109,11 +1111,13 @@ else                      → STALE     （旧且孤立：可删）
 **C3 · git 软删 + 失败回滚 + 锁保护。** `.git/index.lock`（`68410`）存在则 `return []`；否则：
 
 ```
-git rm --ignore-unmatch -- <files>                                   (56652)
-git diff --cached --name-only --diff-filter=D -- <files>             (56657，含 --name-only)
-git -c user.name=aladuo -c user.email=aladuo@local commit -m <msg> -- <files>   (56664)
-失败 → git reset --quiet -- <files>  +  git checkout -- <files>       (56668–56674)
+git rm --ignore-unmatch -- <files>
+git diff --cached --name-only --diff-filter=D -- <files>             （含 --name-only）
+git -c user.name=aladuo -c user.email=aladuo@local commit -m <msg> -- <files>
+失败 → git reset --quiet -- <files>  +  git checkout -- <files>
 ```
+
+四条命令都由 `forgetMemoryEntry (ywe)`（`68404-68438`）经 `Sg("git", …)` 同步执行（v0.8.2）：`"--ignore-unmatch"`（`68412`）、`"--diff-filter=D"`（`68417`）、`"user.name=aladuo"`（`68424`）、失败回滚 `"reset", "--quiet"`（`68428`）与 `"checkout", "--"`（`68431`）。
 
 > 注意 commit 命令语义：`-c` 是 **git 顶层 config 开关（位于子命令 `commit` 之前）**，非 `commit -c`（后者 = 复用某提交的 message）。`jct`(`68521`)生成 commit message，confirmed。
 
