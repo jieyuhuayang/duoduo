@@ -18,10 +18,16 @@
 // Only (1) and (2) can fail the build, so a routine version bump produces a
 // mechanical `--fix`, not an archaeology session.
 //
-// Recognised forms (the ones CLAUDE.md prescribes):
+// Recognised forms (the ones CLAUDE.md prescribes), checked for (1)-(3):
 //   `realName (short)`（`daemon.pretty.js:1234-1299`）
 //   `realName (short)`（`1234`）
 //   `daemon.pretty.js:1234-1299` (`short`=realName)
+// Every other `realName (short)` pairing -- no line, a line in another shape,
+// no backticks (diagrams, tables, prose) -- is checked for (2): a short name is
+// a claim about code whatever surrounds it, and those forms are exactly where
+// stale ones had accumulated unseen. Only pairings whose real name is in the
+// index count, and the gap before the parenthesis must be whitespace or a
+// full-width （, so a call like `realName(e)` is not read as a citation.
 // Plus bare `realName` mentions in backticks, which are checked for (1) only.
 //
 // Usage: node verify_citations.mjs <symbols.json>[,<symbols2.json>...] <doc.md...> [--fix] [--quiet]
@@ -88,15 +94,17 @@ const BUNDLE = "(?:(daemon|cli|stdio)(?:\\.pretty)?\\.js:)?";
 // `Real (short)` followed by a （...） or (...) carrying an optional bundle
 // prefix and a line or range.
 const FORWARD = new RegExp(
-  "`(" + ID + ")\\s*\\((" + ID + ")\\)`\\s*[（(]\\s*`?" + BUNDLE + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`?",
+  "`(" + ID + ")\\s*\\((" + ID + ")\\)`\\s*[（(]\\s*`?" + BUNDLE + "(\\d{1,6})(?:\\s*[-–]\\s*(\\d{1,6}))?`?",
   "g");
 // `bundle.js:1234-1299` (`short`=Real)
 const REVERSED = new RegExp(
-  "`" + BUNDLE + "(\\d{4,6})(?:\\s*[-–]\\s*(\\d{4,6}))?`\\s*[（(]\\s*`(" + ID + ")`\\s*=\\s*(" + ID + ")",
+  "`" + BUNDLE + "(\\d{1,6})(?:\\s*[-–]\\s*(\\d{1,6}))?`\\s*[（(]\\s*`(" + ID + ")`\\s*=\\s*(" + ID + ")",
   "g");
+// any `Real (short)` / Real (short) / Real（short）, identity only
+const PAIR = new RegExp("(?<![A-Za-z0-9_$])(" + ID + ")(?:\\s+\\(|\\s*（)\\s*`?(" + ID + ")`?\\s*[)）]", "g");
 const BARE_NAME = /`([A-Za-z_$][A-Za-z0-9_$]{5,})`/g;
 
-let missingSymbol = 0, wrongMangled = 0, wrongLine = 0, checked = 0, mentions = 0, fixedCount = 0;
+let missingSymbol = 0, wrongMangled = 0, wrongLine = 0, checked = 0, pairs = 0, mentions = 0, fixedCount = 0;
 const problems = [];
 
 for (const doc of DOCS) {
@@ -137,7 +145,10 @@ for (const doc of DOCS) {
     // the mangled name. Only a line that is neither is stale.
     const srcLines = bundleSrc.get(sym.bundle || bundle || DEFAULT_BUNDLE);
     const inside = n => Number(n) >= sym.line && Number(n) <= sym.endLine;
-    const refs = n => srcLines ? (srcLines[Number(n) - 1] || "").includes(sym.mangled) : true;
+    // whole-identifier match: a substring test accepts any line that happens to
+    // contain the letters (`on` is inside half the bundle)
+    const mention = new RegExp("(?<![A-Za-z0-9_$])" + sym.mangled.replace(/\$/g, "\\$") + "(?![A-Za-z0-9_$])");
+    const refs = n => srcLines ? mention.test(srcLines[Number(n) - 1] || "") : true;
     const holds = n => inside(n) || refs(n);
     const drifted = from && (!holds(from) || (to && !holds(to)));
     if (drifted) {
@@ -153,10 +164,24 @@ for (const doc of DOCS) {
   };
 
   let m;
+  const seenPair = new Set(); // offsets already checked by FORWARD, so PAIR does not double count
   FORWARD.lastIndex = 0;
-  while ((m = FORWARD.exec(text))) handle("forward", m, m[1], m[2], m[3] || DEFAULT_BUNDLE, m[4], m[5]);
+  while ((m = FORWARD.exec(text))) { seenPair.add(m.index + 1); handle("forward", m, m[1], m[2], m[3] || DEFAULT_BUNDLE, m[4], m[5]); }
   REVERSED.lastIndex = 0;
   while ((m = REVERSED.exec(text))) handle("reversed", m, m[5], m[4], m[1] || DEFAULT_BUNDLE, m[2], m[3]);
+
+  PAIR.lastIndex = 0;
+  while ((m = PAIR.exec(text))) {
+    const [, real, short] = m;
+    if (seenPair.has(m.index)) continue;
+    const sym = lookup(real);
+    if (!sym || short === real) continue;
+    pairs++;
+    if (sym.mangled !== short) {
+      wrongMangled++;
+      problems.push({ sev: "FATAL", doc, line: lineOf(m.index), msg: `\`${real}\` is \`${sym.mangled}\`, cited as \`${short}\`` });
+    }
+  }
 
   // Bare mentions: a backticked identifier of 6+ chars that IS a known symbol
   // name is a claim about code, even without a line. Worth counting, and worth
@@ -180,7 +205,7 @@ if (!QUIET) {
   for (const p of fixable.slice(0, 40)) console.error(`  fix    ${p.doc}:${p.line}  ${p.msg}`);
   if (fixable.length > 40) console.error(`  ... and ${fixable.length - 40} more fixable line offsets`);
 }
-console.error(`  citations: ${checked} checked, ${mentions} bare symbol mentions`
+console.error(`  citations: ${checked} checked with line, ${pairs} more name/short pairs checked, ${mentions} bare symbol mentions`
   + `; ${missingSymbol} missing symbol, ${wrongMangled} wrong short name, ${wrongLine} wrong line`
   + (FIX ? ` (${fixedCount} rewritten)` : ""));
 

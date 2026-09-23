@@ -1,5 +1,6 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: createSessionManager  (minified: Tgt, daemon.pretty.js:83621)
+// name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -599,7 +600,7 @@ function createSessionManager(e) {
                                     let Gt = et.createdAt ? {
                                             notAfter: et.createdAt
                                         } : void 0,
-                                        Ot = bn.events.get(et.eventId) ?? await Md(t, et.eventId, Gt);
+                                        Ot = bn.events.get(et.eventId) ?? await readEventById(t, et.eventId, Gt);
                                     if (!Ot) {
                                         Z(`[session-manager] mailbox event unresolved: session_key=${P} event_id=${et.eventId} not_after=${Gt?.notAfter??"none"} item_file=${et.file??"none"}`);
                                         continue

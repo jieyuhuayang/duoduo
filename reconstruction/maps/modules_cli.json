@@ -6,17 +6,17 @@
   "firstParty": [
     {
       "marker": [
-        "PLIST_LABEL",
         "generatePlist",
-        "getLaunchdPid"
+        "installAndLoad",
+        "isServiceLoaded"
       ],
       "names": 11,
       "note": "launchd service management. v0.8.2 dropped getRunAtLoad/setRunAtLoad with the `daemon enable-autostart`/`disable-autostart` verbs; the three markers are untouched, so the record still matches."
     },
     {
       "marker": [
-        "jobHelp",
-        "parseJobCli",
+        "renderInterruptReceipt",
+        "renderRpcError",
         "runJobSubcommand"
       ],
       "names": 7,
@@ -26,7 +26,7 @@
       "marker": [
         "renderCompactResult",
         "renderConfigResult",
-        "renderSessionList"
+        "runSessionSubcommand"
       ],
       "names": 4,
       "note": "session subcommand"

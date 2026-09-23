@@ -1,9 +1,10 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: atomicWriteFileSync  (minified: Z9e, daemon.pretty.js:32008)
+// symbol: appendEventToPartition  (minified: Z9e, daemon.pretty.js:32008)
+// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function atomicWriteFileSync(e, t, n = new Date(t.ts)) {
+async function appendEventToPartition(e, t, n = new Date(t.ts)) {
     await Oe(e.eventsDir);
     let r = wm(n),
         i = sR.join(e.eventsDir, r),

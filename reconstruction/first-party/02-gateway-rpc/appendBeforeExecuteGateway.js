@@ -1,5 +1,6 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: appendBeforeExecuteGateway  (minified: Gle, daemon.pretty.js:87194)
+// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -51,7 +52,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
             event_id: r.id
         });
         if (f.duplicate && f.existing?.event_id) {
-            let p = await Md(e, f.existing.event_id, {
+            let p = await readEventById(e, f.existing.event_id, {
                 notAfter: f.existing.ts
             });
             if (p) {

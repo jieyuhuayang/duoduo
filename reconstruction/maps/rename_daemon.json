@@ -117,7 +117,7 @@
   "Xw": "handleDrainError",
   "cse": "rehydrateSessionState",
   "Pc": "walkReachableMemory",
-  "Tc": "collectMemoryLinks",
+  "Tc": "createMemorySlugReader",
   "Ff": "resolveMemoryLinkTargets",
   "Di": "resolveMemoryDirs",
   "hwe": "detectOrphanMemory",
@@ -128,8 +128,8 @@
   "zbe": "setPendingRestartReason",
   "Bbe": "renderDaemonRestartHint",
   "sn": "atomicAppendEvent",
-  "Z9e": "atomicWriteFileSync",
-  "Y9e": "readEventByIdSeek",
+  "Z9e": "appendEventToPartition",
+  "Y9e": "scanPartitionsForEventId",
   "Gle": "appendBeforeExecuteGateway",
   "plt": "runBoardLint",
   "Hlt": "runGapLint",
@@ -148,5 +148,6 @@
   "qat": "listSessionsWithRecentConsumer",
   "C$": "renderNotifyRefusalMessage",
   "Q9e": "isUsableEventIndexEntry",
-  "Vst": "mapGrokUsageToDrainUsage"
+  "Vst": "mapGrokUsageToDrainUsage",
+  "Md": "readEventById"
 }

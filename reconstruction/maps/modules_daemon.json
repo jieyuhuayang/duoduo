@@ -1,58 +1,90 @@
 {
   "bundle": "daemon",
-  "recordedAt": "@openduo/duoduo v0.8.1",
+  "recordedAt": "@openduo/duoduo v0.8.2",
   "note": "Per-module first-party/vendor decision. esbuild emits one __export block per source module, so this is a structural fact about the bundle, not a guess from names. A block is matched to a record when 2 of its 3 marker names are present, which tolerates exports being added or removed between releases. A block matching neither list stops the build: a new upstream module is one decision, not N unknown names.",
   "vendor": [
     {
       "marker": [
-        "BIGINT_FORMAT_RANGES",
-        "Class",
-        "NUMBER_FORMAT_RANGES"
+        "base64urlToUint8Array",
+        "createTransparentProxy",
+        "jsonStringifyReplacer"
       ],
-      "names": 63,
+      "names": 75,
       "note": "zod core/util"
     },
     {
       "marker": [
-        "base64",
-        "base64url",
-        "bigint"
+        "extendedDuration",
+        "sha256_base64url",
+        "sha384_base64url"
       ],
-      "names": 59,
+      "names": 64,
       "note": "zod core/regexes"
     },
     {
       "marker": [
-        "ar",
-        "az",
-        "be"
+        "frCA",
+        "ptBR",
+        "zhCN"
       ],
-      "names": 52,
+      "names": 63,
       "note": "zod locales"
     },
     {
       "marker": [
-        "$ZodAny",
-        "$ZodArray",
-        "$ZodAsyncError"
+        "$ZodCustomStringFormat",
+        "createStandardJSONSchemaMethod",
+        "createToJSONSchemaMethod"
       ],
-      "names": 274,
+      "names": 312,
       "note": "zod core schema classes"
     },
     {
       "marker": [
         "endsWith",
         "gt",
-        "gte"
+        "gte",
+        "includes",
+        "length",
+        "lowercase",
+        "lt",
+        "lte",
+        "maxLength",
+        "maxSize",
+        "mime",
+        "minLength",
+        "minSize",
+        "multipleOf",
+        "negative",
+        "nonnegative",
+        "nonpositive",
+        "normalize",
+        "overwrite",
+        "positive",
+        "properties",
+        "property",
+        "regex",
+        "size",
+        "slugify",
+        "startsWith",
+        "toLowerCase",
+        "toUpperCase",
+        "trim",
+        "uppercase"
       ],
-      "names": 29,
+      "names": 30,
       "note": "zod classic/checks"
     },
     {
       "marker": [
         "ZodISODate",
         "ZodISODateTime",
-        "ZodISODuration"
+        "ZodISODuration",
+        "ZodISOTime",
+        "date",
+        "datetime",
+        "duration",
+        "time"
       ],
       "names": 8,
       "note": "zod classic/iso"
@@ -61,27 +93,202 @@
       "marker": [
         "ZodAny",
         "ZodArray",
-        "ZodBase64"
+        "ZodBase64",
+        "ZodBase64URL",
+        "ZodBigInt",
+        "ZodBigIntFormat",
+        "ZodBoolean",
+        "ZodCIDRv4",
+        "ZodCIDRv6",
+        "ZodCUID",
+        "ZodCUID2",
+        "ZodCatch",
+        "ZodCodec",
+        "ZodCreditCard",
+        "ZodCustom",
+        "ZodCustomStringFormat",
+        "ZodDate",
+        "ZodDefault",
+        "ZodDiscriminatedUnion",
+        "ZodE164",
+        "ZodEmail",
+        "ZodEmoji",
+        "ZodEnum",
+        "ZodExactOptional",
+        "ZodFile",
+        "ZodFunction",
+        "ZodGUID",
+        "ZodIBAN",
+        "ZodIPv4",
+        "ZodIPv6",
+        "ZodISODate",
+        "ZodISODateTime",
+        "ZodISODuration",
+        "ZodISOTime",
+        "ZodInstanceOf",
+        "ZodIntersection",
+        "ZodJWT",
+        "ZodKSUID",
+        "ZodLazy",
+        "ZodLiteral",
+        "ZodMAC",
+        "ZodMap",
+        "ZodNaN",
+        "ZodNanoID",
+        "ZodNever",
+        "ZodNonOptional",
+        "ZodNull",
+        "ZodNullable",
+        "ZodNumber",
+        "ZodNumberFormat",
+        "ZodObject",
+        "ZodOptional",
+        "ZodPipe",
+        "ZodPrefault",
+        "ZodPreprocess",
+        "ZodPromise",
+        "ZodReadonly",
+        "ZodRecord",
+        "ZodSet",
+        "ZodString",
+        "ZodStringFormat",
+        "ZodSuccess",
+        "ZodSymbol",
+        "ZodTemplateLiteral",
+        "ZodTransform",
+        "ZodTuple",
+        "ZodType",
+        "ZodULID",
+        "ZodURL",
+        "ZodUUID",
+        "ZodUndefined",
+        "ZodUnion",
+        "ZodUnknown",
+        "ZodVoid",
+        "ZodXID",
+        "ZodXor",
+        "_ZodString",
+        "_default",
+        "_function",
+        "any",
+        "array",
+        "base64",
+        "base64url",
+        "bigint",
+        "boolean",
+        "catch",
+        "check",
+        "cidrv4",
+        "cidrv6",
+        "codec",
+        "creditCard",
+        "cuid",
+        "cuid2",
+        "currencyCode",
+        "custom",
+        "date",
+        "describe",
+        "discriminatedUnion",
+        "e164",
+        "email",
+        "emoji",
+        "enum",
+        "exactOptional",
+        "file",
+        "float32",
+        "float64",
+        "function",
+        "guid",
+        "hash",
+        "hex",
+        "hostname",
+        "httpUrl",
+        "iban",
+        "instanceof",
+        "int",
+        "int32",
+        "int64",
+        "intersection",
+        "invertCodec",
+        "ipv4",
+        "ipv6",
+        "json",
+        "jwt",
+        "keyof",
+        "ksuid",
+        "lazy",
+        "literal",
+        "looseObject",
+        "looseRecord",
+        "mac",
+        "map",
+        "meta",
+        "nan",
+        "nanoid",
+        "nativeEnum",
+        "never",
+        "nonoptional",
+        "null",
+        "nullable",
+        "nullish",
+        "number",
+        "object",
+        "optional",
+        "partialRecord",
+        "pipe",
+        "prefault",
+        "preprocess",
+        "promise",
+        "readonly",
+        "record",
+        "refine",
+        "set",
+        "strictObject",
+        "string",
+        "stringFormat",
+        "stringbool",
+        "success",
+        "superRefine",
+        "symbol",
+        "templateLiteral",
+        "transform",
+        "tuple",
+        "uint32",
+        "uint64",
+        "ulid",
+        "undefined",
+        "union",
+        "unknown",
+        "url",
+        "uuid",
+        "uuidv4",
+        "uuidv6",
+        "uuidv7",
+        "void",
+        "xid",
+        "xor"
       ],
-      "names": 166,
+      "names": 176,
       "note": "zod classic/schemas"
     },
     {
       "marker": [
         "bigint",
         "boolean",
-        "date"
+        "date",
+        "number",
+        "string"
       ],
       "names": 5,
       "note": "zod classic/coerce"
     },
     {
       "marker": [
-        "$brand",
-        "$input",
-        "$output"
+        "ZodFirstPartyTypeKind",
+        "ZodIssueCode",
+        "fromJSONSchema"
       ],
-      "names": 238,
+      "names": 258,
       "note": "zod classic/external (public surface)"
     }
   ],
@@ -89,8 +296,8 @@
     {
       "marker": [
         "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
-        "appendDrainRecord",
-        "detectInProcessBreak"
+        "readAllSessionSummaries",
+        "readRecentDrainRecords"
       ],
       "names": 9,
       "note": "drain records and usage totals"
@@ -98,26 +305,26 @@
     {
       "marker": [
         "AgentSdkPromptNotAcceptedAbortError",
-        "AgentSdkTurnInterruptedError",
-        "CLAUDE_CORE_TOOLS"
+        "buildSystemPromptForChannelConfig",
+        "isAgentSdkPromptNotAcceptedAbortError"
       ],
       "names": 24,
       "note": "Claude Agent SDK runtime adapter"
     },
     {
       "marker": [
-        "ALADUO_TOOL_NAMESPACE",
         "__setCodexAvailabilityForTests",
-        "buildBaseInstructions"
+        "codexNotificationFilterDecision",
+        "extractCodexGeneratedImageAttachment"
       ],
       "names": 19,
       "note": "Codex app-server runtime adapter"
     },
     {
       "marker": [
-        "GROK_ACP_COMPACT",
-        "GROK_ACP_EXT_PREFIX",
-        "GROK_ACP_SDK_CALL"
+        "GROK_DISALLOWED_TOOLS",
+        "GROK_MCP_SERVERS_META",
+        "__setGrokAvailabilityForTests"
       ],
       "names": 15,
       "note": "Grok ACP runtime adapter"
@@ -143,8 +350,8 @@
     {
       "marker": [
         "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
-        "DAEMON_TOKEN_ENV_KEY",
-        "HOST_MODEL_ENV_KEYS"
+        "clearHostModelEnvConfig",
+        "writeHostClaudeCodeExecutableEnvConfig"
       ],
       "names": 14,
       "note": "host-mode env config and .env loading"
@@ -168,9 +375,9 @@
     },
     {
       "marker": [
-        "SESSION_SCHEMA_VERSION",
-        "computeBoardLayerHash",
-        "computeInstructionsFingerprint"
+        "computeInstructionsFingerprint",
+        "computeNonBoardInstructionsFingerprint",
+        "runInstructionsFingerprintGuard"
       ],
       "names": 8,
       "note": "session manager and instruction fingerprints"

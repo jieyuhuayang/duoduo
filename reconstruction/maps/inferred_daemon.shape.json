@@ -1,21 +1,32 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-09-21",
+  "recorded": "2026-09-23",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
       "params": 2,
-      "literals": []
+      "literals": [],
+      "props": [
+        "toISOString"
+      ]
     },
     "advanceConsumerWatermark": {
       "kind": "async function",
       "params": 4,
-      "literals": []
+      "literals": [],
+      "props": [
+        "byte_offset",
+        "partition",
+        "toISOString"
+      ]
     },
     "transcludeBroadcastBoard": {
       "kind": "async function",
       "params": 1,
-      "literals": []
+      "literals": [],
+      "props": [
+        "resolve"
+      ]
     },
     "handleDrainError": {
       "kind": "async function",
@@ -29,6 +40,26 @@
         "idle-compact",
         "runner",
         "session.output"
+      ],
+      "props": [
+        "anchor",
+        "bus",
+        "emit",
+        "error",
+        "event",
+        "hintContext",
+        "item",
+        "length",
+        "message",
+        "name",
+        "payloadExtra",
+        "precedingRecords",
+        "records",
+        "session_key",
+        "slice",
+        "source",
+        "stage",
+        "userText"
       ]
     },
     "rehydrateSessionState": {
@@ -39,22 +70,60 @@
         "sessions.snapshot.json",
         "state.json",
         "utf8"
+      ],
+      "props": [
+        "catch",
+        "endsWith",
+        "isDirectory",
+        "join",
+        "parse",
+        "push",
+        "readFile",
+        "readdir",
+        "registrySessionsDir",
+        "session_key",
+        "sessionsDir",
+        "slice",
+        "startsWith",
+        "stat",
+        "stringify",
+        "writeFile"
       ]
     },
     "walkReachableMemory": {
       "kind": "function",
       "params": 2,
-      "literals": []
+      "literals": [],
+      "props": [
+        "add",
+        "filter",
+        "has",
+        "length",
+        "sort"
+      ]
     },
-    "collectMemoryLinks": {
+    "createMemorySlugReader": {
       "kind": "function",
       "params": 1,
-      "literals": []
+      "literals": [],
+      "props": [
+        "effectivenessDir",
+        "entitiesDir",
+        "join",
+        "length",
+        "push",
+        "topicsDir"
+      ]
     },
     "resolveMemoryLinkTargets": {
       "kind": "function",
       "params": 1,
-      "literals": []
+      "literals": [],
+      "props": [
+        "add",
+        "slug",
+        "sort"
+      ]
     },
     "resolveMemoryDirs": {
       "kind": "function",
@@ -64,6 +133,9 @@
         "effectiveness",
         "entities",
         "topics"
+      ],
+      "props": [
+        "join"
       ]
     },
     "detectOrphanMemory": {
@@ -73,6 +145,17 @@
         "ISLAND",
         "NEWBORN",
         "STALE"
+      ],
+      "props": [
+        "POSITIVE_INFINITY",
+        "indeg",
+        "map",
+        "missing",
+        "mtimeMs",
+        "newbornHours",
+        "orphans",
+        "refTimestampMs",
+        "resolve"
       ]
     },
     "enforceContractGate": {
@@ -86,6 +169,12 @@
         "partition-disabled",
         "self-id-mismatch",
         "valid"
+      ],
+      "props": [
+        "consumes",
+        "enabled",
+        "has",
+        "state"
       ]
     },
     "forgetMemoryEntry": {
@@ -108,24 +197,46 @@
         "user.email=aladuo@local",
         "user.name=aladuo",
         "utf8"
+      ],
+      "props": [
+        "dryRun",
+        "error",
+        "existsSync",
+        "filter",
+        "join",
+        "length",
+        "map",
+        "rel",
+        "sort",
+        "split",
+        "state",
+        "status",
+        "stdout",
+        "trim"
       ]
     },
     "mergeClaudeToolLists": {
       "kind": "function",
       "params": 2,
-      "literals": []
+      "literals": [],
+      "props": []
     },
     "daemonRestartReasonPath": {
       "kind": "function",
       "params": 1,
       "literals": [
         "daemon-restart-reason.json"
+      ],
+      "props": [
+        "join",
+        "varDir"
       ]
     },
     "setPendingRestartReason": {
       "kind": "function",
       "params": 1,
-      "literals": []
+      "literals": [],
+      "props": []
     },
     "renderDaemonRestartHint": {
       "kind": "function",
@@ -134,22 +245,56 @@
         " (requested ",
         " Restart reason, given by the caller: ",
         "[system] You're running under a new daemon process (started "
+      ],
+      "props": [
+        "reason",
+        "requested_at"
       ]
     },
     "atomicAppendEvent": {
       "kind": "async function",
       "params": 2,
-      "literals": []
+      "literals": [],
+      "props": [
+        "byteLength",
+        "byteOffset",
+        "event",
+        "id",
+        "partition"
+      ]
     },
-    "atomicWriteFileSync": {
+    "appendEventToPartition": {
       "kind": "async function",
       "params": 3,
-      "literals": []
+      "literals": [],
+      "props": [
+        "bytesWritten",
+        "close",
+        "eventsDir",
+        "join",
+        "open",
+        "size",
+        "stat",
+        "ts",
+        "write"
+      ]
     },
-    "readEventByIdSeek": {
+    "scanPartitionsForEventId": {
       "kind": "async function",
       "params": 3,
-      "literals": []
+      "literals": [],
+      "props": [
+        "eventsDir",
+        "filter",
+        "isFinite",
+        "join",
+        "notAfter",
+        "parse",
+        "readdir",
+        "reverse",
+        "sort",
+        "test"
+      ]
     },
     "appendBeforeExecuteGateway": {
       "kind": "async function",
@@ -166,6 +311,47 @@
         "meta:subconscious",
         "number",
         "spine.event"
+      ],
+      "props": [
+        "attachments",
+        "bus",
+        "checkAndRecordDetailed",
+        "command",
+        "dedupSourceId",
+        "duplicate",
+        "emit",
+        "eventType",
+        "event_id",
+        "eventsDir",
+        "existing",
+        "gatewayCommands",
+        "handled",
+        "health",
+        "id",
+        "idle_ms",
+        "intent",
+        "isFinite",
+        "join",
+        "outboxId",
+        "payload",
+        "rawCommand",
+        "rawPayload",
+        "raw_path",
+        "replyFanoutSessionKeys",
+        "responseText",
+        "routingHint",
+        "routing_hint",
+        "sessionKey",
+        "sourceChannelId",
+        "sourceKind",
+        "sourceName",
+        "spine",
+        "tags",
+        "target",
+        "text",
+        "threshold_at_fire",
+        "ts",
+        "type"
       ]
     },
     "runBoardLint": {
@@ -183,6 +369,21 @@
         "legacy",
         "merge-",
         "pattern-tracker"
+      ],
+      "props": [
+        "MERGE",
+        "REVISE",
+        "cls",
+        "dual",
+        "filter",
+        "floor",
+        "fmt",
+        "isFinite",
+        "push",
+        "slice",
+        "slug",
+        "trajectory",
+        "verdict"
       ]
     },
     "runGapLint": {
@@ -191,6 +392,20 @@
       "literals": [
         ".jsonl",
         "T00:00:00.000Z"
+      ],
+      "props": [
+        "date",
+        "dates",
+        "events",
+        "includes",
+        "interaction",
+        "join",
+        "length",
+        "msOfDay",
+        "parse",
+        "readFault",
+        "slice",
+        "toISOString"
       ]
     },
     "routeContractDecision": {
@@ -202,6 +417,11 @@
         "lesson-",
         "pattern-tracker",
         "topics/"
+      ],
+      "props": [
+        "rel",
+        "slug",
+        "startsWith"
       ]
     },
     "claimDaemonRestartReason": {
@@ -211,6 +431,21 @@
         "string",
         "unknown time",
         "utf8"
+      ],
+      "props": [
+        "catch",
+        "filter",
+        "isArray",
+        "length",
+        "map",
+        "parse",
+        "readFile",
+        "reason",
+        "requested_at",
+        "requested_by_agent",
+        "rm",
+        "trim",
+        "wake_targets"
       ]
     },
     "computeDedupKey": {
@@ -218,6 +453,12 @@
       "params": 1,
       "literals": [
         "unknown"
+      ],
+      "props": [
+        "dedup",
+        "kind",
+        "source",
+        "source_id"
       ]
     },
     "applyJobSdkConfigOverride": {
@@ -225,17 +466,45 @@
       "params": 2,
       "literals": [
         "instance"
+      ],
+      "props": [
+        "additionalDirectories",
+        "allowedTools",
+        "claudeModelAliasIssues",
+        "claudeModelAliases",
+        "claudeModelProfileIssues",
+        "claudeModelProfiles",
+        "claudeTools",
+        "disallowedTools",
+        "piConfigIssues",
+        "piExtensions",
+        "piSkills",
+        "prompt_mode"
       ]
     },
     "getPendingRestartReason": {
       "kind": "function",
       "params": 0,
-      "literals": []
+      "literals": [],
+      "props": [
+        "length",
+        "reason"
+      ]
     },
     "batchDrainItems": {
       "kind": "async function",
       "params": 3,
-      "literals": []
+      "literals": [],
+      "props": [
+        "POSITIVE_INFINITY",
+        "abs",
+        "fallbackBatchSize",
+        "length",
+        "mergeWindowMs",
+        "perf",
+        "push",
+        "ts"
+      ]
     },
     "buildTransientUserBlocks": {
       "kind": "function",
@@ -264,6 +533,29 @@
         "text",
         "time-context",
         "user-input"
+      ],
+      "props": [
+        "boardPath",
+        "boardUpdated",
+        "command",
+        "command_name",
+        "compactNotice",
+        "created_at",
+        "cwd",
+        "daemonRestartHint",
+        "gatewayNotice",
+        "interruptedContext",
+        "isUserMessage",
+        "jobReceipts",
+        "jobTick",
+        "join",
+        "push",
+        "result_summary",
+        "skipRewind",
+        "startedAt",
+        "startsWith",
+        "timeGap",
+        "trimStart"
       ]
     },
     "drainSessionMailbox": {
@@ -294,6 +586,68 @@
         "codex",
         "compact_boundary",
         "default"
+      ],
+      "props": [
+        "abortController",
+        "aborted",
+        "acquired",
+        "actorLastTurnCompletedAt",
+        "actorSpawnedAt",
+        "additionalDirectories",
+        "aliases",
+        "allowedTools",
+        "anchorChannelConfig",
+        "auto_compact_idle_minutes",
+        "batchSize",
+        "blocks",
+        "boardHash",
+        "boardUpdatedInjected",
+        "bus",
+        "cache_create",
+        "cache_creation_input_tokens",
+        "cache_read",
+        "cache_read_input_tokens",
+        "cancelled",
+        "catch",
+        "command",
+        "compactNoticeInjected",
+        "compact_stats",
+        "configLayer",
+        "consumed",
+        "context_used_tokens",
+        "createdAt",
+        "cron",
+        "cwd",
+        "daemonRestartHintInjected",
+        "data",
+        "disallowedTools",
+        "effectiveModel",
+        "effort",
+        "event",
+        "eventId",
+        "eventIds",
+        "events",
+        "excludeEventIds",
+        "exec",
+        "file",
+        "filter",
+        "firstTokenLatencyMs",
+        "forkFrom",
+        "gatewayNoticeInjected",
+        "get",
+        "getStreamGeneration",
+        "hadOutput",
+        "has",
+        "holdInputOpenForBackgroundAgents",
+        "id",
+        "inject",
+        "injectionResult",
+        "input_tokens",
+        "intent",
+        "interruptedContextInjected",
+        "isError",
+        "isNotifyOnly",
+        "item"
       ]
     },
     "classifyModelContextRequirement": {
@@ -302,6 +656,11 @@
       "literals": [
         "explicit-1m",
         "native-claude"
+      ],
+      "props": [
+        "endsWith",
+        "hasOwn",
+        "startsWith"
       ]
     },
     "evaluateNotifyConsumerRefusal": {
@@ -309,23 +668,53 @@
       "params": 2,
       "literals": [
         "channel"
+      ],
+      "props": [
+        "age_ms",
+        "now",
+        "unconsumed"
       ]
     },
     "resolveNotifyUnconsumedHours": {
       "kind": "function",
       "params": 1,
-      "literals": []
+      "literals": [],
+      "props": [
+        "env",
+        "isFinite"
+      ]
     },
     "classifyConsumerStaleness": {
       "kind": "function",
       "params": 3,
-      "literals": []
+      "literals": [],
+      "props": [
+        "NaN",
+        "isFinite",
+        "last_cursor_advance_at",
+        "oldest_waiting_created_at",
+        "parse",
+        "records_past_cursor"
+      ]
     },
     "listSessionsWithRecentConsumer": {
       "kind": "async function",
       "params": 4,
       "literals": [
         "channel"
+      ],
+      "props": [
+        "age_ms",
+        "display_name",
+        "isFinite",
+        "listByKind",
+        "localeCompare",
+        "max",
+        "now",
+        "parse",
+        "push",
+        "session_key",
+        "sort"
       ]
     },
     "renderNotifyRefusalMessage": {
@@ -347,12 +736,28 @@
         "Sessions a consumer has taken output from within the last ",
         "This session has never had a consumer, its oldest unread output is ",
         "When you re-send it, open with what it is and that it was meant for "
+      ],
+      "props": [
+        "age_ms",
+        "display_name",
+        "join",
+        "last_cursor_advance_at",
+        "length",
+        "push",
+        "records_past_cursor",
+        "session_key"
       ]
     },
     "isUsableEventIndexEntry": {
       "kind": "function",
       "params": 1,
-      "literals": []
+      "literals": [],
+      "props": [
+        "byte_len",
+        "byte_offset",
+        "event_id",
+        "isSafeInteger"
+      ]
     },
     "mapGrokUsageToDrainUsage": {
       "kind": "function",
@@ -360,7 +765,24 @@
       "literals": [
         "grok",
         "string"
+      ],
+      "props": [
+        "_meta",
+        "cacheCreationTokens",
+        "cachedReadTokens",
+        "costUsdTicks",
+        "inputTokens",
+        "modelId",
+        "outputTokens",
+        "totalTokens",
+        "usage"
       ]
+    },
+    "readEventById": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": []
     }
   }
 }

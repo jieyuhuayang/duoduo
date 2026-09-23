@@ -140,18 +140,18 @@ for (const seg of segments) {
     seenNames.set(key, n);
     const fname = n > 1 ? `${base}__${n}.${seg.wrapperKind}.js` : `${base}.${seg.wrapperKind}.js`;
     fs.writeFileSync(path.join(OUTDIR, "modules", fname), text);
-    manifest.push({ kind: "module", name: seg.name, wrapperKind: seg.wrapperKind, file: `modules/${fname}`, bytes: text.length, start: seg.start, end: seg.end });
+    manifest.push({ kind: "module", name: seg.name, wrapperKind: seg.wrapperKind, file: `modules/${fname}`, bytes: Buffer.byteLength(text), start: seg.start, end: seg.end });
   } else {
     const fname = `shell_${String(shellIdx).padStart(4, "0")}.js`;
     shellIdx++;
     fs.writeFileSync(path.join(OUTDIR, "shell", fname), text);
-    manifest.push({ kind: "shell", file: `shell/${fname}`, bytes: text.length, start: seg.start, end: seg.end });
+    manifest.push({ kind: "shell", file: `shell/${fname}`, bytes: Buffer.byteLength(text), start: seg.start, end: seg.end });
   }
 }
 
 fs.writeFileSync(
   path.join(OUTDIR, "manifest.json"),
-  JSON.stringify({ input: path.resolve(INPUT), totalBytes: src.length, moduleCount: manifest.filter(s => s.kind === "module").length, shellCount: manifest.filter(s => s.kind === "shell").length, segments: manifest }, null, 2)
+  JSON.stringify({ input: path.resolve(INPUT), totalBytes: Buffer.byteLength(src), totalChars: src.length, moduleCount: manifest.filter(s => s.kind === "module").length, shellCount: manifest.filter(s => s.kind === "shell").length, segments: manifest }, null, 2)
 );
 
 console.log(`parsed ${body.length} top-level statements`);

@@ -12,13 +12,13 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 38,
-      "renameEntries": 150,
-      "renamesApplied": 150,
-      "referencesRewritten": 581,
+      "inferredNames": 39,
+      "renameEntries": 151,
+      "renamesApplied": 151,
+      "referencesRewritten": 586,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 150
+      "indexedSymbols": 151
     },
     "cli": {
       "prettyLines": 75391,
@@ -39,11 +39,11 @@
     }
   },
   "firstPartyTree": {
-    "files": 150,
+    "files": 151,
     "subsystems": 12,
     "bySubsystem": {
       "00-daemon-entry": 7,
-      "01-spine-wal": 7,
+      "01-spine-wal": 8,
       "02-gateway-rpc": 4,
       "03-session-actor": 13,
       "04-cognition-prompt": 8,
@@ -56,8 +56,28 @@
       "11-runtime-grok": 16
     }
   },
+  "verdicts": {
+    "citations": "pass",
+    "cli.astEquivalent": "pass",
+    "cli.beautifyEquivalent": "pass",
+    "cli.lossless": "pass",
+    "cli.syntax": "pass",
+    "committedInSync": "pass",
+    "daemon.astEquivalent": "pass",
+    "daemon.beautifyEquivalent": "pass",
+    "daemon.inferredNames": "pass",
+    "daemon.lossless": "pass",
+    "daemon.syntax": "pass",
+    "firstPartyTree": "pass"
+  },
+  "environment": {
+    "node": "v25.8.1",
+    "@babel/parser": "7.29.7",
+    "@babel/traverse": "7.29.7",
+    "js-beautify": "2.0.3"
+  },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 190
+    "firstPartySymbols": 191
   }
 }

@@ -2,7 +2,7 @@
 
 下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 `daemon.pretty.js`。
 
-共 150 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.2。
+共 151 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.2。
 
 ## 00-daemon-entry
 
@@ -21,9 +21,10 @@
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
 | `on` | `createSpineEvent` | inferred | 32001 |
-| `Z9e` | `atomicWriteFileSync` | inferred | 32008 |
+| `Z9e` | `appendEventToPartition` | inferred | 32008 |
 | `sn` | `atomicAppendEvent` | inferred | 32043 |
-| `Y9e` | `readEventByIdSeek` | inferred | 32078 |
+| `Md` | `readEventById` | inferred | 32052 |
+| `Y9e` | `scanPartitionsForEventId` | inferred | 32078 |
 | `Q9e` | `isUsableEventIndexEntry` | inferred | 32119 |
 | `Nu` | `advanceConsumerWatermark` | inferred | 32858 |
 | `vse` | `computeDedupKey` | inferred | 86887 |
@@ -163,7 +164,7 @@
 | `Di` | `resolveMemoryDirs` | inferred | 66482 |
 | `Ff` | `resolveMemoryLinkTargets` | inferred | 66521 |
 | `plt` | `runBoardLint` | inferred | 66835 |
-| `Tc` | `collectMemoryLinks` | inferred | 66869 |
+| `Tc` | `createMemorySlugReader` | inferred | 66869 |
 | `Pc` | `walkReachableMemory` | inferred | 66884 |
 | `iO` | `enforceContractGate` | inferred | 67346 |
 | `Hlt` | `runGapLint` | inferred | 67679 |

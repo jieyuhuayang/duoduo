@@ -42,7 +42,8 @@ const blocksReport = JSON.parse(fs.readFileSync(BLOCKS, "utf8"));
 const modules = JSON.parse(fs.readFileSync(MODULES, "utf8"));
 const inferred = INFERRED && fs.existsSync(INFERRED) ? JSON.parse(fs.readFileSync(INFERRED, "utf8")) : {};
 
-// A block matches a record when 2 of the record's 3 marker names are present.
+// A block matches a record when 2 of the record's marker names are present
+// (all of them, if the record has fewer than 2).
 // Markers are original export names, which survive re-mangling; block indexes
 // and mangled names do not.
 function matches(block, record) {
@@ -50,19 +51,52 @@ function matches(block, record) {
   const hit = record.marker.filter(n => have.has(n)).length;
   return hit >= Math.min(2, record.marker.length);
 }
+// Each block takes the record(s) with the MOST marker hits, not the first list
+// entry that reaches two. Generic vendor markers (`bigint`, `date`, `gt`, ...)
+// reach two in several zod blocks, so "first match wins" let one record stand
+// for many blocks, and a first-party module that happened to export two such
+// words would have been filed as vendor without a signal.
+// Rank: share of the record's markers present, then closeness of the block's
+// size to the recorded one (zod's coerce module exports five names that every
+// other zod module also exports, so no marker can be unique to it).
 function classify(block) {
-  for (const r of modules.firstParty || []) if (matches(block, r)) return { kind: "firstParty", note: r.note };
-  for (const r of modules.vendor || []) if (matches(block, r)) return { kind: "vendor", note: r.note };
-  return { kind: "unknown" };
+  const have = new Set(block.names);
+  const cands = [];
+  for (const [kind, list] of [["firstParty", modules.firstParty || []], ["vendor", modules.vendor || []]]) {
+    for (const r of list) {
+      if (!matches(block, r)) continue;
+      const ratio = r.marker.filter(n => have.has(n)).length / r.marker.length;
+      const dist = typeof r.names === "number" ? Math.abs(block.count - r.names) : Infinity;
+      cands.push({ kind, r, ratio, dist });
+    }
+  }
+  if (!cands.length) return { kind: "unknown" };
+  const top = Math.max(...cands.map(c => c.ratio));
+  const best = cands.filter(c => c.ratio === top);
+  if (new Set(best.map(x => x.kind)).size > 1) return { kind: "ambiguous", records: best.map(x => `${x.kind}:${JSON.stringify(x.r.marker)}`) };
+  best.sort((x, y) => x.dist - y.dist);
+  return { kind: best[0].kind, note: best[0].r.note, records: [best[0].r] };
 }
 
-const unknown = [];
+const unknown = [], ambiguous = [];
 const fpBlocks = [], vendorBlocks = [];
+const usage = new Map(); // record -> blocks it classified
 for (const b of blocksReport.blocks) {
   const c = classify(b);
-  if (c.kind === "firstParty") fpBlocks.push({ ...b, note: c.note });
-  else if (c.kind === "vendor") vendorBlocks.push({ ...b, note: c.note });
-  else unknown.push(b);
+  if (c.kind === "ambiguous") { ambiguous.push({ b, records: c.records }); continue; }
+  if (c.kind === "unknown") { unknown.push(b); continue; }
+  (c.kind === "firstParty" ? fpBlocks : vendorBlocks).push({ ...b, note: c.note });
+  for (const r of c.records) { if (!usage.has(r)) usage.set(r, []); usage.get(r).push(b); }
+}
+
+if (ambiguous.length) {
+  console.error(`\nMODULE GATE FAILED: ${ambiguous.length} export block(s) in ${blocksReport.bundle} match a first-party AND a vendor record equally well.`);
+  for (const { b, records } of ambiguous) {
+    console.error(`  block @ line ${b.line}  (${b.count} names): ${records.join("  vs  ")}`);
+    console.error(`    names : ${b.names.slice(0, 20).join(", ")}${b.names.length > 20 ? `, ... +${b.names.length - 20}` : ""}`);
+  }
+  console.error(`\nPick markers that only this module exports.\n`);
+  process.exit(1);
 }
 
 if (unknown.length) {
@@ -79,12 +113,19 @@ if (unknown.length) {
   process.exit(1);
 }
 
-// A record that matches nothing is churn, not an error — but say so, because a
-// silently-unused record is how a stale baseline hides a renamed module.
+// A record that classifies nothing is churn, not an error -- but say so, because
+// a silently-unused record is how a stale baseline hides a renamed module. A
+// record that classifies several blocks has markers too generic to identify a
+// module. A block whose size moved far from the recorded one may be a different
+// module that happens to share two marker names: re-check, then re-record.
 for (const [kind, list] of [["firstParty", modules.firstParty || []], ["vendor", modules.vendor || []]]) {
   for (const r of list) {
-    if (!blocksReport.blocks.some(b => matches(b, r))) {
-      console.error(`  note: ${kind} record ${JSON.stringify(r.marker)} ("${r.note}") matched no block (module churn)`);
+    const used = usage.get(r) || [];
+    if (!used.length) console.error(`  note: ${kind} record ${JSON.stringify(r.marker)} ("${r.note}") classified no block (module churn)`);
+    else if (used.length > 1) console.error(`  note: ${kind} record ${JSON.stringify(r.marker)} ("${r.note}") classified ${used.length} blocks -- markers too generic`);
+    else if (typeof r.names === "number") {
+      const n = used[0].count;
+      if (Math.abs(n - r.names) > Math.max(5, r.names * 0.25)) console.error(`  note: ${kind} record ${JSON.stringify(r.marker)} ("${r.note}") recorded ${r.names} names, block now has ${n} -- re-check it is the same module`);
     }
   }
 }

@@ -3,14 +3,22 @@
 // (function/const) sliced from the renamed source, plus a header noting its
 // original mangled name and pretty-file line. These files are for READING; the
 // runnable artifact is the whole daemon.recon.js.
-// Usage: node extract_functions.mjs <daemon.recon.js> <rename.json> <subsys.json> <outdir> <origPretty.js>
+// Usage: node extract_functions.mjs <daemon.recon.js> <rename.json> <subsys.json> <outdir> <origPretty.js> <inferred.json>
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
 const traverse = _traverse.default || _traverse;
 import fs from "node:fs";
 import path from "node:path";
 
-const [, , RECON, MAP, SUBSYS, OUTDIR, ORIG] = process.argv;
+const [, , RECON, MAP, SUBSYS, OUTDIR, ORIG, INFERRED] = process.argv;
+if (!INFERRED) {
+  console.error("usage: node extract_functions.mjs <daemon.recon.js> <rename.json> <subsys.json> <outdir> <origPretty.js> <inferred.json>");
+  process.exit(2);
+}
+// mangled -> real, for the names RE-derived by hand rather than read from an
+// esbuild __export block. The header says which kind each name is: a reader of
+// the tree cannot otherwise tell an upstream author's name from our guess.
+const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8"));
 const src = fs.readFileSync(RECON, "utf8");
 const renameMap = JSON.parse(fs.readFileSync(MAP, "utf8")); // mangled -> newName
 const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8")); // newName -> subsystem
@@ -62,10 +70,13 @@ for (const [newName, sub] of Object.entries(subsys)) {
   fs.mkdirSync(dir, { recursive: true });
   const header = `// duoduo reconstruction — subsystem: ${sub}\n` +
     `// symbol: ${newName}  (minified: ${mangled}, daemon.pretty.js:${origLine ?? "?"})\n` +
+    (inferred[mangled] === newName
+      ? `// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)\n`
+      : `// name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement\n`) +
     `// NOTE: readable extract from daemon.recon.js; references other top-level\n` +
     `// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).\n\n`;
   fs.writeFileSync(path.join(dir, `${newName}.js`), header + text + "\n");
-  index.push({ subsystem: sub, symbol: newName, mangled, origLine, bytes: text.length });
+  index.push({ subsystem: sub, symbol: newName, mangled, origLine, inferred: inferred[mangled] === newName, bytes: text.length });
   extracted++;
 }
 

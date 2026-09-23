@@ -8,7 +8,6 @@
     "rebuild": "bash rebuild.sh"
   },
   "dependencies": {
-    "@babel/generator": "^7",
     "@babel/parser": "^7",
     "@babel/traverse": "^7",
     "@babel/types": "^7",

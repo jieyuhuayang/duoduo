@@ -7,12 +7,18 @@
 // as both 133 and 139. Neither disagreement was detectable by any check,
 // because nothing generated either number.
 //
-// Usage: node pipeline_report.mjs <buildDir> <out.json> <bundle...>
+// It also records what the run CONCLUDED (verdicts, one per gate, written by
+// rebuild.sh as it goes) and the toolchain it ran on. Without those, the report
+// read the same whether the equivalence proof passed or not, and a difference
+// between two machines could not be traced to a Node or parser version.
+//
+// Usage: node pipeline_report.mjs <buildDir> <out.json> <beautifiedDir> <firstPartyDir> <bundle...>
 import fs from "node:fs";
+import { createRequire } from "node:module";
 
-const [BUILD, OUT, ...BUNDLES] = process.argv.slice(2);
-if (!BUILD || !OUT || !BUNDLES.length) {
-  console.error("usage: node pipeline_report.mjs <buildDir> <out.json> <bundle...>");
+const [BUILD, OUT, BEAUTIFIED, FPDIR, ...BUNDLES] = process.argv.slice(2);
+if (!BUILD || !OUT || !BEAUTIFIED || !FPDIR || !BUNDLES.length) {
+  console.error("usage: node pipeline_report.mjs <buildDir> <out.json> <beautifiedDir> <firstPartyDir> <bundle...>");
   process.exit(2);
 }
 
@@ -24,7 +30,7 @@ for (const b of BUNDLES) {
   const stats = readJson(`${BUILD}/rename_${b}.stats.json`);
   const rep = readJson(`${BUILD}/rename_${b}.report.json`);
   const syms = readJson(`${BUILD}/symbols_${b}.json`);
-  const pretty = `${BUILD}/beautified/${b}.pretty.js`;
+  const pretty = `${BEAUTIFIED}/${b}.pretty.js`;
   bundles[b] = {
     prettyLines: fs.existsSync(pretty) ? fs.readFileSync(pretty, "utf8").split("\n").length - 1 : null,
     exportBlocks: blocks?.blockCount ?? null,
@@ -45,9 +51,20 @@ for (const b of BUNDLES) {
 }
 
 // first-party tree, if present
-const fpIndex = readJson(new URL("../first-party/index.json", import.meta.url).pathname);
+const fpIndex = readJson(`${FPDIR}/index.json`);
 const bySubsystem = {};
 if (Array.isArray(fpIndex)) for (const e of fpIndex) bySubsystem[e.subsystem] = (bySubsystem[e.subsystem] || 0) + 1;
+
+// gate -> verdict, from the `name=value` lines rebuild.sh appends
+const verdicts = {};
+if (fs.existsSync(`${BUILD}/verdicts.txt`)) {
+  for (const line of fs.readFileSync(`${BUILD}/verdicts.txt`, "utf8").split("\n")) {
+    const i = line.indexOf("=");
+    if (i > 0) verdicts[line.slice(0, i)] = line.slice(i + 1);
+  }
+}
+const require = createRequire(import.meta.url);
+const version = m => { try { return require(`${m}/package.json`).version; } catch { return null; } };
 
 const report = {
   generatedBy: "reconstruction/tools/rebuild.sh",
@@ -57,6 +74,13 @@ const report = {
   firstPartyTree: Array.isArray(fpIndex)
     ? { files: fpIndex.length, subsystems: Object.keys(bySubsystem).length, bySubsystem }
     : null,
+  verdicts: Object.fromEntries(Object.entries(verdicts).sort()),
+  environment: {
+    node: process.version,
+    "@babel/parser": version("@babel/parser"),
+    "@babel/traverse": version("@babel/traverse"),
+    "js-beautify": version("js-beautify"),
+  },
   totals: {
     coveredBundles: BUNDLES.length,
     firstPartySymbols: Object.values(bundles).reduce((a, b) => a + (b.renameEntries || 0), 0),

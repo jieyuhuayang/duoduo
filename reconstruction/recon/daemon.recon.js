@@ -32005,7 +32005,7 @@ function createSpineEvent(e, t = new Date) {
         ts: t.toISOString()
     }
 }
-async function atomicWriteFileSync(e, t, n = new Date(t.ts)) {
+async function appendEventToPartition(e, t, n = new Date(t.ts)) {
     await Oe(e.eventsDir);
     let r = wm(n),
         i = sR.join(e.eventsDir, r),
@@ -32041,7 +32041,7 @@ async function G9e(e, t) {
     i && await Ou(i) && i.map.set(t.event_id, t)
 }
 async function atomicAppendEvent(e, t) {
-    let n = await atomicWriteFileSync(e, t);
+    let n = await appendEventToPartition(e, t);
     return await G9e(e, {
         event_id: n.event.id,
         partition: n.partition,
@@ -32049,13 +32049,13 @@ async function atomicAppendEvent(e, t) {
         byte_len: n.byteLength
     }), n
 }
-async function Md(e, t, n) {
+async function readEventById(e, t, n) {
     let r = await nb(e, t);
     if (r) {
         let i = await K9e(e, r, t);
         if (i) return i
     }
-    return n ? readEventByIdSeek(e, t, n) : null
+    return n ? scanPartitionsForEventId(e, t, n) : null
 }
 async function K9e(e, t, n) {
     let r = sR.join(e.eventsDir, t.partition),
@@ -32075,7 +32075,7 @@ async function K9e(e, t, n) {
     }
     return rse(r, n)
 }
-async function readEventByIdSeek(e, t, n) {
+async function scanPartitionsForEventId(e, t, n) {
     let r = Date.parse(n.notAfter);
     if (!Number.isFinite(r)) return null;
     let i = wm(new Date(r)),
@@ -66866,7 +66866,7 @@ function k6(e) {
     return !(e.length === 0 || e.includes("/") || e.includes("\\") || e.includes("\0") || e === ".." || e === ".")
 }
 
-function collectMemoryLinks(e) {
+function createMemorySlugReader(e) {
     return t => {
         if (!k6(t)) return null;
         let n = En(S6.join(e.topicsDir, `${t}.md`)),
@@ -66940,7 +66940,7 @@ function wve(e, t, n) {
         entitiesDirMissing: !0
     };
     let i = En(r.boardPath) ?? "",
-        o = walkReachableMemory(i, collectMemoryLinks(r)),
+        o = walkReachableMemory(i, createMemorySlugReader(r)),
         s = [];
     for (let l of Ka(r.entitiesDir)) {
         let c = En(mlt.join(r.entitiesDir, `${l}.md`));
@@ -67017,7 +67017,7 @@ function kve(e, t = 1, n) {
         topicsDirMissing: !0
     };
     let i = En(r.boardPath) ?? "",
-        o = walkReachableMemory(i, collectMemoryLinks(r)),
+        o = walkReachableMemory(i, createMemorySlugReader(r)),
         s = [];
     for (let l of Ka(r.topicsDir)) {
         let c = wlt(l);
@@ -68029,7 +68029,7 @@ function nwe(e, t, n) {
     if (d !== null)
         for (let x of s) u.has(x.rel) || x.birthtimeMs > 0 && x.birthtimeMs < d && (f += 1);
     let p = En(r.boardPath),
-        m = p === null ? new Set : walkReachableMemory(p, collectMemoryLinks(r)),
+        m = p === null ? new Set : walkReachableMemory(p, createMemorySlugReader(r)),
         h = [];
     if (p !== null) {
         for (let [x, S] of u) {
@@ -68332,7 +68332,7 @@ function $ct(e, t = {}) {
     };
     let r = En(n.boardPath) ?? "",
         i = resolveMemoryLinkTargets(r),
-        o = walkReachableMemory(r, t.resolve ?? collectMemoryLinks(n)),
+        o = walkReachableMemory(r, t.resolve ?? createMemorySlugReader(n)),
         s = Nct(n),
         a = [],
         u = [];
@@ -70631,7 +70631,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             let Ze = ve.createdAt ? {
                     notAfter: ve.createdAt
                 } : void 0,
-                Ae = S.events.get(_e) ?? await xo(m, "event_read_ms", async () => Md(e, _e, Ze));
+                Ae = S.events.get(_e) ?? await xo(m, "event_read_ms", async () => readEventById(e, _e, Ze));
             if (!Ae) {
                 Z(`[runner] mailbox event unresolved: session_key=${t} event_id=${_e} not_after=${Ze?.notAfter??"none"} item_file=${ve.file??"none"}`), L += 1;
                 continue
@@ -71843,7 +71843,7 @@ async function eke(e, t, n, r) {
     let s = t.createdAt ? {
             notAfter: t.createdAt
         } : void 0,
-        a = await xo(r, "event_read_ms", async () => Md(e, i, s));
+        a = await xo(r, "event_read_ms", async () => readEventById(e, i, s));
     return a ? (n.set(i, a), a) : null
 }
 
@@ -84214,7 +84214,7 @@ function createSessionManager(e) {
                                     let Gt = et.createdAt ? {
                                             notAfter: et.createdAt
                                         } : void 0,
-                                        Ot = bn.events.get(et.eventId) ?? await Md(t, et.eventId, Gt);
+                                        Ot = bn.events.get(et.eventId) ?? await readEventById(t, et.eventId, Gt);
                                     if (!Ot) {
                                         Z(`[session-manager] mailbox event unresolved: session_key=${P} event_id=${et.eventId} not_after=${Gt?.notAfter??"none"} item_file=${et.file??"none"}`);
                                         continue
@@ -87239,7 +87239,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
             event_id: r.id
         });
         if (f.duplicate && f.existing?.event_id) {
-            let p = await Md(e, f.existing.event_id, {
+            let p = await readEventById(e, f.existing.event_id, {
                 notAfter: f.existing.ts
             });
             if (p) {

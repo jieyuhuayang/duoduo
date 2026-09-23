@@ -1,6 +1,7 @@
 // Generate maps/RENAME_TABLE.md from the rename map + inferred map + subsystem
 // map, computing each symbol's declaration line in the beautified bundle.
-// Usage: node gen_rename_table.mjs <pretty.js> <rename.json> <inferred.json> <subsys.json> <out.md>
+// Usage: node gen_rename_table.mjs <pretty.js> <rename.json> <inferred.json|-> <subsys.json|-> <out.md>
+// `-` for a bundle that has no inferred names or no subsystem map (cli).
 import { parse } from "@babel/parser";
 import fs from "node:fs";
 
@@ -15,8 +16,9 @@ if (!PKG_VERSION) {
 }
 const src = fs.readFileSync(PRETTY, "utf8");
 const rename = JSON.parse(fs.readFileSync(RENAME, "utf8"));     // mangled -> real
-const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8")); // mangled -> real (subset)
-const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8"));     // real -> subsystem
+const inferred = INFERRED === "-" ? {} : JSON.parse(fs.readFileSync(INFERRED, "utf8")); // mangled -> real (subset)
+const subsys = SUBSYS === "-" ? {} : JSON.parse(fs.readFileSync(SUBSYS, "utf8"));       // real -> subsystem
+const BUNDLE = PRETTY.split("/").pop().replace(/\.pretty\.js$/, "");
 const inferredSet = new Set(Object.keys(inferred));
 
 const ast = parse(src, { sourceType: "module", ranges: true });
@@ -33,15 +35,15 @@ for (const stmt of ast.program.body) {
 // group by subsystem
 const groups = new Map();
 for (const [mangled, real] of Object.entries(rename)) {
-  const sub = subsys[real] || "zz-unclassified";
+  const sub = subsys[real] || (SUBSYS === "-" ? "all" : "zz-unclassified");
   if (!groups.has(sub)) groups.set(sub, []);
   groups.get(sub).push({ mangled, real, source: inferredSet.has(mangled) ? "inferred" : "__export", line: declLine.get(mangled) ?? "—" });
 }
 const subs = [...groups.keys()].sort();
 const total = Object.keys(rename).length;
 
-let md = `# duoduo 首字符还原：符号名映射表（daemon）\n\n`;
-md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 \`daemon.pretty.js\`。\n\n`;
+let md = `# duoduo 首字符还原：符号名映射表（${BUNDLE}）\n\n`;
+md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 \`${BUNDLE}.pretty.js\`。\n\n`;
 md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` ${PKG_VERSION}。\n`;
 for (const sub of subs) {
   const rows = groups.get(sub).sort((a, b) => (a.line === "—" ? 1e9 : a.line) - (b.line === "—" ? 1e9 : b.line));

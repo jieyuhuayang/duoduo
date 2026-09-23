@@ -1,5 +1,6 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
 // symbol: CLAUDE_CODE_EXECUTABLE_ENV_KEY  (minified: Z6, daemon.pretty.js:68923)
+// name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -24,6 +24,14 @@
 //             that shares NO string literal with the recorded one, is reported
 //             as a warning to re-read by hand (a genuine rewrite looks like this
 //             too, so it does not fail the build on its own).
+//   3. SWAP   each body is scored against EVERY recorded shape (Jaccard over
+//             literals, member-property names, arity and kind). If some other
+//             inferred name's baseline fits it clearly better than its own, the
+//             two names were exchanged or re-anchored onto a sibling -- FATAL.
+//             Checks 1-2 cannot see this: two same-kind, same-arity functions
+//             with few literals (most of this map) look identical to them.
+//             Member-property names survive re-mangling, so they carry the
+//             identity that short names and arity do not.
 //
 // Usage:
 //   node verify_inferred.mjs check  <pretty.js> <inferred.json> [shape.json]
@@ -82,6 +90,30 @@ function literalsOf(node) {
   return [...out].sort();
 }
 
+// non-computed member-property names used in a node: `.eventsDir`, `.open`, ...
+function propsOf(node) {
+  const out = new Set();
+  const seen = new Set();
+  (function walk(n) {
+    if (!n || typeof n !== "object" || seen.has(n)) return;
+    seen.add(n);
+    if (Array.isArray(n)) { for (const x of n) walk(x); return; }
+    if ((n.type === "MemberExpression" || n.type === "OptionalMemberExpression") && !n.computed && n.property.type === "Identifier") out.add(n.property.name);
+    for (const k of Object.keys(n)) if (k !== "loc" && k !== "range" && k !== "leadingComments" && k !== "trailingComments") walk(n[k]);
+  })(node);
+  return [...out].sort();
+}
+
+const features = sh => new Set([
+  `kind:${sh.kind.replace(/^async /, "").replace(/-expr$/, "")}`, `params:${sh.params}`,
+  ...(sh.literals || []).map(l => `lit:${l}`), ...(sh.props || []).map(p => `prop:${p}`)]);
+function similarity(x, y) {
+  const a = features(x), b = features(y);
+  let inter = 0;
+  for (const f of a) if (b.has(f)) inter++;
+  return inter / (a.size + b.size - inter || 1);
+}
+
 const shape = {};
 const fail = [], warn = [];
 let ok = 0;
@@ -93,7 +125,7 @@ for (const [mangled, real] of Object.entries(inferred)) {
     continue;
   }
   const lits = literalsOf(d.node);
-  shape[real] = { kind: d.kind, params: d.params, literals: lits.slice(0, 24) };
+  shape[real] = { kind: d.kind, params: d.params, literals: lits.slice(0, 24), props: propsOf(d.node).slice(0, 60) };
   ok++;
 }
 
@@ -115,6 +147,21 @@ if (SHAPE && fs.existsSync(SHAPE)) {
     if (old.params != null && cur.params != null && old.params !== cur.params) warn.push(`${real}: parameter count ${old.params} -> ${cur.params} (re-read: rewrite, or wrong function?)`);
     const shared = cur.literals.filter(l => old.literals.includes(l));
     if (old.literals.length >= 3 && cur.literals.length >= 3 && shared.length === 0) warn.push(`${real}: shares no string literal with the recorded body (${old.literals.length} vs ${cur.literals.length}) -- re-read by hand`);
+  }
+  // swap detection: needs a baseline that recorded props (older baselines did not)
+  const scorable = Object.entries(base).filter(([, v]) => Array.isArray(v.props));
+  if (scorable.length < Object.keys(base).length) warn.push("shape baseline predates member-property recording; the SWAP check is off until `record` is re-run");
+  else for (const [real, cur] of Object.entries(shape)) {
+    if (!base[real]) continue;
+    const own = similarity(cur, base[real]);
+    let best = null, bestScore = -1;
+    for (const [other, sh] of scorable) {
+      if (other === real) continue;
+      const sc = similarity(cur, sh);
+      if (sc > bestScore) { best = other; bestScore = sc; }
+    }
+    if (best && bestScore > own + 0.15 && bestScore >= 0.4) fail.push(`${real}: this body matches the recorded shape of ${best} (${bestScore.toFixed(2)}) better than its own (${own.toFixed(2)}) -- names exchanged, or re-anchored onto the wrong declaration`);
+    else if (own < 0.25) warn.push(`${real}: body resembles its recorded shape only weakly (${own.toFixed(2)}) -- re-read by hand`);
   }
   for (const real of Object.keys(base)) if (!(real in shape) && Object.values(inferred).includes(real) === false) warn.push(`${real}: in shape baseline but no longer in the inferred map (dropped upstream? then re-record)`);
 } else if (MODE === "check") {

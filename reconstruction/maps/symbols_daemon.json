@@ -1,8 +1,8 @@
 {
   "bundle": "daemon",
   "version": "v0.8.2",
-  "source": "/tmp/pretty082/daemon.pretty.js",
-  "symbolCount": 150,
+  "source": "/private/tmp/claude-501/-Users-lilu-Projects-duoduo/6c47667f-258c-47f3-b125-298ec030c96d/scratchpad/buildP/beautified/daemon.pretty.js",
+  "symbolCount": 151,
   "notTopLevel": [],
   "symbols": {
     "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
@@ -949,7 +949,7 @@
       "bytes": 421,
       "signature": "0907c34c8f121041d156"
     },
-    "collectMemoryLinks": {
+    "createMemorySlugReader": {
       "mangled": "Tc",
       "line": 66869,
       "endLine": 66882,
@@ -1037,7 +1037,7 @@
       "bytes": 220,
       "signature": "46d7eddd4951ab536e83"
     },
-    "atomicWriteFileSync": {
+    "appendEventToPartition": {
       "mangled": "Z9e",
       "line": 32008,
       "endLine": 32029,
@@ -1045,7 +1045,7 @@
       "bytes": 554,
       "signature": "9396f4ca646b9bcf5fce"
     },
-    "readEventByIdSeek": {
+    "scanPartitionsForEventId": {
       "mangled": "Y9e",
       "line": 32078,
       "endLine": 32094,
@@ -1204,6 +1204,14 @@
       "kind": "function",
       "bytes": 769,
       "signature": "e5e949dc4e33523b6d6f"
+    },
+    "readEventById": {
+      "mangled": "Md",
+      "line": 32052,
+      "endLine": 32059,
+      "kind": "async function",
+      "bytes": 172,
+      "signature": "ff9fda0efb61021ad0fc"
     }
   }
 }

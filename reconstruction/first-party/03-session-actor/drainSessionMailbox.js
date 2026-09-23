@@ -1,5 +1,6 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: drainSessionMailbox  (minified: GSe, daemon.pretty.js:70374)
+// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -263,7 +264,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             let Ze = ve.createdAt ? {
                     notAfter: ve.createdAt
                 } : void 0,
-                Ae = S.events.get(_e) ?? await xo(m, "event_read_ms", async () => Md(e, _e, Ze));
+                Ae = S.events.get(_e) ?? await xo(m, "event_read_ms", async () => readEventById(e, _e, Ze));
             if (!Ae) {
                 Z(`[runner] mailbox event unresolved: session_key=${t} event_id=${_e} not_after=${Ze?.notAfter??"none"} item_file=${ve.file??"none"}`), L += 1;
                 continue
