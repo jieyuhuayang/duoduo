@@ -161,16 +161,20 @@ bare `duoduo` interactive use works without any of them.
   this CLI; read that script as a worked example if you need to
   batch-archive per channel.
 - **Runtime selection**: Claude, Codex, Grok, and Pi are peer
-  runtimes. Claude remains the default fallback, while `runtime: codex`
-  can be selected per channel/job where Codex is available. Grok
-  (`runtime: grok`, `ALADUO_DEFAULT_RUNTIME=grok`) has **no silent
-  Claude fallback** — install `grok`, restart the daemon, run
-  `grok login` (login needs no restart). Pi ships inside duoduo (nothing to
+  runtimes. Claude is the default when no runtime is declared. Codex
+  and Grok (`runtime: codex|grok`, or `ALADUO_DEFAULT_RUNTIME`) have
+  **no silent Claude fallback** — install the CLI and log in; an
+  unavailable runtime refuses the turn, and sending the message again
+  after fixing it is enough. Pi ships inside duoduo (nothing to
   install, always available) with the same no-silent-fallback posture:
   every pi session needs a model pointer (`provider/modelId` via job
   frontmatter, `/model`, or partition frontmatter) and fails actionably
   without one. Use `ALADUO_DEFAULT_RUNTIME=codex`, `=grok`, or `=pi`
-  only for an intentional global default change.
+  only for an intentional global default change. A session is bound
+  to the runtime that owns its conversation: changing only the runtime
+  refuses the session's next turn. Switch with `/clear` first, then
+  the runtime change — see "Switching a session's runtime" in
+  `duoduo-runtime-admin`.
 - **Stdio output buffering**: the terminal UI buffers assistant text
   more cleanly so status/tool rendering does not interleave as visibly
   with assistant prose. Treat this as a UX fix, not a protocol change.

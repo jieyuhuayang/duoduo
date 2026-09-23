@@ -65,24 +65,49 @@ Be precise:
 - Claude remains the conservative fallback when no runtime is declared.
 - Claude, Codex, Grok, and Pi are peer runtimes for channel sessions,
   jobs, and eligible background partitions. Codex and Grok are
-  auto-detected: install the CLI, restart the daemon, log in
-  (`codex login` / `grok login`). Codex probes the login too, so it
-  needs the restart after logging in; grok does not. Pi ships inside duoduo — nothing
-  to install, always reported available, but every pi session needs a
-  model pointer (`provider/modelId`) from job frontmatter, `/model`,
-  or partition frontmatter.
+  auto-detected: install the CLI and log in (`codex login` / `grok login`).
+  A failed probe is retried on the next message, so no restart is needed
+  for message routing; setup-card runtime lists still come from the boot
+  probe and need `duoduo daemon restart` to pick up a new install. Pi ships
+  inside duoduo — nothing to install, always reported available, but every
+  pi session needs a model pointer (`provider/modelId`) from job
+  frontmatter, `/model`, or partition frontmatter.
 - Runtime selection can happen per actor, per channel kind, or globally with
   `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
 - Verify `codex` is installed and authenticated before routing work to it.
   For `grok`, duoduo only checks the binary — verify the login yourself
-  before routing work to it. Explicit grok that cannot be served is a
-  hard failure — it does not fall through to Claude. Pi is the same
-  posture: a pi session with no resolvable model fails with the fix
-  named in the reply, never a silent Claude run.
+  before routing work to it. Explicit codex or grok that cannot be served
+  is a hard failure — the turn is refused with the reason, never run on
+  Claude. Pi is the same posture: a pi session with no resolvable model
+  fails with the fix named in the reply, never a silent Claude run.
 
-Do not claim every existing session switches runtime automatically. Existing
-sessions keep their stored conversation state until they are rebound, archived,
-or naturally start a fresh runtime thread under the effective config.
+### Switching a session's runtime
+
+A session is bound to the runtime that owns its conversation id; runtime
+histories are not interchangeable. Changing only the `runtime` value —
+instance or kind descriptor, `ALADUO_DEFAULT_RUNTIME`, job frontmatter — does
+not move an existing session. Its next turn is refused ("Request was not
+executed"), naming the bound runtime, the session id, and the configured one.
+
+- **The only sanctioned switch**: `/clear` the channel session first, then
+  change the runtime. A `/model` override set under the old runtime is dropped
+  on the new one; a same-runtime `/model` override survives `/clear`, and so
+  does `/effort`.
+- **Refused at write time**: `duoduo session config <target> set runtime=<rt>`
+  on an instance, and a channel re-spawn (e.g. a setup card) that changes the
+  runtime, refuse while any session of that channel is bound elsewhere, and
+  list those sessions — `/clear` each, then retry. Kind-scope, env, and job
+  frontmatter changes are not checked at write time; affected sessions refuse
+  at their next turn.
+- **Backing out**: revert the runtime to the bound one and send the message
+  again — the session resumes normally.
+- **Keep prior work**: before switching for real, the old session's history
+  stays on disk under the id the refusal names. Have a subagent locate and
+  summarize it, then `/clear`.
+- **Jobs**: a stateful job whose runtime no longer matches fails the run
+  (`job.fail`, owner woken, retried on the failure backoff) until the owner
+  decides — revert the runtime, or start the work on a new job. Stateless
+  jobs are unaffected.
 
 ## Subconscious Refresh
 

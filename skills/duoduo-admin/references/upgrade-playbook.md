@@ -278,9 +278,9 @@ v0.5.3 treats Claude and Codex as peer runtime choices when both are
 available on the host. Claude remains the default fallback, so existing
 operators do not need to change anything unless they want Codex routing.
 
-- To enable Codex availability, install the `codex` CLI, run
-  `codex login`, and restart the daemon so it re-probes available
-  runtimes.
+- To enable Codex availability, install the `codex` CLI and run
+  `codex login`. Message routing re-probes on its own; restart the
+  daemon only if channel setup cards should list Codex.
 - To route one channel kind to Codex, set `runtime: codex` in
   `kernel/config/<kind>.md`.
 - To route one channel instance to Codex, prefer the channel setup flow
@@ -291,18 +291,20 @@ operators do not need to change anything unless they want Codex routing.
   `~/.config/duoduo/.env` and restart the daemon.
 
 Do not tell users that an existing live conversation hot-swaps runtimes
-the moment a default changes. If they need a clean runtime switch, rebind
-or archive the affected session after inspecting current descriptors.
+the moment a default changes. A session stays bound to the runtime that
+owns its conversation, and a runtime-only change refuses its next turn.
+For a clean switch, `/clear` the session first, then change the runtime
+(see "Switching a session's runtime" in `duoduo-runtime-admin`). Codex
+that is unavailable refuses the turn; it no longer falls back to Claude.
 
 ## Grok as a third peer runtime
 
-Grok is auto-detected: install the `grok` CLI and restart the daemon, then
-run `grok login` (unlike Codex, the login itself needs no restart — duoduo
-probes only the binary). Set `runtime: grok` on a kind, instance,
+Grok is auto-detected: install the `grok` CLI, then run `grok login`
+(duoduo probes only the binary). Set `runtime: grok` on a kind, instance,
 job, or partition, or `ALADUO_DEFAULT_RUNTIME=grok` for a global default.
 
-Unlike Codex, an explicit or default grok that cannot be served is a
-**hard failure** — there is no silent fallback to Claude. `prompt_mode`
+An explicit or default grok that cannot be served is a **hard failure**
+— there is no silent fallback to Claude (Codex now behaves the same). `prompt_mode`
 applies to claude and grok; combining it with `runtime: codex` is still
 rejected.
 

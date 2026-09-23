@@ -250,9 +250,8 @@ Duoduo picks a runtime by specificity:
 
 **Pi has no silent Claude fallback.** An explicit `runtime: pi` (or a
 pi global default) whose session has no resolvable model is a hard
-failure at drain time, with the fix named in the reply. Codex
-unavailable still falls back to Claude; do not mix those two
-sentences.
+failure at drain time, with the fix named in the reply. Codex and
+grok take the same no-fallback posture when unavailable.
 
 ## `/model` and `/effort` on pi
 

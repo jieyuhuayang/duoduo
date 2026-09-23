@@ -83,9 +83,12 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   kind's default runtime (`kernel/config/feishu.md → runtime`, fallback
   `claude`). No card, no dropped message. The first message flows
   through ingress as normal.
-- Setup cards only show runtimes that the daemon currently reports as
-  available. If Codex is missing after `codex login`, restart the daemon
-  so it re-probes runtime availability.
+- Setup cards only show runtimes that the daemon reported as available
+  at boot. If Codex is missing from the card after `codex login`, restart
+  the daemon so the card list re-probes (message routing does not need it).
+- Changing an existing chat's runtime through the setup card is refused
+  while that chat's session is bound to another runtime; the refusal lists
+  the sessions. `/clear` first, then re-run the setup card.
 - **Pi is always listed, and "available" is not "ready".** Pi is
   embedded, so it never fails a probe — but it has no default model, and
   a pi session refuses every message until one is set. The bind

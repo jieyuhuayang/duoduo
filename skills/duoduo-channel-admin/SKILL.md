@@ -64,7 +64,9 @@ Editable keys by hand:
 - `prompt_mode` (claude, grok, and pi; refused on an explicit `runtime: codex` job)
 - `time_gap_minutes`
 - `runtime` (`claude` | `codex` | `grok` | `pi` — pi sessions also need a
-  model pointer; see duoduo-runtime-admin's pi-runtime reference)
+  model pointer; see duoduo-runtime-admin's pi-runtime reference). A live
+  session is bound to its runtime: `/clear` it before changing this key,
+  or its next turn is refused
 - `stream`
 - `allowedTools` (permission auto-approve — does not extend the tool surface)
 - `disallowedTools` (MCP tools only)

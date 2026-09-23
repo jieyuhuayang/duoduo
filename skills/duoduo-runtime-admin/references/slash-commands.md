@@ -98,6 +98,11 @@ input skips runtime-context injection by design).
   Expect the message after a `/clear` to pay one process start.
 - **Claude and codex**: no recycle, and none is needed — both address the
   conversation by the stored id, which is re-read on the next turn.
+- **Runtime switch**: `/clear` is the step that releases a session from its
+  runtime — a runtime-only change on an un-cleared session refuses the next
+  turn. After `/clear` and the runtime change, a `/model` override set under
+  the old runtime is dropped; a same-runtime override survives `/clear`, and
+  so does `/effort`.
 
 ## `/model` (model switching)
 

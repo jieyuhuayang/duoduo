@@ -19,23 +19,29 @@ codex login
 Codex is **auto-detected**. There is no `ALADUO_CODEX_ENABLED` env
 var. If `codex` is installed on `PATH` and `codex login status`
 reports "logged in", the daemon exposes Codex as an available runtime
-alongside Claude. Otherwise Codex is hidden from runtime choices and
-runtime requests fall back to Claude.
+alongside Claude. Otherwise Codex is hidden from runtime choices.
+
+**Codex has no silent Claude fallback.** A session or job configured for
+codex while codex is unavailable (CLI missing, or not logged in) has its
+turn refused with the reason named — the same posture as grok and pi. It
+never runs on Claude instead.
 
 Optional persistent key:
 
 - `ALADUO_CODEX_SANDBOX=workspace-write` (or `read-only` /
   `danger-full-access`) — sandbox mode for codex-runtime jobs.
 
-The daemon probes at boot. If the user installs codex or runs
-`codex login` while the daemon is running, ask them to restart:
+A failed probe is not cached: after the user installs codex or runs
+`codex login`, sending the message again is enough — no daemon restart
+for message routing. The runtime lists offered by channel setup cards
+still come from the daemon's boot probe; to make codex appear there, restart:
 
 ```bash
 duoduo daemon restart -r "codex login refreshed — re-probing runtimes"
 ```
 
-If the daemon seems not to see a freshly-logged-in codex, check with
-`codex login status` directly to confirm the CLI side.
+If a refusal persists after login, check with `codex login status`
+directly to confirm the CLI side.
 
 ## Runtime Selection
 
@@ -55,12 +61,15 @@ channel setup flow for that instance.
 ## Scope
 
 Codex is now a peer runtime for channel sessions, jobs, and eligible background
-partitions. Claude remains the default fallback and the safer recommendation
-when the user has not explicitly asked to route work to Codex.
+partitions. Claude remains the default when no runtime is declared and the
+safer recommendation when the user has not explicitly asked to route work to
+Codex.
 
-Do not claim existing sessions hot-swap immediately after changing defaults.
-For a live channel, check its descriptor and session state, then rebind/archive
-when the user wants a clean runtime switch.
+A session is bound to the runtime that owns its conversation. Changing only
+the `runtime` value does not move an existing session to Codex — its next
+turn is refused. To switch a live channel session, `/clear` it first, then
+change the runtime; see "Switching a session's runtime" in this skill's
+SKILL.md.
 
 ## Tool-Surface Trim (recommended for duoduo hosts)
 

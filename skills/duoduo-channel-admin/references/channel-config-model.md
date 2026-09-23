@@ -94,8 +94,11 @@ so read the effective surface rather than trusting a quiet log.
   descriptor to make a default for all channels of that kind, or in an instance
   descriptor for one specific channel. For Feishu, prefer the `/setup` card
   when possible so the plugin's active binding cache and descriptor stay in
-  sync. Explicit `grok` that cannot be served is a hard failure (no silent
-  Claude fallback); explicit `pi` is the same posture — pi ships inside duoduo
+  sync. A session stays bound to the runtime that owns its conversation:
+  changing this key on an instance with a bound session is refused (`/clear`
+  those sessions first), and a kind-level change makes bound sessions refuse
+  their next turn. Explicit `codex` or `grok` that cannot be served is a hard
+  failure (no silent Claude fallback); explicit `pi` is the same posture — pi ships inside duoduo
   and is always available, but a pi session with no model pointer
   (`provider/modelId`) fails actionably instead of running on Claude.
   `prompt_mode` applies to claude, grok, and pi; combining it with
