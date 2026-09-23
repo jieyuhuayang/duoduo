@@ -1,0 +1,11 @@
+{
+  "note": "Per-doc ceiling on UNBOUND line numbers (check_bare_anchors.mjs). It may only go down: write new citations in an F1/F2/F3 shape (anchor_forms.mjs).",
+  "unbound": {
+    "AGENT_FRAMEWORKS_COMPARISON.md": 0,
+    "AGENT_INTERNALS_ANALYSIS.md": 0,
+    "ARCHITECTURE_ANALYSIS.md": 0,
+    "DUODUO_FRAMEWORK_GUIDE.md": 0,
+    "README.md": 0,
+    "SOURCE_RECONSTRUCTION.md": 0
+  }
+}

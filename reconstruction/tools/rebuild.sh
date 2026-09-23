@@ -11,7 +11,8 @@
 #   NAMING    what each symbol is called  -> the __export block bodies, verbatim
 #   BINDING   how a doc points at code    -> symbol_index.mjs + verify_citations.mjs
 #             by real name + structural signature, so line numbers are derived
-#             rather than hand-maintained
+#             rather than hand-maintained; every other line number must be
+#             bound to a short name or a quoted snippet (anchor_forms.mjs)
 #
 # Everything else here proves one of those three was done right.
 #
@@ -238,19 +239,31 @@ if [ -d "$DOCS" ]; then
     verdict citations pass
   else verdict citations fail; rc=1; fi
 
-  # 10. the two legacy line-anchor checks. They cover the ~1600 hand-written line
-  #    anchors that predate the symbol index and that step 7 does not parse.
-  #    Both are ADVISORY: their exit codes are swallowed below, so neither can
-  #    fail a build -- do not read a green run here as "all anchors verified".
-  echo "==== line anchors (advisory) ===="
-  node "$HERE/check_doc_anchors.mjs" --resolve "$BEAUTIFIED/daemon.pretty.js" "$DOCS"/*.md \
-    || echo "  (advisory; known false positives are prose words in backticks)"
-  node "$HERE/check_bare_anchors.mjs" "$BEAUTIFIED/daemon.pretty.js" \
-       "$OUT/blocks_daemon.json" "$MAPS/modules_daemon.json" "$DOCS"/*.md \
-    || echo "  (advisory; the refuted ones above cannot be correct citations)"
+  # 10. the line numbers step 9 does not own (anchor_forms.mjs): F2 short-name
+  #    citations, F3 code-snippet citations, and unbound bare numbers, which
+  #    may only decrease against maps/bare_anchor_baseline.json. Both fatal.
+  #    On a version bump F2/F3 lines move with the bundle: retarget them
+  #    (remap_doc_anchors -> retarget_docs -> retarget_symbols) before this runs.
+  echo "==== line anchors (short names, snippets, unbound) ===="
+  if node "$HERE/check_doc_anchors.mjs" --resolve --index "$OUT/symbols_daemon.json" \
+       "$BEAUTIFIED/daemon.pretty.js" "$DOCS"/*.md \
+     && node "$HERE/check_bare_anchors.mjs" --index "$IDX" --bundle "cli=$BEAUTIFIED/cli.pretty.js" \
+       --baseline "$MAPS/bare_anchor_baseline.json" \
+       "$BEAUTIFIED/daemon.pretty.js" "$OUT/blocks_daemon.json" "$MAPS/modules_daemon.json" "$DOCS"/*.md; then
+    verdict lineAnchors pass
+  else verdict lineAnchors fail; rc=1; fi
+
+  # 11. the anchor checkers themselves: each must pass a clean synthetic doc,
+  #     fail each injected error, and refuse a bundle shifted by one line.
+  echo "==== anchor checkers (mutation test) ===="
+  if [ ! -f "$OUT/symbols_cli.json" ]; then
+    echo "  skipped: needs the cli bundle's symbol index"
+  elif node "$HERE/mutate_anchor_checks.mjs" "$BEAUTIFIED/daemon.pretty.js" "$BEAUTIFIED/cli.pretty.js" "$OUT"; then
+    verdict anchorCheckers pass
+  else verdict anchorCheckers fail; rc=1; fi
 fi
 
-# 11. one machine-readable record of what this run measured AND concluded. Docs
+# 12. one machine-readable record of what this run measured AND concluded. Docs
 #     cite THIS instead of restating counts in prose -- the counts in CLAUDE.md,
 #     reconstruction/README.md and VERIFICATION.md had drifted into three
 #     mutually contradictory values (712 / 733 / 739) precisely because every

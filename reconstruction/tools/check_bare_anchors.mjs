@@ -1,88 +1,228 @@
-// Catch the anchors that check_doc_anchors.mjs cannot see at all.
+// Police every line number in the docs that no other checker owns.
 //
-// That gate works on redundancy: a `Name`(NNNN) citation carries a name AND a
-// line, so they can be checked against each other. Most line numbers in the
-// docs are written BARE — a number with no symbol attached — and those have no
-// redundancy, so nothing can verify them. At the v0.8.1 retarget there were 765
-// of them against 150 checkable citations, and manual sampling put the majority
-// of the bare ones at stale.
+// A line number is only checkable when something next to it says what it is
+// supposed to point at. anchor_forms.mjs lists the three shapes that do:
 //
-// A bare anchor cannot be verified, but a subset can be REFUTED without knowing
-// what it meant to point at: the docs only ever cite first-party mechanisms, so
-// an anchor landing on a blank line, or inside a function recorded as vendor,
-// cannot be a correct citation no matter what the sentence claims. That is the
-// whole of this check — high precision, deliberately low recall. The far more
-// common failure (pointing at the WRONG first-party function) stays invisible
-// here; the only real fix for those is to rewrite them in the `Name`(NNNN) form
-// so the other gate can see them.
+//   F1  `real (short)`（`N`）   owned by verify_citations.mjs
+//   F2  `short`（`N`）          owned by check_doc_anchors.mjs
+//   F3  `code`（`N`）           owned HERE: some distinctive token of the code
+//                               (a string literal, or an identifier that is not
+//                               a keyword) must be on line N, or within N-M, and
+//                               so must every short mangled name it calls
 //
-// Exit 1 if any bare anchor is refuted. "plausible" means only "not refutable
-// by this check" — never read it as verified.
+// Every other backticked line number is UNBOUND. At v0.8.2 there were ~680 of
+// them, and sampling found them pointing into the wrong function as often as
+// not — a bare number has no redundancy, so it rots without any signal. They
+// are counted per doc against maps/bare_anchor_baseline.json, and the count may
+// only go down: a new citation must be written in one of the three shapes.
 //
-// NOTE on the vendor arm: it used to compare the enclosing declaration's
-// MANGLED name against a baseline of ORIGINAL export names, so it could only
-// fire on an accidental collision -- it had been silently dead. It now takes
-// the export-block report and the per-module classification, and refutes
-// against the mangled names a vendor MODULE exports, which is the same
-// question asked in the one namespace where both sides are comparable.
+// Also kept from the earlier, refute-only version of this tool, because they
+// need no knowledge of what the number meant: a daemon anchor landing on a
+// blank line or inside a vendor module's export, and a range that runs
+// backwards, cannot be correct whatever the sentence claims.
 //
 // Usage:
-//   node check_bare_anchors.mjs <bundle.pretty.js> <blocks.json> <modules.json> <doc.md...>
+//   node check_bare_anchors.mjs [options] <daemon.pretty.js> <blocks.json> <modules.json> <doc.md...>
+// Options:
+//   --index <symbols.json>[,...]   refuse a bundle the index was not built from;
+//                                  also resolves real names in --list output
+//   --bundle cli=<cli.pretty.js>   check anchors written `cli.pretty.js:N`
+//   --baseline <path>              per-doc ceiling on unbound anchors
+//   --write-baseline               record the current counts there and exit 0
+//   --list <out.json>              every unbound / refuted anchor, with context
+// Exit: 2 bundle/index mismatch, 1 anything refuted or a baseline exceeded.
 import fs from "node:fs";
 import { parse } from "@babel/parser";
-const [BUNDLE, BLOCKS, MODULES, ...docs] = process.argv.slice(2);
-if (!BUNDLE || !BLOCKS || !MODULES || !docs.length) {
-  console.error("usage: node check_bare_anchors.mjs <bundle.pretty.js> <blocks.json> <modules.json> <doc.md...>");
+import _traverse from "@babel/traverse";
+import { f1Forward, f1Reversed, f2Cites, f3, lineSpan, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
+import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
+const traverse = _traverse.default || _traverse;
+
+const argv = process.argv.slice(2);
+const opt = (name) => { const i = argv.indexOf(name); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
+const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return false; argv.splice(i, 1); return true; };
+const INDEX = opt("--index");
+const BASELINE = opt("--baseline");
+const LIST = opt("--list");
+const WRITE_BASELINE = flag("--write-baseline");
+const extra = new Map();
+for (let v; (v = opt("--bundle")); ) { const [n, p] = v.split("="); extra.set(n, p); }
+const [BUNDLE, BLOCKS, MODULES, ...docs] = argv;
+if (!BUNDLE || !BLOCKS || !MODULES || !docs.length || (WRITE_BASELINE && !BASELINE)) {
+  console.error("usage: node check_bare_anchors.mjs [--index s.json[,...]] [--bundle cli=<p>] [--baseline b.json [--write-baseline]] [--list o.json] <daemon.pretty.js> <blocks.json> <modules.json> <doc.md...>");
   process.exit(2);
 }
-const src = fs.readFileSync(BUNDLE, "utf8");
+
+// ---- bundles -------------------------------------------------------------
+const bundles = new Map([["daemon", BUNDLE], ...extra]);
+const indexes = new Map();
+for (const p of (INDEX || "").split(",").filter(Boolean)) { const ix = loadIndex(p); indexes.set(ix.bundle, ix); }
+const B = new Map(); // name -> { lines, decls, realOf }
+function load(name) {
+  if (B.has(name)) return B.get(name);
+  const path = bundles.get(name);
+  if (!path) { B.set(name, null); return null; }
+  const src = fs.readFileSync(path, "utf8");
+  const lines = src.split("\n");
+  const ix = indexes.get(name);
+  if (ix) assertBundleMatchesIndex(lines, ix, path);
+  // Top-level declarations for the vendor test, plus every named function-like
+  // declaration at any depth for --list: esbuild wraps whole modules in a lazy
+  // initialiser thousands of lines long, so "the enclosing top-level
+  // declaration" often says nothing about what a line is.
+  const ast = parse(src, { sourceType: "module" });
+  const top = [], all = [];
+  for (const s of ast.program.body) {
+    const L = s.loc;
+    if ((s.type === "FunctionDeclaration" || s.type === "ClassDeclaration") && s.id) top.push({ name: s.id.name, a: L.start.line, b: L.end.line });
+    else if (s.type === "VariableDeclaration") for (const d of s.declarations) if (d.id.type === "Identifier") top.push({ name: d.id.name, a: L.start.line, b: L.end.line });
+  }
+  const fnLike = new Set(["FunctionExpression", "ArrowFunctionExpression", "ClassExpression"]);
+  traverse(ast, {
+    FunctionDeclaration(p) { if (p.node.id) all.push({ name: p.node.id.name, a: p.node.loc.start.line, b: p.node.loc.end.line, kind: "function" }); },
+    ClassDeclaration(p) { if (p.node.id) all.push({ name: p.node.id.name, a: p.node.loc.start.line, b: p.node.loc.end.line, kind: "class" }); },
+    VariableDeclarator(p) {
+      const n = p.node;
+      if (n.id.type === "Identifier" && n.init && fnLike.has(n.init.type)) all.push({ name: n.id.name, a: n.loc.start.line, b: n.loc.end.line, kind: "function-expr" });
+    },
+  });
+  const realOf = new Map(ix ? Object.entries(ix.symbols).map(([r, e]) => [e.mangled, r]) : []);
+  const b = { lines, top, all, realOf };
+  B.set(name, b);
+  return b;
+}
+const innermost = (decls, ln) => { let best = null; for (const d of decls) if (d.a <= ln && ln <= d.b && (!best || d.a > best.a || (d.a === best.a && d.b < best.b))) best = d; return best; };
+
+const daemon = load("daemon");
 const blocksReport = JSON.parse(fs.readFileSync(BLOCKS, "utf8"));
 const modules = JSON.parse(fs.readFileSync(MODULES, "utf8"));
 const matches = (block, record) => record.marker.filter(n => new Set(block.names).has(n)).length >= Math.min(2, record.marker.length);
 const vendor = new Set();
-for (const b of blocksReport.blocks) {
-  if ((modules.vendor || []).some(r => matches(b, r))) for (const m of b.mangled) vendor.add(m);
-}
-const ast = parse(src, { sourceType: "module", ranges: true });
-const starts = [0];
-for (let i = 0; i < src.length; i++) if (src[i] === "\n") starts.push(i + 1);
-const lineAt = (o) => { let lo=0,hi=starts.length-1,a=0; while(lo<=hi){const m=(lo+hi)>>1; if(starts[m]<=o){a=m;lo=m+1;}else hi=m-1;} return a+1; };
-const decls = [];
-for (const s of ast.program.body) {
-  if (s.type === "FunctionDeclaration" && s.id) decls.push({name:s.id.name,a:lineAt(s.start),b:lineAt(s.end)});
-  else if (s.type === "ClassDeclaration" && s.id) decls.push({name:s.id.name,a:lineAt(s.start),b:lineAt(s.end)});
-  else if (s.type === "VariableDeclaration") for (const d of s.declarations) if (d.id.type==="Identifier") decls.push({name:d.id.name,a:lineAt(s.start),b:lineAt(s.end)});
-}
-const declFor = (ln) => { let best=null; for(const d of decls) if(d.a<=ln&&ln<=d.b&&(!best||d.a>best.a)) best=d; return best?best.name:null; };
-const lines = src.split("\n");
-let blank=0, vend=0, ok=0, back=0; const ex=[];
+for (const b of blocksReport.blocks) if ((modules.vendor || []).some(r => matches(b, r))) for (const m of b.mangled) vendor.add(m);
+
+// Mirrors verify_citations.mjs's decision to check a `Real (short)` pairing:
+// the first name is indexed, or is an indexed symbol's short name, or looks
+// like a real name (then an unknown one is a FATAL "missing symbol" there).
+// Without --index nothing can be decided, and every F1 shape counts as owned.
+const indexedNames = new Set(), indexedShort = new Set();
+for (const ix of indexes.values()) for (const [r, e] of Object.entries(ix.symbols)) { indexedNames.add(r); indexedShort.add(e.mangled); }
+const looksReal = n => n.length >= 8 && /[a-z]/.test(n) && /[A-Z_]/.test(n);
+const f1Checked = (name) => !indexes.size || indexedNames.has(name) || indexedShort.has(name) || looksReal(name);
+
+// ---- docs ----------------------------------------------------------------
+const bundleOf = (q) => (q === "cli" || q === "stdio") ? q : "daemon";
+const counts = { f3ok: 0, f3bad: 0, unbound: 0, blank: 0, vendor: 0, backwards: 0, owned: 0 };
+const perDoc = {};
+const listed = [];
+const refuted = [];
+
 for (const f of docs) {
-  const t = fs.readFileSync(f,"utf8");
-  // A bare range whose end precedes its start is wrong without any lookup —
-  // usually a retarget that moved one endpoint and not the other.
-  for (const m of t.matchAll(/`(\d{4,6})`\s*[-–]\s*`?(\d{4,6})`?/g)) {
-    if (Number(m[2]) < Number(m[1])) {
-      back++;
-      const docLine = t.slice(0, m.index).split("\n").length;
-      if (ex.length < 12) ex.push(`${f.split("/").pop()} L${docLine}: ${m[1]}-${m[2]} -> RANGE RUNS BACKWARDS`);
-    }
+  const t = fs.readFileSync(f, "utf8");
+  const docName = f.split("/").pop();
+  const docLineOf = (off) => t.slice(0, off).split("\n").length;
+  const docLines = t.split("\n");
+  perDoc[docName] = 0;
+
+  // offsets of every line number F1/F2 already own
+  const owned = [];
+  // An F1 shape is owned only if verify_citations.mjs will really check it.
+  // `oa(e)`（N） has the same shape as `real (short)`（N）, and that tool skips a
+  // pair when neither name is indexed and the first does not look like a real
+  // name — the number would then be owned by nobody. Such a span is a code
+  // snippet, and falls through to F3 below.
+  for (const m of t.matchAll(f1Forward())) if (f1Checked(m[1])) owned.push([m.index, m.index + m[0].length]);
+  for (const m of t.matchAll(f1Reversed())) if (f1Checked(m[5])) owned.push([m.index, m.index + m[0].length]);
+  for (const { re } of f2Cites()) for (const m of t.matchAll(re)) owned.push([m.index, m.index + m[0].length]);
+  const isOwned = (off) => owned.some(([a, b]) => a <= off && off < b);
+
+  // offset of a line span -> the snippet binding it (F3)
+  const snippetAt = new Map();
+  for (const m of t.matchAll(f3())) {
+    const code = m[1];
+    if (/^(?:(?:daemon|cli|stdio)(?:\.pretty)?(?:\.js)?:)?\d{4,6}(?:\s*[-–]\s*\d{4,6})?$/.test(code)) continue; // a line, not code
+    const listStart = m.index + m[0].length - m[2].length;
+    for (const s of m[2].matchAll(/`[^`]+`/g)) snippetAt.set(listStart + s.index, code);
   }
-  for (const m of t.matchAll(/`(\d{4,6})`/g)) {
-    const pre = t.slice(Math.max(0,m.index-130), m.index);
-    if (/`[A-Za-z_$][A-Za-z0-9_$]{1,5}`\s*[@（(]\s*$/.test(pre)) continue;
-    const ln = Number(m[1]);
-    const txt = (lines[ln-1] ?? "").trim();
-    const encl = declFor(ln);
-    const docLine = t.slice(0,m.index).split("\n").length;
-    if (txt === "") { blank++; if(ex.length<8) ex.push(`${f.split("/").pop()} L${docLine}: ${ln} -> BLANK LINE`); }
-    else if (encl && vendor.has(encl)) { vend++; if(ex.length<8) ex.push(`${f.split("/").pop()} L${docLine}: ${ln} -> inside VENDOR ${encl}`); }
-    else ok++;
+
+  for (const m of t.matchAll(lineSpan())) {
+    const [, qual, fromS, toS] = m;
+    const from = Number(fromS), to = toS ? Number(toS) : null;
+    const where = `${docName} L${docLineOf(m.index)}`;
+    if (to !== null && to < from) { counts.backwards++; refuted.push(`${where}: ${from}-${to} -> RANGE RUNS BACKWARDS`); }
+    if (isOwned(m.index)) { counts.owned++; continue; }
+
+    const bname = bundleOf(qual);
+    const bundle = load(bname);
+    const entry = () => {
+      const d = bundle ? innermost(bundle.all, from) : null, top = bundle ? innermost(bundle.top, from) : null;
+      return {
+        doc: docName, docLine: docLineOf(m.index), anchor: m[0], bundle: bname, from, to,
+        ...(to !== null && to < from ? { backwards: true } : {}),
+        docText: docLines[docLineOf(m.index) - 1],
+        code: bundle ? (bundle.lines[from - 1] ?? "").trim().slice(0, 200) : null,
+        enclosing: d ? { mangled: d.name, real: bundle.realOf.get(d.name) || null, span: `${d.a}-${d.b}`, kind: d.kind } : null,
+        topLevel: top ? { mangled: top.name, real: bundle.realOf.get(top.name) || null, span: `${top.a}-${top.b}` } : null,
+      };
+    };
+
+    // Refutations that need no idea of what the number meant (daemon only: the
+    // vendor list is the daemon's).
+    if (bname === "daemon") {
+      const txt = (daemon.lines[from - 1] ?? "").trim();
+      const top = innermost(daemon.top, from);
+      if (txt === "") { counts.blank++; refuted.push(`${where}: ${from} -> BLANK LINE`); listed.push({ ...entry(), status: "refuted: blank line" }); continue; }
+      if (top && vendor.has(top.name)) { counts.vendor++; refuted.push(`${where}: ${from} -> inside VENDOR ${top.name}`); listed.push({ ...entry(), status: "refuted: vendor code" }); continue; }
+    }
+
+    const code = snippetAt.get(m.index);
+    const toks = code ? snippetTokens(code) : [];
+    // A snippet that is a single identifier binds by that identifier even when
+    // it is short: `lg`（`63829`/`63900`） — F2 owns the first, this the rest.
+    if (code && !toks.length && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(code.trim())) toks.push(code.trim());
+    // …and a snippet that is only a short call, `$e(w)`, by its callee.
+    if (code && !toks.length) toks.push(...snippetCallHeads(code));
+    if (toks.length && bundle) {
+      const span = bundle.lines.slice(from - 1, (to ?? from));
+      const hit = toks.some(tk => span.some(l => l.includes(tk)));
+      const heads = snippetCallHeads(code).filter(h => !span.some(l => new RegExp("(?<![A-Za-z0-9_$])" + h.replace(/\$/g, "\\$") + "(?![A-Za-z0-9_$])").test(l)));
+      if (hit && !heads.length) { counts.f3ok++; continue; }
+      counts.f3bad++;
+      refuted.push(`${where}: \`${code.slice(0, 50)}\` not on ${bname} ${from}${to ? "-" + to : ""}${heads.length ? ` (callee ${heads.join(",")} is not there)` : ""}`);
+      listed.push({ ...entry(), status: "refuted: snippet not on line", snippet: code });
+      continue;
+    }
+    counts.unbound++;
+    perDoc[docName]++;
+    listed.push({ ...entry(), status: code ? "unbound: snippet has no checkable token" : (bundle ? "unbound" : `unbound: no ${bname} bundle given`), snippet: code || null });
   }
 }
-console.log(`bare anchors examined            : ${blank+vend+ok}`);
-console.log(`  REFUTED - lands on a blank line: ${blank}`);
-console.log(`  REFUTED - lands in vendor code : ${vend}`);
-console.log(`  REFUTED - range runs backwards : ${back}`);
-console.log(`  not refutable by this check     : ${ok}  (NOT the same as verified)`);
-if (ex.length) { console.log(`\nrefuted:`); ex.forEach(e=>console.log("  "+e)); }
-process.exit(blank + vend + back > 0 ? 1 : 0);
+
+if (LIST) fs.writeFileSync(LIST, JSON.stringify(listed, null, 1));
+console.log(`line numbers examined             : ${Object.values(counts).reduce((a, b) => a + b, 0) - counts.backwards}`);
+console.log(`  owned by F1/F2 (other checkers)  : ${counts.owned}`);
+console.log(`  F3 snippet holds on the line     : ${counts.f3ok}`);
+console.log(`  REFUTED - snippet not on line    : ${counts.f3bad}`);
+console.log(`  REFUTED - lands on a blank line  : ${counts.blank}`);
+console.log(`  REFUTED - lands in vendor code   : ${counts.vendor}`);
+console.log(`  REFUTED - range runs backwards   : ${counts.backwards}`);
+console.log(`  UNBOUND (nothing can check them) : ${counts.unbound}`);
+if (refuted.length) { console.log(`\nrefuted:`); refuted.slice(0, 20).forEach(e => console.log("  " + e)); if (refuted.length > 20) console.log(`  ... and ${refuted.length - 20} more (--list for all)`); }
+
+let over = 0;
+if (BASELINE) {
+  if (WRITE_BASELINE) {
+    fs.writeFileSync(BASELINE, JSON.stringify({
+      note: "Per-doc ceiling on UNBOUND line numbers (check_bare_anchors.mjs). It may only go down: write new citations in an F1/F2/F3 shape (anchor_forms.mjs).",
+      unbound: perDoc,
+    }, null, 2) + "\n");
+    console.log(`\nbaseline written: ${BASELINE}`);
+    process.exit(0);
+  }
+  const base = fs.existsSync(BASELINE) ? JSON.parse(fs.readFileSync(BASELINE, "utf8")).unbound : {};
+  for (const [d, n] of Object.entries(perDoc)) {
+    const cap = base[d] ?? 0;
+    if (n > cap) { over++; console.log(`  BASELINE EXCEEDED  ${d}: ${n} unbound, ceiling ${cap}`); }
+    else if (n < cap) console.log(`  (${d}: ${n} unbound, below ceiling ${cap} — lower it with --write-baseline)`);
+  }
+}
+process.exit(refuted.length + over > 0 ? 1 : 0);

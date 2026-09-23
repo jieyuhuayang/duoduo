@@ -15,7 +15,7 @@
 | **二 b · 归属是判定而非猜测** | 一个 `__export` 块即一个源模块，逐**模块**标注自研/第三方 | 新版本冒出的是「多了 1 个模块要判断」，而不是「多了 N 个陌生名字」 |
 | **三 · 改名与运行被独立证明** | Babel 作用域安全改名 + 近百万节点 AST 全等 + 隔离实启 | 还原产物 = 出厂产物（同一 AST），且实机 RPC/WAL/cadence 正常 |
 | **四 · 跟随上游升级不靠沿用旧表** | 结构指纹跨版本承接身份 + 逐声明归一化 diff | 短名全量漂移下仍能证明"同一个函数"，且真实变更面被裁出来 |
-| **五 · 文档引用按身份而非坐标** | 符号索引（真名 → 行号 + 结构签名）+ 引用校验 | 符号消失或短名对不上才算失败；行号是派生量，机械重生成 |
+| **五 · 文档引用按身份而非坐标** | 符号索引（真名 → 行号 + 结构签名）+ 引用校验 | 符号消失或短名对不上才算失败；行号是派生量，机械重生成。没有真名的行号必须绑定短名或引用的代码片段，否则无法校验，构建拒收 |
 
 > 本文不复述计数。每次 `rebuild.sh` 生成的 `reconstruction/maps/pipeline_report.json` 是当前版本全部计数的权威来源。
 
@@ -97,6 +97,6 @@
 | 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs` |
 | 防静默失败 | `build_rename.mjs` 的模块闸门、`verify_inferred.mjs`、`verify_first_party.mjs`、`verify_citations.mjs` |
 | 跨版本升级 | `fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`locate_by_anchor.mjs`（`bump.sh` 串起来） |
-| 遗留裸行号锚点迁移 | `remap_doc_anchors.mjs`（算锚点新位置）、`retarget_docs.mjs`（改行号）、`retarget_symbols.mjs`（改短名）；写成真名形式的引用不需要这一层 |
+| 文档行号绑定 | `anchor_forms.mjs`（三种可校验写法的唯一定义）、`check_doc_anchors.mjs`（短名形式）、`check_bare_anchors.mjs`（代码片段形式 + 未绑定行号只减不增）、`bundle_guard.mjs`（拒绝错版本的 bundle）、`mutate_anchor_checks.mjs`（检查器自身的变异测试）；跨版本时短名和片段形式的行号仍由 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs` 迁移，真名形式的由 `verify_citations.mjs --fix` 重生成 |
 
 **两处可迁移的教训。** 其一，按名字猜归属必然漏：模块的导出名可以整块不含任何可识别词（duoduo 的 Grok 模块只导出 `GROK_ACP_*` 常量），而模块边界是打包器自己留下的、不会说谎的结构。其二，分片文件按标识符命名时必须做**大小写唯一化**：压缩标识符常常只差大小写（`Rw` 与 `rW`），在 macOS 与 Windows 上后写的文件会覆盖前一个，而字节还原比对因此失败——这个失败看起来像拆包算法有问题，其实是文件系统语义。

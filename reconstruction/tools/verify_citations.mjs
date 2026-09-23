@@ -32,6 +32,8 @@
 //
 // Usage: node verify_citations.mjs <symbols.json>[,<symbols2.json>...] <doc.md...> [--fix] [--quiet]
 import fs from "node:fs";
+import { ID, f1Forward, f1Reversed } from "./anchor_forms.mjs";
+import { assertBundleMatchesIndex } from "./bundle_guard.mjs";
 
 const argv = process.argv.slice(2);
 const FIX = argv.includes("--fix");
@@ -54,10 +56,12 @@ if (!INDEXES || !DOCS.length) {
 
 // bundle -> { symbolName -> entry }; also a flat view for unqualified citations.
 const byBundle = new Map();
+const indexVersion = new Map();
 const flat = new Map();
 for (const p of INDEXES.split(",")) {
   const idx = JSON.parse(fs.readFileSync(p, "utf8"));
   byBundle.set(idx.bundle, idx.symbols);
+  indexVersion.set(idx.bundle, idx.version);
   for (const [name, e] of Object.entries(idx.symbols)) {
     if (!flat.has(name)) flat.set(name, { ...e, bundle: idx.bundle });
   }
@@ -70,6 +74,13 @@ function lookup(name, bundle) {
     return s ? { ...s, bundle } : null;
   }
   return flat.get(name) || null;
+}
+
+// A line check against the wrong bundle reports drift on correct citations, and
+// --fix would then rewrite them.
+for (const [b, src] of bundleSrc) {
+  const syms = byBundle.get(b);
+  if (syms) assertBundleMatchesIndex(src, { bundle: b, version: indexVersion.get(b), symbols: syms }, b);
 }
 
 // Reverse view: mangled short name -> real name, per bundle.
@@ -89,17 +100,10 @@ function mangledOf(short, bundle) {
 const KNOWN_REAL = new Set([...flat.keys()]);
 const looksReal = n => n.length >= 8 && /[a-z]/.test(n) && /[A-Z_]/.test(n);
 
-const ID = "[A-Za-z_$][A-Za-z0-9_$]*";
-const BUNDLE = "(?:(daemon|cli|stdio)(?:\\.pretty)?\\.js:)?";
-// `Real (short)` followed by a （...） or (...) carrying an optional bundle
-// prefix and a line or range.
-const FORWARD = new RegExp(
-  "`(" + ID + ")\\s*\\((" + ID + ")\\)`\\s*[（(]\\s*`?" + BUNDLE + "(\\d{1,6})(?:\\s*[-–]\\s*(\\d{1,6}))?`?",
-  "g");
-// `bundle.js:1234-1299` (`short`=Real)
-const REVERSED = new RegExp(
-  "`" + BUNDLE + "(\\d{1,6})(?:\\s*[-–]\\s*(\\d{1,6}))?`\\s*[（(]\\s*`(" + ID + ")`\\s*=\\s*(" + ID + ")",
-  "g");
+// F1 shapes live in anchor_forms.mjs, shared with check_bare_anchors.mjs, which
+// has to know exactly which line numbers this tool already covers.
+const FORWARD = f1Forward();
+const REVERSED = f1Reversed();
 // any `Real (short)` / Real (short) / Real（short）, identity only
 const PAIR = new RegExp("(?<![A-Za-z0-9_$])(" + ID + ")(?:\\s+\\(|\\s*（)\\s*`?(" + ID + ")`?\\s*[)）]", "g");
 const BARE_NAME = /`([A-Za-z_$][A-Za-z0-9_$]{5,})`/g;

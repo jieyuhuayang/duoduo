@@ -154,7 +154,7 @@ come *before* `verify_citations.mjs --fix` writes new line numbers into the docs
 line check passes **vacuously** and reports zero drift on thoroughly stale anchors.
 `retarget_symbols.mjs` deliberately leaves identifiers inside quoted code expressions alone
 (they are usually function-locals), so short names quoted mid-snippet stay stale and need a
-hand pass; `check_bare_anchors.mjs` catches the subset that is refutable.
+hand pass; a stale token in an F3 snippet is exactly what `check_bare_anchors.mjs` refutes.
 
 Beautification is now *inside* the pipeline, with `js-beautify` pinned to an exact version
 in `tools/package.json`. It used to be a manual `npx` prerequisite — which meant every line
@@ -253,7 +253,13 @@ A **thin runtime + foundation model**: the runtime owns only what the model can'
 ## Writing / editing the analysis docs
 
 - Anchor every mechanism claim with a `file:line` into `daemon.pretty.js` (default) and a `confirmed` / `未证实推测` tag; **always use the "真名 (短名)" form**, e.g. `atomicAppendEvent (sn)`. Never present an unverified inference as fact.
-- **The name is the anchor; the line is derived.** Only the 真名 form is machine-checkable — `verify_citations.mjs` resolves it through `maps/symbols_daemon.json`, fails the build if the symbol is gone or the short name is wrong, and repairs a drifted line with `--fix`. The short name is checked in every `真名 (短名)` pairing, with or without backticks or a line (diagrams and tables included); the line only in the backticked forms. A bare line number carries no redundancy, so nothing can check it: ~1600 of them predate the symbol index and only a small refutable subset is reachable by `check_bare_anchors.mjs`. Write new citations in the 真名 form so they self-maintain; do not add bare numbers.
+- **The name is the anchor; the line is derived.** A line number is only checkable when something beside it says what it should point at, so every line number in `docs/` must take one of three shapes (defined once in `reconstruction/tools/anchor_forms.mjs`, each owned by one checker):
+  - **F1** `` `真名 (短名)`（`N`） `` — preferred whenever the symbol is in `maps/symbols_*.json`. `verify_citations.mjs` fails the build if the symbol is gone or the short name is wrong, and repairs a drifted line with `--fix`. The short name is also checked in every other `真名 (短名)` pairing, with or without backticks or a line (diagrams and tables included).
+  - **F2** `` `短名`（`N`） `` — for a declaration with no recorded real name. `check_doc_anchors.mjs --resolve` requires the short name on line N or enclosing it.
+  - **F3** `` `代码片段`（`N`） `` (also `（`N`/`M`）` and `（`N-M`）`) — for "this statement proves it". `check_bare_anchors.mjs` requires a distinctive token of the snippet (a string literal, or a non-keyword identifier, spelled as in the **pretty** bundle, i.e. mangled) on that line.
+  - cli anchors are written `cli.pretty.js:N`; unprefixed means daemon.
+
+  Anything else is an **unbound** line number: it carries no redundancy and rots without any signal (the v0.8.2 migration found them pointing into the wrong function, or at ranges running backwards, by the dozen). `check_bare_anchors.mjs` fails the build when a doc has more of them than `reconstruction/maps/bare_anchor_baseline.json` allows. Do not add bare numbers; when a claim's evidence cannot be re-found, remove the number and, if nothing else supports the claim, downgrade it to `未证实推测`. All three checkers refuse (exit 2) a bundle the symbol index was not built from — `reconstruction/.build/beautified/` is whatever the last run left there, not necessarily the current version.
 - If a hand-derived name for a non-exported function is used in prose, record it in `maps/inferred_daemon.json` first. An unrecorded one is unverifiable and invisible to the readable tree — that is how `classifyModelContextRequirement` sat in the docs for versions without existing anywhere in the reconstruction.
 - **Exception: `docs/DUODUO_FRAMEWORK_GUIDE.md` carries no anchors and no short names, on purpose.** It is the product-manager guide: plain literal language (no metaphors, flourish, or coined labels — say what the mechanism does), every term explained at first use, conclusion-first. Its credibility comes from Appendix C (section → `AGENT_INTERNALS_ANALYSIS.md` evidence section), not from inline citations. When upstream changes a mechanism, update the prose and Appendix D (version delta); do not "fix" it by adding line numbers.
 - Docs are written **conclusion-first (Pyramid Principle)**: central idea → MECE key sentences → answer-first sections. Preserve that when extending.
