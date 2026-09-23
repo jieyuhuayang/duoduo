@@ -56,6 +56,89 @@ export const f2Cites = () => [
 export const lineSpan = () =>
   /`(?:(daemon|cli|stdio)(?:\.pretty)?(?:\.js)?:)?([1-9]\d{3,5})(?:\s*[-–]\s*(\d{4,6}))?`/g;
 
+// --- line numbers lineSpan() cannot see -------------------------------------
+// lineSpan() only matches a code span that is exactly one line or range, so a
+// number written any other way used to be examined by nothing at all:
+//
+//   plain text   | daemon:72658 / 72756 / 73035 |     (a table cell, no backticks)
+//   list span    `daemon.pretty.js:81426/78679-84482`, `35484/35517`
+//   number+code  `86240 j.done→continue`
+//
+// None of these is a valid form. looseLineNumbers() returns every number in
+// them, so check_bare_anchors.mjs can count each one as UNBOUND (and refute a
+// backwards range) instead of skipping it. In plain text only a number with an
+// explicit bundle qualifier is taken — a bare 5-digit number in prose may be a
+// port, a count or a byte size — together with the numbers chained after it by
+// / , 、 ; or +, which is how the evidence tables list several lines.
+//
+// Code spans are tokenised the CommonMark way: a run of N backticks closes at
+// the next run of exactly N on the same line, so ``a `b` c`` is one span. Lines
+// inside ``` fences are skipped: diagrams there are not citations.
+export function codeSpans(text) {
+  const out = [];
+  const fenced = fencedRanges(text);
+  const run = /`+/g;
+  for (let m; (m = run.exec(text)); ) {
+    if (fenced.some(([a, b]) => a <= m.index && m.index < b)) continue;
+    const from = m.index + m[0].length;
+    const eol = text.indexOf("\n", from);
+    const close = new RegExp("(?<!`)" + m[0] + "(?!`)", "g");
+    close.lastIndex = from;
+    const c = close.exec(text);
+    if (!c || (eol >= 0 && c.index > eol)) continue; // unmatched: literal backticks
+    out.push({ start: m.index, end: c.index + m[0].length, content: text.slice(from, c.index) });
+    run.lastIndex = c.index + m[0].length;
+  }
+  return out;
+}
+function fencedRanges(text) {
+  const out = [];
+  let open = null, off = 0;
+  for (const line of text.split("\n")) {
+    if (/^\s*```/.test(line)) { if (open === null) open = off; else { out.push([open, off + line.length]); open = null; } }
+    off += line.length + 1;
+  }
+  if (open !== null) out.push([open, text.length]);
+  return out;
+}
+
+const QUAL = "(?:(daemon|cli|stdio)(?:\\.pretty)?(?:\\.js)?:)";
+const LINE = "([1-9]\\d{3,5})(?:\\s*[-–]\\s*(\\d{4,6}))?";
+const SEP = "\\s*[/,，、;；+]\\s*";
+// A span whose whole content is two or more lines/ranges, optionally qualified.
+const LIST_SPAN = new RegExp("^\\s*" + QUAL + "?\\s*[1-9]\\d{3,5}(?:\\s*[-–]\\s*\\d{4,6})?(?:" + SEP + "[1-9]\\d{3,5}(?:\\s*[-–]\\s*\\d{4,6})?)+\\s*$");
+// A span that opens with a line number followed by code.
+const NUMBERED_SPAN = /^\s*[1-9]\d{3,5}(?:\s*[-–]\s*\d{4,6})?\s+\S/;
+
+// -> [{ index, qual, from, to, text }] ; index is the offset of the number
+export function looseLineNumbers(text) {
+  const out = [];
+  const each = (s, base, re, qual) => {
+    for (const m of s.matchAll(re)) { const at = m[0].indexOf(m[1]); out.push({ index: base + m.index + at, qual, from: Number(m[1]), to: m[2] ? Number(m[2]) : null, text: m[0].slice(at).trim() }); }
+  };
+  const spans = codeSpans(text);
+  for (const sp of spans) {
+    const q = (sp.content.match(new RegExp("^\\s*" + QUAL)) || [])[1] || null;
+    const base = sp.start + (sp.end - sp.start - sp.content.length) / 2;
+    if (LIST_SPAN.test(sp.content)) each(sp.content, base, new RegExp("(?<![\\d.])" + LINE + "(?!\\d)", "g"), q);
+    else if (NUMBERED_SPAN.test(sp.content))
+      // every number opening a clause: `68596 a=…; 68597 if(…)`, `57006 x / 57008 y`
+      each(sp.content, base, new RegExp("(?:^|[/;；,，、]\\s*)\\s*" + LINE + "(?=\\s)", "g"), null);
+  }
+  // plain text: blank out the code spans, keep offsets
+  const chars = text.split(""); // UTF-16 units, so indices stay offsets into text
+  for (const { start, end } of spans) for (let i = start; i < end; i++) chars[i] = " ";
+  for (const [a, b] of fencedRanges(text)) for (let i = a; i < b; i++) if (chars[i] !== "\n") chars[i] = " ";
+  const plain = chars.join("");
+  const chain = new RegExp("(?<![A-Za-z0-9_$.])" + QUAL + "\\s*" + "[1-9]\\d{3,5}(?:\\s*[-–]\\s*\\d{4,6})?(?:" + SEP + "[1-9]\\d{3,5}(?:\\s*[-–]\\s*\\d{4,6})?(?!\\d))*", "g");
+  for (const m of plain.matchAll(chain)) {
+    const q = m[1];
+    const body = m[0].slice(m[0].indexOf(":") + 1);
+    each(body, m.index + m[0].indexOf(":") + 1, new RegExp("(?<![\\d.])" + LINE + "(?!\\d)", "g"), q);
+  }
+  return out.sort((x, y) => x.index - y.index);
+}
+
 // --- F3 -------------------------------------------------------------------
 // `code`（`N`） or a list after one snippet: `code`（`N`/`M`、`K`）. Every line
 // in the list is bound to the snippet.

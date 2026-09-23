@@ -10,7 +10,9 @@
 //                               a keyword) must be on line N, or within N-M, and
 //                               so must every short mangled name it calls
 //
-// Every other backticked line number is UNBOUND. At v0.8.2 there were ~680 of
+// Every other backticked line number is UNBOUND, and so is one written where
+// lineSpan() cannot match it — `daemon:N` in plain text, several lines in one
+// span, a span opening with a line number (anchor_forms.mjs looseLineNumbers). At v0.8.2 there were ~680 of
 // them, and sampling found them pointing into the wrong function as often as
 // not — a bare number has no redundancy, so it rots without any signal. They
 // are counted per doc against maps/bare_anchor_baseline.json, and the count may
@@ -34,7 +36,7 @@
 import fs from "node:fs";
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
-import { f1Forward, f1Reversed, f2Cites, f3, lineSpan, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
+import { f1Forward, f1Reversed, f2Cites, f3, lineSpan, looseLineNumbers, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
 const traverse = _traverse.default || _traverse;
 
@@ -194,6 +196,18 @@ for (const f of docs) {
     counts.unbound++;
     perDoc[docName]++;
     listed.push({ ...entry(), status: code ? "unbound: snippet has no checkable token" : (bundle ? "unbound" : `unbound: no ${bname} bundle given`), snippet: code || null });
+  }
+
+  // Numbers lineSpan() cannot see (anchor_forms.mjs looseLineNumbers): a
+  // `daemon:N` outside any code span, a span listing several lines, a span
+  // opening with a line number. No checker can own them, so each is unbound.
+  for (const n of looseLineNumbers(t)) {
+    const where = `${docName} L${docLineOf(n.index)}`;
+    if (n.to !== null && n.to < n.from) { counts.backwards++; refuted.push(`${where}: ${n.from}-${n.to} -> RANGE RUNS BACKWARDS`); }
+    counts.unbound++;
+    perDoc[docName]++;
+    listed.push({ doc: docName, docLine: docLineOf(n.index), anchor: n.text, bundle: bundleOf(n.qual), from: n.from, to: n.to,
+      docText: docLines[docLineOf(n.index) - 1], status: "unbound: not written as a single-line code span" });
   }
 }
 

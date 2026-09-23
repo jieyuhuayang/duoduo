@@ -200,7 +200,7 @@ RESULT: first-party tree is consistent with the bundle
 
 文档里的机制论断以 `真名 (短名)`(行号) 的形式指向代码。`verify_citations.mjs` 用 `maps/symbols_daemon.json` 逐条核对：真名必须仍存在，短名必须仍是它的 mangled 名，两者任一不成立则构建失败；行号漂移只报告，`--fix` 机械重生成。v0.8.2 起，不带反引号、不带行号或行号位数少于 4 的 `真名 (短名)` 写法也纳入短名核对，首次运行即报出 17 处此前没有任何检查覆盖的过期短名，已全部修正。
 
-没有真名的行号同样必须可核对：写成 `短名`（行号）由 `check_doc_anchors.mjs --resolve` 核对，写成 `代码片段`（行号）由 `check_bare_anchors.mjs` 核对（片段里的字面量或标识符、以及它调用的短名，都要出现在该行），三种写法之外的裸行号按 `maps/bare_anchor_baseline.json` 只减不增。v0.8.2 这一轮把存量的裸行号逐条对照代码改写完毕，基线为 0；改写过程中多数行号被证明指向旧版本或无关函数，已重新定位。
+没有真名的行号同样必须可核对：写成 `短名`（行号）由 `check_doc_anchors.mjs --resolve` 核对，写成 `代码片段`（行号）由 `check_bare_anchors.mjs` 核对（片段里的字面量或标识符、以及它调用的短名，都要出现在该行），三种写法之外的裸行号按 `maps/bare_anchor_baseline.json` 只减不增。裸行号也包括单行号代码片段匹配不到的写法：正文里不带反引号的 `daemon:N`、`daemon.pretty.js:N`、`cli.pretty.js:N`，一个代码片段里列多个行号（`` `N/M` ``），以及以行号开头的代码片段（`` `N code` ``），由 `anchor_forms.mjs` 的 `looseLineNumbers()` 识别。v0.8.2 这一轮把存量的裸行号逐条对照代码改写完毕，基线为 0；改写过程中多数行号被证明指向旧版本或无关函数，已重新定位。
 
 ---
 

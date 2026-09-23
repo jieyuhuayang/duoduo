@@ -48,6 +48,10 @@ const clean = [
   `F3 \`${A.code}\`（\`${A.ln}\`）`,
   `F3cli \`${C.code}\`（\`cli.pretty.js:${C.ln}\`）`,
   `range \`${A.e.mangled}\`（\`${A.e.line}-${A.e.endLine}\`）`,
+  // numbers that are not line citations must stay invisible: a count in prose,
+  // a port inside code, a diagram in a fence
+  `a 5-digit count in prose, 12345 ms, and a port in code \`PORT ?? 20233\``,
+  "```\n" + `diagram  [daemon:${A.ln}]` + "\n```",
 ].join("\n\n") + "\n";
 
 // the bundle guard's mutant: same code, every line shifted by one
@@ -75,6 +79,13 @@ const mutants = [
   ["F3 snippet keeps its literal but calls a re-mangled name", "check_bare_anchors", clean.replace(`\`${A.code}\`（`, `\`Zq9(${A.code})\`（`)],
   // shaped like `real (short)` but indexed nowhere, so verify_citations skips it
   ["call-shaped snippet with a wrong line", "check_bare_anchors", clean + `\nsee \`zqxwvut(e)\`（\`${A.ln}\`）\n`],
+  // written where lineSpan() cannot match: every one used to pass unexamined
+  ["plain-text daemon:N in a table cell", "check_bare_anchors", clean + `\n| claim | \`${A.code}\` | daemon:${A.ln} | confirmed |\n`],
+  ["plain-text daemon.pretty.js:N chained with / ", "check_bare_anchors", clean + `\nsee ${A.code} (daemon.pretty.js:${A.ln} / ${A.e.line})\n`],
+  ["plain-text cli.pretty.js:N", "check_bare_anchors", clean + `\nsee cli.pretty.js:${C.ln}\n`],
+  ["plain-text range runs backwards", "check_bare_anchors", clean + `\nsee daemon:${A.e.endLine}-${A.e.line}\n`],
+  ["several lines in one code span", "check_bare_anchors", clean + `\nsee \`daemon.pretty.js:${A.ln}/${A.e.line}\`\n`],
+  ["code span opening with a line number", "check_bare_anchors", clean + `\nsee \`${A.ln} ${A.code}\`\n`],
 ];
 
 let bad = 0;
