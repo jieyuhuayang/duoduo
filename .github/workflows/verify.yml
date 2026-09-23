@@ -2,8 +2,8 @@
 #
 # The package version is the one maps/pipeline_report.json records, not the
 # latest release: this proves the committed reconstruction and docs against
-# the bundle they claim to describe. A new upstream release is noticed by
-# upstream-watch.yml and retargeted by hand (CLAUDE.md, "On a version bump").
+# the bundle they claim to describe. A new upstream release is retargeted by
+# hand (CLAUDE.md, "On a version bump").
 #
 # A failure here needs judgement, not a mechanical rewrite — a vanished symbol,
 # a snippet no longer on its line, a new bare line number, committed artifacts
