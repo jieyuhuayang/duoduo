@@ -7,7 +7,8 @@
 //   F2  `short`（`N`）          owned by check_doc_anchors.mjs
 //   F3  `code`（`N`）           owned HERE: some distinctive token of the code
 //                               (a string literal, or an identifier that is not
-//                               a keyword) must be on line N, or within N-M
+//                               a keyword) must be on line N, or within N-M, and
+//                               so must every short mangled name it calls
 //
 // Every other backticked line number is UNBOUND. At v0.8.2 there were ~680 of
 // them, and sampling found them pointing into the wrong function as often as
@@ -33,7 +34,7 @@
 import fs from "node:fs";
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
-import { f1Forward, f1Reversed, f2Cites, f3, lineSpan, snippetTokens } from "./anchor_forms.mjs";
+import { f1Forward, f1Reversed, f2Cites, f3, lineSpan, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
 const traverse = _traverse.default || _traverse;
 
@@ -99,6 +100,15 @@ const matches = (block, record) => record.marker.filter(n => new Set(block.names
 const vendor = new Set();
 for (const b of blocksReport.blocks) if ((modules.vendor || []).some(r => matches(b, r))) for (const m of b.mangled) vendor.add(m);
 
+// Mirrors verify_citations.mjs's decision to check a `Real (short)` pairing:
+// the first name is indexed, or is an indexed symbol's short name, or looks
+// like a real name (then an unknown one is a FATAL "missing symbol" there).
+// Without --index nothing can be decided, and every F1 shape counts as owned.
+const indexedNames = new Set(), indexedShort = new Set();
+for (const ix of indexes.values()) for (const [r, e] of Object.entries(ix.symbols)) { indexedNames.add(r); indexedShort.add(e.mangled); }
+const looksReal = n => n.length >= 8 && /[a-z]/.test(n) && /[A-Z_]/.test(n);
+const f1Checked = (name) => !indexes.size || indexedNames.has(name) || indexedShort.has(name) || looksReal(name);
+
 // ---- docs ----------------------------------------------------------------
 const bundleOf = (q) => (q === "cli" || q === "stdio") ? q : "daemon";
 const counts = { f3ok: 0, f3bad: 0, unbound: 0, blank: 0, vendor: 0, backwards: 0, owned: 0 };
@@ -115,7 +125,13 @@ for (const f of docs) {
 
   // offsets of every line number F1/F2 already own
   const owned = [];
-  for (const mk of [f1Forward, f1Reversed]) for (const m of t.matchAll(mk())) owned.push([m.index, m.index + m[0].length]);
+  // An F1 shape is owned only if verify_citations.mjs will really check it.
+  // `oa(e)`（N） has the same shape as `real (short)`（N）, and that tool skips a
+  // pair when neither name is indexed and the first does not look like a real
+  // name — the number would then be owned by nobody. Such a span is a code
+  // snippet, and falls through to F3 below.
+  for (const m of t.matchAll(f1Forward())) if (f1Checked(m[1])) owned.push([m.index, m.index + m[0].length]);
+  for (const m of t.matchAll(f1Reversed())) if (f1Checked(m[5])) owned.push([m.index, m.index + m[0].length]);
   for (const { re } of f2Cites()) for (const m of t.matchAll(re)) owned.push([m.index, m.index + m[0].length]);
   const isOwned = (off) => owned.some(([a, b]) => a <= off && off < b);
 
@@ -163,12 +179,15 @@ for (const f of docs) {
     // A snippet that is a single identifier binds by that identifier even when
     // it is short: `lg`（`63829`/`63900`） — F2 owns the first, this the rest.
     if (code && !toks.length && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(code.trim())) toks.push(code.trim());
+    // …and a snippet that is only a short call, `$e(w)`, by its callee.
+    if (code && !toks.length) toks.push(...snippetCallHeads(code));
     if (toks.length && bundle) {
       const span = bundle.lines.slice(from - 1, (to ?? from));
       const hit = toks.some(tk => span.some(l => l.includes(tk)));
-      if (hit) { counts.f3ok++; continue; }
+      const heads = snippetCallHeads(code).filter(h => !span.some(l => new RegExp("(?<![A-Za-z0-9_$])" + h.replace(/\$/g, "\\$") + "(?![A-Za-z0-9_$])").test(l)));
+      if (hit && !heads.length) { counts.f3ok++; continue; }
       counts.f3bad++;
-      refuted.push(`${where}: \`${code.slice(0, 50)}\` not on ${bname} ${from}${to ? "-" + to : ""}`);
+      refuted.push(`${where}: \`${code.slice(0, 50)}\` not on ${bname} ${from}${to ? "-" + to : ""}${heads.length ? ` (callee ${heads.join(",")} is not there)` : ""}`);
       listed.push({ ...entry(), status: "refuted: snippet not on line", snippet: code });
       continue;
     }

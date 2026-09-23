@@ -18,6 +18,9 @@ import { snippetTokens } from "./anchor_forms.mjs";
 const [DAEMON, CLI, MAPS] = process.argv.slice(2);
 if (!DAEMON || !CLI || !MAPS) { console.error("usage: node mutate_anchor_checks.mjs <daemon.pretty.js> <cli.pretty.js> <maps-dir>"); process.exit(2); }
 const HERE = path.dirname(new URL(import.meta.url).pathname);
+// the module classification is hand-made and lives only in maps/, whichever
+// directory the generated symbol/block files come from
+const MODULES = path.join(HERE, "..", "maps", "modules_daemon.json");
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "anchor-mut-"));
 const idxD = JSON.parse(fs.readFileSync(path.join(MAPS, "symbols_daemon.json"), "utf8"));
 const idxC = JSON.parse(fs.readFileSync(path.join(MAPS, "symbols_cli.json"), "utf8"));
@@ -57,7 +60,7 @@ const node = (args) => spawnSync(process.execPath, args, { encoding: "utf8" }).s
 const checks = {
   verify_citations: (doc, d = DAEMON) => node([path.join(HERE, "verify_citations.mjs"), `${MAPS}/symbols_daemon.json,${MAPS}/symbols_cli.json`, "--bundle", `daemon=${d}`, "--bundle", `cli=${CLI}`, doc, "--quiet"]),
   check_doc_anchors: (doc, d = DAEMON) => node([path.join(HERE, "check_doc_anchors.mjs"), "--resolve", "--index", `${MAPS}/symbols_daemon.json`, d, doc]),
-  check_bare_anchors: (doc, d = DAEMON) => node([path.join(HERE, "check_bare_anchors.mjs"), "--index", `${MAPS}/symbols_daemon.json,${MAPS}/symbols_cli.json`, "--bundle", `cli=${CLI}`, "--baseline", baseline, d, `${MAPS}/blocks_daemon.json`, `${MAPS}/modules_daemon.json`, doc]),
+  check_bare_anchors: (doc, d = DAEMON) => node([path.join(HERE, "check_bare_anchors.mjs"), "--index", `${MAPS}/symbols_daemon.json,${MAPS}/symbols_cli.json`, "--bundle", `cli=${CLI}`, "--baseline", baseline, d, `${MAPS}/blocks_daemon.json`, MODULES, doc]),
 };
 
 const mutants = [
@@ -68,6 +71,10 @@ const mutants = [
   ["cli anchor loses its bundle prefix", "check_bare_anchors", clean.replace(`cli.pretty.js:${C.ln}`, `${C.ln}`)],
   ["a new bare line number", "check_bare_anchors", clean + `\nsee \`${A.ln}\`\n`],
   ["bare range runs backwards", "check_bare_anchors", clean + `\nsee \`${A.e.endLine}-${A.e.line}\`\n`],
+  // the literal still matches, but the callee quoted with it is not on the line
+  ["F3 snippet keeps its literal but calls a re-mangled name", "check_bare_anchors", clean.replace(`\`${A.code}\`（`, `\`Zq9(${A.code})\`（`)],
+  // shaped like `real (short)` but indexed nowhere, so verify_citations skips it
+  ["call-shaped snippet with a wrong line", "check_bare_anchors", clean + `\nsee \`zqxwvut(e)\`（\`${A.ln}\`）\n`],
 ];
 
 let bad = 0;

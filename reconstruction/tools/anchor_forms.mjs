@@ -52,8 +52,9 @@ export const f2Cites = () => [
 // A code span whose whole content is a line or range, optionally qualified by
 // bundle. `daemon:59735` is accepted as a qualifier so that it is SEEN (and
 // reported as unbound) rather than silently skipped; it is not a valid form.
+// A leading zero means it is not a line number (`0700` is a file mode).
 export const lineSpan = () =>
-  /`(?:(daemon|cli|stdio)(?:\.pretty)?(?:\.js)?:)?(\d{4,6})(?:\s*[-–]\s*(\d{4,6}))?`/g;
+  /`(?:(daemon|cli|stdio)(?:\.pretty)?(?:\.js)?:)?([1-9]\d{3,5})(?:\s*[-–]\s*(\d{4,6}))?`/g;
 
 // --- F3 -------------------------------------------------------------------
 // `code`（`N`） or a list after one snippet: `code`（`N`/`M`、`K`）. Every line
@@ -74,4 +75,15 @@ export function snippetTokens(code) {
   const bare = code.replace(/"[^"]*"|'[^']*'/g, " ");
   for (const m of bare.matchAll(/[A-Za-z_$][A-Za-z0-9_$]*/g)) if (m[0].length >= 3 && !KEYWORDS.has(m[0])) out.push(m[0]);
   return [...new Set(out)];
+}
+
+// The short mangled names a snippet CALLS: 2-4 chars carrying an uppercase
+// letter, a digit or `$` (`I6(`, `B5e(`, `Os(`) — the shape of esbuild's
+// top-level names, not of minified locals. A snippet can keep matching on a
+// long property name while its callee has been re-mangled (`I6(n.memoryBoard)`
+// against a line reading `uJ(n.memoryBoard)`), and the callee is what the
+// citation is about. So every such head must be on the cited line as well.
+export function snippetCallHeads(code) {
+  return [...code.replace(/"[^"]*"|'[^']*'/g, " ").matchAll(/(?<![A-Za-z0-9_$.])([A-Za-z_$][A-Za-z0-9_$]{1,3})\s*\(/g)]
+    .map(m => m[1]).filter(h => /[A-Z0-9$]/.test(h));
 }
