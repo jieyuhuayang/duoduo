@@ -79,6 +79,18 @@ When a run reports its findings out of band (a push notification, an issue, a PR
 every claim in it must have been verified in that same run against freshly fetched refs.
 Anything not re-verified does not go in.
 
+## CI (`.github/workflows/`)
+
+- `verify.yml` runs on every PR and push to `main`: it installs the npm release that
+  `maps/pipeline_report.json` records (not the latest one) and runs the full `rebuild.sh`,
+  so every gate — AST equivalence, committed-artifact sync, first-party tree, citations,
+  line anchors, the anchor-checker mutation test — can fail a PR. Nothing in CI commits
+  fixes: every failure it can raise needs judgement. Fix it in a session (the Claude app's
+  Auto-fix on the PR, or by hand).
+- `upstream-watch.yml` runs the check above daily against freshly fetched refs and opens
+  one `upstream-sync` issue per distinct upstream state. It never retargets: a bump goes
+  through `bump.sh` by hand.
+
 ## Reconstruction workflow (commands)
 
 The pipeline needs the **beautified bundles** as input (`{daemon,cli,stdio}.pretty.js`). These are *not committed* (multi-MB) — regenerate them from the installed npm package:
