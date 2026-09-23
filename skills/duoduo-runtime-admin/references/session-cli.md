@@ -191,7 +191,7 @@ a **session_key OR a display-name alias**.
 
 - No value → show the current view (stored override, runtime, live-query
   state). `reset` → clear the override; the runtime default applies again.
-- Effort levels are `low | medium | high | xhigh`, rejected up front on a
+- Effort levels are `low | medium | high | xhigh | max`, rejected up front on a
   typo. Model ids are accepted if they contain no whitespace — validity is
   decided by the runtime on the next turn, exactly like in-chat `/model`.
 - The result prints the session manager's answer unchanged: `applied: live`

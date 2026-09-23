@@ -169,11 +169,12 @@ into the profile store immediately and confirm masked), evidence before any
 number, confirm before writes that cost a rebuild.
 
 `/effort` sets how hard the model reasons for a session
-(`low | medium | high | xhigh`) — an independent axis from `/model`. It
-applies live on Claude, and from the next message on Codex and Pi (on
-Pi the levels map onto pi's native thinking levels), and stays in
-effect across a `/model` runtime flip (the levels are valid on every
-runtime). Invalid values are rejected up front. See the `/effort`
+(`low | medium | high | xhigh | max`) — an independent axis from `/model`.
+It applies live on Claude (a Claude model without `max` support runs `max`
+as `high`), and from the next message on Codex and Pi (on
+Pi the levels map onto pi's native thinking levels). Invalid values are
+rejected up front; on Grok the level must be one the model supports,
+otherwise the change is rejected. See the `/effort`
 section of [references/slash-commands.md](references/slash-commands.md).
 Both knobs are also settable per session from the CLI (0.8.0+) via
 `duoduo session model` / `duoduo session effort` — see

@@ -265,7 +265,7 @@ hot-switch and no next-turn surprise beyond that one rebuild.
   is rejected up front rather than guessing the provider. `/model
   reset` clears the override, but a pi session still needs SOME model
   source afterwards; with none, the next message fails actionably.
-- `/effort <level>` — the four levels map 1:1 onto pi's native
+- `/effort <level>` — the levels map 1:1 onto pi's native
   thinking levels.
 
 `/model` with no argument on a pi session reports the stored id, or

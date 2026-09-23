@@ -147,26 +147,24 @@ chit-chat.
 /effort reset             # revert to the runtime default
 ```
 
-- **Levels**: `low`, `medium`, `high`, `xhigh` — exactly these four.
-  Unlike a model id, the level is validated up front: any other value
-  (a typo, or `max` / `none` / `minimal`) is rejected with the valid
-  list and nothing is changed.
+- **Levels**: `low`, `medium`, `high`, `xhigh`, `max` — exactly these
+  five. Unlike a model id, the level is validated up front: any other
+  value (a typo, or `none` / `minimal`) is rejected with the valid list
+  and nothing is changed. On Grok the level must be one the model
+  supports, otherwise the change is rejected.
 - **Claude runtime**: a switch takes effect **live** — the running
   session picks up the new level immediately, with no restart and no
   next-turn wait. `/effort` with no args shows the stored level (or
-  `(runtime default)`).
+  `(runtime default)`). A Claude model without `max` support runs `max`
+  as `high`; the `/effort max` reply says so.
 - **Codex runtime**: a switch takes effect from the **next message**.
   The no-arg view notes this.
 - **Pi runtime**: a switch takes effect from the **next message** —
-  the stored level rides the session's worker rebuild, and the four
+  the stored level rides the session's worker rebuild, and the
   levels map 1:1 onto pi's native thinking levels.
 - **`/effort reset`**: clears the override and returns to the runtime
   default — applied live on Claude, from the next message on Codex
   and Pi.
-- **Survives a `/model` runtime flip**: the four levels are valid on
-  every runtime, so switching a session's runtime with `/model` keeps
-  the effort setting in effect — it is never stranded or reset by the
-  runtime change.
 
 ## When this skill does NOT apply
 

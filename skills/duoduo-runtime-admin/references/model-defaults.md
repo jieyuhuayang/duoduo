@@ -139,8 +139,8 @@ duoduo session config --global unset codex.effort
 
 Two differences from the model keys, both deliberate.
 
-**Validation is strict.** The vocabulary is four words — `low`, `medium`,
-`high`, `xhigh` — so anything else is a typo and is refused at the command. A
+**Validation is strict.** The vocabulary is five words — `low`, `medium`,
+`high`, `xhigh`, `max` — so anything else is a typo and is refused at the command. A
 model id had to stay open because ids are an open universe; an effort level does
 not, and a silently-wrong level would be rejected on every turn with nothing
 naming the config line that caused it.
@@ -181,7 +181,7 @@ tier by hand needs `duoduo session effort <target> high` by hand too.
 - "Any id without spaces is accepted. If the backend does not serve it, the
   next turn fails and names it — nothing silently falls back."
 - "Effort is the same three layers as the model, but the level has to be one of
-  four words, so a typo is refused right at the command."
+  five words, so a typo is refused right at the command."
 - "Match the effort to the model, not the runtime: top tier runs high, anything
   else runs xhigh."
 
