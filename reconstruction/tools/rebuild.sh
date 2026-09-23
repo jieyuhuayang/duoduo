@@ -239,17 +239,19 @@ if [ -d "$DOCS" ]; then
     verdict citations pass
   else verdict citations fail; rc=1; fi
 
-  # 10. the line numbers step 9 does not own (anchor_forms.mjs: F2 short-name
-  #    citations, F3 code-snippet citations, and unbound bare numbers). Both
-  #    are ADVISORY until the legacy bare anchors are migrated: their exit codes
-  #    are swallowed below -- do not read a green run here as "all verified".
-  echo "==== line anchors (advisory) ===="
-  node "$HERE/check_doc_anchors.mjs" --resolve --index "$OUT/symbols_daemon.json" \
+  # 10. the line numbers step 9 does not own (anchor_forms.mjs): F2 short-name
+  #    citations, F3 code-snippet citations, and unbound bare numbers, which
+  #    may only decrease against maps/bare_anchor_baseline.json. Both fatal.
+  #    On a version bump F2/F3 lines move with the bundle: retarget them
+  #    (remap_doc_anchors -> retarget_docs -> retarget_symbols) before this runs.
+  echo "==== line anchors (short names, snippets, unbound) ===="
+  if node "$HERE/check_doc_anchors.mjs" --resolve --index "$OUT/symbols_daemon.json" \
        "$BEAUTIFIED/daemon.pretty.js" "$DOCS"/*.md \
-    || echo "  (advisory; known false positives are prose words in backticks)"
-  node "$HERE/check_bare_anchors.mjs" --index "$IDX" --bundle "cli=$BEAUTIFIED/cli.pretty.js" \
-       "$BEAUTIFIED/daemon.pretty.js" "$OUT/blocks_daemon.json" "$MAPS/modules_daemon.json" "$DOCS"/*.md \
-    || echo "  (advisory; the refuted ones above cannot be correct citations)"
+     && node "$HERE/check_bare_anchors.mjs" --index "$IDX" --bundle "cli=$BEAUTIFIED/cli.pretty.js" \
+       --baseline "$MAPS/bare_anchor_baseline.json" \
+       "$BEAUTIFIED/daemon.pretty.js" "$OUT/blocks_daemon.json" "$MAPS/modules_daemon.json" "$DOCS"/*.md; then
+    verdict lineAnchors pass
+  else verdict lineAnchors fail; rc=1; fi
 
   # 11. the anchor checkers themselves: each must pass a clean synthetic doc,
   #     fail each injected error, and refuse a bundle shifted by one line.
