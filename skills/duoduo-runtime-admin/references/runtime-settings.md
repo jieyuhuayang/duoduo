@@ -75,8 +75,12 @@ binary or env from your shell.
   effective cutoff in the boot log's `spine by-id index retention` line.
 - `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`): global fallback
   for actors without a more-specific runtime declaration. Use a channel kind
-  descriptor when only one surface should change. `grok` here is a hard failure
-  if the CLI is missing — unlike `codex`, which still falls back to Claude.
+  descriptor when only one surface should change. `grok` or `codex` here is a
+  hard failure (the turn is refused) if the CLI is missing or, for codex, not
+  logged in — neither falls back to Claude. Changing this key does not move
+  existing sessions: a session bound to another runtime refuses its next turn
+  until it is `/clear`ed or the key is reverted (see SKILL.md, "Switching a
+  session's runtime").
   `pi` never lacks an install (it ships inside duoduo), but a pi session with
   no model pointer is the same hard-failure posture: an actionable error,
   never a silent Claude run. See [pi-runtime.md](pi-runtime.md).

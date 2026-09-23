@@ -146,17 +146,15 @@ visible to the daemon.
 ## Related: `/effort` (a separate, independent axis)
 
 `/model` chooses *which* model runs; `/effort` chooses *how hard* it
-reasons (`low | medium | high | xhigh`). They are independent per-session
-runtime knobs — set either without touching the other. Two differences
+reasons (`low | medium | high | xhigh | max`). They are independent per-session
+runtime knobs — set either without touching the other. One difference
 worth calling out against `/model`:
 
 - **Timing**: an effort change applies **live** on Claude (immediately,
-  no next-turn wait) and from the **next message** on Codex and Pi —
+  no next-turn wait; a Claude model without `max` support runs `max` as
+  `high`) and from the **next message** on Codex and Pi —
   whereas a `/model` change is always next-turn / next-message on every
   runtime.
-- **Runtime flips**: the four effort levels are valid on every runtime,
-  so switching a session's runtime with `/model` never strands or resets
-  the effort setting.
 
 See the `/effort` section of [slash-commands.md](slash-commands.md) for
 the full syntax, the level vocabulary, and reset semantics.

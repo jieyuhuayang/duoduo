@@ -250,9 +250,8 @@ Duoduo picks a runtime by specificity:
 
 **Pi has no silent Claude fallback.** An explicit `runtime: pi` (or a
 pi global default) whose session has no resolvable model is a hard
-failure at drain time, with the fix named in the reply. Codex
-unavailable still falls back to Claude; do not mix those two
-sentences.
+failure at drain time, with the fix named in the reply. Codex and
+grok take the same no-fallback posture when unavailable.
 
 ## `/model` and `/effort` on pi
 
@@ -265,7 +264,7 @@ hot-switch and no next-turn surprise beyond that one rebuild.
   is rejected up front rather than guessing the provider. `/model
   reset` clears the override, but a pi session still needs SOME model
   source afterwards; with none, the next message fails actionably.
-- `/effort <level>` — the four levels map 1:1 onto pi's native
+- `/effort <level>` — the levels map 1:1 onto pi's native
   thinking levels.
 
 `/model` with no argument on a pi session reports the stored id, or

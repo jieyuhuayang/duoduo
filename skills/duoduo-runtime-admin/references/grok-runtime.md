@@ -55,8 +55,8 @@ without a more-specific declaration to prefer Grok.
 
 **Grok has no silent Claude fallback.** An explicit `runtime: grok` (or a
 grok global default) that cannot be served is a hard failure at drain
-time. Codex unavailable still falls back to Claude; do not mix those
-two sentences.
+time. Codex unavailable is refused the same way — no runtime silently
+substitutes Claude.
 
 ## ManageJob
 

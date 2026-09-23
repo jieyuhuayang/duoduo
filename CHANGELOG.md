@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.3] - 2026-09-23
+
+Claude Opus 5.5 works. It needs Claude Code 2.1.280 or newer, and 0.8.2 ships
+2.1.278, so every turn on `claude-opus-5-5` failed with `400 ... version
+2.1.280 or newer is required`. The bundled agent SDK now moves to 0.3.280, and
+it is declared as a range (`^0.3.280`) instead of an exact version. A fresh
+install picks up the newest 0.3.x, so the next model Anthropic ships should
+need a reinstall, not a new duoduo release.
+
+Upgrading is routine: reinstall core, restart the daemon. The Feishu and ACP
+channels are unchanged and stay on 0.8.2.
+
+Three behaviour changes to know about:
+
+- **A Codex session no longer falls back to Claude.** When the Codex CLI was
+  missing or failed its first check, a `runtime: codex` channel used to run on
+  Claude for the rest of the daemon's life, with one warning in the log. It
+  now refuses with `runtime_unavailable`, like Grok and Pi already did. A
+  failed check is no longer remembered either: the next message checks again,
+  so installing Codex takes effect without a restart.
+- **Changing a session's runtime needs `/clear` first.** A session is now bound
+  to the runtime that created its history. Pointing it at a different runtime
+  used to hand one harness's session id to another: Claude and Codex silently
+  started a new conversation, Grok failed every turn, Pi opened an empty
+  history. duoduo now refuses the switch with `runtime_mismatch`, naming both
+  runtimes. `/clear`, then change the runtime.
+- **`ManageJob` requires `action`.** A call without it used to be answered
+  with the job list and no error, so a `create` whose `action` was dropped on
+  the way (some Anthropic-compatible gateways re-serialize tool input) looked
+  like success (#79). It is now an error on every runtime.
+
+### Highlights
+
+- **Claude Opus 5.5.** `claude-opus-5-5` and `claude-opus-5-5[1m]` are accepted
+  by `/model`, and a session that names them runs.
+- **Effort `max`.** `max` is now a valid effort level everywhere effort can be
+  set: `/effort`, `duoduo session`, job frontmatter, `ManageJob`, the
+  per-runtime defaults and partition frontmatter. On a Claude model without
+  `max` support the request runs as `high`, and the `/effort max` reply says
+  so.
+- **Dashboard shows reminders correctly.** A reminder set with `RemindDuoduo`
+  appeared in the job list as `cron: ? / unknown · 0 runs / last: never`. It
+  now shows its owner, when it fires, when it was set, and what it says.
+
 ## [v0.8.2] - 2026-09-20
 
 Mostly about being told when something did not happen. A notification sent into
