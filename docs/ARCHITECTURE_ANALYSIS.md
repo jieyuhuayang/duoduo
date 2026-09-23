@@ -79,7 +79,7 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
                             #   新 daemon 启动时读一次即删（一次性认领）
 ```
 
-> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent}`（`claimDaemonRestartReason (Fbe)`（`65802-65805`））。
+> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent, wake_targets?}`（`claimDaemonRestartReason (Fbe)`（`65802-65805`））。`wake_targets` 是可选项：`duoduo daemon restart` 与 `duoduo upgrade` 都接受 `--wake <session-or-alias>`，给了目标时 CLI 才在载荷里加上 `wake_targets: u`（`cli.pretty.js:68090`），此时即使没写 `-r` 也会写这个文件（`reason` 为空串）。daemon 认领时只保留非空字符串项（`r.wake_targets.filter`（`65800`）），`reason` 与 `wake_targets` 都为空才当作没有文件；启动完成后由 `_yt`（`89658`）向每个目标发一条 `source: "daemon-restart"`（`89665`）的强制唤醒消息，失败只记日志。
 
 ### 3.3 持久化的配置面
 
