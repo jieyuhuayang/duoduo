@@ -207,7 +207,7 @@ subconscious/
   - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
   - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
   - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (yw)`，daemon.pretty.js:61974-62434，详见 INTERNALS §8）。Grok 侧同样是**常驻子进程**，但走标准 ACP（Agent Client Protocol）协议 + `_x.ai/...` 供应商扩展方法命名空间，适配器是闭包工厂而非 class，spawn 时不带 `detached:!0`（`createGrokAcpAdapter (vw)`，daemon.pretty.js:63118-63675）——三者均不是逐回合 spawn。
+- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (yw)`（`61974-62434`），详见 INTERNALS §8）。Grok 侧同样是**常驻子进程**，但走标准 ACP（Agent Client Protocol）协议 + `_x.ai/...` 供应商扩展方法命名空间，适配器是闭包工厂而非 class，spawn 时不带 `detached:!0`（`createGrokAcpAdapter (vw)`（`63118-63675`））——三者均不是逐回合 spawn。
 - **v0.7.1 起 duoduo 自有工具在 Codex 侧被显式钉在模型可见的顶层工具列表**（`ALADUO_TOOL_NAMESPACE="aladuo"`），防止被 Codex 的 code-execution shim 折叠进模型看不见的间接调用层——这是 changelog "Codex tools stay where the model can see them" 的落地机制，只解决 Codex 一侧的可见性问题，不代表三后端工具面已拉平。
 - 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
 
