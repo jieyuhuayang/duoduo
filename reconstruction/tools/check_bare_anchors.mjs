@@ -199,9 +199,12 @@ for (const f of docs) {
   }
 
   // Numbers lineSpan() cannot see (anchor_forms.mjs looseLineNumbers): a
-  // `daemon:N` outside any code span, a span listing several lines, a span
-  // opening with a line number. No checker can own them, so each is unbound.
+  // qualified number outside any code span, a span listing several lines, a
+  // span opening with a line number, a number in a parenthesis after a span
+  // without backticks of its own, a number inside a fence. Unless F1/F2 own it
+  // (`Name`(12345) needs no backticks there), each is unbound.
   for (const n of looseLineNumbers(t)) {
+    if (isOwned(n.index)) { counts.owned++; continue; }
     const where = `${docName} L${docLineOf(n.index)}`;
     if (n.to !== null && n.to < n.from) { counts.backwards++; refuted.push(`${where}: ${n.from}-${n.to} -> RANGE RUNS BACKWARDS`); }
     counts.unbound++;

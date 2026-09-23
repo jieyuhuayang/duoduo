@@ -48,10 +48,13 @@ const clean = [
   `F3 \`${A.code}\`（\`${A.ln}\`）`,
   `F3cli \`${C.code}\`（\`cli.pretty.js:${C.ln}\`）`,
   `range \`${A.e.mangled}\`（\`${A.e.line}-${A.e.endLine}\`）`,
-  // numbers that are not line citations must stay invisible: a count in prose,
-  // a port inside code, a diagram in a fence
-  `a 5-digit count in prose, 12345 ms, and a port in code \`PORT ?? 20233\``,
-  "```\n" + `diagram  [daemon:${A.ln}]` + "\n```",
+  // F2 needs no backticks on the number, so a parenthesis after a span is owned
+  `F2bare \`${A.e.mangled}\`(${A.e.line})`,
+  // numbers that are not line citations must stay invisible: a count in prose
+  // (qualified or not), a port inside code, a date/error code/size/expression
+  // in a fence
+  `a 5-digit count in prose, 12345 ms, daemon 91616 lines, and a port in code \`PORT ?? 20233\``,
+  "```\n2026-06-30.jsonl  -32601  10MB  3600*1e3\n```",
 ].join("\n\n") + "\n";
 
 // the bundle guard's mutant: same code, every line shifted by one
@@ -86,6 +89,9 @@ const mutants = [
   ["plain-text range runs backwards", "check_bare_anchors", clean + `\nsee daemon:${A.e.endLine}-${A.e.line}\n`],
   ["several lines in one code span", "check_bare_anchors", clean + `\nsee \`daemon.pretty.js:${A.ln}/${A.e.line}\`\n`],
   ["code span opening with a line number", "check_bare_anchors", clean + `\nsee \`${A.ln} ${A.code}\`\n`],
+  ["line number inside a fenced diagram", "check_bare_anchors", clean + "\n```\n" + `step ① ${A.real}  [${A.ln}]` + "\n```\n"],
+  ["space-qualified number in a table row", "check_bare_anchors", clean + `\n| claim | \`${A.code}\` | daemon ${A.ln} | confirmed |\n`],
+  ["un-backticked number in a parenthesis after a snippet", "check_bare_anchors", clean + `\nsee \`${A.code}\`(${A.ln})\n`],
 ];
 
 let bad = 0;
