@@ -1,0 +1,75 @@
+# Rebuild the reconstruction from the shipped npm package and run every gate.
+#
+# The package version is the one maps/pipeline_report.json records, not the
+# latest release: this proves the committed reconstruction and docs against
+# the bundle they claim to describe. A new upstream release is noticed by
+# upstream-watch.yml and retargeted by hand (CLAUDE.md, "On a version bump").
+#
+# A failure here needs judgement, not a mechanical rewrite — a vanished symbol,
+# a snippet no longer on its line, a new bare line number, committed artifacts
+# out of step with the bundle — so nothing in CI commits fixes.
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: reconstruction/tools/package-lock.json
+
+      - name: Install the pipeline tooling (pinned js-beautify, Babel)
+        working-directory: reconstruction/tools
+        run: npm ci --no-audit --no-fund
+
+      - name: Install the shipped runtime this repo is reconstructed to
+        run: |
+          version=$(node -p 'require("./reconstruction/maps/pipeline_report.json").package.replace(/^v/, "")')
+          echo "reconstructed to @openduo/duoduo@$version"
+          npm install --prefix "$RUNNER_TEMP/pkg" "@openduo/duoduo@$version" --ignore-scripts --no-audit --no-fund
+          echo "PKG=$RUNNER_TEMP/pkg/node_modules/@openduo/duoduo/dist/release" >> "$GITHUB_ENV"
+
+      - name: Rebuild and verify (rebuild.sh)
+        env:
+          OUT: ${{ runner.temp }}/out
+        run: bash reconstruction/tools/rebuild.sh
+
+      - name: Summarise verdicts
+        if: always()
+        env:
+          OUT: ${{ runner.temp }}/out
+        run: |
+          [ -f "$OUT/verdicts.txt" ] || { echo "no verdicts were recorded" >> "$GITHUB_STEP_SUMMARY"; exit 0; }
+          {
+            echo "| gate | verdict |"
+            echo "|---|---|"
+            sort "$OUT/verdicts.txt" | sed 's/^\(.*\)=\(.*\)$/| \1 | \2 |/'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the pipeline report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-report
+          path: |
+            ${{ runner.temp }}/out/pipeline_report.json
+            ${{ runner.temp }}/out/verdicts.txt
+          if-no-files-found: ignore
