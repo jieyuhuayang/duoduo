@@ -1,6 +1,6 @@
 # duoduo 源代码还原（Source Reconstruction）
 
-`@openduo/duoduo` 以 **esbuild `--minify` 压缩后的 JavaScript** 发布（作者立场：“代码是给 agent 读的，压缩只为省带宽”）。本目录把这套压缩产物**还原成可读、且经证明能同样运行**的源代码，当前对齐 **v0.8.1**。
+`@openduo/duoduo` 以 **esbuild `--minify` 压缩后的 JavaScript** 发布（作者立场：“代码是给 agent 读的，压缩只为省带宽”）。本目录把这套压缩产物**还原成可读、且经证明能同样运行**的源代码，当前对齐的版本以 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 的 `package` 字段为准。
 
 > 本文不复述计数。每次 `rebuild.sh` 运行都会生成 [`maps/pipeline_report.json`](./maps/pipeline_report.json)，那里是块数、一等公民名数、改名条目、AST 节点数的唯一权威来源。此前这些数字散落在四份文档里手工维护，已漂移成三个互相矛盾的值。
 
@@ -14,40 +14,41 @@
 
 | 路径 | 内容 |
 |------|------|
-| `recon/daemon.recon.js` | **可运行的还原产物**（核心运行时）。与出厂 `daemon.js` 语义全等，仅把一等公民符号改回真实名（数量见 `maps/pipeline_report.json`）。v0.7.1 轮已在隔离 HOME + 备用端口实机启动，RPC（TCP 只读 + unix socket 全权）/WAL/cadence/运行时探测全部正常。 |
-| `recon/cli.recon.js` | 可运行还原产物（命令行）。**不提交**：3.7 MB 只承载 34 个改名，且每次版本迁移整体重写；用 `rebuild.sh` 随时再生。 |
-| `first-party/` | **可读的一等公民源码树**：把 daemon 的首方（duoduo 自研）函数按 12 个子系统（含 `11-runtime-grok`）拆成单文件，带真实函数名与原行号注释。用于**阅读**（运行请用 `recon/`）。pi 运行时不在此：它在 daemon 层没有独立 `__export` 面，其 worker 在 `dist/release/pi-worker.js`，而那个 bundle 恢复不出任何真名。 |
-| `maps/RENAME_TABLE.md` | minified 短名 → 真实原名 映射表（按子系统分组，标注来源与原行号）。 |
+| `recon/daemon.recon.js` | **可运行的还原产物**（核心运行时）。与出厂 `daemon.js` 语义全等，仅把一等公民符号改回真实名（数量见 `maps/pipeline_report.json`）。v0.8.2 轮与出厂 `daemon.js` 在隔离 HOME + 备用端口下做过 A/B 对照运行：启动日志、生成的文件树、只读 TCP 接口、unix socket 上的读类 RPC、cadence、SIGTERM/SIGKILL 后的恢复行为一致。只能在复制进出厂包的 `dist/release/` 后运行，因为它按 `import.meta.url` 解析 `../../package.json`、`../../bootstrap` 和同目录的 `pi-worker.js`。 |
+| `.build/cli.recon.js` | 可运行还原产物（命令行），由 `rebuild.sh` 生成在 `$OUT`（默认 `.build/`）下。**不提交**：3.7 MB 里只有少量改名（数量见 `maps/pipeline_report.json`），且每次版本迁移整体重写。它的改名表见 `maps/RENAME_TABLE_cli.md`。 |
+| `first-party/` | **可读的一等公民源码树**：把 daemon 的首方（duoduo 自研）函数按 12 个子系统（含 `11-runtime-grok`）拆成单文件，带真实函数名与原行号注释；文件头的 `// name:` 行注明这个名字是上游的权威名，还是本仓库根据函数体推断的名字。由 `rebuild.sh` 生成，不手工维护。用于**阅读**（运行请用 `recon/`）。pi 运行时不在此：它在 daemon 层没有独立 `__export` 面，其 worker 在 `dist/release/pi-worker.js`，而那个 bundle 恢复不出任何真名。 |
+| `maps/RENAME_TABLE.md`、`maps/RENAME_TABLE_cli.md` | daemon 与 cli 的 minified 短名 → 真实原名 映射表（按子系统分组，标注来源与原行号）。 |
 | `maps/blocks_*.json` | **生成**：按源模块分组的 `__export` 导出名，外加 bundle 顶层 `export {}` 入口导出。这是身份判定的输入。 |
 | `maps/modules_*.json` | **整条流水线唯一的人工判断**：逐模块标注是 duoduo 自研还是内联的第三方库。每条记录用 3 个导出名作 marker，命中 2 个即认定，可容忍版本间的导出增减。 |
 | `maps/*.exports.json` | esbuild `__export` 助手中恢复出的全部导出名（压平视图，保留供既有工具消费；跨模块重名在此会被覆盖，按模块分组的准确版本见 `blocks_*.json`）。 |
 | `maps/rename_*.json` | 实际应用的"首方"改名表（mangled→真实名）。 |
 | `maps/symbols_*.json` | **生成**：符号索引，真名 → 短名、声明行、结束行、种类、结构签名。这是"某符号在哪"的权威答案，行号由它派生而非手写。 |
 | `maps/inferred_daemon.json` | 逆向推断的内部函数名（未被 `__export` 记录者）。 |
-| `maps/inferred_daemon.shape.json` | 上述推断名在**上一次被人工复核过的版本**里的声明形态基线（种类、参数个数、字面量集合），供 `verify_inferred.mjs` 在每次 rebuild 时核对"名字是否还贴在同一类代码上"。 |
-| `maps/pipeline_report.json` | **生成**：一次运行测到的全部计数。文档引用它，不再复述数字。 |
-| `tools/` | 可复现的还原流水线（Babel 脚本 + `rebuild.sh`），跨版本重定向流水线（`bump.sh`），以及四道防静默失败的闸门：`build_rename.mjs` 的**模块闸门**、`verify_inferred.mjs` 的推断名形态闸门、`verify_first_party.mjs` 的可读树一致性检查、`verify_citations.mjs` 的引用身份检查。 |
+| `maps/inferred_daemon.shape.json` | 上述推断名在**上一次被人工复核过的版本**里的声明形态基线（种类、参数个数、字面量集合、成员属性名集合），供 `verify_inferred.mjs` 在每次 rebuild 时核对"名字是否还贴在同一类代码上"，并检测两个推断名是否被互换。 |
+| `maps/pipeline_report.json` | **生成**：一次运行测到的全部计数、每道闸门的结论（`verdicts`）和工具链版本（`environment`）。文档引用它，不再复述数字。 |
+| `tools/` | 可复现的还原流水线（Babel 脚本 + `rebuild.sh`），跨版本重定向流水线（`bump.sh`），以及防静默失败的闸门：`build_rename.mjs` 的**模块闸门**、`ast_equiv.mjs` 对美化步骤与改名步骤的两次等价证明、`verify_inferred.mjs` 的推断名形态与互换检查、`verify_first_party.mjs` 的可读树一致性检查、`verify_citations.mjs` 的引用身份检查、`promote.mjs` 的"新产物与已提交产物一致"检查。 |
 
 ## 关键事实：为什么“还原”是可信的而非编造
 
-1. **反混淆只改排版**：`js-beautify` 不改语义。压缩产物 → `*.pretty.js` 是等价变换。
+1. **反混淆只改排版，且每次都被证明**：`rebuild.sh` 用 `ast_equiv.mjs` 比对出厂压缩文件与 `*.pretty.js` 的 AST。此前这一步只是假设，整条等价证明链从 `*.pretty.js` 开始，从未触及真正出厂的文件。
 2. **拆包无损可证**：`split.mjs` 按 AST 顶层语句的**字节偏移**切分；`reassemble.mjs` 拼回后与原文件 `cmp` **零差异**。因此“模块边界”是从真实结构切出来的，不是臆测。
 3. **名字大多不是猜的**：esbuild 压缩时保留了 `__export(exports, { 真实名: () => 短名 })` 助手调用——这里**逐字保存了原始导出符号名**，另有 bundle 顶层 `export {}` 语句记录入口导出。少量未导出的内部函数名（标 *inferred*）才是逆向推断，且**即使名字推断有偏差也不影响正确性**（改名是作用域安全的纯替换）。
 3b. **归属不是猜的**：一个名字属不属于 duoduo，取决于它所在的 `__export` 块——即它所在的源模块——而不取决于名字本身长什么样。此前用关键词子串猜归属，在 v0.8.1 上双向都出错：漏掉 8 个身处自研模块的符号，而且漏掉的原因是结构性的（整个 Grok 模块只导出 `GROK_ACP_*` 形式的常量，v0.7.1 因此静默丢了 19 个符号）。
-4. **改名作用域安全**：`rename.mjs` 用 Babel 的绑定分析，只替换某个顶层绑定的**精确引用点**，绝不误伤同名的内层变量；有冲突就跳过。因此 AST 结构不变。
-5. **等价性被证明**：`ast_equiv.mjs` 把 `*.pretty.js` 与 `*.recon.js` 两棵 AST 逐节点并行比对，结构全等，标识符差异恰好等于改名表——**这是覆盖 100% 代码的静态全等证明**，比只跑到启动路径的"能跑起来"更强。节点数见 `maps/pipeline_report.json`。
+4. **改名作用域安全**：`rename.mjs` 对文件中每个标识符做作用域解析，只改写解析到目标顶层绑定的那些（包括重复的 `var` 声明、解构赋值和 for-in/of 的写入位置）；对象 shorthand、`export { X }`、`import { X }` 会展开成保留原外部名字的写法。新名字若与已有顶层名、代码用到的全局名冲突，或在某个引用处会被内层同名绑定遮蔽，就拒绝改名并让构建失败。
+5. **等价性被证明**：`ast_equiv.mjs` 把 `*.pretty.js` 与 `*.recon.js` 两棵 AST 逐节点并行比对，结构全等；每个标识符按它解析到的绑定比较，要求两边的声明一一对应，改名只出现在改名表指定的顶层绑定上——**这是覆盖 100% 代码的静态全等证明**，比只跑到启动路径的"能跑起来"更强。节点数见 `maps/pipeline_report.json`。这个证明有两处不覆盖的地方：读取函数自身名字的行为（`Function.prototype.name`、类的 `constructor.name`、调用栈文本）在还原版里显示真名；内联的 gray-matter 里有一处 direct `eval()`，被 eval 的代码按名字看得到模块作用域。两者都不影响 duoduo 自身的控制流。
 6. **引用可自我维护**：文档里 `真名 (短名)`(行号) 形式的引用由 `verify_citations.mjs` 按**符号身份**核对——符号消失或短名对不上会让构建失败，行号漂移则用 `--fix` 机械重生成。行号是派生量，不该由人手写进散文。
 
 ## 如何复现
 
 ```bash
-# 前置：Node>=18、npm；在 tools/ 目录 npm install
-npm install --prefix /tmp/duoduo-pkg @openduo/duoduo@0.8.1
-PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release \
-PKG_VERSION=v0.8.2 bash tools/rebuild.sh
-#  美化→拆包→导出块→模块闸门→改名→node --check→AST 全等→符号索引
-#  →可读树一致性→引用身份→行号锚点（仅提示）→生成 pipeline_report.json
-#  两个 bundle 并发（JOBS=1 转串行）；BEAUTIFIED=<dir> 可跳过美化步骤
+# 前置：Node 22 或更新（v22 与 v25 生成的产物逐字节一致）、npm；在 tools/ 目录 npm ci
+npm install --prefix /tmp/duoduo-pkg @openduo/duoduo@<版本>   # 与 pipeline_report.json 的 package 一致
+PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash tools/rebuild.sh
+#  版本号从包的 package.json 读取；手动给出的 PKG_VERSION 与之不符会直接失败
+#  美化→拆包→美化等价证明→导出块→模块闸门→改名→语法检查→AST 全等→符号索引
+#  →与已提交产物比对→可读树一致性→引用身份→行号锚点（仅提示）→pipeline_report.json
+#  两个 bundle 并发（JOBS=1 转串行，失败同样会让构建失败）；BEAUTIFIED=<dir> 可跳过美化步骤
+#  默认只写 $OUT，不改仓库；PROMOTE=1 把新产物写进 recon/、maps/、first-party/
 ```
 
 **美化已经收进流水线内部**，`js-beautify` 在 `tools/package.json` 里锁定精确版本。它此前是手工前置步骤，靠 `npx` 取当天解析到的版本——而 `docs/` 里每一个行号锚点都建立在格式化器的输出之上，格式化器发一个小版本就会让它们一起偏移，唯一的信号只是锚点检查转红，看起来会像是上游改了代码。
@@ -88,12 +89,24 @@ OLD=/path/to/beautified/v0.6.1 NEW=/path/to/beautified/v0.6.2 bash tools/bump.sh
 
 三个可以复盘的原因：①`locate_by_anchor.mjs` 只回答"哪个顶层声明包含这个子串"，不区分函数与常量；②操作指引把"字面量独属于旧函数"当成了跨版本不变量，而上游重构恰恰会移动字面量；③`bump.sh` 其实给过正确提示——`pair_changes.mjs` 报了 `hpe -> NOT IN PAIRS`，block 列表里 `[oXe,hpe,gpe] -> [Htt,Vtt,OP,v4,Wtt,…]` 明确含 `Wtt`——但这两个信号都是"需要人再看一眼"的软提示，没有任何一步会因为忽略它们而失败。
 
-现在的处理与 v0.7.1 那次同一思路——把"记得去核对"换成"不核对就失败"：`verify_inferred.mjs` 接进 `rebuild.sh`，对每个推断名做两件事——**种类闸门**（必须解析到函数/类声明或函数/类表达式；命中 `var = call` 的 lazy-init 包装器或常量直接构建失败）和**形态基线**（对照 `maps/inferred_<bundle>.shape.json` 里上一次人工复核时记录的种类、参数个数、字面量集合；种类变化为失败，参数个数变化或字面量零交集为需人工复读的告警）。回放验证：用 v0.7.1 记录基线、对错误的那份推断表跑 check，精确报出 `runGapLint: b4 @60985 is "var = call (lazy-init wrapper)", not a function` 并非零退出；对正确的表则通过，且把本轮真实重写的三处（`readEventByIdSeek` 2→3 参、`runGapLint` 2→4 参、`computeDedupKey` 2→1 参）如实列为告警。`locate_by_anchor.mjs` 同时改为打印命中声明的 `[kind]` 与文件内出现次数，非函数命中以 `!! NOT a function` 标出。
+现在的处理与 v0.7.1 那次同一思路——把"记得去核对"换成"不核对就失败"：`verify_inferred.mjs` 接进 `rebuild.sh`，对每个推断名做两件事——**种类闸门**（必须解析到函数/类声明或函数/类表达式；命中 `var = call` 的 lazy-init 包装器或常量直接构建失败）和**形态基线**（对照 `maps/inferred_<bundle>.shape.json` 里上一次人工复核时记录的种类、参数个数、字面量集合；种类变化为失败，参数个数变化或字面量零交集为需人工复读的告警），以及**互换检测**（每个函数体与全部推断名的基线打分，别的推断名的基线明显比自己的更吻合即构建失败）。回放验证：用 v0.7.1 记录基线、对错误的那份推断表跑 check，精确报出 `runGapLint: b4 @60985 is "var = call (lazy-init wrapper)", not a function` 并非零退出；对正确的表则通过，且把本轮真实重写的三处（`scanPartitionsForEventId`，当时名为 readEventByIdSeek，2→3 参、`runGapLint` 2→4 参、`computeDedupKey` 2→1 参）如实列为告警。`locate_by_anchor.mjs` 同时改为打印命中声明的 `[kind]` 与文件内出现次数，非函数命中以 `!! NOT a function` 标出。
+
+**v0.8.2 审计（检查器本身放行了错误的还原）**：对 v0.8.2 的独立审计确认还原产物本身正确，但用注入错误的方法测出几道闸门会放行错误的还原，这些都已修正：
+
+- `ast_equiv.mjs` 原来只按拼写比较标识符，接受任何位置上的 `(短名, 真名)` 对。因此一处没改名的引用（运行时 `ReferenceError`），或者把 `process.on` 这种成员属性当变量改掉，都判为等价。现在按标识符解析到的绑定比较，并要求两边的声明一一对应。
+- `rename.mjs` 原来只改 Babel 给出的 referencePaths 和一部分 constantViolations，会漏掉重复的 `var` 声明、解构赋值和 for-in/of 的写入位置；把对象 shorthand `{ X }` 改成 `{ 新名 }` 会同时改掉属性名；也不检查新名字会不会被内层绑定或全局名捕获。v0.8.2 的代码里恰好没有这些写法，所以产物没受影响。
+- `rebuild.sh` 在 `JOBS=1` 下把 `run_bundle` 放在 `||` 左边调用，bash 因此关闭了函数内的 `set -e`，等价证明失败后构建仍以 DONE 结束。`node --check` 对没有 `"type":"module"` 的 ESM `.js` 文件不做检查，"syntax: OK" 是空检查。
+- `verify_first_party.mjs` 只检查正文"是 recon 中某处的子串"，截断的正文、只剩一个 `}`、别的函数的正文都能通过。现在要求正文与该符号的完整声明逐字相等。
+- `verify_inferred.mjs` 看不出两个同种类、同参数个数、字面量很少的函数被互换。
+- `verify_citations.mjs` 只检查带反引号且带 4 到 6 位行号的引用，另有 16 处不带反引号的引用写着过期短名。
+- 流水线从不比对出厂压缩文件与 `*.pretty.js`，也不比对新产物与已提交产物。
+
+同一轮审计还修正了 4 个推断名：`atomicWriteFileSync` 实为异步的 JSONL 追加，改为 `appendEventToPartition`；`readEventByIdSeek` 实为顺序扫描，改为 `scanPartitionsForEventId`；真正按字节偏移读取的入口 `Md` 命名为 `readEventById`；`collectMemoryLinks` 实为读取 slug 对应文件内容的闭包，改为 `createMemorySlugReader`。
 
 ## 边界与诚实声明
 
 - **第三方依赖未"还原"**：daemon 的绝大多数模块是内联的 npm 包（zod、fastify、ws 等），它们本就有公开源码，本目录只做**识别与分离**（`maps/modules_daemon.json` 逐模块标注），不改写。"还原"聚焦 duoduo **自研**代码。
-- **未导出内部函数**仍多为短名：只有被 `__export` 记录的符号能拿到权威原名；纯内部辅助函数（除 30 个已逆向命名者外）保持 minified 名——它们不影响运行，也不影响首方逻辑的可读性主干。
+- **未导出内部函数**仍多为短名：只有被 `__export` 记录的符号能拿到权威原名；纯内部辅助函数（除 `maps/inferred_daemon.json` 里已逆向命名者外）保持 minified 名。它们不影响运行，但数量不小：daemon 里至少还有 140 个属于 duoduo 自研代码的顶层函数没有名字，其中包括按 id 读事件的内部实现和 streaming-session 工厂。
 - **`first-party/` 下的单文件不可独立运行**：它们引用其它顶层符号，仅供阅读；可运行工件是 `recon/*.recon.js` 整体。
 - `spawnSessionActor` / `wakeSessionActor` 位于 `createSessionManager` 的函数作用域内（非顶层绑定），改名器按设计不动它们，保留 minified 名。这类内层短名**每次构建都会漂移**，本文不再固定引用具体短名。
 

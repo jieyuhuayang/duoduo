@@ -49,7 +49,7 @@
   ```
 - **交叉印证**：这些恢复名与上一阶段纯靠字符串/调用链逆向得到的结论**逐一吻合**（如 `JE=buildSystemPromptForChannelConfig` 印证了 §1 认知装配的判断），互为独立验证。
 - **导出名集合本身也是变更信号**：跨版本比对 `*.exports.json` 的键集，得到的是**权威**的“新增/消失了哪些具名函数”。v0.6.1→v0.6.2 daemon 零增删，cli 新增 `parseRestartArgs`/`parseUpgradeArgs`/`readOption`——这三个名字直接指认了该版本的 CLI 侧改动，无需任何推断。
-- **诚实边界**：只有被 `__export` 记录的**导出符号**能拿到权威名。未导出的内部辅助函数仍是短名；其中 30 个关键内部函数（`createSpineEvent`/`atomicAppendEvent`/`drainSessionMailbox`…）由逆向命名并**显式标注 *inferred***（见 `maps/RENAME_TABLE.md`）。名字推断即便有偏差也不影响正确性，因为改名是作用域安全的纯替换。
+- **诚实边界**：只有被 `__export` 记录的**导出符号**能拿到权威名。未导出的内部辅助函数仍是短名；其中一批关键内部函数（`createSpineEvent`/`atomicAppendEvent`/`drainSessionMailbox`…，数量见 `maps/pipeline_report.json` 的 `inferredNames`）由逆向命名并**显式标注 *inferred***（见 `maps/RENAME_TABLE.md`，`first-party/` 文件头的 `// name:` 行也会注明）。名字推断即便有偏差也不影响正确性，因为改名是作用域安全的纯替换。
 
 ---
 

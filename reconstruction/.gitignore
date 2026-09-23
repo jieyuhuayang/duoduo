@@ -4,6 +4,7 @@ tools/node_modules/
 .build/
 # recon/daemon.recon.js is committed: it is what people read offline, and
 # verify_first_party.mjs checks the first-party tree against it. cli's is not —
-# it is 3.7 MB carrying 34 renames, fully regenerable by rebuild.sh, and it was
-# rewritten wholesale on every version bump.
+# it is 3.7 MB carrying only a few dozen renames (count: maps/pipeline_report.json),
+# and rebuild.sh regenerates it as .build/cli.recon.js. This entry only guards a
+# copy someone places here by hand.
 recon/cli.recon.js

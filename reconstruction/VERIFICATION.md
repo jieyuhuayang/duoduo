@@ -2,7 +2,7 @@
 
 目标命题：**还原后的 `recon/*.recon.js` 与出厂 `dist/release/*.js` 是同一个程序，能同样运行。**
 
-采用七条相互独立的证据，从"结构无损"到"语义全等"到"实机运行"层层加固：第五条覆盖**跨版本重定向**，第六条覆盖**可读树与 bundle 的一致性**（前五条只证明 `recon/*.recon.js`，都不看 `first-party/` 一眼，而那里出错是静默的），第七条覆盖**文档引用与符号身份的一致性**。
+采用八条相互独立的证据，从"结构无损"到"语义全等"到"实机运行"层层加固：第五条覆盖**跨版本重定向**，第六条覆盖**可读树与 bundle 的一致性**（前五条只证明 `recon/*.recon.js`，都不看 `first-party/` 一眼，而那里出错是静默的），第七条覆盖**文档引用与符号身份的一致性**，第八条反过来检验**检查器本身能否报出已知错误**。
 
 > **本文的实测输出记录的是 2026-08-20 的 v0.7.1 验证轮次**（Node v22.22.2 与 v22.17.0 两台各跑一遍，产物字节一致），其中的逐条数字与故障复盘按当时原样保留，因为它们是具体事故的记录。**当前版本的权威计数在 [`maps/pipeline_report.json`](./maps/pipeline_report.json)**，由每次 `rebuild.sh` 生成；本文末尾的汇总表已对齐最新一轮。数字不再手工复述——正是手工复述让"恢复出多少个真名"在四份文档里漂移成了 712、733、739 三个值。
 
@@ -180,14 +180,15 @@ stdio : old=745  new=868  matched=730   changedOld=15   unmatchedNew=137  (pureN
 
 本轮即抓到实例：`extract_functions.mjs` 用正则找声明行，`m.index` 落在**前一行的换行符**上、`\s*` 继续吞空行，139 个头部有 129 个偏 1–2 行；且正则看不见非首个声明符的名字，4 个符号（`AgentSdkTurnInterruptedError` 等，声明在共享的 `var A, B, C = $(() => {...})` 惰性块里）长期显示 `?`。改为从 AST 取声明行后全部归位。
 
-因此补第六条，四项冗余各自独立可查：
+因此补第六条，五项冗余各自独立可查（v0.8.2 起正文检查从"是 recon 中某处的子串"收紧为"等于该符号的完整声明"，并新增名字来源检查）：
 
 ```
-first-party files: 139
-  body verbatim in recon : 139/139     # 抽取是 daemon.recon.js 的逐字切片
-  header vs rename map   : 139/139     # 头部 短名->真名 与改名表一致
-  line anchor exact      : 139/139     # 头部行号 IS 该符号的声明行
-index.json: 139 条，与磁盘一一对应，0 个未解析锚点
+first-party files: 151
+  body == declaration    : 151/151     # 正文逐字等于 daemon.recon.js 里该符号的完整顶层声明
+  header vs rename map   : 151/151     # 头部 短名->真名 与改名表一致
+  line anchor exact      : 151/151     # 头部行号 IS 该符号的声明行
+  name provenance       : 151/151     # 头部 `// name:` 标 INFERRED 的恰好是 inferred_daemon.json 里的名字
+index.json: 与磁盘一一对应，0 个未解析锚点
 RESULT: first-party tree is consistent with the bundle
 ```
 
@@ -195,25 +196,54 @@ RESULT: first-party tree is consistent with the bundle
 
 ---
 
-## 汇总（最新一轮：v0.8.1，计数源自 `maps/pipeline_report.json`）
+## 证据七 · 文档引用与符号身份一致（`tools/verify_citations.mjs`）
 
-覆盖面已收敛到**有一等公民导出表的 bundle**。`stdio` 移出（9 个真名、7 个改名，却要提交 3.3MB 产物）；`pi-worker`、`channel-acp`、`feishu-gateway` 不接入（分别恢复 0、0、1 个真名——前两个是入口 bundle，自身模块被内联，恢复出的 621 个名字 100% 是内联 zod）。
+文档里的机制论断以 `真名 (短名)`(行号) 的形式指向代码。`verify_citations.mjs` 用 `maps/symbols_daemon.json` 逐条核对：真名必须仍存在，短名必须仍是它的 mangled 名，两者任一不成立则构建失败；行号漂移只报告，`--fix` 机械重生成。v0.8.2 起，不带反引号、不带行号或行号位数少于 4 的 `真名 (短名)` 写法也纳入短名核对，首次运行即报出 17 处此前没有任何检查覆盖的过期短名，已全部修正。
+
+---
+
+## 证据八 · 检查器自身的变异测试（v0.8.2）
+
+前七条证据都假设检查器本身可靠。v0.8.2 这一轮反过来测检查器：往还原产物里注入已知错误，看每道闸门能否报出。修正前后的结果：
+
+| 注入的错误 | 修正前 | 修正后 |
+|------|--------|--------|
+| 19 个 daemon 变异（字面量、运算符、参数顺序、删语句、async、正则、模板、默认参数、成员访问等） | `ast_equiv` 漏 2 个：一处引用未改名（运行时 `ReferenceError`）；`process.on` 被当变量改成 `process.createSpineEvent` | 19/19 报出 |
+| 经 `rename.mjs` 产生的 5 类错误改名（shorthand、`var` 重复声明、解构写入、内层捕获、全局捕获） | 全部改坏程序，`ast_equiv` 全部判等价 | `rename.mjs` 正确改写或拒绝改名；手工构造的错误输出 `ast_equiv` 全部报出，包括两个绑定被合并 |
+| `JOBS=1` 下等价证明失败 | 构建以 DONE、exit 0 结束 | 构建失败 |
+| recon 末尾追加语法错误 | `node --check` 返回 0 | `node --input-type=module --check` 返回 1 |
+| first-party 文件截断、清空、换成别的函数体、正文里插注释 | 5 种中 4 种通过 | 全部报出 |
+| 推断名两两互换（741 种组合） | 同种类同参数个数的互换全部通过 | 741/741 报出；用 v0.8.1 基线检查正确迁移到 v0.8.2 的表不误报，检查未迁移的旧表报出 26/31 |
+| 不带反引号、不带行号或行号少于 4 位的 `真名 (短名)` | 从不检查 | 检查短名；当时文档里的 17 处过期短名全部报出并已修正 |
+
+同一轮还确认了两条之前没有被检查的链接，现已接进 `rebuild.sh`：出厂压缩文件与 `*.pretty.js` 的 AST 等价（daemon、cli 均成立）；新生成的产物与已提交的 `recon/`、`maps/`、`first-party/` 一致（`promote.mjs`）。
+
+等价证明有两处边界，写在这里而不是假装没有：读取函数自身名字的行为（`Function.prototype.name`、类的 `constructor.name`、调用栈文本）在还原版里显示真名；内联的 gray-matter 有一处 direct `eval()`，被 eval 的代码按名字看得到模块作用域。duoduo 自研代码不读取被改名函数的 `.name`，控制流不受影响。
+
+---
+
+## 汇总（最新一轮：v0.8.2）
+
+计数不在这里复述，以 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 为准。那里的 `verdicts` 字段记录了本轮每道闸门的结论，`environment` 字段记录了 Node、Babel、js-beautify 的版本。
+
+覆盖面已收敛到**有一等公民导出表的 bundle**。`stdio` 移出（9 个真名、7 个改名，却要提交 3.3MB 产物）；`pi-worker`、`channel-acp`、`feishu-gateway` 不接入（分别恢复 0、0、1 个真名——前两个是入口 bundle，自身模块被内联，恢复出的 621 个名字 100% 是内联 zod）。按字节算，daemon 与 cli 占 `dist/release/` 下 JS 的 45.6%；`duoduo` 命令实际会执行的是 cli、daemon、pi-worker 三个，其中 pi-worker 没有还原。
 
 | 证据 | daemon | cli |
 |------|--------|-----|
 | 无损拆包（cmp 零差异） | ✓ | ✓ |
-| `__export` 块（= 源模块） | 24（15 自研 / 9 第三方） | 5（5 自研 / 0 第三方） |
-| 一等公民真名（块内 + 入口导出） | 107 + 5 | 20 + 14 |
-| 逆向推断的内部名 | 31 | 0 |
-| 改名条目 / 实际改写引用 | 143 / 568 | 34 / 124 |
-| AST 全等（节点数） | ✓ 143 改名，0 跳过 | ✓ 34 改名，0 跳过 |
-| `node --check` 语法 | ✓ | ✓ |
-| 实机运行 | ✓ 实启 RPC(TCP只读+socket全权) + 运行时探测 | ✓ --help 逐字节一致 |
-| 模块闸门 | ✓ 24 个块全部有归属记录 | ✓ 5 个块全部有归属记录 |
-| 可读树与 bundle 一致 | ✓ 143/143 切片·改名表·行锚点 | — |
-| 文档引用身份一致 | ✓ 0 个消失符号，0 个错短名 | ✓ |
+| 出厂压缩文件 ≡ `*.pretty.js`（AST） | ✓ | ✓ |
+| 模块闸门：每个 `__export` 块都有归属记录 | ✓ | ✓ |
+| 推断名：种类、形态、互换检查 | ✓ | —（无推断名） |
+| 语法（按 ESM 解析） | ✓ | ✓ |
+| AST 全等（按绑定比对，声明一一对应） | ✓ | ✓ |
+| 新产物 ≡ 已提交产物 | ✓ | ✓ |
+| 可读树：正文 = 完整声明、改名表、行锚点、名字来源 | ✓ | — |
+| 文档引用身份一致 | ✓ | ✓ |
+| 实机运行（与出厂版 A/B 对照） | ✓ 4 个实例约 13 分钟：启动日志、HOME 文件树、只读 TCP 接口、26 个 socket 读类 RPC、60 秒 cadence、SIGTERM/SIGKILL 恢复一致 | ✓ 133 组调用的 stdout/stderr/退出码逐字节一致 |
 
-### 本轮修掉的三处静默失败
+运行验证没有覆盖的路径：用户会话 actor 与 channel ingress 的 WAL 回放、job 调度、codex/grok/pi 适配器（这些需要真实的模型调用）；默认 37 分钟 cadence 下的长时间运行。它们目前只有 AST 等价作为证据。
+
+### v0.8.1 一轮修掉的三处静默失败
 
 1. **拆包证明在大小写不敏感的文件系统上无法成立。** 压缩标识符常常只差大小写（daemon 61 对、cli 64 对，如 `Rw` 与 `rW`），而分片文件按标识符命名，于是在 macOS 与 Windows 上后写的文件覆盖前一个：模块树内容错乱，字节还原比对失败。文件名改为大小写唯一后两个 bundle 均恢复 `byte-identical`。
 2. **关键词分类漏判 8 个自研符号**（`diffStreamingConfigSignature`、`detectInProcessBreak`、`IN_PROCESS_BREAK_HIT_RATIO_FLOOR`、`eventToMessageGenerator`、`stringToMessageGenerator`、`findDeadAllowedToolEntries`、`mapItemCompletedToExecEvent`、`mapItemStartedToExecEvent`），且它们已被记进 vendor 基线，闸门从此不再报警。改为按模块判定后全部找回并进入可读树。
@@ -221,40 +251,40 @@ RESULT: first-party tree is consistent with the bundle
 
 另有一个文档侧发现：`classifyModelContextRequirement` 被 `AGENT_INTERNALS_ANALYSIS.md` 当作真名使用，却从未记录在 `maps/inferred_daemon.json` 里——既无从校验，也不在可读树中。现已补录。
 
-**命题成立**：所覆盖入口的还原产物均与出厂产物语义全等，且可正确、同样效果地运行（含 unix socket 控制面与运行时探测的实机复现）。
+**命题成立**：所覆盖入口的还原产物均与出厂产物语义全等（边界见证据八末段），且在已验证的路径上与出厂产物运行效果相同。
 
 ---
 
 ## 复现
 
 ```bash
-export PATH="$HOME/.local/node-v22.17.0-linux-x64/bin:$PATH"
-cd reconstruction/tools && npm install
+command -v node >/dev/null || export PATH="/opt/node22/bin:$PATH"   # Node 22+；v22 与 v25 产物逐字节一致
+cd reconstruction/tools && npm ci
 
 # 0) 取出厂产物（装到隔离前缀，不改动本机全局安装的实例）。
 #    反混淆已收进 rebuild.sh，js-beautify 在 tools/package.json 里锁定版本。
 SP=/tmp/duoduo-recon && mkdir -p "$SP/pkgs"
-npm install --prefix "$SP/pkgs/v0.8.1" @openduo/duoduo@0.8.1
-PKG="$SP/pkgs/v0.8.1/node_modules/@openduo/duoduo/dist/release"
+V=$(node -p 'require("../maps/pipeline_report.json").package.slice(1)')
+npm install --prefix "$SP/pkgs/$V" @openduo/duoduo@$V
+PKG="$SP/pkgs/$V/node_modules/@openduo/duoduo/dist/release"
 
-# 1) 证据一~三、六、七（beautify→split→cmp→export blocks→模块闸门→rename
-#    →ast_equiv→符号索引→可读树→引用身份），并生成 maps/pipeline_report.json
-PKG="$PKG" PKG_VERSION=v0.8.1 bash rebuild.sh
+# 1) 证据一~三、六~八：beautify→split→cmp→美化等价→export blocks→模块闸门
+#    →rename→语法→ast_equiv→符号索引→与已提交产物比对→可读树→引用身份。
+#    版本号从包读取；默认只写 $OUT，不改仓库。
+PKG="$PKG" bash rebuild.sh
 
-# 2) 证据五（仅版本升级时需要；先跑它，复核并更新 maps/inferred_*.json，
-#    再确认 build_rename.mjs 的关键词白名单覆盖了本轮新子系统，最后重跑 rebuild.sh）
-npm install --prefix "$SP/pkgs/v0.6.2" @openduo/duoduo@0.6.2
-mkdir -p "$SP/beautified/v0.6.2"
-OLDPKG="$SP/pkgs/v0.6.2/node_modules/@openduo/duoduo/dist/release"
-for b in daemon cli stdio; do npx js-beautify "$OLDPKG/$b.js" > "$SP/beautified/v0.6.2/$b.pretty.js"; done
-OLD="$SP/beautified/v0.6.2" NEW="$SP/beautified/v0.7.1" bash bump.sh
+# 2) 证据五（仅版本升级时需要）：先用 bump.sh 承接推断名，复核 maps/inferred_*.json，
+#    再用 PROMOTE=1 跑 rebuild.sh 把新产物写进仓库，最后 verify_inferred.mjs record。
+OLD="$SP/beautified/<旧版本>" NEW="$SP/beautified/<新版本>" bash bump.sh
 
 # 3) 证据四（隔离 HOME + 备用端口，勿用默认 :20233）
 # 隔离 HOME 必须短：socket 路径 >104 字节时 daemon 直接 fatal 退出（unix socket 硬限制），
 # 放在 /tmp 下的短目录，别用深层临时目录。socket 路径写死成隔离 HOME 的绝对路径——
 # 写 "$HOME/..." 会展开成外层真实 HOME，探到线上 daemon 而不是这个隔离实例。
-ISO=/tmp/iso071 && mkdir -p "$ISO" && chmod 700 "$ISO"
-cp ../recon/*.recon.js "$PKG/" && cd "$PKG"
+# 只直接用 node 启动 daemon.recon.js；不要在隔离 HOME 里跑 `duoduo daemon start/stop/restart`：
+# 在 macOS 上它们按用户全局的 launchd label `ai.openduo.daemon` 操作，会停掉本机真实的 daemon。
+ISO=/tmp/iso082 && mkdir -p "$ISO" && chmod 700 "$ISO"
+cp ../recon/daemon.recon.js "$PKG/" && cd "$PKG"
 HOME="$ISO" ALADUO_PORT=20334 ALADUO_LOG_LEVEL=info \
   ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" ALADUO_RUNTIME_MODE=host \
   ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local node daemon.recon.js &
