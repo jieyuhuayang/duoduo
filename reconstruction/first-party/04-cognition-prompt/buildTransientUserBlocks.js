@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: QSe, daemon.pretty.js:71662)
+// symbol: buildTransientUserBlocks  (minified: eke, daemon.pretty.js:71668)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -40,7 +40,7 @@ function buildTransientUserBlocks(e, t, n) {
             tag: "daemon-restart-hint"
         }), d = !0), t.compactNotice && (i.push({
             type: "text",
-            text: Gdt(t.compactNotice),
+            text: Qdt(t.compactNotice),
             tag: "smart-compact-notice"
         }), f = !0), t.gatewayNotice) {
         let b = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
@@ -57,19 +57,19 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
             tag: "gateway-notice"
         }), o = !0
     }
-    let m = Kdt(t.timeGap);
+    let m = eft(t.timeGap);
     m && (i.push({
         type: "text",
         text: m,
         tag: "time-context"
     }), u = !0);
-    let g = t.isUserMessage !== !1 ? Wdt(t.skipRewind) : void 0;
+    let g = t.isUserMessage !== !1 ? Kdt(t.skipRewind) : void 0;
     g && (i.push({
         type: "text",
         text: g,
         tag: "skip-rewind"
     }), a = !0);
-    let y = qdt(t.interruptedContext);
+    let y = Wdt(t.interruptedContext);
     return y && (i.push({
         type: "text",
         text: `<interrupted-context>
@@ -82,11 +82,11 @@ ${y}
         tag: "job-receipts"
     }), c = !0), t.jobTick && (i.push({
         type: "text",
-        text: Xdt(t.jobTick),
+        text: nft(t.jobTick),
         tag: "job-tick"
     }), l = !0), t.boardUpdated && (i.push({
         type: "text",
-        text: TSe(t.boardUpdated.boardPath),
+        text: PSe(t.boardUpdated.boardPath),
         tag: "board-updated"
     }), p = !0), i.push({
         type: "text",

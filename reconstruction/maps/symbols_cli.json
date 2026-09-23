@@ -1,7 +1,7 @@
 {
   "bundle": "cli",
-  "version": "v0.8.2",
-  "source": "/tmp/pretty082/cli.pretty.js",
+  "version": "v0.8.3",
+  "source": "/tmp/pretty_new/cli.pretty.js",
   "symbolCount": 40,
   "notTopLevel": [],
   "symbols": {

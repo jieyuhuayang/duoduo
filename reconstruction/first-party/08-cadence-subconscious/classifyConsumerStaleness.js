@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: classifyConsumerStaleness  (minified: O_e, daemon.pretty.js:64843)
+// symbol: classifyConsumerStaleness  (minified: A_e, daemon.pretty.js:64840)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -12,7 +12,7 @@ function classifyConsumerStaleness(e, t, n) {
         unconsumed: !1,
         age_ms: o
     } : {
-        unconsumed: e.records_past_cursor > 0 && o !== void 0 && o > t * Lat,
+        unconsumed: e.records_past_cursor > 0 && o !== void 0 && o > t * qat,
         age_ms: o
     }
 }

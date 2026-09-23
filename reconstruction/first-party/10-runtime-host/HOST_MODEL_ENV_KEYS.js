@@ -1,10 +1,10 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: HOST_MODEL_ENV_KEYS  (minified: G6, daemon.pretty.js:68923)
+// symbol: HOST_MODEL_ENV_KEYS  (minified: K6, daemon.pretty.js:68920)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var HOST_MODEL_ENV_KEYS, CLAUDE_CODE_EXECUTABLE_ENV_KEY, DAEMON_TOKEN_ENV_KEY, Y6 = O(() => {
+var HOST_MODEL_ENV_KEYS, CLAUDE_CODE_EXECUTABLE_ENV_KEY, DAEMON_TOKEN_ENV_KEY, X6 = O(() => {
     "use strict";
     HOST_MODEL_ENV_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "ANTHROPIC_DEFAULT_OPUS_MODEL", "ANTHROPIC_DEFAULT_SONNET_MODEL", "ANTHROPIC_DEFAULT_HAIKU_MODEL", "API_TIMEOUT_MS", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"], CLAUDE_CODE_EXECUTABLE_ENV_KEY = "CLAUDE_CODE_EXECUTABLE";
     DAEMON_TOKEN_ENV_KEY = "ALADUO_DAEMON_TOKEN"

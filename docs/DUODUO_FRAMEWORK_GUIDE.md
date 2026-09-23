@@ -288,7 +288,7 @@ SDK 会另起一个 Claude Code 程序（子进程）来执行，两者靠文本
 
 **模型与推理力度默认值**（v0.8.1 新增）。推理力度（effort）是让模型"想多久"的档位，越高越慢越贵。每个引擎各有自己的键，如 `claude.model`、`codex.effort`，可以写在三层：全局（`~/aladuo/config/runtime.md`）、渠道种类、渠道实例，越具体的层优先。合并是逐键的：在种类层只写了 `codex.model`，全局层的 `claude.model` 仍然有效。之所以每个引擎用各自的键名，是为了防止一个渠道从 Codex 切到 Claude 后，把 GPT 的模型 id 错误地带进 Claude。
 
-两条校验规则不同：`effort` 只接受 `low`、`medium`、`high`、`xhigh` 四个值。通过 CLI、聊天里的 `/effort` 或 ManageJob 创建 job 时写错，当场拒绝并列出合法值；直接手改配置文件、job 文件或分区 frontmatter 写错，运行时只忽略这个值、记一条日志，然后按下一层默认值运行。`model` 只要求非空且不含空白，因为模型 id 是开放集合，错的 id 留到真正运行时报错。
+两条校验规则不同：`effort` 只接受 `low`、`medium`、`high`、`xhigh`、`max` 五个值（`max` 是新引入的最高档位；不支持 `max` 的 Claude 模型会按 `high` 执行）。通过 CLI、聊天里的 `/effort` 或 ManageJob 创建 job 时写错，当场拒绝并列出合法值；直接手改配置文件、job 文件或分区 frontmatter 写错，运行时只忽略这个值、记一条日志，然后按下一层默认值运行。`model` 只要求非空且不含空白，因为模型 id 是开放集合，错的 id 留到真正运行时报错。
 
 一处上游文档与实现不完全一致的细节：job 会话里，Claude、Codex、Grok 三个引擎上 job frontmatter 的 `model` 覆盖会话自己的 `/model`；pi 引擎则相反，会话自己的 `/model` 覆盖 job frontmatter 的 `model`。推理力度方面，四个引擎都是会话自己的 `/effort` 覆盖 job frontmatter 的 `effort`。普通渠道会话没有 job frontmatter，观察不到这个差异。
 

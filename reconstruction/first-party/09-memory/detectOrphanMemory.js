@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: detectOrphanMemory  (minified: hwe, daemon.pretty.js:68372)
+// symbol: detectOrphanMemory  (minified: gwe, daemon.pretty.js:68369)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function detectOrphanMemory(e, t) {
-    let n = $ct(e, {
+    let n = Dct(e, {
         resolve: t.resolve
     });
     if (n.missing) return {
@@ -16,7 +16,7 @@ function detectOrphanMemory(e, t) {
     return {
         missing: !1,
         states: n.orphans.map(o => {
-            let s = o.mtimeMs > 0 ? (t.refTimestampMs - o.mtimeMs) / mwe : Number.POSITIVE_INFINITY,
+            let s = o.mtimeMs > 0 ? (t.refTimestampMs - o.mtimeMs) / hwe : Number.POSITIVE_INFINITY,
                 a = o.indeg >= 1 ? "ISLAND" : s < r ? "NEWBORN" : "STALE";
             return {
                 ...o,

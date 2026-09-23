@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: listSessionsWithRecentConsumer  (minified: qat, daemon.pretty.js:64893)
+// symbol: listSessionsWithRecentConsumer  (minified: Wat, daemon.pretty.js:64890)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function listSessionsWithRecentConsumer(e, t, n = Date.now(), r = resolveNotifyUnconsumedHours()) {
     let i = r * T$,
-        o = await cg(e),
+        o = await dg(e),
         s = [];
     for (let a of o.listByKind("channel")) {
         if (a.session_key === t) continue;

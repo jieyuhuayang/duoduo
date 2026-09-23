@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: claimDaemonRestartReason  (minified: Fbe, daemon.pretty.js:65786)
+// symbol: claimDaemonRestartReason  (minified: zbe, daemon.pretty.js:65783)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,11 +8,11 @@ async function claimDaemonRestartReason(e) {
     let t = daemonRestartReasonPath(e),
         n;
     try {
-        n = await Lbe.readFile(t, "utf8")
+        n = await Fbe.readFile(t, "utf8")
     } catch {
         return null
     }
-    await Lbe.rm(t, {
+    await Fbe.rm(t, {
         force: !0
     }).catch(() => {});
     try {

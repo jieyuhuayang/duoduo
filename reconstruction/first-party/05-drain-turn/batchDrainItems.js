@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: batchDrainItems  (minified: xH, daemon.pretty.js:71801)
+// symbol: batchDrainItems  (minified: EH, daemon.pretty.js:71807)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -13,22 +13,22 @@ async function batchDrainItems(e, t, n) {
         i = [],
         o = null,
         s = !0,
-        a = _H,
-        u = () => uft(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
+        a = bH,
+        u = () => fft(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
     for (let l of t) {
         if (i.length >= u()) break;
-        let c = await eke(e, l, r, n.perf);
-        if (c && ike(c) !== null) continue;
+        let c = await tke(e, l, r, n.perf);
+        if (c && oke(c) !== null) continue;
         if (i.length === 0) {
-            a = zSe(c), i.push(l), o = c ? FSe(c.ts) : null, o === null && (s = !1);
+            a = USe(c), i.push(l), o = c ? zSe(c.ts) : null, o === null && (s = !1);
             continue
         }
-        if (zSe(c) !== a) break;
+        if (USe(c) !== a) break;
         if (!s) {
             i.push(l);
             continue
         }
-        let f = c ? FSe(c.ts) : null;
+        let f = c ? zSe(c.ts) : null;
         if (o === null || f === null) {
             s = !1, i.push(l);
             continue

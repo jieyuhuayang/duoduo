@@ -1,10 +1,10 @@
 {
   "generatedBy": "reconstruction/tools/rebuild.sh",
-  "package": "v0.8.2",
+  "package": "v0.8.3",
   "note": "Generated. Do not hand-edit, and do not restate these numbers in prose — cite this file.",
   "bundles": {
     "daemon": {
-      "prettyLines": 91616,
+      "prettyLines": 91665,
       "exportBlocks": 24,
       "firstPartyBlocks": 15,
       "vendorBlocks": 9,
@@ -57,21 +57,23 @@
     }
   },
   "verdicts": {
-    "citations": "pass",
+    "anchorCheckers": "pass",
+    "citations": "fail",
     "cli.astEquivalent": "pass",
-    "cli.beautifyEquivalent": "pass",
+    "cli.beautifyEquivalent": "skipped",
     "cli.lossless": "pass",
     "cli.syntax": "pass",
-    "committedInSync": "pass",
+    "committedInSync": "promoted",
     "daemon.astEquivalent": "pass",
-    "daemon.beautifyEquivalent": "pass",
+    "daemon.beautifyEquivalent": "skipped",
     "daemon.inferredNames": "pass",
     "daemon.lossless": "pass",
     "daemon.syntax": "pass",
-    "firstPartyTree": "pass"
+    "firstPartyTree": "pass",
+    "lineAnchors": "fail"
   },
   "environment": {
-    "node": "v25.8.1",
+    "node": "v22.22.2",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"

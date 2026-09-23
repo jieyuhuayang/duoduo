@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runCadenceTick  (minified: Bgt, daemon.pretty.js:86443)
+// symbol: runCadenceTick  (minified: Zgt, daemon.pretty.js:86463)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -7,12 +7,12 @@
 async function runCadenceTick(e) {
     let {
         runMemoryCheckTick: t
-    } = await Promise.resolve().then(() => (J6(), kwe));
+    } = await Promise.resolve().then(() => (Z6(), xwe));
     await t(e, Date.now());
     try {
         let {
             sweepTombstonedSessionRecords: r
-        } = await Promise.resolve().then(() => (h0e(), m0e));
+        } = await Promise.resolve().then(() => (y0e(), g0e));
         await r(e)
     } catch (r) {
         Z("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {

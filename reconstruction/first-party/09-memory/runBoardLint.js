@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBoardLint  (minified: plt, daemon.pretty.js:66835)
+// symbol: runBoardLint  (minified: ylt, daemon.pretty.js:66832)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -14,7 +14,7 @@ function runBoardLint(e, t) {
         kind: Un.REVISE,
         partition: "pattern-tracker",
         pendingFilename: `${s.slug}.md.pending`,
-        pendingBody: ult(s)
+        pendingBody: flt(s)
     });
     let o = e.filter(s => s.trajectory !== "NO-EFF" && s.dual && s.cls !== "domain").slice(0, n);
     for (let s of o) r.push({
@@ -22,7 +22,7 @@ function runBoardLint(e, t) {
         kind: Un.MERGE,
         partition: "intuition-weaver",
         pendingFilename: `merge-${s.slug}.md.pending`,
-        pendingBody: llt(s)
+        pendingBody: plt(s)
     });
     return r
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createJobScheduler  (minified: Wgt, daemon.pretty.js:86635)
+// symbol: createJobScheduler  (minified: Ygt, daemon.pretty.js:86655)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,10 +9,10 @@ function createJobScheduler(e) {
         paths: t,
         sessionManager: n,
         bus: r
-    } = e, i = e.intervalMs ?? Hgt, o = null, s = !1, a = null, u = !1;
+    } = e, i = e.intervalMs ?? Kgt, o = null, s = !1, a = null, u = !1;
     async function l() {
         if (s || u) {
-            s && Ee("[job-scheduler] scan skipped: previous scan still running");
+            s && Re("[job-scheduler] scan skipped: previous scan still running");
             return
         }
         s = !0;
@@ -21,7 +21,7 @@ function createJobScheduler(e) {
             let f = await scanAndSpawnDueJobs(t, n, {
                 bus: r
             });
-            Ee("[job-scheduler] scan complete", {
+            Re("[job-scheduler] scan complete", {
                 scanned: f.scanned,
                 spawned: f.spawned.length,
                 spawnedIds: f.spawned,
@@ -42,7 +42,7 @@ function createJobScheduler(e) {
         start() {
             o || u || (r && r.on("job.created", c), a = l(), o = setInterval(() => {
                 a = l()
-            }, i), Q("[job-scheduler] started", {
+            }, i), te("[job-scheduler] started", {
                 intervalMs: i
             }))
         },
@@ -53,7 +53,7 @@ function createJobScheduler(e) {
                 } catch {}
                 a = null
             }
-            Q("[job-scheduler] stopped")
+            te("[job-scheduler] stopped")
         },
         isScanning() {
             return s

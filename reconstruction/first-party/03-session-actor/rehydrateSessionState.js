@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: rehydrateSessionState  (minified: cse, daemon.pretty.js:32340)
+// symbol: rehydrateSessionState  (minified: dse, daemon.pretty.js:32340)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -13,10 +13,10 @@ async function rehydrateSessionState(e) {
         return t
     }
     for (let r of n) {
-        let i = Jr.join(e.sessionsDir, r);
-        if (!(!(await $o.stat(i).catch(() => null))?.isDirectory() || !await s5e(i))) {
+        let i = Hr.join(e.sessionsDir, r);
+        if (!(!(await $o.stat(i).catch(() => null))?.isDirectory() || !await c5e(i))) {
             try {
-                let a = await $o.readFile(Jr.join(i, "state.json"), "utf8"),
+                let a = await $o.readFile(Hr.join(i, "state.json"), "utf8"),
                     u = JSON.parse(a);
                 if (u.session_key) {
                     t.push(u.session_key);
@@ -30,7 +30,7 @@ async function rehydrateSessionState(e) {
                         let l = decodeURIComponent(u.slice(0, -5));
                         if (Oo(l) === r) {
                             t.push(l);
-                            let c = Jr.join(i, "state.json");
+                            let c = Hr.join(i, "state.json");
                             try {
                                 let d = JSON.parse(await $o.readFile(c, "utf8"));
                                 d.session_key = l, await $o.writeFile(c, JSON.stringify(d, null, 2) + `

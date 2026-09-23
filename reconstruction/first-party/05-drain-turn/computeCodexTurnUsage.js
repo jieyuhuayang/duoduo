@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: computeCodexTurnUsage  (minified: Fye, daemon.pretty.js:61901)
+// symbol: computeCodexTurnUsage  (minified: zye, daemon.pretty.js:61901)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

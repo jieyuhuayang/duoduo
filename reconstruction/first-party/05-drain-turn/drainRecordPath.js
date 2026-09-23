@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function drainRecordPath(e, t) {
-    return RXe.join(e.usageDir, `${TXe(t)}.jsonl`)
+    return CXe.join(e.usageDir, `${OXe(t)}.jsonl`)
 }

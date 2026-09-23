@@ -4,14 +4,14 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
+var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, Df = O(() => {
     "use strict";
     Fl();
-    mt();
+    dt();
     hw();
     Bu();
-    ALADUO_TOOL_NAMESPACE = "aladuo", Est = "features.code_mode.direct_only_tool_namespaces";
-    Pst = {
+    ALADUO_TOOL_NAMESPACE = "aladuo", Pst = "features.code_mode.direct_only_tool_namespaces";
+    Ast = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -20,7 +20,7 @@ var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, a$ = class extends xst {
+    }, a$ = class extends Tst {
         constructor(n, r, i) {
             super();
             this.binary = n;
@@ -36,7 +36,7 @@ var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = wst(this.binary, ["app-server"], {
+            this.alive || (this.proc = Est(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -53,7 +53,7 @@ var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
                 let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
                 this.rejectAllPending(i)
             }), this.rl = Ll(this.proc.stdout, n => this.handleLine(n)), Ll(this.proc.stderr, n => {
-                Ee("[codex-stderr]", n)
+                Re("[codex-stderr]", n)
             }))
         }
         request(n, r, i) {
@@ -151,7 +151,7 @@ var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
             this.onToolCallSettled = n
         }
         handleServerRequest(n) {
-            if (Ee("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
+            if (Re("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
                 let r = n.params,
                     i = r?.tool,
                     o = r?.arguments ?? {},
@@ -213,5 +213,5 @@ var ALADUO_TOOL_NAMESPACE, Est, xV, EV, Pst, a$, jye, Df = O(() => {
             for (let [r, i] of this.pending) i.reject(n), this.pending.delete(r)
         }
     };
-    jye = new Set
+    Lye = new Set
 });

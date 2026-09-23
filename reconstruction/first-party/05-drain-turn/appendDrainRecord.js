@@ -5,9 +5,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendDrainRecord(e, t) {
-    await Oe(e.usageDir);
+    await $e(e.usageDir);
     let n = drainRecordPath(e, t.session_key),
-        r = `${qi(t)}
+        r = `${Bi(t)}
 `;
     await BR.appendFile(n, r, "utf8")
 }

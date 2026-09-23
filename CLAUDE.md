@@ -261,7 +261,7 @@ A **thin runtime + foundation model**: the runtime owns only what the model can'
 
 ## Writing / editing the analysis docs
 
-- Anchor every mechanism claim with a `file:line` into `daemon.pretty.js` (default) and a `confirmed` / `未证实推测` tag; **always use the "真名 (短名)" form**, e.g. `atomicAppendEvent (sn)`. Never present an unverified inference as fact.
+- Anchor every mechanism claim with a `file:line` into `daemon.pretty.js` (default) and a `confirmed` / `未证实推测` tag; **always use the "真名 (短名)" form**, e.g. `atomicAppendEvent (on)`. Never present an unverified inference as fact.
 - **The name is the anchor; the line is derived.** A line number is only checkable when something beside it says what it should point at, so every line number in `docs/` must take one of three shapes (defined once in `reconstruction/tools/anchor_forms.mjs`, each owned by one checker):
   - **F1** `` `真名 (短名)`（`N`） `` — preferred whenever the symbol is in `maps/symbols_*.json`. `verify_citations.mjs` fails the build if the symbol is gone or the short name is wrong, and repairs a drifted line with `--fix`. The short name is also checked in every other `真名 (短名)` pairing, with or without backticks or a line (diagrams and tables included).
   - **F2** `` `短名`（`N`） `` — for a declaration with no recorded real name. `check_doc_anchors.mjs --resolve` requires the short name on line N or enclosing it.

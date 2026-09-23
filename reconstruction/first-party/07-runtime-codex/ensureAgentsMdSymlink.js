@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: ensureAgentsMdSymlink  (minified: RV, daemon.pretty.js:61887)
+// symbol: ensureAgentsMdSymlink  (minified: IV, daemon.pretty.js:61887)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ async function ensureAgentsMdSymlink(e) {
         existsSync: t,
         promises: n
     } = await import("node:fs"), r = await import("node:path"), i = r.join(e, "CLAUDE.md"), o = r.join(e, "AGENTS.md");
-    t(i) && (t(o) || (await n.symlink("CLAUDE.md", o), Ee("[codex] created AGENTS.md symlink", {
+    t(i) && (t(o) || (await n.symlink("CLAUDE.md", o), Re("[codex] created AGENTS.md symlink", {
         dir: e
     })))
 }

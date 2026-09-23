@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isCodexAvailable() {
-    return xV === !0
+    return EV === !0
 }

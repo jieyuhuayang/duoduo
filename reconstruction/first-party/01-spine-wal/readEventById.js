@@ -7,7 +7,7 @@
 async function readEventById(e, t, n) {
     let r = await nb(e, t);
     if (r) {
-        let i = await K9e(e, r, t);
+        let i = await e5e(e, r, t);
         if (i) return i
     }
     return n ? scanPartitionsForEventId(e, t, n) : null

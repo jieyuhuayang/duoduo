@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderDaemonRestartHint  (minified: Bbe, daemon.pretty.js:65853)
+// symbol: renderDaemonRestartHint  (minified: Vbe, daemon.pretty.js:65850)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

@@ -12,7 +12,7 @@ async function checkGrokAvailability(e = "grok") {
     } = await import("node:util"), r = n(t);
     try {
         await r(e, ["--version"], {
-            timeout: Lst
+            timeout: qst
         })
     } catch {
         return {

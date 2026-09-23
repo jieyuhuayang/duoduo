@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderPromptLayers  (minified: Ahe, daemon.pretty.js:55093)
+// symbol: renderPromptLayers  (minified: Nhe, daemon.pretty.js:55093)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -17,11 +17,11 @@ The channel through which this session receives and delivers messages, and the r
         l;
     if (r && r.content.trim().length > 0) {
         let d = r.content.trim();
-        l = grt.test(d) ? `${khe}
+        l = vrt.test(d) ? `${xhe}
 
 ${d}
 
-${hrt}` : `${khe}
+${brt}` : `${xhe}
 
 ${d}`
     }

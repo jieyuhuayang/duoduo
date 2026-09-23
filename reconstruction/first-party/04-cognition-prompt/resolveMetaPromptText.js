@@ -7,10 +7,10 @@
 function resolveMetaPromptText() {
     let e = Zv(process.env.ALADUO_META_PROMPT_PATH),
         t = Zv(process.env.ALADUO_BOOTSTRAP_DIR),
-        n = [e, t ? dB.join(t, "meta-prompt.md") : void 0].filter(r => !!r);
+        n = [e, t ? fB.join(t, "meta-prompt.md") : void 0].filter(r => !!r);
     for (let r of n) try {
-        if (!cB(r)) continue;
-        let i = Rhe(r, "utf8").trim();
+        if (!dB(r)) continue;
+        let i = Ihe(r, "utf8").trim();
         if (i.length > 0) return i
     } catch {}
 }
