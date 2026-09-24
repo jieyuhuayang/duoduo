@@ -9,7 +9,7 @@ var CV, $V, qst, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX,
     Fl();
     dt();
     initAgentSdkAdapterModule();
-    hw();
+    initInterruptMarkerTextModule();
     initSkipToolModule();
     qst = 5e3;
     GROK_DISALLOWED_TOOLS = ["scheduler_create", "scheduler_list", "scheduler_delete", "monitor", "workflow", "update_goal"], GROK_AGENT_PROFILE = {

@@ -13,7 +13,7 @@ async function clearSessionRuntimeStateField(e, t, n) {
             });
             return
         }
-        let i = fs(e, t),
+        let i = resolveSessionStatePath(e, t),
             o = {
                 updated_at: new Date().toISOString()
             };

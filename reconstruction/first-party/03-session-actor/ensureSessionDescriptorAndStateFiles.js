@@ -17,7 +17,7 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
     await runWithSessionMutex(t.session_key, async () => {
         let o = resolveSessionDir(e, n.session_key);
         await $e(o);
-        let s = Na(e, n.session_key);
+        let s = resolveSessionMetaPath(e, n.session_key);
         try {
             await ja.access(s)
         } catch {
@@ -25,7 +25,7 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
 `), Gd(n));
             await Dt(s, u), r = !0
         }
-        let a = fs(e, n.session_key);
+        let a = resolveSessionStatePath(e, n.session_key);
         try {
             await ja.access(a)
         } catch {

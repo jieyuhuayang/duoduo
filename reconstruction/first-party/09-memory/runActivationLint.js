@@ -6,7 +6,7 @@
 
 function runActivationLint(e, t, n) {
     let r = resolveMemoryDirs(t),
-        i = fct(e, t, n),
+        i = scanActivationWindowTouches(e, t, n),
         o = i.dates,
         s = [...twe(t, r.entitiesDir, "entities"), ...twe(t, r.topicsDir, "topics")],
         a = new Map(s.map(x => [x.rel, x])),

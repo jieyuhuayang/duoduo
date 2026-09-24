@@ -9,13 +9,13 @@ async function main() {
         resolveRuntimePaths: e
     } = await Promise.resolve().then(() => (yg(), ove)), {
         initializeRuntime: t
-    } = await Promise.resolve().then(() => (sSe(), oSe)), {
+    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), oSe)), {
         createAgentSdkAdapter: n
     } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)), {
         createSessionManager: r
     } = await Promise.resolve().then(() => (c0e(), l0e)), {
         createMetaSession: i
-    } = await Promise.resolve().then(() => (p0e(), f0e)), {
+    } = await Promise.resolve().then(() => (initMetaSessionModule(), f0e)), {
         runCadenceTick: o
     } = await Promise.resolve().then(() => (_J(), _0e)), {
         createJobScheduler: s
@@ -37,8 +37,8 @@ async function main() {
     if (!f.acquired) throw new Error(`Runtime lock already held by pid=${f.lock?.pid??"unknown"} at ${f.lockPath}`);
     try {
         await t(d);
-        let j = await sse(d, {
-            retentionDays: ose()
+        let j = await pruneEventIdIndexByRetention(d, {
+            retentionDays: readSpineIndexRetentionDays()
         });
         te(`[pid0] spine by-id index retention: kept=${j.kept} dropped=${j.dropped} cutoff=${j.cutoff}`)
     } catch (j) {

@@ -8,7 +8,7 @@ async function renderSessionMailboxFile(e, t, n) {
     let r = ["# Session Mailbox", "", "## Inbox", ""];
     for (let s of n) r.push(s.line);
     r.push("", "## Notes", "");
-    let i = ib(e, t);
+    let i = resolveSessionMailboxNotesPath(e, t);
     try {
         let u = (await yr.readFile(i, "utf8")).trim().split(`
 `).filter(Boolean).slice(-m5e);
@@ -18,7 +18,7 @@ async function renderSessionMailboxFile(e, t, n) {
         } catch {}
     } catch {}
     r.push("");
-    let o = aR(e, t);
+    let o = resolveSessionMailboxMarkdownPath(e, t);
     await Dt(o, r.join(`
 `))
 }

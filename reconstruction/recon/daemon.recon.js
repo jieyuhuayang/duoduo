@@ -31990,7 +31990,7 @@ function enqueuePartitionAppend(e, t) {
     return nse.set(e, r), r
 }
 
-function K9e() {
+function generateSpineEventId() {
     return `evt_${Z9e.randomUUID()}`
 }
 
@@ -32001,7 +32001,7 @@ function formatEventPartitionName(e) {
 function createSpineEvent(e, t = new Date) {
     return {
         ...e,
-        id: K9e(),
+        id: generateSpineEventId(),
         ts: t.toISOString()
     }
 }
@@ -32170,13 +32170,13 @@ async function findEventInPartitionFile(e, t) {
     return null
 }
 
-function ose(e = process.env) {
+function readSpineIndexRetentionDays(e = process.env) {
     let t = e[rse];
     if (t === void 0 || t.trim() === "") return pz;
     let n = Number(t);
     return Number.isInteger(n) && n >= 1 ? n : (Z(`[spine] ${rse}=${JSON.stringify(t)} is not a positive integer; using ${pz}`), pz)
 }
-async function sse(e, t) {
+async function pruneEventIdIndexByRetention(e, t) {
     let n = t.now ?? new Date,
         r = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() - t.retentionDays)),
         i = formatEventPartitionName(r),
@@ -32218,7 +32218,7 @@ async function sse(e, t) {
         cutoff: i
     }
 }
-var nse, Y9e, iR, pz, rse, Gs = O(() => {
+var nse, Y9e, iR, pz, rse, initSpineEventLogModule = O(() => {
     "use strict";
     Fl();
     nR();
@@ -32274,31 +32274,31 @@ function isSessionArchived(e, t) {
     return use(resolveArchivedSessionDir(e, t)) && !use(resolveSessionDir(e, t))
 }
 
-function rb(e, t) {
+function resolveSessionInboxDir(e, t) {
     return Hr.join(resolveSessionDir(e, t), "inbox")
 }
 
-function aR(e, t) {
+function resolveSessionMailboxMarkdownPath(e, t) {
     return Hr.join(resolveSessionDir(e, t), "mailbox.md")
 }
 
-function cse(e, t) {
+function resolveSessionMailboxDir(e, t) {
     return Hr.join(resolveSessionDir(e, t), "mailbox")
 }
 
-function Ld(e, t) {
+function resolveSessionMailboxPendingDir(e, t) {
     return Hr.join(resolveSessionDir(e, t), "mailbox", "pending")
 }
 
-function ib(e, t) {
+function resolveSessionMailboxNotesPath(e, t) {
     return Hr.join(resolveSessionDir(e, t), "mailbox", "notes.jsonl")
 }
 
-function Na(e, t) {
+function resolveSessionMetaPath(e, t) {
     return Hr.join(resolveSessionDir(e, t), "meta.md")
 }
 
-function fs(e, t) {
+function resolveSessionStatePath(e, t) {
     return Hr.join(resolveSessionDir(e, t), "state.json")
 }
 async function l5e(e) {
@@ -32475,14 +32475,14 @@ function p5e(e) {
     return Number.isFinite(Date.parse(r)) ? r : null
 }
 async function h5e(e, t) {
-    let n = Ld(e, t),
-        r = Ys.join(cse(e, t), ".migration_done");
+    let n = resolveSessionMailboxPendingDir(e, t),
+        r = Ys.join(resolveSessionMailboxDir(e, t), ".migration_done");
     try {
         await yr.access(r);
         return
     } catch {}
     await $e(n);
-    let i = aR(e, t),
+    let i = resolveSessionMailboxMarkdownPath(e, t),
         o;
     try {
         o = await yr.readFile(i, "utf8")
@@ -32516,7 +32516,7 @@ async function h5e(e, t) {
         await Dt(Ys.join(n, g), JSON.stringify(y) + `
 `)
     }
-    let l = ib(e, t),
+    let l = resolveSessionMailboxNotesPath(e, t),
         c = y5e(o);
     if (c.length > 0) {
         let d = !1;
@@ -32542,11 +32542,11 @@ async function h5e(e, t) {
     await Dt(r, "")
 }
 async function _z(e, t) {
-    return await h5e(e, t), Ld(e, t)
+    return await h5e(e, t), resolveSessionMailboxPendingDir(e, t)
 }
 async function enqueueSessionInboxLine(e, t, n, r = new Date) {
     return assertSessionNotArchiving(t), runWithSessionMutex(t, async () => {
-        let i = rb(e, t);
+        let i = resolveSessionInboxDir(e, t);
         await $e(i);
         let s = `${r.toISOString().replace(/[:.]/g,"-")}_${gse()}.pending`,
             a = Ys.join(i, s),
@@ -32556,7 +32556,7 @@ async function enqueueSessionInboxLine(e, t, n, r = new Date) {
     })
 }
 async function mergeInboxIntoMailbox(e, t) {
-    let n = rb(e, t),
+    let n = resolveSessionInboxDir(e, t),
         r;
     try {
         r = (await ob(n)).sort()
@@ -32615,7 +32615,7 @@ async function mergeInboxIntoMailbox(e, t) {
     }
 }
 async function listMailboxPendingItems(e, t) {
-    let n = Ld(e, t),
+    let n = resolveSessionMailboxPendingDir(e, t),
         r;
     try {
         r = (await yr.readdir(n)).filter(o => o.endsWith(".item.json")).sort()
@@ -32636,9 +32636,9 @@ async function listMailboxPendingItems(e, t) {
     } catch {}
     return i
 }
-async function Ao(e, t, n) {
+async function deleteMailboxPendingItemsByEventIds(e, t, n) {
     if (n.length === 0) return;
-    let r = Ld(e, t),
+    let r = resolveSessionMailboxPendingDir(e, t),
         i;
     try {
         i = await yr.readdir(r)
@@ -32666,7 +32666,7 @@ async function Ao(e, t, n) {
     }
 }
 async function yse(e, t) {
-    let n = Ld(e, t),
+    let n = resolveSessionMailboxPendingDir(e, t),
         r;
     try {
         r = await yr.readdir(n)
@@ -32692,9 +32692,9 @@ async function yse(e, t) {
         removed: i
     }
 }
-async function cb(e, t, n, r = new Date) {
+async function appendSessionMailboxNote(e, t, n, r = new Date) {
     await _z(e, t);
-    let i = ib(e, t),
+    let i = resolveSessionMailboxNotesPath(e, t),
         o = {
             ts: r.toISOString(),
             note: n.trim()
@@ -32706,7 +32706,7 @@ async function renderSessionMailboxFile(e, t, n) {
     let r = ["# Session Mailbox", "", "## Inbox", ""];
     for (let s of n) r.push(s.line);
     r.push("", "## Notes", "");
-    let i = ib(e, t);
+    let i = resolveSessionMailboxNotesPath(e, t);
     try {
         let u = (await yr.readFile(i, "utf8")).trim().split(`
 `).filter(Boolean).slice(-m5e);
@@ -32716,7 +32716,7 @@ async function renderSessionMailboxFile(e, t, n) {
         } catch {}
     } catch {}
     r.push("");
-    let o = aR(e, t);
+    let o = resolveSessionMailboxMarkdownPath(e, t);
     await Dt(o, r.join(`
 `))
 }
@@ -32808,12 +32808,12 @@ function w5e(e) {
 function S5e(e, t = Date.now()) {
     return v5e.join(e.telemetryDir, w5e(t))
 }
-async function k5e(e, t) {
+async function appendTelemetryRecord(e, t) {
     await $e(e.telemetryDir), await b5e.appendFile(S5e(e, t.ts), `${JSON.stringify(t)}
 `, "utf8")
 }
 
-function x5e(e = process.env) {
+function isTelemetryEnabled(e = process.env) {
     return bz(e.ALADUO_TELEMETRY_ENABLED) ?? !0
 }
 
@@ -32829,7 +32829,7 @@ function po(e, t, n) {
         ...n
     })
 }
-async function ps(e, t, n, r) {
+async function recordTelemetryMetric(e, t, n, r) {
     let i = {
         kind: "metric",
         metric: t,
@@ -32837,8 +32837,8 @@ async function ps(e, t, n, r) {
         ts: Date.now(),
         ...r
     };
-    if (x5e()) try {
-        await k5e(e, i)
+    if (isTelemetryEnabled()) try {
+        await appendTelemetryRecord(e, i)
     } catch {}
 }
 var Au = O(() => {
@@ -32867,7 +32867,7 @@ async function advanceConsumerWatermark(e, t, n, r = new Date) {
 var hR = O(() => {
     "use strict";
     Wn();
-    Gs()
+    initSpineEventLogModule()
 });
 import Sse from "node:path";
 import {
@@ -35234,7 +35234,7 @@ function Uz(e) {
     }
 }
 
-function Sb(e) {
+function parseClaudeFrontmatterBlock(e) {
     let t = e.claude;
     if (t == null) return {};
     if (typeof t != "object" || Array.isArray(t)) return {
@@ -35359,7 +35359,7 @@ function Vz(e) {
         additionalDirectories: Lz(e, Jd.additionalDirectories, {
             expandPaths: !0
         }),
-        ...Sb(e),
+        ...parseClaudeFrontmatterBlock(e),
         ...K7e(e),
         ...qz(e),
         ...Bz(e)
@@ -35484,7 +35484,7 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
     await runWithSessionMutex(t.session_key, async () => {
         let o = resolveSessionDir(e, n.session_key);
         await $e(o);
-        let s = Na(e, n.session_key);
+        let s = resolveSessionMetaPath(e, n.session_key);
         try {
             await ja.access(s)
         } catch {
@@ -35492,7 +35492,7 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
 `), Gd(n));
             await Dt(s, u), r = !0
         }
-        let a = fs(e, n.session_key);
+        let a = resolveSessionStatePath(e, n.session_key);
         try {
             await ja.access(a)
         } catch {
@@ -35504,7 +35504,7 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
 }
 async function Qs(e, t) {
     try {
-        let n = await ja.readFile(Na(e, t), "utf8"),
+        let n = await ja.readFile(resolveSessionMetaPath(e, t), "utf8"),
             r = (0, kb.default)(n, _r).data;
         return r.session_key !== t || r.display_name !== void 0 && typeof r.display_name != "string" || typeof r.kind != "string" ? null : r
     } catch {
@@ -35515,7 +35515,7 @@ async function updateSessionDisplayName(e, t, n) {
     assertSessionNotArchiving(t);
     let r = null;
     return await runWithSessionMutex(t, async () => {
-        let i = Na(e, t),
+        let i = resolveSessionMetaPath(e, t),
             o;
         try {
             o = await ja.readFile(i, "utf8")
@@ -35537,7 +35537,7 @@ async function updateSessionDisplayName(e, t, n) {
 }
 async function ct(e, t) {
     try {
-        let n = await ja.readFile(fs(e, t), "utf8");
+        let n = await ja.readFile(resolveSessionStatePath(e, t), "utf8");
         return JSON.parse(n)
     } catch {
         return null
@@ -35571,7 +35571,7 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
             });
             return
         }
-        let s = fs(e, t),
+        let s = resolveSessionStatePath(e, t),
             a = {
                 updated_at: new Date().toISOString()
             };
@@ -35607,7 +35607,7 @@ async function mutateSessionRuntimeState(e, t, n) {
             });
             return
         }
-        let i = fs(e, t),
+        let i = resolveSessionStatePath(e, t),
             o = {
                 updated_at: new Date().toISOString()
             };
@@ -35643,7 +35643,7 @@ async function clearSessionRuntimeStateField(e, t, n) {
             });
             return
         }
-        let i = fs(e, t),
+        let i = resolveSessionStatePath(e, t),
             o = {
                 updated_at: new Date().toISOString()
             };
@@ -35915,7 +35915,7 @@ function resolveOutboxRecordPath(e, t, n) {
     return Mr.join(e.outboxDir, t, `${n}.json`)
 }
 
-function Hl(e, t = new Date) {
+function createOutboxRecord(e, t = new Date) {
     let n = generateOutboxRecordId();
     return {
         ...e,
@@ -36571,7 +36571,7 @@ async function EXe(e) {
 `) + `
 ` : ""), t.tombstoneCount = 0, t.totalAppends = r.length
 }
-async function Ile(e, t = 5) {
+async function listRetryableOutboxRecords(e, t = 5) {
     let n = await Rle(e),
         r = [];
     for (let i of n.values()) {
@@ -36661,7 +36661,7 @@ async function si(e) {
         claudeModelProfileIssues: i,
         claudeModelAliases: o,
         claudeModelAliasIssues: s
-    } = Sb(n.data);
+    } = parseClaudeFrontmatterBlock(n.data);
     return FR(t, i), FR(t, s, "claude.model_aliases"), {
         claudeModelProfiles: r,
         claudeModelProfileIssues: i,
@@ -36671,7 +36671,7 @@ async function si(e) {
         ...Bz(n.data)
     }
 }
-async function ys(e, t) {
+async function loadChannelKindConfig(e, t) {
     let n = t.trim().toLowerCase();
     if (!TXe(n)) return Z(`[channel-config] invalid channel kind "${t}"`), null;
     let r = Ale.join(e, `${n}.md`),
@@ -36687,7 +36687,7 @@ async function ys(e, t) {
         kind_config: $R(i.data, n, r)
     }
 }
-var Nle, Jr, Fa = O(() => {
+var Nle, Jr, initChannelConfigLoaderModule = O(() => {
     "use strict";
     Nle = hi(ms(), 1);
     dt();
@@ -55077,14 +55077,14 @@ function resolveMetaPromptText() {
     } catch {}
 }
 
-function xrt(e) {
+function renderJobAcceptanceBlock(e) {
     let t = e?.trim();
     if (t) return ["This job is done when all of the following hold. Verify them before you", "finish, and say which ones you could not satisfy rather than finishing", "silently. Work these do not ask for is out of scope.", "", "<acceptance>", t, "</acceptance>"].join(`
 `)
 }
 
 function renderJobMissionBlock(e, t = !1) {
-    let n = xrt(e.acceptance);
+    let n = renderJobAcceptanceBlock(e.acceptance);
     return t ? ["## Job Mission", "", "You are executing a scheduled job on a FRESH context. The <job-tick> block", "shows a run counter and the last run's timestamp — that counter tells you that", "you have run before, but the content of those earlier runs is NOT in this", "context. There is no conversation history above to recall; treat anything you", "need from a prior run as something you must read from a file, not remember.", "", "Because state is not retained between runs, you are solely responsible for", "your own durable state:", "", "- Read whatever prior state you need from the filesystem at the start (the", "  mission says where). If a file you expected is absent, treat this as a first", "  run, not an error.", "- Any result, cursor, or fact that a FUTURE run will need MUST be written to a", "  file before you finish. Anything left only in this run's context is lost.", "", "Before you finish, verify your own close-out against the mission's acceptance", "criteria: every cross-run dependency the mission names has been persisted to", "its file, and the mission's stated done-condition is met. If you cannot satisfy", "a criterion, say so explicitly in your result rather than finishing silently.", "", `Job ID: ${e.jobId}`, `Schedule: ${e.cron}`, "", "<mission>", e.content, "</mission>", ...n ? ["", n] : []].join(`
 `) : ["## Job Mission", "", "You are executing a scheduled job. The mission below is permanent — it", "defines what this job always does. Every turn in the conversation history", "above is a past execution of the same mission. Use previous results as", "context; do not treat them as an ongoing dialogue.", "", `Job ID: ${e.jobId}`, `Schedule: ${e.cron}`, "", "<mission>", e.content, "</mission>", ...n ? ["", n] : []].join(`
 `)
@@ -55199,7 +55199,7 @@ function parsePositiveMsEnv(e, t) {
     return Number.isInteger(n) && n >= 1 && n <= Trt ? n : t
 }
 
-function Prt(e) {
+function disableSystemPromptSnapshot(e) {
     return typeof e == "string" || Array.isArray(e) ? {
         type: "custom",
         prompt: e,
@@ -55233,7 +55233,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 append: f
             })
         }
-        if (r.systemPrompt !== void 0 && (r.systemPrompt = Prt(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
+        if (r.systemPrompt !== void 0 && (r.systemPrompt = disableSystemPromptSnapshot(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let u = [...new Set(t.tools)];
             if (r.tools = u, _t("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
                 let l = findDeadAllowedToolEntries(t.allowedTools, u);
@@ -61001,7 +61001,7 @@ function assertScheduleDurationRepresentable(e, t) {
     if (!Number.isFinite(e) || Number.isNaN(new Date(e).getTime())) throw new Error(`Duration in "${t}" is too large to schedule — it exceeds the representable time range`)
 }
 
-function r$(e) {
+function isOneShotJobSchedule(e) {
     return e === "once" || e.startsWith("@in ") || e === "keepalive"
 }
 
@@ -61022,7 +61022,7 @@ function validateJobScheduleExpression(e) {
     }
 }
 
-function fw(e, t = new Date) {
+function parseJobRearmTime(e, t = new Date) {
     let n = e.trim();
     if (n.startsWith("@in ")) {
         let i = parseScheduleDurationMs(n.substring(4).trim());
@@ -61034,7 +61034,7 @@ function fw(e, t = new Date) {
     return new Date(r).toISOString()
 }
 
-function Iye(e, t, n = new Date, r, i) {
+function isJobScheduleDue(e, t, n = new Date, r, i) {
     if (typeof i == "string" && i.length > 0) {
         let a = new Date(i).getTime();
         if (Number.isFinite(a)) {
@@ -61400,7 +61400,7 @@ var Dye, wst, o$, vV, wV, Ur, initJobManagerModule = O(() => {
             }
         }
         async rescheduleJob(t, n, r = new Date) {
-            let i = fw(n, r);
+            let i = parseJobRearmTime(n, r);
             return wc(t, async () => {
                 if (!await this.exists(t)) throw await this.pathExists(this.getArchiveJobPath(t)) ? new Error(`Job ${t} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${t} not found`);
                 let o = this.getStatePath(t),
@@ -61470,7 +61470,7 @@ var Dye, wst, o$, vV, wV, Ur, initJobManagerModule = O(() => {
         async createWakeRecord(t) {
             await this.init();
             let n = t.now ?? new Date,
-                r = fw(t.when, n),
+                r = parseJobRearmTime(t.when, n),
                 i = t.ownerSession.trim();
             if (!i) throw new Error("A wake record needs an owner session — the caller is always the target.");
             let o = `wake-${n.getTime().toString(36)}`,
@@ -61777,14 +61777,14 @@ var SV = O(() => {
     Ii()
 });
 
-function og(e, t) {
+function selectInterruptMarkerText(e, t) {
     return e === "user-cancel" ? kst : t ? xst : null
 }
 
 function normalizeTurnAbortReason(e) {
     return e === "user-cancel" || e === "preempt" ? e : void 0
 }
-var kst, xst, hw = O(() => {
+var kst, xst, initInterruptMarkerTextModule = O(() => {
     "use strict";
     kst = "[Request interrupted by user]", xst = "[Tool call did not complete: the turn was ended to deliver the message that follows. Nothing refused it; re-run it if still needed.]"
 });
@@ -61982,7 +61982,7 @@ function createCodexAppServerAdapter(e, t) {
         s = null,
         a = () => {
             let f = s;
-            return s = null, f ? og(f.reason, f.toolInFlight) : null
+            return s = null, f ? selectInterruptMarkerText(f.reason, f.toolInFlight) : null
         },
         u = null,
         l = f => (f === ws && u && (u.skipObserved = !0), u?.turnId),
@@ -62051,7 +62051,7 @@ function createCodexAppServerAdapter(e, t) {
             let h = extractSystemPromptAppend(f.systemPrompt),
                 g = buildBaseInstructions(t ?? {}, h),
                 y = buildDeveloperInstructions(t ?? {}, n.dynamicTools?.map(H => H.name)),
-                v = Nst(f.permissionMode, n.sandbox);
+                v = resolveCodexSandboxForPermissionMode(f.permissionMode, n.sandbox);
             f.disallowedTools?.length && Re("[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled", {
                 disallowedTools: f.disallowedTools
             });
@@ -62433,7 +62433,7 @@ function createCodexAppServerAdapter(e, t) {
     }
 }
 
-function Nst(e, t) {
+function resolveCodexSandboxForPermissionMode(e, t) {
     switch (e) {
         case "bypassPermissions":
         case "acceptEdits":
@@ -62720,7 +62720,7 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
     "use strict";
     Fl();
     dt();
-    hw();
+    initInterruptMarkerTextModule();
     initSkipToolModule();
     ALADUO_TOOL_NAMESPACE = "aladuo", Pst = "features.code_mode.direct_only_tool_namespaces";
     Ast = {
@@ -63052,7 +63052,7 @@ function Wst(e) {
     return collectGrokToolCallNames(e)[0] ?? "tool"
 }
 
-function Jst(e) {
+function isGrokSkipToolCall(e) {
     return collectGrokToolCallNames(e).some(Hst)
 }
 
@@ -63144,7 +63144,7 @@ function createGrokAcpAdapter(e) {
             I = void 0, E = void 0, R = !1, x.clear()
         }, V = () => {
             let L = S;
-            return S = null, L ? og(L.reason, L.toolInFlight) : null
+            return S = null, L ? selectInterruptMarkerText(L.reason, L.toolInFlight) : null
         }, W = () => {
             let L = _.join("");
             _.length = 0, L && Promise.resolve(e.onDetachedTurn?.({
@@ -63190,7 +63190,7 @@ function createGrokAcpAdapter(e) {
                     let le = String(ee.toolCallId ?? ee.tool_call_id ?? ""),
                         ve = Wst(ee);
                     if (!le) return;
-                    Jst(ee) && (R = !0), x.add(le), g.onExecutionEvent?.({
+                    isGrokSkipToolCall(ee) && (R = !0), x.add(le), g.onExecutionEvent?.({
                         type: "tool_use",
                         toolUseId: le,
                         toolName: ve,
@@ -63678,7 +63678,7 @@ var CV, $V, qst, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX,
     Fl();
     dt();
     initAgentSdkAdapterModule();
-    hw();
+    initInterruptMarkerTextModule();
     initSkipToolModule();
     qst = 5e3;
     GROK_DISALLOWED_TOOLS = ["scheduler_create", "scheduler_list", "scheduler_delete", "monitor", "workflow", "update_goal"], GROK_AGENT_PROFILE = {
@@ -64191,7 +64191,7 @@ function Iat(e) {
         last_error: e.last_error ?? null
     }
 }
-async function h$(e, t, n) {
+async function listSessionIndexSummaries(e, t, n) {
     let r = null;
     if (e.list().some(a => a.session_key.startsWith("job:"))) try {
         await t.init();
@@ -64228,7 +64228,7 @@ function formatViewSessionsListLine(e) {
 }
 async function Cat(e, t) {
     let n = await dg(e),
-        i = (await h$(n, new Ur(e), {
+        i = (await listSessionIndexSummaries(n, new Ur(e), {
             include_orphans: !0
         })).map(u => ({
             ...u,
@@ -64256,10 +64256,10 @@ async function $at(e, t, n) {
 `) : [`Session not found: ${t}`, "", "No state.json, meta.md, or archive tombstone was found for", "this key. If you expected it to exist, double-check the", "session_key spelling or look for a sibling session under the", "same channel."].join(`
 `)
     }
-    return ["Session Overview", `- session_key: ${t}`, `- kind: ${i?.kind??Pat(t)}`, `- status: ${n?.(t)??r?.status??"unknown"}`, `- sdk_session_id: ${r?.sdk_session_id??"unknown"}`, `- cwd: ${r?.cwd??e.workDir}`, `- workspace_rel: ${i?.workspace_rel??"(default work root)"}`, "", "Filesystem Pointers", `- session_meta: ${Na(e,t)}`, `- session_state: ${fs(e,t)}`, `- ingress_snapshots: ${s}`, `- jobs_active: ${LV.join(e.jobsDir,"active")}`, `- jobs_archive: ${LV.join(e.jobsDir,"archive")}`, `- channels_root: ${e.channelsDir}`, "", "Suggested Next Steps", "- To create a job, use ManageJob(create) with owner_session set to this session_key.", "- To send a file this turn, use QueueOutboundAttachment with the session_key above.", "- To inspect scheduled jobs, use ManageJob(list) or ManageJob(read)."].join(`
+    return ["Session Overview", `- session_key: ${t}`, `- kind: ${i?.kind??Pat(t)}`, `- status: ${n?.(t)??r?.status??"unknown"}`, `- sdk_session_id: ${r?.sdk_session_id??"unknown"}`, `- cwd: ${r?.cwd??e.workDir}`, `- workspace_rel: ${i?.workspace_rel??"(default work root)"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(e,t)}`, `- session_state: ${resolveSessionStatePath(e,t)}`, `- ingress_snapshots: ${s}`, `- jobs_active: ${LV.join(e.jobsDir,"active")}`, `- jobs_archive: ${LV.join(e.jobsDir,"archive")}`, `- channels_root: ${e.channelsDir}`, "", "Suggested Next Steps", "- To create a job, use ManageJob(create) with owner_session set to this session_key.", "- To send a file this turn, use QueueOutboundAttachment with the session_key above.", "- To inspect scheduled jobs, use ManageJob(list) or ManageJob(read)."].join(`
 `)
 }
-async function pg(e, t) {
+async function runViewSessionsTool(e, t) {
     let {
         paths: n,
         sessionKey: r
@@ -64291,7 +64291,7 @@ filesystem paths behind it. This tool never creates, restores or modifies anythi
         session_key: ft.string().describe("Session to inspect. Omit it to list every active session, including your own marked (you).").optional()
     }
 });
-async function mg(e, t) {
+async function runRemindDuoduoTool(e, t) {
     try {
         let n = typeof e?.when == "string" ? e.when.trim() : "";
         if (!n) return 'Error: when is required (e.g. "@in 30m").';
@@ -64482,7 +64482,7 @@ async function deliverRouteEventToSession(e, t, n) {
 var hg = O(() => {
     "use strict";
     Fd();
-    Gs();
+    initSpineEventLogModule();
     Wr();
     initSessionLockAndArchivingModule();
     dt()
@@ -64519,7 +64519,7 @@ function S_e(e, t, n) {
 async function Iw(e, t, n) {
     let r = Date.now(),
         i = await readDeliveryCursorFile(e, t, n);
-    return await ps(e, "cursor_load_ms", Date.now() - r, {
+    return await recordTelemetryMetric(e, "cursor_load_ms", Date.now() - r, {
         sessionKey: t,
         consumerId: n,
         hit: i !== null
@@ -64581,7 +64581,7 @@ async function advanceOptimisticDeliveryCursor(e, t, n, r) {
         ack_last_outbox_created_at: a?.ack_last_outbox_created_at,
         ack_replay_offset: a?.ack_replay_offset,
         updated_at: new Date().toISOString()
-    }) && await ps(e, "cursor_store_ms", Date.now() - o, {
+    }) && await recordTelemetryMetric(e, "cursor_store_ms", Date.now() - o, {
         sessionKey: t,
         consumerId: n,
         cursorKind: "optimistic"
@@ -64609,7 +64609,7 @@ async function E_e(e, t, n, r, i) {
         ack_last_outbox_created_at: r.created_at,
         ack_replay_offset: i,
         updated_at: new Date().toISOString()
-    }) && await ps(e, "cursor_store_ms", Date.now() - o, {
+    }) && await recordTelemetryMetric(e, "cursor_store_ms", Date.now() - o, {
         sessionKey: t,
         consumerId: n,
         cursorKind: "ack"
@@ -64714,7 +64714,7 @@ async function readOutboxRecordsPastCursor(e) {
         let f = await E$(e);
         return u = f.strategy, f.records
     } finally {
-        await ps(n, "replay_scan_ms", Date.now() - t, {
+        await recordTelemetryMetric(n, "replay_scan_ms", Date.now() - t, {
             sessionKey: r,
             consumerId: i,
             strategy: u,
@@ -64986,7 +64986,7 @@ function Kat() {
 `)
 }
 
-function A$(e) {
+function renderNotifyToolDescription(e) {
     let {
         sessionKey: t,
         sessionContextKind: n
@@ -65005,7 +65005,7 @@ function A$(e) {
     }
 }
 
-function N$(e) {
+function buildNotifyInputSchema(e) {
     let {
         sessionKey: t,
         sessionContextKind: n
@@ -65068,7 +65068,7 @@ function U_e(e) {
     return e.split(/[:.]/).filter(t => t.length > 0)
 }
 
-function Qat(e, t, n) {
+function computeBoundedEditDistance(e, t, n) {
     if (e === t) return 0;
     if (Math.abs(e.length - t.length) > n) return n + 1;
     let r = new Array(t.length + 1),
@@ -65087,7 +65087,7 @@ function Qat(e, t, n) {
     return r[t.length]
 }
 
-function eut(e, t) {
+function matchNearMissSessionKey(e, t) {
     if (t.session_key === e) return null;
     let n = U_e(e),
         r = U_e(t.session_key);
@@ -65098,7 +65098,7 @@ function eut(e, t) {
         if (s === n.length - 1) {
             let a = n[n.length - 1],
                 u = r[r.length - 1],
-                l = Qat(a, u, z_e);
+                l = computeBoundedEditDistance(a, u, z_e);
             if (l <= z_e) return {
                 entry: t,
                 note: `last segment differs by ${l} char${l===1?"":"s"}`
@@ -65123,13 +65123,13 @@ function eut(e, t) {
 function tut(e, t) {
     let n = [];
     for (let r of t) {
-        let i = eut(e, r);
+        let i = matchNearMissSessionKey(e, r);
         i && n.push(i)
     }
     return n.sort((r, i) => r.entry.session_key.length - i.entry.session_key.length || r.entry.session_key.localeCompare(i.entry.session_key)), n.slice(0, 2)
 }
 
-function q_e(e, t, n, r) {
+function groupNotifyTargetCandidates(e, t, n, r) {
     let i = Xat(t, n, r),
         o = e ? $w(e) : !0,
         s = e ? tut(e, i) : [],
@@ -65147,7 +65147,7 @@ function q_e(e, t, n, r) {
     }
 }
 
-function B_e(e) {
+function renderNotifyTargetCandidateLines(e) {
     let t = [];
     if (e.closest.length > 0) {
         t.push("", "Closest match:");
@@ -65167,7 +65167,7 @@ function B_e(e) {
     }
     return t
 }
-async function nut(e, t) {
+async function resolveJobOwnerNotifyTarget(e, t) {
     let n = await Yat(e, t);
     if (!n) throw new Error(`Current session (${t}) is a job session, but no active job definition matched this session_key.`);
     let r = n.frontmatter.owner_session?.trim();
@@ -65183,8 +65183,8 @@ async function resolveNotifyTargetSessionKey(e, t) {
     if (!n) {
         let l = await j_e(e, i),
             c = await L_e(e, i, l),
-            d = q_e(void 0, r, c, l);
-        throw new Error(["target_session_key is required in this session.", "The target must be a foreground working session.", ...B_e(d)].join(`
+            d = groupNotifyTargetCandidates(void 0, r, c, l);
+        throw new Error(["target_session_key is required in this session.", "The target must be a foreground working session.", ...renderNotifyTargetCandidateLines(d)].join(`
 `))
     }
     if (n in r) return n;
@@ -65204,8 +65204,8 @@ async function resolveNotifyTargetSessionKey(e, t) {
         throw new Error([`Ambiguous target alias: ${a.length} sessions share the display name "${n}".`, "Retry with the full session_key of the one you mean (most recent activity first):", ...l.map(c => c.lastEventAt ? `- ${c.sessionKey} (last activity ${c.lastEventAt})` : `- ${c.sessionKey} (never drained; session state written ${c.sortKey||"unknown"})`)].join(`
 `))
     }
-    let u = q_e(n, r, s, o);
-    throw new Error([`Target session not found: ${n}`, "The target must be a persisted session key or a session display-name alias (prefer active foreground sessions).", ...B_e(u)].join(`
+    let u = groupNotifyTargetCandidates(n, r, s, o);
+    throw new Error([`Target session not found: ${n}`, "The target must be a persisted session key or a session display-name alias (prefer active foreground sessions).", ...renderNotifyTargetCandidateLines(u)].join(`
 `))
 }
 
@@ -65223,7 +65223,7 @@ function renderNotifyDeliveryReport(e, t, n, r) {
     return s.join(`
 `)
 }
-async function gg(e, t) {
+async function runNotifyTool(e, t) {
     try {
         let {
             paths: n,
@@ -65241,7 +65241,7 @@ async function gg(e, t) {
         let u = o ? o === "foreground" ? "channel" : o : W_e(i),
             l = (o ?? (u === "job" ? "job" : "meta")) === "job" && !e.target_session_key?.trim(),
             c = l ? "job-default-target" : "explicit-target",
-            d = l ? await nut(n, i) : [await resolveNotifyTargetSessionKey(n, e.target_session_key)];
+            d = l ? await resolveJobOwnerNotifyTarget(n, i) : [await resolveNotifyTargetSessionKey(n, e.target_session_key)];
         if (d.filter(v => v === i).length > 0) throw new Error(`Cannot notify self (session_key=${i}). Notify must target a different session.`);
         let p = a + 1,
             m = e.correlation_id?.trim(),
@@ -65403,7 +65403,7 @@ function fut() {
         detail: "The Claude CLI strips ANTHROPIC_BASE_URL / auth / ANTHROPIC_DEFAULT_*_MODEL from every settings scope, flag included, when either variable is set. Unset it, or drop the base_url/auth/model_aliases config on this host."
     }))
 }
-async function Q_e(e) {
+async function materializeClaudeSettingsFile(e) {
     let t = buildClaudeSettingsEnvOverrides(e);
     if (!t) return;
     fut();
@@ -65704,7 +65704,7 @@ async function Za(e, t) {
     let n = t.channel_id && t.channel_id.trim().length > 0 ? await ho(e, t.channel_id) : null,
         r = t.channel_kind.trim().toLowerCase();
     n && n.channel_kind.trim().toLowerCase() !== r && (Z(`[channel-config] ignoring descriptor for ingress channel_id="${t.channel_id}" because descriptor kind "${n.channel_kind}" != ingress kind "${t.channel_kind}"`), n = null);
-    let [i, o] = await Promise.all([si(e.channelConfigDir), ys(e.channelConfigDir, t.channel_kind)]);
+    let [i, o] = await Promise.all([si(e.channelConfigDir), loadChannelKindConfig(e.channelConfigDir, t.channel_kind)]);
     return buildEffectiveChannelConfig({
         channelKind: t.channel_kind,
         channelId: t.channel_id,
@@ -65727,7 +65727,7 @@ function vut(e, t) {
 function wut(e, t) {
     return t?.channel_id ?? e.source.channel_id
 }
-async function YV(e, t) {
+async function resolveEffectiveChannelConfigForEvent(e, t) {
     let n = await lle(e, t);
     if (t.source.kind === "route" && !n && t.session_key) {
         let s = await Ga(e, t.session_key);
@@ -65735,7 +65735,7 @@ async function YV(e, t) {
     }
     let r = vut(t, n);
     if (!r) return null;
-    let [i, o] = await Promise.all([si(e.channelConfigDir), ys(e.channelConfigDir, r)]);
+    let [i, o] = await Promise.all([si(e.channelConfigDir), loadChannelKindConfig(e.channelConfigDir, r)]);
     return buildEffectiveChannelConfig({
         channelKind: r,
         channelId: wut(t, n),
@@ -65768,7 +65768,7 @@ var but, Zu = O(() => {
     "use strict";
     dt();
     Dr();
-    Fa();
+    initChannelConfigLoaderModule();
     Vl();
     but = new Set(["rpc", "ws"])
 });
@@ -65852,7 +65852,7 @@ function renderDaemonRestartHint(e, t) {
     return t ? `${n} Restart reason, given by the caller: ${t.reason} (requested ${t.requested_at}).` : n
 }
 
-function Hbe(e, t) {
+function renderRestartWakeMessage(e, t) {
     return ["The daemon was restarted, which may have cut off the turn you were running.", t ? `The restart was requested at ${t}.` : void 0, e ? `Reason given by the caller: ${e}` : void 0, "Check whether the work you were doing completed before continuing."].filter(Boolean).join(" ")
 }
 var a6 = O(() => {
@@ -66228,7 +66228,7 @@ async function parsePartitionDefinition(e, t, n) {
         });
         let {
             claudeTools: l
-        } = Sb(i.data ?? {}), c = normalizePromptMode(i.data?.prompt_mode), d = i.data?.model, f;
+        } = parseClaudeFrontmatterBlock(i.data ?? {}), c = normalizePromptMode(i.data?.prompt_mode), d = i.data?.model, f;
         typeof d == "string" && d.trim().length > 0 ? f = d.trim() : d !== void 0 && Re(`[playlist] partition '${e}' has invalid model frontmatter; ignoring it`, {
             rawModel: d
         });
@@ -66351,7 +66351,7 @@ async function rebuildPlaylistRound(e) {
         names: n.map(s => s.name)
     }), n.length
 }
-async function uve(e, t) {
+async function readPartitionInboxEntries(e, t) {
     let n = partitionInboxDir(e, t),
         r;
     try {
@@ -66525,7 +66525,7 @@ function Tr(e, t) {
     return e < t ? -1 : e > t ? 1 : 0
 }
 
-function dve(e) {
+function countDatedStampLines(e) {
     let t = /2026-\d{2}-\d{2}|20260\d{3}/,
         n = 0;
     for (let r of Bo(e)) t.test(r) && n++;
@@ -66633,7 +66633,7 @@ var Un, initMemorySignalKindsModule = O(() => {
 });
 import S6 from "node:path";
 
-function slt(e) {
+function parseEffectivenessTrajectory(e) {
     for (let t of Bo(e)) {
         let n = /^trajectory:\s*(.+?)\s*$/i.exec(t);
         if (!n) continue;
@@ -66643,7 +66643,7 @@ function slt(e) {
     return "NO-EFF"
 }
 
-function alt(e) {
+function parseEffectivenessCounts(e) {
     for (let t of Bo(e))
         if (/strengthening\s*=/i.test(t)) return {
             s: w6(t, "strengthening"),
@@ -66662,7 +66662,7 @@ function w6(e, t) {
     return r ? Number(r[1]) : 0
 }
 
-function ult(e) {
+function parseUpdaterGuidanceVerdict(e) {
     let t = !1;
     for (let n of Bo(e)) {
         if (/updater guidance:/i.test(n)) {
@@ -66682,7 +66682,7 @@ function ult(e) {
     return null
 }
 
-function llt(e) {
+function classifyTopicNodeFormat(e) {
     for (let t of Bo(e)) {
         let n = /^# (Pattern|Lesson|Groove):/.exec(t);
         if (n) return n[1] === "Pattern" ? "legacy" : n[1] === "Lesson" ? "lesson" : "groove"
@@ -66690,7 +66690,7 @@ function llt(e) {
     return "other"
 }
 
-function clt(e) {
+function classifyTopicNodeType(e) {
     let t = null;
     for (let i of Bo(e))
         if (/^\*\*Type\*\*:/i.test(i)) {
@@ -66701,7 +66701,7 @@ function clt(e) {
     return /research|thesis|supply-chain|-chain|frame|surface|chokepoint/.test(t) ? "domain" : n ? "behavioral" : "unknown"
 }
 
-function gve(e) {
+function rankEffectivenessTrajectory(e) {
     switch (e) {
         case "WEAKENING":
             return 3;
@@ -66714,9 +66714,9 @@ function gve(e) {
     }
 }
 
-function dlt(e, t) {
-    let n = gve(e.trajectory),
-        r = gve(t.trajectory);
+function compareBoardLintTargets(e, t) {
+    let n = rankEffectivenessTrajectory(e.trajectory),
+        r = rankEffectivenessTrajectory(t.trajectory);
     if (n !== r) return r - n;
     let i = e.s + e.n + e.w,
         o = t.s + t.n + t.w;
@@ -66784,9 +66784,9 @@ function collectBoardLintReport(e, t = 1, n) {
     let o = [];
     for (let u of resolveMemoryLinkTargets(i)) {
         let l = S6.join(r.topicsDir, `${u}.md`);
-        Ic(l) && o.push(glt(u, i, r, l))
+        Ic(l) && o.push(buildBoardLintTarget(u, i, r, l))
     }
-    let s = [...o].sort(dlt),
+    let s = [...o].sort(compareBoardLintTargets),
         a = runBoardLint(s, t);
     return {
         boardMissing: !1,
@@ -66798,7 +66798,7 @@ function collectBoardLintReport(e, t = 1, n) {
     }
 }
 
-function glt(e, t, n, r) {
+function buildBoardLintTarget(e, t, n, r) {
     let i = fve(t, e),
         o = Rn(r) ?? "",
         s = S6.join(n.effectivenessDir, `${e}.md`),
@@ -66809,9 +66809,9 @@ function glt(e, t, n, r) {
         d = 0,
         f = null;
     if (a !== null) {
-        u = slt(a);
-        let p = alt(a);
-        l = p.s, c = p.n, d = p.w, f = ult(a)
+        u = parseEffectivenessTrajectory(a);
+        let p = parseEffectivenessCounts(a);
+        l = p.s, c = p.n, d = p.w, f = parseUpdaterGuidanceVerdict(a)
     }
     return {
         slug: e,
@@ -66823,8 +66823,8 @@ function glt(e, t, n, r) {
         n: c,
         w: d,
         verdict: f,
-        fmt: llt(o),
-        cls: clt(o),
+        fmt: classifyTopicNodeFormat(o),
+        cls: classifyTopicNodeType(o),
         dual: Ic(S6.join(n.entitiesDir, `${e}.md`))
     }
 }
@@ -66851,7 +66851,7 @@ function runBoardLint(e, t) {
     });
     return r
 }
-var olt, _ve = O(() => {
+var olt, initBoardLintModule = O(() => {
     "use strict";
     Qi();
     initMemorySignalKindsModule();
@@ -66944,7 +66944,7 @@ function runEntityLint(e, t, n) {
         if (c === null || blt(c)) continue;
         let d = K$(X$(c)),
             f = Y$(c),
-            p = dve(c),
+            p = countDatedStampLines(c),
             m = d * 1e3 + p;
         s.push({
             slug: l,
@@ -67065,7 +67065,7 @@ function Rlt(e, t) {
     let n = Tr(e.slug, t.slug);
     return n !== 0 ? n : Tr(Q$(e), Q$(t))
 }
-var E6, Eve = O(() => {
+var E6, initNodeLintModule = O(() => {
     "use strict";
     Vw();
     initMemorySignalKindsModule();
@@ -67473,7 +67473,7 @@ function zlt(e) {
     }
 }
 
-function Ult(e) {
+function listMemoryFragmentDates(e) {
     let t;
     try {
         t = Xa.readdirSync(Cc.join(e, "fragments"), {
@@ -67530,7 +67530,7 @@ function Vlt(e) {
     }
 }
 
-function Hlt(e, t, n) {
+function readOrSeedGapHandedDays(e, t, n) {
     let r = Cc.join(t, "memory", Wve);
     try {
         return {
@@ -67543,7 +67543,7 @@ function Hlt(e, t, n) {
             readFault: !0
         }
     }
-    let i = Ult(e);
+    let i = listMemoryFragmentDates(e);
     if (i.readFault) return {
         coverage: new Map,
         readFault: !0
@@ -67572,7 +67572,7 @@ function Hlt(e, t, n) {
     }
 }
 
-function zve(e, t) {
+function appendGapHandedSpan(e, t) {
     let n = Cc.join(e, "memory");
     Xa.mkdirSync(n, {
         recursive: !0
@@ -67721,7 +67721,7 @@ function deliverScanGapSignal(e, t, n, r, i) {
         delivery: oO()
     };
     let s = i.dryRun === !0,
-        a = Hlt(t, r.varDir, s);
+        a = readOrSeedGapHandedDays(t, r.varDir, s);
     if (a.readFault) return {
         ...sO(null),
         pending: !1,
@@ -67737,7 +67737,7 @@ function deliverScanGapSignal(e, t, n, r, i) {
     };
     if (u.selected.length === 0) {
         let d = u.span !== null;
-        return d && zve(r.varDir, u.span), {
+        return d && appendGapHandedSpan(r.varDir, u.span), {
             ...u,
             pending: !1,
             recorded: d,
@@ -67746,14 +67746,14 @@ function deliverScanGapSignal(e, t, n, r, i) {
     }
     let l = postMemorySignalsToInboxes(u.selected, r),
         c = l.posted.length > 0;
-    return c && zve(r.varDir, u.span), {
+    return c && appendGapHandedSpan(r.varDir, u.span), {
         ...u,
         pending: !1,
         recorded: c,
         delivery: l
     }
 }
-var Llt, Hve, Wve, Flt, Gve = O(() => {
+var Llt, Hve, Wve, Flt, initGapLintModule = O(() => {
     "use strict";
     yg();
     initGapSpanModule();
@@ -67906,7 +67906,7 @@ function dct(e) {
     }
 }
 
-function fct(e, t, n) {
+function scanActivationWindowTouches(e, t, n) {
     let r = Qa.join(t, "entities") + Qa.sep,
         i = Qa.join(t, "topics") + Qa.sep,
         o = new RegExp(`${ewe(t+Qa.sep)}(?:entities|topics)${ewe(Qa.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
@@ -67983,12 +67983,12 @@ function j6(e, t) {
     return t === 0 ? null : e / t
 }
 
-function pct(e) {
+function renderActivationReportHeader(e) {
     let t = e.windowStart === null || e.windowEnd === null ? "no event partitions on disk" : `${e.windowStart} .. ${e.windowEnd}, ${e.partitionFiles} partition file(s), ${e.interactionDays} interaction day(s)`;
     return ["[activation-report]", `window: last ${e.windowDays} interaction days (days holding channel.message) of var/events (${t})`, `foreground tool events: ${e.foregroundToolEvents}`, `memory touches: ${e.memoryTouches} across ${e.filesTouched} of ${e.inventory} files in memory/{entities,topics}`, `foreground writes to the memory tree: ${e.foregroundWrites} (excluded from touches -- the tree is subconscious-owned, so a foreground write is suspicious, not warmth)`, `loss: expansion rate = ${M6(e.memoryTouches,e.foregroundToolEvents)} | live ratio = ${M6(e.filesTouched,e.inventory)} | dead weight = ${e.coldCount} cold files | wiring incompleteness = ${M6(e.hotOrphanCount,e.filesTouched)}`, "read every component against the denominators above: a quiet window voids this", "evidence entirely, and an active window with few touches indicts the recall loop", "rather than any single line or file."]
 }
 
-function mct(e, t) {
+function renderBoardTemperatureSection(e, t) {
     let n = ["", "board temperature (direct edges only -- each row is one [[slug]] occurrence and the", "touch count of the file behind it; no transitive attribution):", "line | slug | touches | resolves to"];
     e.length === 0 && n.push("(the board carries no [[slug]] pointers)");
     for (let r of e) {
@@ -67998,7 +67998,7 @@ function mct(e, t) {
     return t > 0 && n.push(`(+${t} more rows, truncated at the board line budget)`), n.push("direction: a hot line is holding its weight -- keep it, or sharpen it. A 0-touch line", "is half the evidence for retirement: check the line's fragments, and when they are", "also silent for this whole window, the default is retire, not preserve. Recent", "fragments overrule cold pointers -- this metric cannot see a line's direct in-context", "effect. A dangling pointer is claude-lint's business, not this report's."), n
 }
 
-function hct(e, t) {
+function renderHotOrphansSection(e, t) {
     let n = ["", "hot orphans (touched, but outside the board closure; both trees):"];
     if (e.length === 0) return n.push("(none -- every file touched this window is reachable from the board)"), n;
     for (let r of e) n.push(`- ${r.rel} | ${r.touches} touches`);
@@ -68006,14 +68006,14 @@ function hct(e, t) {
 }
 
 function renderActivationReportBody(e, t, n, r) {
-    return [...pct(e), ...mct(t, n), ...hct(r, e.hotOrphanCount)].join(`
+    return [...renderActivationReportHeader(e), ...renderBoardTemperatureSection(t, n), ...renderHotOrphansSection(r, e.hotOrphanCount)].join(`
 `) + `
 `
 }
 
 function runActivationLint(e, t, n) {
     let r = resolveMemoryDirs(t),
-        i = fct(e, t, n),
+        i = scanActivationWindowTouches(e, t, n),
         o = i.dates,
         s = [...twe(t, r.entitiesDir, "entities"), ...twe(t, r.topicsDir, "topics")],
         a = new Map(s.map(x => [x.rel, x])),
@@ -68403,7 +68403,7 @@ function forgetMemoryEntry(e, t, n = {}) {
         i = r.map(a => a.rel);
     if (i.length === 0 || n.dryRun) return i;
     let o = Zw.join(t, "memory"),
-        s = Mct(o);
+        s = resolveGitToplevelSync(o);
     if (s !== null && mwe.existsSync(Zw.join(s, ".git", "index.lock"))) return [];
     try {
         let a = kg("git", ["rm", "--ignore-unmatch", "--", ...i], {
@@ -68434,7 +68434,7 @@ function forgetMemoryEntry(e, t, n = {}) {
     }
 }
 
-function Mct(e) {
+function resolveGitToplevelSync(e) {
     try {
         let t = kg("git", ["rev-parse", "--show-toplevel"], {
             cwd: e,
@@ -68535,14 +68535,14 @@ Vn(xwe, {
 });
 import Swe from "node:path";
 
-function V6(e) {
+function isTruthyEnvFlag(e) {
     let t = process.env[e]?.trim().toLowerCase();
     return t === "1" || t === "true" || t === "yes" || t === "on"
 }
 
 function resolveMemoryCheckFlags() {
-    let e = V6("ALADUO_EXP_MEMORY_CHECK"),
-        t = V6("ALADUO_EXP_MEMORY_FORGET") && e;
+    let e = isTruthyEnvFlag("ALADUO_EXP_MEMORY_CHECK"),
+        t = isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && e;
     return {
         check: e,
         forget: t
@@ -68575,7 +68575,7 @@ async function runMemoryCheckTick(e, t) {
         check: n,
         forget: r
     } = resolveMemoryCheckFlags();
-    V6("ALADUO_EXP_MEMORY_FORGET") && !n && Le("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
+    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && Le("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
     let o = {
             checkEnabled: n,
             forgetEnabled: r,
@@ -68650,7 +68650,7 @@ async function runMemoryCheckTick(e, t) {
         })
     }
     let g = h;
-    return g !== null && g.expansionRate !== null && await ps(e, "memory_activation_loss", g.expansionRate, {
+    return g !== null && g.expansionRate !== null && await recordTelemetryMetric(e, "memory_activation_loss", g.expansionRate, {
         window_days: g.windowDays,
         interaction_days: g.interactionDays,
         window_start: g.windowStart,
@@ -68712,10 +68712,10 @@ var B6, initMemoryCheckTickModule = O(() => {
     "use strict";
     dt();
     initPartitionRunStateModule();
-    _ve();
+    initBoardLintModule();
     initEntityLintModule();
-    Eve();
-    Gve();
+    initNodeLintModule();
+    initGapLintModule();
     initActivationLintModule();
     initFoldGapLintModule();
     initBroadcastBudgetLintModule();
@@ -68925,7 +68925,7 @@ var HOST_MODEL_ENV_KEYS, CLAUDE_CODE_EXECUTABLE_ENV_KEY, DAEMON_TOKEN_ENV_KEY, X
 import {
     promises as Qct
 } from "node:fs";
-async function $s(e) {
+async function pathExistsAsync(e) {
     try {
         return await Qct.access(e), !0
     } catch {
@@ -68946,11 +68946,11 @@ import Mwe from "node:path";
 import {
     promisify as ndt
 } from "node:util";
-async function tH(e, t, n) {
+async function runKernelGitCommand(e, t, n) {
     try {
         return await jwe("git", zwe(e, t), {
             cwd: e,
-            env: Fwe()
+            env: buildKernelGitEnv()
         })
     } catch (r) {
         if (n?.ignoreError) {
@@ -68964,7 +68964,7 @@ async function tH(e, t, n) {
     }
 }
 
-function Fwe() {
+function buildKernelGitEnv() {
     return {
         ...process.env,
         GIT_CONFIG_GLOBAL: tdt.devNull,
@@ -68979,29 +68979,29 @@ function Fwe() {
 function zwe(e, t) {
     return ["-c", `safe.directory=${e}`, ...t]
 }
-async function idt(e) {
+async function isKernelGitToplevel(e) {
     try {
         let {
             stdout: t
         } = await jwe("git", zwe(e, ["rev-parse", "--show-toplevel"]), {
             cwd: e,
-            env: Fwe()
+            env: buildKernelGitEnv()
         }), n = await Gw.realpath(t.trim()), r = await Gw.realpath(e);
         return n === r
     } catch {
         return !1
     }
 }
-async function Uwe(e) {
-    if (!await idt(e)) {
+async function ensureKernelGitRepo(e) {
+    if (!await isKernelGitToplevel(e)) {
         te("[memory-git] initializing git repo", {
             kernelDir: e
-        }), await tH(e, ["init"]), await Gw.writeFile(Mwe.join(e, ".gitignore"), Lwe, "utf8"), await tH(e, ["add", "."]), await tH(e, ["commit", "-m", "memory: genesis"]), te("[memory-git] genesis commit created");
+        }), await runKernelGitCommand(e, ["init"]), await Gw.writeFile(Mwe.join(e, ".gitignore"), Lwe, "utf8"), await runKernelGitCommand(e, ["add", "."]), await runKernelGitCommand(e, ["commit", "-m", "memory: genesis"]), te("[memory-git] genesis commit created");
         return
     }
-    await odt(e), Re("[memory-git] existing repo detected, .gitignore synced")
+    await mergeKernelGitignoreEntries(e), Re("[memory-git] existing repo detected, .gitignore synced")
 }
-async function odt(e) {
+async function mergeKernelGitignoreEntries(e) {
     let t = Mwe.join(e, ".gitignore"),
         n = "";
     try {
@@ -69020,7 +69020,7 @@ async function odt(e) {
         added: i
     })
 }
-var jwe, Lwe, rdt, qwe = O(() => {
+var jwe, Lwe, rdt, initKernelGitModule = O(() => {
     "use strict";
     dt();
     jwe = ndt(edt), Lwe = `# Runtime state (not part of cognitive evolution)
@@ -69049,7 +69049,7 @@ function computeLegacyJobSessionKey(e) {
     })
 }
 async function nH(e, t, n) {
-    return await $s(e) ? await $s(t) ? (Z(`[job-key-migration] ${n} exists at both keys — leaving the legacy copy in place`, {
+    return await pathExistsAsync(e) ? await pathExistsAsync(t) ? (Z(`[job-key-migration] ${n} exists at both keys — leaving the legacy copy in place`, {
         from: e,
         to: t
     }), "blocked") : (await pO.rename(e, t), "moved") : "absent"
@@ -69063,8 +69063,8 @@ async function Vwe(e) {
     }
 }
 async function rewriteSessionKeyInStateAndMeta(e, t, n) {
-    let r = fs(e, t),
-        i = Na(e, t),
+    let r = resolveSessionStatePath(e, t),
+        i = resolveSessionMetaPath(e, t),
         o = await Vwe(r),
         s = await Vwe(i),
         a = o === null ? null : JSON.parse(o),
@@ -69087,16 +69087,16 @@ async function udt(e, t, n, r) {
     let s = resolveSessionDir(e, i),
         a = resolveSessionDir(e, o),
         u = r === "active";
-    if (u && await $s(s) && await $s(a)) return Z("[job-key-migration] both legacy and new session dirs exist — job left unmigrated", {
+    if (u && await pathExistsAsync(s) && await pathExistsAsync(a)) return Z("[job-key-migration] both legacy and new session dirs exist — job left unmigrated", {
         jobId: t,
         oldKey: i,
         newKey: o
     }), "collision";
-    u && await $s(s) && await rewriteSessionKeyInStateAndMeta(e, i, o);
+    u && await pathExistsAsync(s) && await rewriteSessionKeyInStateAndMeta(e, i, o);
     let l = [u ? await nH(s, a, "session dir") : "absent", await nH(drainRecordPath(e, i), drainRecordPath(e, o), "usage ledger"), await nH(hs(e, i), hs(e, o), "outbox replay log")];
     return l.includes("blocked") ? "collision" : l.includes("moved") ? "migrated" : "skipped"
 }
-async function Hwe(e) {
+async function migrateLegacyJobSessionKeys(e) {
     let t = {
         migrated: 0,
         skipped: 0,
@@ -69457,7 +69457,7 @@ async function archiveLegacyRegistrySessionsDir(e) {
     } catch {}
     return await tr.rename(t, u), Z(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${u}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
 }
-async function Sdt(e) {
+async function isDirEmptyOrMissing(e) {
     try {
         return (await tr.readdir(e)).length === 0
     } catch (t) {
@@ -69465,7 +69465,7 @@ async function Sdt(e) {
         throw t
     }
 }
-async function sH(e, t) {
+async function copyDirTreeOverwrite(e, t) {
     await $e(t);
     let n = await tr.readdir(e, {
         withFileTypes: !0
@@ -69473,10 +69473,10 @@ async function sH(e, t) {
     for (let r of n) {
         let i = nr.join(e, r.name),
             o = nr.join(t, r.name);
-        r.isDirectory() ? await sH(i, o) : r.isFile() && await tr.copyFile(i, o)
+        r.isDirectory() ? await copyDirTreeOverwrite(i, o) : r.isFile() && await tr.copyFile(i, o)
     }
 }
-async function aH(e, t) {
+async function copyDirTreeMissingOnly(e, t) {
     await $e(t);
     let n = await tr.readdir(e, {
         withFileTypes: !0
@@ -69484,12 +69484,12 @@ async function aH(e, t) {
     for (let r of n) {
         let i = nr.join(e, r.name),
             o = nr.join(t, r.name);
-        r.isDirectory() ? await aH(i, o) : r.isFile() && (await $s(o) || await tr.copyFile(i, o))
+        r.isDirectory() ? await copyDirTreeMissingOnly(i, o) : r.isFile() && (await pathExistsAsync(o) || await tr.copyFile(i, o))
     }
 }
-async function xdt(e) {
+async function refreshBootstrapDuoduoMdFiles(e) {
     let t = nr.join(e.bootstrapDir, "var");
-    if (!await $s(t)) return;
+    if (!await pathExistsAsync(t)) return;
     async function n(r, i) {
         let o = await tr.readdir(r, {
             withFileTypes: !0
@@ -69502,9 +69502,9 @@ async function xdt(e) {
     }
     await n(t, e.varDir)
 }
-async function Edt(e, t = process.env) {
+async function copyBootstrapIntoKernel(e, t = process.env) {
     let n = e.bootstrapDir;
-    if (!n || !await $s(n)) return;
+    if (!n || !await pathExistsAsync(n)) return;
     let r = nr.resolve(e.kernelDir),
         i = nr.resolve(n);
     if (r === i) return;
@@ -69516,9 +69516,9 @@ async function Edt(e, t = process.env) {
             if (iH.has(a.name) || a.isFile() && oH.has(a.name)) continue;
             let u = nr.join(n, a.name),
                 l = nr.join(e.kernelDir, a.name);
-            a.isDirectory() ? kdt.has(a.name) ? await aH(u, l) : await sH(u, l) : a.isFile() && await tr.copyFile(u, l)
+            a.isDirectory() ? kdt.has(a.name) ? await copyDirTreeMissingOnly(u, l) : await copyDirTreeOverwrite(u, l) : a.isFile() && await tr.copyFile(u, l)
         }
-    } else if (await Sdt(e.kernelDir)) {
+    } else if (await isDirEmptyOrMissing(e.kernelDir)) {
         let s = await tr.readdir(n, {
             withFileTypes: !0
         });
@@ -69526,7 +69526,7 @@ async function Edt(e, t = process.env) {
             if (iH.has(a.name) || a.isFile() && oH.has(a.name)) continue;
             let u = nr.join(n, a.name),
                 l = nr.join(e.kernelDir, a.name);
-            a.isDirectory() ? await sH(u, l) : a.isFile() && await tr.copyFile(u, l)
+            a.isDirectory() ? await copyDirTreeOverwrite(u, l) : a.isFile() && await tr.copyFile(u, l)
         }
     } else {
         let s = await tr.readdir(n, {
@@ -69536,7 +69536,7 @@ async function Edt(e, t = process.env) {
             if (iH.has(a.name) || a.isFile() && oH.has(a.name)) continue;
             let u = nr.join(n, a.name),
                 l = nr.join(e.kernelDir, a.name);
-            a.isDirectory() ? await aH(u, l) : a.isFile() && (await $s(l) || await tr.copyFile(u, l))
+            a.isDirectory() ? await copyDirTreeMissingOnly(u, l) : a.isFile() && (await pathExistsAsync(l) || await tr.copyFile(u, l))
         }
     }
 }
@@ -69544,13 +69544,13 @@ async function initializeRuntime(e, t = process.env) {
     await archiveLegacyRegistrySessionsDir(e);
     let n = [e.runtimeDir, e.varDir, e.runDir, e.eventsDir, e.eventsIndexDir, e.registryDir, e.outboxDir, e.sessionsDir, e.jobsDir, e.varIngressDir, e.telemetryDir, e.usageDir, e.cadenceDir, e.runLocksDir, e.runQueueOffsetsDir, e.kernelDir, e.workDir];
     for (let i of n) await $e(i);
-    await tr.chmod(e.runDir, 448), await Hwe(e), await Edt(e, t), await xdt(e), await $e(e.memoryDir), await $e(e.memoryEntitiesDir), await $e(e.memoryTopicsDir), await $e(e.memoryFragmentsDir), await $e(e.memoryStateDir), await $e(e.subconsciousDir), await $e(e.subconsciousVarDir), await $e(e.partitionStateDir), await $e(nr.join(e.kernelDir, ".claude")), await dz(e.subconsciousPlaylistPath, vdt), await dz(e.memoryBroadcastPath, wdt), await retireListedPartitions(e), await Uwe(e.kernelDir), await Idt(e);
+    await tr.chmod(e.runDir, 448), await migrateLegacyJobSessionKeys(e), await copyBootstrapIntoKernel(e, t), await refreshBootstrapDuoduoMdFiles(e), await $e(e.memoryDir), await $e(e.memoryEntitiesDir), await $e(e.memoryTopicsDir), await $e(e.memoryFragmentsDir), await $e(e.memoryStateDir), await $e(e.subconsciousDir), await $e(e.subconsciousVarDir), await $e(e.partitionStateDir), await $e(nr.join(e.kernelDir, ".claude")), await dz(e.subconsciousPlaylistPath, vdt), await dz(e.memoryBroadcastPath, wdt), await retireListedPartitions(e), await ensureKernelGitRepo(e.kernelDir), await generateAllPartitionCodexAgents(e);
     let r = resolveRegistryStatusPath(e);
-    return await $s(r) || await wz(e, vz(e)), {
+    return await pathExistsAsync(r) || await wz(e, vz(e)), {
         statusPath: r
     }
 }
-async function Idt(e) {
+async function generateAllPartitionCodexAgents(e) {
     let {
         generatePartitionCodexAgents: t
     } = await Promise.resolve().then(() => (rSe(), nSe)), n;
@@ -69573,13 +69573,13 @@ async function Idt(e) {
         }
     }
 }
-var vdt, wdt, kdt, iH, oH, sSe = O(() => {
+var vdt, wdt, kdt, iH, oH, initRuntimeInitializationModule = O(() => {
     "use strict";
     xr();
     eH();
     Em();
     dt();
-    qwe();
+    initKernelGitModule();
     Wwe();
     initPartitionRetirementModule();
     vdt = `# Subconscious Playlist
@@ -69839,7 +69839,7 @@ async function Ddt(e, t) {
         origin: s.origin
     }
 }
-async function Eg(e) {
+async function resolveClaudeContextRequirement(e) {
     let t = classifyModelContextRequirement({
         model: e.model,
         mergedCatalog: e.mergedCatalog,
@@ -69868,7 +69868,7 @@ import {
     promises as hSe
 } from "node:fs";
 import Mdt from "node:path";
-async function gSe(e, t, n = {}) {
+async function acquireSessionDrainLock(e, t, n = {}) {
     let r = fH(e, t),
         i = n.now ?? new Date,
         o = n.ttlMs ?? 12e4,
@@ -69891,12 +69891,12 @@ async function gSe(e, t, n = {}) {
         lock: u
     }
 }
-async function ySe(e, t, n = new Date) {
+async function refreshSessionDrainLockHeartbeat(e, t, n = new Date) {
     let r = fH(e, t),
         i = await bSe(r);
     i && (i.last_heartbeat_at = n.toISOString(), await Bt(r, i))
 }
-async function _Se(e, t) {
+async function releaseSessionDrainLock(e, t) {
     let n = fH(e, t);
     try {
         await hSe.unlink(n)
@@ -69933,13 +69933,13 @@ var vSe = O(() => {
     Wn()
 });
 
-function Yw(e) {
+function isClaudeRuntimeOrDefault(e) {
     return e === void 0 || e === "claude"
 }
 async function vO(e, t) {
-    if (!Yw(t.runtime)) return {};
+    if (!isClaudeRuntimeOrDefault(t.runtime)) return {};
     let n = t.effective ?? t.kindlessConfig ?? Ja(await si(e.channelConfigDir), t.jobOverlay),
-        r = await Eg({
+        r = await resolveClaudeContextRequirement({
             model: t.model,
             cwd: t.cwd,
             daemonEnv: process.env,
@@ -69954,7 +69954,7 @@ async function vO(e, t) {
         o = xg(i, n.claudeModelProfileIssues);
     if (o.length > 0) throw new Error(`[claude-context-profile] refusing to run under an unresolved model context profile for model "${i.model}": ${_O(o)}`);
     let s = D$(n.claudeModelAliases),
-        a = await Q_e({
+        a = await materializeClaudeSettingsFile({
             dir: M$(e),
             requirement: i,
             aliases: s
@@ -69970,7 +69970,7 @@ async function vO(e, t) {
 var pH = O(() => {
     "use strict";
     Zu();
-    Fa();
+    initChannelConfigLoaderModule();
     Yu();
     bO();
     initMaterializedClaudeSettingsModule()
@@ -70095,7 +70095,7 @@ var wO, mH, SO, SSe = O(() => {
     }
 });
 
-function kSe(e) {
+function normalizeInputTokenTotals(e) {
     let t = e.input_tokens ?? 0,
         n = e.cache_read_input_tokens ?? 0,
         r = e.cache_creation_input_tokens ?? 0;
@@ -70155,7 +70155,7 @@ var hH, ISe = O(() => {
     hH = new Date().toISOString()
 });
 
-function TSe(e) {
+function decideBoardUpdatedInjection(e) {
     return e.currentBoardHash === void 0 ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
@@ -70179,7 +70179,7 @@ function TSe(e) {
     }
 }
 
-function PSe(e) {
+function renderBoardUpdatedHint(e) {
     return `<board-updated>memory board changed — Read ${e} if you need the fresh version</board-updated>`
 }
 var CSe = O(() => {
@@ -70286,10 +70286,10 @@ async function prepareDrainTurnContext(e, t, n, r, i, o, s, a) {
         l = n.jobContext?.stateless === !0,
         c = n.resume === !1 || n.runtime !== "codex" || l ? void 0 : i.forkFrom,
         d = n.resume === !1 || c || l ? void 0 : i.sessionId,
-        f = a(ake(e, t, u.event.session_key ?? t, n.onExecutionEvent, u.event.id)),
+        f = a(createDrainExecutionEventRecorder(e, t, u.event.session_key ?? t, n.onExecutionEvent, u.event.id)),
         p = kH(u.event.payload),
         m = r.map(D => D.event.id),
-        h = applyJobSdkConfigOverride(await runTimedDrainPhase(s, "effective_config_ms", async () => YV(e, u.event)), n.jobContext?.sdkConfig),
+        h = applyJobSdkConfigOverride(await runTimedDrainPhase(s, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(e, u.event)), n.jobContext?.sdkConfig),
         g = classifySessionKeyOrUnknown(t) === "channel",
         y = r.some(D => EO(D.event)),
         v = computeTimeGapContext({
@@ -70300,7 +70300,7 @@ async function prepareDrainTurnContext(e, t, n, r, i, o, s, a) {
             lastEventAt: o.lastEventAtWatermark,
             currentEventAt: r[0].event.ts
         }),
-        b = yft(r),
+        b = renderCoalescedDrainPrompt(r),
         _ = (h?.auto_compact_idle_minutes ?? 0) > 0 ? o.compactNotice : void 0,
         I = buildTransientUserBlocks(b, {
             gatewayNotice: o.pendingGatewayNotice,
@@ -70349,7 +70349,7 @@ function buildTurnSdkRunConfig(e, t) {
         permissionMode: e.permissionMode
     }
 }
-async function jSe(e, t, n, r) {
+async function resolveDrainContextProfileOrRefuse(e, t, n, r) {
     try {
         return await vO(e, n)
     } catch (i) {
@@ -70370,7 +70370,7 @@ Fix the offending claude.model_profiles entry — the layer named above says whi
 }
 async function drainSessionMailbox(e, t, n = {}) {
     let r = hashSessionKey(t);
-    if (!(await gSe(e, r)).acquired) return {
+    if (!(await acquireSessionDrainLock(e, r)).acquired) return {
         processed: 0,
         skipped: 0,
         lockAcquired: !1,
@@ -70379,7 +70379,7 @@ async function drainSessionMailbox(e, t, n = {}) {
     let o = n.lockHeartbeatIntervalMs ?? 3e4,
         s = setInterval(async () => {
             try {
-                await ySe(e, r)
+                await refreshSessionDrainLockHeartbeat(e, r)
             } catch {}
         }, o);
     s.unref?.(), po("drain_started", t, {
@@ -70442,7 +70442,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             E = f.cache_creation_input_tokens ?? 0,
             R = f.output_tokens ?? 0,
             x = f.total_cost_usd ?? 0,
-            S = kSe({
+            S = normalizeInputTokenTotals({
                 protocol: f.protocol,
                 input_tokens: _ - v.input_tokens,
                 cache_read_input_tokens: I - v.cache_read,
@@ -70489,7 +70489,7 @@ async function drainSessionMailbox(e, t, n = {}) {
         if (_.some(de => !de.eventId)) {
             let de = await yse(e, t);
             if (de.removed > 0) {
-                await cb(e, t, `orphan_cleanup=${de.removed}`);
+                await appendSessionMailboxNote(e, t, `orphan_cleanup=${de.removed}`);
                 let me = await listMailboxPendingItems(e, t);
                 if (me.length === 0) return {
                     processed: 0,
@@ -70527,7 +70527,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             ce = !1,
             J, ne, fe, j = [],
             ue = async (de, me) => {
-                de.length !== 0 && await Ao(e, t, de).catch(Y => {
+                de.length !== 0 && await deleteMailboxPendingItemsByEventIds(e, t, de).catch(Y => {
                     Z("[runner] eager markDone failed (will retry at drain end)", {
                         sessionKey: t,
                         stage: me,
@@ -70542,7 +70542,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 return k.push(...de), de
             }, ae = (de, me) => {
                 de && (J = me ?? de.payload.text, ne = de.id, fe = de)
-            }, M = async () => (await Ao(e, t, k), await cb(e, t, `processed=${k.length} skipped=${N} cancelled=true`), await y({
+            }, M = async () => (await deleteMailboxPendingItemsByEventIds(e, t, k), await appendSessionMailboxNote(e, t, `processed=${k.length} skipped=${N} cancelled=true`), await y({
                 cancelled: !0,
                 processedCount: k.length,
                 skippedCount: N,
@@ -70558,7 +70558,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 lastOutboxId: ne,
                 lastOutboxRecord: fe,
                 outboxRecords: j
-            }), z = await runTimedDrainPhase(m, "session_state_ms", async () => ct(e, t)), U = buildSessionInfoFromState(e, t, z ?? void 0), X = n.jobContext?.stateless === !0, Ee = z?.pending_gateway_notice, be = z?.pending_interrupted_context, w = z?.pending_skip_rewind, P = !1, K = !1, H = !1, L = !1, G = Xdt(z), ee = !1, we = decideRestartHintInjection({
+            }), z = await runTimedDrainPhase(m, "session_state_ms", async () => ct(e, t)), U = buildSessionInfoFromState(e, t, z ?? void 0), X = n.jobContext?.stateless === !0, Ee = z?.pending_gateway_notice, be = z?.pending_interrupted_context, w = z?.pending_skip_rewind, P = !1, K = !1, H = !1, L = !1, G = resolvePendingCompactNotice(z), ee = !1, we = decideRestartHintInjection({
                 currentDaemonStartedAt: hH,
                 sessionKey: t,
                 lastEventAt: z?.last_event_at,
@@ -70573,7 +70573,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             ve = we.writeLastSeenOnInjectSuccess,
             Be = !1,
             at = classifySessionKeyOrUnknown(t) === "channel" ? n.boardHash : void 0,
-            Je = TSe({
+            Je = decideBoardUpdatedInjection({
                 currentBoardHash: at,
                 lastSeenBoardHash: z?.last_seen_board_hash
             });
@@ -70652,7 +70652,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         }), fn.item.eventId && k.push(fn.item.eventId);
                         continue
                     }
-                    let Ve = await $c(e, t, {
+                    let Ve = await emitDrainOutputRecords(e, t, {
                         item: fn.item,
                         event: fn.event,
                         outputText: me,
@@ -70660,7 +70660,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     });
                     j.push(...Ve.records), ae(Ve.primaryRecord), fn.item.eventId && k.push(fn.item.eventId)
                 }
-                return await Ao(e, t, k), await cb(e, t, `processed=${k.length} skipped=${N} ${un}`), {
+                return await deleteMailboxPendingItemsByEventIds(e, t, k), await appendSessionMailboxNote(e, t, `processed=${k.length} skipped=${N} ${un}`), {
                     processed: k.length,
                     skipped: N,
                     lockAcquired: !0,
@@ -70812,7 +70812,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     kindlessConfig: mn,
                     runtime: n.runtime
                 }),
-                Ro = await jSe(e, t, {
+                Ro = await resolveDrainContextProfileOrRefuse(e, t, {
                     runtime: n.runtime,
                     model: cr.model,
                     modelOrigin: cr.configLayer,
@@ -70913,7 +70913,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             });
             else {
                 let mt = qSe(me.event, Nn),
-                    Xe = await runTimedDrainPhase(m, "outbox_emit_ms", async () => $c(e, t, {
+                    Xe = await runTimedDrainPhase(m, "outbox_emit_ms", async () => emitDrainOutputRecords(e, t, {
                         item: me.item,
                         event: me.event,
                         outputText: mt,
@@ -71018,13 +71018,13 @@ async function drainSessionMailbox(e, t, n = {}) {
                         if (classifySessionKeyOrUnknown(t) === "channel") Et = !0;
                         else {
                             let qc = "ℹ️ /compact is only available in interactive sessions.",
-                                Qf = await $c(e, t, {
+                                Qf = await emitDrainOutputRecords(e, t, {
                                     item: Y.item,
                                     event: Y.event,
                                     outputText: qc,
                                     sdkSessionId: de
                                 });
-                            j.push(...Qf.records), ae(Qf.primaryRecord, qc), Y.item.eventId && (k.push(Y.item.eventId), await Ao(e, t, [Y.item.eventId]).catch(ep => {
+                            j.push(...Qf.records), ae(Qf.primaryRecord, qc), Y.item.eventId && (k.push(Y.item.eventId), await deleteMailboxPendingItemsByEventIds(e, t, [Y.item.eventId]).catch(ep => {
                                 Z("[runner] history-control mailbox finalize failed (will be retried at drain end)", {
                                     sessionKey: t,
                                     eventId: Y.item.eventId,
@@ -71044,7 +71044,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             cmdToken: ou
                         });
                         if (!(ou === "/compact" && Y.event.source?.name === "idle-compact")) {
-                            let ep = await $c(e, t, {
+                            let ep = await emitDrainOutputRecords(e, t, {
                                 item: Y.item,
                                 event: Y.event,
                                 outputText: qc,
@@ -71056,10 +71056,10 @@ async function drainSessionMailbox(e, t, n = {}) {
                         continue
                     }
                 }
-                let fn = Di(ake(e, t, Y.event.session_key ?? t, n.onExecutionEvent, Y.event.id)),
+                let fn = Di(createDrainExecutionEventRecorder(e, t, Y.event.session_key ?? t, n.onExecutionEvent, Y.event.id)),
                     Ve = eo(Y.event.payload) ? Y.event.payload : void 0,
                     pn = kH(Y.event.payload),
-                    tt = applyJobSdkConfigOverride(await runTimedDrainPhase(m, "effective_config_ms", async () => YV(e, Y.event)), n.jobContext?.sdkConfig),
+                    tt = applyJobSdkConfigOverride(await runTimedDrainPhase(m, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(e, Y.event)), n.jobContext?.sdkConfig),
                     Xn = await DSe(e, tt, n.jobContext?.sdkConfig),
                     Yr = resolveTurnModelWithLayer({
                         jobModel: n.jobContext?.model,
@@ -71075,7 +71075,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         kindlessConfig: Xn,
                         runtime: n.runtime
                     }),
-                    cr = await jSe(e, t, {
+                    cr = await resolveDrainContextProfileOrRefuse(e, t, {
                         runtime: n.runtime,
                         model: Yr.model,
                         modelOrigin: Yr.configLayer,
@@ -71211,7 +71211,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 }
                 if (await $n(wr), !$r.skipped && !Et) {
                     let ht = qSe(Y.event, $r),
-                        Or = await runTimedDrainPhase(m, "outbox_emit_ms", async () => $c(e, t, {
+                        Or = await runTimedDrainPhase(m, "outbox_emit_ms", async () => emitDrainOutputRecords(e, t, {
                             item: Y.item,
                             event: Y.event,
                             outputText: ht,
@@ -71242,7 +71242,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             origin: ny ? "idle-compact" : ht.trigger
                         }, ht.trigger === "manual" && !ny) {
                         let Or = bft(ht),
-                            ga = await $c(e, t, {
+                            ga = await emitDrainOutputRecords(e, t, {
                                 item: Y.item,
                                 event: Y.event,
                                 outputText: Or,
@@ -71267,7 +71267,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     });
                     else {
                         let ht = "ℹ️ Nothing to compact.",
-                            Or = await $c(e, t, {
+                            Or = await emitDrainOutputRecords(e, t, {
                                 item: Y.item,
                                 event: Y.event,
                                 outputText: ht,
@@ -71329,9 +71329,9 @@ async function drainSessionMailbox(e, t, n = {}) {
             }
         }
         return await runTimedDrainPhase(m, "mailbox_finalize_ms", async () => {
-            if (await Ao(e, t, k), k.length > 0 || N > 0) {
+            if (await deleteMailboxPendingItemsByEventIds(e, t, k), k.length > 0 || N > 0) {
                 let de = `processed=${k.length} skipped=${N}${ne?` outbox=${ne}`:""}`;
-                await cb(e, t, de)
+                await appendSessionMailboxNote(e, t, de)
             }
         }), await y({
             cancelled: qe,
@@ -71352,7 +71352,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             outboxRecords: j
         }
     } finally {
-        clearInterval(s), await _Se(e, r)
+        clearInterval(s), await releaseSessionDrainLock(e, r)
     }
 }
 
@@ -71585,7 +71585,7 @@ function renderSkipRewindBlock(e) {
 `)
 }
 
-function Xdt(e) {
+function resolvePendingCompactNotice(e) {
     let t = e?.last_compact_at;
     if (!t) return;
     let n = Date.parse(t);
@@ -71608,7 +71608,7 @@ function Xdt(e) {
     }
 }
 
-function Qdt(e) {
+function renderSmartCompactNoticeBlock(e) {
     let t = `compacted ${e.compactedAt}`,
         n = [];
     typeof e.preTotal == "number" && typeof e.postTotal == "number" ? n.push(`ctx ${e.preTotal}→${e.postTotal}`) : typeof e.postTotal == "number" && n.push(`ctx →${e.postTotal}`), typeof e.historyPre == "number" && typeof e.historyPost == "number" && n.push(`history ${e.historyPre}→${e.historyPost}`), n.length > 0 && (t += `: ${n.join(", ")}`);
@@ -71637,7 +71637,7 @@ function computeTimeGapContext(e) {
     }
 }
 
-function eft(e) {
+function renderTimeGapContextBlock(e) {
     if (!e) return;
     let t = new Date(e.lastEventAt).getTime(),
         n = new Date(e.currentEventAt).getTime();
@@ -71651,7 +71651,7 @@ function eft(e) {
 `)
 }
 
-function nft(e) {
+function renderJobTickBlock(e) {
     let t = r => {
             let i = kO(r);
             return i ? `${r} (daemon: ${i})` : r
@@ -71701,7 +71701,7 @@ function buildTransientUserBlocks(e, t, n) {
             tag: "daemon-restart-hint"
         }), d = !0), t.compactNotice && (i.push({
             type: "text",
-            text: Qdt(t.compactNotice),
+            text: renderSmartCompactNoticeBlock(t.compactNotice),
             tag: "smart-compact-notice"
         }), f = !0), t.gatewayNotice) {
         let b = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
@@ -71718,7 +71718,7 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
             tag: "gateway-notice"
         }), o = !0
     }
-    let m = eft(t.timeGap);
+    let m = renderTimeGapContextBlock(t.timeGap);
     m && (i.push({
         type: "text",
         text: m,
@@ -71743,11 +71743,11 @@ ${y}
         tag: "job-receipts"
     }), c = !0), t.jobTick && (i.push({
         type: "text",
-        text: nft(t.jobTick),
+        text: renderJobTickBlock(t.jobTick),
         tag: "job-tick"
     }), l = !0), t.boardUpdated && (i.push({
         type: "text",
-        text: PSe(t.boardUpdated.boardPath),
+        text: renderBoardUpdatedHint(t.boardUpdated.boardPath),
         tag: "board-updated"
     }), p = !0), i.push({
         type: "text",
@@ -71788,14 +71788,14 @@ async function sft(e, t) {
 async function aft(e, t) {
     await clearSessionRuntimeStateField(e, t, "pending_skip_rewind")
 }
-async function uft(e, t, n) {
+async function hasSkipRewindRecordSince(e, t, n) {
     let i = (await ct(e, t).catch(() => null))?.pending_skip_rewind?.skipped_at;
     if (!i) return !1;
     let o = Date.parse(i);
     return Number.isFinite(o) && o >= n
 }
 async function markTurnSkippedFromSkipRecord(e, t, n, r) {
-    Yw(n) || r.skipped || await uft(e, t, r.turnStartedAt) && (r.skipped = !0)
+    isClaudeRuntimeOrDefault(n) || r.skipped || await hasSkipRewindRecordSince(e, t, r.turnStartedAt) && (r.skipped = !0)
 }
 async function xO(e, t) {
     await clearSessionRuntimeStateField(e, t, "pending_outbound_attachments")
@@ -71968,7 +71968,7 @@ async function collectJobCompletionReceipts(e, t, n, r, i) {
     }
 }
 
-function yft(e) {
+function renderCoalescedDrainPrompt(e) {
     if (e.length === 1) return e[0].prompt;
     let t = [`Process these ${e.length} closely timed events as one continuous update.`, "Events are ordered from oldest to newest. Reply once.", ""];
     for (let [n, r] of e.entries()) t.push(`Event ${n+1}: @evt(${r.event.id}) ${r.event.type} ${r.event.ts}`), t.push(r.prompt || "(empty)"), t.push("");
@@ -71980,7 +71980,7 @@ function _ft(e, t = process.env) {
     return e.type === "thought_chunk" || e.type === "tool_input_delta" ? parseEnvBooleanFlag(t.ALADUO_LOG_RUNNER_THOUGHT_CHUNKS) : e.type === "tool_use" || e.type === "tool_result" ? parseEnvBooleanFlag(t.ALADUO_LOG_RUNNER_TOOL_EVENTS) : !0
 }
 
-function ake(e, t, n, r, i) {
+function createDrainExecutionEventRecorder(e, t, n, r, i) {
     return async o => {
         if (_ft(o) && Re("[runner] execution event", {
                 sessionKey: t,
@@ -72109,7 +72109,7 @@ function VSe(e) {
     }
 }
 async function kft(e, t) {
-    await ps(e, "idle_compact_fire", t.postTokens ?? 0, {
+    await recordTelemetryMetric(e, "idle_compact_fire", t.postTokens ?? 0, {
         session_key: t.sessionKey,
         pre_tokens: t.preTokens,
         post_tokens: t.postTokens,
@@ -72150,7 +72150,7 @@ function uke(e, t, n) {
         targetSessionKeys: u
     }
 }
-async function $c(e, t, n) {
+async function emitDrainOutputRecords(e, t, n) {
     let r = [],
         {
             targetSessionKeys: i
@@ -72160,7 +72160,7 @@ async function $c(e, t, n) {
     for (let [u, l] of i.entries()) {
         let c = Aft(l, n.event.source.kind),
             d = n.turnMeta !== void 0 && classifySessionKeyOrUnknown(l) === "channel",
-            f = Hl({
+            f = createOutboxRecord({
                 channel_kind: c,
                 session_key: l,
                 in_reply_to_event_id: n.event.id,
@@ -72251,7 +72251,7 @@ ${i}
         stage: n.stage
     });
     else try {
-        let u = await $c(e, t, {
+        let u = await emitDrainOutputRecords(e, t, {
             item: n.anchor.item,
             event: n.anchor.event,
             outputText: o
@@ -72391,7 +72391,7 @@ function Nft(e) {
 }
 async function runDrainQueryAndCollectOutboundAttachments(e, t, n, r) {
     try {
-        let i = await jft(e, t, n, r),
+        let i = await runDrainTurnWithResumeFallback(e, t, n, r),
             o = await readPendingOutboundAttachments(e, t),
             s = await Mft(e, t, i.attachments),
             a = lke(s, o);
@@ -72480,7 +72480,7 @@ function lke(...e) {
             });
     return t.size > 0 ? Array.from(t.values()) : void 0
 }
-async function jft(e, t, n, r) {
+async function runDrainTurnWithResumeFallback(e, t, n, r) {
     let {
         sessionId: i,
         forkFrom: o,
@@ -72492,7 +72492,7 @@ async function jft(e, t, n, r) {
         usesStreamingAdapter: d,
         ...f
     } = r;
-    Yw(c) && !d && _t("info", "[claude-context-profile] non-streaming subprocess spawned", {
+    isClaudeRuntimeOrDefault(c) && !d && _t("info", "[claude-context-profile] non-streaming subprocess spawned", {
         sessionKey: t,
         model: f.model ?? "default",
         context_profile_source: hO(f.claudeContextRequirement),
@@ -72543,7 +72543,7 @@ async function jft(e, t, n, r) {
         b = {
             runtimeDir: e.runtimeDir
         },
-        _ = !Yw(c),
+        _ = !isClaudeRuntimeOrDefault(c),
         I = _ ? void 0 : l,
         E = _ ? l : void 0,
         R = () => c === "pi" ? Nft(s) : eventToMessageGenerator(s, I, b),
@@ -72618,11 +72618,11 @@ var vH, wH, _H, Ydt, tft, lft, bH, wft, Sft, initMailboxDrainRunnerModule = O(()
     Wr();
     Wn();
     Fd();
-    Gs();
+    initSpineEventLogModule();
     initOutboxStoreModule();
     initAgentSdkAdapterModule();
     Zu();
-    Fa();
+    initChannelConfigLoaderModule();
     Yu();
     pH();
     SSe();
@@ -72740,7 +72740,7 @@ function resolvePiWorkerCommand() {
     }
 }
 
-function qft(e) {
+function buildPiSystemPromptSpec(e) {
     if (!e) return;
     if (typeof e == "string") {
         let n = e.trim();
@@ -72765,7 +72765,7 @@ function Vft(e, t) {
     return [...e ?? []].sort().join("\0") === [...t ?? []].sort().join("\0")
 }
 
-function TO(e) {
+function createPiWorkerAdapter(e) {
     let t = e.logDebug ?? (() => {}),
         n = e.logWarn ?? t,
         r = null,
@@ -72970,7 +72970,7 @@ function TO(e) {
             });
             try {
                 let k = Bft($.disallowedTools);
-                !r && !i ? (a = k, l = qft($.systemPrompt)) : Vft(u ?? a, k) || t("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
+                !r && !i ? (a = k, l = buildPiSystemPromptSpec($.systemPrompt)) : Vft(u ?? a, k) || t("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
                 let N = $.abortController?.signal;
                 if (N) {
                     let fe, j = new Promise((ue, Ie) => {
@@ -73114,7 +73114,7 @@ var IO, dke, Hft, PH = O(() => {
     "use strict";
     Fl();
     initAgentSdkAdapterModule();
-    hw();
+    initInterruptMarkerTextModule();
     cke();
     IO = "pi", dke = 2e3;
     Hft = new Set(["ready", "init_error", "run_ack", "settled", "steer_result", "compact_result"])
@@ -73272,7 +73272,7 @@ function spt(e) {
         maxBytes: o
     }
 }
-async function Pg(e, t) {
+async function runQueueOutboundAttachmentTool(e, t) {
     try {
         if (!e.path || e.path.trim().length === 0) throw new Error("path is required");
         let n = tpt(e, t.sessionKey),
@@ -73369,7 +73369,7 @@ async function handlePiToolEndObservation(e, t, n) {
             let r = parsePiToolResultDetails(n.result_json),
                 i = r?.path;
             if (typeof i != "string" || i.trim().length === 0) return;
-            let o = await Pg({
+            let o = await runQueueOutboundAttachmentTool({
                 path: i,
                 mime: typeof r?.mime == "string" ? r.mime : void 0,
                 session_key: typeof r?.session_key == "string" ? r.session_key : void 0
@@ -79952,7 +79952,7 @@ function createAladuoMcpServer(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await mg(s, {
+            text: await runRemindDuoduoTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey,
                 sessionContextKind: t.sessionContextKind
@@ -79966,7 +79966,7 @@ function createAladuoMcpServer(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await pg(s, {
+            text: await runViewSessionsTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey,
                 getSessionStatus: t.getSessionStatus
@@ -79980,7 +79980,7 @@ function createAladuoMcpServer(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await Pg(s, {
+            text: await runQueueOutboundAttachmentTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey
             })
@@ -80001,17 +80001,17 @@ function createAladuoMcpServer(e, t = {}) {
         }]
     }))), n.registerTool(Ow, {
         title: Ow,
-        description: A$({
+        description: renderNotifyToolDescription({
             sessionKey: t.sessionKey,
             sessionContextKind: t.sessionContextKind
         }),
-        inputSchema: N$({
+        inputSchema: buildNotifyInputSchema({
             sessionKey: t.sessionKey,
             sessionContextKind: t.sessionContextKind
         }),
         _meta: r
     }, async s => {
-        let a = await gg(s, {
+        let a = await runNotifyTool(s, {
             paths: e,
             bus: t.bus,
             sessionKey: t.sessionKey,
@@ -80042,7 +80042,7 @@ var JW = O(() => {
     initRemindDuoduoToolModule()
 });
 
-function Xg(e) {
+function buildCodexStringInputSchema(e) {
     let t = {},
         n = [];
     for (let [r, i] of Object.entries(e)) {
@@ -80072,7 +80072,7 @@ function buildCodexDynamicTools(e) {
         t.push({
             name: ww,
             description: n ? f$() : d$(),
-            inputSchema: Xg(o),
+            inputSchema: buildCodexStringInputSchema(o),
             handler: async s => {
                 let a = await runManageJobTool(s, {
                     paths: e.paths,
@@ -80091,9 +80091,9 @@ function buildCodexDynamicTools(e) {
     return t.push({
         name: kw,
         description: g$,
-        inputSchema: Xg(y$),
+        inputSchema: buildCodexStringInputSchema(y$),
         handler: async o => {
-            let s = await pg(o, {
+            let s = await runViewSessionsTool(o, {
                 paths: e.paths,
                 sessionKey: e.sessionKey,
                 getSessionStatus: e.getSessionStatus
@@ -80105,16 +80105,16 @@ function buildCodexDynamicTools(e) {
         }
     }), t.push({
         name: Ow,
-        description: A$({
+        description: renderNotifyToolDescription({
             sessionKey: e.sessionKey,
             sessionContextKind: e.sessionContextKind
         }),
-        inputSchema: Xg(N$({
+        inputSchema: buildCodexStringInputSchema(buildNotifyInputSchema({
             sessionKey: e.sessionKey,
             sessionContextKind: e.sessionContextKind
         })),
         handler: async o => {
-            let s = await gg(o, {
+            let s = await runNotifyTool(o, {
                 paths: e.paths,
                 bus: e.bus,
                 sessionKey: e.sessionKey,
@@ -80130,9 +80130,9 @@ function buildCodexDynamicTools(e) {
     }), e.sessionContextKind === "foreground" && (t.push({
         name: qf,
         description: PO,
-        inputSchema: Xg(CO),
+        inputSchema: buildCodexStringInputSchema(CO),
         handler: async o => {
-            let s = await Pg(o, {
+            let s = await runQueueOutboundAttachmentTool(o, {
                 paths: e.paths,
                 sessionKey: e.sessionKey
             });
@@ -80144,7 +80144,7 @@ function buildCodexDynamicTools(e) {
     }), t.push({
         name: ws,
         description: whe,
-        inputSchema: Xg(lC),
+        inputSchema: buildCodexStringInputSchema(lC),
         handler: async o => {
             let s = await runSkipTool(o, {
                 paths: e.paths,
@@ -80159,9 +80159,9 @@ function buildCodexDynamicTools(e) {
     })), i || t.push({
         name: Ew,
         description: n ? v$ : _$,
-        inputSchema: Xg(n ? w$ : b$),
+        inputSchema: buildCodexStringInputSchema(n ? w$ : b$),
         handler: async o => {
-            let s = await mg(o, {
+            let s = await runRemindDuoduoTool(o, {
                 paths: e.paths,
                 sessionKey: e.sessionKey,
                 sessionContextKind: e.sessionContextKind
@@ -80232,19 +80232,19 @@ function OS(e) {
     return t <= 0 ? "unknown" : e.slice(0, t)
 }
 
-function _Ee(e) {
+function isAutoArchivedJobSchedule(e) {
     return e === "once" || e.startsWith("@in ")
 }
 
-function AS(e) {
-    return r$(e) ? "one-shot" : "periodic"
+function classifyJobScheduleType(e) {
+    return isOneShotJobSchedule(e) ? "one-shot" : "periodic"
 }
 
 function bEe() {
     return [...CLAUDE_CORE_TOOLS]
 }
 
-function GW(e) {
+function inferActorOriginFromSessionKey(e) {
     if (e.startsWith("job:")) return {
         origin: "job"
     };
@@ -80280,7 +80280,7 @@ function createJobSessionFinalizer(e) {
         jobManager: r
     } = e;
     async function i(f) {
-        return new Set(await ob(rb(t, f)))
+        return new Set(await ob(resolveSessionInboxDir(t, f)))
     }
     async function o(f, p) {
         let m;
@@ -80466,7 +80466,7 @@ function createJobSessionFinalizer(e) {
                         job_id: m,
                         result_summary: $,
                         result_text: I?.slice(0, 2e3),
-                        schedule_type: AS(x)
+                        schedule_type: classifyJobScheduleType(x)
                     }), await c({
                         jobId: m,
                         sessionKey: h,
@@ -80509,7 +80509,7 @@ function createJobSessionFinalizer(e) {
         }), await d(h, m, "job.fail", {
             job_id: p,
             error: y,
-            schedule_type: AS(g)
+            schedule_type: classifyJobScheduleType(g)
         })
     }
     async function c(f) {
@@ -80519,7 +80519,7 @@ function createJobSessionFinalizer(e) {
             cron: h,
             state: g
         } = f;
-        if (!_Ee(h)) return !1;
+        if (!isAutoArchivedJobSchedule(h)) return !1;
         switch (g.kind) {
             case "gone":
                 return te("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
@@ -80619,7 +80619,7 @@ var kEe = O(() => {
     initJobManagerModule();
     Wr();
     u6();
-    Gs();
+    initSpineEventLogModule();
     hg();
     FV();
     dt();
@@ -82223,7 +82223,7 @@ async function resolveBoardIncludes(e, t, n = 0, r) {
     let {
         content: l,
         includePaths: c
-    } = bgt(u, a);
+    } = parseBoardFileContent(u, a);
     if (!l.trim()) return [];
     let d = [{
         path: i,
@@ -82256,7 +82256,7 @@ function normalizeIncludePathKey(e) {
     return process.platform === "win32" ? t.toLowerCase() : t
 }
 
-function _gt(e) {
+function stripBoardIncludeFrontmatter(e) {
     try {
         return (0, VEe.default)(e, _r).content
     } catch {
@@ -82264,18 +82264,18 @@ function _gt(e) {
     }
 }
 
-function bgt(e, t) {
-    let n = _gt(e),
+function parseBoardFileContent(e, t) {
+    let n = stripBoardIncludeFrontmatter(e),
         i = new ma({
             gfm: !1
         }).lex(n);
     return {
-        content: n.includes("<!--") ? vgt(i) : n,
-        includePaths: wgt(i, t)
+        content: n.includes("<!--") ? stripBoardHtmlComments(i) : n,
+        includePaths: collectBoardIncludePaths(i, t)
     }
 }
 
-function vgt(e) {
+function stripBoardHtmlComments(e) {
     let t = "";
     for (let n of e) {
         if (n.type === "html") {
@@ -82292,15 +82292,15 @@ function vgt(e) {
     return t
 }
 
-function wgt(e, t) {
+function collectBoardIncludePaths(e, t) {
     let n = new Set,
         r = o => {
             UEe.lastIndex = 0;
             let s;
             for (;
                 (s = UEe.exec(o)) !== null;) {
-                let a = Sgt(s[1]);
-                !a || !kgt(a) || n.add(xgt(a, ha.dirname(t)))
+                let a = normalizeBoardIncludeToken(s[1]);
+                !a || !isBoardIncludePathCandidate(a) || n.add(resolveBoardIncludePath(a, ha.dirname(t)))
             }
         },
         i = o => {
@@ -82321,17 +82321,17 @@ function wgt(e, t) {
     return i(e), [...n]
 }
 
-function Sgt(e) {
+function normalizeBoardIncludeToken(e) {
     if (!e) return;
     let [t] = e.split("#");
     if (t) return t.replace(/\\ /g, " ")
 }
 
-function kgt(e) {
+function isBoardIncludePathCandidate(e) {
     return e.startsWith("./") || e.startsWith("~/") || ha.isAbsolute(e) && e !== ha.parse(e).root || !e.startsWith("@") && !/^[#%^&*()]+/.test(e) && /^[a-zA-Z0-9._-]/.test(e)
 }
 
-function xgt(e, t) {
+function resolveBoardIncludePath(e, t) {
     return e.startsWith("~/") ? ha.join(dgt.homedir(), e.slice(2)) : ha.isAbsolute(e) ? ha.resolve(e) : ha.resolve(t, e)
 }
 var VEe, fgt, pgt, UEe, HEe, mgt, initBoardTransclusionModule = O(() => {
@@ -82632,7 +82632,7 @@ function isLiveStreamRebuildRequired(e, t) {
     return !!(n && !n.closed)
 }
 
-function NA(e, t) {
+function flagStreamRecreationOnModelReject(e, t) {
     if (!isLiveStreamRebuildRequired(e, t.requirementKind)) return !1;
     let n = e.streamingState;
     return n ? (n.needsRecreation = !0, _t("warn", "[kv-cache] needsRecreation flagged", {
@@ -82666,7 +82666,7 @@ function createModelCommandResolvers(e) {
         if (l) {
             let d = await ho(t, l).catch(() => null),
                 f = d?.channel_kind,
-                p = f ? await ys(t.channelConfigDir, f).catch(() => null) : null;
+                p = f ? await loadChannelKindConfig(t.channelConfigDir, f).catch(() => null) : null;
             c = d?.runtime ?? p?.runtime
         }
         return c ??= resolveDefaultRuntime(), c
@@ -82688,7 +82688,7 @@ function createModelCommandResolvers(e) {
             d = a ? QEe(a) : void 0,
             f = await i(s, l),
             p = u ? void 0 : buildSessionInfoFromState(t, s, await ct(t, s).catch(() => null) ?? void 0).cwd,
-            m = await Eg({
+            m = await resolveClaudeContextRequirement({
                 model: u,
                 cwd: p,
                 daemonEnv: process.env,
@@ -82731,7 +82731,7 @@ var t0e = O(() => {
     "use strict";
     Dr();
     Vl();
-    Fa();
+    initChannelConfigLoaderModule();
     Zu();
     Cu();
     bO();
@@ -82790,9 +82790,9 @@ var MA, initAbortableAsyncQueueModule = O(() => {
     }
 });
 
-function Egt(e, t) {
+function recordPendingInterruptMarker(e, t) {
     if (!t) return;
-    let n = og(t, e.activeToolCalls.size > 0);
+    let n = selectInterruptMarkerText(t, e.activeToolCalls.size > 0);
     n && (e.pendingInterruptMarker = n)
 }
 
@@ -82812,7 +82812,7 @@ ${n}` : [{
     }
 }
 
-function i0e(e, t) {
+function prependPendingInterruptMarker(e, t) {
     let n = e.pendingInterruptMarker;
     if (!n || typeof t.prompt == "string") return t;
     let r = n,
@@ -82867,7 +82867,7 @@ async function teardownStreamingSession(e, t, n) {
         sessionKey: e.sessionKey,
         generation: e.streamingGeneration,
         sdk_session_id: e.sdkSessionId ?? null
-    }), Egt(e, n);
+    }), recordPendingInterruptMarker(e, n);
     let i = e.query;
     e.streamingState = null, e.query = null, e.streamAbortController = null, e.spawnBoardHash = void 0, r.abortController.signal.aborted || r.abortController.abort(n), typeof i?.close == "function" && i.close();
     try {
@@ -82902,7 +82902,7 @@ function shutdownActorRuntimeAdapter(e) {
 var gJ = O(() => {
     "use strict";
     dt();
-    hw()
+    initInterruptMarkerTextModule()
 });
 import {
     randomUUID as Igt
@@ -83114,7 +83114,7 @@ function createClaudeStreamingSessionFactory(e) {
                             if (ne && (u.pendingSteer = null, !ne.settled)) {
                                 ne.settled = !0;
                                 try {
-                                    await Ao(t, u.sessionKey, ne.eventIds)
+                                    await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, ne.eventIds)
                                 } catch (fe) {
                                     te("[session-manager] steer hook markDone error", {
                                         sessionKey: u.sessionKey,
@@ -83177,7 +83177,7 @@ function createClaudeStreamingSessionFactory(e) {
                             model: ne ?? "(reset to default)",
                             running_model: l.model ?? "(runtime default)",
                             error: ae instanceof Error ? ae.message : String(ae)
-                        }), ne !== null && NA(u, {
+                        }), ne !== null && flagStreamRecreationOnModelReject(u, {
                             model: ne,
                             requirementKind: Ie,
                             reason: "spawn-reconcile"
@@ -83255,7 +83255,7 @@ function createClaudeStreamingSessionFactory(e) {
                         }
                         let fe = [...ne, ...J.processedEventIds];
                         if (fe.length > 0) try {
-                            await Ao(t, u.sessionKey, fe)
+                            await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, fe)
                         } catch (j) {
                             te("[session-manager] steer fallback closed markDone error", {
                                 sessionKey: u.sessionKey,
@@ -83356,7 +83356,7 @@ function createClaudeStreamingSessionFactory(e) {
                             P = j.subtype === "success" && !Ee && typeof j.result == "string" && j.result.length > 0 ? j.result : void 0;
                         if (P !== void 0) {
                             let K = await readPendingOutboundAttachments(t, u.sessionKey).catch(() => {}),
-                                H = Hl({
+                                H = createOutboxRecord({
                                     channel_kind: OS(u.sessionKey),
                                     session_key: u.sessionKey,
                                     payload: {
@@ -83663,7 +83663,7 @@ function createSessionManager(e) {
         paths: t,
         bus: n,
         jobManager: a
-    }), d = e.codexAvailability ?? checkCodexAvailability, f = e.codexAdapterFactory ?? createCodexAppServerAdapter, p = memoizeAvailabilityProbeUntilOk(d), m = e.grokAvailability ?? checkGrokAvailability, h = e.grokAdapterFactory ?? createGrokAcpAdapter, g = e.piAdapterFactory ?? TO, y = memoizeAvailabilityProbeUntilOk(m), v = w => w === "codex" ? p() : w === "grok" ? y() : void 0, {
+    }), d = e.codexAvailability ?? checkCodexAvailability, f = e.codexAdapterFactory ?? createCodexAppServerAdapter, p = memoizeAvailabilityProbeUntilOk(d), m = e.grokAvailability ?? checkGrokAvailability, h = e.grokAdapterFactory ?? createGrokAcpAdapter, g = e.piAdapterFactory ?? createPiWorkerAdapter, y = memoizeAvailabilityProbeUntilOk(m), v = w => w === "codex" ? p() : w === "grok" ? y() : void 0, {
         toModelOptions: b,
         resolveRuntimeForModelCommand: _,
         resolveModelProfileScope: I,
@@ -83681,7 +83681,7 @@ function createSessionManager(e) {
     async function x(w, P) {
         let K = P.trim();
         if (!K) return;
-        let H = Hl({
+        let H = createOutboxRecord({
             channel_kind: OS(w),
             session_key: w,
             payload: {
@@ -83767,7 +83767,7 @@ function createSessionManager(e) {
                 jobId: L
             })
         } else {
-            let L = GW(K);
+            let L = inferActorOriginFromSessionKey(K);
             ae(K, L ?? void 0)
         }
     }
@@ -83824,7 +83824,7 @@ function createSessionManager(e) {
         } : w.origin !== "channel" || !s.createStreamingQuery ? s : (w.streamingAdapter || (w.streamingAdapter = {
             run: async P => {
                 let K = await R(w, P),
-                    H = i0e(w, P);
+                    H = prependPendingInterruptMarker(w, P);
                 return await new Promise((L, G) => {
                     if (K.closed) {
                         G(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"));
@@ -83948,7 +83948,7 @@ function createSessionManager(e) {
             });
             return
         }
-        let ee = GW(w);
+        let ee = inferActorOriginFromSessionKey(w);
         ee ? (ot("[session-manager] wake starting actor with inferred origin", {
             sessionKey: w,
             ...ee
@@ -84079,7 +84079,7 @@ function createSessionManager(e) {
                         plane: "work",
                         permission_profile: "work_default"
                     })), It) {
-                    Oe = AS(It.frontmatter.cron), Gt = It.frontmatter.cron;
+                    Oe = classifyJobScheduleType(It.frontmatter.cron), Gt = It.frontmatter.cron;
                     let tn = It.frontmatter.stateless === !0;
                     if (tn && It.frontmatter.cron === "keepalive") throw new Error(NV);
                     ke = tn, w.jobStateless = ke, qe = It.frontmatter.model, pt = It.frontmatter.effort, Cn = {
@@ -84109,7 +84109,7 @@ function createSessionManager(e) {
                 if (tn) {
                     let Ht = await ho(t, tn).catch(() => null),
                         pi = Ht?.channel_kind,
-                        Ke = pi ? await ys(t.channelConfigDir, pi).catch(() => null) : null,
+                        Ke = pi ? await loadChannelKindConfig(t.channelConfigDir, pi).catch(() => null) : null,
                         Di = Ht?.runtime ?? Ke?.runtime ?? void 0 ?? resolveDefaultRuntime(),
                         Cr = Ht?.runtime ? "explicit" : Ke?.runtime ? "inherited" : "default";
                     w.runtime = Di;
@@ -84236,7 +84236,7 @@ function createSessionManager(e) {
                                     })
                                 }
                                 if (mn.length === 0) {
-                                    cr.length > 0 && await Ao(t, P, cr);
+                                    cr.length > 0 && await deleteMailboxPendingItemsByEventIds(t, P, cr);
                                     return
                                 }
                                 let vn = await prepareDrainTurnContext(t, P, {
@@ -84273,7 +84273,7 @@ function createSessionManager(e) {
                                         let wr = vn.batchEventIds.filter(mi => !w.inflightEventIds.has(mi));
                                         for (let mi of wr) w.inflightEventIds.add(mi);
                                         if (await yt(mt, Xe, vn.attachments).catch(() => !1)) {
-                                            await Ao(t, P, Ro);
+                                            await deleteMailboxPendingItemsByEventIds(t, P, Ro);
                                             for (let mi of wr) w.inflightEventIds.delete(mi);
                                             te("[session-manager] admission callback: codex turn/steer landed", {
                                                 sessionKey: P,
@@ -84341,7 +84341,7 @@ ${Zo}`, yt.eventIds.push(...Ro), yt.claimedEventIds.push(...mt), yt.requeueLines
                                                 }
                                                 let dr = [...Rt, ...Xe.processedEventIds];
                                                 if (dr.length > 0) try {
-                                                    await Ao(t, P, dr)
+                                                    await deleteMailboxPendingItemsByEventIds(t, P, dr)
                                                 } catch (Io) {
                                                     te("[session-manager] steer fallback markDone error", {
                                                         sessionKey: P,
@@ -85260,7 +85260,7 @@ ${Zo}`, yt.eventIds.push(...Ro), yt.claimedEventIds.push(...mt), yt.requeueLines
                         source: De.source
                     })).sort((Je, De) => Je.tier.localeCompare(De.tier));
                     if (Be.length > 0 && (G.aliases = Be), !G.storedModel && !G.configModel) {
-                        let Je = await Eg({
+                        let Je = await resolveClaudeContextRequirement({
                                 model: null,
                                 cwd: buildSessionInfoFromState(t, w, H ?? void 0).cwd,
                                 daemonEnv: process.env,
@@ -85405,7 +85405,7 @@ ${Zo}`, yt.eventIds.push(...Ro), yt.claimedEventIds.push(...mt), yt.requeueLines
                 model: P ?? null,
                 model_runtime: P !== null ? "claude" : null,
                 pending_model_fork: null
-            }), Be && H && NA(H, {
+            }), Be && H && flagStreamRecreationOnModelReject(H, {
                 model: Be,
                 requirementKind: we.requirementKind,
                 reason: "live-command"
@@ -85641,7 +85641,7 @@ var c0e = O(() => {
     xc();
     initJobManagerModule();
     Vl();
-    Fa();
+    initChannelConfigLoaderModule();
     Cu();
     initCodexAppServerModule();
     initGrokAcpRuntimeModule();
@@ -85650,7 +85650,7 @@ var c0e = O(() => {
     qR();
     Rke();
     xC();
-    Gs();
+    initSpineEventLogModule();
     Fd();
     initOutboxStoreModule();
     JW();
@@ -85694,7 +85694,7 @@ import {
 } from "node:os";
 import ey from "node:path";
 
-function d0e(e) {
+function normalizePartitionOutputText(e) {
     let t = e?.trim();
     return t && t.length > 0 ? t : "(no output)"
 }
@@ -85712,7 +85712,7 @@ function stringifyPartitionToolInput(e) {
 function detectEmptyRequiredPartitionOutput(e, t) {
     return Fgt.has(e) && t.trim() === "(no output)" ? `invalid ${e} output: empty response` : null
 }
-async function Ugt(e, t, n, r) {
+async function appendPartitionToolEvent(e, t, n, r) {
     if (r.type === "tool_use") {
         let i = createSpineEvent({
             type: "agent.tool_use",
@@ -85773,7 +85773,7 @@ async function readLatestExternalEventId(e) {
         } catch {}
     return ""
 }
-async function FA(e) {
+async function readNewestMtimeRecursive(e) {
     let t;
     try {
         t = await US.readdir(e, {
@@ -85790,7 +85790,7 @@ async function FA(e) {
     for (let r of t) {
         let i = ey.join(e, r.name);
         if (r.isDirectory()) {
-            let o = await FA(i);
+            let o = await readNewestMtimeRecursive(i);
             o > n && (n = o)
         } else if (r.isFile() || r.isSymbolicLink()) try {
             let o = await US.stat(i);
@@ -85844,7 +85844,7 @@ function createMetaSession(e) {
             N = {
                 session_context_kind: "system"
             },
-            V = TO({
+            V = createPiWorkerAdapter({
                 cwd: S,
                 sdkSessionId: crypto.randomUUID(),
                 sessionDir: k,
@@ -86029,7 +86029,7 @@ function createMetaSession(e) {
         let z = [],
             U = !1,
             X = partitionInboxDir(t, S.name),
-            Ee = await uve(t, S.name),
+            Ee = await readPartitionInboxEntries(t, S.name),
             be = renderPartitionInboxSection(X, Ee),
             w = `### Partition
 - Name: ${S.name}
@@ -86098,7 +86098,7 @@ ${D}`,
                         })
                     },
                     onExecutionEvent: Cn => {
-                        U || (Cn.type === "tool_use" ? k += 1 : Cn.type === "tool_result" && Cn.isError && (N += 1), z.push(Ugt(t, o, S.name, Cn).catch(Ut => {
+                        U || (Cn.type === "tool_use" ? k += 1 : Cn.type === "tool_result" && Cn.isError && (N += 1), z.push(appendPartitionToolEvent(t, o, S.name, Cn).catch(Ut => {
                             Z("[meta-session] failed to persist execution event", {
                                 partition: S.name,
                                 eventType: Cn.type,
@@ -86124,7 +86124,7 @@ ${D}`,
             ve && clearTimeout(ve)
         }
         if (!A) {
-            let ke = d0e(F?.text);
+            let ke = normalizePartitionOutputText(F?.text);
             A = detectEmptyRequiredPartitionOutput(S.name, ke) ? "invalid_output" : "success"
         }
         let Be = Date.now() - C;
@@ -86189,7 +86189,7 @@ ${D}`,
                 cancelled: A === "timeout",
                 usage: at
             }).catch(() => {}), z.length > 0 && await Promise.all(z), A === "success") {
-            let ke = d0e(F?.text),
+            let ke = normalizePartitionOutputText(F?.text),
                 qe = createSpineEvent({
                     type: "agent.result",
                     source: {
@@ -86279,7 +86279,7 @@ ${D}`,
         p = !0, te("[meta-session] starting tick");
         try {
             v += 1;
-            let [S, D, $, C] = await Promise.all([FA(t.memoryFragmentsDir), FA(t.memoryEntitiesDir), FA(t.memoryTopicsDir), readLatestExternalEventId(t)]), A = [S, D, $, C].join(":"), F = hashActivityFingerprint(A);
+            let [S, D, $, C] = await Promise.all([readNewestMtimeRecursive(t.memoryFragmentsDir), readNewestMtimeRecursive(t.memoryEntitiesDir), readNewestMtimeRecursive(t.memoryTopicsDir), readLatestExternalEventId(t)]), A = [S, D, $, C].join(":"), F = hashActivityFingerprint(A);
             if (y !== null && F === y) {
                 Re("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
                 return
@@ -86365,7 +86365,7 @@ ${D}`,
         }
     }
 }
-var Fgt, p0e = O(() => {
+var Fgt, initMetaSessionModule = O(() => {
     "use strict";
     initAgentSdkAdapterModule();
     initCodexAppServerModule();
@@ -86375,12 +86375,12 @@ var Fgt, p0e = O(() => {
     xC();
     Cu();
     Em();
-    Gs();
+    initSpineEventLogModule();
     initGapSpanModule();
     JW();
     ZW();
     pH();
-    Fa();
+    initChannelConfigLoaderModule();
     Zu();
     dt();
     hR();
@@ -86497,13 +86497,13 @@ async function scanAndSpawnDueJobs(e, t, n) {
     let i = await r.listJobs(),
         o = n?.now ?? new Date,
         s = [],
-        a = await Ggt(e, r, o, n?.bus);
+        a = await fireDueWakeRecords(e, r, o, n?.bus);
     for (let u of i) {
         let l = u.state.last_scheduled_at ?? u.state.last_run_at,
             c = u.state.last_scheduled_at ? new Date(u.state.last_scheduled_at).getTime() : Number.NaN,
             d = u.state.last_run_started_at ? new Date(u.state.last_run_started_at).getTime() : Number.NaN,
             f = !Number.isFinite(d) || Number.isFinite(c) && d < c;
-        if (r$(u.frontmatter.cron) && u.state.last_scheduled_at && f && (u.state.last_result === "unknown" || u.state.last_result === "failure") && (l = null), !Iye(u.frontmatter.cron, l, o, u.frontmatter.created_at, u.state.run_at ?? null)) continue;
+        if (isOneShotJobSchedule(u.frontmatter.cron) && u.state.last_scheduled_at && f && (u.state.last_result === "unknown" || u.state.last_result === "failure") && (l = null), !isJobScheduleDue(u.frontmatter.cron, l, o, u.frontmatter.created_at, u.state.run_at ?? null)) continue;
         if (u.state.last_result === "failure" && u.state.last_scheduled_at) {
             let v = new Date(u.state.last_scheduled_at).getTime();
             if (o.getTime() - v < 3e5) {
@@ -86582,7 +86582,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         wakesFired: a
     }
 }
-async function Ggt(e, t, n, r) {
+async function fireDueWakeRecords(e, t, n, r) {
     let i = [],
         o;
     try {
@@ -86636,7 +86636,7 @@ async function Ggt(e, t, n, r) {
 }
 var _J = O(() => {
     "use strict";
-    Gs();
+    initSpineEventLogModule();
     hR();
     Em();
     initSessionLockAndArchivingModule();
@@ -86719,7 +86719,7 @@ Vn(w0e, {
     createOutboxDeliveryManager: () => createOutboxDeliveryManager
 });
 
-function Xgt(e) {
+function isJobOrMetaOutboxRecord(e) {
     return e.channel_kind === "job" || e.channel_kind === "meta" ? !0 : e.session_key.startsWith("job:") || e.session_key.startsWith("meta:")
 }
 
@@ -86762,7 +86762,7 @@ function createOutboxDeliveryManager(e) {
             if (await yle(t, h.id)) return await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             }), !0;
-            if (Xgt(h)) {
+            if (isJobOrMetaOutboxRecord(h)) {
                 let _ = await recordOutboxDeliveryAttempt(t, h, {
                     status: "sent"
                 });
@@ -86791,7 +86791,7 @@ function createOutboxDeliveryManager(e) {
         return f.add(h), h.then(() => f.delete(h), () => f.delete(h)), h
     }
     async function m() {
-        let h = await Ile(t, i),
+        let h = await listRetryableOutboxRecords(t, i),
             g = 0;
         for (let y of h) await u(y) && (g += 1);
         return g
@@ -86826,7 +86826,7 @@ import {
 import {
     promises as Ms
 } from "node:fs";
-Gs();
+initSpineEventLogModule();
 Fd();
 Wn();
 dt();
@@ -87049,7 +87049,7 @@ function Ole(e) {
         if (e(`/${t}`) || e(`#${t}`)) throw new Error(`[injection-prompts] injection name ${JSON.stringify(t)} collides with a gateway command (or alias); injection names must not shadow commands`)
     }
 }
-Fa();
+initChannelConfigLoaderModule();
 qR();
 sU();
 var DXe = new Set(["rpc", "ws"]);
@@ -87379,7 +87379,7 @@ async function replyToGatewayCommandEvent(e, t, n, r) {
         }
     });
     let a = o.includes(":") ? o.split(":")[0] : t.source.kind,
-        u = Hl({
+        u = createOutboxRecord({
             channel_kind: a,
             session_key: o,
             in_reply_to_event_id: t.id,
@@ -87772,7 +87772,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             s = await ct(e, n),
             a = hashSessionKey(n);
         return {
-            responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${Na(e,n)}`, `- session_state: ${fs(e,n)}`, `- ingress_snapshots: ${ef.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${ef.join(e.jobsDir,"active")}`].join(`
+            responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(e,n)}`, `- session_state: ${resolveSessionStatePath(e,n)}`, `- ingress_snapshots: ${ef.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${ef.join(e.jobsDir,"active")}`].join(`
 `)
         }
     }
@@ -87797,7 +87797,7 @@ async function writeIngressSnapshot(e, t, n) {
             attachments: t.attachments ?? []
         },
         a = Date.now();
-    return await Bt(o, s), await ps(e, "ingress_snapshot_ms", Date.now() - a, {
+    return await Bt(o, s), await recordTelemetryMetric(e, "ingress_snapshot_ms", Date.now() - a, {
         eventId: n.id,
         sessionKey: t.sessionKey,
         sourceKind: t.sourceKind
@@ -87913,7 +87913,7 @@ var QV = hi(ms(), 1);
 jl();
 Wn();
 Vl();
-Fa();
+initChannelConfigLoaderModule();
 Cu();
 Ii();
 import dbe from "node:path";
@@ -88458,7 +88458,7 @@ async function writeInstanceModelAlias(e, t, n, r, i = 5) {
 }
 Ii();
 Vl();
-Fa();
+initChannelConfigLoaderModule();
 Dr();
 jV();
 xc();
@@ -88475,7 +88475,7 @@ initSessionLockAndArchivingModule();
 dt();
 var Dut = 6e4,
     Mut = 6e4,
-    jut = 8;
+    IDLE_COMPACT_FIRE_CAP_PER_SWEEP = 8;
 
 function createIdleCompactSweeper(e) {
     let {
@@ -88483,7 +88483,7 @@ function createIdleCompactSweeper(e) {
         sessionManager: n,
         sessionIndex: r,
         bus: i
-    } = e, o = e.intervalMs ?? Dut, s = e.fireCapPerSweep ?? jut, a = null, u = !1, l = null, c = !1, d = new Map;
+    } = e, o = e.intervalMs ?? Dut, s = e.fireCapPerSweep ?? IDLE_COMPACT_FIRE_CAP_PER_SWEEP, a = null, u = !1, l = null, c = !1, d = new Map;
 
     function f(y) {
         let v = y.session_key;
@@ -88813,7 +88813,7 @@ initJobManagerModule();
 mw();
 pw();
 SV();
-Gs();
+initSpineEventLogModule();
 initOutboxStoreModule();
 Em();
 Wn();
@@ -88937,7 +88937,7 @@ async function B$(e) {
     } catch {}
 }
 Dr();
-Gs();
+initSpineEventLogModule();
 import {
     promises as Hut
 } from "node:fs";
@@ -89064,7 +89064,7 @@ var zt = class extends Error {
     nyt = new Set(["rpc", "ws"]),
     ryt = new Set(["system.status", "usage.get", "job.list", "spine.tail", "system.runtime.info", "system.config"]);
 
-function k0e(e, t, n) {
+function assertWsChannelIdentityParams(e, t, n) {
     if (!n?.wsSubscriberId) return;
     let r = t.source_kind?.trim();
     if (!r) throw new zt(`${e} over WebSocket requires params.source_kind (adapter business kind, e.g. "acp")`);
@@ -89288,7 +89288,7 @@ async function $0e(e) {
         recursive: !0
     }).catch(() => null), Gf(t)
 }
-async function x0e(e) {
+async function resolveIngressWorkspace(e) {
     let {
         paths: t,
         sessionKey: n,
@@ -89376,7 +89376,7 @@ async function describeChannelInstance(e, t, n) {
         l = [];
     s() && l.push("claude"), a() && l.push("codex"), u() && l.push("grok"), l.push("pi");
     let c = l,
-        d = await ys(e.channelConfigDir, r),
+        d = await loadChannelKindConfig(e.channelConfigDir, r),
         f = {
             cwd: d?.new_session_workspace,
             runtime: d?.runtime
@@ -89415,7 +89415,7 @@ async function describeChannelInstance(e, t, n) {
         kind_defaults: f
     }
 }
-async function byt(e, t, n, r) {
+async function archiveSessionIfQuiescent(e, t, n, r) {
     let i = r.session_key.trim();
     if (i.length === 0) return {
         archived: !1,
@@ -89492,7 +89492,7 @@ async function vyt(e, t, n) {
     let [r, i] = await Promise.all([ct(e, n), Qs(e, n)]);
     MV(t, n, r, i)
 }
-async function wyt(e, t, n) {
+async function setSessionAliasAndReindex(e, t, n) {
     let r = n.session_key.trim(),
         i = await updateSessionDisplayName(e, r, n.display_name);
     if (!i) return {
@@ -89557,7 +89557,7 @@ async function scheduleSessionWakeRecord(e, t, n) {
     };
     let s = new Date;
     try {
-        fw(n.when, s)
+        parseJobRearmTime(n.when, s)
     } catch (a) {
         return {
             ok: !1,
@@ -89680,7 +89680,7 @@ async function deliverExternalSessionNotify(e, t, n, r) {
     }
 }
 async function deliverDaemonRestartWakes(e, t, n, r) {
-    let i = Hbe(r.reason, r.requested_at);
+    let i = renderRestartWakeMessage(r.reason, r.requested_at);
     for (let o of r.wake_targets ?? []) try {
         let s = await deliverExternalSessionNotify(e, t, n, {
             target: o,
@@ -89867,7 +89867,7 @@ function Iyt(e, t) {
         last_compact_at: t
     }
 }
-async function N0e(e, t, n, r) {
+async function checkChannelRuntimeRebindConflict(e, t, n, r) {
     let i = [];
     for (let o of t.list()) {
         if (o.source_channel_id !== n) continue;
@@ -89876,7 +89876,7 @@ async function N0e(e, t, n, r) {
     }
     return i.length === 0 ? null : `runtime not changed to '${r}': ${i.length} session(s) of channel ${n} hold history that only their current runtime can resume: ${i.join("; ")}. Send /clear in each of those sessions first (recover anything worth keeping from its history before that), then set the runtime again.`
 }
-async function Tyt(e, t, n) {
+async function applySessionConfigVerb(e, t, n) {
     let r = n.verb;
     if (r === "profile_get" || r === "profile_set" || r === "profile_unset" || r === "profile_alias_set" || r === "profile_alias_unset") return Oyt(e, t, n);
     let i = {},
@@ -89950,7 +89950,7 @@ async function Tyt(e, t, n) {
                 error: E.error
             }
         }
-        let b = await ys(e.channelConfigDir, v),
+        let b = await loadChannelKindConfig(e.channelConfigDir, v),
             _ = vJ(null, b),
             I = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
                 scope: "kind",
@@ -90004,7 +90004,7 @@ async function Tyt(e, t, n) {
             error: `session "${u}" has no source_channel_id (no instance descriptor to write)`
         };
         if (r === "set" && typeof i.runtime == "string") {
-            let b = await N0e(e, t, d, i.runtime);
+            let b = await checkChannelRuntimeRebindConflict(e, t, d, i.runtime);
             if (b) return {
                 ok: !1,
                 reason: "invalid",
@@ -90019,7 +90019,7 @@ async function Tyt(e, t, n) {
         }
     }
     let f = d ? await ho(e, d) : null,
-        p = f?.channel_kind ? await ys(e.channelConfigDir, f.channel_kind) : null,
+        p = f?.channel_kind ? await loadChannelKindConfig(e.channelConfigDir, f.channel_kind) : null,
         m = await si(e.channelConfigDir),
         h = vJ(f, p, m),
         g = Iyt(c?.compact_stats, c?.last_compact_at),
@@ -90215,7 +90215,7 @@ async function Oyt(e, t, n) {
                 error: S.error
             }
         }
-        let R = await ys(e.channelConfigDir, E),
+        let R = await loadChannelKindConfig(e.channelConfigDir, E),
             x = a ? await appendConfigChangedEvent(e, {
                 scope: "kind",
                 kind: E,
@@ -90364,7 +90364,7 @@ async function upsertChannelSpawnDescriptor(e, t, n) {
         reason: `Unsupported runtime "${s}". Must be one of: ${E0e.join(", ")}.`
     };
     if (o && s !== o.runtime) {
-        let p = await N0e(e, t, i, s);
+        let p = await checkChannelRuntimeRebindConflict(e, t, i, s);
         if (p) return {
             ok: !1,
             reason: p
@@ -90642,15 +90642,15 @@ Content-Length: 0\r
             } else if (S.method === "session.archive") {
                 if (!P0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await byt(u, e.sessionManager, d, k)
+                C.result = await archiveSessionIfQuiescent(u, e.sessionManager, d, k)
             } else if (S.method === "session.list") {
                 if (!C0(S.params)) throw new zt("Invalid params");
                 let k = S.params ?? {};
-                C.result = await h$(d, c, k)
+                C.result = await listSessionIndexSummaries(d, c, k)
             } else if (S.method === "session.set_alias") {
                 if (!$0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await wyt(u, d, k)
+                C.result = await setSessionAliasAndReindex(u, d, k)
             } else if (S.method === "session.notify") {
                 if (!A0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
@@ -90676,7 +90676,7 @@ Content-Length: 0\r
                         output: k
                     }
                 } else if (S.method === "notify.send") {
-                    let k = await gg(S.params, {
+                    let k = await runNotifyTool(S.params, {
                         paths: u,
                         bus: l,
                         sessionKey: A.session_key,
@@ -90687,7 +90687,7 @@ Content-Length: 0\r
                         output: k
                     }
                 } else if (S.method === "wake.set") {
-                    let k = await mg(S.params, {
+                    let k = await runRemindDuoduoTool(S.params, {
                         paths: u,
                         sessionKey: A.session_key,
                         sessionContextKind: A.session_context_kind
@@ -90696,7 +90696,7 @@ Content-Length: 0\r
                         output: k
                     }
                 } else {
-                    let k = await pg(S.params, {
+                    let k = await runViewSessionsTool(S.params, {
                         paths: u,
                         sessionKey: A.session_key,
                         getSessionStatus: N => e.sessionManager?.listActors().get(N)?.status
@@ -90720,7 +90720,7 @@ Content-Length: 0\r
             } else if (S.method === "session.config") {
                 if (!j0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await Tyt(u, d, k)
+                C.result = await applySessionConfigVerb(u, d, k)
             } else if (S.method === "channel.spawn") {
                 if (!W0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
@@ -90728,12 +90728,12 @@ Content-Length: 0\r
             } else if (S.method === "channel.ingress") {
                 if (!z0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (k0e("channel.ingress", k, D), isSessionArchiving(k.session_key)) return C.error = {
+                if (assertWsChannelIdentityParams("channel.ingress", k, D), isSessionArchiving(k.session_key)) return C.error = {
                     code: -32011,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
                 let N = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    V = await x0e({
+                    V = await resolveIngressWorkspace({
                         paths: u,
                         sessionKey: k.session_key,
                         cwdAbs: k.cwd_abs,
@@ -90783,12 +90783,12 @@ Content-Length: 0\r
             } else if (S.method === "channel.command") {
                 if (!B0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (k0e("channel.command", k, D), isSessionArchiving(k.session_key)) return C.error = {
+                if (assertWsChannelIdentityParams("channel.command", k, D), isSessionArchiving(k.session_key)) return C.error = {
                     code: -32011,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
                 let N = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    V = await x0e({
+                    V = await resolveIngressWorkspace({
                         paths: u,
                         sessionKey: k.session_key,
                         cwdAbs: k.cwd_abs,
@@ -91502,13 +91502,13 @@ async function main() {
         resolveRuntimePaths: e
     } = await Promise.resolve().then(() => (yg(), ove)), {
         initializeRuntime: t
-    } = await Promise.resolve().then(() => (sSe(), oSe)), {
+    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), oSe)), {
         createAgentSdkAdapter: n
     } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)), {
         createSessionManager: r
     } = await Promise.resolve().then(() => (c0e(), l0e)), {
         createMetaSession: i
-    } = await Promise.resolve().then(() => (p0e(), f0e)), {
+    } = await Promise.resolve().then(() => (initMetaSessionModule(), f0e)), {
         runCadenceTick: o
     } = await Promise.resolve().then(() => (_J(), _0e)), {
         createJobScheduler: s
@@ -91530,8 +91530,8 @@ async function main() {
     if (!f.acquired) throw new Error(`Runtime lock already held by pid=${f.lock?.pid??"unknown"} at ${f.lockPath}`);
     try {
         await t(d);
-        let j = await sse(d, {
-            retentionDays: ose()
+        let j = await pruneEventIdIndexByRetention(d, {
+            retentionDays: readSpineIndexRetentionDays()
         });
         te(`[pid0] spine by-id index retention: kept=${j.kept} dropped=${j.dropped} cutoff=${j.cutoff}`)
     } catch (j) {

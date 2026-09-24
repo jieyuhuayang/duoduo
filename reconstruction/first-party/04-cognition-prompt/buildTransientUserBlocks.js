@@ -40,7 +40,7 @@ function buildTransientUserBlocks(e, t, n) {
             tag: "daemon-restart-hint"
         }), d = !0), t.compactNotice && (i.push({
             type: "text",
-            text: Qdt(t.compactNotice),
+            text: renderSmartCompactNoticeBlock(t.compactNotice),
             tag: "smart-compact-notice"
         }), f = !0), t.gatewayNotice) {
         let b = ["[Session Runtime Notice]", "This action was executed by a gateway command outside the model context.", "Treat it as already applied runtime state. Do not repeat it unless explicitly requested.", ...t.gatewayNotice.command === t.gatewayNotice.command_name ? [`- command: ${t.gatewayNotice.command}`] : [`- command: ${t.gatewayNotice.command}`, `- command_name: ${t.gatewayNotice.command_name}`], `- result: ${t.gatewayNotice.result_summary}`, `- applied_at: ${t.gatewayNotice.created_at}`, `- current_cwd: ${n.cwd}`].join(`
@@ -57,7 +57,7 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
             tag: "gateway-notice"
         }), o = !0
     }
-    let m = eft(t.timeGap);
+    let m = renderTimeGapContextBlock(t.timeGap);
     m && (i.push({
         type: "text",
         text: m,
@@ -82,11 +82,11 @@ ${y}
         tag: "job-receipts"
     }), c = !0), t.jobTick && (i.push({
         type: "text",
-        text: nft(t.jobTick),
+        text: renderJobTickBlock(t.jobTick),
         tag: "job-tick"
     }), l = !0), t.boardUpdated && (i.push({
         type: "text",
-        text: PSe(t.boardUpdated.boardPath),
+        text: renderBoardUpdatedHint(t.boardUpdated.boardPath),
         tag: "board-updated"
     }), p = !0), i.push({
         type: "text",

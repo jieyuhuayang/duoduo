@@ -50,7 +50,7 @@ async function readOutboxRecordsPastCursor(e) {
         let f = await E$(e);
         return u = f.strategy, f.records
     } finally {
-        await ps(n, "replay_scan_ms", Date.now() - t, {
+        await recordTelemetryMetric(n, "replay_scan_ms", Date.now() - t, {
             sessionKey: r,
             consumerId: i,
             strategy: u,

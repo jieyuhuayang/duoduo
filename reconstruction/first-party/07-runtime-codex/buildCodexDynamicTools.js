@@ -14,7 +14,7 @@ function buildCodexDynamicTools(e) {
         t.push({
             name: ww,
             description: n ? f$() : d$(),
-            inputSchema: Xg(o),
+            inputSchema: buildCodexStringInputSchema(o),
             handler: async s => {
                 let a = await runManageJobTool(s, {
                     paths: e.paths,
@@ -33,9 +33,9 @@ function buildCodexDynamicTools(e) {
     return t.push({
         name: kw,
         description: g$,
-        inputSchema: Xg(y$),
+        inputSchema: buildCodexStringInputSchema(y$),
         handler: async o => {
-            let s = await pg(o, {
+            let s = await runViewSessionsTool(o, {
                 paths: e.paths,
                 sessionKey: e.sessionKey,
                 getSessionStatus: e.getSessionStatus
@@ -47,16 +47,16 @@ function buildCodexDynamicTools(e) {
         }
     }), t.push({
         name: Ow,
-        description: A$({
+        description: renderNotifyToolDescription({
             sessionKey: e.sessionKey,
             sessionContextKind: e.sessionContextKind
         }),
-        inputSchema: Xg(N$({
+        inputSchema: buildCodexStringInputSchema(buildNotifyInputSchema({
             sessionKey: e.sessionKey,
             sessionContextKind: e.sessionContextKind
         })),
         handler: async o => {
-            let s = await gg(o, {
+            let s = await runNotifyTool(o, {
                 paths: e.paths,
                 bus: e.bus,
                 sessionKey: e.sessionKey,
@@ -72,9 +72,9 @@ function buildCodexDynamicTools(e) {
     }), e.sessionContextKind === "foreground" && (t.push({
         name: qf,
         description: PO,
-        inputSchema: Xg(CO),
+        inputSchema: buildCodexStringInputSchema(CO),
         handler: async o => {
-            let s = await Pg(o, {
+            let s = await runQueueOutboundAttachmentTool(o, {
                 paths: e.paths,
                 sessionKey: e.sessionKey
             });
@@ -86,7 +86,7 @@ function buildCodexDynamicTools(e) {
     }), t.push({
         name: ws,
         description: whe,
-        inputSchema: Xg(lC),
+        inputSchema: buildCodexStringInputSchema(lC),
         handler: async o => {
             let s = await runSkipTool(o, {
                 paths: e.paths,
@@ -101,9 +101,9 @@ function buildCodexDynamicTools(e) {
     })), i || t.push({
         name: Ew,
         description: n ? v$ : _$,
-        inputSchema: Xg(n ? w$ : b$),
+        inputSchema: buildCodexStringInputSchema(n ? w$ : b$),
         handler: async o => {
-            let s = await mg(o, {
+            let s = await runRemindDuoduoTool(o, {
                 paths: e.paths,
                 sessionKey: e.sessionKey,
                 sessionContextKind: e.sessionContextKind

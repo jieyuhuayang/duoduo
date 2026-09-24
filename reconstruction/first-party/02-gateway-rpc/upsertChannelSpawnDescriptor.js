@@ -26,7 +26,7 @@ async function upsertChannelSpawnDescriptor(e, t, n) {
         reason: `Unsupported runtime "${s}". Must be one of: ${E0e.join(", ")}.`
     };
     if (o && s !== o.runtime) {
-        let p = await N0e(e, t, i, s);
+        let p = await checkChannelRuntimeRebindConflict(e, t, i, s);
         if (p) return {
             ok: !1,
             reason: p

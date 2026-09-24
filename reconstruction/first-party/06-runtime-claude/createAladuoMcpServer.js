@@ -41,7 +41,7 @@ function createAladuoMcpServer(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await mg(s, {
+            text: await runRemindDuoduoTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey,
                 sessionContextKind: t.sessionContextKind
@@ -55,7 +55,7 @@ function createAladuoMcpServer(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await pg(s, {
+            text: await runViewSessionsTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey,
                 getSessionStatus: t.getSessionStatus
@@ -69,7 +69,7 @@ function createAladuoMcpServer(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await Pg(s, {
+            text: await runQueueOutboundAttachmentTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey
             })
@@ -90,17 +90,17 @@ function createAladuoMcpServer(e, t = {}) {
         }]
     }))), n.registerTool(Ow, {
         title: Ow,
-        description: A$({
+        description: renderNotifyToolDescription({
             sessionKey: t.sessionKey,
             sessionContextKind: t.sessionContextKind
         }),
-        inputSchema: N$({
+        inputSchema: buildNotifyInputSchema({
             sessionKey: t.sessionKey,
             sessionContextKind: t.sessionContextKind
         }),
         _meta: r
     }, async s => {
-        let a = await gg(s, {
+        let a = await runNotifyTool(s, {
             paths: e,
             bus: t.bus,
             sessionKey: t.sessionKey,

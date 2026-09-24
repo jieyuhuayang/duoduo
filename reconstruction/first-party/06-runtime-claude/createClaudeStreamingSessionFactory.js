@@ -210,7 +210,7 @@ function createClaudeStreamingSessionFactory(e) {
                             if (ne && (u.pendingSteer = null, !ne.settled)) {
                                 ne.settled = !0;
                                 try {
-                                    await Ao(t, u.sessionKey, ne.eventIds)
+                                    await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, ne.eventIds)
                                 } catch (fe) {
                                     te("[session-manager] steer hook markDone error", {
                                         sessionKey: u.sessionKey,
@@ -273,7 +273,7 @@ function createClaudeStreamingSessionFactory(e) {
                             model: ne ?? "(reset to default)",
                             running_model: l.model ?? "(runtime default)",
                             error: ae instanceof Error ? ae.message : String(ae)
-                        }), ne !== null && NA(u, {
+                        }), ne !== null && flagStreamRecreationOnModelReject(u, {
                             model: ne,
                             requirementKind: Ie,
                             reason: "spawn-reconcile"
@@ -351,7 +351,7 @@ function createClaudeStreamingSessionFactory(e) {
                         }
                         let fe = [...ne, ...J.processedEventIds];
                         if (fe.length > 0) try {
-                            await Ao(t, u.sessionKey, fe)
+                            await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, fe)
                         } catch (j) {
                             te("[session-manager] steer fallback closed markDone error", {
                                 sessionKey: u.sessionKey,
@@ -452,7 +452,7 @@ function createClaudeStreamingSessionFactory(e) {
                             P = j.subtype === "success" && !Ee && typeof j.result == "string" && j.result.length > 0 ? j.result : void 0;
                         if (P !== void 0) {
                             let K = await readPendingOutboundAttachments(t, u.sessionKey).catch(() => {}),
-                                H = Hl({
+                                H = createOutboxRecord({
                                     channel_kind: OS(u.sessionKey),
                                     session_key: u.sessionKey,
                                     payload: {

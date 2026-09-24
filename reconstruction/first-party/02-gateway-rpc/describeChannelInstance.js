@@ -20,7 +20,7 @@ async function describeChannelInstance(e, t, n) {
         l = [];
     s() && l.push("claude"), a() && l.push("codex"), u() && l.push("grok"), l.push("pi");
     let c = l,
-        d = await ys(e.channelConfigDir, r),
+        d = await loadChannelKindConfig(e.channelConfigDir, r),
         f = {
             cwd: d?.new_session_workspace,
             runtime: d?.runtime

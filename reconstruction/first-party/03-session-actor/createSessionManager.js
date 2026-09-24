@@ -19,7 +19,7 @@ function createSessionManager(e) {
         paths: t,
         bus: n,
         jobManager: a
-    }), d = e.codexAvailability ?? checkCodexAvailability, f = e.codexAdapterFactory ?? createCodexAppServerAdapter, p = memoizeAvailabilityProbeUntilOk(d), m = e.grokAvailability ?? checkGrokAvailability, h = e.grokAdapterFactory ?? createGrokAcpAdapter, g = e.piAdapterFactory ?? TO, y = memoizeAvailabilityProbeUntilOk(m), v = w => w === "codex" ? p() : w === "grok" ? y() : void 0, {
+    }), d = e.codexAvailability ?? checkCodexAvailability, f = e.codexAdapterFactory ?? createCodexAppServerAdapter, p = memoizeAvailabilityProbeUntilOk(d), m = e.grokAvailability ?? checkGrokAvailability, h = e.grokAdapterFactory ?? createGrokAcpAdapter, g = e.piAdapterFactory ?? createPiWorkerAdapter, y = memoizeAvailabilityProbeUntilOk(m), v = w => w === "codex" ? p() : w === "grok" ? y() : void 0, {
         toModelOptions: b,
         resolveRuntimeForModelCommand: _,
         resolveModelProfileScope: I,
@@ -37,7 +37,7 @@ function createSessionManager(e) {
     async function x(w, P) {
         let K = P.trim();
         if (!K) return;
-        let H = Hl({
+        let H = createOutboxRecord({
             channel_kind: OS(w),
             session_key: w,
             payload: {
@@ -123,7 +123,7 @@ function createSessionManager(e) {
                 jobId: L
             })
         } else {
-            let L = GW(K);
+            let L = inferActorOriginFromSessionKey(K);
             ae(K, L ?? void 0)
         }
     }
@@ -180,7 +180,7 @@ function createSessionManager(e) {
         } : w.origin !== "channel" || !s.createStreamingQuery ? s : (w.streamingAdapter || (w.streamingAdapter = {
             run: async P => {
                 let K = await R(w, P),
-                    H = i0e(w, P);
+                    H = prependPendingInterruptMarker(w, P);
                 return await new Promise((L, G) => {
                     if (K.closed) {
                         G(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"));
@@ -304,7 +304,7 @@ function createSessionManager(e) {
             });
             return
         }
-        let ee = GW(w);
+        let ee = inferActorOriginFromSessionKey(w);
         ee ? (ot("[session-manager] wake starting actor with inferred origin", {
             sessionKey: w,
             ...ee
@@ -435,7 +435,7 @@ function createSessionManager(e) {
                         plane: "work",
                         permission_profile: "work_default"
                     })), It) {
-                    Oe = AS(It.frontmatter.cron), Gt = It.frontmatter.cron;
+                    Oe = classifyJobScheduleType(It.frontmatter.cron), Gt = It.frontmatter.cron;
                     let tn = It.frontmatter.stateless === !0;
                     if (tn && It.frontmatter.cron === "keepalive") throw new Error(NV);
                     ke = tn, w.jobStateless = ke, qe = It.frontmatter.model, pt = It.frontmatter.effort, Cn = {
@@ -465,7 +465,7 @@ function createSessionManager(e) {
                 if (tn) {
                     let Ht = await ho(t, tn).catch(() => null),
                         pi = Ht?.channel_kind,
-                        Ke = pi ? await ys(t.channelConfigDir, pi).catch(() => null) : null,
+                        Ke = pi ? await loadChannelKindConfig(t.channelConfigDir, pi).catch(() => null) : null,
                         Di = Ht?.runtime ?? Ke?.runtime ?? void 0 ?? resolveDefaultRuntime(),
                         Cr = Ht?.runtime ? "explicit" : Ke?.runtime ? "inherited" : "default";
                     w.runtime = Di;
@@ -592,7 +592,7 @@ function createSessionManager(e) {
                                     })
                                 }
                                 if (mn.length === 0) {
-                                    cr.length > 0 && await Ao(t, P, cr);
+                                    cr.length > 0 && await deleteMailboxPendingItemsByEventIds(t, P, cr);
                                     return
                                 }
                                 let vn = await prepareDrainTurnContext(t, P, {
@@ -629,7 +629,7 @@ function createSessionManager(e) {
                                         let wr = vn.batchEventIds.filter(mi => !w.inflightEventIds.has(mi));
                                         for (let mi of wr) w.inflightEventIds.add(mi);
                                         if (await yt(mt, Xe, vn.attachments).catch(() => !1)) {
-                                            await Ao(t, P, Ro);
+                                            await deleteMailboxPendingItemsByEventIds(t, P, Ro);
                                             for (let mi of wr) w.inflightEventIds.delete(mi);
                                             te("[session-manager] admission callback: codex turn/steer landed", {
                                                 sessionKey: P,
@@ -697,7 +697,7 @@ ${Zo}`, yt.eventIds.push(...Ro), yt.claimedEventIds.push(...mt), yt.requeueLines
                                                 }
                                                 let dr = [...Rt, ...Xe.processedEventIds];
                                                 if (dr.length > 0) try {
-                                                    await Ao(t, P, dr)
+                                                    await deleteMailboxPendingItemsByEventIds(t, P, dr)
                                                 } catch (Io) {
                                                     te("[session-manager] steer fallback markDone error", {
                                                         sessionKey: P,
@@ -1616,7 +1616,7 @@ ${Zo}`, yt.eventIds.push(...Ro), yt.claimedEventIds.push(...mt), yt.requeueLines
                         source: De.source
                     })).sort((Je, De) => Je.tier.localeCompare(De.tier));
                     if (Be.length > 0 && (G.aliases = Be), !G.storedModel && !G.configModel) {
-                        let Je = await Eg({
+                        let Je = await resolveClaudeContextRequirement({
                                 model: null,
                                 cwd: buildSessionInfoFromState(t, w, H ?? void 0).cwd,
                                 daemonEnv: process.env,
@@ -1761,7 +1761,7 @@ ${Zo}`, yt.eventIds.push(...Ro), yt.claimedEventIds.push(...mt), yt.requeueLines
                 model: P ?? null,
                 model_runtime: P !== null ? "claude" : null,
                 pending_model_fork: null
-            }), Be && H && NA(H, {
+            }), Be && H && flagStreamRecreationOnModelReject(H, {
                 model: Be,
                 requirementKind: we.requirementKind,
                 reason: "live-command"

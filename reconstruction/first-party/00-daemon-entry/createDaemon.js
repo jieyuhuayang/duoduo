@@ -180,15 +180,15 @@ Content-Length: 0\r
             } else if (S.method === "session.archive") {
                 if (!P0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await byt(u, e.sessionManager, d, k)
+                C.result = await archiveSessionIfQuiescent(u, e.sessionManager, d, k)
             } else if (S.method === "session.list") {
                 if (!C0(S.params)) throw new zt("Invalid params");
                 let k = S.params ?? {};
-                C.result = await h$(d, c, k)
+                C.result = await listSessionIndexSummaries(d, c, k)
             } else if (S.method === "session.set_alias") {
                 if (!$0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await wyt(u, d, k)
+                C.result = await setSessionAliasAndReindex(u, d, k)
             } else if (S.method === "session.notify") {
                 if (!A0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
@@ -214,7 +214,7 @@ Content-Length: 0\r
                         output: k
                     }
                 } else if (S.method === "notify.send") {
-                    let k = await gg(S.params, {
+                    let k = await runNotifyTool(S.params, {
                         paths: u,
                         bus: l,
                         sessionKey: A.session_key,
@@ -225,7 +225,7 @@ Content-Length: 0\r
                         output: k
                     }
                 } else if (S.method === "wake.set") {
-                    let k = await mg(S.params, {
+                    let k = await runRemindDuoduoTool(S.params, {
                         paths: u,
                         sessionKey: A.session_key,
                         sessionContextKind: A.session_context_kind
@@ -234,7 +234,7 @@ Content-Length: 0\r
                         output: k
                     }
                 } else {
-                    let k = await pg(S.params, {
+                    let k = await runViewSessionsTool(S.params, {
                         paths: u,
                         sessionKey: A.session_key,
                         getSessionStatus: N => e.sessionManager?.listActors().get(N)?.status
@@ -258,7 +258,7 @@ Content-Length: 0\r
             } else if (S.method === "session.config") {
                 if (!j0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await Tyt(u, d, k)
+                C.result = await applySessionConfigVerb(u, d, k)
             } else if (S.method === "channel.spawn") {
                 if (!W0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
@@ -266,12 +266,12 @@ Content-Length: 0\r
             } else if (S.method === "channel.ingress") {
                 if (!z0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (k0e("channel.ingress", k, D), isSessionArchiving(k.session_key)) return C.error = {
+                if (assertWsChannelIdentityParams("channel.ingress", k, D), isSessionArchiving(k.session_key)) return C.error = {
                     code: -32011,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
                 let N = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    V = await x0e({
+                    V = await resolveIngressWorkspace({
                         paths: u,
                         sessionKey: k.session_key,
                         cwdAbs: k.cwd_abs,
@@ -321,12 +321,12 @@ Content-Length: 0\r
             } else if (S.method === "channel.command") {
                 if (!B0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (k0e("channel.command", k, D), isSessionArchiving(k.session_key)) return C.error = {
+                if (assertWsChannelIdentityParams("channel.command", k, D), isSessionArchiving(k.session_key)) return C.error = {
                     code: -32011,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
                 let N = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    V = await x0e({
+                    V = await resolveIngressWorkspace({
                         paths: u,
                         sessionKey: k.session_key,
                         cwdAbs: k.cwd_abs,

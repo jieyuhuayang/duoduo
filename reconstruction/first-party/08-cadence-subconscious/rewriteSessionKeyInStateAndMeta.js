@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function rewriteSessionKeyInStateAndMeta(e, t, n) {
-    let r = fs(e, t),
-        i = Na(e, t),
+    let r = resolveSessionStatePath(e, t),
+        i = resolveSessionMetaPath(e, t),
         o = await Vwe(r),
         s = await Vwe(i),
         a = o === null ? null : JSON.parse(o),

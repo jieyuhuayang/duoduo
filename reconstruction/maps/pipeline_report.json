@@ -12,13 +12,13 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 360,
-      "renameEntries": 472,
-      "renamesApplied": 472,
-      "referencesRewritten": 1784,
+      "inferredNames": 489,
+      "renameEntries": 601,
+      "renamesApplied": 601,
+      "referencesRewritten": 2183,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 472
+      "indexedSymbols": 601
     },
     "cli": {
       "prettyLines": 75391,
@@ -49,21 +49,21 @@
     }
   },
   "firstPartyTree": {
-    "files": 472,
+    "files": 601,
     "subsystems": 12,
     "bySubsystem": {
-      "00-daemon-entry": 16,
-      "01-spine-wal": 27,
-      "02-gateway-rpc": 55,
-      "03-session-actor": 69,
-      "04-cognition-prompt": 19,
-      "05-drain-turn": 44,
-      "06-runtime-claude": 34,
-      "07-runtime-codex": 23,
-      "08-cadence-subconscious": 54,
-      "09-memory": 71,
-      "10-runtime-host": 42,
-      "11-runtime-grok": 18
+      "00-daemon-entry": 17,
+      "01-spine-wal": 31,
+      "02-gateway-rpc": 63,
+      "03-session-actor": 88,
+      "04-cognition-prompt": 33,
+      "05-drain-turn": 54,
+      "06-runtime-claude": 38,
+      "07-runtime-codex": 26,
+      "08-cadence-subconscious": 76,
+      "09-memory": 98,
+      "10-runtime-host": 58,
+      "11-runtime-grok": 19
     }
   },
   "verdicts": {
@@ -91,6 +91,6 @@
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 512
+    "firstPartySymbols": 641
   }
 }

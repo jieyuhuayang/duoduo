@@ -11,7 +11,7 @@ function createJobSessionFinalizer(e) {
         jobManager: r
     } = e;
     async function i(f) {
-        return new Set(await ob(rb(t, f)))
+        return new Set(await ob(resolveSessionInboxDir(t, f)))
     }
     async function o(f, p) {
         let m;
@@ -197,7 +197,7 @@ function createJobSessionFinalizer(e) {
                         job_id: m,
                         result_summary: $,
                         result_text: I?.slice(0, 2e3),
-                        schedule_type: AS(x)
+                        schedule_type: classifyJobScheduleType(x)
                     }), await c({
                         jobId: m,
                         sessionKey: h,
@@ -240,7 +240,7 @@ function createJobSessionFinalizer(e) {
         }), await d(h, m, "job.fail", {
             job_id: p,
             error: y,
-            schedule_type: AS(g)
+            schedule_type: classifyJobScheduleType(g)
         })
     }
     async function c(f) {
@@ -250,7 +250,7 @@ function createJobSessionFinalizer(e) {
             cron: h,
             state: g
         } = f;
-        if (!_Ee(h)) return !1;
+        if (!isAutoArchivedJobSchedule(h)) return !1;
         switch (g.kind) {
             case "gone":
                 return te("[session-manager] skip auto-archive: job already gone (archived mid-run)", {

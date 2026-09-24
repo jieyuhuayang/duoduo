@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function markTurnSkippedFromSkipRecord(e, t, n, r) {
-    Yw(n) || r.skipped || await uft(e, t, r.turnStartedAt) && (r.skipped = !0)
+    isClaudeRuntimeOrDefault(n) || r.skipped || await hasSkipRewindRecordSince(e, t, r.turnStartedAt) && (r.skipped = !0)
 }

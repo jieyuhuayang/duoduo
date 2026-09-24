@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function mergeInboxIntoMailbox(e, t) {
-    let n = rb(e, t),
+    let n = resolveSessionInboxDir(e, t),
         r;
     try {
         r = (await ob(n)).sort()

@@ -24,7 +24,7 @@ async function replyToGatewayCommandEvent(e, t, n, r) {
         }
     });
     let a = o.includes(":") ? o.split(":")[0] : t.source.kind,
-        u = Hl({
+        u = createOutboxRecord({
             channel_kind: a,
             session_key: o,
             in_reply_to_event_id: t.id,

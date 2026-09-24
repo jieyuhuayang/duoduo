@@ -15,7 +15,7 @@ function createCodexAppServerAdapter(e, t) {
         s = null,
         a = () => {
             let f = s;
-            return s = null, f ? og(f.reason, f.toolInFlight) : null
+            return s = null, f ? selectInterruptMarkerText(f.reason, f.toolInFlight) : null
         },
         u = null,
         l = f => (f === ws && u && (u.skipObserved = !0), u?.turnId),
@@ -84,7 +84,7 @@ function createCodexAppServerAdapter(e, t) {
             let h = extractSystemPromptAppend(f.systemPrompt),
                 g = buildBaseInstructions(t ?? {}, h),
                 y = buildDeveloperInstructions(t ?? {}, n.dynamicTools?.map(H => H.name)),
-                v = Nst(f.permissionMode, n.sandbox);
+                v = resolveCodexSandboxForPermissionMode(f.permissionMode, n.sandbox);
             f.disallowedTools?.length && Re("[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled", {
                 disallowedTools: f.disallowedTools
             });

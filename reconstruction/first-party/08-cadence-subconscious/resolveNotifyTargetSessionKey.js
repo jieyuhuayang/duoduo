@@ -11,8 +11,8 @@ async function resolveNotifyTargetSessionKey(e, t) {
     if (!n) {
         let l = await j_e(e, i),
             c = await L_e(e, i, l),
-            d = q_e(void 0, r, c, l);
-        throw new Error(["target_session_key is required in this session.", "The target must be a foreground working session.", ...B_e(d)].join(`
+            d = groupNotifyTargetCandidates(void 0, r, c, l);
+        throw new Error(["target_session_key is required in this session.", "The target must be a foreground working session.", ...renderNotifyTargetCandidateLines(d)].join(`
 `))
     }
     if (n in r) return n;
@@ -32,7 +32,7 @@ async function resolveNotifyTargetSessionKey(e, t) {
         throw new Error([`Ambiguous target alias: ${a.length} sessions share the display name "${n}".`, "Retry with the full session_key of the one you mean (most recent activity first):", ...l.map(c => c.lastEventAt ? `- ${c.sessionKey} (last activity ${c.lastEventAt})` : `- ${c.sessionKey} (never drained; session state written ${c.sortKey||"unknown"})`)].join(`
 `))
     }
-    let u = q_e(n, r, s, o);
-    throw new Error([`Target session not found: ${n}`, "The target must be a persisted session key or a session display-name alias (prefer active foreground sessions).", ...B_e(u)].join(`
+    let u = groupNotifyTargetCandidates(n, r, s, o);
+    throw new Error([`Target session not found: ${n}`, "The target must be a persisted session key or a session display-name alias (prefer active foreground sessions).", ...renderNotifyTargetCandidateLines(u)].join(`
 `))
 }

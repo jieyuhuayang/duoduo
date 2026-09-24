@@ -8,7 +8,7 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
     "use strict";
     Fl();
     dt();
-    hw();
+    initInterruptMarkerTextModule();
     initSkipToolModule();
     ALADUO_TOOL_NAMESPACE = "aladuo", Pst = "features.code_mode.direct_only_tool_namespaces";
     Ast = {

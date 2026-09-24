@@ -10,11 +10,11 @@ var vH, wH, _H, Ydt, tft, lft, bH, wft, Sft, initMailboxDrainRunnerModule = O(()
     Wr();
     Wn();
     Fd();
-    Gs();
+    initSpineEventLogModule();
     initOutboxStoreModule();
     initAgentSdkAdapterModule();
     Zu();
-    Fa();
+    initChannelConfigLoaderModule();
     Yu();
     pH();
     SSe();

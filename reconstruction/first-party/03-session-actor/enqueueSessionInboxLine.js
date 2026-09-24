@@ -6,7 +6,7 @@
 
 async function enqueueSessionInboxLine(e, t, n, r = new Date) {
     return assertSessionNotArchiving(t), runWithSessionMutex(t, async () => {
-        let i = rb(e, t);
+        let i = resolveSessionInboxDir(e, t);
         await $e(i);
         let s = `${r.toISOString().replace(/[:.]/g,"-")}_${gse()}.pending`,
             a = Ys.join(i, s),

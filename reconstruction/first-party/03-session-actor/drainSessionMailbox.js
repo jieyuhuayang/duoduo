@@ -6,7 +6,7 @@
 
 async function drainSessionMailbox(e, t, n = {}) {
     let r = hashSessionKey(t);
-    if (!(await gSe(e, r)).acquired) return {
+    if (!(await acquireSessionDrainLock(e, r)).acquired) return {
         processed: 0,
         skipped: 0,
         lockAcquired: !1,
@@ -15,7 +15,7 @@ async function drainSessionMailbox(e, t, n = {}) {
     let o = n.lockHeartbeatIntervalMs ?? 3e4,
         s = setInterval(async () => {
             try {
-                await ySe(e, r)
+                await refreshSessionDrainLockHeartbeat(e, r)
             } catch {}
         }, o);
     s.unref?.(), po("drain_started", t, {
@@ -78,7 +78,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             E = f.cache_creation_input_tokens ?? 0,
             R = f.output_tokens ?? 0,
             x = f.total_cost_usd ?? 0,
-            S = kSe({
+            S = normalizeInputTokenTotals({
                 protocol: f.protocol,
                 input_tokens: _ - v.input_tokens,
                 cache_read_input_tokens: I - v.cache_read,
@@ -125,7 +125,7 @@ async function drainSessionMailbox(e, t, n = {}) {
         if (_.some(de => !de.eventId)) {
             let de = await yse(e, t);
             if (de.removed > 0) {
-                await cb(e, t, `orphan_cleanup=${de.removed}`);
+                await appendSessionMailboxNote(e, t, `orphan_cleanup=${de.removed}`);
                 let me = await listMailboxPendingItems(e, t);
                 if (me.length === 0) return {
                     processed: 0,
@@ -163,7 +163,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             ce = !1,
             J, ne, fe, j = [],
             ue = async (de, me) => {
-                de.length !== 0 && await Ao(e, t, de).catch(Y => {
+                de.length !== 0 && await deleteMailboxPendingItemsByEventIds(e, t, de).catch(Y => {
                     Z("[runner] eager markDone failed (will retry at drain end)", {
                         sessionKey: t,
                         stage: me,
@@ -178,7 +178,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 return k.push(...de), de
             }, ae = (de, me) => {
                 de && (J = me ?? de.payload.text, ne = de.id, fe = de)
-            }, M = async () => (await Ao(e, t, k), await cb(e, t, `processed=${k.length} skipped=${N} cancelled=true`), await y({
+            }, M = async () => (await deleteMailboxPendingItemsByEventIds(e, t, k), await appendSessionMailboxNote(e, t, `processed=${k.length} skipped=${N} cancelled=true`), await y({
                 cancelled: !0,
                 processedCount: k.length,
                 skippedCount: N,
@@ -194,7 +194,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 lastOutboxId: ne,
                 lastOutboxRecord: fe,
                 outboxRecords: j
-            }), z = await runTimedDrainPhase(m, "session_state_ms", async () => ct(e, t)), U = buildSessionInfoFromState(e, t, z ?? void 0), X = n.jobContext?.stateless === !0, Ee = z?.pending_gateway_notice, be = z?.pending_interrupted_context, w = z?.pending_skip_rewind, P = !1, K = !1, H = !1, L = !1, G = Xdt(z), ee = !1, we = decideRestartHintInjection({
+            }), z = await runTimedDrainPhase(m, "session_state_ms", async () => ct(e, t)), U = buildSessionInfoFromState(e, t, z ?? void 0), X = n.jobContext?.stateless === !0, Ee = z?.pending_gateway_notice, be = z?.pending_interrupted_context, w = z?.pending_skip_rewind, P = !1, K = !1, H = !1, L = !1, G = resolvePendingCompactNotice(z), ee = !1, we = decideRestartHintInjection({
                 currentDaemonStartedAt: hH,
                 sessionKey: t,
                 lastEventAt: z?.last_event_at,
@@ -209,7 +209,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             ve = we.writeLastSeenOnInjectSuccess,
             Be = !1,
             at = classifySessionKeyOrUnknown(t) === "channel" ? n.boardHash : void 0,
-            Je = TSe({
+            Je = decideBoardUpdatedInjection({
                 currentBoardHash: at,
                 lastSeenBoardHash: z?.last_seen_board_hash
             });
@@ -288,7 +288,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         }), fn.item.eventId && k.push(fn.item.eventId);
                         continue
                     }
-                    let Ve = await $c(e, t, {
+                    let Ve = await emitDrainOutputRecords(e, t, {
                         item: fn.item,
                         event: fn.event,
                         outputText: me,
@@ -296,7 +296,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     });
                     j.push(...Ve.records), ae(Ve.primaryRecord), fn.item.eventId && k.push(fn.item.eventId)
                 }
-                return await Ao(e, t, k), await cb(e, t, `processed=${k.length} skipped=${N} ${un}`), {
+                return await deleteMailboxPendingItemsByEventIds(e, t, k), await appendSessionMailboxNote(e, t, `processed=${k.length} skipped=${N} ${un}`), {
                     processed: k.length,
                     skipped: N,
                     lockAcquired: !0,
@@ -448,7 +448,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     kindlessConfig: mn,
                     runtime: n.runtime
                 }),
-                Ro = await jSe(e, t, {
+                Ro = await resolveDrainContextProfileOrRefuse(e, t, {
                     runtime: n.runtime,
                     model: cr.model,
                     modelOrigin: cr.configLayer,
@@ -549,7 +549,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             });
             else {
                 let mt = qSe(me.event, Nn),
-                    Xe = await runTimedDrainPhase(m, "outbox_emit_ms", async () => $c(e, t, {
+                    Xe = await runTimedDrainPhase(m, "outbox_emit_ms", async () => emitDrainOutputRecords(e, t, {
                         item: me.item,
                         event: me.event,
                         outputText: mt,
@@ -654,13 +654,13 @@ async function drainSessionMailbox(e, t, n = {}) {
                         if (classifySessionKeyOrUnknown(t) === "channel") Et = !0;
                         else {
                             let qc = "ℹ️ /compact is only available in interactive sessions.",
-                                Qf = await $c(e, t, {
+                                Qf = await emitDrainOutputRecords(e, t, {
                                     item: Y.item,
                                     event: Y.event,
                                     outputText: qc,
                                     sdkSessionId: de
                                 });
-                            j.push(...Qf.records), ae(Qf.primaryRecord, qc), Y.item.eventId && (k.push(Y.item.eventId), await Ao(e, t, [Y.item.eventId]).catch(ep => {
+                            j.push(...Qf.records), ae(Qf.primaryRecord, qc), Y.item.eventId && (k.push(Y.item.eventId), await deleteMailboxPendingItemsByEventIds(e, t, [Y.item.eventId]).catch(ep => {
                                 Z("[runner] history-control mailbox finalize failed (will be retried at drain end)", {
                                     sessionKey: t,
                                     eventId: Y.item.eventId,
@@ -680,7 +680,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             cmdToken: ou
                         });
                         if (!(ou === "/compact" && Y.event.source?.name === "idle-compact")) {
-                            let ep = await $c(e, t, {
+                            let ep = await emitDrainOutputRecords(e, t, {
                                 item: Y.item,
                                 event: Y.event,
                                 outputText: qc,
@@ -692,10 +692,10 @@ async function drainSessionMailbox(e, t, n = {}) {
                         continue
                     }
                 }
-                let fn = Di(ake(e, t, Y.event.session_key ?? t, n.onExecutionEvent, Y.event.id)),
+                let fn = Di(createDrainExecutionEventRecorder(e, t, Y.event.session_key ?? t, n.onExecutionEvent, Y.event.id)),
                     Ve = eo(Y.event.payload) ? Y.event.payload : void 0,
                     pn = kH(Y.event.payload),
-                    tt = applyJobSdkConfigOverride(await runTimedDrainPhase(m, "effective_config_ms", async () => YV(e, Y.event)), n.jobContext?.sdkConfig),
+                    tt = applyJobSdkConfigOverride(await runTimedDrainPhase(m, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(e, Y.event)), n.jobContext?.sdkConfig),
                     Xn = await DSe(e, tt, n.jobContext?.sdkConfig),
                     Yr = resolveTurnModelWithLayer({
                         jobModel: n.jobContext?.model,
@@ -711,7 +711,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         kindlessConfig: Xn,
                         runtime: n.runtime
                     }),
-                    cr = await jSe(e, t, {
+                    cr = await resolveDrainContextProfileOrRefuse(e, t, {
                         runtime: n.runtime,
                         model: Yr.model,
                         modelOrigin: Yr.configLayer,
@@ -847,7 +847,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 }
                 if (await $n(wr), !$r.skipped && !Et) {
                     let ht = qSe(Y.event, $r),
-                        Or = await runTimedDrainPhase(m, "outbox_emit_ms", async () => $c(e, t, {
+                        Or = await runTimedDrainPhase(m, "outbox_emit_ms", async () => emitDrainOutputRecords(e, t, {
                             item: Y.item,
                             event: Y.event,
                             outputText: ht,
@@ -878,7 +878,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             origin: ny ? "idle-compact" : ht.trigger
                         }, ht.trigger === "manual" && !ny) {
                         let Or = bft(ht),
-                            ga = await $c(e, t, {
+                            ga = await emitDrainOutputRecords(e, t, {
                                 item: Y.item,
                                 event: Y.event,
                                 outputText: Or,
@@ -903,7 +903,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     });
                     else {
                         let ht = "ℹ️ Nothing to compact.",
-                            Or = await $c(e, t, {
+                            Or = await emitDrainOutputRecords(e, t, {
                                 item: Y.item,
                                 event: Y.event,
                                 outputText: ht,
@@ -965,9 +965,9 @@ async function drainSessionMailbox(e, t, n = {}) {
             }
         }
         return await runTimedDrainPhase(m, "mailbox_finalize_ms", async () => {
-            if (await Ao(e, t, k), k.length > 0 || N > 0) {
+            if (await deleteMailboxPendingItemsByEventIds(e, t, k), k.length > 0 || N > 0) {
                 let de = `processed=${k.length} skipped=${N}${ne?` outbox=${ne}`:""}`;
-                await cb(e, t, de)
+                await appendSessionMailboxNote(e, t, de)
             }
         }), await y({
             cancelled: qe,
@@ -988,6 +988,6 @@ async function drainSessionMailbox(e, t, n = {}) {
             outboxRecords: j
         }
     } finally {
-        clearInterval(s), await _Se(e, r)
+        clearInterval(s), await releaseSessionDrainLock(e, r)
     }
 }

@@ -294,7 +294,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             s = await ct(e, n),
             a = hashSessionKey(n);
         return {
-            responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${Na(e,n)}`, `- session_state: ${fs(e,n)}`, `- ingress_snapshots: ${ef.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${ef.join(e.jobsDir,"active")}`].join(`
+            responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(e,n)}`, `- session_state: ${resolveSessionStatePath(e,n)}`, `- ingress_snapshots: ${ef.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${ef.join(e.jobsDir,"active")}`].join(`
 `)
         }
     }

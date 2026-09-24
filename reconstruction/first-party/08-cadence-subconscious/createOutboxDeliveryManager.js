@@ -43,7 +43,7 @@ function createOutboxDeliveryManager(e) {
             if (await yle(t, h.id)) return await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             }), !0;
-            if (Xgt(h)) {
+            if (isJobOrMetaOutboxRecord(h)) {
                 let _ = await recordOutboxDeliveryAttempt(t, h, {
                     status: "sent"
                 });
@@ -72,7 +72,7 @@ function createOutboxDeliveryManager(e) {
         return f.add(h), h.then(() => f.delete(h), () => f.delete(h)), h
     }
     async function m() {
-        let h = await Ile(t, i),
+        let h = await listRetryableOutboxRecords(t, i),
             g = 0;
         for (let y of h) await u(y) && (g += 1);
         return g

@@ -17,7 +17,7 @@ async function advanceOptimisticDeliveryCursor(e, t, n, r) {
         ack_last_outbox_created_at: a?.ack_last_outbox_created_at,
         ack_replay_offset: a?.ack_replay_offset,
         updated_at: new Date().toISOString()
-    }) && await ps(e, "cursor_store_ms", Date.now() - o, {
+    }) && await recordTelemetryMetric(e, "cursor_store_ms", Date.now() - o, {
         sessionKey: t,
         consumerId: n,
         cursorKind: "optimistic"

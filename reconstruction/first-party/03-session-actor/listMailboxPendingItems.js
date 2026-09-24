@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function listMailboxPendingItems(e, t) {
-    let n = Ld(e, t),
+    let n = resolveSessionMailboxPendingDir(e, t),
         r;
     try {
         r = (await yr.readdir(n)).filter(o => o.endsWith(".item.json")).sort()

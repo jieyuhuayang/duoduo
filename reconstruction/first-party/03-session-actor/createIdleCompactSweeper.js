@@ -10,7 +10,7 @@ function createIdleCompactSweeper(e) {
         sessionManager: n,
         sessionIndex: r,
         bus: i
-    } = e, o = e.intervalMs ?? Dut, s = e.fireCapPerSweep ?? jut, a = null, u = !1, l = null, c = !1, d = new Map;
+    } = e, o = e.intervalMs ?? Dut, s = e.fireCapPerSweep ?? IDLE_COMPACT_FIRE_CAP_PER_SWEEP, a = null, u = !1, l = null, c = !1, d = new Map;
 
     function f(y) {
         let v = y.session_key;

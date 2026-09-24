@@ -16,7 +16,7 @@ function deliverScanGapSignal(e, t, n, r, i) {
         delivery: oO()
     };
     let s = i.dryRun === !0,
-        a = Hlt(t, r.varDir, s);
+        a = readOrSeedGapHandedDays(t, r.varDir, s);
     if (a.readFault) return {
         ...sO(null),
         pending: !1,
@@ -32,7 +32,7 @@ function deliverScanGapSignal(e, t, n, r, i) {
     };
     if (u.selected.length === 0) {
         let d = u.span !== null;
-        return d && zve(r.varDir, u.span), {
+        return d && appendGapHandedSpan(r.varDir, u.span), {
             ...u,
             pending: !1,
             recorded: d,
@@ -41,7 +41,7 @@ function deliverScanGapSignal(e, t, n, r, i) {
     }
     let l = postMemorySignalsToInboxes(u.selected, r),
         c = l.posted.length > 0;
-    return c && zve(r.varDir, u.span), {
+    return c && appendGapHandedSpan(r.varDir, u.span), {
         ...u,
         pending: !1,
         recorded: c,

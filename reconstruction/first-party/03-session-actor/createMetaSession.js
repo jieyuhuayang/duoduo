@@ -32,7 +32,7 @@ function createMetaSession(e) {
             N = {
                 session_context_kind: "system"
             },
-            V = TO({
+            V = createPiWorkerAdapter({
                 cwd: S,
                 sdkSessionId: crypto.randomUUID(),
                 sessionDir: k,
@@ -217,7 +217,7 @@ function createMetaSession(e) {
         let z = [],
             U = !1,
             X = partitionInboxDir(t, S.name),
-            Ee = await uve(t, S.name),
+            Ee = await readPartitionInboxEntries(t, S.name),
             be = renderPartitionInboxSection(X, Ee),
             w = `### Partition
 - Name: ${S.name}
@@ -286,7 +286,7 @@ ${D}`,
                         })
                     },
                     onExecutionEvent: Cn => {
-                        U || (Cn.type === "tool_use" ? k += 1 : Cn.type === "tool_result" && Cn.isError && (N += 1), z.push(Ugt(t, o, S.name, Cn).catch(Ut => {
+                        U || (Cn.type === "tool_use" ? k += 1 : Cn.type === "tool_result" && Cn.isError && (N += 1), z.push(appendPartitionToolEvent(t, o, S.name, Cn).catch(Ut => {
                             Z("[meta-session] failed to persist execution event", {
                                 partition: S.name,
                                 eventType: Cn.type,
@@ -312,7 +312,7 @@ ${D}`,
             ve && clearTimeout(ve)
         }
         if (!A) {
-            let ke = d0e(F?.text);
+            let ke = normalizePartitionOutputText(F?.text);
             A = detectEmptyRequiredPartitionOutput(S.name, ke) ? "invalid_output" : "success"
         }
         let Be = Date.now() - C;
@@ -377,7 +377,7 @@ ${D}`,
                 cancelled: A === "timeout",
                 usage: at
             }).catch(() => {}), z.length > 0 && await Promise.all(z), A === "success") {
-            let ke = d0e(F?.text),
+            let ke = normalizePartitionOutputText(F?.text),
                 qe = createSpineEvent({
                     type: "agent.result",
                     source: {
@@ -467,7 +467,7 @@ ${D}`,
         p = !0, te("[meta-session] starting tick");
         try {
             v += 1;
-            let [S, D, $, C] = await Promise.all([FA(t.memoryFragmentsDir), FA(t.memoryEntitiesDir), FA(t.memoryTopicsDir), readLatestExternalEventId(t)]), A = [S, D, $, C].join(":"), F = hashActivityFingerprint(A);
+            let [S, D, $, C] = await Promise.all([readNewestMtimeRecursive(t.memoryFragmentsDir), readNewestMtimeRecursive(t.memoryEntitiesDir), readNewestMtimeRecursive(t.memoryTopicsDir), readLatestExternalEventId(t)]), A = [S, D, $, C].join(":"), F = hashActivityFingerprint(A);
             if (y !== null && F === y) {
                 Re("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
                 return

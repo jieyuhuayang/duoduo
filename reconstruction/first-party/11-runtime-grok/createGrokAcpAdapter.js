@@ -33,7 +33,7 @@ function createGrokAcpAdapter(e) {
             I = void 0, E = void 0, R = !1, x.clear()
         }, V = () => {
             let L = S;
-            return S = null, L ? og(L.reason, L.toolInFlight) : null
+            return S = null, L ? selectInterruptMarkerText(L.reason, L.toolInFlight) : null
         }, W = () => {
             let L = _.join("");
             _.length = 0, L && Promise.resolve(e.onDetachedTurn?.({
@@ -79,7 +79,7 @@ function createGrokAcpAdapter(e) {
                     let le = String(ee.toolCallId ?? ee.tool_call_id ?? ""),
                         ve = Wst(ee);
                     if (!le) return;
-                    Jst(ee) && (R = !0), x.add(le), g.onExecutionEvent?.({
+                    isGrokSkipToolCall(ee) && (R = !0), x.add(le), g.onExecutionEvent?.({
                         type: "tool_use",
                         toolUseId: le,
                         toolName: ve,

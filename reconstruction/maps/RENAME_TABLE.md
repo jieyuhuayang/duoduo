@@ -2,7 +2,7 @@
 
 下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 `daemon.pretty.js`。
 
-共 472 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.3。
+共 601 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.3。
 
 ## 00-daemon-entry
 
@@ -14,6 +14,7 @@
 | `zbe` | `claimDaemonRestartReason` | inferred | 65783 |
 | `Ube` | `setPendingRestartReason` | inferred | 65809 |
 | `qbe` | `getPendingRestartReason` | inferred | 65813 |
+| `Hbe` | `renderRestartWakeMessage` | inferred | 65855 |
 | `d6` | `resolveRuntimeWriterLockPath` | inferred | 88831 |
 | `qut` | `isProcessAliveByPid` | inferred | 88835 |
 | `But` | `computeHostBootId` | inferred | 88845 |
@@ -31,6 +32,7 @@
 |---|---|---|---|
 | `Bi` | `stringifyJsonlRecord` | inferred | 31829 |
 | `G9e` | `enqueuePartitionAppend` | inferred | 31988 |
+| `K9e` | `generateSpineEventId` | inferred | 31993 |
 | `Sm` | `formatEventPartitionName` | inferred | 31997 |
 | `rn` | `createSpineEvent` | inferred | 32001 |
 | `X9e` | `appendEventToPartition` | inferred | 32008 |
@@ -45,6 +47,9 @@
 | `r5e` | `isUsableEventIndexEntry` | inferred | 32119 |
 | `i5e` | `loadEventIdIndex` | inferred | 32122 |
 | `ise` | `findEventInPartitionFile` | inferred | 32159 |
+| `ose` | `readSpineIndexRetentionDays` | inferred | 32173 |
+| `sse` | `pruneEventIdIndexByRetention` | inferred | 32179 |
+| `Gs` | `initSpineEventLogModule` | inferred | 32221 |
 | `C5e` | `resolveConsumerOffsetPath` | inferred | 32852 |
 | `$5e` | `writeConsumerOffsetFile` | inferred | 32855 |
 | `Nu` | `advanceConsumerWatermark` | inferred | 32858 |
@@ -67,6 +72,7 @@
 | `J0` | `isJobCreateParams` | inferred | 31671 |
 | `sXe` | `generateOutboxRecordId` | inferred | 35910 |
 | `Tb` | `resolveOutboxRecordPath` | inferred | 35914 |
+| `Hl` | `createOutboxRecord` | inferred | 35918 |
 | `La` | `readOutboxRecord` | inferred | 35964 |
 | `qm` | `findOutboxRecordByEventId` | inferred | 36021 |
 | `Xd` | `recordOutboxDeliveryAttempt` | inferred | 36029 |
@@ -81,6 +87,7 @@
 | `jR` | `backfillOutboxByIdIndexFromReplay` | inferred | 36419 |
 | `Jl` | `resolveOutboxPendingQueuePath` | inferred | 36455 |
 | `vXe` | `hasUnqueuedPendingOutboxRecords` | inferred | 36505 |
+| `Ile` | `listRetryableOutboxRecords` | inferred | 36574 |
 | `gs` | `initOutboxStoreModule` | inferred | 36592 |
 | `Ps` | `deliverRouteEventToSession` | inferred | 64355 |
 | `v_e` | `updateDeliveryCursorFile` | inferred | 64495 |
@@ -103,16 +110,22 @@
 | `BXe` | `executeGatewayCommand` | inferred | 87485 |
 | `VXe` | `writeIngressSnapshot` | inferred | 87787 |
 | `l6` | `createSessionSubscriptionRegistry` | inferred | 88639 |
+| `k0e` | `assertWsChannelIdentityParams` | inferred | 89067 |
 | `bJ` | `normalizeReturnMask` | inferred | 89199 |
 | `fyt` | `normalizeChannelCapabilityDeclarations` | inferred | 89229 |
 | `pyt` | `recordChannelCapabilityDeclaration` | inferred | 89239 |
+| `x0e` | `resolveIngressWorkspace` | inferred | 89291 |
 | `_yt` | `describeChannelInstance` | inferred | 89363 |
+| `byt` | `archiveSessionIfQuiescent` | inferred | 89418 |
+| `wyt` | `setSessionAliasAndReindex` | inferred | 89495 |
 | `Kf` | `resolveSessionByKeyOrAlias` | inferred | 89512 |
 | `Syt` | `scheduleSessionWakeRecord` | inferred | 89541 |
 | `A0e` | `deliverExternalSessionNotify` | inferred | 89595 |
 | `xyt` | `readOrSetSessionModel` | inferred | 89707 |
 | `Eyt` | `readOrSetSessionEffort` | inferred | 89737 |
 | `Ryt` | `enqueueSessionCompactCommand` | inferred | 89767 |
+| `N0e` | `checkChannelRuntimeRebindConflict` | inferred | 89870 |
+| `Tyt` | `applySessionConfigVerb` | inferred | 89879 |
 | `Ayt` | `upsertChannelSpawnDescriptor` | inferred | 90345 |
 | `Myt` | `isLoopbackBindHost` | __export | 90436 |
 | `jyt` | `resolveRemoteListenerConfig` | __export | 90443 |
@@ -126,6 +139,13 @@
 | `u5e` | `resolveSessionsArchiveRoot` | inferred | 32265 |
 | `km` | `resolveArchivedSessionDir` | inferred | 32269 |
 | `Ks` | `isSessionArchived` | inferred | 32273 |
+| `rb` | `resolveSessionInboxDir` | inferred | 32277 |
+| `aR` | `resolveSessionMailboxMarkdownPath` | inferred | 32281 |
+| `cse` | `resolveSessionMailboxDir` | inferred | 32285 |
+| `Ld` | `resolveSessionMailboxPendingDir` | inferred | 32289 |
+| `ib` | `resolveSessionMailboxNotesPath` | inferred | 32293 |
+| `Na` | `resolveSessionMetaPath` | inferred | 32297 |
+| `fs` | `resolveSessionStatePath` | inferred | 32301 |
 | `dse` | `rehydrateSessionState` | inferred | 32340 |
 | `Vi` | `runWithSessionMutex` | inferred | 32410 |
 | `lR` | `tryMarkSessionArchiving` | inferred | 32423 |
@@ -136,6 +156,8 @@
 | `Xs` | `enqueueSessionInboxLine` | inferred | 32547 |
 | `fR` | `mergeInboxIntoMailbox` | inferred | 32558 |
 | `lb` | `listMailboxPendingItems` | inferred | 32617 |
+| `Ao` | `deleteMailboxPendingItemsByEventIds` | inferred | 32639 |
+| `cb` | `appendSessionMailboxNote` | inferred | 32695 |
 | `pR` | `renderSessionMailboxFile` | inferred | 32705 |
 | `OR` | `ensureSessionDescriptorAndStateFiles` | inferred | 35474 |
 | `ole` | `updateSessionDisplayName` | inferred | 35514 |
@@ -148,19 +170,25 @@
 | `p_e` | `createEmptySessionIndex` | inferred | 64090 |
 | `m_e` | `buildSessionIndexEntry` | inferred | 64094 |
 | `h_e` | `createMapBackedSessionIndex` | inferred | 64118 |
+| `h$` | `listSessionIndexSummaries` | inferred | 64194 |
 | `g_e` | `formatViewSessionsListLine` | inferred | 64225 |
+| `pg` | `runViewSessionsTool` | inferred | 64262 |
 | `xw` | `initViewSessionsToolModule` | inferred | 64274 |
 | `Kbe` | `archiveSessionDirUnlessAlreadyArchiving` | inferred | 65866 |
 | `Ybe` | `archiveSessionAndArtifacts` | inferred | 65882 |
 | `Jbe` | `readStateSourceChannelId` | inferred | 66023 |
 | `Gbe` | `listArchivedCopiesNewestFirst` | inferred | 66044 |
 | `iSe` | `archiveLegacyRegistrySessionsDir` | __export | 69371 |
+| `gSe` | `acquireSessionDrainLock` | inferred | 69871 |
+| `ySe` | `refreshSessionDrainLockHeartbeat` | inferred | 69894 |
+| `_Se` | `releaseSessionDrainLock` | inferred | 69899 |
 | `KSe` | `drainSessionMailbox` | inferred | 70371 |
 | `to` | `classifySessionKeyOrUnknown` | inferred | 71444 |
 | `Ig` | `buildSessionInfoFromState` | inferred | 72332 |
 | `Oft` | `classifySessionPlane` | inferred | 72377 |
 | `mEe` | `stringifyExecutionToolInput` | inferred | 80186 |
 | `gEe` | `buildSessionExecutionPayload` | inferred | 80200 |
+| `GW` | `inferActorOriginFromSessionKey` | inferred | 80247 |
 | `vEe` | `classifySessionPoolKind` | inferred | 80259 |
 | `Qg` | `SESSION_SCHEMA_VERSION` | __export | 80271 |
 | `SEe` | `createJobSessionFinalizer` | inferred | 80276 |
@@ -174,7 +202,10 @@
 | `dJ` | `narrowToModelSettableAdapter` | inferred | 82597 |
 | `fJ` | `computeStreamingConfigSignature` | inferred | 82601 |
 | `pJ` | `isLiveStreamRebuildRequired` | inferred | 82629 |
+| `NA` | `flagStreamRecreationOnModelReject` | inferred | 82635 |
 | `e0e` | `createModelCommandResolvers` | inferred | 82653 |
+| `Egt` | `recordPendingInterruptMarker` | inferred | 82793 |
+| `i0e` | `prependPendingInterruptMarker` | inferred | 82815 |
 | `jA` | `interruptActorQuery` | inferred | 82836 |
 | `mJ` | `triggerDeferredPreempt` | inferred | 82840 |
 | `zS` | `requestBoundaryAwarePreempt` | inferred | 82849 |
@@ -186,6 +217,7 @@
 | `Agt` | `createSessionManager` | __export | 83651 |
 | `Wgt` | `createMetaSession` | __export | 85819 |
 | `Jgt` | `sweepTombstonedSessionRecords` | __export | 86403 |
+| `jut` | `IDLE_COMPACT_FIRE_CAP_PER_SWEEP` | inferred | 88478 |
 | `Xbe` | `createIdleCompactSweeper` | inferred | 88480 |
 | `kJ` | `resolvePreemptFromCommandText` | inferred | 89211 |
 | `hyt` | `classifySessionPlaneByKey` | inferred | 89267 |
@@ -196,23 +228,37 @@
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
 | `Xv` | `resolveMetaPromptText` | __export | 55069 |
+| `xrt` | `renderJobAcceptanceBlock` | inferred | 55080 |
 | `Ahe` | `renderJobMissionBlock` | __export | 55086 |
 | `Nhe` | `renderPromptLayers` | __export | 55093 |
 | `Jh` | `buildSystemPromptForChannelConfig` | __export | 55120 |
 | `Uye` | `extractSystemPromptAppend` | __export | 61925 |
 | `Bbe` | `decideRestartHintInjection` | inferred | 65821 |
 | `Vbe` | `renderDaemonRestartHint` | inferred | 65850 |
+| `TSe` | `decideBoardUpdatedInjection` | inferred | 70158 |
+| `PSe` | `renderBoardUpdatedHint` | inferred | 70182 |
 | `ZSe` | `projectJobPromptContext` | inferred | 70237 |
 | `Jdt` | `renderJobCompleteReceiptGuidance` | inferred | 71448 |
 | `RO` | `renderMailboxEventPrompt` | inferred | 71491 |
 | `Kdt` | `renderSkipRewindBlock` | inferred | 71574 |
+| `Xdt` | `resolvePendingCompactNotice` | inferred | 71588 |
+| `Qdt` | `renderSmartCompactNoticeBlock` | inferred | 71611 |
 | `QSe` | `computeTimeGapContext` | inferred | 71631 |
+| `eft` | `renderTimeGapContextBlock` | inferred | 71640 |
+| `nft` | `renderJobTickBlock` | inferred | 71654 |
 | `eke` | `buildTransientUserBlocks` | inferred | 71668 |
 | `WEe` | `transcludeBroadcastBoard` | inferred | 82197 |
 | `hgt` | `renderTranscludedFiles` | inferred | 82205 |
 | `JEe` | `resolveBoardIncludes` | inferred | 82212 |
 | `ygt` | `realpathOrSelf` | inferred | 82246 |
 | `qEe` | `normalizeIncludePathKey` | inferred | 82254 |
+| `_gt` | `stripBoardIncludeFrontmatter` | inferred | 82259 |
+| `bgt` | `parseBoardFileContent` | inferred | 82267 |
+| `vgt` | `stripBoardHtmlComments` | inferred | 82278 |
+| `wgt` | `collectBoardIncludePaths` | inferred | 82295 |
+| `Sgt` | `normalizeBoardIncludeToken` | inferred | 82324 |
+| `kgt` | `isBoardIncludePathCandidate` | inferred | 82330 |
+| `xgt` | `resolveBoardIncludePath` | inferred | 82334 |
 | `ZEe` | `initBoardTransclusionModule` | inferred | 82337 |
 
 ## 05-drain-turn
@@ -231,14 +277,19 @@
 | `cC` | `runSkipTool` | inferred | 54687 |
 | `Bu` | `initSkipToolModule` | inferred | 54711 |
 | `Wh` | `isAbortLikeError` | __export | 54968 |
+| `og` | `selectInterruptMarkerText` | inferred | 61780 |
 | `sg` | `normalizeTurnAbortReason` | inferred | 61784 |
+| `hw` | `initInterruptMarkerTextModule` | inferred | 61787 |
 | `zye` | `computeCodexTurnUsage` | __export | 61901 |
+| `kSe` | `normalizeInputTokenTotals` | inferred | 70098 |
 | `Eo` | `runTimedDrainPhase` | inferred | 70202 |
 | `ASe` | `resolveTurnModelWithLayer` | inferred | 70247 |
 | `NSe` | `resolveTurnEffortWithLayer` | inferred | 70260 |
 | `MSe` | `extractServedModelFromUsage` | inferred | 70276 |
 | `SH` | `prepareDrainTurnContext` | inferred | 70284 |
 | `GSe` | `buildTurnSdkRunConfig` | inferred | 70336 |
+| `jSe` | `resolveDrainContextProfileOrRefuse` | inferred | 70352 |
+| `uft` | `hasSkipRewindRecordSince` | inferred | 71791 |
 | `FSe` | `markTurnSkippedFromSkipRecord` | inferred | 71797 |
 | `xH` | `readPendingOutboundAttachments` | inferred | 71803 |
 | `EH` | `batchDrainItems` | inferred | 71807 |
@@ -253,7 +304,10 @@
 | `pft` | `computeDrainCoalesceKey` | inferred | 71909 |
 | `mft` | `resolveEventSourceChannelId` | inferred | 71917 |
 | `gft` | `collectJobCompletionReceipts` | inferred | 71943 |
+| `yft` | `renderCoalescedDrainPrompt` | inferred | 71971 |
+| `ake` | `createDrainExecutionEventRecorder` | inferred | 71983 |
 | `xft` | `runHistoryControlCommand` | inferred | 72119 |
+| `$c` | `emitDrainOutputRecords` | inferred | 72153 |
 | `Eft` | `renderDrainErrorRuntimeHint` | inferred | 72210 |
 | `Xw` | `handleDrainError` | inferred | 72237 |
 | `Rft` | `clearModelOverrideOnRuntimeFlip` | inferred | 72293 |
@@ -261,7 +315,9 @@
 | `Cft` | `renderRuntimeUnavailableGuidance` | inferred | 72358 |
 | `$ft` | `renderRuntimeMismatchGuidance` | inferred | 72366 |
 | `HSe` | `runDrainQueryAndCollectOutboundAttachments` | inferred | 72392 |
+| `jft` | `runDrainTurnWithResumeFallback` | inferred | 72483 |
 | `Qw` | `initMailboxDrainRunnerModule` | inferred | 72615 |
+| `Pg` | `runQueueOutboundAttachmentTool` | inferred | 73275 |
 | `rS` | `initQueueOutboundAttachmentModule` | inferred | 73306 |
 
 ## 06-runtime-claude
@@ -285,12 +341,14 @@
 | `yB` | `eventToMessageGenerator` | __export | 55158 |
 | `_C` | `stringToMessageGenerator` | __export | 55186 |
 | `pB` | `parsePositiveMsEnv` | __export | 55196 |
+| `Prt` | `disableSystemPromptSnapshot` | inferred | 55202 |
 | `Ef` | `createAgentSdkAdapter` | __export | 55213 |
 | `Rr` | `AgentSdkPromptNotAcceptedAbortError` | __export | 55516 |
 | `Fr` | `AgentSdkTurnInterruptedError` | __export | 55516 |
 | `Hh` | `CLAUDE_CORE_TOOLS` | __export | 55516 |
 | `wo` | `initAgentSdkAdapterModule` | inferred | 55516 |
 | `lut` | `buildClaudeSettingsEnvOverrides` | inferred | 65353 |
+| `Q_e` | `materializeClaudeSettingsFile` | inferred | 65406 |
 | `Dw` | `initMaterializedClaudeSettingsModule` | inferred | 65429 |
 | `rbe` | `mergeClaudeToolLists` | inferred | 65452 |
 | `KV` | `applyJobSdkConfigOverride` | inferred | 65582 |
@@ -298,6 +356,8 @@
 | `G6` | `CLAUDE_CODE_EXECUTABLE_ENV_KEY` | __export | 68920 |
 | `aSe` | `buildProfiledExternalRequirement` | inferred | 69670 |
 | `lH` | `classifyModelContextRequirement` | inferred | 69700 |
+| `Eg` | `resolveClaudeContextRequirement` | inferred | 69842 |
+| `Yw` | `isClaudeRuntimeOrDefault` | inferred | 69936 |
 | `OSe` | `resolveAdditionalDirClaudeMdAutoload` | inferred | 70231 |
 | `Yg` | `createAladuoMcpServer` | inferred | 79918 |
 | `r0e` | `initAbortableAsyncQueueModule` | inferred | 82753 |
@@ -320,6 +380,7 @@
 | `Bye` | `buildDeveloperInstructions` | __export | 61947 |
 | `xV` | `buildCodexTurnInput` | __export | 61961 |
 | `yw` | `createCodexAppServerAdapter` | __export | 61974 |
+| `Nst` | `resolveCodexSandboxForPermissionMode` | inferred | 62436 |
 | `Hye` | `hasImageGenerationRecord` | __export | 62460 |
 | `Wye` | `extractCodexGeneratedImageAttachment` | __export | 62476 |
 | `Gye` | `mapItemStartedToExecEvent` | __export | 62535 |
@@ -329,6 +390,8 @@
 | `gdt` | `generatePartitionCodexAgents` | __export | 69245 |
 | `eSe` | `parseAgentMarkdown` | __export | 69319 |
 | `tSe` | `renderAgentToml` | __export | 69334 |
+| `Idt` | `generateAllPartitionCodexAgents` | inferred | 69553 |
+| `Xg` | `buildCodexStringInputSchema` | inferred | 80045 |
 | `wA` | `buildCodexDynamicTools` | inferred | 80065 |
 
 ## 08-cadence-subconscious
@@ -338,7 +401,10 @@
 | `mB` | `PARTITION_CORE_TOOLS` | __export | 55516 |
 | `dw` | `parseScheduleDurationMs` | inferred | 60989 |
 | `gV` | `assertScheduleDurationRepresentable` | inferred | 61000 |
+| `r$` | `isOneShotJobSchedule` | inferred | 61004 |
 | `Rye` | `validateJobScheduleExpression` | inferred | 61008 |
+| `fw` | `parseJobRearmTime` | inferred | 61025 |
+| `Iye` | `isJobScheduleDue` | inferred | 61037 |
 | `Nye` | `parseJobFileFrontmatter` | inferred | 61236 |
 | `Sst` | `renderJobFileMarkdown` | inferred | 61257 |
 | `Ju` | `initJobManagerModule` | inferred | 61321 |
@@ -349,6 +415,7 @@
 | `f_e` | `buildJobRuntimeSchemaField` | inferred | 63777 |
 | `cg` | `runManageJobTool` | inferred | 63802 |
 | `Sw` | `initManageJobToolModule` | inferred | 63939 |
+| `mg` | `runRemindDuoduoTool` | inferred | 64294 |
 | `Rw` | `initRemindDuoduoToolModule` | inferred | 64327 |
 | `A_e` | `classifyConsumerStaleness` | inferred | 64840 |
 | `VV` | `resolveNotifyUnconsumedHours` | inferred | 64853 |
@@ -356,9 +423,17 @@
 | `P$` | `evaluateNotifyConsumerRefusal` | inferred | 64867 |
 | `Wat` | `listSessionsWithRecentConsumer` | inferred | 64890 |
 | `C$` | `renderNotifyRefusalMessage` | inferred | 64916 |
+| `A$` | `renderNotifyToolDescription` | inferred | 64989 |
+| `N$` | `buildNotifyInputSchema` | inferred | 65008 |
 | `Z_e` | `isOrphanJobSessionKey` | inferred | 65034 |
+| `Qat` | `computeBoundedEditDistance` | inferred | 65071 |
+| `eut` | `matchNearMissSessionKey` | inferred | 65090 |
+| `q_e` | `groupNotifyTargetCandidates` | inferred | 65132 |
+| `B_e` | `renderNotifyTargetCandidateLines` | inferred | 65150 |
+| `nut` | `resolveJobOwnerNotifyTarget` | inferred | 65170 |
 | `rut` | `resolveNotifyTargetSessionKey` | inferred | 65179 |
 | `V_e` | `renderNotifyDeliveryReport` | inferred | 65212 |
+| `gg` | `runNotifyTool` | inferred | 65226 |
 | `Aw` | `initNotifyToolModule` | inferred | 65324 |
 | `Bw` | `loadSubconsciousPartitions` | inferred | 66190 |
 | `Xut` | `parsePartitionDefinition` | inferred | 66214 |
@@ -366,6 +441,7 @@
 | `Qut` | `parsePlaylistCurrentRound` | inferred | 66273 |
 | `H$` | `markPlaylistItemExecuted` | inferred | 66292 |
 | `ave` | `rebuildPlaylistRound` | inferred | 66310 |
+| `uve` | `readPartitionInboxEntries` | inferred | 66354 |
 | `W$` | `initSubconsciousPlaylistModule` | inferred | 66397 |
 | `jf` | `readPartitionRunState` | inferred | 66420 |
 | `y6` | `writePartitionRunState` | inferred | 66443 |
@@ -375,19 +451,28 @@
 | `kwe` | `resolveCadenceIntervalMs` | __export | 68552 |
 | `sdt` | `computeLegacyJobSessionKey` | inferred | 69044 |
 | `adt` | `rewriteSessionKeyInStateAndMeta` | inferred | 69065 |
+| `Hwe` | `migrateLegacyJobSessionKeys` | inferred | 69099 |
 | `Gwe` | `retireListedPartitions` | inferred | 69151 |
 | `fdt` | `retirePartitionOnce` | inferred | 69164 |
 | `Kwe` | `initPartitionRetirementModule` | inferred | 69216 |
+| `_Ee` | `isAutoArchivedJobSchedule` | inferred | 80235 |
+| `AS` | `classifyJobScheduleType` | inferred | 80239 |
+| `d0e` | `normalizePartitionOutputText` | inferred | 85697 |
 | `Lgt` | `stringifyPartitionToolInput` | inferred | 85702 |
 | `zgt` | `detectEmptyRequiredPartitionOutput` | inferred | 85712 |
+| `Ugt` | `appendPartitionToolEvent` | inferred | 85715 |
 | `qgt` | `hashActivityFingerprint` | inferred | 85754 |
 | `Bgt` | `readLatestExternalEventId` | inferred | 85757 |
+| `FA` | `readNewestMtimeRecursive` | inferred | 85776 |
 | `Vgt` | `renderPartitionRuntimeContext` | inferred | 85802 |
 | `Hgt` | `renderPartitionInboxSection` | inferred | 85809 |
+| `p0e` | `initMetaSessionModule` | inferred | 86368 |
 | `Zgt` | `runCadenceTick` | __export | 86463 |
 | `yJ` | `scanAndSpawnDueJobs` | __export | 86494 |
+| `Ggt` | `fireDueWakeRecords` | inferred | 86585 |
 | `Ygt` | `createJobScheduler` | __export | 86655 |
 | `v0e` | `initJobSchedulerModule` | inferred | 86711 |
+| `Xgt` | `isJobOrMetaOutboxRecord` | inferred | 86722 |
 | `Qgt` | `createOutboxDeliveryManager` | __export | 86726 |
 
 ## 09-memory
@@ -399,11 +484,21 @@
 | `Ai` | `resolveMemoryDirs` | inferred | 66479 |
 | `Lf` | `scanWikiLinkOccurrences` | inferred | 66493 |
 | `Ff` | `resolveMemoryLinkTargets` | inferred | 66518 |
+| `dve` | `countDatedStampLines` | inferred | 66528 |
 | `xo` | `recordUnreadableMemoryPath` | inferred | 66557 |
 | `hve` | `normalizeSignalKindVersion` | inferred | 66613 |
 | `Vo` | `initMemorySignalKindsModule` | inferred | 66617 |
+| `slt` | `parseEffectivenessTrajectory` | inferred | 66636 |
+| `alt` | `parseEffectivenessCounts` | inferred | 66646 |
+| `ult` | `parseUpdaterGuidanceVerdict` | inferred | 66665 |
+| `llt` | `classifyTopicNodeFormat` | inferred | 66685 |
+| `clt` | `classifyTopicNodeType` | inferred | 66693 |
+| `gve` | `rankEffectivenessTrajectory` | inferred | 66704 |
+| `dlt` | `compareBoardLintTargets` | inferred | 66717 |
 | `yve` | `collectBoardLintReport` | inferred | 66768 |
+| `glt` | `buildBoardLintTarget` | inferred | 66801 |
 | `ylt` | `runBoardLint` | inferred | 66832 |
+| `_ve` | `initBoardLintModule` | inferred | 66854 |
 | `Tc` | `createMemorySlugReader` | inferred | 66866 |
 | `Pc` | `walkReachableMemory` | inferred | 66881 |
 | `vlt` | `renderEntityConvergeSignalBody` | inferred | 66924 |
@@ -412,6 +507,7 @@
 | `Slt` | `isAllowedNodeSection` | inferred | 66982 |
 | `xlt` | `renderNodeConvergeSignalBody` | inferred | 66997 |
 | `xve` | `runNodeLint` | inferred | 67009 |
+| `Eve` | `initNodeLintModule` | inferred | 67068 |
 | `P6` | `initGapSpanModule` | inferred | 67186 |
 | `Jw` | `readPartitionContract` | inferred | 67193 |
 | `nO` | `getCachedPartitionContract` | inferred | 67284 |
@@ -421,15 +517,23 @@
 | `jve` | `hasAnyMemorySignalConsumer` | inferred | 67417 |
 | `Lve` | `isOrphanWarningDeliverable` | inferred | 67426 |
 | `O6` | `initMemorySignalDeliveryModule` | inferred | 67429 |
+| `Ult` | `listMemoryFragmentDates` | inferred | 67476 |
+| `Hlt` | `readOrSeedGapHandedDays` | inferred | 67533 |
+| `zve` | `appendGapHandedSpan` | inferred | 67575 |
 | `Uve` | `readGapLintDayEvents` | inferred | 67583 |
 | `Bve` | `mergeContiguousHourRanges` | inferred | 67624 |
 | `Jlt` | `renderScanGapSignalBody` | inferred | 67643 |
 | `Zlt` | `buildScanGapSignal` | inferred | 67649 |
 | `Glt` | `runGapLint` | inferred | 67676 |
 | `Zve` | `deliverScanGapSignal` | inferred | 67712 |
+| `Gve` | `initGapLintModule` | inferred | 67756 |
 | `Qve` | `runBroadcastBudgetLint` | inferred | 67830 |
 | `D6` | `initBroadcastBudgetLintModule` | inferred | 67869 |
 | `cct` | `listEventPartitionDates` | inferred | 67882 |
+| `fct` | `scanActivationWindowTouches` | inferred | 67909 |
+| `pct` | `renderActivationReportHeader` | inferred | 67986 |
+| `mct` | `renderBoardTemperatureSection` | inferred | 67991 |
+| `hct` | `renderHotOrphansSection` | inferred | 68001 |
 | `gct` | `renderActivationReportBody` | inferred | 68008 |
 | `rwe` | `runActivationLint` | inferred | 68014 |
 | `U6` | `initActivationLintModule` | inferred | 68113 |
@@ -449,6 +553,7 @@
 | `gwe` | `detectOrphanMemory` | inferred | 68369 |
 | `ywe` | `buildOrphanNewbornSignals` | inferred | 68392 |
 | `_we` | `forgetMemoryEntry` | inferred | 68401 |
+| `Mct` | `resolveGitToplevelSync` | inferred | 68437 |
 | `jct` | `renderOrphanIslandsBody` | inferred | 68451 |
 | `bwe` | `filterOrphanIslands` | inferred | 68465 |
 | `vwe` | `buildOrphanIslandsSignal` | inferred | 68469 |
@@ -457,6 +562,7 @@
 | `q6` | `routeContractDecision` | inferred | 68506 |
 | `Uct` | `formatForgetCommitMessage` | inferred | 68518 |
 | `wwe` | `initOrphanMemoryModule` | inferred | 68521 |
+| `V6` | `isTruthyEnvFlag` | inferred | 68538 |
 | `W6` | `resolveMemoryCheckFlags` | __export | 68543 |
 | `J6` | `buildMemoryCheckStatus` | __export | 68559 |
 | `qct` | `runMemoryCheckTick` | __export | 68573 |
@@ -464,6 +570,12 @@
 | `ua` | `runReadAuditedMemoryCheckStep` | inferred | 68697 |
 | `Bct` | `evaluatePredicateOrFalse` | inferred | 68704 |
 | `Z6` | `initMemoryCheckTickModule` | inferred | 68711 |
+| `tH` | `runKernelGitCommand` | inferred | 68949 |
+| `Fwe` | `buildKernelGitEnv` | inferred | 68967 |
+| `idt` | `isKernelGitToplevel` | inferred | 68982 |
+| `Uwe` | `ensureKernelGitRepo` | inferred | 68995 |
+| `odt` | `mergeKernelGitignoreEntries` | inferred | 69004 |
+| `qwe` | `initKernelGitModule` | inferred | 69023 |
 | `lJ` | `computeBoardLayerHash` | __export | 82353 |
 
 ## 10-runtime-host
@@ -475,8 +587,14 @@
 | `Aa` | `isSupportedRuntime` | inferred | 31729 |
 | `Co` | `resolveDefaultRuntime` | inferred | 31733 |
 | `wm` | `parseEnvBooleanFlag` | inferred | 31909 |
+| `k5e` | `appendTelemetryRecord` | inferred | 32811 |
+| `x5e` | `isTelemetryEnabled` | inferred | 32816 |
+| `ps` | `recordTelemetryMetric` | inferred | 32832 |
 | `wb` | `normalizePromptMode` | inferred | 35036 |
+| `Sb` | `parseClaudeFrontmatterBlock` | inferred | 35237 |
 | `CR` | `parseChannelConfigFields` | inferred | 35388 |
+| `ys` | `loadChannelKindConfig` | inferred | 36674 |
+| `Fa` | `initChannelConfigLoaderModule` | inferred | 36690 |
 | `z$` | `foldConfigLayersByKey` | inferred | 65456 |
 | `sbe` | `mergeRuntimeModelLayers` | inferred | 65485 |
 | `abe` | `mergeRuntimeEffortLayers` | inferred | 65495 |
@@ -485,6 +603,7 @@
 | `GV` | `overlayConfigEntriesByKey` | inferred | 65559 |
 | `lbe` | `appendPiConfigIssues` | inferred | 65603 |
 | `cbe` | `buildEffectiveChannelConfig` | inferred | 65607 |
+| `YV` | `resolveEffectiveChannelConfigForEvent` | inferred | 65730 |
 | `Yut` | `resolveRuntimePaths` | __export | 66090 |
 | `dO` | `parseDotEnv` | __export | 68754 |
 | `Ku` | `hostDotEnvPath` | __export | 68769 |
@@ -497,9 +616,18 @@
 | `Nwe` | `readHostDotEnvFile` | __export | 68898 |
 | `Yct` | `loadHostDotEnv` | __export | 68907 |
 | `K6` | `HOST_MODEL_ENV_KEYS` | __export | 68920 |
+| `$s` | `pathExistsAsync` | inferred | 68928 |
+| `Sdt` | `isDirEmptyOrMissing` | inferred | 69460 |
+| `sH` | `copyDirTreeOverwrite` | inferred | 69468 |
+| `aH` | `copyDirTreeMissingOnly` | inferred | 69479 |
+| `xdt` | `refreshBootstrapDuoduoMdFiles` | inferred | 69490 |
+| `Edt` | `copyBootstrapIntoKernel` | inferred | 69505 |
 | `Rdt` | `initializeRuntime` | __export | 69543 |
+| `sSe` | `initRuntimeInitializationModule` | inferred | 69576 |
 | `IH` | `encodePiWorkerFrame` | inferred | 72662 |
 | `eS` | `resolvePiWorkerCommand` | inferred | 72731 |
+| `qft` | `buildPiSystemPromptSpec` | inferred | 72743 |
+| `TO` | `createPiWorkerAdapter` | inferred | 72768 |
 | `xke` | `parsePiToolResultDetails` | inferred | 73349 |
 | `Eke` | `handlePiToolEndObservation` | inferred | 73355 |
 | `t6` | `CHANNEL_CONFIG_KEY_TYPES` | inferred | 87923 |
@@ -524,6 +652,7 @@
 | `kc` | `checkGrokAvailability` | __export | 62973 |
 | `bw` | `grokAcpExtMethod` | __export | 62994 |
 | `s_e` | `collectGrokToolCallNames` | inferred | 63046 |
+| `Jst` | `isGrokSkipToolCall` | inferred | 63055 |
 | `Zst` | `mapGrokUsageToDrainUsage` | inferred | 63059 |
 | `vw` | `createGrokAcpAdapter` | __export | 63118 |
 | `n_e` | `GROK_ACP_COMPACT` | __export | 63676 |

@@ -6,7 +6,7 @@
 
 async function runDrainQueryAndCollectOutboundAttachments(e, t, n, r) {
     try {
-        let i = await jft(e, t, n, r),
+        let i = await runDrainTurnWithResumeFallback(e, t, n, r),
             o = await readPendingOutboundAttachments(e, t),
             s = await Mft(e, t, i.attachments),
             a = lke(s, o);

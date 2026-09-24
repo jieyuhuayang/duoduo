@@ -9,10 +9,10 @@ async function prepareDrainTurnContext(e, t, n, r, i, o, s, a) {
         l = n.jobContext?.stateless === !0,
         c = n.resume === !1 || n.runtime !== "codex" || l ? void 0 : i.forkFrom,
         d = n.resume === !1 || c || l ? void 0 : i.sessionId,
-        f = a(ake(e, t, u.event.session_key ?? t, n.onExecutionEvent, u.event.id)),
+        f = a(createDrainExecutionEventRecorder(e, t, u.event.session_key ?? t, n.onExecutionEvent, u.event.id)),
         p = kH(u.event.payload),
         m = r.map(D => D.event.id),
-        h = applyJobSdkConfigOverride(await runTimedDrainPhase(s, "effective_config_ms", async () => YV(e, u.event)), n.jobContext?.sdkConfig),
+        h = applyJobSdkConfigOverride(await runTimedDrainPhase(s, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(e, u.event)), n.jobContext?.sdkConfig),
         g = classifySessionKeyOrUnknown(t) === "channel",
         y = r.some(D => EO(D.event)),
         v = computeTimeGapContext({
@@ -23,7 +23,7 @@ async function prepareDrainTurnContext(e, t, n, r, i, o, s, a) {
             lastEventAt: o.lastEventAtWatermark,
             currentEventAt: r[0].event.ts
         }),
-        b = yft(r),
+        b = renderCoalescedDrainPrompt(r),
         _ = (h?.auto_compact_idle_minutes ?? 0) > 0 ? o.compactNotice : void 0,
         I = buildTransientUserBlocks(b, {
             gatewayNotice: o.pendingGatewayNotice,

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function renderActivationReportBody(e, t, n, r) {
-    return [...pct(e), ...mct(t, n), ...hct(r, e.hotOrphanCount)].join(`
+    return [...renderActivationReportHeader(e), ...renderBoardTemperatureSection(t, n), ...renderHotOrphansSection(r, e.hotOrphanCount)].join(`
 `) + `
 `
 }

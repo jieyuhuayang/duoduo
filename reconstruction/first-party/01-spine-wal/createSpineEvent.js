@@ -7,7 +7,7 @@
 function createSpineEvent(e, t = new Date) {
     return {
         ...e,
-        id: K9e(),
+        id: generateSpineEventId(),
         ts: t.toISOString()
     }
 }

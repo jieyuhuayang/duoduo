@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function deliverDaemonRestartWakes(e, t, n, r) {
-    let i = Hbe(r.reason, r.requested_at);
+    let i = renderRestartWakeMessage(r.reason, r.requested_at);
     for (let o of r.wake_targets ?? []) try {
         let s = await deliverExternalSessionNotify(e, t, n, {
             target: o,

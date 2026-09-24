@@ -21,7 +21,7 @@ async function parsePartitionDefinition(e, t, n) {
         });
         let {
             claudeTools: l
-        } = Sb(i.data ?? {}), c = normalizePromptMode(i.data?.prompt_mode), d = i.data?.model, f;
+        } = parseClaudeFrontmatterBlock(i.data ?? {}), c = normalizePromptMode(i.data?.prompt_mode), d = i.data?.model, f;
         typeof d == "string" && d.trim().length > 0 ? f = d.trim() : d !== void 0 && Re(`[playlist] partition '${e}' has invalid model frontmatter; ignoring it`, {
             rawModel: d
         });

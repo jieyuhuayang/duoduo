@@ -8,10 +8,10 @@ var B6, initMemoryCheckTickModule = O(() => {
     "use strict";
     dt();
     initPartitionRunStateModule();
-    _ve();
+    initBoardLintModule();
     initEntityLintModule();
-    Eve();
-    Gve();
+    initNodeLintModule();
+    initGapLintModule();
     initActivationLintModule();
     initFoldGapLintModule();
     initBroadcastBudgetLintModule();

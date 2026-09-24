@@ -11,7 +11,7 @@ async function teardownStreamingSession(e, t, n) {
         sessionKey: e.sessionKey,
         generation: e.streamingGeneration,
         sdk_session_id: e.sdkSessionId ?? null
-    }), Egt(e, n);
+    }), recordPendingInterruptMarker(e, n);
     let i = e.query;
     e.streamingState = null, e.query = null, e.streamAbortController = null, e.spawnBoardHash = void 0, r.abortController.signal.aborted || r.abortController.abort(n), typeof i?.close == "function" && i.close();
     try {

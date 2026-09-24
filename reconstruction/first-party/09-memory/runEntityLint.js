@@ -19,7 +19,7 @@ function runEntityLint(e, t, n) {
         if (c === null || blt(c)) continue;
         let d = K$(X$(c)),
             f = Y$(c),
-            p = dve(c),
+            p = countDatedStampLines(c),
             m = d * 1e3 + p;
         s.push({
             slug: l,

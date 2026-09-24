@@ -9,7 +9,7 @@ function forgetMemoryEntry(e, t, n = {}) {
         i = r.map(a => a.rel);
     if (i.length === 0 || n.dryRun) return i;
     let o = Zw.join(t, "memory"),
-        s = Mct(o);
+        s = resolveGitToplevelSync(o);
     if (s !== null && mwe.existsSync(Zw.join(s, ".git", "index.lock"))) return [];
     try {
         let a = kg("git", ["rm", "--ignore-unmatch", "--", ...i], {

@@ -23,7 +23,7 @@ async function scheduleSessionWakeRecord(e, t, n) {
     };
     let s = new Date;
     try {
-        fw(n.when, s)
+        parseJobRearmTime(n.when, s)
     } catch (a) {
         return {
             ok: !1,

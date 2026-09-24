@@ -9,7 +9,7 @@ async function runMemoryCheckTick(e, t) {
         check: n,
         forget: r
     } = resolveMemoryCheckFlags();
-    V6("ALADUO_EXP_MEMORY_FORGET") && !n && Le("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
+    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && Le("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
     let o = {
             checkEnabled: n,
             forgetEnabled: r,
@@ -84,7 +84,7 @@ async function runMemoryCheckTick(e, t) {
         })
     }
     let g = h;
-    return g !== null && g.expansionRate !== null && await ps(e, "memory_activation_loss", g.expansionRate, {
+    return g !== null && g.expansionRate !== null && await recordTelemetryMetric(e, "memory_activation_loss", g.expansionRate, {
         window_days: g.windowDays,
         interaction_days: g.interactionDays,
         window_start: g.windowStart,

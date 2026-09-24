@@ -6610,6 +6610,2287 @@
         "toLowerCase",
         "trim"
       ]
+    },
+    "generateSpineEventId": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "evt_"
+      ],
+      "props": [
+        "randomUUID"
+      ]
+    },
+    "readSpineIndexRetentionDays": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " is not a positive integer; using ",
+        "[spine] "
+      ],
+      "props": [
+        "env",
+        "isInteger",
+        "stringify",
+        "trim"
+      ]
+    },
+    "pruneEventIdIndexByRetention": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "ENOENT",
+        "string"
+      ],
+      "props": [
+        "UTC",
+        "code",
+        "getUTCDate",
+        "getUTCFullYear",
+        "getUTCMonth",
+        "join",
+        "length",
+        "now",
+        "parse",
+        "partition",
+        "push",
+        "retentionDays"
+      ]
+    },
+    "initSpineEventLogModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "ALADUO_SPINE_INDEX_RETENTION_DAYS"
+      ],
+      "props": [],
+      "values": [
+        "24f35286dbc3e1d4",
+        "4ad4a3ba486a93d4",
+        "7902699be42c8a8e"
+      ]
+    },
+    "resolveSessionInboxDir": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "inbox"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "resolveSessionMailboxMarkdownPath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "mailbox.md"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "resolveSessionMailboxDir": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "mailbox"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "resolveSessionMailboxPendingDir": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "mailbox",
+        "pending"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "resolveSessionMailboxNotesPath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "mailbox",
+        "notes.jsonl"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "resolveSessionMetaPath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "meta.md"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "resolveSessionStatePath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "state.json"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "deleteMailboxPendingItemsByEventIds": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        ".item.json",
+        "utf8"
+      ],
+      "props": [
+        "endsWith",
+        "event_id",
+        "has",
+        "join",
+        "length",
+        "parse",
+        "readFile",
+        "readdir",
+        "size",
+        "unlink"
+      ]
+    },
+    "appendSessionMailboxNote": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [],
+      "props": [
+        "appendFile",
+        "stringify",
+        "toISOString",
+        "trim"
+      ]
+    },
+    "appendTelemetryRecord": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "appendFile",
+        "stringify",
+        "telemetryDir",
+        "ts"
+      ]
+    },
+    "isTelemetryEnabled": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "ALADUO_TELEMETRY_ENABLED",
+        "env"
+      ]
+    },
+    "recordTelemetryMetric": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "metric"
+      ],
+      "props": [
+        "now"
+      ]
+    },
+    "parseClaudeFrontmatterBlock": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "claude-block-malformed",
+        "object"
+      ],
+      "props": [
+        "claude",
+        "isArray",
+        "length",
+        "model_aliases",
+        "model_profiles",
+        "tools"
+      ]
+    },
+    "createOutboxRecord": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "pending"
+      ],
+      "props": [
+        "toISOString"
+      ]
+    },
+    "listRetryableOutboxRecords": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "failed",
+        "pending"
+      ],
+      "props": [
+        "attempts",
+        "channel_kind",
+        "delete",
+        "get",
+        "load",
+        "map",
+        "push",
+        "record_id",
+        "status",
+        "values"
+      ]
+    },
+    "loadChannelKindConfig": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "[channel-config] invalid channel kind \"",
+        "claude.model_aliases"
+      ],
+      "props": [
+        "body",
+        "claudeModelAliasIssues",
+        "claudeModelProfileIssues",
+        "data",
+        "join",
+        "status",
+        "toLowerCase",
+        "trim"
+      ]
+    },
+    "initChannelConfigLoaderModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "runtime"
+      ],
+      "props": [],
+      "values": [
+        "2d52cd9073053426"
+      ]
+    },
+    "renderJobAcceptanceBlock": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "</acceptance>",
+        "<acceptance>",
+        "This job is done when all of the following hold. Verify them before you",
+        "finish, and say which ones you could not satisfy rather than finishing",
+        "silently. Work these do not ask for is out of scope."
+      ],
+      "props": [
+        "join",
+        "trim"
+      ]
+    },
+    "disableSystemPromptSnapshot": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "custom",
+        "object",
+        "string"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "isOneShotJobSchedule": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "@in ",
+        "keepalive",
+        "once"
+      ],
+      "props": [
+        "startsWith"
+      ]
+    },
+    "parseJobRearmTime": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " (now: ",
+        "). A re-arm at or before now would be consumed as already spent at finalize, silently ending the loop. Accepted forms: \"@in <duration>\" (e.g. \"@in 30m\") or a FUTURE ISO 8601 timestamp with an explicit timezone.",
+        ". Expected \"@in <duration>\" (e.g. \"@in 30m\") or an ISO 8601 timestamp with an explicit timezone — \"Z\" or a ±hh:mm offset (e.g. \"2026-06-13T02:00:00Z\", \"2026-06-13T10:00:00+08:00\"). Zone-less datetimes are rejected because scheduling is pinned to UTC.",
+        "@in ",
+        "Invalid reschedule time: ",
+        "Reschedule time is not in the future: "
+      ],
+      "props": [
+        "NaN",
+        "getTime",
+        "isFinite",
+        "startsWith",
+        "substring",
+        "test",
+        "toISOString",
+        "trim"
+      ]
+    },
+    "isJobScheduleDue": {
+      "kind": "function",
+      "params": 5,
+      "literals": [
+        "@every ",
+        "@in ",
+        "keepalive",
+        "once",
+        "string"
+      ],
+      "props": [
+        "CronExpressionParser",
+        "NaN",
+        "getTime",
+        "isFinite",
+        "isNaN",
+        "length",
+        "next",
+        "parse",
+        "startsWith",
+        "substring",
+        "toDate",
+        "trim"
+      ]
+    },
+    "selectInterruptMarkerText": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "user-cancel"
+      ],
+      "props": []
+    },
+    "initInterruptMarkerTextModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "[Request interrupted by user]",
+        "[Tool call did not complete: the turn was ended to deliver the message that follows. Nothing refused it; re-run it if still needed.]"
+      ],
+      "props": [],
+      "values": [
+        "368e776a206a6456",
+        "4171f80396c83a21"
+      ]
+    },
+    "resolveCodexSandboxForPermissionMode": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "acceptEdits",
+        "bypassPermissions",
+        "dontAsk",
+        "plan",
+        "read-only",
+        "workspace-write"
+      ],
+      "props": []
+    },
+    "isGrokSkipToolCall": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "some"
+      ]
+    },
+    "listSessionIndexSummaries": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "job:"
+      ],
+      "props": [
+        "buildSessionKey",
+        "filter",
+        "frontmatter",
+        "has",
+        "id",
+        "include_orphans",
+        "init",
+        "kind",
+        "list",
+        "listJobs",
+        "map",
+        "named_only",
+        "session_key",
+        "some",
+        "startsWith"
+      ]
+    },
+    "runViewSessionsTool": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "Error: ",
+        "[ViewSessions] Tool execution failed",
+        "string"
+      ],
+      "props": [
+        "getSessionStatus",
+        "length",
+        "message",
+        "session_key",
+        "trim"
+      ]
+    },
+    "runRemindDuoduoTool": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        " (this session)",
+        "- fires at: ",
+        "- id: ",
+        "- target: ",
+        "Error: ",
+        "Error: context is required. The woken turn receives nothing else — say what to inspect and where the current evidence lives.",
+        "Error: no calling session is bound, so there is no session to wake.",
+        "Error: when is required (e.g. \"@in 30m\").",
+        "It fires once, and it does not interrupt a turn already in progress.",
+        "ManageJob(list) shows it; `duoduo job archive ",
+        "RemindDuoduo scheduled.",
+        "[Wake] Tool execution failed",
+        "` cancels it before it fires.",
+        "job:",
+        "string"
+      ],
+      "props": [
+        "context",
+        "createWakeRecord",
+        "join",
+        "message",
+        "paths",
+        "sessionContextKind",
+        "sessionKey",
+        "startsWith",
+        "trim",
+        "when"
+      ]
+    },
+    "renderNotifyToolDescription": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "foreground",
+        "meta",
+        "system"
+      ],
+      "props": []
+    },
+    "buildNotifyInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "Call ViewSessions with no argument to see the sessions you can target (prefer active sessions).",
+        "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery.",
+        "If omitted, the target is the job's owner — the session that created it.",
+        "If provided, delivers to this specific session instead.",
+        "Optional unique label (e.g. 'ask-r3-bigshu') when you expect a reply.",
+        "Optional: override this job's default Notify target.",
+        "Set to the correlation_id of the request you are responding to.",
+        "Target to receive this internal notification: either a session key or a session's display-name alias (resolved server-side).",
+        "The label is rendered into the target's inbox as an XML attribute on",
+        "The original requester sees this label and matches it against their",
+        "This tool wakes the target session after delivery.",
+        "Use this so your future turns can recognize the matched reply by",
+        "attention-aligning on the same label in conversation history.",
+        "earlier outgoing request. Do not invent a value — only echo a label",
+        "foreground",
+        "that arrived on a request you are answering.",
+        "the <session-notify> element; the responder should echo it via reply_to."
+      ],
+      "props": [
+        "correlation_id",
+        "describe",
+        "join",
+        "optional",
+        "reply_to",
+        "string",
+        "target_session_key"
+      ]
+    },
+    "computeBoundedEditDistance": {
+      "kind": "function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "abs",
+        "length",
+        "min"
+      ]
+    },
+    "matchNearMissSessionKey": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " char",
+        "\" matches in a different scope",
+        "\" matches; hash differs — job may have been recreated",
+        "last segment differs by ",
+        "readable name \"",
+        "trailing identifier \""
+      ],
+      "props": [
+        "length",
+        "session_key"
+      ]
+    },
+    "groupNotifyTargetCandidates": {
+      "kind": "function",
+      "params": 4,
+      "literals": [],
+      "props": [
+        "entry",
+        "filter",
+        "has",
+        "map",
+        "session_key",
+        "slice"
+      ]
+    },
+    "renderNotifyTargetCandidateLines": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "Background near-miss (NOT user-visible — delivery to these sessions will not reach a user):",
+        "Background sessions (jobs / meta):",
+        "Closest match:",
+        "Other foreground candidates:"
+      ],
+      "props": [
+        "backgroundPeers",
+        "closest",
+        "crossClassNearMisses",
+        "entry",
+        "length",
+        "note",
+        "otherForeground",
+        "push"
+      ]
+    },
+    "resolveJobOwnerNotifyTarget": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "' has an owner_session that is not a valid route target (",
+        "' has no owner_session recorded, so there is no default Notify target. Pass an explicit target_session_key, or add owner_session to the job file.",
+        ") is a job session, but no active job definition matched this session_key.",
+        "). Expected <session-key> only (no 'session:' prefix).",
+        "Current session (",
+        "Job '"
+      ],
+      "props": [
+        "frontmatter",
+        "id",
+        "owner_session",
+        "trim"
+      ]
+    },
+    "runNotifyTool": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "). Notify must target a different session.",
+        "). This notification chain is too deep — likely a loop.",
+        "Cannot notify self (session_key=",
+        "Error: ",
+        "Notify depth limit exceeded (max ",
+        "Notify is unavailable: runtime bus is not available in this context.",
+        "Notify requires a current session context (session_key).",
+        "[Notify] Tool execution failed",
+        "channel",
+        "explicit-target",
+        "foreground",
+        "job-default-target",
+        "meta",
+        "notify",
+        "notify-tool",
+        "notify_",
+        "notify_content is required and must not be empty.",
+        "route"
+      ],
+      "props": [
+        "candidates",
+        "correlation_id",
+        "entries",
+        "error",
+        "eventId",
+        "filter",
+        "inputs",
+        "jobScheduleType",
+        "length",
+        "mailboxPath",
+        "message",
+        "notifyDepth",
+        "notify_content",
+        "now",
+        "push",
+        "refused",
+        "reply_to",
+        "success",
+        "target_session_key",
+        "toString",
+        "trim",
+        "unconsumedHours",
+        "verdict"
+      ]
+    },
+    "materializeClaudeSettingsFile": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "add",
+        "chmod",
+        "dir",
+        "has",
+        "join"
+      ]
+    },
+    "resolveEffectiveChannelConfigForEvent": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "route"
+      ],
+      "props": [
+        "all",
+        "channelConfigDir",
+        "kind",
+        "session_key",
+        "source"
+      ]
+    },
+    "renderRestartWakeMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "Check whether the work you were doing completed before continuing.",
+        "Reason given by the caller: ",
+        "The daemon was restarted, which may have cut off the turn you were running.",
+        "The restart was requested at "
+      ],
+      "props": [
+        "filter",
+        "join"
+      ]
+    },
+    "readPartitionInboxEntries": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        ".json",
+        ".pending",
+        "[playlist] read partition inbox",
+        "utf8"
+      ],
+      "props": [
+        "all",
+        "endsWith",
+        "filter",
+        "isFile",
+        "join",
+        "length",
+        "map",
+        "mtimeMs",
+        "name",
+        "push",
+        "readFile",
+        "readdir",
+        "sort",
+        "startsWith",
+        "stat",
+        "trim"
+      ]
+    },
+    "countDatedStampLines": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "test"
+      ]
+    },
+    "parseEffectivenessTrajectory": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "NEUTRAL",
+        "NO-EFF",
+        "STRENGTHEN",
+        "STRENGTHENING",
+        "WEAKEN",
+        "WEAKENING"
+      ],
+      "props": [
+        "exec",
+        "startsWith",
+        "toUpperCase"
+      ]
+    },
+    "parseEffectivenessCounts": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "neutral",
+        "strengthening",
+        "weakening"
+      ],
+      "props": [
+        "test"
+      ]
+    },
+    "parseUpdaterGuidanceVerdict": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "POSITIVE_INFINITY",
+        "indexOf",
+        "test",
+        "toUpperCase"
+      ]
+    },
+    "classifyTopicNodeFormat": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "Lesson",
+        "Pattern",
+        "groove",
+        "legacy",
+        "lesson",
+        "other"
+      ],
+      "props": [
+        "exec"
+      ]
+    },
+    "classifyTopicNodeType": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "behavioral",
+        "domain",
+        "unknown"
+      ],
+      "props": [
+        "test",
+        "toLowerCase"
+      ]
+    },
+    "rankEffectivenessTrajectory": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "NEUTRAL",
+        "STRENGTHENING",
+        "WEAKENING"
+      ],
+      "props": []
+    },
+    "compareBoardLintTargets": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "n",
+        "s",
+        "slug",
+        "trajectory",
+        "w"
+      ]
+    },
+    "buildBoardLintTarget": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        "NO-EFF",
+        "topics/"
+      ],
+      "props": [
+        "effectivenessDir",
+        "entitiesDir",
+        "join",
+        "n",
+        "s",
+        "w"
+      ]
+    },
+    "initBoardLintModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "DROP",
+        "KEEP",
+        "PRESERVE",
+        "REMOVE",
+        "REWRITE",
+        "SHARPEN"
+      ],
+      "props": [],
+      "values": [
+        "5add91afa1d11eac"
+      ]
+    },
+    "initNodeLintModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [],
+      "props": [],
+      "values": [
+        "27badc983df1780b"
+      ]
+    },
+    "listMemoryFragmentDates": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "fragments"
+      ],
+      "props": [
+        "isDirectory",
+        "join",
+        "name",
+        "push",
+        "readdirSync",
+        "sort"
+      ]
+    },
+    "readOrSeedGapHandedDays": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "EEXIST",
+        "memory",
+        "utf8"
+      ],
+      "props": [
+        "code",
+        "dates",
+        "dirname",
+        "join",
+        "length",
+        "mkdirSync",
+        "readFault",
+        "readFileSync",
+        "writeFileSync"
+      ]
+    },
+    "appendGapHandedSpan": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "memory",
+        "utf8"
+      ],
+      "props": [
+        "appendFileSync",
+        "join",
+        "mkdirSync"
+      ]
+    },
+    "initGapLintModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "channel.message",
+        "gap-handed-days.txt",
+        "scan-gap.md.pending"
+      ],
+      "props": [],
+      "values": [
+        "0e44305da2e5eea3",
+        "112552db9e32aea1",
+        "daa90237e216da72",
+        "ed52f94248fc081c"
+      ]
+    },
+    "scanActivationWindowTouches": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "\"agent.tool_use\"",
+        "\"channel.message\"",
+        "\"kind\":\"runner\"",
+        "(?:entities|topics)",
+        ".jsonl",
+        "[^\\s\"']+\\.md(?=[\\s\"']|$)",
+        "entities",
+        "string",
+        "topics",
+        "utf8"
+      ],
+      "props": [
+        "add",
+        "dates",
+        "foregroundToolEvents",
+        "foregroundWrites",
+        "get",
+        "has",
+        "includes",
+        "input_summary",
+        "interactionDays",
+        "join",
+        "length",
+        "match",
+        "parse",
+        "payload",
+        "push",
+        "readFileSync",
+        "relative",
+        "reverse",
+        "sep",
+        "set",
+        "slice",
+        "split",
+        "toISOString",
+        "tool_name",
+        "touches"
+      ]
+    },
+    "renderActivationReportHeader": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " (excluded from touches -- the tree is subconscious-owned, so a foreground write is suspicious, not warmth)",
+        " across ",
+        " cold files | wiring incompleteness = ",
+        " files in memory/{entities,topics}",
+        " interaction day(s)",
+        " interaction days (days holding channel.message) of var/events (",
+        " partition file(s), ",
+        " | dead weight = ",
+        " | live ratio = ",
+        "[activation-report]",
+        "evidence entirely, and an active window with few touches indicts the recall loop",
+        "foreground tool events: ",
+        "foreground writes to the memory tree: ",
+        "loss: expansion rate = ",
+        "memory touches: ",
+        "no event partitions on disk",
+        "rather than any single line or file.",
+        "read every component against the denominators above: a quiet window voids this",
+        "window: last "
+      ],
+      "props": [
+        "coldCount",
+        "filesTouched",
+        "foregroundToolEvents",
+        "foregroundWrites",
+        "hotOrphanCount",
+        "interactionDays",
+        "inventory",
+        "memoryTouches",
+        "partitionFiles",
+        "windowDays",
+        "windowEnd",
+        "windowStart"
+      ]
+    },
+    "renderBoardTemperatureSection": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " more rows, truncated at the board line budget)",
+        "(the board carries no [[slug]] pointers)",
+        "DANGLING -- no entities/ or topics/ file",
+        "also silent for this whole window, the default is retire, not preserve. Recent",
+        "board temperature (direct edges only -- each row is one [[slug]] occurrence and the",
+        "direction: a hot line is holding its weight -- keep it, or sharpen it. A 0-touch line",
+        "effect. A dangling pointer is claude-lint's business, not this report's.",
+        "fragments overrule cold pointers -- this metric cannot see a line's direct in-context",
+        "is half the evidence for retirement: check the line's fragments, and when they are",
+        "line | slug | touches | resolves to",
+        "touch count of the file behind it; no transitive attribution):"
+      ],
+      "props": [
+        "join",
+        "length",
+        "line",
+        "map",
+        "push",
+        "rel",
+        "slug",
+        "touches",
+        "twins"
+      ]
+    },
+    "renderHotOrphansSection": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " more, capped at ",
+        " touches",
+        "(none -- every file touched this window is reachable from the board)",
+        "MISSING gradient it demonstrably should carry -- wire it in, through a board line or a",
+        "deliberate retirement is not miswiring.",
+        "direction: gradient is flowing outside the wiring and in use right now, so the board is",
+        "from \"used before a deliberate unlink earlier in the same window\", so a recent",
+        "hot orphans (touched, but outside the board closure; both trees):",
+        "it. One caveat this window cannot settle for you: it cannot tell \"used while orphaned\"",
+        "link from a dossier the board already reaches. Or judge the reads incidental and leave"
+      ],
+      "props": [
+        "length",
+        "push",
+        "rel",
+        "touches"
+      ]
+    },
+    "resolveGitToplevelSync": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "--show-toplevel",
+        "rev-parse",
+        "utf8"
+      ],
+      "props": [
+        "error",
+        "length",
+        "status",
+        "stdout",
+        "trim"
+      ]
+    },
+    "isTruthyEnvFlag": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "true"
+      ],
+      "props": [
+        "env",
+        "toLowerCase",
+        "trim"
+      ]
+    },
+    "pathExistsAsync": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "access"
+      ]
+    },
+    "runKernelGitCommand": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "ignoreError",
+        "stderr",
+        "stdout"
+      ]
+    },
+    "buildKernelGitEnv": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "aladuo",
+        "aladuo@local"
+      ],
+      "props": [
+        "devNull",
+        "env"
+      ]
+    },
+    "isKernelGitToplevel": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "--show-toplevel",
+        "rev-parse"
+      ],
+      "props": [
+        "realpath",
+        "trim"
+      ]
+    },
+    "ensureKernelGitRepo": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        ".gitignore",
+        "[memory-git] existing repo detected, .gitignore synced",
+        "[memory-git] genesis commit created",
+        "[memory-git] initializing git repo",
+        "commit",
+        "init",
+        "memory: genesis",
+        "utf8"
+      ],
+      "props": [
+        "join",
+        "writeFile"
+      ]
+    },
+    "mergeKernelGitignoreEntries": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        ".gitignore",
+        "[memory-git] merged .gitignore entries",
+        "utf8"
+      ],
+      "props": [
+        "endsWith",
+        "filter",
+        "has",
+        "join",
+        "length",
+        "map",
+        "readFile",
+        "split",
+        "trim",
+        "writeFile"
+      ]
+    },
+    "initKernelGitModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "# Runtime state (not part of cognitive evolution)\nmemory/state/\nmemory/fragments/\nmemory/effectiveness/\nsubconscious/inbox/\n.claude/\n*.tmp\nCLAUDE.local.md\n# Model-profile config can embed credential-shaped values; keep it out of history\nconfig/runtime.md\n"
+      ],
+      "props": [
+        "filter",
+        "length",
+        "map",
+        "split",
+        "startsWith",
+        "trim"
+      ],
+      "values": [
+        "01fa2023e342bae5"
+      ]
+    },
+    "migrateLegacyJobSessionKeys": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "[job-key-migration] failed to migrate job session key",
+        "[job-key-migration] job session keys migrated off owner_session",
+        "active",
+        "archive",
+        "collision",
+        "migrated",
+        "utf8"
+      ],
+      "props": [
+        "collisions",
+        "data",
+        "default",
+        "endsWith",
+        "errors",
+        "jobsDir",
+        "join",
+        "message",
+        "migrated",
+        "readFile",
+        "readdir",
+        "skipped",
+        "slice"
+      ]
+    },
+    "isDirEmptyOrMissing": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "ENOENT"
+      ],
+      "props": [
+        "code",
+        "length",
+        "readdir"
+      ]
+    },
+    "copyDirTreeOverwrite": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "copyFile",
+        "isDirectory",
+        "isFile",
+        "join",
+        "name",
+        "readdir"
+      ]
+    },
+    "copyDirTreeMissingOnly": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "copyFile",
+        "isDirectory",
+        "isFile",
+        "join",
+        "name",
+        "readdir"
+      ]
+    },
+    "refreshBootstrapDuoduoMdFiles": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "DUODUO.md"
+      ],
+      "props": [
+        "bootstrapDir",
+        "copyFile",
+        "isDirectory",
+        "isFile",
+        "join",
+        "name",
+        "readdir",
+        "varDir"
+      ]
+    },
+    "copyBootstrapIntoKernel": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "development"
+      ],
+      "props": [
+        "NODE_ENV",
+        "bootstrapDir",
+        "copyFile",
+        "env",
+        "has",
+        "isDirectory",
+        "isFile",
+        "join",
+        "kernelDir",
+        "name",
+        "readdir",
+        "resolve"
+      ]
+    },
+    "generateAllPartitionCodexAgents": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "[runtime-init] codex-agents-generator error for ",
+        "[runtime-init] codex-agents-generator failed for ",
+        "inbox"
+      ],
+      "props": [
+        "errors",
+        "isDirectory",
+        "join",
+        "length",
+        "message",
+        "name",
+        "path",
+        "readdir",
+        "reason",
+        "resolve",
+        "startsWith",
+        "subconsciousDir",
+        "then",
+        "warn"
+      ]
+    },
+    "initRuntimeInitializationModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "# Subconscious Playlist\n\n## Current Round\n\n## History\n",
+        "config",
+        "dashboard.html",
+        "memory",
+        "meta-prompt.md"
+      ],
+      "props": [],
+      "values": [
+        "12ae32cb1ec02d01",
+        "d9447fef62c16903"
+      ]
+    },
+    "resolveClaudeContextRequirement": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "profiled-external"
+      ],
+      "props": [
+        "cwd",
+        "daemonEnv",
+        "hostMaxContextTokens",
+        "issues",
+        "kind",
+        "mergedCatalog",
+        "model",
+        "origin",
+        "some"
+      ]
+    },
+    "acquireSessionDrainLock": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "now",
+        "pid",
+        "toISOString",
+        "ttlMs"
+      ]
+    },
+    "refreshSessionDrainLockHeartbeat": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "last_heartbeat_at",
+        "toISOString"
+      ]
+    },
+    "releaseSessionDrainLock": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "unlink"
+      ]
+    },
+    "isClaudeRuntimeOrDefault": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "claude"
+      ],
+      "props": []
+    },
+    "normalizeInputTokenTotals": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "anthropic",
+        "codex",
+        "grok"
+      ],
+      "props": [
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens",
+        "input_tokens",
+        "protocol"
+      ]
+    },
+    "decideBoardUpdatedInjection": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "changed",
+        "first-seen",
+        "no-board",
+        "unchanged"
+      ],
+      "props": [
+        "currentBoardHash",
+        "lastSeenBoardHash"
+      ]
+    },
+    "renderBoardUpdatedHint": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " if you need the fresh version</board-updated>",
+        "<board-updated>memory board changed — Read "
+      ],
+      "props": []
+    },
+    "resolveDrainContextProfileOrRefuse": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "\n\nFix the offending claude.model_profiles entry — the layer named above says which file: global = kernel/config/runtime.md, kind = kernel/config/<kind>.md, instance = the channel descriptor or the job file. No prompt reached the model and no pending notification was consumed, so the next turn runs normally once the config parses.",
+        "[duoduo:drain-error] agent turn refused before it started: this session's model context profile could not be resolved.\n\n",
+        "context_profile"
+      ],
+      "props": [
+        "anchor",
+        "bus",
+        "message",
+        "precedingRecords"
+      ]
+    },
+    "resolvePendingCompactNotice": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "compact_stats",
+        "history_post",
+        "history_pre",
+        "isFinite",
+        "isNaN",
+        "last_compact_at",
+        "last_event_at",
+        "measured_at",
+        "parse",
+        "post_total",
+        "pre_total",
+        "suggested_min_context_tokens",
+        "threshold_at_fire",
+        "transcript_path"
+      ]
+    },
+    "renderSmartCompactNoticeBlock": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " < suggested ",
+        " — for lost recent detail, search it with a cheap subagent; memory/dossiers lag hours",
+        " — re-calibrate via smart-compaction skill",
+        "</smart-compact-notice>",
+        "<smart-compact-notice>",
+        "compacted ",
+        "ctx →",
+        "full pre-compact transcript survives at ",
+        "history ",
+        "number",
+        "string",
+        "threshold ",
+        "when unsure of pre-compact specifics, consult memory/dossiers — don't reconstruct from the summary"
+      ],
+      "props": [
+        "compactedAt",
+        "historyPost",
+        "historyPre",
+        "join",
+        "length",
+        "postTotal",
+        "preTotal",
+        "push",
+        "suggestedMinContextTokens",
+        "thresholdAtFire",
+        "transcriptPath"
+      ]
+    },
+    "renderTimeGapContextBlock": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " have elapsed since your last interaction in this session.",
+        "\" current_time=\"",
+        "</time-context>",
+        "<time-context last_interaction=\"",
+        "Approximately ",
+        "Daemon wall-clock time: "
+      ],
+      "props": [
+        "currentEventAt",
+        "getTime",
+        "isFinite",
+        "join",
+        "lastEventAt",
+        "push",
+        "thresholdMs"
+      ]
+    },
+    "renderJobTickBlock": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " (daemon: ",
+        " ago)",
+        "- cron: ",
+        "- previous_run_at: ",
+        "- previous_run_at: (first run)",
+        "- run_number: ",
+        "- triggered_at: ",
+        "</job-tick>",
+        "<job-tick>",
+        "Scheduled trigger for this run."
+      ],
+      "props": [
+        "cron",
+        "isFinite",
+        "join",
+        "parse",
+        "previous_run_at",
+        "push",
+        "run_number",
+        "triggered_at"
+      ]
+    },
+    "hasSkipRewindRecordSince": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "catch",
+        "isFinite",
+        "parse",
+        "pending_skip_rewind",
+        "skipped_at"
+      ]
+    },
+    "renderCoalescedDrainPrompt": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " closely timed events as one continuous update.",
+        "(empty)",
+        ": @evt(",
+        "Event ",
+        "Events are ordered from oldest to newest. Reply once.",
+        "Process these "
+      ],
+      "props": [
+        "entries",
+        "event",
+        "id",
+        "join",
+        "length",
+        "prompt",
+        "push",
+        "trimEnd",
+        "ts",
+        "type"
+      ]
+    },
+    "createDrainExecutionEventRecorder": {
+      "kind": "function",
+      "params": 5,
+      "literals": [
+        "[runner] execution event",
+        "agent.tool_result",
+        "agent.tool_use",
+        "runner",
+        "string",
+        "thought_chunk",
+        "tool_input_delta",
+        "tool_result",
+        "tool_use"
+      ],
+      "props": [
+        "ephemeral",
+        "input",
+        "isError",
+        "stringify",
+        "subtype",
+        "summary",
+        "text",
+        "toolName",
+        "toolUseId",
+        "type"
+      ]
+    },
+    "emitDrainOutputRecords": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "agent.result",
+        "channel",
+        "fanout",
+        "reply_override",
+        "reply_to_origin",
+        "runner"
+      ],
+      "props": [
+        "attachments",
+        "batchedEventIds",
+        "batched_event_ids",
+        "entries",
+        "event",
+        "id",
+        "item",
+        "kind",
+        "length",
+        "outputText",
+        "payload",
+        "push",
+        "replySessionKey",
+        "sdkSessionId",
+        "session_key",
+        "source",
+        "text",
+        "trim",
+        "turnMeta"
+      ]
+    },
+    "runDrainTurnWithResumeFallback": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "[claude-context-profile] non-streaming subprocess spawned",
+        "codex",
+        "default",
+        "info",
+        "pending_skip_rewind",
+        "thought_chunk",
+        "tool_result"
+      ],
+      "props": [
+        "CLAUDE_CODE_MAX_CONTEXT_TOKENS",
+        "catch",
+        "claudeContextRequirement",
+        "claudeModelAliases",
+        "env",
+        "flush",
+        "isFinite",
+        "length",
+        "message",
+        "model",
+        "now",
+        "onExecutionEvent",
+        "onStream",
+        "parse",
+        "pending_skip_rewind",
+        "push",
+        "reset",
+        "run",
+        "runtimeDir",
+        "skipped_at",
+        "text",
+        "thoughts",
+        "type"
+      ]
+    },
+    "buildPiSystemPromptSpec": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "append",
+        "override",
+        "string"
+      ],
+      "props": [
+        "append",
+        "trim"
+      ]
+    },
+    "createPiWorkerAdapter": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "SIGKILL",
+        "SIGTERM",
+        "Skip",
+        "abort",
+        "compact",
+        "compact_result",
+        "data",
+        "error",
+        "exec",
+        "exit",
+        "failed",
+        "init",
+        "init_error",
+        "noop",
+        "notify",
+        "orphan_run",
+        "pi adapter: RunInput.tools carries the claude builtin surface — ignored on pi (§3 no-op table)",
+        "pi adapter: a run is already in flight (single-inflight violation)",
+        "pi adapter: connect cancelled by shutdown",
+        "pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles",
+        "pi adapter: frame dropped, worker stdin closed: ",
+        "pi adapter: non-frame stdout line skipped",
+        "pi adapter: orphan_run ",
+        "pi adapter: prompt must be a string (streaming generators are claude-only)"
+      ],
+      "props": [
+        "abortController",
+        "aborted",
+        "accepted",
+        "acceptedAt",
+        "add",
+        "addEventListener",
+        "agentDir",
+        "all",
+        "args",
+        "args_json",
+        "attachments",
+        "authPath",
+        "cancel",
+        "catch",
+        "command",
+        "cwd",
+        "delete",
+        "delta",
+        "destroyed",
+        "disallowedTools",
+        "end",
+        "env",
+        "error",
+        "event",
+        "exitCode",
+        "finally",
+        "first_token_latency_ms",
+        "has",
+        "inMemorySession",
+        "is_error",
+        "kill",
+        "kind",
+        "landed",
+        "length",
+        "logDebug",
+        "logWarn",
+        "match",
+        "message",
+        "model",
+        "modelsPath",
+        "modelsStorePath",
+        "now",
+        "on",
+        "onExecutionEvent",
+        "onNotify",
+        "onStream",
+        "onToolEnd",
+        "onTurnAcknowledged",
+        "onTurnRejected",
+        "once",
+        "outcome",
+        "parse",
+        "pendingToolEndEffects",
+        "phase",
+        "pre_input_tokens",
+        "promise",
+        "prompt",
+        "push",
+        "race",
+        "reason"
+      ]
+    },
+    "runQueueOutboundAttachmentTool": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        " bytes > ",
+        " bytes。path=",
+        ", accept_mime=",
+        ", channel=",
+        "- accept_mime: ",
+        "- mime: ",
+        "- path: ",
+        "- session_key: ",
+        "- size_bytes: ",
+        "Error: ",
+        "Outbound attachment queued.",
+        "QueueOutboundAttachment",
+        "[QueueOutboundAttachment] Tool execution failed",
+        "number",
+        "path is not a file: ",
+        "path is required",
+        "。channel=",
+        "当前 channel 不支持接收文件/图片（accept_mime 为空）。session=",
+        "当前 channel 不支持此 MIME: ",
+        "文件超出 channel 大小限制: "
+      ],
+      "props": [
+        "channel_capabilities",
+        "filter",
+        "isAbsolute",
+        "isFile",
+        "join",
+        "length",
+        "message",
+        "mime",
+        "path",
+        "paths",
+        "pending_outbound_attachments",
+        "resolve",
+        "sessionKey",
+        "size",
+        "some",
+        "stat",
+        "toISOString",
+        "trim"
+      ]
+    },
+    "buildCodexStringInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object",
+        "string"
+      ],
+      "props": [
+        "description",
+        "entries",
+        "push",
+        "safeParse",
+        "success",
+        "unwrap"
+      ]
+    },
+    "isAutoArchivedJobSchedule": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "@in ",
+        "once"
+      ],
+      "props": [
+        "startsWith"
+      ]
+    },
+    "classifyJobScheduleType": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "one-shot",
+        "periodic"
+      ],
+      "props": []
+    },
+    "inferActorOriginFromSessionKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "job:",
+        "meta:",
+        "system",
+        "system:"
+      ],
+      "props": [
+        "startsWith"
+      ]
+    },
+    "stripBoardIncludeFrontmatter": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "content",
+        "default"
+      ]
+    },
+    "parseBoardFileContent": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "<!--"
+      ],
+      "props": [
+        "includes",
+        "lex"
+      ]
+    },
+    "stripBoardHtmlComments": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "<!--",
+        "html"
+      ],
+      "props": [
+        "includes",
+        "raw",
+        "replace",
+        "startsWith",
+        "trim",
+        "trimStart",
+        "type"
+      ]
+    },
+    "collectBoardIncludePaths": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "<!--",
+        "code",
+        "codespan",
+        "html",
+        "text"
+      ],
+      "props": [
+        "add",
+        "dirname",
+        "exec",
+        "includes",
+        "items",
+        "lastIndex",
+        "raw",
+        "replace",
+        "startsWith",
+        "text",
+        "tokens",
+        "trim",
+        "trimStart",
+        "type"
+      ]
+    },
+    "normalizeBoardIncludeToken": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "replace",
+        "split"
+      ]
+    },
+    "isBoardIncludePathCandidate": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "isAbsolute",
+        "parse",
+        "root",
+        "startsWith",
+        "test"
+      ]
+    },
+    "resolveBoardIncludePath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "homedir",
+        "isAbsolute",
+        "join",
+        "resolve",
+        "slice",
+        "startsWith"
+      ]
+    },
+    "flagStreamRecreationOnModelReject": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "[kv-cache] needsRecreation flagged",
+        "model-apply-rejected",
+        "warn"
+      ],
+      "props": [
+        "model",
+        "needsRecreation",
+        "reason",
+        "requirementKind",
+        "sdkSessionId",
+        "sessionKey",
+        "streamingGeneration",
+        "streamingState"
+      ]
+    },
+    "recordPendingInterruptMarker": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "activeToolCalls",
+        "pendingInterruptMarker",
+        "size"
+      ]
+    },
+    "prependPendingInterruptMarker": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "pendingInterruptMarker",
+        "prompt"
+      ]
+    },
+    "normalizePartitionOutputText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "(no output)"
+      ],
+      "props": [
+        "length",
+        "trim"
+      ]
+    },
+    "appendPartitionToolEvent": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "agent.tool_result",
+        "agent.tool_use",
+        "meta",
+        "subconscious:",
+        "tool_result",
+        "tool_use"
+      ],
+      "props": [
+        "input",
+        "isError",
+        "summary",
+        "toolName",
+        "toolUseId",
+        "type"
+      ]
+    },
+    "readNewestMtimeRecursive": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "isDirectory",
+        "isFile",
+        "isSymbolicLink",
+        "join",
+        "mtimeMs",
+        "name",
+        "readdir",
+        "stat"
+      ]
+    },
+    "initMetaSessionModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "gradient-distiller",
+        "intuition-weaver"
+      ],
+      "props": [],
+      "values": []
+    },
+    "fireDueWakeRecords": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "[cadence] wake delivered",
+        "[cadence] wake due but no bus available to deliver it",
+        "[cadence] wake fire failed; record left for the next scan",
+        "[cadence] wake scan failed to list records",
+        "delivered",
+        "never",
+        "self-wake",
+        "string",
+        "wake",
+        "wake-",
+        "wake:"
+      ],
+      "props": [
+        "context",
+        "created_at",
+        "fireWakeRecord",
+        "frontmatter",
+        "getTime",
+        "id",
+        "isFinite",
+        "length",
+        "listWakeRecords",
+        "message",
+        "owner_session",
+        "parse",
+        "push",
+        "run_at",
+        "state"
+      ]
+    },
+    "isJobOrMetaOutboxRecord": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "job:",
+        "meta",
+        "meta:"
+      ],
+      "props": [
+        "channel_kind",
+        "session_key",
+        "startsWith"
+      ]
+    },
+    "IDLE_COMPACT_FIRE_CAP_PER_SWEEP": {
+      "kind": "value",
+      "params": null,
+      "value": "2c624232cdd22177",
+      "preview": "8"
+    },
+    "assertWsChannelIdentityParams": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        " over WebSocket requires params.channel_id (stable business channel identity)",
+        " over WebSocket requires params.source_kind (adapter business kind, e.g. \"acp\")",
+        " params.source_kind must be a business channel kind, not transport kind \""
+      ],
+      "props": [
+        "channel_id",
+        "has",
+        "message",
+        "source_kind",
+        "trim",
+        "wsSubscriberId"
+      ]
+    },
+    "resolveIngressWorkspace": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "' (bound session path does not exist).",
+        "' does not exist, could not be created, or is not accessible; falling back to session state / ALADUO_WORK_DIR",
+        "' for kind '",
+        "'. Use an existing absolute directory path and retry.",
+        "Workspace unavailable: '",
+        "[daemon] channel.ingress/channel.command cwd_abs is deprecated; prefer descriptor-driven new_session_workspace (channel.spawn)",
+        "[daemon] created missing new_session_workspace '",
+        "[daemon] effective new_session_workspace '"
+      ],
+      "props": [
+        "catch",
+        "created_at",
+        "cwd",
+        "new_session_workspace",
+        "permission_profile",
+        "plane",
+        "resolve",
+        "toISOString",
+        "trim",
+        "workDir"
+      ]
+    },
+    "archiveSessionIfQuiescent": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "). Cancel it first via channel.command '/cancel' or session.interrupt, then retry.",
+        ". Already archived, or never materialized on disk.",
+        "Another session.archive for this session is already in flight. Retry after the in-flight call returns.",
+        "Archived — to recover, `mv` the archived directory back to its original location. To permanently delete, remove the archived directory by hand.",
+        "No artifacts found for session_key=",
+        "Session has a live actor (status=",
+        "Session has queued work waiting for a concurrency slot. Let that work finish and the actor end before retrying.",
+        "Session has unprocessed items in its inbox or mailbox. Let the runtime drain them before retrying.",
+        "Session received work while the archive was in flight. Nothing was archived; let the runtime drain it before retrying.",
+        "Session's inbox or mailbox became unreadable while the archive was in flight. Nothing was archived.",
+        "Session's inbox or mailbox could not be read, so it cannot be shown to be empty. Fix the directory permissions or I/O fault, then retry.",
+        "[session.archive] post-refusal wake re-dispatch failed",
+        "[session.archive] session archived",
+        "active",
+        "clear",
+        "ended",
+        "never",
+        "not_found",
+        "pending_work",
+        "session_key is empty",
+        "unreadable"
+      ],
+      "props": [
+        "archived",
+        "archivedPaths",
+        "getActorView",
+        "hasQueuedWake",
+        "length",
+        "message",
+        "reason",
+        "remove",
+        "session_key",
+        "status",
+        "trim",
+        "wakeSession"
+      ]
+    },
+    "setSessionAliasAndReindex": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "not_found"
+      ],
+      "props": [
+        "display_name",
+        "get",
+        "session_key",
+        "trim"
+      ]
+    },
+    "checkChannelRuntimeRebindConflict": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        " (bound to '",
+        " hold history that only their current runtime can resume: ",
+        " session(s) of channel ",
+        "', sdk_session_id ",
+        ". Send /clear in each of those sessions first (recover anything worth keeping from its history before that), then set the runtime again.",
+        "runtime not changed to '"
+      ],
+      "props": [
+        "catch",
+        "join",
+        "length",
+        "list",
+        "push",
+        "sdk_session_id",
+        "sdk_session_runtime",
+        "session_key",
+        "source_channel_id"
+      ]
+    },
+    "applySessionConfigVerb": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "\" has no source_channel_id (no instance descriptor to write)",
+        "--global does not support \"",
+        ".md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)",
+        "ambiguous",
+        "archiving",
+        "channel",
+        "forbidden_kind",
+        "global",
+        "instance",
+        "invalid",
+        "kind",
+        "not_found",
+        "profile_alias_set",
+        "profile_alias_unset",
+        "profile_get",
+        "profile_set",
+        "profile_unset",
+        "session \"",
+        "set requires at least one key=value",
+        "string",
+        "unset",
+        "unset requires at least one key",
+        "write_failed"
+      ],
+      "props": [
+        "candidates",
+        "channelConfigDir",
+        "channel_kind",
+        "claudeTools",
+        "compact_stats",
+        "display_name",
+        "error",
+        "errors",
+        "filter",
+        "global",
+        "keys",
+        "kind",
+        "last_compact_at",
+        "length",
+        "map",
+        "ok",
+        "patch",
+        "reason",
+        "runtime",
+        "session_key",
+        "set",
+        "source_channel_id",
+        "target",
+        "toLowerCase",
+        "trim",
+        "unset",
+        "verb"
+      ]
     }
   }
 }

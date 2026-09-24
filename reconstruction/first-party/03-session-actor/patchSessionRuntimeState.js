@@ -14,7 +14,7 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
             });
             return
         }
-        let s = fs(e, t),
+        let s = resolveSessionStatePath(e, t),
             a = {
                 updated_at: new Date().toISOString()
             };

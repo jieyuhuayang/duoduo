@@ -8,7 +8,7 @@ async function updateSessionDisplayName(e, t, n) {
     assertSessionNotArchiving(t);
     let r = null;
     return await runWithSessionMutex(t, async () => {
-        let i = Na(e, t),
+        let i = resolveSessionMetaPath(e, t),
             o;
         try {
             o = await ja.readFile(i, "utf8")

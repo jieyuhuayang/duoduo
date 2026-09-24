@@ -20,7 +20,7 @@ function createModelCommandResolvers(e) {
         if (l) {
             let d = await ho(t, l).catch(() => null),
                 f = d?.channel_kind,
-                p = f ? await ys(t.channelConfigDir, f).catch(() => null) : null;
+                p = f ? await loadChannelKindConfig(t.channelConfigDir, f).catch(() => null) : null;
             c = d?.runtime ?? p?.runtime
         }
         return c ??= resolveDefaultRuntime(), c
@@ -42,7 +42,7 @@ function createModelCommandResolvers(e) {
             d = a ? QEe(a) : void 0,
             f = await i(s, l),
             p = u ? void 0 : buildSessionInfoFromState(t, s, await ct(t, s).catch(() => null) ?? void 0).cwd,
-            m = await Eg({
+            m = await resolveClaudeContextRequirement({
                 model: u,
                 cwd: p,
                 daemonEnv: process.env,

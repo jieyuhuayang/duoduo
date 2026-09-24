@@ -86,7 +86,7 @@ var Dye, wst, o$, vV, wV, Ur, initJobManagerModule = O(() => {
             }
         }
         async rescheduleJob(t, n, r = new Date) {
-            let i = fw(n, r);
+            let i = parseJobRearmTime(n, r);
             return wc(t, async () => {
                 if (!await this.exists(t)) throw await this.pathExists(this.getArchiveJobPath(t)) ? new Error(`Job ${t} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${t} not found`);
                 let o = this.getStatePath(t),
@@ -156,7 +156,7 @@ var Dye, wst, o$, vV, wV, Ur, initJobManagerModule = O(() => {
         async createWakeRecord(t) {
             await this.init();
             let n = t.now ?? new Date,
-                r = fw(t.when, n),
+                r = parseJobRearmTime(t.when, n),
                 i = t.ownerSession.trim();
             if (!i) throw new Error("A wake record needs an owner session — the caller is always the target.");
             let o = `wake-${n.getTime().toString(36)}`,

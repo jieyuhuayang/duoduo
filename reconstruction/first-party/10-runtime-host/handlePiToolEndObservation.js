@@ -21,7 +21,7 @@ async function handlePiToolEndObservation(e, t, n) {
             let r = parsePiToolResultDetails(n.result_json),
                 i = r?.path;
             if (typeof i != "string" || i.trim().length === 0) return;
-            let o = await Pg({
+            let o = await runQueueOutboundAttachmentTool({
                 path: i,
                 mime: typeof r?.mime == "string" ? r.mime : void 0,
                 session_key: typeof r?.session_key == "string" ? r.session_key : void 0

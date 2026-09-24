@@ -27,7 +27,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 append: f
             })
         }
-        if (r.systemPrompt !== void 0 && (r.systemPrompt = Prt(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
+        if (r.systemPrompt !== void 0 && (r.systemPrompt = disableSystemPromptSnapshot(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let u = [...new Set(t.tools)];
             if (r.tools = u, _t("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
                 let l = findDeadAllowedToolEntries(t.allowedTools, u);

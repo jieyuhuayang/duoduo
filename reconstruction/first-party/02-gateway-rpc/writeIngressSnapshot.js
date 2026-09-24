@@ -17,7 +17,7 @@ async function writeIngressSnapshot(e, t, n) {
             attachments: t.attachments ?? []
         },
         a = Date.now();
-    return await Bt(o, s), await ps(e, "ingress_snapshot_ms", Date.now() - a, {
+    return await Bt(o, s), await recordTelemetryMetric(e, "ingress_snapshot_ms", Date.now() - a, {
         eventId: n.id,
         sessionKey: t.sessionKey,
         sourceKind: t.sourceKind

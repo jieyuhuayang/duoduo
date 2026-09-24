@@ -21,7 +21,7 @@ ${i}
         stage: n.stage
     });
     else try {
-        let u = await $c(e, t, {
+        let u = await emitDrainOutputRecords(e, t, {
             item: n.anchor.item,
             event: n.anchor.event,
             outputText: o
