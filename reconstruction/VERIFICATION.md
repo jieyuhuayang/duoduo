@@ -2,7 +2,7 @@
 
 目标命题：**还原产物（提交的 `recon/daemon.recon.js`，以及 `rebuild.sh` 生成在 `$OUT` 下的 `cli.recon.js`）与出厂 `dist/release/` 下的同名 bundle 是同一个程序，能同样运行。**
 
-命题的静态部分在 v0.8.3 上成立，而且不是一次性结论：每次 `tools/rebuild.sh` 运行都从出厂包重新证明一遍。已提交的 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 由一次带 `PKG` 的 `PROMOTE=1` 运行写入，每个证明类 verdict 都是 `pass`，并记录了出厂与美化 bundle 的 sha256；CI 在每个 PR 上用报告记录的版本重跑全部闸门。命题的运行部分（证据四）最近一次 A/B 对照是在 v0.8.2 上做的，v0.8.3 尚未补做。本文不复述计数，计数以报告为准；各道闸门的机制说明见 [README.md](./README.md)，本文只记录它们证明了什么、证据在哪里。
+命题的静态部分在 v0.8.3 上成立，而且不是一次性结论：每次 `tools/rebuild.sh` 运行都从出厂包重新证明一遍。已提交的 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 由一次带 `PKG` 的 `PROMOTE=1` 运行写入，每个证明类 verdict 都是 `pass`，并记录了出厂与美化 bundle 的 sha256；CI 在每个 PR 上用报告记录的版本重跑全部闸门。命题的运行部分（证据四）在 v0.8.3 上做过一次启动对照（覆盖启动与控制面读接口），更完整的一次 A/B 对照是在 v0.8.2 上做的。本文不复述计数，计数以报告为准；各道闸门的机制说明见 [README.md](./README.md)，本文只记录它们证明了什么、证据在哪里。
 
 九条证据的分工如下。前三条证明变换链不改程序，第四条是实机运行，第五条覆盖跨版本重定向，第六、七条覆盖人读的东西（可读树与文档引用，它们出错时前几条证据照样全部通过），第八条反过来检验检查器本身，第九条把"`$OUT` 里的结论"变成"仓库里文件的结论"。
 
@@ -28,7 +28,7 @@
 
 ## 证据二 · 名字与归属：来自 esbuild 的导出结构
 
-**真名取自 bundle 本身。** esbuild 压缩后仍保留 `__export(exports, { 原名: () => 短名 })` 调用，每个有导出的源模块一次；bundle 顶层的 `export {}` 另外记录入口导出。恢复出的名字数、按模块分组后的自研名字数、入口导出数、推断名数和改名条目数，分别见报告 `bundles.<bundle>` 下的 `namesInBlocks`、`firstPartyNamesFromBlocks`、`namesFromEntryExports`、`inferredNames`、`renameEntries`。
+**真名取自 bundle 本身。** esbuild 压缩后仍保留 `__export(exports, { 原名: () => 短名 })` 调用。它只为运行时需要导出对象的模块生成这种调用（典型是被动态 `import()` 的模块），所以大多数模块没有导出块，但一个块总是恰好对应一个源模块；bundle 顶层的 `export {}` 另外记录入口导出。恢复出的名字数、按模块分组后的自研名字数、入口导出数、推断名数和改名条目数，分别见报告 `bundles.<bundle>` 下的 `namesInBlocks`、`firstPartyNamesFromBlocks`、`namesFromEntryExports`、`inferredNames`、`renameEntries`。
 
 **归属按模块判定。** `build_rename.mjs` 用 `maps/modules_<bundle>.json` 逐块判定自研还是第三方；匹配不上任何记录的块让构建失败，并列出该块全部导出名。这道闸门没有单独的 verdict：它失败时构建直接停止，报告不会生成。按名字判定归属时，一个被误记为第三方的名字此后永远不会再被检查；按模块判定时，新版本带来的是一个需要判定的模块，而模块的身份不依赖名字长什么样（整个 Grok 模块只导出 `GROK_ACP_*` 常量）。
 
@@ -45,9 +45,14 @@
 
 ## 证据四 · 实机运行
 
-**TODO — v0.8.3 启动验证：待本次交付前补录**
+v0.8.3 的实机对照覆盖启动与控制面读接口，结论是两边一致。2026-09-24 用 Node v22.23.3 在 macOS 上，把还原的 `daemon.recon.js`（472 个改名符号）与出厂 `daemon.js` 放进同一个 v0.8.3 包目录，各用一个隔离 HOME、端口 20333、host 模式、`claude_code_local` 认证与 `info` 日志级别依次启动，探测后用 SIGTERM 停止：
 
-最近一次 A/B 对照在 v0.8.2 上做，v0.8.3 还没有做；v0.8.3 的还原正确性目前由证据一至三、六至九支撑。v0.8.2 的对照把还原版与出厂版放在各自隔离的 HOME 与备用端口下运行：
+- 只读 TCP 上的 `system.status`：遮掉 id、时间戳、pid 与路径之后逐字相同。
+- 只读 TCP 上的写类方法 `session.list`：两边都返回同一个 JSON-RPC `-32601`（"Method not available on read-only endpoint"）。
+- unix socket 上的 `session.list`：两边相同。
+- 启动日志：两边各 26 行，遮掉时间戳、pid 与路径后相同，没有错误行；两边都在 SIGTERM 后 3 秒内退出。
+
+更完整的一次 A/B 对照在 v0.8.2 上做，把还原版与出厂版放在各自隔离的 HOME 与备用端口下运行：
 
 - **daemon**：4 个实例，约 13 分钟。启动日志、生成的 HOME 文件树、只读 TCP 接口、unix socket 上的 26 个读类 RPC、60 秒周期的 cadence、SIGTERM 与 SIGKILL 之后的恢复行为，两边一致。
 - **cli**：133 组调用的 stdout、stderr 与退出码逐字节一致。
@@ -160,7 +165,7 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 
 v0.8.3 的已提交报告里 `committedInSync` 为 `promoted`，表示它由一次写入成功的 `PROMOTE=1` 运行生成；`anchorTargetMatches` 为 `pass`。2026-09-24 用 v0.8.3 出厂包做的一次 check 模式运行（Node v22.23.3，`/bin/bash` 3.2）中，全部 verdict 为 `pass`，其中 `committedInSync=pass`：每个比较过的产物都与已提交版本一致，包括报告里的两组哈希。
 
-美化输出按版本写到 `$OUT/beautified/<版本>/`，旧的平铺目录里残留的美化文件在每次运行时删除；手工用 `BEAUTIFIED=` 指定的目录仍可能过期，由 `bundle_guard.mjs` 拒绝（证据八 8a 的"错误的 bundle"）。
+美化输出按版本写到 `$OUT/beautified/<版本>/`，旧的平铺目录里残留的美化文件在每次运行时删除。手工用 `BEAUTIFIED=` 指定的目录仍可能过期，而 `bundle_guard.mjs` 在 `rebuild.sh` 里拦不住它：流水线的符号索引由本次运行从同一份美化文件生成，二者总是一致。流水线内由别的闸门暴露它：推断名表以短名为键，放到另一个版本的美化文件上会落到别的声明上，`daemon.inferredNames` 记为 `fail`，构建在第 2b 步停止（2026-09-24 用 v0.8.2 的美化文件对照 v0.8.3 的 `maps/` 实测：236 个推断名被推翻，exit 1）；同时给了 `PKG` 时，美化等价证明也会失败；没给 `PKG` 的运行没有版本号，即使走到第 7 步也只能记 `committedInSync=unverified`。`bundle_guard.mjs` 拦下的是另一种情形：在流水线之外，拿过期的美化文件对照已提交的 `maps/symbols_*.json` 手工运行检查器时，它以 exit 2 拒绝（证据八 8a 的"错误的 bundle"）。
 
 ---
 

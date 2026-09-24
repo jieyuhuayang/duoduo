@@ -581,8 +581,12 @@ if (report.unnamed.length) {
   const total = report.unnamed.reduce((a, u) => a + u.citations, 0);
   const topN = report.unnamed.slice(0, TOP);
   // "up to": a re-run still applies every gate to them
-  console.log(`\n${total} citations are left in ${report.unnamed.length} unnamed functions, module initialisers and constants; naming the top ${topN.length} with name_symbol.mjs makes up to ${topN.reduce((a, u) => a + u.citations, 0)} of them convertible on a re-run:`);
-  console.log("  " + topN.map(u => `${u.symbol} ${u.citations}`).join(", "));
+  // name_symbol.mjs names daemon code only; cli code has no inferred-name map yet
+  const daemonTop = topN.filter(u => !u.symbol.startsWith("cli:")), cliTop = topN.filter(u => u.symbol.startsWith("cli:"));
+  const sum = us => us.reduce((a, u) => a + u.citations, 0);
+  console.log(`\n${total} citations are left in ${report.unnamed.length} unnamed functions, module initialisers and constants.`);
+  if (daemonTop.length) console.log(`  daemon: naming these ${daemonTop.length} with name_symbol.mjs makes up to ${sum(daemonTop)} of them convertible on a re-run:\n    ` + daemonTop.map(u => `${u.symbol} ${u.citations}`).join(", "));
+  if (cliTop.length) console.log(`  cli: ${cliTop.length} symbols hold ${sum(cliTop)} of them; cli has no inferred-name map, so rewrite these by hand (cite a literal inside a named cli symbol) or drop them:\n    ` + cliTop.map(u => `${u.symbol} ${u.citations}`).join(", "));
 }
 if (REPORT) fs.writeFileSync(REPORT, JSON.stringify(report, null, 1) + "\n");
 if (WRITE) {

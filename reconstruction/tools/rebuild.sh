@@ -6,8 +6,11 @@
 # has to recover three things from the bundle:
 #
 #   IDENTITY  which code is duoduo's own  -> export_blocks.mjs + maps/modules_*.json
-#             esbuild emits one __export block per source module, so the block IS
-#             the module. This is structural, not a guess from the name.
+#             esbuild emits an __export block only for a module whose export
+#             object is needed at run time (typically a dynamically imported
+#             one), so most modules have none, but a block is always exactly one
+#             module. Ownership is decided per block, i.e. per module: structural,
+#             not a guess from the name.
 #   NAMING    what each symbol is called  -> the __export block bodies, verbatim
 #   BINDING   how a doc points at code    -> symbol_index.mjs + verify_citations.mjs
 #             by real name + structural signature, so line numbers are derived
@@ -120,10 +123,11 @@ if [ "$PROMOTE" = "1" ]; then
   [ -n "${PKG:-}" ] || refuse "PKG is not set. Without the shipped bundle the beautify-fidelity proof is skipped and nothing ties *.pretty.js to a release; set PKG=<...>/@openduo/duoduo/dist/release and unset BEAUTIFIED."
   [ -z "${BEAUTIFIED:-}" ] || refuse "BEAUTIFIED is set. A promote writes line numbers into maps/ and first-party/, and those come from the formatter's layout, which the fidelity proof does not check; unset BEAUTIFIED so step 0 beautifies \$PKG with the pinned js-beautify."
   [ -n "$SHIPPED" ] || refuse "$PKG/../../package.json does not exist, so the version stamp would be hand-typed or \"unrecorded\". Point PKG at dist/release inside an installed @openduo/duoduo."
-  case "$PKG_VERSION" in
-    v[0-9]*.[0-9]*.[0-9]*) ;;
-    *) refuse "\"$PKG_VERSION\" is not a release version." ;;
-  esac
+  # A release is plain semver, vX.Y.Z: a glob (v[0-9]*.[0-9]*.[0-9]*) would also
+  # let v0.9.0-rc.1 and v1.2.3.4 through. The regex lives in a variable because
+  # since bash 3.2 a quoted pattern after =~ matches as a literal string.
+  RELEASE_RE='^v[0-9]+\.[0-9]+\.[0-9]+$'
+  [[ "$PKG_VERSION" =~ $RELEASE_RE ]] || refuse "\"$PKG_VERSION\" is not a release version (vX.Y.Z)."
   for name in "${NAMES[@]}"; do [ -f "$PKG/$name.js" ] || refuse "$PKG/$name.js does not exist."; done
   [ "$DOCS_TARGET" = "$PKG_VERSION" ] || refuse "docs/.pretty-anchor-target says \"${DOCS_TARGET:-<missing>}\", this run is $PKG_VERSION. Promoting would leave maps/ and docs/ describing different releases: retarget the docs first (retarget_docs.mjs apply --stamp $PKG_VERSION writes the target), against this run's \$OUT artifacts."
 fi

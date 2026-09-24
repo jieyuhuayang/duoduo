@@ -80,7 +80,7 @@
 | 遗留：`` `短名`（`行号`） `` | `check_doc_anchors.mjs`，verdict `lineAnchors` | 短名作为完整标识符出现在所引行上，或者所引行位于以该短名命名的顶层声明之内（`rebuild.sh` 以 `--resolve` 运行它；不加 `--resolve` 时只认前一条）；带 `cli.pretty.js:` 前缀的引用按 cli bundle 核对。 | `docs/*.md` |
 | 遗留：`` `代码片段`（`行号`） ``，以及三种写法之外的任何行号 | `check_bare_anchors.mjs`，verdict `lineAnchors` | 片段须在所引行上；写法之外的行号是"裸行号"；每份文档的行号总数与裸行号数不得超过 `maps/bare_anchor_baseline.json`。围栏里的行号只计一次。 | `docs/*.md` |
 
-三个检查器读 bundle 前都经过 `bundle_guard.mjs`：索引里每个符号的短名必须出现在记录的声明行上，否则以 exit 2 拒绝。没有这道检查，拿另一个版本的美化文件对照已提交的 `maps/symbols_*.json` 手工运行检查器，会把正确的引用报成"行号越界"，`--fix` 还会据此把它们改坏。`rebuild.sh` 里的索引由本次运行从同一份美化文件生成，二者总是一致，所以这道检查在流水线内不会触发；流水线内一份过期的美化目录由别的环节暴露，见下文 `BEAUTIFIED` 一行。
+三个检查器读 bundle 前都经过 `bundle_guard.mjs`：索引里每个符号的短名必须出现在记录的声明行上，否则以 exit 2 拒绝。没有这道检查，拿另一个版本的美化文件对照已提交的 `maps/symbols_*.json` 手工运行检查器，会把正确的引用报成"行号越界"，`--fix` 还会据此把它们改坏。`rebuild.sh` 里的索引由本次运行从同一份美化文件生成，二者总是一致，所以这道检查在流水线内不会触发。流水线内一份过期的 `BEAUTIFIED` 目录由推断名检查暴露：推断名表以短名为键，放到另一个版本上会落到别的声明上，`daemon.inferredNames` 记为 `fail`，构建在第 2b 步停止（实测见 VERIFICATION.md 证据九）。
 
 检查器本身由 `mutate_anchor_checks.mjs` 检验（verdict `anchorCheckers`）：每次运行都用符号索引和 bundle 现场生成一份测试文档，确认每个检查器对它通过，再逐一注入已知错误，确认负责的检查器失败；`verify_inferred.mjs` 的初始化器与常量规则也在这里测试。一个从没被看到失败过的检查器证明不了任何事。用例类别见 VERIFICATION.md 证据八。
 
@@ -93,7 +93,7 @@
 | 取值 | 含义 |
 |------|------|
 | `pass` | 全部一致，且已提交的报告本身可以被 promote（条件见下） |
-| `fail` | 已提交报告声称的版本与本次相同，但产物不一致（过期或被手改），或已提交报告本身不满足 promote 条件 |
+| `fail` | 已提交报告声称的版本与本次相同，并且产物不一致（过期或被手改），或已提交报告本身不满足 promote 条件；版本不同的运行记为 `retarget-pending`，没有版本记录或用了 `MAPS` 覆盖的运行记为 `unverified` |
 | `retarget-pending` | 已提交产物属于另一个版本，升级进行中 |
 | `unverified` | 运行没有版本号（没给 `PKG`），或用了 `MAPS` 覆盖：差异说明不了已提交产物是否同步 |
 | `promoted` / `promote-refused` | `PROMOTE=1` 运行写入成功 / 被拒绝 |
@@ -107,7 +107,7 @@
 - 没有设置 `MAPS` 覆盖；
 - `docs/.pretty-anchor-target` 已经是这个版本，即文档已经改指到要 promote 的版本。
 
-预检通过后，第 8 到 11 步检查的是 `$OUT` 里的候选产物，不是已提交产物。`promote.mjs write` 只在下列条件全部成立时写入：报告里每个证明类 verdict 都恰好是 `pass`（各 bundle 的 `lossless`、`beautifyEquivalent`、`syntax`、`astEquivalent`，有推断名表的 bundle 的 `inferredNames`，以及 `firstPartyTree`、`citations`、`lineAnchors`、`anchorCheckers`、`anchorTargetMatches`）；版本号是正式版本；每个 bundle 的出厂与美化哈希都在。`skipped`、`warn`、`fail` 和从没运行过的闸门一律拒绝。check 模式的逐字比较不看 verdicts，一份带 `skipped` 的记录一旦写入，之后没有任何环节会再提出它，所以写入前必须逐项要求 `pass`。
+预检通过后，第 8 到 11 步检查的是 `$OUT` 里的候选产物，不是已提交产物。`promote.mjs write` 只在下列条件全部成立时写入：报告里每个证明类 verdict 都恰好是 `pass`（各 bundle 的 `lossless`、`beautifyEquivalent`、`syntax`、`astEquivalent`，有推断名表的 bundle 的 `inferredNames`，以及 `firstPartyTree`、`citations`、`lineAnchors`、`anchorCheckers`、`anchorTargetMatches`）；版本号是正式版本；每个 bundle 的出厂与美化哈希都在。`skipped`、`warn`、`fail` 和从没运行过的闸门一律拒绝。check 模式的逐字比较不看 verdicts（报告的 `verdicts` 字段不参与比较），所以 `promote.mjs check` 另外对已提交的报告套用同一条规则：已提交报告不满足它时，即使每个产物都一致，`committedInSync` 也记为 `fail`（见上表）。
 
 ## 如何复现
 
@@ -172,7 +172,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 5. 对这次运行的 `$OUT` 改指文档：对每个有变化的 bundle 运行 `retarget_docs.mjs collect` 与 `remap_doc_anchors.mjs`；再运行 `retarget_docs.mjs apply --stamp v<新版本>`，它只能运行一次，会写 `docs/.pretty-anchor-target`，必须在 `verify_citations.mjs --fix` 写入新行号之前；然后运行 `retarget_symbols.mjs <旧 rename_daemon.json> <新 rename_daemon.json>` 和 `verify_citations.mjs --fix --bundle …`。`bump.sh` 最后会打印这一步的完整命令。
 6. 文档通过引用检查后运行 `PROMOTE=1 PKG=<新包 dist/release> bash tools/rebuild.sh`。
 
-按名字写的引用在升级时基本不需要迁移。`真名 (短名)` 与 `真名/短名` 只有短名会变，由 `retarget_symbols.mjs` 统一改写：它只改写恰好是一个标识符或一对名字的代码 span，以及按旧改名表核实过身份的斜杠对（包括围栏里的），不动引号里的代码表达式，并且一次只处理一个 bundle 的改名表。`代码片段`（`真名`）在该真名当前的声明范围内核对，片段在函数体内挪了位置照样成立。需要人看的只剩"符号消失""短名对不上""片段不在函数里了"，这些正是上游真实的机制变更。只写裸短名不可取：同一个短名可以既是过期名，又是新版本里另一个函数的正确名，任何"旧名换新名"的整体替换都会把本来正确的引用改错。没有真名的函数先用 `name_symbol.mjs` 命名，再引用。
+按名字写的引用在升级时基本不需要迁移。`真名 (短名)` 与 `真名/短名` 只有短名会变，由 `retarget_symbols.mjs` 按一个 bundle 两个版本的改名表改写。它改写三种位置：恰好是一个标识符的代码 span、恰好是 `真名 (短名)`（不带 bundle 前缀）的代码 span、任何位置的斜杠对（包括围栏里的）；后两种配对只在旧改名表恰好把这个真名与这个短名配成一对时才改写。所以用 daemon 的改名表运行时，cli 的配对原样保留，即使它的短名碰巧同时也是某个 daemon 符号的短名（两个 bundle 各自独立压缩，这种重合很常见）；过期的 cli 配对由 `verify_citations.mjs` 报出，按第 4 步运行产出的 `symbols_cli.json` 手工修正。单个标识符的代码 span 没有真名可以核对，按给定的改名表改写，不论它原本指哪个 bundle。引号里的代码表达式不动。`代码片段`（`真名`）在该真名当前的声明范围内核对，片段在函数体内挪了位置照样成立。需要人看的只剩"符号消失""短名对不上""片段不在函数里了"，这些正是上游真实的机制变更。只写裸短名不可取：同一个短名可以既是过期名，又是新版本里另一个函数的正确名，任何"旧名换新名"的整体替换都会把本来正确的引用改错。没有真名的 daemon 代码先用 `name_symbol.mjs` 命名，再引用；cli 没有推断名映射，未命名的 cli 代码还不能按名字引用。
 
 ## 工具一览
 
@@ -207,7 +207,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 
 **第三方依赖只识别，不还原。** daemon 的大多数模块是内联的 npm 包（zod、fastify、ws 等），它们有公开源码；本目录只在 `maps/modules_daemon.json` 里逐模块标注，不改写。
 
-**没有名字的内部符号保持短名。** 只有被 `__export` 记录的符号能拿到上游的名字；其余的内部函数、模块初始化器和常量，除了 `maps/inferred_daemon.json` 已经命名的以外，保留压缩短名。它们不影响运行，但文档不能按名字引用它们：先用 `name_symbol.mjs` 命名。`convert_line_citations.mjs --report` 列出文档引用到的未命名符号，按命名后能转换的引用数排序。cli 没有推断名，也没有子系统映射和可读树。
+**没有名字的内部符号保持短名。** 只有被 `__export` 记录的符号能拿到上游的名字；其余的内部函数、模块初始化器和常量，除了 `maps/inferred_daemon.json` 已经命名的以外，保留压缩短名。它们不影响运行，但文档不能按名字引用它们：daemon 的先用 `name_symbol.mjs` 命名。`convert_line_citations.mjs --report` 列出文档引用到的未命名符号，按命名后能转换的引用数排序。cli 没有推断名，也没有子系统映射和可读树，所以未命名的 cli 代码目前无法命名。
 
 **顶层之外的函数不改名。** 改名器只处理顶层绑定。像 `createSessionManager` 内部的 `spawnSessionActor`、`wakeSessionActor` 这样的局部函数保留短名，也不在符号索引里；它们的短名每次构建都会变，文档不应固定引用。
 
@@ -219,25 +219,27 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 
 ## 已知局限与后续优化
 
-commit `eb4a5e5` 解决了两类问题。第一类是能在什么都没检查的情况下通过的闸门：promote 可以跳过美化等价证明并提交 `skipped`，版本号可以手填，缺子系统的符号会静默缺席可读树，推断名的告警记成 `pass`，几种引用写法没有任何检查器看。现在它们都会让构建失败，或者阻止 promote。第二类是速度：带 `PKG` 的完整证明运行从约 2.5 分钟降到约 1 分钟，主要来自变异测试的并发执行。留下的工作主要是结构性的：流水线在一次运行里对两个 bundle 反复做全量解析；升级流程仍有几步靠人工；pi-worker 等四个 bundle 和局部函数不在覆盖范围内；有几处写法的检查范围还没有扩展到 `docs/` 之外。
+流水线当前的状态分三方面。闸门方面，没有一道闸门能在什么都没检查的情况下通过：promote 只写每个证明类 verdict 都是 `pass` 的运行，版本号从出厂包读取，缺子系统的改名符号让构建失败，推断名的告警单独记为 `warn`，每种引用写法都有检查器负责。速度方面，带 `PKG` 的完整证明运行在 16 核机器上约 1 分钟。留下的工作主要是结构性的：流水线在一次运行里对两个 bundle 反复做全量解析；升级流程仍有几步靠人工；pi-worker 等四个 bundle 和局部函数不在覆盖范围内；片段与行号检查还没有扩展到 `docs/` 之外。
 
-### 已实现（commit `eb4a5e5`）
+### 已实现
 
-| 改进 | 解决的问题 | 实测效果 |
-|------|-----------|----------|
-| PROMOTE 预检，候选产物先过闸门（`rebuild.sh`、`promote.mjs`） | 不带 `PKG` 也能 promote，美化等价证明被跳过；写入发生在第 8 到 11 步之前，闸门失败时工作树留着已写入的产物；`skipped` 等 verdict 可以被提交 | 预检在创建 `$OUT` 前拒绝；只写全部证明为 `pass` 的候选产物；复核时逐项注入 `fail`、`skipped`、`warn`、未运行、非正式版本、缺哈希，均被拒绝 |
-| 报告记录出厂与美化 bundle 的 sha256，新增 `anchorTargetMatches` | 报告只有版本字符串；`docs/.pretty-anchor-target` 与 `maps/` 的版本无人比较 | 已提交报告带两组哈希；两处版本不一致即失败 |
-| 美化输出按版本分目录；`.nvmrc` 固定 Node 主版本，CI 读同一文件 | 平铺的美化目录会残留旧版本；本地与 CI 的 Node 版本没有约束 | `$OUT/beautified/<版本>/`；主版本不一致时警告 |
-| 子系统完整性（`extract_functions`、`gen_rename_table`、`verify_first_party`） | 没有子系统条目的改名符号被静默排除在 `first-party/` 之外，或归入 `zz-unclassified` | 写入前失败；新增"文件集合等于改名符号集合"检查 |
-| `verify_inferred`：告警成为 verdict，按种类检查拼写，新增模块初始化器与常量两种种类 | 告警与通过无法区分；没有基线的手加名字放到初始化器上照样通过；只有函数能命名 | exit 3 记为 `warn`，promote 拒绝；变异测试覆盖这些情形 |
-| 引用检查收紧（`verify_citations`、`check_doc_anchors`、`check_bare_anchors`） | 无行号且真名已消失的配对、`真名/短名` 写法、cli 的短名行号引用没有检查器看；短名按子串匹配；数字写错的常量片段能通过；围栏里的行号计两次 | 在 `AGENT_INTERNALS_ANALYSIS.md` 上报出 4 处过期引用（均已修正）；新增的变异用例对不含这些改动的检查器全部存活 |
-| 结构签名保留属性名与全局名（`structural_signature`） | 签名把属性名和全局名也归一，`e => e.sessionId` 与 `e => e.channelId` 签名相同 | daemon 落在碰撞组里的声明 388 → 348；v0.8.2→v0.8.3 指纹唯一配对 2126 → 2170，与旧结果无矛盾 |
-| `bump.sh` 重写 | 新短名用旧版本的真名标注；仍处理 stdio；需要的 OLD 美化目录没有步骤生成；交接命令跳过美化等价证明，顺序也会被 promote 拒绝 | `PKG_OLD`/`PKG_NEW` 自行美化；OLD 与 `maps/` 核对；按闸门接受的顺序打印交接命令；v0.8.2→v0.8.3 回放 exit 0，38 s |
-| 新工具 `name_symbol.mjs` | 命名要手改两份 JSON；名字放错种类、放到第三方代码上、撞名、漏子系统，要么很晚才发现，要么不会被发现 | 登记前做完全部检查；`--allow-unproven` 的名字记入 `inferred_daemon.asserted.json`，不再成为其他条目的证据 |
-| 新工具 `convert_line_citations.mjs` | 遗留行号每次升级都要迁移，只能手工退役 | 对 2026-09-24 的 `docs/` 做 dry run，遗留行号数：`AGENT_INTERNALS_ANALYSIS.md` 1525 → 671，`ARCHITECTURE_ANALYSIS.md` 39 → 21，每次运行约 10 s |
-| `retarget_symbols` 改写 `真名/短名` | 升级后斜杠对一律过期，构建在机械步骤本该处理的引用上失败 | 按旧改名表核实身份后改写，围栏内同样处理 |
-| 提速：`check_bare_anchors` 只在需要时解析与遍历 | 每次运行都完整解析并遍历两个 bundle，遍历结果只供 `--list` 使用 | 在 `docs/` 上 5 s → 约 1 s，输出逐字节不变 |
-| 提速：变异测试并发执行 | 检查器进程依次运行，占整条流水线约三分之二的时间 | 108 s → 约 10 s（16 核；`JOBS=1` 串行约 27 s） |
+下表每一行写明一项改进现在保证什么；实测效果除另注明外取自 2026-09-24 在 v0.8.3 上的运行，箭头左边是没有这项改进时的测量值。
+
+| 改进 | 现在保证什么 | 实测效果 |
+|------|-------------|----------|
+| PROMOTE 预检，候选产物先过闸门（`rebuild.sh`、`promote.mjs`） | 没给 `PKG`、给了 `BEAUTIFIED` 或 `MAPS`、版本号不是 `vX.Y.Z`、文档目标版本不符时，在创建 `$OUT` 之前拒绝；第 8 到 11 步检查候选产物，全部通过才写入，任一闸门失败时仓库不变；带 `skipped`、`warn` 或未运行 verdict 的报告不能写入 | 逐项注入 `fail`、`skipped`、`warn`、未运行、非正式版本（`unrecorded`、`v0.9.0-rc.1`、`v1.2.3.4`）、缺哈希，均被拒绝 |
+| 报告记录出厂与美化 bundle 的 sha256；`anchorTargetMatches` | 一份记录对应具体的出厂字节；`docs/.pretty-anchor-target` 与 `maps/` 描述不同版本时构建失败 | 已提交报告带两组哈希 |
+| 美化输出按版本分目录；`.nvmrc` 固定 Node 主版本，CI 读同一文件 | 不同版本的美化文件不在同一个目录里；本地运行的 Node 主版本与 CI 不同时打印警告 | `$OUT/beautified/<版本>/` |
+| 子系统完整性（`extract_functions`、`gen_rename_table`、`verify_first_party`） | 没有子系统条目的改名符号在写任何文件前让构建失败；可读树的文件集合必须等于改名符号集合 | 故障注入见 VERIFICATION.md 证据八 8b |
+| `verify_inferred`：告警记为 verdict，按种类检查拼写，函数、模块初始化器、常量三种种类 | 需要复读的形态变化记为 `warn`，promote 拒绝；名字放到种类不符的代码上（例如函数名放到初始化器上）不需要基线就失败 | 变异测试覆盖这些情形（证据八 8a） |
+| 引用检查（`verify_citations`、`check_doc_anchors`、`check_bare_anchors`） | 不带行号的配对、`真名/短名` 写法、cli 的短名行号引用都有检查器负责；短名按整词匹配；常量片段写出的数字必须在范围内；围栏里的行号只计一次 | 在 `AGENT_INTERNALS_ANALYSIS.md` 上报出 4 处过期引用（均已修正）；对应的变异用例对没有这些规则的检查器全部存活 |
+| 结构签名保留属性名与全局名（`structural_signature`） | 只差属性名或全局名的声明（`e => e.sessionId` 与 `e => e.channelId`）签名不同 | daemon 落在碰撞组里的声明 388 → 348；v0.8.2→v0.8.3 指纹唯一配对 2126 → 2170，与旧结果无矛盾 |
+| `bump.sh` | 只处理 daemon 与 cli；`PKG_OLD`/`PKG_NEW` 由它自己用锁定版本美化；OLD 必须是 `maps/` 描述的版本；diff 两侧各用自己版本的真名标注；按闸门接受的顺序打印交接命令 | v0.8.2→v0.8.3 回放 exit 0，38 s（VERIFICATION.md 证据五） |
+| `name_symbol.mjs` | 登记推断名前做完种类、拼写、孪生、撞名、子系统和归属检查，批量登记全部写入或全不写入；`--allow-unproven` 的名字记入 `inferred_daemon.asserted.json`，不作为其他条目的证据 | 故障注入见 VERIFICATION.md 证据八 8b |
+| `convert_line_citations.mjs` | 遗留行号可以机械退役：每处改写要求旧引用今天成立、新引用按今后的规则成立，改写后由三个检查器复核，新出现的失败逐行回滚 | 对当天 `docs/` 的 dry run：`AGENT_INTERNALS_ANALYSIS.md` 的遗留行号 1525 → 107，用时约 10 s |
+| `retarget_symbols` 按旧改名表核实配对的身份 | `真名 (短名)` 与 `真名/短名`（包括围栏里的斜杠对）只在旧改名表把这个真名与这个短名配成一对时改写，另一个 bundle 的配对不被改动 | 用一份让两个 daemon 符号换短名的合成新改名表处理 `ARCHITECTURE_ANALYSIS.md`（这两个短名在 v0.8.3 上恰好也是 cli 配对里的短名）：被改写的 cli 配对 3 → 0 处 |
+| `check_bare_anchors` 只在需要时解析与遍历 | 输出与完整解析时逐字节相同 | 在 `docs/` 上 5 s → 约 1 s |
+| 变异测试并发执行 | 检查器进程并发运行，并发不改变结论（`JOBS=1` 串行） | 108 s → 约 10 s（16 核；`JOBS=1` 串行约 27 s） |
 | 合计 | — | 带 `PKG` 的完整证明运行约 2.5 分钟 → 约 1 分钟 |
 
 ### 未实现
@@ -254,6 +256,7 @@ commit `eb4a5e5` 解决了两类问题。第一类是能在什么都没检查的
 | `first-party/` 按常量抽取：共享初始化语句里的常量只抽出自己的声明符 | 读者看到的是常量本身，而不是整个模块初始化器 | 小到中 | 低：`verify_first_party` 的"正文等于完整声明"规则要改为按声明符比较 |
 | 行号与片段检查扩展到 `CLAUDE.md` 与 `reconstruction/*.md`，行号上限改按路径作键（按文件名作键时 `docs/README.md` 与 `reconstruction/README.md` 会冲突） | 这些文件里的片段与行号示例也被检查（`verify_citations` 已经扫描它们） | 小 | 低 |
 | 报告记录 npm 的 `dist.integrity` | 结果绑定到 registry 发布的 tarball，而不只是解包后的文件 | 小 | 低 |
+| `retarget_symbols` 一次接受 daemon 与 cli 两对改名表，按真名所属的 bundle 改写配对（现在一次只接受一对，cli 配对要手工修正；分两次运行不安全，因为单个标识符的 span 会被第二次运行按另一个 bundle 再改一次） | cli 配对在升级时也能自动更新 | 小 | 低：配对的身份检查已经在按旧改名表进行 |
 | `retarget_symbols` 改写不在反引号里的 `真名 (短名)` | 正文、表格、图里的配对在升级时也能自动更新（`verify_citations` 已检查它们） | 小 | 低到中：要和普通的括号文字区分开 |
 | `retarget_docs --stamp` 固定写到 `docs/.pretty-anchor-target`（现在写到第一个文档参数所在的目录） | 第一个参数不在 `docs/` 下时不会写错位置 | 小 | 低 |
 | 只给 `BEAUTIFIED` 的运行，在美化哈希等于已提交的 `sha256.pretty` 时采用已提交的版本号 | 快速的本地运行也能得到真正的 `committedInSync` 结论（现在是 `unverified`） | 小 | 低 |
@@ -265,9 +268,8 @@ commit `eb4a5e5` 解决了两类问题。第一类是能在什么都没检查的
 
 ### 其余未决事项
 
-- 真实映射里还没有模块初始化器或常量的推断名。文档里落在未命名初始化器和常量里的片段引用，要先用 `name_symbol.mjs` 命名才能转换。
-- `name_symbol.mjs` 的归属判定依赖 esbuild lazy-init 包装器划出的模块边界；第一个包装器之前的运行时辅助代码和最后一个包装器之后的入口模块没有边界，只能逐语句判定。在 v0.8.3 上测得，文档引用到的未命名符号里有 9 个被判为第三方代码，不能按自研代码命名，这些引用需要改写；另有约 55 个没有引用证据，需要人工读过函数体后用 `--allow-unproven` 登记。
-- 推断名增多以后，互换检测误报的可能性会上升。初始化器的 RIVAL 规则只在 v0.8.2→v0.8.3 的 23 对初始化器上验证过，其间它们的常量都没有变化；上游大幅改写某个已命名的模块时，它可能判为失败，需要复读后重新 `record`。
+- 2026-09-24 对 `docs/` 运行 `convert_line_citations.mjs --report`，按"命名后能转换多少处"排序的未命名符号全部是 cli 符号，要等 cli 有推断名映射（见"未实现"表）。daemon 一侧还转换不了的遗留引用分两类。一类落在 `name_symbol.mjs` 按规则不能命名的代码上（在模块初始化器里赋值的变量与类、模块顶层语句），要改写成经由可命名符号的引用，例如引用赋值它的初始化器；另一类是写法本身不能机械转换：括号里在行号之外还带正文、片段里没有可严格检查的记号、片段跨了多个声明。两类都由报告按原因逐条列出，只能人工改写。
+- `name_symbol.mjs` 的归属判定依赖 esbuild lazy-init 包装器划出的模块边界；第一个包装器之前的运行时辅助代码和最后一个包装器之后的入口模块没有边界，只能逐语句判定。没有引用证据的名字只能以 `--allow-unproven` 登记，它们的归属只有登记时的人工判断，没有机器证据；这些名字记在 `maps/inferred_daemon.asserted.json`。
+- 推断名越多，互换检测误报的可能性越大。初始化器的 RIVAL 规则只在 v0.8.2→v0.8.3 回放中的 23 对初始化器上验证过，其间它们的常量都没有变化；映射里现有的初始化器名字还没有经历过一次升级。上游大幅改写某个已命名的模块时，这条规则可能判为失败，需要复读后重新 `record`。
 - 形状完全相同的两个初始化器只会触发告警：`name_symbol.mjs` 登记时拒绝它们，但手改映射或某次发布碰巧产生同形初始化器时，CI 仍是绿的，只有 promote 会拒绝。
 - `convert_line_citations.mjs` 回滚改写所依赖的是三个检查器当前的输出格式；格式一旦变化，它会以 exit 2 拒绝写入，而不是写入未经验证的结果。
-- 失效的 worktree `.claude/worktrees/fence-anchors` 里仍有已删除工具的副本。

@@ -46,11 +46,11 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 
 **机制二:双注入面上下文工程(`buildSystemPromptForChannelConfig (Jh)` / `buildTransientUserBlocks (eke)`,confirmed)。** 稳定认知(身份/通道人格/记忆广播板)由 `buildSystemPromptForChannelConfig` 六层一次装进 system prompt 前缀,吃满 prompt cache;易变具身状态(时间流逝、被打断、job tick)由 `buildTransientUserBlocks` 每 turn 瞬态塞进 user 消息,不污染缓存前缀。四个引擎(Claude、Codex、Grok、pi)消费同一份装配文本,差别只在传入方式:Codex 多包一层 `<aladuo:system-context>` 壳,其余三个按 `prompt_mode` 追加在引擎自带的系统提示之后或整体替换它。
 
-**机制三:session actor 会话编排(§3 of internals doc,confirmed)。** 一个外部身份扩成多内部会话:一 key 一 actor(内存 Map),session_key 前缀纯函数派生平面与权限(`stdio:`/`job:`/`meta:` 前缀即能力边界);两层锁(跨重启进程写锁 + 按 key 异步互斥);双有界池(channel=10 / job=6),idle 主动让槽、前台附着钉活。抢占是**边界感知**的:能续喂就活流注入(steering),要打断也只在 tool_use/tool_result/accept 边界,绝不硬 kill 半个工具调用。
+**机制三:session actor 会话编排(internals 文档第 8 节,confirmed)。** 一个外部身份扩成多内部会话:一 key 一 actor(内存 Map),session_key 前缀纯函数派生平面与权限(`stdio:`/`job:`/`meta:` 前缀即能力边界);两层锁(跨重启进程写锁 + 按 key 异步互斥);双有界池(channel=10 / job=6),idle 主动让槽、前台附着钉活。抢占是**边界感知**的:能续喂就活流注入(steering),要打断也只在 tool_use/tool_result/accept 边界,绝不硬 kill 半个工具调用。
 
 **机制四:双环认知——Cortex + Subconscious(`drainSessionMailbox (KSe)` / `createMetaSession (Wgt)`,confirmed,活体实测)。** 前台响应实时消息;后台潜意识挂在 37 分钟 cadence 心跳上,经三重节流门(重入门、**内存指纹活动门**——记忆目录和最新外部事件都没变就整拍跳过、每分区 cooldown + 线性退避)唤起**无状态一次性 LLM 分区会话**做自我维护:"每 tick 通常唤醒潜意识的一块(系统空闲时可多唤醒几块,上限可配),做完就回去睡——除了写进文件的,不记得上次。"调度表 `playlist.md` 是 agent 自己可改写的纯文本状态机。
 
-**机制五:记忆系统——"代码测量、模型裁决"(§7 of internals doc,confirmed)。** 记忆效用被物化为**图可达性**:广播板 `memory/CLAUDE.md` 是唯一根,沿 `[[slug]]` wiki-link 闭包触达不到的节点即孤儿。daemon 侧只做只读 lint 测量与带 48h 宽限 + 双 flag + git 软删的孤儿 GC,**永不改内容**;一切改写交给潜意识分区(出厂四个分区:`gradient-distiller` 读事件日志、只写证据碎片 fragment;`pattern-tracker` 只写 `lesson-`/`groove-` 规则节点;`intuition-weaver` 是广播板、effectiveness 与实体档案的唯一写者;`memory-committer` 把广播板、档案与规则节点的改动提交进 git,fragment 与 effectiveness 不进 git),证据链"事件→fragment→effectiveness→改板"可复算,专门压制 LLM 编造统计的幻觉。dossier 中每条主张带六种**认识论模态标签**:`[observation]` / `[inference]` / `[instruction]` / `[conditional]` / `[hypothesis (unratified)]` / `[superseded]`。闭环:经验→事件日志→潜意识加工→广播板→下一次会话经 system prompt 自动注入。
+**机制五:记忆系统——"代码测量、模型裁决"(internals 文档第 12 节,后台分区见第 11 节,confirmed)。** 记忆效用被物化为**图可达性**:广播板 `memory/CLAUDE.md` 是唯一根,沿 `[[slug]]` wiki-link 闭包触达不到的节点即孤儿。daemon 侧只做只读 lint 测量与带 48h 宽限 + 双 flag + git 软删的孤儿 GC,**永不改内容**;一切改写交给潜意识分区(出厂四个分区:`gradient-distiller` 读事件日志、写证据碎片 fragment,此外只写自己的 `scan-gap.cursor`(未读完的工单的续读进度,不是记忆证据),读完工单后删除自己 inbox 里的这条工单作为确认;`pattern-tracker` 是 `lesson-`/`groove-` 规则节点的唯一写者;`intuition-weaver` 是广播板、effectiveness 与实体档案的唯一写者;`memory-committer` 把广播板、档案与规则节点的改动提交进 git,fragment 与 effectiveness 不进 git),证据链"事件→fragment→effectiveness→改板"可复算,专门压制 LLM 编造统计的幻觉。dossier 中每条主张带六种**认识论模态标签**:`[observation]` / `[inference]` / `[instruction]` / `[conditional]` / `[hypothesis (unratified)]` / `[superseded]`。闭环:经验→事件日志→潜意识加工→广播板→下一次会话经 system prompt 自动注入。
 
 **机制六:自编程认知拓扑 + 双层能力边界。** 分区可以改自己的提示词、新建分区、调整 playlist、写全局广播板;禁改 spine 数据、锁文件、inbox 目录(只能删除自己 inbox 里的条目以确认已处理)、他人分区、`contract:` frontmatter,也不许自建 job。内核目录是 git 仓库,`memory-committer` 分区把改动逐次提交,每个提交都是回滚点。关键设计:**软边界写在提示词(模型可违反),机器真正强制的只有两处**——契约门(`enforceContractGate (iO)`,6 种拒因)与工具白名单(Claude 会话的 `CLAUDE_CORE_TOOLS`、分区会话的 `PARTITION_CORE_TOOLS`,加上配置里 `claude.tools` 显式追加的项)。`disallowedTools` 不约束内置工具,只用于排除 MCP 工具(`"disallowedTools no longer governs built-in tools"`（`createAgentSdkAdapter`）);白名单对 Claude 引擎完整生效,Codex 的内置工具则无法禁用,靠沙箱限制可写目录。这条"哪些不变量必须落在运行时强制"的划分纪律,是自治 agent 设计的教科书样本。
 
@@ -59,7 +59,7 @@ duoduo 是一个**长驻自治 agent 运行时**:它把智能做成可持久、�
 **优势**
 1. **唯一真正为无人值守长期运行设计的架构**:崩溃可重放(WAL rehydrate 实测无损)、后台自治(心跳 + 活动门"没有新证据不空转")、成本可观测(usage 账本 + drain record)。
 2. **记忆自治闭环工程化最完整**:从事件到直觉层的全链路自动化,且每一步可审计("事件→证据→效果→改写"可复算链)。
-3. **边界纪律清晰**:"代码守骨架、模型做裁决"贯穿八个子系统,可确定的交给代码(可达性 BFS、lint、GC),语义判断交给模型(记忆内容改写、证据碎片的轨迹判定)。
+3. **边界纪律清晰**:"代码守骨架、模型做裁决"贯穿整个运行时,可确定的交给代码(可达性 BFS、lint、GC),语义判断交给模型(记忆内容改写、证据碎片的轨迹判定)。
 4. **自我迭代有真实落地且有安全网**:提示词拓扑自改 + git 回滚点 + 契约硬边界,在"可演化"与"可控"间取得平衡。
 5. **上下文工程的双注入面**是可复用的单点设计:缓存友好与具身感知两个冲突目标同时满足。
 
@@ -223,7 +223,7 @@ Monorepo 五包 lockstep 发版,单进程模型(交互 TUI 进程即一切),**�
 **duoduo——学它的架构,别指望用它的代码。**
 - 最强:append-before-execute 事件溯源(可信之源)、"代码测量/模型裁决"的记忆自治闭环、软硬双层能力边界(自迭代的安全网)。
 - 最弱:闭源不可 fork;单机单进程、控制面按单用户设计;引擎种类由上游固定。
-- 角色定位:**架构蓝本**。它证明了"薄运行时 + 模型裁决"路线在真实系统里成立,且每个子系统的取舍都值得逐条研读(本仓库 `AGENT_INTERNALS_ANALYSIS.md` 已把八个子系统的取舍全部解出)。
+- 角色定位:**架构蓝本**。它证明了"薄运行时 + 模型裁决"路线在真实系统里成立,且每个子系统的取舍都值得逐条研读(本仓库 `AGENT_INTERNALS_ANALYSIS.md` 分 14 节逐个机制给出这些取舍的代码证据)。
 
 **hermes-agent——工程化"长驻 + 学习"的抄作业对象。**
 - 最强:缓存工程(直接省钱)、崩溃韧性生存链、真实可用的学习闭环(nudge→后台 review→curator 回滚)。
@@ -245,7 +245,7 @@ Monorepo 五包 lockstep 发版,单进程模型(交互 TUI 进程即一切),**�
 
 1. **预测先于结果落盘(append-only prediction ledger)。** 每条预测 = 一个不可变事件:`{标的, 命题, 概率, 时限, 依据事件引用, 当时信念版本}`;结果到期后另一条 resolution 事件记录 outcome。校准指标(Brier / log score)从日志**纯函数复算**,agent 无法事后修饰。——这正是 duoduo WAL append-before-execute 的直接移植:把 `channel.message` 换成 `prediction.made` / `prediction.resolved` 事件类型。
 2. **先验显式化。** 信念库中每条主张带数值概率 + 证据链,不允许自由文本模糊表述。duoduo 的 dossier + 六模态标签(`[hypothesis]`→`[observation]`→`[superseded]`)是现成的认识论骨架,缺的只是给每条主张加 `p: 0.65, updated_at, evidence: [[...]]` frontmatter;其 effectiveness 轨迹(STRENGTHENING/WEAKENING)换成对数几率增量即是贝叶斯更新。
-3. **更新有可复算的审计链。** duoduo 的"事件→fragment→effectiveness→改板"流水线就是似然证据管道的形状:证据侧从事件日志提取碎片(每条必须回指它所检验的那一行信念)、按信念行累积效果轨迹、改信念前必读该行轨迹。duoduo 把这条链交给**两个平级分区做读写分权**——`gradient-distiller` 只产碎片不写板,`intuition-weaver` 是板与 effectiveness 的唯一写者——**读写分权使"谁改了信念、凭什么改"更难被绕过**。**代码测量、模型裁决**:似然的证据收集可确定(代码),先验→后验的语义判断交模型,但模型的每次更新都必须引用证据文件——压制"LLM 编造统计"的幻觉。
+3. **更新有可复算的审计链。** duoduo 的"事件→fragment→effectiveness→改板"流水线就是似然证据管道的形状:证据侧从事件日志提取碎片(每条必须回指它所检验的那一行信念)、按信念行累积效果轨迹、改信念前必读该行轨迹。duoduo 把这条链交给**两个平级分区做读写分权**——`gradient-distiller` 产出碎片、不写板,`intuition-weaver` 是板与 effectiveness 的唯一写者——**读写分权使"谁改了信念、凭什么改"更难被绕过**。**代码测量、模型裁决**:似然的证据收集可确定(代码),先验→后验的语义判断交模型,但模型的每次更新都必须引用证据文件——压制"LLM 编造统计"的幻觉。
 4. **校准回路定期强制运行。** 无人盯着也要复盘:duoduo 的 cadence 潜意识 + hermes 的后台 review agent 是同一个思想的两种实现——预测结算后自动 fork 一个受限复盘 agent,计算分桶校准曲线,把系统性偏差写回信念库(例如"宏观事件类预测过度自信 +0.12,已在先验中扣减")。
 
 ### 6.2 数值层与语义层分工
@@ -321,7 +321,7 @@ fork hermes-agent,不改核心,全部落在它预留的扩展面上(恰好符合
 
 ## 附录:证据与材料索引
 
-- **duoduo**:[`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)(八大子系统;按符号名引用代码,尚未转换的旧行号由构建逐条核对且数量只减不增;每条主张带 confirmed/未证实推测标注)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)(部署级,活体实测)、[`../reconstruction/`](../reconstruction/)(可运行还原源码)。
+- **duoduo**:[`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)(14 节:端到端路径、系统提示装配、引擎、自操作工具、事件日志、网关与控制面、Drain 与 turn 控制、会话 actor 与并发池、渠道适配器、job 调度、心跳与后台分区、记忆系统、指令指纹与改动生效、未证实与待实测;按符号名引用代码、不带行号,引用由构建核对;每条主张带 confirmed/未证实推测标注)、[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)(部署级,活体实测)、[`../reconstruction/`](../reconstruction/)(可运行还原源码)。
 - **hermes-agent**:`github.com/nousresearch/hermes-agent` @ v0.18.0(2026-07-02 快照);本文行号锚点如 `AGENTS.md:16-27`、`agent/conversation_loop.py:633`、`tools/memory_tool.py:11-15`、`agent/background_review.py:171-274`、`agent/curator.py:1537`、`tools/code_execution_tool.py:10-25` 等,均指该快照。
 - **pi**:`github.com/earendil-works/pi` @ `21cb380`(2026-07-02);行号锚点如 `packages/coding-agent/README.md:487-501`、`packages/agent/src/agent-loop.ts:155-269`、`session-manager.ts:1277-1315`、`core/compaction/compaction.ts:225-227`、`api/transform-messages.ts:64-220` 等,均指该提交。
 - 局限声明:hermes 与 pi 的分析基于单日源码快照 + 文档,未做活体部署实测(duoduo 做过);两仓库均为浅克隆,提交活跃度依据代码内证据(PR 编号、提交日期)推断。

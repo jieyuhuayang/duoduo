@@ -239,8 +239,8 @@ if [ "${#changed[@]}" -gt 0 ]; then
 else
   echo "     (no bundle changed, so no line moved) echo $V > $DOCS/.pretty-anchor-target"
 fi
-echo "     node $HERE/retarget_symbols.mjs $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md"
-echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md"
+echo "     node $HERE/retarget_symbols.mjs $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
+echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     (retarget_symbols takes one bundle's maps; a stale cli short name is left for"
 echo "     verify_citations to report, and a stale short name quoted mid-snippet for check_bare_anchors)"
 echo "  4. once the docs pass verify_citations and the line-anchor checks, promote. It runs every"

@@ -25,8 +25,9 @@
 // each exactly `pass`; plus a release version and a shipped-bundle hash per
 // bundle (both only exist when the run had PKG). `skipped` and a gate that never
 // ran are refused like `fail`: the v0.8.3 promote committed
-// beautifyEquivalent=skipped, and since verdicts are left out of the
-// comparison below, nothing afterwards could notice. `warn` from the
+// beautifyEquivalent=skipped, and verdicts are left out of the artifact
+// comparison below, so that comparison alone cannot notice one (check mode
+// applies the rule separately, see below). `warn` from the
 // inferred-name check is refused too. It means "nothing refuted, but a shape
 // changed and needs a human re-read", and it is the only signal of an inferred
 // name re-anchored onto a same-arity sibling that the SWAP check cannot tell
@@ -83,7 +84,9 @@ function unpromotable(report) {
   }
   need.push(...WHOLE_RUN);
   const why = need.filter(g => v[g] !== "pass").map(g => `verdict ${g}=${v[g] ?? "(never ran)"}`);
-  if (!/^v\d+\.\d+\.\d+/.test(report.package ?? "")) why.push(`package "${report.package}" is not a release version`);
+  // duoduo publishes plain semver releases; a pre-release (v0.9.0-rc.1) or a
+  // four-part version is not one, and neither is the "unrecorded" stamp
+  if (!/^v\d+\.\d+\.\d+$/.test(report.package ?? "")) why.push(`package "${report.package}" is not a release version`);
   for (const b of BUNDLES) {
     if (!report.sha256?.[b]?.shipped) why.push(`no sha256 of the shipped ${b}.js (run without PKG)`);
     if (!report.sha256?.[b]?.pretty) why.push(`no sha256 of ${b}.pretty.js`);
