@@ -1,48 +1,46 @@
-# duoduo 项目深度架构分析
+# duoduo 部署与运维架构分析
 
-> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` **v0.8.3**（npm 运行时）
-> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向锚点；2026-08-20 随上游 v0.7.1 重定向行号锚点，并以隔离实启复核控制面三分面结论；2026-09-05 随上游 v0.8.0 部分复核——新增 daemon 重启 `--wake` 跨会话唤醒与 `duoduo spine cat/show` 只读事件读取入口，pi 加入为第四运行时并复用 Claude 的 job-config 叠加口，`/undo`与 Grok rewind 扩展方法已从代码中移除；本轮**未**对全文逐条重新核实，仅更新下方明确标注 v0.8.0 的段落，详见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 复核状态）；2026-09-21 随上游 v0.8.2 重定向锚点，并新增 `duoduo job` 生命周期子命令一节（10.4）；2026-09-23 随上游 v0.8.3 重定向，引用改为按名字写（不再新增行号）
-> 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
-> 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
+> 对齐版本：`@openduo/duoduo` **v0.8.3**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
+> 证据来源：仓库文档；v0.8.3 包内提示词（`bootstrap/`）与还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。实测记录都注明了测量时的版本：§2、§4、§5、§12 的部署与端到端记录测于 v0.6.1，§10.2 的控制面探测测于 v0.7.1。这些记录描述的机制在 v0.8.3 是否仍然成立，以代码为准，差异写在对应位置。
+> 引用写法与 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 相同：`真名 (短名)` 或 `代码片段`（`真名`），不写行号；片段引用 cli bundle 里的符号时写作（`cli:真名`）。机制主张标 `confirmed`（对照 v0.8.3 代码或包内文件确认过）或 `未证实推测`。
 >
-> **姊妹篇**：本文是**系统级/部署级**架构分析。入门与设计思路请先读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（PM 友好、按设计问题组织）；逐机制的 agent 内部证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
+> **姊妹篇**：本文是部署与运维层面的分析。入门与设计思路请先读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（下称 GUIDE）；逐机制的代码证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（下称 INTERNALS）；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
 
 ---
 
-## 0. 一句话定位
+## 0. 结论
 
-> **duoduo 是一个"会自我编程"的长驻自治 Agent 运行时——它把智能做成可持久、可崩溃恢复的进程，而不是一次性的请求/响应包装器。**
+duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。本文讲它的部署与运维：怎样安装和启动，状态存放在哪些目录和文件，控制面怎样访问，日常用哪些命令，以及在真实部署上测到的行为。
 
-它的核心反差在于：绝大多数 Agent 栈是无状态的（prompt 进、answer 出、状态丢失），而 duoduo 把**文件系统当数据库、事件日志当真理之源、进程默认无状态**，并在前台对话之外常驻一个"潜意识"后台循环。
+运维需要掌握的事实可以归成五类，分别对应下文各节。第一，duoduo 以 npm 包里的压缩 JavaScript 分发，部署就是全局安装并启动一个常驻 daemon（§1、§12）。第二，状态分放在两个目录：`~/aladuo` 是内核，放提示词、配置和记忆，并由 git 管理；`~/.aladuo` 是运行时数据，放事件日志、会话、job 与锁（§3）。第三，环境变量有两个存放位置：`ALADUO_*` 等 daemon 读取的键放 `~/.config/duoduo/.env`，`DUODUO_NODE_BIN` 放启动 `duoduo` 的 shell 或进程管理器环境（§3.3、§10.4）。第四，控制面有三个入口：只读的 TCP 端口、拥有全部权限的 unix socket、三项配置齐全才打开的带口令远程监听（§10）。第五，重启与升级应使用 `duoduo daemon restart -r` 与 `duoduo upgrade`：重启原因会在下一轮告诉 channel 会话，`--wake` 指定的会话会收到通知，升级还会一并升级已安装的渠道包（§10.4）。
 
 ---
 
-## 1. 一个反直觉的前提：这不是传统意义的"开源项目"
+## 1. 部署前需要知道的事实
 
-部署前必须澄清一个关键事实，否则会走错路：
+部署前需要先知道运行时以什么形式分发：
 
-- **GitHub 仓库本身不包含运行时源码。** 仓库里只有：`README.md`、`CHANGELOG.md`、`skills/`（运维技能）、`subconscious/`（潜意识分区提示词）、`contrib/`（社区扩展）、`assets/`（截图）。
+- **GitHub 仓库本身不包含运行时源码。** 仓库里只有：`README.md`、`CHANGELOG.md`、`skills/`（运维技能）、`subconscious/`（后台分区提示词）、`contrib/`（社区扩展）、`assets/`（截图）。
 - **真正的运行时以"压缩后的 JavaScript"形式发布在 npm**（`@openduo/duoduo`）。作者明确说明：这套代码"不是写给人读的"——Agent 能直接读懂、修改 minified 代码，压缩只是为了节省带宽、保持上下文窗口精简。
 - 因此 **"部署"= `npm install -g @openduo/duoduo` 并运行 daemon**，而非"克隆源码 + 构建"。
-- License 标注为 `Private. All rights reserved.`，名称 "**open**duo" 是一句自嘲式玩笑（README 原文："we are called openduo and we don't publish source either. Respect to OpenAI."）。
+- License 标注为 `Private. All rights reserved.`。README 对名称的说明原文是："we are called openduo and we don't publish source either. Respect to OpenAI."
 
-> 实践意义：本文的系统级主张靠**官方文档 + 运行时可观测行为（文件系统、WAL、RPC、CLI）**取证。
-> **补充（2026-07-02）**：minified 运行时其后已被**还原为可读、且经证明可同样运行的源码**（见 [`../reconstruction/`](../reconstruction/)）——从 esbuild `__export` 助手恢复了 739 个真实符号名，并以 50 万节点 AST 全等 + 隔离实启双重证明等价。因此**内部机理主张现在有源码级证据**，不再只依赖黑盒观测；本文的部署/可观测结论与还原源码相互印证。
+> 实践意义：本文的系统级主张来自**官方文档 + 运行时可观测行为（文件系统、事件日志、RPC、CLI）**，内部机制另有源码级证据：本仓库把压缩后的运行时还原成了可读、并经证明与出厂版语义相同的源码（见 [`../reconstruction/`](../reconstruction/)）。恢复了多少真名、比较了多少 AST 节点等计数以 [`../reconstruction/maps/pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 为准，本文不抄录。
 
 ---
 
-## 2. 六大核心创新（文档主张 → 实测印证）
+## 2. 上游 README 的六项主张与实测结果
 
-README 提出六项核心创新。下表把每一项与本次部署中**实际观测到的证据**对应起来：
+README 提出六项核心主张。它们的机制说明在 GUIDE 与 INTERNALS 里，本表只保留本机部署时观测到的证据。除注明外，实测都在 v0.6.1 上完成。
 
-| # | 创新 | 文档主张 | 本次部署的实测证据 |
-|---|------|----------|---------------------|
-| 1 | **文件系统优先、事件溯源运行时** | 所有状态（会话、输出、任务、记忆）都在持久化文件里；文件系统就是数据库 | `~/.aladuo/var/` 下存在 `events/`、`sessions/`、`ingress/`、`outbox/`、`usage/`、`telemetry/` 等目录；一次对话即在 `var/events/2026-06-30.jsonl` 落了 3 条事件 |
-| 2 | **网关边界 WAL-before-execute** | 每条入站消息先写规范事件到 append-only 日志，再入队，再执行 | 实测 WAL 事件序列严格为：`channel.attached` → `channel.message` → `agent.result`，消息事件先于结果落盘 |
-| 3 | **一个外部身份、多个内部会话** | 对外是单一 Agent 身份；对内编排多个并发 session actor，租约锁控制生命周期与并发 | `duoduo session list` 显示按 `kind`（channel/job/subconscious）+`plane`（work/...）分类的路由表；config 中 `max_concurrent_channel=10`、`max_concurrent_job=6` |
-| 4 | **双环认知：Cortex + 潜意识** | 前台响应实时消息；后台按节奏常驻运行，巩固记忆、反思、维护知识广播板 | `daemon status` 显示 cadence 心跳（`every 37min`）与 `subconscious: 0/0 partitions done`；4 个分区已加载并各有 cooldown/timeout |
-| 5 | **自编程认知拓扑** | 潜意识行为由文件定义；分区可改自己的提示词、新建分区、调整调度 | `subconscious/CLAUDE.md` 明确列出"我能改自己的 CLAUDE.md / 新建分区 / 改 playlist"，但禁止改 spine 数据、锁文件、`contract:` frontmatter |
-| 6 | **薄运行时、重模型委派** | 应用层代码刻意做薄；推理/工具编排/规划全部委派给基础模型和 SDK | `claude-runtime.md` 证实运行时内嵌 Claude Code SDK，"runtime 只拥有模型无法可靠拥有的东西：持久化、生命周期、调度、并发边界" |
+| # | README 主张（上游标题） | 本次部署的实测证据 | 机制说明见 |
+|---|------|---------------------|----------|
+| 1 | 文件系统优先、事件溯源运行时 | `~/.aladuo/var/` 下存在 `events/`、`sessions/`、`ingress/`、`outbox/`、`usage/`、`telemetry/` 等目录；一次对话即在 `var/events/2026-06-30.jsonl` 落了 3 条事件 | GUIDE 2.1、2.5；INTERNALS §5 |
+| 2 | 网关边界 WAL-before-execute | 实测事件序列严格为：`channel.attached` → `channel.message` → `agent.result`，消息事件先于结果落盘 | GUIDE 2.1；INTERNALS §5、§6 |
+| 3 | 一个外部身份、多个内部会话 | `duoduo session list` 显示按 `kind`（channel/job/subconscious）+`plane`（work/...）分类的路由表；config 中 `max_concurrent_channel=10`、`max_concurrent_job=6`。README 说的 "lease locks" 在 v0.8.3 代码里对应三种不同的锁机制，见 §3.1 末段 | GUIDE 2.2、2.3；INTERNALS §8 |
+| 4 | 双环认知：前台会话（Cortex）+ 后台分区（Subconscious） | `daemon status` 显示心跳 `every 37min` 与 `subconscious: 0/0 partitions done`；4 个分区已加载并各有 cooldown/timeout。README 说后台"不论前台是否活跃都运行"；v0.8.3 代码里心跳确实定时触发，但只有活动指纹变化时才运行分区，见 §13 | GUIDE 第三部分 3.2、3.3，第四部分；INTERNALS §11、§12 |
+| 5 | 自编程认知拓扑 | v0.8.3 的 `subconscious/CLAUDE.md` 列出分区可以改：自己的 `CLAUDE.md`、新建分区目录、`playlist.md`、`memory/CLAUDE.md`；禁止碰：事件日志数据、锁文件、收件箱目录（只能删自己收件箱里的条目表示已处理）、job 调度、其他分区的 `CLAUDE.md`（跨分区的需求写进最终报告）、任何分区的 `contract:` frontmatter | GUIDE 4.7；INTERNALS §11.4、§12 |
+| 6 | 最小运行时层、最大模型委派 | v0.8.3 包内 `claude-runtime.md` 写明运行时内嵌 Anthropic Claude Code SDK；内核里有 `claude-runtime.md`、`codex-runtime.md`、`grok-runtime.md`、`pi-runtime.md` 四份引擎说明 | GUIDE 第一部分；INTERNALS §2、§3 |
 
 ---
 
@@ -52,55 +50,64 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
 
 | 目录 | 角色 | 内容 |
 |------|------|------|
-| `~/aladuo`（**kernel_dir**） | 内核 / "内在世界" | `CLAUDE.md`（内核引导）、`claude-runtime.md`、`codex-runtime.md`、`config/<kind>.md`（按通道种类的默认值与提示词）、`.git`（内核自身受 git 版本管理——这也是"自编程回滚点"的基础） |
-| `~/.aladuo`（**runtime_dir**） | 运行时可变状态 | `run/`（PID、锁）、`var/`（全部事件溯源数据，见下） |
+| `~/aladuo`（**kernel_dir**） | 内核：提示词、配置、记忆 | 出厂文件来自包内 `bootstrap/`：`CLAUDE.md`（内核引导）；`claude-runtime.md`、`codex-runtime.md`、`grok-runtime.md`、`pi-runtime.md`（四个引擎的说明）；`config/runtime.md`（全局配置层）与 `config/<kind>.md`（按渠道种类的配置层，出厂有 `acp`、`feishu`、`stdio`、`job` 四份）；`memory/`（记忆板 `memory/CLAUDE.md` 与 entities、topics、fragments）；`subconscious/`（后台分区提示词与 `playlist.md`）。内核是一个 git 仓库：首次启动时运行时执行 `git init` 并提交一次 `memory: genesis`；之后由 `memory-committer` 分区在改动发生之后按心跳提交。按 `duoduo-runtime-admin` 技能刷新分区提示词时，刷新前的那次提交是可以 `git revert` 回去的点 |
+| `~/.aladuo`（**runtime_dir**） | 运行时可变状态 | `run/`：`locks/`（进程写锁 `daemon-writer.json` 与各会话的 drain 租约文件）、`queue_offsets/`、`daemon.sock`、daemon 的 stdout/stderr 日志；`var/`：全部事件溯源数据，见 §3.2 |
 
-> 易混点：**带点的 `~/.aladuo` 是运行时数据**，**不带点的 `~/aladuo` 是内核**。可用 `duoduo daemon config` 查询实际路径，切勿假设。
+> 易混点：**带点的 `~/.aladuo` 是运行时数据**，**不带点的 `~/aladuo` 是内核**。两者都可以用环境变量改位置（`ALADUO_RUNTIME_DIR`、`ALADUO_KERNEL_DIR`，由 `resolveRuntimePaths (Yut)` 解析，confirmed），所以可用 `duoduo daemon config` 查询实际路径，切勿假设。
 
-### 3.2 `runtime_dir/var/` 的事件溯源结构（实测）
+内核的出厂文件只在内核目录为空时整份复制；内核已存在时只补缺失的文件，已有文件不覆盖（`initializeRuntime (Rdt)` 在启动时调用复制步骤，confirmed；代码证据见 INTERNALS §11.5）。这就是升级 npm 包不会更新已有分区提示词的原因，见 §7。
+
+`run/locks/` 里有两类锁文件，加上内存里的一把互斥锁，共三种机制，各管一件事（confirmed）。进程写锁 `run/locks/daemon-writer.json` 由 `acquireRuntimeWriterLock (p6)` 在 daemon 启动时取得，保证一个数据目录只有一个 daemon 在写，取不到时启动失败并报 `Runtime lock already held by pid=`（`createDaemon`）。drain 租约文件 `run/locks/<会话键哈希>.json` 在 `drainSessionMailbox (KSe)` 处理邮箱前取得，处理期间每 30 秒续期一次（`lockHeartbeatIntervalMs ?? 3e4`（`drainSessionMailbox`）），取不到就不处理这次 drain。按会话键的内存互斥 `runWithSessionMutex (Vi)` 不落文件，让同一会话的状态改动串行执行。INTERNALS §8.2 给出这些锁的代码证据。
+
+### 3.2 `runtime_dir/var/` 的事件溯源结构（实测，v0.8.3 代码复核）
 
 ```
 ~/.aladuo/var/
-├── events/                 # 规范事件日志（WAL，真理之源）
+├── events/                 # 事件日志（上游 Spine，WAL）
 │   ├── 2026-06-30.jsonl    #   按天分片；单文件可达 10-30MB
 │   └── index/              #   仅 by_id.jsonl 一个索引（无 by_session）
-├── sessions/<hash>/        # 每会话状态 + mailbox/notes.jsonl
+├── sessions/<hash>/        # 每会话状态 + mailbox/（pending/ 与 notes.jsonl）
 ├── ingress/<hash>/         # 入站快照
 ├── outbox/                 # 出站投递（stdio/、replay/、index/、.pending_queue.jsonl）
 ├── usage/<session>.jsonl   # 成本/token 账本（append-only，无自动保留）
 ├── telemetry/<day>.jsonl   # 遥测
-├── cadence/inbox/          # 节奏（cron）投递箱
 ├── jobs/{active,archive}/  # 一次性/周期任务
-├── subconscious/           # 潜意识运行数据
-├── channels/<id>/          # 每通道运行数据
-├── registry/dedup.jsonl    # 去重水位线
-├── meta/partitions/        # 分区元数据
-└── daemon-restart-reason.json  # v0.6.2 新增；瞬态——CLI 重启前原子写入，
-                            #   新 daemon 启动时读一次即删（一次性认领）
+├── subconscious/<分区>/inbox/  # 各后台分区的收件箱（运行时投递任务单）
+├── cadence/                # 启动时创建，当前代码不向其中写入任何文件
+├── channels/<id>/          # 每个渠道实例的运行数据
+├── registry/dedup.jsonl    # 去重记录
+├── meta/partitions/        # 分区状态（含分区退休标记）
+└── daemon-restart-reason.json  # 瞬态：CLI 重启前写入，
+                            #   新 daemon 启动时读一次即删
 ```
 
-> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent, wake_targets?}`（`claimDaemonRestartReason (zbe)`）。`wake_targets` 是可选项：`duoduo daemon restart` 与 `duoduo upgrade` 都接受 `--wake <session-or-alias>`，给了目标时 CLI 才在载荷里加上 `wake_targets: u`（`cli.pretty.js:68090`），此时即使没写 `-r` 也会写这个文件（`reason` 为空串）。daemon 认领时只保留非空字符串项（`r.wake_targets.filter`（`claimDaemonRestartReason`）），`reason` 与 `wake_targets` 都为空才当作没有文件；启动完成后由 `deliverDaemonRestartWakes (kyt)` 向每个目标发一条 `source: "daemon-restart"`（`deliverDaemonRestartWakes`）的强制唤醒消息，失败只记日志。
+各目录的路径都由 `resolveRuntimePaths (Yut)` 派生（confirmed）。分区收件箱的路径是 `join(e, "subconscious", t, "inbox")`（`partitionInboxDirFromVar`），在 `var/` 下而不在内核里；内核的 `subconscious/inbox/` 只是出厂脚手架里的空目录，运行时不向它投递。`var/cadence/` 在代码里只出现在路径表和 `initializeRuntime (Rdt)` 的建目录列表中，没有其他读写（confirmed）。
+
+> `daemon-restart-reason.json` 只在 CLI 发出重启（`duoduo daemon restart -r "…"`、`duoduo upgrade`，或只带 `--wake` 的重启）到新 daemon 完成启动之间存在。它由 CLI 进程写入，由新 daemon 启动时读取并立即删除（`claimDaemonRestartReason (zbe)`，confirmed）。它不经过事件日志，没有事件 id，也不记录是哪一个 daemon 该读它，所以任何一次 daemon 启动都会读走当时留在那里的文件；这是因为它必须在新 daemon 存在之前写好。载荷为 `{reason, requested_at, requested_by_agent, wake_targets?}`；`reason` 与 `wake_targets` 都为空时视为没有文件。`wake_targets` 里的每个目标在启动后收到一条强制投递的通知（`source: "daemon-restart"`（`deliverDaemonRestartWakes`）），失败只记日志。`reason` 只注入 channel 会话下一轮的 `daemon-restart-hint` 块，job、分区等其他会话不注入（`stage: "out-of-scope"`（`decideRestartHintInjection`））。代码证据见 INTERNALS §6.4，使用方法见 §10.4。
 
 ### 3.3 持久化的配置面
 
-| 文件 | 作用 | 变更后是否需重启 daemon |
+| 文件 | 作用 | 变更后何时生效 |
 |------|------|------------------------|
 | `~/.config/duoduo/.env` | host 模式持久化的环境变量（`ALADUO_*`、`ANTHROPIC_*`、渠道凭据等），由 daemon 在 `main()` 启动时自己读入 `process.env`（只补未设置的键）。**不含 `DUODUO_NODE_BIN`**：它唯一的读者是 `bin/duoduo` bash wrapper，而 wrapper 不读此文件——放启动 `duoduo` 的 shell 启动文件，见 §10.4 | **需要** `duoduo daemon restart`（daemon 是分离的后台进程，不热加载） |
 | `~/.config/duoduo/config.json` | onboard 向导写入的选择（认证来源等） | — |
-| `kernel/config/<kind>.md` | 按通道种类的默认值与种类级提示词 | 下一回合/新会话绑定时生效（`<kind>` 取自事件的 `source.kind`；`job.md` 虽随 v0.6.2 发布但不会被 job 运行加载，见 §5） |
-| `var/channels/<id>/descriptor.md` | 单个通道实例的覆盖与实例级提示词 | 同上；仅当凭证/进程 env 变化才需重启通道 |
+| `kernel/config/runtime.md` | 全局配置层：对所有会话生效的默认值（例如 `claude.model_profiles`） | 下一次 drain 重新读取 |
+| `kernel/config/<kind>.md` | 种类配置层：按渠道种类的默认值与种类级提示词，`<kind>` 取自事件的 `source.kind` | 下一次 drain 重新读取 |
+| `var/channels/<id>/descriptor.md` | 实例配置层：单个渠道实例的覆盖与实例级提示词；job 的实例层是 job 文件本身 | 下一次 drain 重新读取；仅当凭证或进程 env 变化才需重启渠道 |
+
+配置按"全局 `runtime.md` → 种类 `<kind>.md` → 实例"三层合并，后一层覆盖前一层（`global = kernel/config/runtime.md, kind = kernel/config/<kind>.md`（`executeGatewayCommand`），confirmed）。job 的种类层按出厂文件的说明是 `config/job.md`，实例层是 job 文件的 frontmatter（包内 `config/runtime.md` 与 `config/job.md` 的注释都这样写）。但 drain 按触发这次运行的事件的来源种类选种类文件：60 秒 job 扫描器发出的 `job.spawn` 事件来源种类是 `cadence`（`name: "job-scanner"`（`scanAndSpawnDueJobs`），confirmed），而 RPC `job.create` 创建时立即发出的那条 `job.spawn` 来源种类是 `job`（`method === "job.create"`（`createDaemon`），confirmed）。由此推断，由扫描器触发的周期运行读不到 `job.md`，只有"全局 `runtime.md` + job 文件 frontmatter"两层（未证实推测：需要实测一次周期运行的系统提示里 `channel_kind` 的取值；代码证据见 INTERNALS §3.5）。
 
 ---
 
-## 4. 数据流：一条消息的完整生命周期（实测验证）
+## 4. 数据流：一条消息的完整生命周期（实测于 v0.6.1）
 
 ```
                           ┌─────────────────────────── duoduo daemon (host 进程) ───────────────────────────┐
-  外部通道                │                                                                                  │
- (stdio / Feishu / ACP)   │   ① 写 WAL          ② 入队           ③ 执行(drain)          ④ 出站              │
-        │                 │  spine.append  →  session mailbox  →  SDK query()  →  outbox  →  replay/index   │
-        │  channel.message │  (canonical      (per-session       (Claude/Codex   (落盘)                      │
-        └────────────────▶│   event 先落盘)    actor + 租约锁)    runtime adapter)                           │
+  外部渠道                │                                                                                  │
+ (stdio / Feishu / ACP)   │   ① 写事件日志      ② 入队           ③ 执行(drain)          ④ 出站              │
+        │                 │  spine.append  →  session mailbox  →  引擎调用     →  outbox  →  replay/index   │
+        │  channel.message │  (事件先落盘)     (每会话一个       (claude/codex/  (落盘)                      │
+        └────────────────▶│                    actor)            grok/pi 之一)                              │
                           │        │                                   │                                     │
                           │   var/events/*.jsonl                 var/usage/*.jsonl  ← 成本/token 账本        │
                           └──────────────────────────────────────────────────────────────────────────────┘
@@ -108,17 +115,17 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
 
 **本次实测的事件序列**（向 stdio 发送一条 "6×7" 测试消息）：
 
-1. `channel.attached` —— stdio 通道绑定到会话 `stdio:default:28d3ca682f86`
-2. `channel.message` —— 入站消息**先写入 WAL**（WAL-before-execute 合约）
+1. `channel.attached` —— stdio 渠道绑定到会话 `stdio:default:28d3ca682f86`
+2. `channel.message` —— 入站消息**先写入事件日志**（WAL-before-execute）
 3. `agent.result` —— 模型经 Claude Code 本地认证产出回复 `DUODUO_OK_42`（正确：6×7=42）
 
 `usage.get` RPC 同时记录了这次 drain 的账本：`total_drains=1`、`cost_usd≈0.239`、`input_tokens=2806`、`output_tokens=12`、`cache_creation_tokens=22445`。
 
-> 这条链路完整跑通，证明 **stdio → spine WAL → mailbox → SDK drain → outbox** 的全栈可用。
+> 这条链路完整跑通，说明 **stdio → 事件日志 → mailbox → drain → outbox** 在这次部署上全部可用。一条消息在 v0.8.3 里经过的各步骤及其代码位置见 INTERNALS §1。
 
 ---
 
-## 5. 崩溃恢复与"进程无状态"（实测验证）
+## 5. 崩溃恢复与"进程无状态"（实测于 v0.6.1）
 
 README 主张："进程中途死亡，系统从文件 rehydrate，恰好从中断处续上。"
 
@@ -127,125 +134,64 @@ README 主张："进程中途死亡，系统从文件 rehydrate，恰好从中�
 - 进程 PID 从 `3128489` 变为 `3129393`（确实是全新进程），
 - 但 **`runtime_id` 保持 `rt_b3b7599e9317` 不变**（运行时身份跨进程持久化），
 - 会话从文件重建：`session list` 仍显示同一 `stdio:default:28d3ca682f86`、同一 `LAST_EVENT` 时间戳，
-- WAL 3 条事件完好无损，
+- 事件日志里的 3 条事件完好无损，
 - 认证来源从 `.env` 重新加载（`claude_auth_source: claude_code_local`）。
 
-> 结论：**进程是可丢弃的，状态在文件里**。这是"文件系统即数据库"主张的硬证据。
+> 结论：**进程可以随时替换，状态在文件里**。这是"文件系统即数据库"主张的直接证据。恢复所依赖的机制（事件日志、邮箱指针、消费进度）见 INTERNALS §5。
 
 ---
 
-## 6. 双环认知：Cortex（前台）+ Subconscious（潜意识）
+## 6. 前台会话与后台分区（上游 Cortex 与 Subconscious）
 
-### 6.1 前台（Cortex）
-响应实时通道消息。会话跨重启持久化并精确恢复历史。每个对话通道、后台任务会话、潜意识分区各是一个 **session actor**，由租约锁（lease lock）强制生命周期与并发边界。
-
-### 6.2 后台（Subconscious）
-按节奏（cadence，本机默认 **每 37 分钟**一次心跳）运行，**与前台是否活跃无关**。它做的是"不该需要刻意思考的事"：记忆巩固、自我健康监控、维护队列处理，并维护一个**自动注入到未来每个会话上下文的知识广播板**。
-
-潜意识的组织（来自 `subconscious/CLAUDE.md`）：
-
-```text
-subconscious/
-├── CLAUDE.md          # 潜意识总览
-├── inbox/             # 待拾取的 .pending / .json 通知
-├── playlist.md        # round-robin 调度表（谁下一个跑）
-└── <partition>/
-    └── CLAUDE.md      # 该分区的目的 + YAML frontmatter(schedule/contract)
-```
-
-**调度模型**："每个 tick 唤醒潜意识的一块，做完工作就回去睡——无状态，除了写进文件的东西，不记得上次。" `playlist.md` 是 round-robin，每 tick 取下一个未勾选项，一轮跑完就用所有 enabled 分区重建。
-
-### 6.3 v0.8 起 bootstrap 出厂的 4 个分区
-
-以下取自仓库内 `subconscious/<分区>/CLAUDE.md` 的 frontmatter（`schedule.cooldown_ticks` / `schedule.max_duration_ms` / `contract.consumes`），即上游出厂脚手架本身，非旧版实测快照：
-
-| 分区 | cooldown | timeout | 职责（合约 `consumes`） |
-|------|----------|---------|--------------|
-| `memory-committer` | 3 ticks | 30min | kernel 的 git 守门员，只 `git add` + `git commit`（无 `contract:` 段） |
-| `gradient-distiller` | 5 ticks | 35min | 产出梯度：`scan-gap.v2` |
-| `intuition-weaver` | 5 ticks | 35min | 落地梯度：`fold-gap.v1`、`entity-converge.v1`、`merge.v1`、`orphan-islands.v1`、`orphan-newborn.v1`、`claude-compress.v1`、`claude-lint.v1`、`claude-flatten.v1`、`activation-report.v1` |
-| `pattern-tracker` | 7 ticks | 15min | 模式追踪：`node-converge.v1`、`revise.v1`、`orphan-newborn.v1` |
-
-**v0.8 的结构性变化是"两级子代理"塌缩成"两个平级分区的读写分权"。** 旧版 `memory-weaver` 一个分区靠 `.claude/agents/*.md` 挂三个子代理（`spine-scanner`→`entity-crystallizer`→`intuition-updater`）串起流水线；现在出厂脚手架里**已无任何 `.claude/agents/*.md`**，改由两个平级分区按"谁能写什么"切开：`gradient-distiller` 只读 Spine 事件日志与当前广播板，把外部事件蒸馏成**可回溯到 `memory/CLAUDE.md` 具体某一行**的 text gradient 碎片，除碎片外几乎不写；`intuition-weaver` 则自称"广播板、`memory/effectiveness/`、`memory/entities/` 的唯一写者"，合法动作限定为 add/rewrite/reorder/retire/re-wire，受行预算、语域、来源边界与用户显式数值策略四条约束。**"算梯度"与"应用梯度"由此落在两个不同的分区、两个不同的写权限域里**，而不再是同一个分区内部的三个子代理。
-
-**`cadence-executor` 与 `memory-weaver` 是被运行时显式"退休"的，不是被删掉的（confirmed）。** 退休名单 `sdt`写死两条：`{memory-weaver, selfId:"contract"}` 与 `{cadence-executor, selfId:"contract-absent"}`，由 `Gwe`（`69151`）在 init 期逐条交给 `fdt`（`69164`）处理。`fdt` 的四道闸门都在防"误伤用户自己的东西"：① charter 解析失败只告警不动手（`parse-fail`→`unreadable`）；② **自证闸**——`memory-weaver` 必须仍持有 valid contract、`cadence-executor` 必须仍无 contract，否则判为"这个目录名已被你挪作他用"，原样留下并记 `not-self-identified`；③ **一次性闸**——落 `<partitionStateDir>/<name>.retired` 标记（`adt = ".retired"`（`69230`）），标记已存在就跳过，且若用户事后重新 enable，日志明说"retirement runs once"并放手；④ 只有 `schedule.enabled === true` 才动。四闸全过才写标记、把 charter 的 `schedule.enabled` 翻成 `false`，正文原样保留。**退休 = 关掉调度并留痕，从不删除分区目录或其历史**——想继续跑，手工改回 `enabled: true` 即可，运行时不会再翻第二次。
-
-与之配套，v0.8 里 `cadence-executor` 赖以工作的 `queue.md` 路由机制**已从 bundle 整体消失**（全 bundle `queue.md` 字面量零命中），因此"潜意识靠一个纯路由分区分发任务"这一层在当前版本已不存在。
+这部分的机制说明在 GUIDE 第三部分（3.2 心跳与后台分区会话、3.3 四个跳过条件）、第四部分（从事件日志到记忆板的流水线）与附录 B（出厂四个后台分区），代码证据在 INTERNALS §11（心跳与后台分区，含 11.5 出厂初始化与分区退休）与 §12（记忆系统）。运维上需要知道三点：心跳间隔由 `ALADUO_CADENCE_INTERVAL_MS` 设置，默认 2220000 毫秒即 37 分钟（`"ALADUO_CADENCE_INTERVAL_MS", 222e4`（`main`），confirmed）；`duoduo daemon status` 显示已加载的分区与当前一轮 playlist 的完成情况；出厂列入退休名单的旧分区（`memory-weaver`、`cadence-executor`）只是被 `retirePartitionOnce (fdt)` 把 frontmatter 的 `schedule.enabled` 改为 `false` 并在 `var/meta/partitions/` 写下 `.retired` 标记，目录和内容都保留；它只处理仍按出厂方式声明自己、且处于启用状态的同名目录，手工改回 `enabled: true` 后运行时不会再次关闭它（`the retirement runs once`（`retirePartitionOnce`），confirmed）。
 
 ---
 
-## 7. 自编程认知拓扑（第 5 项创新的机理）
+## 7. agent 对提示词与记忆的修改（上游"自编程认知拓扑"）
 
-分区行为由文件定义，且**分区可以改写自身**。`subconscious/CLAUDE.md` 明确划定了自编程的边界：
-
-**允许自改：**
-- 自己分区的 `CLAUDE.md`（精炼工作方式）
-- 新建分区目录（生长新能力）
-- `playlist.md`（调整节奏）
-- `memory/CLAUDE.md`（塑造全局"直觉层"——写进这里的东西成为所有会话思考方式的一部分）
-- `subconscious/inbox/`（给其他分区留便条）
-
-**禁止触碰：**
-- Spine 事件数据（"不可更改的历史"）
-- 锁文件（属于运行时）
-- 其他分区的 `CLAUDE.md`（须经 inbox 协调，不可直接改）
-- 任何分区的 `contract:` frontmatter（机器读取的消费者声明，由运行时拥有、从上游刷新）
-
-> 设计哲学：**运行时只发一份脚手架，长期行为越来越多由 Agent 自己撰写**，系统随时间自我扩展。内核 `~/aladuo` 受 git 管理，每次自改前 git 提交即"回滚点"。
-
-> ⚠️ 版本耦合风险：`npm install` 升级**不会覆盖**已存在内核的分区提示词（只合并缺失文件，刻意保留 Agent 自编程与本地改动）。因此升级 duoduo 后，分区提示词需按目标 tag **显式刷新**（见 `duoduo-runtime-admin` 技能的 subconscious-refresh 流程），否则旧分区会误解析新版 lint 信号。
+这部分的机制说明在 GUIDE 4.1（设定与记忆存放在一个 git 仓库里）、4.7（谁能改什么）与 4.8（上游升级与 agent 修改互不覆盖），代码证据在 INTERNALS §11.4（契约过滤与分区工具白名单）、§11.5 与 §12。运维上需要知道的是升级的版本耦合：`npm install` 或 `duoduo upgrade` 升级后，内核里已有的分区提示词不会被新版本覆盖（§3.1），要用新版提示词必须按 `duoduo-runtime-admin` 技能的 subconscious refresh 流程显式刷新。该流程要求内核 git 工作区干净，先展示差异再覆盖，保留用户调过的 `schedule:` 与 `runtime:`/`model:`/`effort:` 键，正文与 `contract:` 段取上游版本，最后提交一次，这次提交就是出问题时 `git revert` 的回退点；刷新后不需要重启 daemon（技能原文 `references/subconscious-refresh.md`）。不刷新时，旧版分区提示词可能按旧格式理解新版运行时发出的检查信号。
 
 ---
 
-## 8. 模型运行时：Claude / Codex / Grok 三方并列
+## 8. 引擎（配置字段 `runtime`）
 
-- duoduo 内嵌 **Anthropic Claude Code SDK**，并把原生平台二进制作为 npm 可选依赖随包安装。
-- 自 v0.5.3 起 Claude 与 Codex 是对等运行时；**v0.7.1 起 Grok 作为第三个对等运行时加入**，坐在与 Claude/Codex 同一层抽象后面（同样的一进程一会话、duoduo 自有工具可达、mid-turn steering、kind/instance/job/partition prompt 字段）；daemon 启动时探测三者，按可用情况适配。运行时枚举本身在 v0.7.1 也做了一次内部重构：旧版三处独立词法作用域的重复常量数组被合并成唯一权威定义（详见 INTERNALS §8）。
-- **v0.8.0 起 `pi` 作为第四运行时加入，且与另三者有一处本质不同：它不需要用户另装、另登录外部 CLI**。Claude/Codex/Grok 都要求宿主机已装好对应的 CLI 并完成登录，`available_runtimes` 探测失败就不进候选列表；`pi` 反而**无条件**出现在候选列表里（`e.push("pi")`（`63770`）），因为它是随 `@openduo/duoduo` 包本身分发的内嵌进程（`dist/release/pi-worker.js`，独立于 `daemon.js`/`cli.js`/`stdio.js`，本文档与 `reconstruction/` 均未覆盖这个新 bundle），凭据来自用户自己的 pi agent 目录（`models.json`/`auth.json`）而非某个"登录了哪个账号"的探测。它复用与 Claude 相同的 job-config 叠加口（新增 `piExtensions`/`piSkills`/`piConfigIssues` 三个键，详见 INTERNALS §1 论点五），`prompt_mode` 语义也与 claude/grok 同组、codex 例外。
-- **Claude 是保守的默认回退**：除非 actor 显式声明 `runtime: codex|grok`（在 descriptor / job frontmatter / 分区 frontmatter 中），或设置 `ALADUO_DEFAULT_RUNTIME=codex|grok`，否则一律落到 Claude。**两个非默认后端的失败模式不对称**：codex 不可用会静默降级回 claude 并打警告日志；grok 不可用**绝不降级**，actor 仍以 `runtime="grok"` 创建，直到该会话真正被 drain 时才抛出定制到 "grok" 的硬错误（`Install the grok CLI, run 'grok login'...`）——这是本轮阅读代码发现的一处 changelog 未明说的实现细节，而非"两个后端对称降级"（详见 INTERNALS §8）。
-- 三种认证来源（onboard 时三选一，均只覆盖 Claude 侧）：
-  - `claude_code_local`——本机已 `claude login`（**本次部署采用**）
-  - `anthropic_api_key`——设置 `ANTHROPIC_API_KEY`
-  - `compatible_endpoint`——OpenAI 兼容端点（sglang、vLLM 等），需 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`
-- Claude 侧用**单一进程内适配器**：streaming 通道会话、任务、潜意识分区共享一个 in-process adapter。Codex 侧是**常驻 `codex app-server` 子进程** + 行分隔 JSON-RPC，一个进程承载多个 thread（`createCodexAppServerAdapter (yw)`（`61974-62434`），详见 INTERNALS §8）。Grok 侧同样是**常驻子进程**，但走标准 ACP（Agent Client Protocol）协议 + `_x.ai/...` 供应商扩展方法命名空间，适配器是闭包工厂而非 class，spawn 时不带 `detached:!0`（`createGrokAcpAdapter (vw)`（`63118-63675`））——三者均不是逐回合 spawn。
-- **v0.7.1 起 duoduo 自有工具在 Codex 侧被显式钉在模型可见的顶层工具列表**（`ALADUO_TOOL_NAMESPACE="aladuo"`），防止被 Codex 的 code-execution shim 折叠进模型看不见的间接调用层——这是 changelog "Codex tools stay where the model can see them" 的落地机制，只解决 Codex 一侧的可见性问题，不代表三后端工具面已拉平。
-- 逃生舱：`CLAUDE_CODE_EXECUTABLE` 可指向非 SDK 的本地 `claude` 二进制（当可选原生二进制没装上时）。
+这部分的机制说明在 GUIDE 第一部分（1.2 四个引擎的接入方式、1.4 引擎与模型的选择与会话绑定、1.7 无人值守下的权限与认证），代码证据在 INTERNALS §3。运维上需要知道五点，均 confirmed。第一，`runtime` 有四个取值 `L0 = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`），未指定时取 `ALADUO_DEFAULT_RUNTIME`，再没有就是 `claude`（`resolveDefaultRuntime (Co)`）；daemon 启动时把四者的可用性写进日志（`available runtimes at boot`（`main`）），其中 pi 恒为可用，因为它随包分发（`dist/release/pi-worker.js`），不需要另装外部 CLI（`e.push("pi")`（`listSelectableJobRuntimes`））。第二，引擎之间不互相替代：请求的引擎不可用时这次 drain 被拒绝（`stage: "runtime_unavailable"`（`drainSessionMailbox`）），会话历史属于另一个引擎时也被拒绝（`stage: "runtime_mismatch"`（`drainSessionMailbox`）），后者需要先 `/clear`。第三，onboard 时三选一的认证来源都只作用于 Claude 引擎：`claude_code_local`（本机已 `claude login`，本次部署采用）、`anthropic_api_key`（设置 `ANTHROPIC_API_KEY`）、`compatible_endpoint`（设置 `ANTHROPIC_BASE_URL` 与 `ANTHROPIC_AUTH_TOKEN`，`isClaudeAuthSource (Xct)` 只接受这三个值）。第四，`compatible_endpoint` 需要的是 **Anthropic 兼容**端点：onboard 把这组 `ANTHROPIC_*` 变量写进 `.env`（`writeHostModelEnvConfig ($we)`），它们作为 Claude Code 的环境变量生效，Claude Code 按 Anthropic Messages 协议请求 `ANTHROPIC_BASE_URL`；包内 `claude-runtime.md` 把它写成 "OpenAI-compatible endpoint (sglang, vLLM, etc)"，与代码行为不符。第五，可选原生二进制没装上时，可以用 `CLAUDE_CODE_EXECUTABLE` 指向本机的 `claude` 可执行文件（`CLAUDE_CODE_EXECUTABLE_ENV_KEY (G6)`）。
 
 ---
 
-## 9. 通道（Channel）插件体系
+## 9. 渠道适配器
 
-通道把 duoduo 连接到外部消息平台，以 npm 包形式安装：
+渠道适配器把 duoduo 连接到外部消息平台。包内自带 stdio 与 ACP 两个渠道入口（`dist/release/stdio.js`、`dist/release/channel-acp.js`），飞书适配器以独立 npm 包安装：
 
 ```bash
 duoduo channel install @openduo/channel-feishu
 duoduo channel feishu start
 ```
 
-- 当前官方可用：`@openduo/channel-feishu`（飞书 / Lark）。
-- 配置走两级：`kernel/config/<kind>.md`（种类级默认）→ `var/channels/<id>/descriptor.md`（实例级覆盖）。
-  - v0.6.2 起 `bootstrap/config/` 多发一个 `job.md`（v0.6.1 只有 `acp.md`/`feishu.md`/`stdio.md`），意图是给 job 一个同样的种类层。**但 job 运行时从不加载它**：种类文件按 `event.source.kind` 选取，而 job 的 drain 锚点事件来自 cadence 扫描器（`source.kind="cadence"`）或 notify 唤醒（`"route"`），永远不是 `"job"`。可观测症状：每个 job 的 system prompt 里 `## Runtime Context` 渲染的是 `channel_kind: cadence`。job 的 SDK 配置因此只有"实例层（job frontmatter）+ 内置默认"两级。
-- 通道安装器只接受 **npm 包名**（无 flag）或**本地 `.tgz` 包**（须 `--from-path`），**不能**把裸 git 仓库当通道装。
-- 包结构：`@openduo/duoduo`（核心运行时+CLI）、`@openduo/channel-feishu`（飞书适配器）、`@openduo/protocol`（零依赖共享 RPC 类型）。
+- 当前官方可用的外部渠道包：`@openduo/channel-feishu`（飞书 / Lark）。飞书适配器的会话键派生、@ 过滤、进度卡与表情回应在适配器包内实现，证据见 INTERNALS §9。
+- 配置按三层合并：`kernel/config/runtime.md`（全局）→ `kernel/config/<kind>.md`（种类）→ `var/channels/<id>/descriptor.md`（实例），见 §3.3。
+- 渠道安装器只接受 **npm 包名**，或带 `--from-path` 的**本地 `.tgz` 包**；不带 `--from-path` 的本地路径会被拒绝（`isInstallTargetFilePath (hXe)` 按 `.`、`/`、`~` 开头或 `.tgz` 结尾识别路径，confirmed），裸 git 仓库不能当渠道装。
+- 包结构（README）：`@openduo/duoduo`（核心运行时+CLI）、`@openduo/channel-feishu`（飞书适配器）、`@openduo/protocol`（零依赖共享 RPC 类型）。
+- `duoduo upgrade` 会一并升级已安装的渠道包：已是最新的跳过，需要升级的先停掉正在运行的渠道，daemon 重启后再把原先在运行的渠道启动起来（`stopped for upgrade`（`cli:runUpgradeChannelPhase`），confirmed）。
 
 ---
 
-## 10. 可观测性：ATC 监控面板 + RPC API（实测）
+## 10. 可观测性与控制面
 
 ### 10.1 Dashboard
 - 地址 `http://localhost:20233/dashboard`（本次实测 **HTTP 200**）。
-- **单文件、零依赖** HTML，由 daemon 直接服务，无构建步骤、无额外端口、无框架。
-- 三大区：**Header**（累计成本/token/工具调用数/健康灯）、**Signal Bar**（每个活跃实体的形状+颜色状态：● 前台会话 / ■ cron 任务 / ◆ 一次性任务 / ✓· 潜意识分区）、**Event Stream**（实时 Spine WAL 事件，富渲染 + 可展开 JSON）。
+- **单文件、零依赖** HTML（包内 `bootstrap/dashboard.html`），由 daemon 直接服务，无构建步骤、无额外端口、无框架。
+- 三大区：**Header**（累计成本/token/工具调用数/健康灯）、**Signal Bar**（每个活跃实体的形状+颜色状态：● 前台会话 / ■ 周期任务 / ◆ 一次性任务 / ✓· 后台分区）、**Event Stream**（实时事件日志，富渲染 + 可展开 JSON）。
 
-### 10.2 控制面（v0.7.0 起破坏性变更）：TCP 只读，unix socket 才有全权限
+### 10.2 控制面：TCP 只读，unix socket 拥有全部权限
 
-**v0.7.0 起，`:20233` 不再是唯一控制面端口，也不再拥有全部权限**——旧版"任何能连上 20233 的进程都能读写会话状态、无任何鉴权"的模型被拆成三层：
+daemon 对外有三个监听器，共用一套路由，权限不同（confirmed；代码证据见 INTERNALS §6.1）：
 
-1. **TCP `:20233`（`ALADUO_PORT`，默认恒 loopback）——只读**。`/rpc` 只放行一份方法白名单：`system.status, usage.get, job.list, spine.tail, system.runtime.info, system.config`；其余方法返回 JSON-RPC `-32601 "Method not available on read-only endpoint"`（HTTP 200，非连接层拒绝）。`/ws`（双向流式 RPC）在只读模式下直接返回 HTTP 426，响应体指路"Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead"并附 `socket_path`。这个监听器还额外做 Host/Origin 白名单（`127.0.0.1`/`localhost`/`::1`）防 DNS-rebinding。`/healthz`/`/dashboard`/`/readyz` 三个端点在只读/全权模式下都注册，行为不变。
-2. **unix socket（默认 `<runDir>/daemon.sock`，可用 `daemonSocketPath` 选项或 `ALADUO_DAEMON_SOCKET` 覆盖）——全权限**。daemon 启动时校验 socket 所在目录属主为当前 uid 且权限 0700（`mode 0700`（`createDaemon`）），`listen` 之后再显式 `chmod` socket 文件为 0600（`Ms.chmod(x, 384)`（`91472`））——**只有本机同一个 OS 用户能打开它，鉴权靠文件系统权限本身，不是应用层 token**。CLI 与 channel gateway 的"全权限客户端"默认走这条路径。
-3. **可选的第三个监听器——非 loopback、token 网关，opt-in**。把 `ALADUO_DAEMON_HOST` 设成非 loopback 主机会打开第三个监听器，此时必须同时提供 `ALADUO_DAEMON_TOKEN`（经 `duoduo daemon token new [--force]` 生成，持久化进 `~/.config/duoduo/.env`，文件权限 0600（`Rl.chmod(n, 384)`（`cli.pretty.js:67171`）））和一个独立的 `ALADUO_REMOTE_PORT`（否则拒绝启动）。该监听器上 `/rpc`/`/ws` 都会校验 `Authorization: Bearer <token>` 的 SHA-256 是否与配置的 token 的 SHA-256 用 `crypto.timingSafeEqual` 比对相等——这是旧版"网络端口=全权控制"模型里唯一保留、且现在默认关闭、需要显式两步开启的形态。
+1. **TCP `:20233`（`ALADUO_PORT`，默认 20233，`process.env.ALADUO_PORT ?? process.env.PORT ?? 20233`（`main`））——只读**。它只监听 loopback（`host: "127.0.0.1"`（`createDaemon`））。`/rpc` 只放行一份只读方法白名单：`system.status, usage.get, job.list, spine.tail, system.runtime.info, system.config`；其余方法返回 JSON-RPC `-32601`（`Method not available on read-only endpoint`（`createDaemon`）），HTTP 状态仍是 200，不是连接层拒绝。`/ws` 在这个端口上返回 HTTP 426（`upgrade_required`（`createDaemon`）），响应体说明全权限客户端（duoduo CLI 与渠道适配器）应改连 unix socket，并附 `socket_path`。这个监听器还检查 Host 与 Origin 头，只接受 `127.0.0.1`、`localhost`、`::1`，用来防 DNS rebinding（`Host header not allowed`（`createDaemon`））。`/healthz`、`/dashboard`、`/readyz` 三个端点不受只读限制。
+2. **unix socket（默认 `<runDir>/daemon.sock`，可用 `ALADUO_DAEMON_SOCKET` 覆盖）——全部权限**。daemon 启动时要求 socket 所在目录属于当前用户且权限为 0700，否则拒绝启动（`mode 0700`（`createDaemon`））；`listen` 之后再把 socket 文件权限设为 0600（`chmod(x, 384)`（`createDaemon`））。所以访问控制就是文件系统权限：只有本机同一个 OS 用户能打开它，没有应用层口令。socket 路径超过 104 字节时 daemon 拒绝启动。CLI 与渠道适配器默认走这条路径。
+3. **可选的远程监听器——需要 `ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项齐全才打开**（`resolveRemoteListenerConfig (jyt)`）。三项齐全时，即使 HOST 是 loopback 地址也会打开；缺任何一项时不打开。两种缺项会直接让 daemon 启动失败：HOST 是非 loopback 地址却没有 TOKEN（`remote exposure requires ALADUO_DAEMON_TOKEN`（`resolveRemoteListenerConfig`）），或 HOST 非 loopback、有 TOKEN、却没有 REMOTE_PORT（`remote exposure requires an explicit ALADUO_REMOTE_PORT`（`resolveRemoteListenerConfig`））。REMOTE_PORT 必须与只读端口不同。TOKEN 用 `duoduo daemon token new [--force]` 生成：CLI 把它写进 `~/.config/duoduo/.env` 并把文件权限设为 0600，已有 TOKEN 时必须加 `--force` 才会轮换，因为轮换会让所有已连接的远程渠道适配器失效。这个监听器上的 `/rpc` 与 `/ws` 都要求 `Authorization: Bearer <token>`，比较的是两者 SHA-256 摘要，用常数时间比较（`timingSafeEqual`（`createDaemon`））。
 
-**本轮活体验证**（隔离环境，`ALADUO_PORT=20334`）：
+**活体验证**（v0.7.1，隔离环境，`ALADUO_PORT=20334`；上述行为在 v0.8.3 代码中逐条复核仍成立）：
 ```
 $ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
     -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
@@ -260,57 +206,80 @@ $ curl -s -H 'Content-Type: application/json' \
 {"jsonrpc":"2.0","id":3,"result":{...}}                                          # socket 上同一方法照常工作
 ```
 > 探测时 `-H 'Content-Type: application/json'` 不可省：`curl -d` 默认发 `application/x-www-form-urlencoded`，fastify 在 JSON-RPC 分发之前就返回 `415 FST_ERR_CTP_INVALID_MEDIA_TYPE`，会把"方法被只读端点拒绝"误读成"端点不可用"。
-daemon 日志同步落一条 `[WARN] [daemon] rejected write method on read-only port { method: 'session.send', id: 2 }`，与代码路径逐条对应（详见 `reconstruction/VERIFICATION.md`）。
+daemon 日志同步落一条 `[WARN] [daemon] rejected write method on read-only port { method: 'session.send', id: 2 }`（`rejected write method on read-only port`（`createDaemon`）），完整记录见 [`reconstruction/VERIFICATION.md`](../reconstruction/VERIFICATION.md)。
 
 ### 10.3 RPC 接口
-Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信（走只读 TCP 端口即可，因为 dashboard 本身只读）。实测可用方法包括：
+Dashboard 通过 **`POST /rpc`（JSON-RPC 2.0）** 与 daemon 通信，走只读 TCP 端口即可。包内 `bootstrap/dashboard.html` 调用的正好是只读白名单里的六个方法（confirmed）：
 
-| 方法 | 用途 | 实测结果 |
+| 方法 | 用途 | 实测结果（v0.6.1） |
 |------|------|----------|
-| `spine.tail` | 拉取最近 WAL 事件 | 返回本会话 3 条事件 |
-| `usage.get` | 成本/token 账本 | 返回 drain/cost/token 明细 |
-| `job.list` | 任务列表 | （dashboard 使用） |
-| `document.get` | 文档读取 | （dashboard 使用） |
+| `system.status` | 健康状态、会话与分区概况 | （dashboard 使用） |
+| `usage.get` | 成本/token 账本（dashboard 传 `{mode:"totals"}`） | 返回 drain/cost/token 明细 |
+| `job.list` | 任务列表（dashboard 传 `{summary:true}`） | （dashboard 使用） |
+| `spine.tail` | 拉取最近的事件日志条目 | 返回本会话 3 条事件 |
+| `system.runtime.info` | 运行时信息 | （dashboard 使用） |
+| `system.config` | 生效的配置及其来源（env 或默认值） | （dashboard 使用） |
 
-> 注意：没有 REST 风格的 `/api/events`（实测 404），也没有独立的 dashboard save-api 端口；`document.get` 若是写操作或不在只读白名单内，走 TCP 端口会被拒绝，需确认其调用路径（dashboard 前端代码未在本轮范围内逐行核对）。
+> 注意：没有 REST 风格的 `/api/events`（实测 404），也没有独立的 dashboard 保存接口端口。控制面方法的全集见 INTERNALS 附录 B.2，只读端口放行的方法见附录 B.3。
 
-### 10.4 CLI 诊断命令
-`duoduo daemon status|config|logs`、`duoduo session list|alias|notify|compact|archive`、`duoduo channel ... status|logs|doctor`、`duoduo memory check|...`、`duoduo prompts`、`duoduo job list|read|archive|interrupt|reschedule`（v0.8.2 新增）。
+### 10.4 CLI 运维命令
 
-**v0.8.2：作业生命周期整体从工具面搬到 shell（confirmed，`cli.pretty.js`）。** 这是本次唯一一个新增的一等 CLI 子命令，也是 v0.8.2 在 `cli` bundle 里唯一新增的源模块——模块闸门正是在这里停下并要求定夺的（`reconstruction/maps/modules_cli.json` 新增记录 `jobHelp`/`parseJobCli`/`runJobSubcommand`）。派发入口 `runJobSubcommand (nJe)`（`cli.pretty.js:63784-63848`），参数解析 `parseJobCli (Kge)`（`cli.pretty.js:63635-63721`），帮助文本 `jobHelp (nU)`（`cli.pretty.js:63630-63633`）。五个动词里有三个是从 `ManageJob` 工具移出来的（`archive`/`interrupt`/`reschedule`，见 `AGENT_INTERNALS_ANALYSIS.md` §1 对应条目），理由是它们属于运维动作而非 agent 回合内动作。两处设计细节值得记：
+**命令一览**（v0.8.3 `duoduo --help` 与各子命令帮助，confirmed）：
 
-- **`interrupt` 强制要求理由，且理由是给被打断者看的。** `parseJobCli` 里 `-r`/`--reason` 缺失即报 `error: duoduo job interrupt requires -r "<reason>"`（`cli.pretty.js:63691`），且 `-r` 只对 `interrupt` 合法，用在别的动词上直接拒（`takes no -r/--reason`（`cli.pretty.js:63666`））。帮助文本明说这个字符串"是被打断的会话下一次运行时被告知的内容"（`jobHelp (nU)`（`cli.pretty.js:63631`））——即打断不是静默 kill，理由会进入该作业下一轮的开场，让会话知道自己上次为什么被切断。回执渲染在 `renderInterruptReceipt (jge)`（`cli.pretty.js:63761-63765`）。
-- **`archive` 不删除任何东西**，帮助文本收尾一句 `Nothing is deleted: an archived job's files move to var/jobs/archive/.`（`cli.pretty.js:63631`），与全局"归档即 tombstone、永不删"的一致。`reschedule` 只加**一次**额外触发，明确 `The job's schedule class is never changed.`。
+| 命令 | 用途 |
+|------|------|
+| `duoduo daemon start\|stop\|restart\|status\|config\|logs`、`duoduo daemon token new [--force]` | daemon 生命周期、诊断与远程访问口令 |
+| `duoduo session list\|alias\|notify\|wake\|compact\|model\|effort\|config\|archive` | 列出会话、起别名、发通知、预约一次唤醒、排队 `/compact`、改模型与推理力度、读写渠道可改的配置、归档（`runSessionSubcommand (y$e)`） |
+| `duoduo job list\|read\|archive\|interrupt\|reschedule` | job 生命周期，见下文（`runJobSubcommand (nJe)`） |
+| `duoduo spine cat\|show` | 读事件日志：`cat` 输出按条件筛选的对话记录，`show` 输出一条事件的完整 JSON（`runSpineCommand (Zje)`） |
+| `duoduo memory check\|reclaim\|board-lint\|entity-lint\|node-lint` | 记忆树的只读测量与孤立节点回收（`runMemoryCommand (Uje)`） |
+| `duoduo channel install\|list`、`duoduo channel <type> start\|stop\|status\|logs\|doctor` | 渠道适配器的安装与运维 |
+| `duoduo prompts [name]` | 列出或打印命名提示词（`runPromptsSubcommand (iJe)`） |
+| `duoduo upgrade [version] [--wake …]`、`duoduo --version` | 升级；`--version` 直接读包自身的 `package.json`，不需要 daemon（`"unknown"`（`cli:readCliPackageVersion`）） |
 
-另有 `duoduo --version` 不再需要 daemon：`readCliPackageVersion (yXe)`（`cli.pretty.js:74570-74572`）直接从包自身的 `package.json` 读，失败回落 `"unknown"`（confirmed）。同版本移除了 `duoduo daemon enable-autostart` / `disable-autostart` —— 其 launchd 侧实现 `getRunAtLoad`/`setRunAtLoad` 两个导出名在 v0.8.2 的 `cli` 导出表中已不存在（v0.8.1 尚在），是本次 CLI 侧仅有的两个消失的真名（confirmed）。
+**job 生命周期由 CLI 处置（confirmed）。** 派发入口 `runJobSubcommand (nJe)`，参数解析 `parseJobCli (Kge)`，帮助文本 `jobHelp (nU)`。`archive`、`interrupt`、`reschedule` 三个动作只在 CLI 上提供，agent 的 `ManageJob` 工具只能 create/list/read（见 INTERNALS §4.2）；job 调度与结算的代码证据见 INTERNALS §10。使用时注意两点：
 
-**重启与升级的实操要点**（confirmed，`cli.pretty.js`）：
+- **`interrupt` 必须写理由，理由会告诉被打断的会话。** 缺 `-r`/`--reason` 时报 `error: duoduo job interrupt requires -r "<reason>"`（`cli:parseJobCli`），`-r` 用在其他动作上也会被拒绝（`takes no -r/--reason`（`cli:parseJobCli`））。帮助文本写明这个字符串"是被打断的会话下一次运行时被告知的内容"（`jobHelp (nU)`），所以打断不是静默结束进程，该 job 下一次运行时知道上次为什么被中断。回执由 `renderInterruptReceipt (jge)` 渲染，其中说明了打断的范围：运行时只请求停止，不理会中止信号的工具不会被杀掉。
+- **`archive` 不删除任何东西**，帮助文本最后一句是 `Nothing is deleted: an archived job's files move to var/jobs/archive/.`（`cli:jobHelp`）。`reschedule` 只额外触发**一次**，帮助文本写明 `The job's schedule class is never changed.`。
 
-- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。`-r` 的字符串会写进 `<varDir>/daemon-restart-reason.json`，被新 daemon 一次性认领后追加到 `daemon-restart-hint` 块——**但只到 channel 会话**（job/meta/cadence/subconscious/system 会话拿不到）。`--wake` 可重复，给指定会话推一条"守护进程被重启过，你那轮可能被打断"的消息。**这两个 flag 在 `duoduo daemon --help` 里没有文档**（用法行仍只写 `[--daemon-url <url>]`（`cli.pretty.js:74792`））。
-  - **v0.8.0 更新（confirmed，代码证据）：`--wake` 投递从"CLI 侧健康检查后另发 RPC"改成"daemon 自己在认领重启原因时投递，durable"。** `--wake` 的目标列表现在随 `-r` 一起编码进同一份 `daemon-restart-reason.json`（新增字段 `wake_targets`），新 daemon 启动时 `claimDaemonRestartReason` 一次性认领后交给新导出 `deliverDaemonRestartWakes (kyt)`（`daemon.pretty.js:89682`）逐个投递并记 `[pid0] restart wake delivered/refused/failed` 日志；CLI 侧 `restartWakeReport`（`cli.pretty.js`，新导出）据此打印三种回执之一：daemon 已重启则 `wake queued for <target> — delivered by the daemon once it is up`；本次其实没重启则警告 `--wake was dropped`（并给出用 `duoduo session notify` 手动补发的命令）；健康检查超时则提示 `--wake is durable — the daemon delivers it when it finishes booting`。即"CLI 进程等不到重启完成就退出"不再丢失 wake 请求——这是 changelog "reading a restart timeout" 一类措辞的落地机制之一。
-- **v0.7.1 起，从会话内让 agent 重启时若省掉 `-r`，CLI 不再只是警告——直接硬拒绝执行**：`reasonlessRestartRefusal (DXe)`（`cli.pretty.js:74728-74732`）返回一段 `error: refusing to restart the daemon without --reason...` 并中止调用，v0.6.2 时代"预告下个版本会拒绝"的警告已经兑现。它仍靠 `ps -Ao pid,ppid`（`cli.pretty.js:68195`）向上走祖先链判断本进程是不是 daemon 的后代——`ps` 不可用或被 nohup/detach 包过时静默放行不拒绝。
-- `duoduo upgrade [version] [--wake …]` 优于手工两步，且 **v0.7.1 起把升级工作交给一个 detached 子进程**（`isDetachedUpgradeWorker (vXe)`（`cli.pretty.js:74751-74753`）检查环境变量标记 `ALADUO_UPGRADE_DETACHED_WORKER`（`cli.pretty.js:74749`））执行，使升级触发的重启不会连带杀死正在执行升级的那个 CLI 进程本身——这正是 v0.7.0 changelog 承诺"下一版本修复"、v0.7.1 兑现的那个坑（旧版在会话内跑 `duoduo upgrade` 有几率被自己触发的重启杀死）。版本参数仍受白名单约束 `/^[A-Za-z0-9][A-Za-z0-9.+-]*$/.test(e)`（`cli.pretty.js:68267`）——从路径/URL/git 装包不被接受。
-- `duoduo daemon token new [--force]`（**v0.7.1 新增子命令**，帮助文本 `duoduo daemon token new [--force]`（`cli.pretty.js:74792`））：生成 `ALADUO_DAEMON_TOKEN`（写入 `~/.config/duoduo/.env`，见下方"控制面"一节），是开启第三个可选、非 loopback、token 网关全权限监听器的前置步骤。
-- `duoduo daemon restart`（daemon 侧，不是 CLI 侧）在 `main()` 启动时会先 `loadHostDotEnv`（短名 `Yct`（`daemon.pretty.js:68907`）；`main (Fyt)`（`91500-91660`）函数体内解构导入并调用）把 `~/.config/duoduo/.env` 读进 `process.env`（只补未设置或为空的键，不覆盖已有值），再重新应用 onboard 配置——所以 `ALADUO_CLAUDE_AUTH_SOURCE` 等 `ALADUO_*` 键写进 `.env` 即可跨重启生效。**`DUODUO_NODE_BIN` 不在此列**（confirmed，v0.8.1 npm 包实查）：`dist/release/{daemon,cli,feishu-gateway,pi-worker}.js` 四个产物里都没有这个字面量，唯一读者是 `bin/duoduo` bash wrapper 的 `NODE_BIN="${DUODUO_NODE_BIN:-node}"`（`bin/duoduo:21`）——wrapper 在任何 JS 跑起来之前执行、也不 source `.env`；CLI 拉起 daemon 用的是 `process.execPath`（入口解析 `SJ`（`cli.pretty.js:67762-67780`）；通用路径 `_2e`（`cli.pretty.js:67857-67887`）以 `process.env` 的副本派生，只删掉 `ALADUO_DISABLE_DAEMON_AUTO_MAIN`），渠道进程同理，都不再经过 wrapper。因此"PATH 被重置后 `duoduo` 找不到 node"的持久解法是把 `DUODUO_NODE_BIN` export 在启动 `duoduo` 的 shell 启动文件（或进程管理器的环境）里；写进 `.env` 只会随 daemon 的 `process.env` 透传给它派生的会话，帮不到 wrapper 本身。附带一个 macOS 差异：launchd 路径 `p2e` 写进 plist 的 env 是白名单 `m2e`（`cli.pretty.js:67849-67856`）——只放行 `ALADUO_*`/`ANTHROPIC_*`/`CLAUDE_CODE_EXECUTABLE`/`PATH`/`HOME`/`LANG`/`LC_ALL`，由 `p2e`（`cli.pretty.js:67815-67843`）经 `rk`（`cli.pretty.js:20817`）写入，shell 里 export 的其它变量到不了 daemon，`.env` 在那里是白名单之外的键进入 daemon 的唯一通道。
-- 慢启动主机上的"还在起 vs 起失败"判别**只在 macOS/launchd 路径存在**：重启函数 `uk` 的 launchd 分支（`launchdManaged: !0`（`cli.pretty.js:68096-68107`））kickstart 后轮询健康检查，超时抛专用错误类 `v_`（`cli.pretty.js:68065`），上层据此判为"慢启动主机上属正常"（`On a slow-booting host this is expected`（`cli.pretty.js:75110-75111`））；Linux/通用路径先停旧进程，再经 `_2e` 拉起，超时会先 SIGTERM 掉子进程（`process.kill(g.pid, "SIGTERM")`（`cli.pretty.js:67884`））再抛普通错误，表现为硬失败。另有第三种结局：`started === false` 表示"停机之后旧 daemon 仍在应答"（`Kb`（`cli.pretty.js:67781-67814`）），CLI 提示旧进程还在跑旧代码（`the previous process is still running the old code`（`cli.pretty.js:75108`））。
+**重启与升级（confirmed，cli bundle）：**
+
+- `duoduo daemon restart -r "<改了什么>" [--wake <session-or-alias>]`。参数由 `parseRestartArgs (bXe)` 解析，`--wake` 可重复。`-r` 的字符串与 `--wake` 的目标一起写进 `<varDir>/daemon-restart-reason.json`，新 daemon 启动时读取：`-r` 进入 channel 会话下一轮的 `daemon-restart-hint` 块，`--wake` 的每个目标收到一条"daemon 重启过、你那一轮可能被打断"的通知（§3.2）。CLI 按重启结果打印三种回执之一（`restartWakeReport (NXe)`）：已重启时 `wake queued for <target> — delivered by the daemon once it is up`；实际没有重启时警告 `--wake was dropped`，并给出用 `duoduo session notify` 手工补发的命令；健康检查超时时提示 `--wake is durable — the daemon delivers it when it finishes booting`。这两个参数没有写进 `duoduo daemon --help` 的用法行，那一行只列 `[--daemon-url <url>]`。
+- **从会话内让 agent 重启 daemon 时必须带 `-r`**，否则 CLI 拒绝执行并返回 `error: refusing to restart the daemon without --reason`（`reasonlessRestartRefusal (DXe)`）。CLI 判断自己是不是从会话里调用的方法是用 `ps -Ao pid,ppid` 沿父进程链查找 daemon；`ps` 不可用或进程被 nohup/detach 包过时判断不出来，就按人工调用放行。人工在 shell 里执行不带 `-r` 的重启不受这条限制。
+- `duoduo upgrade [version] [--wake …]` 优于手工两步。它先 `npm install -g`，打印提醒刷新技能的命令（`npx -y skills add https://github.com/openduo/duoduo --global --all`），然后升级已安装的渠道包、以 `upgraded @openduo/duoduo to <版本>` 为理由重启 daemon，最后把原先在运行的渠道启动起来（§9）。在会话内执行时，CLI 把升级交给一个脱离会话的子进程完成（`isDetachedUpgradeWorker (vXe)` 检查环境变量 `ALADUO_UPGRADE_DETACHED_WORKER`），进度写在 `<runDir>/upgrade.log`；原因是升级触发的 daemon 重启会杀掉会话里的 CLI 进程，它就来不及重新启动渠道。版本参数只接受版本号或 dist-tag，不接受路径、URL 或 git 地址（`Installing from a path, URL or git remote is not supported here.`（`cli:parseUpgradeArgs`））。升级结束时有三种结局：重启成功时打印新 pid；重启已发出但健康检查还没通过时提示 `On a slow-booting host this is expected — confirm with: duoduo daemon status`；停机后旧 daemon 仍在应答时警告 `the previous process is still running the old code`，要求手工重启。
+- macOS 上 daemon 由 launchd 的用户级服务托管（标签 `"ai.openduo.daemon"`（`cli:PLIST_LABEL`）），plist 设了 `<key>KeepAlive</key>`（`cli:generatePlist`）并限定图形登录会话；CLI 发现自己在 SSH 会话里（`isAquaSession (tk)` 检查 `SSH_CLIENT`、`SSH_TTY`）就拒绝启动 daemon。macOS 上的重启走 `launchctl kickstart`（`kickstart (ik)`），健康检查超时时抛出一个专用错误：`duoduo upgrade` 把它当作慢启动主机上的正常情况，只打印上面那条提示；`duoduo daemon restart` 仍按失败退出，带了 `--wake` 时先打印"wake 会在启动完成后送达"。Linux 等其他平台先停旧进程再直接拉起子进程，超时就向子进程发 SIGTERM 并报一般错误。由于服务标签对每个用户是固定的，在 macOS 上用改过的 `HOME` 运行 `duoduo daemon start|stop|restart` 仍会操作本机真实的 daemon。
+
+**环境变量放在哪里（confirmed）：**
+
+| 变量 | 放在哪里 | 谁读取 |
+|------|---------|--------|
+| `ALADUO_*`、`ANTHROPIC_*`、`CLAUDE_CODE_EXECUTABLE`、渠道凭据 | `~/.config/duoduo/.env` | daemon 启动时由 `loadHostDotEnv (Yct)` 读入 `process.env`，只补未设置或为空的键，已有值不覆盖；`main (Fyt)` 在启动时调用它 |
+| `DUODUO_NODE_BIN` | 启动 `duoduo` 的 shell 启动文件，或进程管理器的环境 | 只有 `bin/duoduo` bash wrapper 读取：`NODE_BIN="${DUODUO_NODE_BIN:-node}"` |
+
+`DUODUO_NODE_BIN` 不能放 `.env`，原因是读取它的只有 `bin/duoduo` 这个 bash wrapper：v0.8.3 包 `dist/release/` 下的六个 JS 文件都不含这个字面量，wrapper 在任何 JavaScript 运行之前执行，也不读 `.env`。CLI 拉起 daemon 与渠道进程时用的是 `process.execPath`，不再经过 wrapper。所以"PATH 被重置后 `duoduo` 找不到 node"的解决办法是把 `DUODUO_NODE_BIN` export 在启动 `duoduo` 的 shell 启动文件（或进程管理器的环境）里；写进 `.env` 只会让它随 daemon 的 `process.env` 传给 daemon 派生的会话，对 wrapper 没有作用。
+
+macOS 上还有一处差别：CLI 通过 launchd 启动 daemon 时，写进 plist 的环境变量只有一份白名单，即 `ALADUO_*`、`ANTHROPIC_*`、`CLAUDE_CODE_EXECUTABLE`、`PATH`、`HOME`、`LANG`、`LC_ALL`，由 `installAndLoad (rk)` 写入 plist。shell 里 export 的其他变量到不了 daemon，所以在 macOS 上 `.env` 是白名单之外的键进入 daemon 的唯一途径。Linux 等其他平台上，daemon 继承启动它的 CLI 进程的全部环境变量。
 
 ---
 
 ## 11. 技能（Skills）体系
 
-仓库以 [skills.sh](https://skills.sh/) 安装器形式发布 host 模式运维技能（供任意 Agent 使用，**不依赖** `$skill-name` 之类的 agent 专有语法，用自然语言触发）：
+仓库以 [skills.sh](https://skills.sh/) 安装器形式发布 host 模式运维技能（供任意 Agent 使用，**不依赖** `$skill-name` 之类的 agent 专有语法，用自然语言触发；安装命令 `npx -y skills add https://github.com/openduo/duoduo --global --all`）。仓库 `skills/` 下共六个技能：
 
 | 技能 | 范围 |
 |------|------|
-| `duoduo-admin` | host 模式总入口：解释机理、查看配置、升级（含 v0.5 跨大版本 playbook）、归档/恢复会话 |
-| `duoduo-runtime-admin` | daemon 级设置/诊断、Claude/Codex 运行时、日志/遥测/节奏、潜意识刷新、usage 账本维护、`duoduo session` 跨会话编排 |
-| `duoduo-channel-admin` | 通道安装/生命周期、飞书设置、通道提示词/workspace |
-| `duoduo-pipeline` | 流水线类工作 |
-| `duoduo-loop` | 循环/重复任务（命名提示词注册表） |
+| `duoduo-admin` | host 模式总入口：解释工作方式、查看配置与各路径、升级 duoduo、归档与恢复会话 |
+| `duoduo-runtime-admin` | daemon 设置、诊断与日志；引擎选择（Claude/Codex/Grok/Pi、`ALADUO_DEFAULT_RUNTIME`）；`.env` 里的 `ALADUO_*` 键；刷新后台分区提示词；`duoduo memory`、`duoduo session`、`duoduo job`、`duoduo spine` 命令；usage 账本清理；第三方模型的 model profile |
+| `duoduo-channel-admin` | 渠道安装与生命周期、飞书设置（setup 卡片、owner、主会话）、ACP 编辑器集成、渠道描述文件（kind 与 instance） |
+| `duoduo-pipeline` | 用不调用模型的采集层加 `session notify` 唤醒 job，搭建事件驱动的流水线 |
+| `duoduo-loop` | `/loop` 命令及其创建的周期后台任务：设置、查看、暂停、改节奏、打断 |
+| `smart-compaction` | channel 会话空闲自动压缩：开关、统计数据与阈值调整 |
 
 ---
 
-## 12. 本次部署记录（可复现）
+## 12. 本次部署记录（v0.6.1，可复现）
+
+以下是 2026-06-30 在 v0.6.1 上的部署记录。其中的命令在 v0.8.3 的 CLI 帮助里都还在，v0.8.3 与记录不同的地方写在代码块后面。
 
 **环境**：Linux x86_64，无 node/npm（自行安装），Docker 可用，无 passwordless sudo。
 
@@ -338,44 +307,40 @@ duoduo onboard
 
 # 5) 启动并验证
 duoduo daemon start          # → healthy, pid, runtime_mode=host, v0.6.1
-duoduo daemon status         # → 4 个潜意识分区已加载
+duoduo daemon status         # → 4 个后台分区已加载
 curl -s http://localhost:20233/dashboard   # → HTTP 200
 printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端通路）
 ```
 
-**两个部署要点（坑）**：
-1. **无交互 TTY** → 必须用 `duoduo onboard` + 环境变量（`ALADUO_RUNTIME_MODE`、`ALADUO_CLAUDE_AUTH_SOURCE`、`DUODUO_ONBOARD_YES=1`），缺失时 onboard 以 code 2 退出并打印完整 env 配方。
+v0.8.3 与这份记录有两处不同（cli bundle，confirmed）。一是非交互 onboard 的最低要求只有 `ALADUO_CLAUDE_AUTH_SOURCE`：没有 TTY 又没设这个变量时，onboard 打印完整的变量说明并以退出码 2 结束；`DUODUO_ONBOARD_YES=1` 用于跳过所有确认提示；`ALADUO_RUNTIME_MODE` 已不需要设置，daemon 不读取它，CLI 只在它等于 `container` 时提示"container 模式不再支持，按 host 模式继续"。二是升级应改用 `duoduo upgrade`（§10.4），它会同时处理渠道包和重启原因。
+
+**两个部署注意事项**：
+1. **无交互 TTY** → 必须用 `duoduo onboard` + 环境变量（至少 `ALADUO_CLAUDE_AUTH_SOURCE`；`compatible_endpoint` 还需 `ANTHROPIC_BASE_URL` 与 `ANTHROPIC_AUTH_TOKEN`，`anthropic_api_key` 还需 `ANTHROPIC_API_KEY`），缺失时 onboard 以 code 2 退出并打印完整 env 配方。
 2. **daemon 是分离后台进程，且 PATH 可能被重置** → 把 `DUODUO_NODE_BIN`（node 绝对路径）export 在启动 `duoduo` 的 shell 启动文件或进程管理器环境里——它只被 `bin/duoduo` wrapper 读取，wrapper 不读 `.env`；认证来源 `ALADUO_CLAUDE_AUTH_SOURCE` 则写进 `~/.config/duoduo/.env`（daemon 启动时自己读入），否则重启后丢配置。机制见 §10.4。
 
-**验证清单（全部 ✅）**：
+**验证清单（v0.6.1 实测，全部通过）**：
 
 | 验证项 | 结果 |
 |--------|------|
-| daemon 健康 | ✅ `healthy: yes`，v0.6.1，host 模式 |
-| 端到端对话 | ✅ stdio 发消息→模型正确回复 `DUODUO_OK_42` |
-| WAL 事件溯源 | ✅ `channel.attached→channel.message→agent.result` 落盘 |
-| Dashboard | ✅ `http://localhost:20233/dashboard` HTTP 200 |
-| RPC API | ✅ `spine.tail`/`usage.get` 正常返回 |
-| 成本账本 | ✅ usage.get 记录 cost/token |
-| 崩溃恢复/重启 | ✅ 重启后 runtime_id 不变、会话与 WAL 从文件重建 |
-| 潜意识分区 | ✅ 4 分区加载，cadence 心跳 every 37min |
+| daemon 健康 | 通过：`healthy: yes`，v0.6.1，host 模式 |
+| 端到端对话 | 通过：stdio 发消息→模型正确回复 `DUODUO_OK_42` |
+| 事件日志 | 通过：`channel.attached→channel.message→agent.result` 落盘 |
+| Dashboard | 通过：`http://localhost:20233/dashboard` HTTP 200 |
+| RPC API | 通过：`spine.tail`/`usage.get` 正常返回 |
+| 成本账本 | 通过：usage.get 记录 cost/token |
+| 崩溃恢复/重启 | 通过：重启后 runtime_id 不变、会话与事件日志从文件重建 |
+| 后台分区 | 通过：4 个分区加载，心跳 every 37min |
 
 ---
 
-## 13. 架构评价：取舍与亮点
+## 13. 运维上的取舍与注意事项
 
-**亮点**
-1. **正确的持久化边界**：把"模型擅长的"（推理/编排/规划）全交给 SDK，运行时只守"模型守不住的"（持久化、生命周期、调度、并发）。模型升级即系统升级，无需改代码。
-2. **WAL-before-execute** 一个排序换三个属性：可重放、可审计、确定性崩溃恢复——实测重启后状态无损，是真功夫。
-3. **双环认知**让 Agent 在"没人说话时"也能巩固记忆、自我维护，把广播板自动注入未来上下文——这是把"长期记忆"工程化的务实做法。
-4. **自编程拓扑 + git 内核**：分区可改自身、内核 git 化即回滚点，在"可演化"与"可控"之间取得平衡（用 `contract:` 不可改、其他分区须经 inbox 协调来设防）。
-5. **零依赖单文件 Dashboard + JSON-RPC**：运维可观测性开箱即用，无构建链。
+设计上值得借鉴的做法（持久化边界、先写日志再执行、后台分区、零依赖 Dashboard 等）见 GUIDE 6.1，代码证据分别在 INTERNALS 各节。本节只保留影响运维的四点：
 
-**取舍 / 注意点**
-- **闭源 + minified 发布**：对人类不可读，调试/审计严重依赖官方 issue 流程和运行时可观测面。把"代码给 Agent 读"作为产品立场，是激进但自洽的赌注。
-- **后台持续消耗 token**：潜意识即使无人对话也按 cadence 烧钱（onboard 明确告警）。生产部署需关注成本，可调 `ALADUO_CADENCE_INTERVAL_MS`。
-- **升级有版本耦合**：分区提示词不随 npm 升级自动更新，需显式刷新，否则 lint 信号会被旧分区误解析。
-- **usage 账本无自动保留**：长驻主机会累积数百 MB，需手动归档。
+- **闭源 + 压缩发布**：代码对人类不可读，调试与审计依赖运行时的可观测面（文件、事件日志、RPC、CLI）、官方 issue 流程，以及本仓库的还原源码（[`../reconstruction/`](../reconstruction/)）。
+- **后台模型费用只在有新活动时产生**：心跳按 `ALADUO_CADENCE_INTERVAL_MS`（默认 37 分钟）定时触发，心跳里的确定性维护不调用模型；要运行后台分区时，先计算活动指纹，即 `memory/fragments`、`memory/entities`、`memory/topics` 三个目录的最新修改时间加上最新一条外部事件的 id，指纹与上一次心跳相同就跳过，不运行任何分区（`activity gate: skipping tick (fingerprint unchanged)`（`createMetaSession`）；外部事件 id 由 `readLatestExternalEventId (Bgt)` 读取，confirmed）。daemon 启动后的第一次心跳没有上一次指纹可比，总会运行。所以没有新的外部消息、记忆文件也不再变化时，后台分区不调用模型；有新活动时，费用随分区运行次数增加，可以调大心跳间隔来降低。job 的费用另算，由用户布置的调度规则决定。
+- **升级有版本耦合**：分区提示词不随 npm 升级自动更新，需要按 §7 的流程显式刷新，否则旧分区可能误解析新版运行时发出的检查信号。
+- **usage 账本无自动保留**：`var/usage/<session_key>.jsonl` 只追加、不清理，长驻主机上会累积到几百 MB，需要按 `duoduo-runtime-admin` 技能的 usage 账本维护流程手动归档（技能原文）。
 
 ---
 
@@ -383,17 +348,20 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 
 | 项 | 值 |
 |----|----|
-| 内核目录 kernel_dir | `~/aladuo`（git 管理） |
-| 运行时目录 runtime_dir | `~/.aladuo`（`var/` 事件溯源数据） |
+| 内核目录 kernel_dir | `~/aladuo`（git 管理；`ALADUO_KERNEL_DIR` 可改） |
+| 运行时目录 runtime_dir | `~/.aladuo`（`var/` 事件溯源数据，`run/` 锁与 socket；`ALADUO_RUNTIME_DIR` 可改） |
 | 持久化 env | `~/.config/duoduo/.env`（`ALADUO_*` 等，daemon 启动时读入）；`DUODUO_NODE_BIN` 例外——只被 `bin/duoduo` wrapper 读，放启动 `duoduo` 的 shell 启动文件/进程管理器环境（§10.4） |
 | onboard 选择 | `~/.config/duoduo/config.json` |
+| 配置层 | `kernel/config/runtime.md`（全局）→ `kernel/config/<kind>.md`（种类）→ 实例描述文件或 job 文件（§3.3） |
 | Dashboard | `http://localhost:20233/dashboard` |
-| RPC | 全权：`<runDir>/daemon.sock`（unix socket，mode 0600）；只读：`POST http://localhost:20233/rpc`（6 个白名单方法，其余 `-32601`） |
-| 默认端口 | 20233（daemon 只读 TCP，恒 loopback）；控制面自 v0.7.0 起以 unix socket 为主，见 §10.2 |
-| 默认 cadence | 37 min |
-| 升级 | `npm i -g @openduo/duoduo@latest && duoduo daemon restart` |
+| RPC | 全权：`<runDir>/daemon.sock`（unix socket，mode 0600）；只读：`POST http://localhost:20233/rpc`（6 个白名单方法，其余 `-32601`）；可选远程监听需 HOST、TOKEN、REMOTE_PORT 三项齐全（§10.2） |
+| 默认端口 | 20233（只读 TCP，只监听 127.0.0.1） |
+| 默认心跳间隔 | 37 min（`ALADUO_CADENCE_INTERVAL_MS`，默认 2220000 ms） |
+| 读事件日志 | `duoduo spine cat …`（对话记录）/ `duoduo spine show <event-id>`（单条事件） |
+| 升级 | `duoduo upgrade [version] [--wake <session-or-alias>]`；手工等价步骤是 `npm i -g @openduo/duoduo@latest` 后 `duoduo daemon restart -r "<改了什么>"`，但不会升级渠道包 |
 
-## 附录 B：WAL 事件结构（实测）
+## 附录 B：事件日志的事件结构（实测）
 
-每条事件含字段：`type, source, session_key, payload, routing_hint?, id, ts`。
-按天分片存于 `~/.aladuo/var/events/YYYY-MM-DD.jsonl`（单文件 10-30MB，潜意识守则规定**只能用 shell `grep`/`tail` 读，禁用 Read/Grep 工具**）。
+每条事件含字段：`type, source, session_key, payload, routing_hint?, id, ts`；`id` 与 `ts` 由 `createSpineEvent (rn)` 在追加时生成。事件按天分片存于 `~/.aladuo/var/events/YYYY-MM-DD.jsonl`，单文件 10-30MB。落库的事件类型全集见 INTERNALS 附录 B.1。
+
+读这些文件要遵守后台分区守则（`subconscious/CLAUDE.md` 的 Large File Guard）：shell 的 `grep -l` 只用来定位哪个分片提到了某个内容；读事件内容用事件日志的 CLI，`duoduo spine cat …` 读一段对话记录，`duoduo spine show <event-id>` 读一条完整事件；不要对 `.jsonl` 使用 `Read` 或 `Grep` 工具，也不要在 shell 里翻页读原始分片。`duoduo spine help`（由 `runSpineCommand (Zje)` 打印）给出的理由是一行 tool_result 可能超过 1MB（confirmed）。
