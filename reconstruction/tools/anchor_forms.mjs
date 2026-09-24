@@ -274,7 +274,8 @@ export function snippetTokens(code) {
   const out = [];
   for (const m of code.matchAll(/"([^"]{2,})"|'([^']{2,})'/g)) out.push(m[1] ?? m[2]);
   const bare = code.replace(/"[^"]*"|'[^']*'/g, " ");
-  for (const m of bare.matchAll(/[A-Za-z_$][A-Za-z0-9_$]*/g)) if (m[0].length >= 3 && !KEYWORDS.has(m[0])) out.push(m[0]);
+  // (?<!…): `1e10` and `0xff` are numbers, not the identifiers `e10` and `xff`
+  for (const m of bare.matchAll(/(?<![0-9A-Za-z_$])[A-Za-z_$][A-Za-z0-9_$]*/g)) if (m[0].length >= 3 && !KEYWORDS.has(m[0])) out.push(m[0]);
   return [...new Set(out)];
 }
 
