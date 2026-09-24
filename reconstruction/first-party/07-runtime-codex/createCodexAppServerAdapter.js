@@ -112,7 +112,7 @@ function createCodexAppServerAdapter(e, t) {
                             description: L.description,
                             inputSchema: L.inputSchema
                         }))
-                    }], H.config = kV()), H
+                    }], H.config = buildCodexDirectOnlyToolConfig()), H
                 },
                 R = H => {
                     let L = {
@@ -122,7 +122,7 @@ function createCodexAppServerAdapter(e, t) {
                         sandbox: v,
                         threadId: H
                     };
-                    return n.dynamicTools?.length && (L.config = kV()), L
+                    return n.dynamicTools?.length && (L.config = buildCodexDirectOnlyToolConfig()), L
                 },
                 x = H => {
                     let L = {
@@ -133,7 +133,7 @@ function createCodexAppServerAdapter(e, t) {
                         threadId: H,
                         persistExtendedHistory: !1
                     };
-                    return g && (L.baseInstructions = g), y && (L.developerInstructions = y), n.dynamicTools?.length && (L.config = kV()), L
+                    return g && (L.baseInstructions = g), y && (L.developerInstructions = y), n.dynamicTools?.length && (L.config = buildCodexDirectOnlyToolConfig()), L
                 },
                 S, D;
             f.forkFrom ? (S = "thread/fork", D = x(f.forkFrom)) : f.sessionId ? (S = "thread/resume", D = R(f.sessionId)) : (S = "thread/start", D = E(), s = null);
@@ -267,7 +267,7 @@ function createCodexAppServerAdapter(e, t) {
                         };
                     if (r.on("notification", ee), f.abortController) {
                         let le = () => {
-                            let ve = sg(f.abortController?.signal.reason);
+                            let ve = normalizeTurnAbortReason(f.abortController?.signal.reason);
                             ve && (s = {
                                 reason: ve,
                                 toolInFlight: ce.size > 0

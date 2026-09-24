@@ -4,12 +4,12 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, Df = O(() => {
+var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule = O(() => {
     "use strict";
     Fl();
     dt();
     hw();
-    Bu();
+    initSkipToolModule();
     ALADUO_TOOL_NAMESPACE = "aladuo", Pst = "features.code_mode.direct_only_tool_namespaces";
     Ast = {
         codexBinary: "codex",

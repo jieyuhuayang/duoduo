@@ -12,7 +12,7 @@ function runGapLint(e, t, n, r) {
         a = Fve(t, o),
         u = qlt(a);
     if (u < wg && i.dates.includes(o)) {
-        let d = Uve(Cc.join(e, `${o}.jsonl`));
+        let d = readGapLintDayEvents(Cc.join(e, `${o}.jsonl`));
         if (d.readFault) return sO(null);
         let f = -1;
         for (let p of d.events) p.interaction && p.msOfDay > u && p.msOfDay > f && (f = p.msOfDay);
@@ -22,7 +22,7 @@ function runGapLint(e, t, n, r) {
                 startMs: u,
                 endMs: f
             };
-            return A6(p, Bve(qve(d.events, p)))
+            return A6(p, mergeContiguousHourRanges(qve(d.events, p)))
         }
     }
     let l = null;
@@ -36,6 +36,6 @@ function runGapLint(e, t, n, r) {
         }
     }
     if (l === null) return A6(null, []);
-    let c = Uve(Cc.join(e, `${l.date}.jsonl`));
-    return c.readFault ? sO(l) : A6(l, Bve(qve(c.events, l)))
+    let c = readGapLintDayEvents(Cc.join(e, `${l.date}.jsonl`));
+    return c.readFault ? sO(l) : A6(l, mergeContiguousHourRanges(qve(c.events, l)))
 }

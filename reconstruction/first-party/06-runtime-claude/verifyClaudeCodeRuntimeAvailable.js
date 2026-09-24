@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function verifyClaudeCodeRuntimeAvailable() {
-    if (Zv(process.env.CLAUDE_CODE_EXECUTABLE)) return;
+    if (normalizeOptionalEnvString(process.env.CLAUDE_CODE_EXECUTABLE)) return;
     let {
         platform: t,
         arch: n

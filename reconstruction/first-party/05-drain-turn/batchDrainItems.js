@@ -18,17 +18,17 @@ async function batchDrainItems(e, t, n) {
     for (let l of t) {
         if (i.length >= u()) break;
         let c = await tke(e, l, r, n.perf);
-        if (c && oke(c) !== null) continue;
+        if (c && extractJobCompletionJobId(c) !== null) continue;
         if (i.length === 0) {
-            a = USe(c), i.push(l), o = c ? zSe(c.ts) : null, o === null && (s = !1);
+            a = classifyDrainBatchClass(c), i.push(l), o = c ? parseEventTimestampMs(c.ts) : null, o === null && (s = !1);
             continue
         }
-        if (USe(c) !== a) break;
+        if (classifyDrainBatchClass(c) !== a) break;
         if (!s) {
             i.push(l);
             continue
         }
-        let f = c ? zSe(c.ts) : null;
+        let f = c ? parseEventTimestampMs(c.ts) : null;
         if (o === null || f === null) {
             s = !1, i.push(l);
             continue

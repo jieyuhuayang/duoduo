@@ -8,8 +8,8 @@ async function initializeRuntime(e, t = process.env) {
     await archiveLegacyRegistrySessionsDir(e);
     let n = [e.runtimeDir, e.varDir, e.runDir, e.eventsDir, e.eventsIndexDir, e.registryDir, e.outboxDir, e.sessionsDir, e.jobsDir, e.varIngressDir, e.telemetryDir, e.usageDir, e.cadenceDir, e.runLocksDir, e.runQueueOffsetsDir, e.kernelDir, e.workDir];
     for (let i of n) await $e(i);
-    await tr.chmod(e.runDir, 448), await Hwe(e), await Edt(e, t), await xdt(e), await $e(e.memoryDir), await $e(e.memoryEntitiesDir), await $e(e.memoryTopicsDir), await $e(e.memoryFragmentsDir), await $e(e.memoryStateDir), await $e(e.subconsciousDir), await $e(e.subconsciousVarDir), await $e(e.partitionStateDir), await $e(nr.join(e.kernelDir, ".claude")), await dz(e.subconsciousPlaylistPath, vdt), await dz(e.memoryBroadcastPath, wdt), await Gwe(e), await Uwe(e.kernelDir), await Idt(e);
-    let r = gR(e);
+    await tr.chmod(e.runDir, 448), await Hwe(e), await Edt(e, t), await xdt(e), await $e(e.memoryDir), await $e(e.memoryEntitiesDir), await $e(e.memoryTopicsDir), await $e(e.memoryFragmentsDir), await $e(e.memoryStateDir), await $e(e.subconsciousDir), await $e(e.subconsciousVarDir), await $e(e.partitionStateDir), await $e(nr.join(e.kernelDir, ".claude")), await dz(e.subconsciousPlaylistPath, vdt), await dz(e.memoryBroadcastPath, wdt), await retireListedPartitions(e), await Uwe(e.kernelDir), await Idt(e);
+    let r = resolveRegistryStatusPath(e);
     return await $s(r) || await wz(e, vz(e)), {
         statusPath: r
     }

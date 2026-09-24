@@ -503,7 +503,7 @@ function createGrokAcpAdapter(e) {
                     }
                 };
                 let Oe = () => {
-                    let ke = sg(L.abortController?.signal.reason);
+                    let ke = normalizeTurnAbortReason(L.abortController?.signal.reason);
                     ke && (S = {
                         reason: ke,
                         toolInFlight: x.size > 0

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function drainSessionMailbox(e, t, n = {}) {
-    let r = Oo(t);
+    let r = hashSessionKey(t);
     if (!(await gSe(e, r)).acquired) return {
         processed: 0,
         skipped: 0,
@@ -104,7 +104,7 @@ async function drainSessionMailbox(e, t, n = {}) {
     }
     try {
         try {
-            await Eo(m, "mailbox_merge_ms", async () => fR(e, t))
+            await runTimedDrainPhase(m, "mailbox_merge_ms", async () => mergeInboxIntoMailbox(e, t))
         } catch (de) {
             if (hse(de)) return {
                 processed: 0,
@@ -115,7 +115,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             };
             throw de
         }
-        let _ = await Eo(m, "mailbox_parse_ms", async () => lb(e, t));
+        let _ = await runTimedDrainPhase(m, "mailbox_parse_ms", async () => listMailboxPendingItems(e, t));
         if (_.length === 0) return {
             processed: 0,
             skipped: 0,
@@ -126,7 +126,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             let de = await yse(e, t);
             if (de.removed > 0) {
                 await cb(e, t, `orphan_cleanup=${de.removed}`);
-                let me = await lb(e, t);
+                let me = await listMailboxPendingItems(e, t);
                 if (me.length === 0) return {
                     processed: 0,
                     skipped: 0,
@@ -136,7 +136,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 _ = me
             }
         }
-        await Eo(m, "mailbox_render_ms", async () => pR(e, t, _));
+        await runTimedDrainPhase(m, "mailbox_render_ms", async () => renderSessionMailboxFile(e, t, _));
         let E = n.batchSize ?? vH,
             R = n.mergeWindowMs ?? wH,
             x = n.sdk ?? createAgentSdkAdapter(),
@@ -152,7 +152,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             cancelled: !1
         };
         let D = S.items,
-            $ = await gft(e, t, _, S.events, m),
+            $ = await collectJobCompletionReceipts(e, t, _, S.events, m),
             C = !1,
             A = !1,
             F = !1,
@@ -194,13 +194,13 @@ async function drainSessionMailbox(e, t, n = {}) {
                 lastOutboxId: ne,
                 lastOutboxRecord: fe,
                 outboxRecords: j
-            }), z = await Eo(m, "session_state_ms", async () => ct(e, t)), U = Ig(e, t, z ?? void 0), X = n.jobContext?.stateless === !0, Ee = z?.pending_gateway_notice, be = z?.pending_interrupted_context, w = z?.pending_skip_rewind, P = !1, K = !1, H = !1, L = !1, G = Xdt(z), ee = !1, we = Bbe({
+            }), z = await runTimedDrainPhase(m, "session_state_ms", async () => ct(e, t)), U = buildSessionInfoFromState(e, t, z ?? void 0), X = n.jobContext?.stateless === !0, Ee = z?.pending_gateway_notice, be = z?.pending_interrupted_context, w = z?.pending_skip_rewind, P = !1, K = !1, H = !1, L = !1, G = Xdt(z), ee = !1, we = decideRestartHintInjection({
                 currentDaemonStartedAt: hH,
                 sessionKey: t,
                 lastEventAt: z?.last_event_at,
                 lastSeenDaemonStartedAt: z?.last_seen_daemon_started_at
             });
-        we.writeLastSeenAtEntry && await et(e, t, {
+        we.writeLastSeenAtEntry && await patchSessionRuntimeState(e, t, {
             last_seen_daemon_started_at: we.writeLastSeenAtEntry
         }).catch(() => {});
         let le = we.inject ? {
@@ -208,12 +208,12 @@ async function drainSessionMailbox(e, t, n = {}) {
             } : void 0,
             ve = we.writeLastSeenOnInjectSuccess,
             Be = !1,
-            at = to(t) === "channel" ? n.boardHash : void 0,
+            at = classifySessionKeyOrUnknown(t) === "channel" ? n.boardHash : void 0,
             Je = TSe({
                 currentBoardHash: at,
                 lastSeenBoardHash: z?.last_seen_board_hash
             });
-        Je.writeLastSeenAtEntry && await et(e, t, {
+        Je.writeLastSeenAtEntry && await patchSessionRuntimeState(e, t, {
             last_seen_board_hash: Je.writeLastSeenAtEntry
         }).catch(() => {});
         let De = Je.inject && n.memoryBoard ? {
@@ -235,7 +235,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 N += 1;
                 continue
             }
-            let Y = await Eo(m, "outbox_lookup_ms", async () => qm(e, me));
+            let Y = await runTimedDrainPhase(m, "outbox_lookup_ms", async () => findOutboxRecordByEventId(e, me));
             if (Y) {
                 k.push(me), J = Y.payload.text, ne = Y.id;
                 continue
@@ -243,7 +243,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             let Et = de.createdAt ? {
                     notAfter: de.createdAt
                 } : void 0,
-                un = S.events.get(me) ?? await Eo(m, "event_read_ms", async () => readEventById(e, me, Et));
+                un = S.events.get(me) ?? await runTimedDrainPhase(m, "event_read_ms", async () => readEventById(e, me, Et));
             if (!un) {
                 Z(`[runner] mailbox event unresolved: session_key=${t} event_id=${me} not_after=${Et?.notAfter??"none"} item_file=${de.file??"none"}`), N += 1;
                 continue
@@ -251,7 +251,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             pt.push({
                 item: de,
                 event: un,
-                prompt: RO(un, t)
+                prompt: renderMailboxEventPrompt(un, t)
             })
         }
         if (n.onBatchContext && pt.length > 0) {
@@ -275,7 +275,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 payloadExtra: Et,
                 noteSuffix: un
             } = de;
-            if (to(t) === "channel") {
+            if (classifySessionKeyOrUnknown(t) === "channel") {
                 for (let fn of pt) {
                     if (fn.event.source?.name === "idle-compact") {
                         await handleDrainError(e, t, {
@@ -362,7 +362,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 boundRuntime: Bn,
                 sdkSessionId: Ke,
                 requestedRuntime: Ht,
-                isChannel: to(t) === "channel"
+                isChannel: classifySessionKeyOrUnknown(t) === "channel"
             }),
             stage: "runtime_mismatch",
             payloadExtra: {
@@ -373,12 +373,12 @@ async function drainSessionMailbox(e, t, n = {}) {
             },
             noteSuffix: `runtime_mismatch=${Bn}->${Ht}`
         });
-        U.forkFrom && (n.runtime !== "codex" || X) && (U.forkFrom = void 0, await ea(e, t, "pending_fork_to").catch(() => {})), await Rft(e, t, {
+        U.forkFrom && (n.runtime !== "codex" || X) && (U.forkFrom = void 0, await clearSessionRuntimeStateField(e, t, "pending_fork_to").catch(() => {})), await clearModelOverrideOnRuntimeFlip(e, t, {
             snapshotModel: z?.model,
             snapshotModelRuntime: z?.model_runtime,
             activeRuntime: n.runtime ?? "claude",
             sessionInfo: U
-        }), z?.pending_model_fork && await Ift(e, t, {
+        }), z?.pending_model_fork && await resolvePendingModelFork(e, t, {
             snapshotModel: z.model,
             runtime: n.runtime,
             statelessJob: X,
@@ -401,7 +401,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             return me.type === "tool_use" ? l += 1 : me.type === "tool_result" && me.isError && (c += 1), de(me)
         }, Cr = async () => {
             let de = Cn ?? U.sessionId;
-            !de || n.skipSessionIdUpdate || X || await et(e, t, {
+            !de || n.skipSessionIdUpdate || X || await patchSessionRuntimeState(e, t, {
                 sdk_session_id: de
             })
         }, An = async (de, me) => {
@@ -409,8 +409,8 @@ async function drainSessionMailbox(e, t, n = {}) {
         }, $n = async de => {
             de.gatewayNoticeInjected && !P && (await ift(e, t), P = !0), de.interruptedContextInjected && !K && (await sft(e, t), K = !0), de.skipRewindInjected && !H && (await aft(e, t), H = !0)
         };
-        if (cft(pt, t)) {
-            let de = await SH(e, t, n, pt, U, {
+        if (isMergeableDrainBatch(pt, t)) {
+            let de = await prepareDrainTurnContext(e, t, n, pt, U, {
                     pendingGatewayNotice: Ee,
                     pendingInterruptedContext: be,
                     pendingSkipRewind: w,
@@ -434,14 +434,14 @@ async function drainSessionMailbox(e, t, n = {}) {
                     sdkRunConfig: Yr
                 } = de,
                 mn = await DSe(e, de.anchorChannelConfig, n.jobContext?.sdkConfig),
-                cr = ASe({
+                cr = resolveTurnModelWithLayer({
                     jobModel: n.jobContext?.model,
                     sessionModel: U.model,
                     config: de.anchorChannelConfig,
                     kindlessConfig: mn,
                     runtime: n.runtime
                 }),
-                vn = NSe({
+                vn = resolveTurnEffortWithLayer({
                     jobEffort: n.jobContext?.effort,
                     sessionEffort: U.effort,
                     config: de.anchorChannelConfig,
@@ -463,9 +463,9 @@ async function drainSessionMailbox(e, t, n = {}) {
                 });
             L = de.timeGapConsumed;
             let Mi = de.injectionResult.jobReceiptsInjected;
-            Mi && (C = !0), !Be && de.injectionResult.daemonRestartHintInjected && (Be = !0, ve && await et(e, t, {
+            Mi && (C = !0), !Be && de.injectionResult.daemonRestartHintInjected && (Be = !0, ve && await patchSessionRuntimeState(e, t, {
                 last_seen_daemon_started_at: ve
-            }).catch(() => {})), !Gt && de.injectionResult.boardUpdatedInjected && (Gt = !0, Oe && await et(e, t, {
+            }).catch(() => {})), !Gt && de.injectionResult.boardUpdatedInjected && (Gt = !0, Oe && await patchSessionRuntimeState(e, t, {
                 last_seen_board_hash: Oe
             }).catch(() => {})), po("sdk_start", me.event.id, {
                 eventIds: Ve,
@@ -482,7 +482,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             let Zo;
             try {
                 let Xe = de.isNotifyOnly || de.anchorChannelConfig?.stream === !1 || !n.onStream ? void 0 : (Rt, dr) => n.onStream(Rt, dr, me.event.id);
-                Zo = await HSe(e, t, x, {
+                Zo = await runDrainQueryAndCollectOutboundAttachments(e, t, x, {
                     ...It,
                     onTurnAcknowledged: () => {
                         Mi && (A = !0), n.onSdkTurnStarted?.({
@@ -506,7 +506,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     disallowedTools: Yr.disallowedTools,
                     tools: Yr.tools,
                     additionalDirectories: Yr.additionalDirectories,
-                    autoloadAdditionalDirectoryClaudeMd: OSe(n.runtime, n.memoryBoard, Yr.additionalDirectories, e.memoryDir),
+                    autoloadAdditionalDirectoryClaudeMd: resolveAdditionalDirClaudeMdAutoload(n.runtime, n.memoryBoard, Yr.additionalDirectories, e.memoryDir),
                     attachments: fn,
                     systemPrompt: Xn
                 })
@@ -534,7 +534,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 }), mt
             }
             let Nn = Zo.sdkResult;
-            if (u += Date.now() - ji, await FSe(e, t, n.runtime, Nn), Nn.skipped && (js.skipped = !0, V = !0), Nn.sessionId && (d = Nn.sessionId), g(Nn.usage), typeof Nn.firstTokenLatencyMs == "number" && (yH(m, "sdk_ttft_ms_total", Nn.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), po("sdk_end", me.event.id, {
+            if (u += Date.now() - ji, await markTurnSkippedFromSkipRecord(e, t, n.runtime, Nn), Nn.skipped && (js.skipped = !0, V = !0), Nn.sessionId && (d = Nn.sessionId), g(Nn.usage), typeof Nn.firstTokenLatencyMs == "number" && (yH(m, "sdk_ttft_ms_total", Nn.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), po("sdk_end", me.event.id, {
                     eventIds: Ve,
                     sdkDurationMs: Date.now() - ji,
                     usedFallback: Nn.usedFallback
@@ -549,7 +549,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             });
             else {
                 let mt = qSe(me.event, Nn),
-                    Xe = await Eo(m, "outbox_emit_ms", async () => $c(e, t, {
+                    Xe = await runTimedDrainPhase(m, "outbox_emit_ms", async () => $c(e, t, {
                         item: me.item,
                         event: me.event,
                         outputText: mt,
@@ -588,7 +588,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 });
                 await atomicAppendEvent(e, mt)
             }
-            await Eo(m, "session_upsert_ms", async () => {
+            await runTimedDrainPhase(m, "session_upsert_ms", async () => {
                 let mt = {
                     cwd: U.cwd,
                     plane: U.plane,
@@ -597,7 +597,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     last_event_at: me.event.ts
                 };
                 f?.context_used_tokens !== void 0 && (mt.context_used_tokens = f.context_used_tokens);
-                let Xe = MSe(f);
+                let Xe = extractServedModelFromUsage(f);
                 if (Xe && (mt.last_served_model = Xe), Ut) {
                     let Rt = Ut;
                     Ut = void 0, ce = !0;
@@ -625,7 +625,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         post_tokens: Rt.post_tokens
                     })
                 }
-                Nn.sessionId && !X && (mt.sdk_session_id = Nn.sessionId, mt.sdk_session_runtime = Ht), Et && (mt.pending_fork_to = null), await et(e, t, mt)
+                Nn.sessionId && !X && (mt.sdk_session_id = Nn.sessionId, mt.sdk_session_runtime = Ht), Et && (mt.pending_fork_to = null), await patchSessionRuntimeState(e, t, mt)
             }), me.event.ts && (ke = me.event.ts)
         } else {
             let de = n.resume === !1 || X ? void 0 : U.sessionId,
@@ -651,7 +651,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         continue
                     }
                     if (ou === "/compact" && (n.runtime === "claude" || n.runtime === void 0))
-                        if (to(t) === "channel") Et = !0;
+                        if (classifySessionKeyOrUnknown(t) === "channel") Et = !0;
                         else {
                             let qc = "ℹ️ /compact is only available in interactive sessions.",
                                 Qf = await $c(e, t, {
@@ -669,7 +669,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             })), Y.event.ts && (ke = Y.event.ts);
                             continue
                         } if (!Et) {
-                        let qc = await xft({
+                        let qc = await runHistoryControlCommand({
                             paths: e,
                             sessionKey: t,
                             sdk: x,
@@ -695,16 +695,16 @@ async function drainSessionMailbox(e, t, n = {}) {
                 let fn = Di(ake(e, t, Y.event.session_key ?? t, n.onExecutionEvent, Y.event.id)),
                     Ve = eo(Y.event.payload) ? Y.event.payload : void 0,
                     pn = kH(Y.event.payload),
-                    tt = applyJobSdkConfigOverride(await Eo(m, "effective_config_ms", async () => YV(e, Y.event)), n.jobContext?.sdkConfig),
+                    tt = applyJobSdkConfigOverride(await runTimedDrainPhase(m, "effective_config_ms", async () => YV(e, Y.event)), n.jobContext?.sdkConfig),
                     Xn = await DSe(e, tt, n.jobContext?.sdkConfig),
-                    Yr = ASe({
+                    Yr = resolveTurnModelWithLayer({
                         jobModel: n.jobContext?.model,
                         sessionModel: U.model,
                         config: tt,
                         kindlessConfig: Xn,
                         runtime: n.runtime
                     }),
-                    mn = NSe({
+                    mn = resolveTurnEffortWithLayer({
                         jobEffort: n.jobContext?.effort,
                         sessionEffort: U.effort,
                         config: tt,
@@ -727,8 +727,8 @@ async function drainSessionMailbox(e, t, n = {}) {
                     vn = me,
                     Ro = n.resume === !1 || vn || X ? void 0 : de,
                     Mi = EO(Y.event),
-                    ji = to(t) === "channel",
-                    js = QSe({
+                    ji = classifySessionKeyOrUnknown(t) === "channel",
+                    js = computeTimeGapContext({
                         consumed: L,
                         timeGapMinutes: tt?.time_gap_minutes,
                         isChannelSession: ji,
@@ -770,13 +770,13 @@ async function drainSessionMailbox(e, t, n = {}) {
                         boardUpdated: dr
                     }, U),
                     iu = wr.jobReceiptsInjected;
-                iu && (C = !0), L = L || wr.timeGapInjected, wr.compactNoticeInjected && (ee = !0), !Be && wr.daemonRestartHintInjected && (Be = !0, ve && await et(e, t, {
+                iu && (C = !0), L = L || wr.timeGapInjected, wr.compactNoticeInjected && (ee = !0), !Be && wr.daemonRestartHintInjected && (Be = !0, ve && await patchSessionRuntimeState(e, t, {
                     last_seen_daemon_started_at: ve
-                }).catch(() => {})), !Gt && wr.boardUpdatedInjected && (Gt = !0, Oe && await et(e, t, {
+                }).catch(() => {})), !Gt && wr.boardUpdatedInjected && (Gt = !0, Oe && await patchSessionRuntimeState(e, t, {
                     last_seen_board_hash: Oe
                 }).catch(() => {}));
-                let mi = buildSystemPromptForChannelConfig(tt, t, ZSe(n.jobContext), n.memoryBoard, n.runtime),
-                    Yf = GSe(n, tt),
+                let mi = buildSystemPromptForChannelConfig(tt, t, projectJobPromptContext(n.jobContext), n.memoryBoard, n.runtime),
+                    Yf = buildTurnSdkRunConfig(n, tt),
                     UA, M0e = Date.now(),
                     j0e = n.onStream ? (ht, Or) => n.onStream(ht, Or, Y.event.id) : void 0,
                     Xf = {
@@ -787,7 +787,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     };
                 W.push(Xf);
                 try {
-                    UA = await HSe(e, t, x, {
+                    UA = await runDrainQueryAndCollectOutboundAttachments(e, t, x, {
                         ...It,
                         onTurnAcknowledged: () => {
                             iu && (A = !0), n.onSdkTurnStarted?.({
@@ -811,7 +811,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         disallowedTools: Yf.disallowedTools,
                         tools: Yf.tools,
                         additionalDirectories: Yf.additionalDirectories,
-                        autoloadAdditionalDirectoryClaudeMd: OSe(n.runtime, n.memoryBoard, Yf.additionalDirectories, e.memoryDir),
+                        autoloadAdditionalDirectoryClaudeMd: resolveAdditionalDirClaudeMdAutoload(n.runtime, n.memoryBoard, Yf.additionalDirectories, e.memoryDir),
                         attachments: pn,
                         systemPrompt: mi
                     })
@@ -841,13 +841,13 @@ async function drainSessionMailbox(e, t, n = {}) {
                     }), ht
                 }
                 let $r = UA.sdkResult;
-                if (await FSe(e, t, n.runtime, $r), $r.skipped && (Xf.skipped = !0, V = !0), u += Date.now() - M0e, $r.sessionId && (d = $r.sessionId), g($r.usage), typeof $r.firstTokenLatencyMs == "number" && (yH(m, "sdk_ttft_ms_total", $r.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), n.abortController?.signal.aborted) {
+                if (await markTurnSkippedFromSkipRecord(e, t, n.runtime, $r), $r.skipped && (Xf.skipped = !0, V = !0), u += Date.now() - M0e, $r.sessionId && (d = $r.sessionId), g($r.usage), typeof $r.firstTokenLatencyMs == "number" && (yH(m, "sdk_ttft_ms_total", $r.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), n.abortController?.signal.aborted) {
                     await An(Y.prompt, wr.interruptedContextInjected), qe = !0, Y.item.eventId && k.push(Y.item.eventId), Ie();
                     break
                 }
                 if (await $n(wr), !$r.skipped && !Et) {
                     let ht = qSe(Y.event, $r),
-                        Or = await Eo(m, "outbox_emit_ms", async () => $c(e, t, {
+                        Or = await runTimedDrainPhase(m, "outbox_emit_ms", async () => $c(e, t, {
                             item: Y.item,
                             event: Y.event,
                             outputText: ht,
@@ -926,7 +926,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     });
                     await atomicAppendEvent(e, ht)
                 }
-                await Eo(m, "session_upsert_ms", async () => {
+                await runTimedDrainPhase(m, "session_upsert_ms", async () => {
                     let ht = {
                         cwd: U.cwd,
                         plane: U.plane,
@@ -935,7 +935,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         last_event_at: Y.event.ts
                     };
                     f?.context_used_tokens !== void 0 && (ht.context_used_tokens = f.context_used_tokens);
-                    let Or = MSe(f);
+                    let Or = extractServedModelFromUsage(f);
                     Or && (ht.last_served_model = Or);
                     let ga = gH(Y.event.payload, "idle_ms"),
                         ou = gH(Y.event.payload, "threshold_at_fire");
@@ -955,7 +955,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             });
                         ht.last_compact_at = qA, ht.compact_stats = Qf, p = Qf
                     }
-                    $r.sessionId && !X && (ht.sdk_session_id = $r.sessionId, ht.sdk_session_runtime = Ht), vn && (ht.pending_fork_to = null), await et(e, t, ht)
+                    $r.sessionId && !X && (ht.sdk_session_id = $r.sessionId, ht.sdk_session_runtime = Ht), vn && (ht.pending_fork_to = null), await patchSessionRuntimeState(e, t, ht)
                 }), un?.origin === "idle-compact" && await kft(e, {
                     sessionKey: t,
                     preTokens: z?.context_used_tokens,
@@ -964,7 +964,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 }), vn && (me = void 0), $r.sessionId && !X && (de = $r.sessionId), Y.event.ts && (ke = Y.event.ts)
             }
         }
-        return await Eo(m, "mailbox_finalize_ms", async () => {
+        return await runTimedDrainPhase(m, "mailbox_finalize_ms", async () => {
             if (await Ao(e, t, k), k.length > 0 || N > 0) {
                 let de = `processed=${k.length} skipped=${N}${ne?` outbox=${ne}`:""}`;
                 await cb(e, t, de)

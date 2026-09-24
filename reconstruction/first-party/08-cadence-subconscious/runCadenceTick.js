@@ -7,7 +7,7 @@
 async function runCadenceTick(e) {
     let {
         runMemoryCheckTick: t
-    } = await Promise.resolve().then(() => (Z6(), xwe));
+    } = await Promise.resolve().then(() => (initMemoryCheckTickModule(), xwe));
     await t(e, Date.now());
     try {
         let {
@@ -27,7 +27,7 @@ async function runCadenceTick(e) {
         },
         payload: {}
     });
-    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await Du(e, r => ({
+    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await updateRegistryStatus(e, r => ({
         ...r,
         cadence: {
             ...r.cadence,

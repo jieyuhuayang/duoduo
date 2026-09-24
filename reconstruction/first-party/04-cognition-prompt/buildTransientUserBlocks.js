@@ -63,7 +63,7 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
         text: m,
         tag: "time-context"
     }), u = !0);
-    let g = t.isUserMessage !== !1 ? Kdt(t.skipRewind) : void 0;
+    let g = t.isUserMessage !== !1 ? renderSkipRewindBlock(t.skipRewind) : void 0;
     g && (i.push({
         type: "text",
         text: g,

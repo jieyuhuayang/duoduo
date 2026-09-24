@@ -33,7 +33,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
             cron: u.frontmatter.cron,
             cwdRel: u.frontmatter.cwd_rel
         });
-        if (or(p)) {
+        if (isSessionArchiving(p)) {
             Re("[cadence] skip due job: session is being archived", {
                 jobId: u.id,
                 sessionKey: p
@@ -79,7 +79,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         });
         await atomicAppendEvent(e, h);
         let g = `- [ ] @evt(${h.id}) job:${u.id}`;
-        await Xs(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), te("[cadence] spawned due job", {
+        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), te("[cadence] spawned due job", {
             jobId: u.id,
             sessionKey: p,
             cron: u.frontmatter.cron

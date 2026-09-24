@@ -24,19 +24,19 @@ async function runMemoryCheckTick(e, t) {
             varDir: e.varDir,
             flagFallback: n
         },
-        a = Bct(() => jve(s));
+        a = evaluatePredicateOrFalse(() => hasAnyMemorySignalConsumer(s));
     if (!a && !r) return o;
     let u = e.memoryDir,
         l = [],
         c = [],
         d = y => {
             l.push(...y);
-            let v = rO(y, s);
+            let v = postMemorySignalsToInboxes(y, s);
             c.push(...v.posted), o.posted.push(...v.posted), o.withheld.push(...v.withheld);
             for (let b of v.errors) Le(`[memory] pending delivery failed: ${b}`)
         },
         f = null,
-        p = ua("orphan-states", () => {
+        p = runReadAuditedMemoryCheckStep("orphan-states", () => {
             let y = detectOrphanMemory(u, {
                 refTimestampMs: t
             });
@@ -45,40 +45,40 @@ async function runMemoryCheckTick(e, t) {
         m = f !== null && p,
         h = null;
     if (a) {
-        let y = await awe(e);
-        m = ua("board-lint", () => {
-            d(yve(u, B6).selections)
-        }) && m, m = ua("entity-lint", () => {
-            d(Sve(u, B6).selected)
-        }) && m, m = ua("node-lint", () => {
-            d(xve(u, B6).selected)
-        }) && m, m = ua("gap-lint", () => {
-            let I = Zve(e.eventsDir, u, t, s, {
+        let y = await readIntuitionWeaverLastFinishedMs(e);
+        m = runReadAuditedMemoryCheckStep("board-lint", () => {
+            d(collectBoardLintReport(u, B6).selections)
+        }) && m, m = runReadAuditedMemoryCheckStep("entity-lint", () => {
+            d(runEntityLint(u, B6).selected)
+        }) && m, m = runReadAuditedMemoryCheckStep("node-lint", () => {
+            d(runNodeLint(u, B6).selected)
+        }) && m, m = runReadAuditedMemoryCheckStep("gap-lint", () => {
+            let I = deliverScanGapSignal(e.eventsDir, u, t, s, {
                 cadenceIntervalMs: resolveCadenceIntervalMs()
             });
             o.posted.push(...I.delivery.posted), o.withheld.push(...I.delivery.withheld);
             for (let E of I.delivery.errors) Le(`[memory] pending delivery failed: ${E}`)
-        }) && m, m = ua("fold-lint", () => {
-            d(uwe(u, y).selected)
-        }) && m, m = ua("broadcast-budget", () => {
-            d(Qve(u).selected)
-        }) && m, m = ua("broadcast-lint", () => {
-            d(cwe(u).selected)
-        }) && m, m = ua("broadcast-flatten", () => {
-            d(fwe(u).selected)
+        }) && m, m = runReadAuditedMemoryCheckStep("fold-lint", () => {
+            d(runFoldGapLint(u, y).selected)
+        }) && m, m = runReadAuditedMemoryCheckStep("broadcast-budget", () => {
+            d(runBroadcastBudgetLint(u).selected)
+        }) && m, m = runReadAuditedMemoryCheckStep("broadcast-lint", () => {
+            d(runBroadcastLinkLint(u).selected)
+        }) && m, m = runReadAuditedMemoryCheckStep("broadcast-flatten", () => {
+            d(runBroadcastFlattenLint(u).selected)
         }) && m;
-        let v, b = ua("activation-lint", () => {
-            v = rwe(e.eventsDir, u, t)
+        let v, b = runReadAuditedMemoryCheckStep("activation-lint", () => {
+            v = runActivationLint(e.eventsDir, u, t)
         });
         m = b && m;
         let _;
-        b && v && (d(v.selected), h = v.metrics, _ = v.touchWindow), m = ua("orphan-newborn-island", () => {
+        b && v && (d(v.selected), h = v.metrics, _ = v.touchWindow), m = runReadAuditedMemoryCheckStep("orphan-newborn-island", () => {
             if (f === null) return;
-            d(ywe(f, _));
-            let I = vwe(bwe(f), t, void 0, void 0, _);
+            d(buildOrphanNewbornSignals(f, _));
+            let I = buildOrphanIslandsSignal(filterOrphanIslands(f), t, void 0, void 0, _);
             I && d([I])
-        }) && m, m && H6("inbox-sync", () => {
-            let I = Mve(l, c, s);
+        }) && m, m && runMemoryCheckSubStep("inbox-sync", () => {
+            let I = reconcileMemorySignalInboxes(l, c, s);
             o.swept.push(...I.removed);
             for (let E of I.errors) Le(`[memory] inbox sync failed: ${E}`)
         })
@@ -98,7 +98,7 @@ async function runMemoryCheckTick(e, t) {
         live_ratio: g.liveRatio,
         dead_weight: g.coldCount,
         wiring_incompleteness: g.wiringIncompleteness
-    }), r && H6("orphan-forget", () => {
+    }), r && runMemoryCheckSubStep("orphan-forget", () => {
         if (f === null) return;
         let y = [];
         for (let v of f) {
@@ -106,7 +106,7 @@ async function runMemoryCheckTick(e, t) {
                 y.push(v);
                 continue
             }
-            Lve(s, routeContractDecision(v)) ? y.push(v) : o.sparedUnwarnable.push(v.rel)
+            isOrphanWarningDeliverable(s, routeContractDecision(v)) ? y.push(v) : o.sparedUnwarnable.push(v.rel)
         }
         o.forgotten.push(...forgetMemoryEntry(y, e.kernelDir, {
             dryRun: !1

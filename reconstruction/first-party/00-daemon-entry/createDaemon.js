@@ -38,14 +38,14 @@ Content-Length: 0\r
             bus: l
         } = e,
         c = new Ur(u),
-        d = e.sessionIndex ?? p_e();
+        d = e.sessionIndex ?? createEmptySessionIndex();
     rle((S, D) => {
         if (D === "removed") {
             d.remove(S);
             return
         }
-        Vi(S, async () => {
-            if (!or(S)) try {
+        runWithSessionMutex(S, async () => {
+            if (!isSessionArchiving(S)) try {
                 let [$, C] = await Promise.all([ct(u, S), Qs(u, S)]);
                 MV(d, S, $, C)
             } catch {}
@@ -61,7 +61,7 @@ Content-Length: 0\r
             work_dir: oo.resolve(u.workDir),
             kernel_dir: oo.resolve(u.kernelDir)
         },
-        h = e.subscriptions ?? l6();
+        h = e.subscriptions ?? createSessionSubscriptionRegistry();
     h.start(l);
     let g = 0,
         y = !1,
@@ -160,7 +160,7 @@ Content-Length: 0\r
             }, C.__triggerShutdown = !0;
             else if (S.method === "system.runtime.info") {
                 if (!T0(S.params)) throw new zt("Invalid params");
-                if (!I0(m)) throw new Error("invalid runtime info");
+                if (!isDaemonRuntimeInfo(m)) throw new Error("invalid runtime info");
                 let k = S.params ?? {};
                 if (k.source_kind) {
                     let V = {
@@ -176,7 +176,7 @@ Content-Length: 0\r
             } else if (S.method === "channel.describe") {
                 if (!H0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await _yt(u, d, k)
+                C.result = await describeChannelInstance(u, d, k)
             } else if (S.method === "session.archive") {
                 if (!P0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
@@ -192,10 +192,10 @@ Content-Length: 0\r
             } else if (S.method === "session.notify") {
                 if (!A0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await A0e(u, l, d, k)
+                C.result = await deliverExternalSessionNotify(u, l, d, k)
             } else if (S.method === "session.wake") {
                 if (!O0(S.params)) throw new zt("Invalid params");
-                C.result = await Syt(u, d, S.params)
+                C.result = await scheduleSessionWakeRecord(u, d, S.params)
             } else if (S.method === "job.manage" || S.method === "session.manage" || S.method === "notify.send" || S.method === "wake.set") {
                 if (!A) return C.error = {
                     code: -32001,
@@ -246,15 +246,15 @@ Content-Length: 0\r
             } else if (S.method === "session.model") {
                 if (!N0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await xyt(d, F, k)
+                C.result = await readOrSetSessionModel(d, F, k)
             } else if (S.method === "session.effort") {
                 if (!D0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await Eyt(d, F, k)
+                C.result = await readOrSetSessionEffort(d, F, k)
             } else if (S.method === "session.compact") {
                 if (!M0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await Ryt(u, l, d, F, k)
+                C.result = await enqueueSessionCompactCommand(u, l, d, F, k)
             } else if (S.method === "session.config") {
                 if (!j0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
@@ -262,11 +262,11 @@ Content-Length: 0\r
             } else if (S.method === "channel.spawn") {
                 if (!W0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                C.result = await Ayt(u, d, k)
+                C.result = await upsertChannelSpawnDescriptor(u, d, k)
             } else if (S.method === "channel.ingress") {
                 if (!z0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (k0e("channel.ingress", k, D), or(k.session_key)) return C.error = {
+                if (k0e("channel.ingress", k, D), isSessionArchiving(k.session_key)) return C.error = {
                     code: -32011,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
@@ -299,14 +299,14 @@ Content-Length: 0\r
                     bus: l,
                     gatewayCommands: F
                 });
-                k.channel_id && await et(u, k.session_key, {
+                k.channel_id && await patchSessionRuntimeState(u, k.session_key, {
                     source_channel_id: k.channel_id
                 }), po("ingress_received", W.event.id, {
                     sessionKey: k.session_key
                 }), W.routing.enqueued && l.emit("session.wake", {
                     sessionKey: k.session_key,
                     displayName: k.display_name,
-                    preempt: kJ(k.text)
+                    preempt: resolvePreemptFromCommandText(k.text)
                 });
                 let ce = Lw(N) ? V.effectiveConfig?.kind_config : void 0,
                     J = {
@@ -321,7 +321,7 @@ Content-Length: 0\r
             } else if (S.method === "channel.command") {
                 if (!B0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (k0e("channel.command", k, D), or(k.session_key)) return C.error = {
+                if (k0e("channel.command", k, D), isSessionArchiving(k.session_key)) return C.error = {
                     code: -32011,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
@@ -337,7 +337,7 @@ Content-Length: 0\r
                     code: -32010,
                     message: V.guidance
                 }, C;
-                let W = await $b(u, {
+                let W = await ingestChannelCommand(u, {
                     sessionKey: k.session_key,
                     sourceKind: N,
                     sourceName: k.channel_id ?? D?.wsSubscriberId,
@@ -355,7 +355,7 @@ Content-Length: 0\r
                 });
                 W.routing.enqueued && l.emit("session.wake", {
                     sessionKey: k.session_key,
-                    preempt: kJ(k.command)
+                    preempt: resolvePreemptFromCommandText(k.command)
                 }), C.result = {
                     event_id: W.event.id,
                     gateway_response: W.gatewayResponse,
@@ -380,9 +380,9 @@ Content-Length: 0\r
                 if (!bm(S.params)) throw new zt("Invalid params");
                 let k = S.params,
                     N = k.consumer_id.trim(),
-                    V = bJ(k.return_mask),
+                    V = normalizeReturnMask(k.return_mask),
                     W = V.includes("final");
-                if (D?.wsSubscriberId) return await pyt({
+                if (D?.wsSubscriberId) return await recordChannelCapabilityDeclaration({
                     paths: u,
                     sessionKey: k.session_key,
                     declaredBy: N,
@@ -394,7 +394,7 @@ Content-Length: 0\r
                     cursor: k.cursor,
                     return_mask: V
                 }, C;
-                let ce = W ? await Pw({
+                let ce = W ? await readOutboxRecordsPastCursor({
                     paths: u,
                     sessionKey: k.session_key,
                     consumerId: N,
@@ -412,7 +412,7 @@ Content-Length: 0\r
             } else if (S.method === "channel.ack") {
                 if (!V0(S.params)) throw new zt("Invalid params");
                 let k = S.params;
-                if (or(k.session_key)) return C.error = {
+                if (isSessionArchiving(k.session_key)) return C.error = {
                     code: -32002,
                     message: `Session is being archived. Retry after session.archive completes. session_key=${k.session_key}`
                 }, C;
@@ -421,7 +421,7 @@ Content-Length: 0\r
                     W = k.session_key.indexOf(":"),
                     ce = W > 0 ? k.session_key.slice(0, W) : null,
                     J = null;
-                if (ce && (J = await La(u, ce, V)), !J || J.session_key !== k.session_key) {
+                if (ce && (J = await readOutboxRecord(u, ce, V)), !J || J.session_key !== k.session_key) {
                     let fe = await mle(u, k.session_key, V);
                     return fe ? (await UV(u, k.session_key, N, fe), C.result = {
                         session_key: k.session_key,
@@ -433,9 +433,9 @@ Content-Length: 0\r
                         message: "Invalid cursor"
                     }, C)
                 }
-                let ne = await ta(u, V);
+                let ne = await lookupOutboxByIdIndexEntry(u, V);
                 if (!ne) try {
-                    await jR(u, k.session_key), ne = await ta(u, V)
+                    await backfillOutboxByIdIndexFromReplay(u, k.session_key), ne = await lookupOutboxByIdIndexEntry(u, V)
                 } catch {}
                 ne ? await x_e(u, k.session_key, N, ne) : await UV(u, k.session_key, N, J), C.result = {
                     session_key: k.session_key,
@@ -444,13 +444,13 @@ Content-Length: 0\r
                     committed: !0
                 }
             } else if (S.method === "job.create") {
-                if (!J0(S.params)) throw new zt("Invalid params");
+                if (!isJobCreateParams(S.params)) throw new zt("Invalid params");
                 let k = S.params;
                 await c.init(), await c.createJob(k.id, {
                     cron: k.cron,
                     owner_session: k.owner_session,
                     cwd_rel: k.cwd_rel,
-                    runtime: Co()
+                    runtime: resolveDefaultRuntime()
                 }, k.instruction);
                 let N = createSpineEvent({
                     type: "job.spawn",
@@ -572,7 +572,7 @@ Content-Length: 0\r
                     data: "session manager unavailable"
                 };
                 else {
-                    await et(u, V.session_key, {
+                    await patchSessionRuntimeState(u, V.session_key, {
                         pending_gateway_notice: {
                             source: "gateway_command",
                             command: `job interrupt ${k.id}`,
@@ -582,7 +582,7 @@ Content-Length: 0\r
                         }
                     });
                     let W = await e.sessionManager.interruptSession(V.session_key);
-                    W.interrupted || await ea(u, V.session_key, "pending_gateway_notice").catch(() => {}), C.result = {
+                    W.interrupted || await clearSessionRuntimeStateField(u, V.session_key, "pending_gateway_notice").catch(() => {}), C.result = {
                         id: k.id,
                         session_key: V.session_key,
                         interrupted: W.interrupted,
@@ -622,20 +622,20 @@ Content-Length: 0\r
                 }
             } else if (S.method === "system.status") {
                 if (!Q0(S.params)) throw new zt("Invalid params");
-                let [k, N] = await Promise.all([db(u), _g(u)]), V = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, W = e.sessionManager?.listActors(), ce = new Set, J = [], ne = ue => {
+                let [k, N] = await Promise.all([db(u), readPlaylistRound(u)]), V = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, W = e.sessionManager?.listActors(), ce = new Set, J = [], ne = ue => {
                     let Ie = ue?.last_served_model ?? null,
                         ae = ue?.model ?? null;
                     return {
                         served: Ie,
                         pending: ae !== null && ae !== Ie ? ae : null
                     }
-                }, fe = async ue => lr(ue) !== "channel" ? {} : {
+                }, fe = async ue => classifySessionKeyKind(ue) !== "channel" ? {} : {
                     last_cursor_advance_at: await I$(u, ue),
                     final_subscriber_count: h.finalSubscriberCount(ue)
                 };
                 if (W)
                     for (let [ue, Ie] of W) {
-                        if (Ie.status === "ended" || !DV(ue)) continue;
+                        if (Ie.status === "ended" || !isUserVisibleSessionKey(ue)) continue;
                         ce.add(ue);
                         let ae = d.get(ue);
                         J.push({
@@ -690,11 +690,11 @@ Content-Length: 0\r
                 C.result = j
             } else if (S.method === "system.config") {
                 if (!eR(S.params)) throw new zt("Invalid params");
-                C.result = await lyt(u)
+                C.result = await buildSystemConfigReport(u)
             } else if (S.method === "spine.tail") {
                 if (!tR(S.params)) throw new zt("Invalid params");
                 let k = S.params ?? {},
-                    N = await rve(u, {
+                    N = await readSpineTail(u, {
                         limit: k.limit,
                         after_id: k.after_id
                     });
@@ -774,7 +774,7 @@ Content-Length: 0\r
             status: "not_ready"
         })), S.post("/rpc", async (A, F) => {
             let k = A.body;
-            if (!eb(k)) return Z("[daemon] invalid JSON-RPC request"), F.code(400).send({
+            if (!isJsonRpcRequest(k)) return Z("[daemon] invalid JSON-RPC request"), F.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
             if ($ && !ryt.has(k.method)) return Z("[daemon] rejected write method on read-only port", {
@@ -817,7 +817,7 @@ Content-Length: 0\r
                                 } = fe.params;
                                 if (!V) return;
                                 let M = V,
-                                    U = (b.get(k) ?? Promise.resolve()).then(() => zV(u, Ie, M, ae).catch(X => {
+                                    U = (b.get(k) ?? Promise.resolve()).then(() => advanceOptimisticDeliveryCursor(u, Ie, M, ae).catch(X => {
                                         Z("[daemon] failed to advance delivery cursor", {
                                             subscriberId: k,
                                             sessionKey: Ie,
@@ -846,7 +846,7 @@ Content-Length: 0\r
                             }));
                             return
                         }
-                        if (!eb(j)) {
+                        if (!isJsonRpcRequest(j)) {
                             F.send(JSON.stringify({
                                 jsonrpc: "2.0",
                                 id: null,
@@ -867,7 +867,7 @@ Content-Length: 0\r
                             let U = j.params,
                                 X = U.session_key,
                                 Ee = U.consumer_id.trim(),
-                                be = bJ(U.return_mask);
+                                be = normalizeReturnMask(U.return_mask);
                             N && h.unsubscribe(k), N = X, V = Ee, Ie = X, ae = Ee, M = U.cursor, te("[daemon] ws pull stream opened", {
                                 subscriberId: k,
                                 sessionKey: X,
@@ -887,7 +887,7 @@ Content-Length: 0\r
                         }
                         if (Ie) {
                             let U = bm(j.params) ? j.params : void 0;
-                            if (!bJ(U?.return_mask).includes("final")) {
+                            if (!normalizeReturnMask(U?.return_mask).includes("final")) {
                                 W = null, F.send(JSON.stringify(ue));
                                 return
                             }
@@ -895,7 +895,7 @@ Content-Length: 0\r
                                 w = Number(process.env.ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0),
                                 P = Number.isFinite(w) ? w : 0;
                             try {
-                                let K = await R_e({
+                                let K = await replayOutboxBacklogToSubscriber({
                                     paths: u,
                                     sessionKey: be,
                                     consumerId: ae,
@@ -903,11 +903,11 @@ Content-Length: 0\r
                                     cursorOverride: M,
                                     send: H => ce(H, !1),
                                     onDelivered: async H => {
-                                        await zV(u, be, ae, H);
-                                        let L = await La(u, H.channel_kind, H.id);
-                                        L && L.status !== "sent" && await Xd(u, L, {
+                                        await advanceOptimisticDeliveryCursor(u, be, ae, H);
+                                        let L = await readOutboxRecord(u, H.channel_kind, H.id);
+                                        L && L.status !== "sent" && await recordOutboxDeliveryAttempt(u, L, {
                                             status: "sent"
-                                        }), await Bm(u, H.id)
+                                        }), await recordOutboxSentId(u, H.id)
                                     }
                                 });
                                 K > 0 && Re("[daemon] replayed outbox backlog", {
@@ -978,7 +978,7 @@ Content-Length: 0\r
         async start(S) {
             let D = resolveRemoteListenerConfig(process.env, S);
             if (!e.runtimeLockAlreadyHeld) {
-                let A = await p6(u);
+                let A = await acquireRuntimeWriterLock(u);
                 if (!A.acquired) throw new Error(`Runtime lock already held by pid=${A.lock?.pid??"unknown"} at ${A.lockPath}`)
             }
             y = !0;
@@ -1023,7 +1023,7 @@ Content-Length: 0\r
             } catch (A) {
                 throw await t.close().catch(() => {}), await n.close().catch(() => {}), r && (await r.close().catch(() => {}), r = null), $ && await Ms.unlink(x).catch(() => {}), y && (await B$(u), y = !1), A
             }
-            let C = C0e("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
+            let C = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
             v = setInterval(() => {
                 tve(u).catch(() => {})
             }, C), v.unref?.()

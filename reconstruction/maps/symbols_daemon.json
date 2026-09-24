@@ -1,8 +1,8 @@
 {
   "bundle": "daemon",
   "version": "v0.8.3",
-  "source": "/private/tmp/claude-501/-Users-lilu-Projects-duoduo/f0383fb7-80d6-43f6-90f6-e03eca0fef09/scratchpad/build-promote1/beautified/v0.8.3/daemon.pretty.js",
-  "symbolCount": 165,
+  "source": "/private/tmp/claude-501/-Users-lilu-Projects-duoduo/f0383fb7-80d6-43f6-90f6-e03eca0fef09/scratchpad/build-promote2/beautified/v0.8.3/daemon.pretty.js",
+  "symbolCount": 472,
   "notTopLevel": [],
   "symbols": {
     "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
@@ -1324,6 +1324,2462 @@
       "kind": "function",
       "bytes": 44,
       "signature": "da01e02df35c89ef1470"
+    },
+    "isJsonRpcRequest": {
+      "mangled": "eb",
+      "line": 31516,
+      "endLine": 31520,
+      "kind": "function",
+      "bytes": 142,
+      "signature": "f6b1f77614abb244faf0"
+    },
+    "isDaemonRuntimeInfo": {
+      "mangled": "I0",
+      "line": 31541,
+      "endLine": 31543,
+      "kind": "function",
+      "bytes": 273,
+      "signature": "4a9f513d3941bc7eed77"
+    },
+    "isRuntimeKind": {
+      "mangled": "F0",
+      "line": 31611,
+      "endLine": 31613,
+      "kind": "function",
+      "bytes": 68,
+      "signature": "0e30a78e45fe23d52749"
+    },
+    "initChannelProtocolModule": {
+      "mangled": "Goe",
+      "line": 31661,
+      "endLine": 31665,
+      "kind": "var = call",
+      "bytes": 98,
+      "signature": "9cf666661f7ff86a1d14"
+    },
+    "isJobCreateParams": {
+      "mangled": "J0",
+      "line": 31671,
+      "endLine": 31673,
+      "kind": "function",
+      "bytes": 255,
+      "signature": "dc15710f5fb381626a9f"
+    },
+    "isSupportedRuntime": {
+      "mangled": "Aa",
+      "line": 31729,
+      "endLine": 31731,
+      "kind": "function",
+      "bytes": 35,
+      "signature": "df2a27fab0bcc81f7b44"
+    },
+    "resolveDefaultRuntime": {
+      "mangled": "Co",
+      "line": 31733,
+      "endLine": 31738,
+      "kind": "function",
+      "bytes": 213,
+      "signature": "1bbfb7e185fec0512725"
+    },
+    "stringifyJsonlRecord": {
+      "mangled": "Bi",
+      "line": 31829,
+      "endLine": 31831,
+      "kind": "function",
+      "bytes": 107,
+      "signature": "558b995a4a9d12629745"
+    },
+    "parseEnvBooleanFlag": {
+      "mangled": "wm",
+      "line": 31909,
+      "endLine": 31920,
+      "kind": "function",
+      "bytes": 225,
+      "signature": "b527912e530c2ba952c9"
+    },
+    "enqueuePartitionAppend": {
+      "mangled": "G9e",
+      "line": 31988,
+      "endLine": 31991,
+      "kind": "function",
+      "bytes": 108,
+      "signature": "8a3d5440654ddf495404"
+    },
+    "formatEventPartitionName": {
+      "mangled": "Sm",
+      "line": 31997,
+      "endLine": 31999,
+      "kind": "function",
+      "bytes": 68,
+      "signature": "6fe426fe44346f177781"
+    },
+    "resolveEventIdIndexPath": {
+      "mangled": "tb",
+      "line": 32031,
+      "endLine": 32033,
+      "kind": "function",
+      "bytes": 70,
+      "signature": "7a986e07014bb5fa1629"
+    },
+    "appendEventIdIndexEntry": {
+      "mangled": "Q9e",
+      "line": 32034,
+      "endLine": 32042,
+      "kind": "async function",
+      "bytes": 207,
+      "signature": "6d05f0a75bd826f6d64a"
+    },
+    "readEventAtIndexedOffset": {
+      "mangled": "e5e",
+      "line": 32060,
+      "endLine": 32077,
+      "kind": "async function",
+      "bytes": 482,
+      "signature": "78c049e1ee0d7cde9573"
+    },
+    "lookupEventIdIndexEntry": {
+      "mangled": "nb",
+      "line": 32095,
+      "endLine": 32107,
+      "kind": "async function",
+      "bytes": 348,
+      "signature": "9c7716fb52bb79a484aa"
+    },
+    "getOrCreateEventIdIndexCache": {
+      "mangled": "n5e",
+      "line": 32109,
+      "endLine": 32117,
+      "kind": "function",
+      "bytes": 151,
+      "signature": "ee4795340bb128aa0ee2"
+    },
+    "loadEventIdIndex": {
+      "mangled": "i5e",
+      "line": 32122,
+      "endLine": 32141,
+      "kind": "async function",
+      "bytes": 497,
+      "signature": "1c8d12bbe3a1cb4c648a"
+    },
+    "findEventInPartitionFile": {
+      "mangled": "ise",
+      "line": 32159,
+      "endLine": 32171,
+      "kind": "async function",
+      "bytes": 259,
+      "signature": "f68605119d7faaaab87f"
+    },
+    "hashSessionKey": {
+      "mangled": "Oo",
+      "line": 32257,
+      "endLine": 32259,
+      "kind": "function",
+      "bytes": 78,
+      "signature": "83c1b7eb63b88fd1831b"
+    },
+    "resolveSessionDir": {
+      "mangled": "Jn",
+      "line": 32261,
+      "endLine": 32263,
+      "kind": "function",
+      "bytes": 62,
+      "signature": "c80789b86d5fa751d316"
+    },
+    "resolveSessionsArchiveRoot": {
+      "mangled": "u5e",
+      "line": 32265,
+      "endLine": 32267,
+      "kind": "function",
+      "bytes": 68,
+      "signature": "1b965ad64e86bd0e09de"
+    },
+    "resolveArchivedSessionDir": {
+      "mangled": "km",
+      "line": 32269,
+      "endLine": 32271,
+      "kind": "function",
+      "bytes": 55,
+      "signature": "af481fa10c2944b5d503"
+    },
+    "isSessionArchived": {
+      "mangled": "Ks",
+      "line": 32273,
+      "endLine": 32275,
+      "kind": "function",
+      "bytes": 64,
+      "signature": "6787aa9b653cc4b51cd2"
+    },
+    "runWithSessionMutex": {
+      "mangled": "Vi",
+      "line": 32410,
+      "endLine": 32421,
+      "kind": "async function",
+      "bytes": 264,
+      "signature": "dfb8e242e73d31831763"
+    },
+    "tryMarkSessionArchiving": {
+      "mangled": "lR",
+      "line": 32423,
+      "endLine": 32425,
+      "kind": "function",
+      "bytes": 62,
+      "signature": "a664a8157e10ba50831a"
+    },
+    "clearSessionArchiving": {
+      "mangled": "cR",
+      "line": 32427,
+      "endLine": 32429,
+      "kind": "function",
+      "bytes": 35,
+      "signature": "fe053b636fcc8bb3097a"
+    },
+    "isSessionArchiving": {
+      "mangled": "or",
+      "line": 32431,
+      "endLine": 32433,
+      "kind": "function",
+      "bytes": 39,
+      "signature": "d37cc839a11149e4ab9e"
+    },
+    "assertSessionNotArchiving": {
+      "mangled": "zl",
+      "line": 32435,
+      "endLine": 32437,
+      "kind": "function",
+      "bytes": 53,
+      "signature": "b2e1877c5de49ff11aeb"
+    },
+    "initSessionLockAndArchivingModule": {
+      "mangled": "Da",
+      "line": 32438,
+      "endLine": 32448,
+      "kind": "var = call",
+      "bytes": 405,
+      "signature": "6cfa7d815ad6f11a8e67"
+    },
+    "enqueueSessionInboxLine": {
+      "mangled": "Xs",
+      "line": 32547,
+      "endLine": 32557,
+      "kind": "async function",
+      "bytes": 308,
+      "signature": "37264a6f23169abcaa02"
+    },
+    "mergeInboxIntoMailbox": {
+      "mangled": "fR",
+      "line": 32558,
+      "endLine": 32616,
+      "kind": "async function",
+      "bytes": 1642,
+      "signature": "cd511ea8fdcde2c59ec6"
+    },
+    "listMailboxPendingItems": {
+      "mangled": "lb",
+      "line": 32617,
+      "endLine": 32638,
+      "kind": "async function",
+      "bytes": 571,
+      "signature": "9e708c97bc01df9e2c01"
+    },
+    "renderSessionMailboxFile": {
+      "mangled": "pR",
+      "line": 32705,
+      "endLine": 32722,
+      "kind": "async function",
+      "bytes": 489,
+      "signature": "1538d9e25a1161a7314c"
+    },
+    "resolveConsumerOffsetPath": {
+      "mangled": "C5e",
+      "line": 32852,
+      "endLine": 32854,
+      "kind": "function",
+      "bytes": 77,
+      "signature": "23cbd648d2c8835137e1"
+    },
+    "writeConsumerOffsetFile": {
+      "mangled": "$5e",
+      "line": 32855,
+      "endLine": 32857,
+      "kind": "async function",
+      "bytes": 58,
+      "signature": "691d8c7164a6e25751d5"
+    },
+    "resolveRegistryStatusPath": {
+      "mangled": "gR",
+      "line": 32877,
+      "endLine": 32879,
+      "kind": "function",
+      "bytes": 68,
+      "signature": "cd017cb84dc6963e3275"
+    },
+    "updateRegistryStatus": {
+      "mangled": "Du",
+      "line": 32919,
+      "endLine": 32923,
+      "kind": "async function",
+      "bytes": 159,
+      "signature": "4252f632b83e9f5cb249"
+    },
+    "normalizePromptMode": {
+      "mangled": "wb",
+      "line": 35036,
+      "endLine": 35038,
+      "kind": "function",
+      "bytes": 77,
+      "signature": "5d35ace52ae6c27f778e"
+    },
+    "parseChannelConfigFields": {
+      "mangled": "CR",
+      "line": 35388,
+      "endLine": 35405,
+      "kind": "function",
+      "bytes": 632,
+      "signature": "59d2ad43e10d372fb59e"
+    },
+    "ensureSessionDescriptorAndStateFiles": {
+      "mangled": "OR",
+      "line": 35474,
+      "endLine": 35504,
+      "kind": "async function",
+      "bytes": 1006,
+      "signature": "1649cab02112a8edd4e4"
+    },
+    "updateSessionDisplayName": {
+      "mangled": "ole",
+      "line": 35514,
+      "endLine": 35537,
+      "kind": "async function",
+      "bytes": 762,
+      "signature": "2343ca34ae415684a878"
+    },
+    "patchSessionRuntimeState": {
+      "mangled": "et",
+      "line": 35564,
+      "endLine": 35600,
+      "kind": "async function",
+      "bytes": 1047,
+      "signature": "422fe6e8c02a3b1931cf"
+    },
+    "mutateSessionRuntimeState": {
+      "mangled": "Kd",
+      "line": 35601,
+      "endLine": 35636,
+      "kind": "async function",
+      "bytes": 992,
+      "signature": "3af193156cce2abff81d"
+    },
+    "clearSessionRuntimeStateField": {
+      "mangled": "ea",
+      "line": 35637,
+      "endLine": 35662,
+      "kind": "async function",
+      "bytes": 685,
+      "signature": "d7906bbeca83a4c28559"
+    },
+    "generateOutboxRecordId": {
+      "mangled": "sXe",
+      "line": 35910,
+      "endLine": 35912,
+      "kind": "function",
+      "bytes": 55,
+      "signature": "9ef79d92e94ac3a7db32"
+    },
+    "resolveOutboxRecordPath": {
+      "mangled": "Tb",
+      "line": 35914,
+      "endLine": 35916,
+      "kind": "function",
+      "bytes": 72,
+      "signature": "d724ea1facf84ba2ce6f"
+    },
+    "readOutboxRecord": {
+      "mangled": "La",
+      "line": 35964,
+      "endLine": 35972,
+      "kind": "async function",
+      "bytes": 180,
+      "signature": "e14e560be9caae9fc576"
+    },
+    "findOutboxRecordByEventId": {
+      "mangled": "qm",
+      "line": 36021,
+      "endLine": 36028,
+      "kind": "async function",
+      "bytes": 179,
+      "signature": "0a56cce539b16ee480d6"
+    },
+    "recordOutboxDeliveryAttempt": {
+      "mangled": "Xd",
+      "line": 36029,
+      "endLine": 36051,
+      "kind": "async function",
+      "bytes": 689,
+      "signature": "cd64160821d1214a33c2"
+    },
+    "resolveOutboxByEventIndexPath": {
+      "mangled": "tU",
+      "line": 36053,
+      "endLine": 36055,
+      "kind": "function",
+      "bytes": 77,
+      "signature": "c0a38c331e8bc1047271"
+    },
+    "resolveOutboxSentIdsPath": {
+      "mangled": "hle",
+      "line": 36057,
+      "endLine": 36059,
+      "kind": "function",
+      "bytes": 64,
+      "signature": "d2555d52c1fa98e6af29"
+    },
+    "loadOutboxByEventIndex": {
+      "mangled": "cXe",
+      "line": 36070,
+      "endLine": 36086,
+      "kind": "async function",
+      "bytes": 424,
+      "signature": "220983f1de933461d106"
+    },
+    "recordOutboxSentId": {
+      "mangled": "Bm",
+      "line": 36117,
+      "endLine": 36121,
+      "kind": "async function",
+      "bytes": 141,
+      "signature": "1c42c102e3dd9cb0c338"
+    },
+    "resolveOutboxReplayDir": {
+      "mangled": "MR",
+      "line": 36123,
+      "endLine": 36125,
+      "kind": "function",
+      "bytes": 60,
+      "signature": "2fe878d92cb8a1562012"
+    },
+    "resolveOutboxByIdIndexPath": {
+      "mangled": "nU",
+      "line": 36142,
+      "endLine": 36144,
+      "kind": "function",
+      "bytes": 74,
+      "signature": "6d0fd81e7d6f29b3fc41"
+    },
+    "lookupOutboxByIdIndexEntry": {
+      "mangled": "ta",
+      "line": 36194,
+      "endLine": 36196,
+      "kind": "async function",
+      "bytes": 60,
+      "signature": "4800b0740b1187db3e2d"
+    },
+    "ensureOutboxRecordInReplay": {
+      "mangled": "yXe",
+      "line": 36247,
+      "endLine": 36255,
+      "kind": "async function",
+      "bytes": 330,
+      "signature": "915ff32f80e1e2880366"
+    },
+    "backfillOutboxByIdIndexFromReplay": {
+      "mangled": "jR",
+      "line": 36419,
+      "endLine": 36453,
+      "kind": "async function",
+      "bytes": 838,
+      "signature": "10ce9caf0a5252774f74"
+    },
+    "resolveOutboxPendingQueuePath": {
+      "mangled": "Jl",
+      "line": 36455,
+      "endLine": 36457,
+      "kind": "function",
+      "bytes": 74,
+      "signature": "65c6885aea939ad1496f"
+    },
+    "hasUnqueuedPendingOutboxRecords": {
+      "mangled": "vXe",
+      "line": 36505,
+      "endLine": 36510,
+      "kind": "async function",
+      "bytes": 179,
+      "signature": "885d1cb01a57bf619a56"
+    },
+    "initOutboxStoreModule": {
+      "mangled": "gs",
+      "line": 36592,
+      "endLine": 36602,
+      "kind": "var = call",
+      "bytes": 236,
+      "signature": "ac092ec5be9c9e64d863"
+    },
+    "accumulateDrainRecordIntoSummary": {
+      "mangled": "Lle",
+      "line": 36833,
+      "endLine": 36843,
+      "kind": "function",
+      "bytes": 2804,
+      "signature": "2394ef231d23a5aa7da5"
+    },
+    "runSkipTool": {
+      "mangled": "cC",
+      "line": 54687,
+      "endLine": 54710,
+      "kind": "async function",
+      "bytes": 932,
+      "signature": "625d55c3ab0dc0389b48"
+    },
+    "initSkipToolModule": {
+      "mangled": "Bu",
+      "line": 54711,
+      "endLine": 54720,
+      "kind": "var = call",
+      "bytes": 1482,
+      "signature": "013a6490d8294ba281c1"
+    },
+    "selectDominantModelByInputTokens": {
+      "mangled": "grt",
+      "line": 54855,
+      "endLine": 54864,
+      "kind": "function",
+      "bytes": 337,
+      "signature": "f708755dce6e002a134d"
+    },
+    "mapClaudeResultToDrainUsage": {
+      "mangled": "Vh",
+      "line": 54880,
+      "endLine": 54901,
+      "kind": "function",
+      "bytes": 980,
+      "signature": "869d74ed1c9836408c04"
+    },
+    "normalizeOptionalEnvString": {
+      "mangled": "Zv",
+      "line": 54981,
+      "endLine": 54985,
+      "kind": "function",
+      "bytes": 97,
+      "signature": "fcfe338614d7c5f8fcce"
+    },
+    "initAgentSdkAdapterModule": {
+      "mangled": "wo",
+      "line": 55516,
+      "endLine": 55534,
+      "kind": "var = call",
+      "bytes": 1460,
+      "signature": "c55f6057ef2308e35618"
+    },
+    "parseScheduleDurationMs": {
+      "mangled": "dw",
+      "line": 60989,
+      "endLine": 60998,
+      "kind": "function",
+      "bytes": 289,
+      "signature": "aa8c47de8fd2b066aaf9"
+    },
+    "assertScheduleDurationRepresentable": {
+      "mangled": "gV",
+      "line": 61000,
+      "endLine": 61002,
+      "kind": "function",
+      "bytes": 194,
+      "signature": "512c5ff0009839ed2093"
+    },
+    "validateJobScheduleExpression": {
+      "mangled": "Rye",
+      "line": 61008,
+      "endLine": 61023,
+      "kind": "function",
+      "bytes": 445,
+      "signature": "aca7d8bb79297819d64a"
+    },
+    "parseJobFileFrontmatter": {
+      "mangled": "Nye",
+      "line": 61236,
+      "endLine": 61255,
+      "kind": "function",
+      "bytes": 670,
+      "signature": "12c2d419e480bc9d74cd"
+    },
+    "renderJobFileMarkdown": {
+      "mangled": "Sst",
+      "line": 61257,
+      "endLine": 61273,
+      "kind": "function",
+      "bytes": 1069,
+      "signature": "a54081262881701b4f58"
+    },
+    "initJobManagerModule": {
+      "mangled": "Ju",
+      "line": 61321,
+      "endLine": 61758,
+      "kind": "var = call",
+      "bytes": 17298,
+      "signature": "91326810d98eb4055043"
+    },
+    "normalizeTurnAbortReason": {
+      "mangled": "sg",
+      "line": 61784,
+      "endLine": 61786,
+      "kind": "function",
+      "bytes": 81,
+      "signature": "9a217d266ddf888f25ea"
+    },
+    "buildCodexDirectOnlyToolConfig": {
+      "mangled": "kV",
+      "line": 61824,
+      "endLine": 61828,
+      "kind": "function",
+      "bytes": 56,
+      "signature": "7fb166ebf448d8f87c69"
+    },
+    "initCodexAppServerModule": {
+      "mangled": "Df",
+      "line": 62719,
+      "endLine": 62929,
+      "kind": "var = call",
+      "bytes": 7472,
+      "signature": "23280deb3a4cf3a0a1ec"
+    },
+    "collectGrokToolCallNames": {
+      "mangled": "s_e",
+      "line": 63046,
+      "endLine": 63049,
+      "kind": "function",
+      "bytes": 168,
+      "signature": "3cafdc5361b0f500aad7"
+    },
+    "initGrokAcpRuntimeModule": {
+      "mangled": "lg",
+      "line": 63676,
+      "endLine": 63730,
+      "kind": "var = call",
+      "bytes": 1970,
+      "signature": "b62d8f237294afbf3727"
+    },
+    "renderJobPromptModeDescription": {
+      "mangled": "cat",
+      "line": 63750,
+      "endLine": 63755,
+      "kind": "function",
+      "bytes": 569,
+      "signature": "bce8b86390e9f2e14d75"
+    },
+    "renderJobExtraToolsDescription": {
+      "mangled": "dat",
+      "line": 63757,
+      "endLine": 63759,
+      "kind": "function",
+      "bytes": 596,
+      "signature": "ab75d2b6bdfbac014627"
+    },
+    "buildJobPromptModeExtraToolsSchema": {
+      "mangled": "c_e",
+      "line": 63761,
+      "endLine": 63766,
+      "kind": "function",
+      "bytes": 188,
+      "signature": "17ee4fe663771c08f46f"
+    },
+    "listSelectableJobRuntimes": {
+      "mangled": "hat",
+      "line": 63768,
+      "endLine": 63771,
+      "kind": "function",
+      "bytes": 172,
+      "signature": "62fa04eb8691216e5415"
+    },
+    "buildJobRuntimeSchemaField": {
+      "mangled": "f_e",
+      "line": 63777,
+      "endLine": 63783,
+      "kind": "function",
+      "bytes": 170,
+      "signature": "20d60b1f9a424ccdfd17"
+    },
+    "initManageJobToolModule": {
+      "mangled": "Sw",
+      "line": 63939,
+      "endLine": 64071,
+      "kind": "var = call",
+      "bytes": 17517,
+      "signature": "a942e34603dc5781058e"
+    },
+    "classifySessionKeyKind": {
+      "mangled": "lr",
+      "line": 64073,
+      "endLine": 64075,
+      "kind": "function",
+      "bytes": 217,
+      "signature": "e454dfd26774dad9b1b6"
+    },
+    "isUserVisibleSessionKey": {
+      "mangled": "DV",
+      "line": 64077,
+      "endLine": 64079,
+      "kind": "function",
+      "bytes": 68,
+      "signature": "cc375fbfe8c91c6379d9"
+    },
+    "createEmptySessionIndex": {
+      "mangled": "p_e",
+      "line": 64090,
+      "endLine": 64092,
+      "kind": "function",
+      "bytes": 42,
+      "signature": "ecb7e8f645a788e4283b"
+    },
+    "buildSessionIndexEntry": {
+      "mangled": "m_e",
+      "line": 64094,
+      "endLine": 64116,
+      "kind": "function",
+      "bytes": 816,
+      "signature": "4c4d8465438061cfc0b9"
+    },
+    "createMapBackedSessionIndex": {
+      "mangled": "h_e",
+      "line": 64118,
+      "endLine": 64151,
+      "kind": "function",
+      "bytes": 797,
+      "signature": "093922e4df57dd611301"
+    },
+    "formatViewSessionsListLine": {
+      "mangled": "g_e",
+      "line": 64225,
+      "endLine": 64228,
+      "kind": "function",
+      "bytes": 253,
+      "signature": "7a45d79bf9f9336e918e"
+    },
+    "initViewSessionsToolModule": {
+      "mangled": "xw",
+      "line": 64274,
+      "endLine": 64293,
+      "kind": "var = call",
+      "bytes": 779,
+      "signature": "59f8bc18fd6e6ef6a577"
+    },
+    "initRemindDuoduoToolModule": {
+      "mangled": "Rw",
+      "line": 64327,
+      "endLine": 64338,
+      "kind": "var = call",
+      "bytes": 2391,
+      "signature": "d3541d400c203860929c"
+    },
+    "deliverRouteEventToSession": {
+      "mangled": "Ps",
+      "line": 64355,
+      "endLine": 64481,
+      "kind": "async function",
+      "bytes": 3656,
+      "signature": "5a263d73b2898a854e91"
+    },
+    "updateDeliveryCursorFile": {
+      "mangled": "v_e",
+      "line": 64495,
+      "endLine": 64504,
+      "kind": "async function",
+      "bytes": 354,
+      "signature": "8b61497694f1206b1419"
+    },
+    "readDeliveryCursorFile": {
+      "mangled": "k_e",
+      "line": 64528,
+      "endLine": 64554,
+      "kind": "async function",
+      "bytes": 1454,
+      "signature": "b05165f2a6361f441c50"
+    },
+    "advanceOptimisticDeliveryCursor": {
+      "mangled": "zV",
+      "line": 64571,
+      "endLine": 64589,
+      "kind": "async function",
+      "bytes": 746,
+      "signature": "606af2b14d40402525ce"
+    },
+    "readOutboxRecordsPastCursor": {
+      "mangled": "Pw",
+      "line": 64671,
+      "endLine": 64728,
+      "kind": "async function",
+      "bytes": 1931,
+      "signature": "289005be46b9dbe853d9"
+    },
+    "replayOutboxBacklogToSubscriber": {
+      "mangled": "R_e",
+      "line": 64729,
+      "endLine": 64754,
+      "kind": "async function",
+      "bytes": 532,
+      "signature": "135d384f5fe856623b1e"
+    },
+    "initNotifyConsumerStalenessModule": {
+      "mangled": "HV",
+      "line": 64859,
+      "endLine": 64866,
+      "kind": "var = call",
+      "bytes": 186,
+      "signature": "45cabd1065ae799134d4"
+    },
+    "isOrphanJobSessionKey": {
+      "mangled": "Z_e",
+      "line": 65034,
+      "endLine": 65036,
+      "kind": "function",
+      "bytes": 81,
+      "signature": "2a4b64ae36a01c238052"
+    },
+    "resolveNotifyTargetSessionKey": {
+      "mangled": "rut",
+      "line": 65179,
+      "endLine": 65210,
+      "kind": "async function",
+      "bytes": 1495,
+      "signature": "d0e269e7a044aa107ec2"
+    },
+    "renderNotifyDeliveryReport": {
+      "mangled": "V_e",
+      "line": 65212,
+      "endLine": 65225,
+      "kind": "function",
+      "bytes": 822,
+      "signature": "b98d7cc27e262abddf7f"
+    },
+    "initNotifyToolModule": {
+      "mangled": "Aw",
+      "line": 65324,
+      "endLine": 65336,
+      "kind": "var = call",
+      "bytes": 202,
+      "signature": "c3eef55c44ff59e41885"
+    },
+    "buildClaudeSettingsEnvOverrides": {
+      "mangled": "lut",
+      "line": 65353,
+      "endLine": 65362,
+      "kind": "function",
+      "bytes": 375,
+      "signature": "037a96942230d231c775"
+    },
+    "initMaterializedClaudeSettingsModule": {
+      "mangled": "Dw",
+      "line": 65429,
+      "endLine": 65444,
+      "kind": "var = call",
+      "bytes": 562,
+      "signature": "d162b02d85943d1fb3e5"
+    },
+    "foldConfigLayersByKey": {
+      "mangled": "z$",
+      "line": 65456,
+      "endLine": 65463,
+      "kind": "function",
+      "bytes": 197,
+      "signature": "b3f0038fa3b61f3470c8"
+    },
+    "mergeRuntimeModelLayers": {
+      "mangled": "sbe",
+      "line": 65485,
+      "endLine": 65493,
+      "kind": "function",
+      "bytes": 164,
+      "signature": "710641cc22c8e37cb301"
+    },
+    "mergeRuntimeEffortLayers": {
+      "mangled": "abe",
+      "line": 65495,
+      "endLine": 65503,
+      "kind": "function",
+      "bytes": 166,
+      "signature": "71235de3a894e5fef4e5"
+    },
+    "readRuntimeModelSetting": {
+      "mangled": "Mw",
+      "line": 65505,
+      "endLine": 65507,
+      "kind": "function",
+      "bytes": 54,
+      "signature": "0229574080c9a75d1275"
+    },
+    "readRuntimeEffortSetting": {
+      "mangled": "jw",
+      "line": 65509,
+      "endLine": 65511,
+      "kind": "function",
+      "bytes": 55,
+      "signature": "ee09842bc1d54848ebad"
+    },
+    "overlayConfigEntriesByKey": {
+      "mangled": "GV",
+      "line": 65559,
+      "endLine": 65566,
+      "kind": "function",
+      "bytes": 154,
+      "signature": "a439b7c7b7d8bb09a6bc"
+    },
+    "appendPiConfigIssues": {
+      "mangled": "lbe",
+      "line": 65603,
+      "endLine": 65605,
+      "kind": "function",
+      "bytes": 79,
+      "signature": "89616d908a70dab84918"
+    },
+    "buildEffectiveChannelConfig": {
+      "mangled": "cbe",
+      "line": 65607,
+      "endLine": 65701,
+      "kind": "function",
+      "bytes": 3373,
+      "signature": "33af7662446e001c0dae"
+    },
+    "decideRestartHintInjection": {
+      "mangled": "Bbe",
+      "line": 65821,
+      "endLine": 65848,
+      "kind": "function",
+      "bytes": 956,
+      "signature": "b529304345ceda01f068"
+    },
+    "archiveSessionDirUnlessAlreadyArchiving": {
+      "mangled": "Kbe",
+      "line": 65866,
+      "endLine": 65881,
+      "kind": "async function",
+      "bytes": 324,
+      "signature": "c4140e536491a61cbe93"
+    },
+    "archiveSessionAndArtifacts": {
+      "mangled": "Ybe",
+      "line": 65882,
+      "endLine": 65917,
+      "kind": "async function",
+      "bytes": 1201,
+      "signature": "80fb5dc6640f46666eef"
+    },
+    "readStateSourceChannelId": {
+      "mangled": "Jbe",
+      "line": 66023,
+      "endLine": 66029,
+      "kind": "async function",
+      "bytes": 240,
+      "signature": "08e62a09d2da7c32a15f"
+    },
+    "listArchivedCopiesNewestFirst": {
+      "mangled": "Gbe",
+      "line": 66044,
+      "endLine": 66071,
+      "kind": "async function",
+      "bytes": 882,
+      "signature": "fcf177978bdaccaddef2"
+    },
+    "loadSubconsciousPartitions": {
+      "mangled": "Bw",
+      "line": 66190,
+      "endLine": 66213,
+      "kind": "async function",
+      "bytes": 598,
+      "signature": "3419a30778cdc14dcef0"
+    },
+    "parsePartitionDefinition": {
+      "mangled": "Xut",
+      "line": 66214,
+      "endLine": 66254,
+      "kind": "async function",
+      "bytes": 1494,
+      "signature": "cf4df26edd0dc35d2e5d"
+    },
+    "readPlaylistRound": {
+      "mangled": "_g",
+      "line": 66255,
+      "endLine": 66271,
+      "kind": "async function",
+      "bytes": 333,
+      "signature": "4662860c51a2ff99d789"
+    },
+    "parsePlaylistCurrentRound": {
+      "mangled": "Qut",
+      "line": 66273,
+      "endLine": 66291,
+      "kind": "function",
+      "bytes": 503,
+      "signature": "907ae58748d5e32f8daf"
+    },
+    "markPlaylistItemExecuted": {
+      "mangled": "H$",
+      "line": 66292,
+      "endLine": 66309,
+      "kind": "async function",
+      "bytes": 601,
+      "signature": "4350d6ee6ac1077e4c6b"
+    },
+    "rebuildPlaylistRound": {
+      "mangled": "ave",
+      "line": 66310,
+      "endLine": 66353,
+      "kind": "async function",
+      "bytes": 1355,
+      "signature": "9c8cdacf8e5baa3cb392"
+    },
+    "initSubconsciousPlaylistModule": {
+      "mangled": "W$",
+      "line": 66397,
+      "endLine": 66411,
+      "kind": "var = call",
+      "bytes": 255,
+      "signature": "ff5d00833142d0bbf779"
+    },
+    "readPartitionRunState": {
+      "mangled": "jf",
+      "line": 66420,
+      "endLine": 66438,
+      "kind": "async function",
+      "bytes": 697,
+      "signature": "ccbd51dfe959569d403f"
+    },
+    "writePartitionRunState": {
+      "mangled": "y6",
+      "line": 66443,
+      "endLine": 66445,
+      "kind": "async function",
+      "bytes": 88,
+      "signature": "16f066588f53be55152c"
+    },
+    "isPartitionBackedOff": {
+      "mangled": "_6",
+      "line": 66447,
+      "endLine": 66449,
+      "kind": "function",
+      "bytes": 105,
+      "signature": "4268a24cdb3e42d7a34b"
+    },
+    "computePartitionBackoffUntil": {
+      "mangled": "b6",
+      "line": 66451,
+      "endLine": 66462,
+      "kind": "function",
+      "bytes": 389,
+      "signature": "ba4f4cc96b7489212cf7"
+    },
+    "initPartitionRunStateModule": {
+      "mangled": "J$",
+      "line": 66463,
+      "endLine": 66475,
+      "kind": "var = call",
+      "bytes": 289,
+      "signature": "3b1ee5ef2b2112024494"
+    },
+    "scanWikiLinkOccurrences": {
+      "mangled": "Lf",
+      "line": 66493,
+      "endLine": 66516,
+      "kind": "function",
+      "bytes": 613,
+      "signature": "a9103a08360e37b09f92"
+    },
+    "recordUnreadableMemoryPath": {
+      "mangled": "xo",
+      "line": 66557,
+      "endLine": 66559,
+      "kind": "function",
+      "bytes": 56,
+      "signature": "fda329a7fad4fb718b65"
+    },
+    "normalizeSignalKindVersion": {
+      "mangled": "hve",
+      "line": 66613,
+      "endLine": 66616,
+      "kind": "function",
+      "bytes": 86,
+      "signature": "aefc7acdc7a516a70fc8"
+    },
+    "initMemorySignalKindsModule": {
+      "mangled": "Vo",
+      "line": 66617,
+      "endLine": 66633,
+      "kind": "var = call",
+      "bytes": 544,
+      "signature": "268ab96f71bfa485c94d"
+    },
+    "collectBoardLintReport": {
+      "mangled": "yve",
+      "line": 66768,
+      "endLine": 66799,
+      "kind": "function",
+      "bytes": 713,
+      "signature": "fa00528ea974ba61c334"
+    },
+    "renderEntityConvergeSignalBody": {
+      "mangled": "vlt",
+      "line": 66924,
+      "endLine": 66930,
+      "kind": "function",
+      "bytes": 938,
+      "signature": "8af2664fbb0be0e64682"
+    },
+    "runEntityLint": {
+      "mangled": "Sve",
+      "line": 66932,
+      "endLine": 66971,
+      "kind": "function",
+      "bytes": 1025,
+      "signature": "d3f0196620c9f62e67a3"
+    },
+    "initEntityLintModule": {
+      "mangled": "kve",
+      "line": 66972,
+      "endLine": 66979,
+      "kind": "var = call",
+      "bytes": 150,
+      "signature": "a92b5ff222a14919b713"
+    },
+    "isAllowedNodeSection": {
+      "mangled": "Slt",
+      "line": 66982,
+      "endLine": 66984,
+      "kind": "function",
+      "bytes": 116,
+      "signature": "70ab2fde3a8028c5e176"
+    },
+    "renderNodeConvergeSignalBody": {
+      "mangled": "xlt",
+      "line": 66997,
+      "endLine": 67007,
+      "kind": "function",
+      "bytes": 888,
+      "signature": "361197409300f991facb"
+    },
+    "runNodeLint": {
+      "mangled": "xve",
+      "line": 67009,
+      "endLine": 67052,
+      "kind": "function",
+      "bytes": 1169,
+      "signature": "00d3a1ba37052cbd29b2"
+    },
+    "initGapSpanModule": {
+      "mangled": "P6",
+      "line": 67186,
+      "endLine": 67189,
+      "kind": "var = call",
+      "bytes": 380,
+      "signature": "1146149f566fe27905e8"
+    },
+    "readPartitionContract": {
+      "mangled": "Jw",
+      "line": 67193,
+      "endLine": 67245,
+      "kind": "function",
+      "bytes": 1260,
+      "signature": "f4887a3e70f7b8916da2"
+    },
+    "getCachedPartitionContract": {
+      "mangled": "nO",
+      "line": 67284,
+      "endLine": 67288,
+      "kind": "function",
+      "bytes": 181,
+      "signature": "5e83e4768e6dc5a1bcde"
+    },
+    "postMemorySignalsToInboxes": {
+      "mangled": "rO",
+      "line": 67290,
+      "endLine": 67341,
+      "kind": "function",
+      "bytes": 1466,
+      "signature": "f1f553fd31b2000633b4"
+    },
+    "reconcileMemorySignalInboxes": {
+      "mangled": "Mve",
+      "line": 67374,
+      "endLine": 67415,
+      "kind": "function",
+      "bytes": 1288,
+      "signature": "088160367f9bfa95dab5"
+    },
+    "hasAnyMemorySignalConsumer": {
+      "mangled": "jve",
+      "line": 67417,
+      "endLine": 67424,
+      "kind": "function",
+      "bytes": 190,
+      "signature": "5a598077c5fceae50f48"
+    },
+    "isOrphanWarningDeliverable": {
+      "mangled": "Lve",
+      "line": 67426,
+      "endLine": 67428,
+      "kind": "function",
+      "bytes": 90,
+      "signature": "9c35a9b1c4ba1fdd0b71"
+    },
+    "initMemorySignalDeliveryModule": {
+      "mangled": "O6",
+      "line": 67429,
+      "endLine": 67435,
+      "kind": "var = call",
+      "bytes": 231,
+      "signature": "26c1d07c377c5e93f4ee"
+    },
+    "readGapLintDayEvents": {
+      "mangled": "Uve",
+      "line": 67583,
+      "endLine": 67616,
+      "kind": "function",
+      "bytes": 713,
+      "signature": "90722891243e82a50deb"
+    },
+    "mergeContiguousHourRanges": {
+      "mangled": "Bve",
+      "line": 67624,
+      "endLine": 67632,
+      "kind": "function",
+      "bytes": 208,
+      "signature": "b0da0adaab51b9d2db81"
+    },
+    "renderScanGapSignalBody": {
+      "mangled": "Jlt",
+      "line": 67643,
+      "endLine": 67647,
+      "kind": "function",
+      "bytes": 607,
+      "signature": "64cf74f87d2c9485dece"
+    },
+    "buildScanGapSignal": {
+      "mangled": "Zlt",
+      "line": 67649,
+      "endLine": 67656,
+      "kind": "function",
+      "bytes": 170,
+      "signature": "8453f5ef247f33ad7c0e"
+    },
+    "deliverScanGapSignal": {
+      "mangled": "Zve",
+      "line": 67712,
+      "endLine": 67755,
+      "kind": "function",
+      "bytes": 1060,
+      "signature": "d5b93d5c05734fd1d9b8"
+    },
+    "runBroadcastBudgetLint": {
+      "mangled": "Qve",
+      "line": 67830,
+      "endLine": 67868,
+      "kind": "function",
+      "bytes": 1013,
+      "signature": "0f77714089ecdd0f6397"
+    },
+    "initBroadcastBudgetLintModule": {
+      "mangled": "D6",
+      "line": 67869,
+      "endLine": 67874,
+      "kind": "var = call",
+      "bytes": 228,
+      "signature": "5e9892eda173de2f1c4e"
+    },
+    "listEventPartitionDates": {
+      "mangled": "cct",
+      "line": 67882,
+      "endLine": 67895,
+      "kind": "function",
+      "bytes": 242,
+      "signature": "6d08db1d232ef99caa92"
+    },
+    "renderActivationReportBody": {
+      "mangled": "gct",
+      "line": 68008,
+      "endLine": 68012,
+      "kind": "function",
+      "bytes": 110,
+      "signature": "ebbe1ea81f778e1a74ba"
+    },
+    "runActivationLint": {
+      "mangled": "rwe",
+      "line": 68014,
+      "endLine": 68112,
+      "kind": "function",
+      "bytes": 3147,
+      "signature": "26f50182ef08e7a10d61"
+    },
+    "initActivationLintModule": {
+      "mangled": "U6",
+      "line": 68113,
+      "endLine": 68120,
+      "kind": "var = call",
+      "bytes": 304,
+      "signature": "d85e8bafe41f89447e62"
+    },
+    "readIntuitionWeaverLastFinishedMs": {
+      "mangled": "awe",
+      "line": 68123,
+      "endLine": 68127,
+      "kind": "async function",
+      "bytes": 173,
+      "signature": "254e471209ce7f558b32"
+    },
+    "findNewestFragmentMtimeMs": {
+      "mangled": "yct",
+      "line": 68129,
+      "endLine": 68157,
+      "kind": "function",
+      "bytes": 812,
+      "signature": "4e9f6d16cb28e803d1b4"
+    },
+    "renderFoldGapBody": {
+      "mangled": "_ct",
+      "line": 68159,
+      "endLine": 68163,
+      "kind": "function",
+      "bytes": 482,
+      "signature": "b230cadb8ba03c94169d"
+    },
+    "runFoldGapLint": {
+      "mangled": "uwe",
+      "line": 68165,
+      "endLine": 68181,
+      "kind": "function",
+      "bytes": 395,
+      "signature": "9f5efd0c8196e994563f"
+    },
+    "initFoldGapLintModule": {
+      "mangled": "lwe",
+      "line": 68182,
+      "endLine": 68188,
+      "kind": "var = call",
+      "bytes": 105,
+      "signature": "b7b6c4a83c2dba9ba0cb"
+    },
+    "extractBoardSlugLinks": {
+      "mangled": "Sct",
+      "line": 68191,
+      "endLine": 68204,
+      "kind": "function",
+      "bytes": 299,
+      "signature": "d508f2e113fc58becd10"
+    },
+    "formatSlugLinkLocations": {
+      "mangled": "Ect",
+      "line": 68214,
+      "endLine": 68216,
+      "kind": "function",
+      "bytes": 83,
+      "signature": "c46fe91b3cbe0d1d1ae2"
+    },
+    "runBroadcastLinkLint": {
+      "mangled": "cwe",
+      "line": 68228,
+      "endLine": 68248,
+      "kind": "function",
+      "bytes": 507,
+      "signature": "94eb19c09371b94602c1"
+    },
+    "initBroadcastLinkLintModule": {
+      "mangled": "dwe",
+      "line": 68249,
+      "endLine": 68254,
+      "kind": "var = call",
+      "bytes": 164,
+      "signature": "0951b1659f36658448ae"
+    },
+    "findBoardHeadingLines": {
+      "mangled": "Oct",
+      "line": 68256,
+      "endLine": 68272,
+      "kind": "function",
+      "bytes": 320,
+      "signature": "c4c4eb9679c7965968f9"
+    },
+    "runBroadcastFlattenLint": {
+      "mangled": "fwe",
+      "line": 68281,
+      "endLine": 68301,
+      "kind": "function",
+      "bytes": 475,
+      "signature": "f9319353cb46ae610df3"
+    },
+    "initBroadcastFlattenLintModule": {
+      "mangled": "pwe",
+      "line": 68302,
+      "endLine": 68307,
+      "kind": "var = call",
+      "bytes": 186,
+      "signature": "2965a597cd4d036b55a8"
+    },
+    "computeOrphanTopicNodes": {
+      "mangled": "Dct",
+      "line": 68320,
+      "endLine": 68367,
+      "kind": "function",
+      "bytes": 1118,
+      "signature": "233364a8550c8292ef2b"
+    },
+    "buildOrphanNewbornSignals": {
+      "mangled": "ywe",
+      "line": 68392,
+      "endLine": 68399,
+      "kind": "function",
+      "bytes": 277,
+      "signature": "17430034fd7696e1e6bc"
+    },
+    "renderOrphanIslandsBody": {
+      "mangled": "jct",
+      "line": 68451,
+      "endLine": 68463,
+      "kind": "function",
+      "bytes": 1076,
+      "signature": "0801059dfe5ed499d4da"
+    },
+    "filterOrphanIslands": {
+      "mangled": "bwe",
+      "line": 68465,
+      "endLine": 68467,
+      "kind": "function",
+      "bytes": 58,
+      "signature": "f0d13686f1565c049b44"
+    },
+    "buildOrphanIslandsSignal": {
+      "mangled": "vwe",
+      "line": 68469,
+      "endLine": 68476,
+      "kind": "function",
+      "bytes": 256,
+      "signature": "6131c7c17f70c1c7e31a"
+    },
+    "computeMemoryLinkIndegree": {
+      "mangled": "Lct",
+      "line": 68478,
+      "endLine": 68487,
+      "kind": "function",
+      "bytes": 310,
+      "signature": "aa9bbb27ae30a5e713bb"
+    },
+    "listMemorySlugReferrers": {
+      "mangled": "Fct",
+      "line": 68489,
+      "endLine": 68504,
+      "kind": "function",
+      "bytes": 474,
+      "signature": "782b2438808e987a84ef"
+    },
+    "formatForgetCommitMessage": {
+      "mangled": "Uct",
+      "line": 68518,
+      "endLine": 68520,
+      "kind": "function",
+      "bytes": 147,
+      "signature": "6bf8b2bf1cebb252f1cf"
+    },
+    "initOrphanMemoryModule": {
+      "mangled": "wwe",
+      "line": 68521,
+      "endLine": 68528,
+      "kind": "var = call",
+      "bytes": 120,
+      "signature": "ed094ac530e7104f6eb6"
+    },
+    "runMemoryCheckSubStep": {
+      "mangled": "H6",
+      "line": 68689,
+      "endLine": 68695,
+      "kind": "function",
+      "bytes": 148,
+      "signature": "182755803edc3ff8bccf"
+    },
+    "runReadAuditedMemoryCheckStep": {
+      "mangled": "ua",
+      "line": 68697,
+      "endLine": 68702,
+      "kind": "function",
+      "bytes": 234,
+      "signature": "c0f3b93843ab825bfbe1"
+    },
+    "evaluatePredicateOrFalse": {
+      "mangled": "Bct",
+      "line": 68704,
+      "endLine": 68710,
+      "kind": "function",
+      "bytes": 86,
+      "signature": "03cec59d411a3f96d434"
+    },
+    "initMemoryCheckTickModule": {
+      "mangled": "Z6",
+      "line": 68711,
+      "endLine": 68730,
+      "kind": "var = call",
+      "bytes": 223,
+      "signature": "4b975a17de0866666a9b"
+    },
+    "computeLegacyJobSessionKey": {
+      "mangled": "sdt",
+      "line": 69044,
+      "endLine": 69050,
+      "kind": "function",
+      "bytes": 228,
+      "signature": "29c771e747f751b37e44"
+    },
+    "rewriteSessionKeyInStateAndMeta": {
+      "mangled": "adt",
+      "line": 69065,
+      "endLine": 69073,
+      "kind": "async function",
+      "bytes": 407,
+      "signature": "31353822088f9d8ffa0c"
+    },
+    "retireListedPartitions": {
+      "mangled": "Gwe",
+      "line": 69151,
+      "endLine": 69163,
+      "kind": "async function",
+      "bytes": 319,
+      "signature": "8e9db24fb271f005cd6b"
+    },
+    "retirePartitionOnce": {
+      "mangled": "fdt",
+      "line": 69164,
+      "endLine": 69200,
+      "kind": "async function",
+      "bytes": 1907,
+      "signature": "13c20c0337a91e48ff83"
+    },
+    "initPartitionRetirementModule": {
+      "mangled": "Kwe",
+      "line": 69216,
+      "endLine": 69231,
+      "kind": "var = call",
+      "bytes": 300,
+      "signature": "90ca219564d9ecb84c2f"
+    },
+    "buildProfiledExternalRequirement": {
+      "mangled": "aSe",
+      "line": 69670,
+      "endLine": 69683,
+      "kind": "function",
+      "bytes": 295,
+      "signature": "58d0de4369adb71d21ab"
+    },
+    "runTimedDrainPhase": {
+      "mangled": "Eo",
+      "line": 70202,
+      "endLine": 70209,
+      "kind": "async function",
+      "bytes": 144,
+      "signature": "ad531155a86b4fdbb1bf"
+    },
+    "resolveAdditionalDirClaudeMdAutoload": {
+      "mangled": "OSe",
+      "line": 70231,
+      "endLine": 70235,
+      "kind": "function",
+      "bytes": 177,
+      "signature": "d9f446956c00418c382e"
+    },
+    "projectJobPromptContext": {
+      "mangled": "ZSe",
+      "line": 70237,
+      "endLine": 70245,
+      "kind": "function",
+      "bytes": 184,
+      "signature": "efa5dbba56a58ce7937f"
+    },
+    "resolveTurnModelWithLayer": {
+      "mangled": "ASe",
+      "line": 70247,
+      "endLine": 70258,
+      "kind": "function",
+      "bytes": 278,
+      "signature": "9e5429a7b7f8a23bdf9c"
+    },
+    "resolveTurnEffortWithLayer": {
+      "mangled": "NSe",
+      "line": 70260,
+      "endLine": 70271,
+      "kind": "function",
+      "bytes": 283,
+      "signature": "4f14b4123e6cbde5b416"
+    },
+    "extractServedModelFromUsage": {
+      "mangled": "MSe",
+      "line": 70276,
+      "endLine": 70279,
+      "kind": "function",
+      "bytes": 92,
+      "signature": "e92c50b6d9c5613c9e9b"
+    },
+    "prepareDrainTurnContext": {
+      "mangled": "SH",
+      "line": 70284,
+      "endLine": 70334,
+      "kind": "async function",
+      "bytes": 1895,
+      "signature": "2e92f84766121d2df208"
+    },
+    "buildTurnSdkRunConfig": {
+      "mangled": "GSe",
+      "line": 70336,
+      "endLine": 70351,
+      "kind": "function",
+      "bytes": 521,
+      "signature": "c50f48e53f0728491b8b"
+    },
+    "classifySessionKeyOrUnknown": {
+      "mangled": "to",
+      "line": 71444,
+      "endLine": 71446,
+      "kind": "function",
+      "bytes": 214,
+      "signature": "567e2fba77bfa46b423e"
+    },
+    "renderJobCompleteReceiptGuidance": {
+      "mangled": "Jdt",
+      "line": 71448,
+      "endLine": 71453,
+      "kind": "function",
+      "bytes": 598,
+      "signature": "508724ce018e0d70f1b8"
+    },
+    "renderMailboxEventPrompt": {
+      "mangled": "RO",
+      "line": 71491,
+      "endLine": 71572,
+      "kind": "function",
+      "bytes": 4064,
+      "signature": "c6369309113f9be872ae"
+    },
+    "renderSkipRewindBlock": {
+      "mangled": "Kdt",
+      "line": 71574,
+      "endLine": 71586,
+      "kind": "function",
+      "bytes": 639,
+      "signature": "49db4c6ac3b761f7414b"
+    },
+    "computeTimeGapContext": {
+      "mangled": "QSe",
+      "line": 71631,
+      "endLine": 71638,
+      "kind": "function",
+      "bytes": 310,
+      "signature": "81e1103c3ada6b1a28a2"
+    },
+    "markTurnSkippedFromSkipRecord": {
+      "mangled": "FSe",
+      "line": 71797,
+      "endLine": 71799,
+      "kind": "async function",
+      "bytes": 113,
+      "signature": "b28ea3c5f671a6fc42bc"
+    },
+    "readPendingOutboundAttachments": {
+      "mangled": "xH",
+      "line": 71803,
+      "endLine": 71806,
+      "kind": "async function",
+      "bytes": 134,
+      "signature": "0c475083b742c96e6998"
+    },
+    "parseEventTimestampMs": {
+      "mangled": "zSe",
+      "line": 71856,
+      "endLine": 71860,
+      "kind": "function",
+      "bytes": 112,
+      "signature": "47594dc4cf7f1bf81171"
+    },
+    "isMergeableDrainBatch": {
+      "mangled": "cft",
+      "line": 71862,
+      "endLine": 71864,
+      "kind": "function",
+      "bytes": 137,
+      "signature": "71fdce71974805a94901"
+    },
+    "isMergeableChannelMessageBatch": {
+      "mangled": "dft",
+      "line": 71866,
+      "endLine": 71872,
+      "kind": "function",
+      "bytes": 152,
+      "signature": "9c92f80abfc8473e5eeb"
+    },
+    "hasUniformDrainCoalesceKey": {
+      "mangled": "nke",
+      "line": 71874,
+      "endLine": 71878,
+      "kind": "function",
+      "bytes": 120,
+      "signature": "906858672109eda016df"
+    },
+    "isWorkerTaskNotifyDelivery": {
+      "mangled": "rke",
+      "line": 71880,
+      "endLine": 71886,
+      "kind": "function",
+      "bytes": 301,
+      "signature": "b47dc9ec172b7a5d59ff"
+    },
+    "extractJobCompletePayload": {
+      "mangled": "ike",
+      "line": 71888,
+      "endLine": 71892,
+      "kind": "function",
+      "bytes": 221,
+      "signature": "367c00147b136b27b0d1"
+    },
+    "extractJobCompletionJobId": {
+      "mangled": "oke",
+      "line": 71894,
+      "endLine": 71899,
+      "kind": "function",
+      "bytes": 133,
+      "signature": "5a477f767edf06b2b1b8"
+    },
+    "classifyDrainBatchClass": {
+      "mangled": "USe",
+      "line": 71901,
+      "endLine": 71903,
+      "kind": "function",
+      "bytes": 83,
+      "signature": "1459fee92919b6accfce"
+    },
+    "computeDrainCoalesceKey": {
+      "mangled": "pft",
+      "line": 71909,
+      "endLine": 71915,
+      "kind": "function",
+      "bytes": 161,
+      "signature": "70028536038a8195d8de"
+    },
+    "resolveEventSourceChannelId": {
+      "mangled": "mft",
+      "line": 71917,
+      "endLine": 71923,
+      "kind": "function",
+      "bytes": 291,
+      "signature": "bf4640c296516f3490e6"
+    },
+    "collectJobCompletionReceipts": {
+      "mangled": "gft",
+      "line": 71943,
+      "endLine": 71969,
+      "kind": "async function",
+      "bytes": 652,
+      "signature": "5db2958133516cdb8c00"
+    },
+    "runHistoryControlCommand": {
+      "mangled": "xft",
+      "line": 72119,
+      "endLine": 72139,
+      "kind": "async function",
+      "bytes": 807,
+      "signature": "67170ff25779f0d00db1"
+    },
+    "renderDrainErrorRuntimeHint": {
+      "mangled": "Eft",
+      "line": 72210,
+      "endLine": 72236,
+      "kind": "function",
+      "bytes": 4766,
+      "signature": "22697b856bfee897579b"
+    },
+    "clearModelOverrideOnRuntimeFlip": {
+      "mangled": "Rft",
+      "line": 72293,
+      "endLine": 72309,
+      "kind": "async function",
+      "bytes": 679,
+      "signature": "27dd21a280b8bfb7ff78"
+    },
+    "resolvePendingModelFork": {
+      "mangled": "Ift",
+      "line": 72310,
+      "endLine": 72330,
+      "kind": "async function",
+      "bytes": 790,
+      "signature": "6e15ffca2021de92db79"
+    },
+    "buildSessionInfoFromState": {
+      "mangled": "Ig",
+      "line": 72332,
+      "endLine": 72347,
+      "kind": "function",
+      "bytes": 489,
+      "signature": "3bf56c3fb33521037b8e"
+    },
+    "classifySessionPlane": {
+      "mangled": "Oft",
+      "line": 72377,
+      "endLine": 72379,
+      "kind": "function",
+      "bytes": 127,
+      "signature": "394e70f54ca48c5ef84c"
+    },
+    "runDrainQueryAndCollectOutboundAttachments": {
+      "mangled": "HSe",
+      "line": 72392,
+      "endLine": 72408,
+      "kind": "async function",
+      "bytes": 394,
+      "signature": "8786818374885d91d558"
+    },
+    "initMailboxDrainRunnerModule": {
+      "mangled": "Qw",
+      "line": 72615,
+      "endLine": 72649,
+      "kind": "var = call",
+      "bytes": 528,
+      "signature": "f9be42240a9a742b9b72"
+    },
+    "encodePiWorkerFrame": {
+      "mangled": "IH",
+      "line": 72662,
+      "endLine": 72665,
+      "kind": "function",
+      "bytes": 53,
+      "signature": "5e6b38eaab5b8ed1f76b"
+    },
+    "resolvePiWorkerCommand": {
+      "mangled": "eS",
+      "line": 72731,
+      "endLine": 72741,
+      "kind": "function",
+      "bytes": 290,
+      "signature": "639e45f1dd20fda7eea0"
+    },
+    "initQueueOutboundAttachmentModule": {
+      "mangled": "rS",
+      "line": 73306,
+      "endLine": 73347,
+      "kind": "var = call",
+      "bytes": 2315,
+      "signature": "c5bcc9eac9b73426670f"
+    },
+    "parsePiToolResultDetails": {
+      "mangled": "xke",
+      "line": 73349,
+      "endLine": 73354,
+      "kind": "function",
+      "bytes": 157,
+      "signature": "74c1ce7852ba2787ea69"
+    },
+    "handlePiToolEndObservation": {
+      "mangled": "Eke",
+      "line": 73355,
+      "endLine": 73386,
+      "kind": "async function",
+      "bytes": 1110,
+      "signature": "67b24897e291c412ccc7"
+    },
+    "createAladuoMcpServer": {
+      "mangled": "Yg",
+      "line": 79918,
+      "endLine": 80033,
+      "kind": "function",
+      "bytes": 3177,
+      "signature": "b83a8ec6a7b36e2daabf"
+    },
+    "buildCodexDynamicTools": {
+      "mangled": "wA",
+      "line": 80065,
+      "endLine": 80175,
+      "kind": "function",
+      "bytes": 3257,
+      "signature": "d084b7e7d2e55c36963f"
+    },
+    "stringifyExecutionToolInput": {
+      "mangled": "mEe",
+      "line": 80186,
+      "endLine": 80194,
+      "kind": "function",
+      "bytes": 182,
+      "signature": "e5f2785b600f7e275385"
+    },
+    "buildSessionExecutionPayload": {
+      "mangled": "gEe",
+      "line": 80200,
+      "endLine": 80221,
+      "kind": "function",
+      "bytes": 681,
+      "signature": "9a070bb8f11c456a43c7"
+    },
+    "classifySessionPoolKind": {
+      "mangled": "vEe",
+      "line": 80259,
+      "endLine": 80261,
+      "kind": "function",
+      "bytes": 89,
+      "signature": "fecc8dff067cc09b467c"
+    },
+    "createJobSessionFinalizer": {
+      "mangled": "SEe",
+      "line": 80276,
+      "endLine": 80616,
+      "kind": "function",
+      "bytes": 12335,
+      "signature": "21b1a61bcdfb83247a26"
+    },
+    "initBoardTransclusionModule": {
+      "mangled": "ZEe",
+      "line": 82337,
+      "endLine": 82343,
+      "kind": "var = call",
+      "bytes": 1157,
+      "signature": "49d8c4ea9c278470fd41"
+    },
+    "initInstructionsFingerprintModule": {
+      "mangled": "FS",
+      "line": 82584,
+      "endLine": 82595,
+      "kind": "var = call",
+      "bytes": 178,
+      "signature": "e4d4635616ac80b1b287"
+    },
+    "narrowToModelSettableAdapter": {
+      "mangled": "dJ",
+      "line": 82597,
+      "endLine": 82599,
+      "kind": "function",
+      "bytes": 101,
+      "signature": "c65299e36cdfe5528963"
+    },
+    "computeStreamingConfigSignature": {
+      "mangled": "fJ",
+      "line": 82601,
+      "endLine": 82617,
+      "kind": "function",
+      "bytes": 616,
+      "signature": "22edeb89f1dfb13c6d83"
+    },
+    "isLiveStreamRebuildRequired": {
+      "mangled": "pJ",
+      "line": 82629,
+      "endLine": 82633,
+      "kind": "function",
+      "bytes": 114,
+      "signature": "ac6e3193b49a9fd093fd"
+    },
+    "createModelCommandResolvers": {
+      "mangled": "e0e",
+      "line": 82653,
+      "endLine": 82729,
+      "kind": "function",
+      "bytes": 2563,
+      "signature": "ff791f736d8c4aa9ee79"
+    },
+    "initAbortableAsyncQueueModule": {
+      "mangled": "r0e",
+      "line": 82753,
+      "endLine": 82791,
+      "kind": "var = call",
+      "bytes": 1170,
+      "signature": "996bdc0dd12e3f1c2928"
+    },
+    "interruptActorQuery": {
+      "mangled": "jA",
+      "line": 82836,
+      "endLine": 82838,
+      "kind": "function",
+      "bytes": 59,
+      "signature": "ba1fe733726a54b14453"
+    },
+    "triggerDeferredPreempt": {
+      "mangled": "mJ",
+      "line": 82840,
+      "endLine": 82847,
+      "kind": "function",
+      "bytes": 189,
+      "signature": "22ca0357c04df81a576d"
+    },
+    "requestBoundaryAwarePreempt": {
+      "mangled": "zS",
+      "line": 82849,
+      "endLine": 82856,
+      "kind": "function",
+      "bytes": 1801,
+      "signature": "39be3bcedefd36621ef4"
+    },
+    "snapshotInflightEventIds": {
+      "mangled": "o0e",
+      "line": 82858,
+      "endLine": 82862,
+      "kind": "function",
+      "bytes": 104,
+      "signature": "515458e8a69dc8c94091"
+    },
+    "teardownStreamingSession": {
+      "mangled": "Zf",
+      "line": 82863,
+      "endLine": 82876,
+      "kind": "async function",
+      "bytes": 570,
+      "signature": "69643234d5f1f774e566"
+    },
+    "waitForWakeOrIdleTimeout": {
+      "mangled": "hJ",
+      "line": 82878,
+      "endLine": 82890,
+      "kind": "function",
+      "bytes": 318,
+      "signature": "99c8f40fef00f7e543be"
+    },
+    "shutdownActorRuntimeAdapter": {
+      "mangled": "LA",
+      "line": 82892,
+      "endLine": 82901,
+      "kind": "function",
+      "bytes": 379,
+      "signature": "af38d879f4567ea182c8"
+    },
+    "createClaudeStreamingSessionFactory": {
+      "mangled": "s0e",
+      "line": 82911,
+      "endLine": 83596,
+      "kind": "function",
+      "bytes": 35972,
+      "signature": "69c3ec10596840557889"
+    },
+    "memoizeAvailabilityProbeUntilOk": {
+      "mangled": "u0e",
+      "line": 83644,
+      "endLine": 83649,
+      "kind": "function",
+      "bytes": 144,
+      "signature": "a6b10f085ce6b247af11"
+    },
+    "stringifyPartitionToolInput": {
+      "mangled": "Lgt",
+      "line": 85702,
+      "endLine": 85710,
+      "kind": "function",
+      "bytes": 182,
+      "signature": "e5f2785b600f7e275385"
+    },
+    "detectEmptyRequiredPartitionOutput": {
+      "mangled": "zgt",
+      "line": 85712,
+      "endLine": 85714,
+      "kind": "function",
+      "bytes": 121,
+      "signature": "286e051f7bc804d2a431"
+    },
+    "hashActivityFingerprint": {
+      "mangled": "qgt",
+      "line": 85754,
+      "endLine": 85756,
+      "kind": "function",
+      "bytes": 81,
+      "signature": "759381cd3dcfa6beb303"
+    },
+    "readLatestExternalEventId": {
+      "mangled": "Bgt",
+      "line": 85757,
+      "endLine": 85775,
+      "kind": "async function",
+      "bytes": 566,
+      "signature": "7897f8d1eb5ccfae8bec"
+    },
+    "renderPartitionRuntimeContext": {
+      "mangled": "Vgt",
+      "line": 85802,
+      "endLine": 85807,
+      "kind": "async function",
+      "bytes": 911,
+      "signature": "f07123f6e27d8662ac9f"
+    },
+    "renderPartitionInboxSection": {
+      "mangled": "Hgt",
+      "line": 85809,
+      "endLine": 85817,
+      "kind": "function",
+      "bytes": 399,
+      "signature": "ce1753087119864f99b2"
+    },
+    "initJobSchedulerModule": {
+      "mangled": "v0e",
+      "line": 86711,
+      "endLine": 86716,
+      "kind": "var = call",
+      "bytes": 80,
+      "signature": "ec078c7ec8f04d8dc0a9"
+    },
+    "spineEventDedupStore": {
+      "mangled": "mR",
+      "line": 86847,
+      "endLine": 86905,
+      "kind": "class-expr",
+      "bytes": 1604,
+      "signature": "f81c22f8dfce5d44a3e9"
+    },
+    "lookupInjectionPrompt": {
+      "mangled": "Cle",
+      "line": 87037,
+      "endLine": 87039,
+      "kind": "function",
+      "bytes": 91,
+      "signature": "1dbfcff439cbf9ebb881"
+    },
+    "loadRegistryDedupStore": {
+      "mangled": "MXe",
+      "line": 87069,
+      "endLine": 87073,
+      "kind": "async function",
+      "bytes": 174,
+      "signature": "fe7c213061a574462589"
+    },
+    "canonicalizeGatewayCommand": {
+      "mangled": "Jle",
+      "line": 87088,
+      "endLine": 87099,
+      "kind": "function",
+      "bytes": 474,
+      "signature": "2e055507e99828c90a8c"
+    },
+    "parseInjectionPromptCommand": {
+      "mangled": "dU",
+      "line": 87101,
+      "endLine": 87114,
+      "kind": "function",
+      "bytes": 298,
+      "signature": "e6e46a964f349ec58501"
+    },
+    "classifyGatewayCommandIntent": {
+      "mangled": "fU",
+      "line": 87142,
+      "endLine": 87153,
+      "kind": "function",
+      "bytes": 533,
+      "signature": "91323c57853845e6efa6"
+    },
+    "ingestChannelCommand": {
+      "mangled": "$b",
+      "line": 87186,
+      "endLine": 87213,
+      "kind": "async function",
+      "bytes": 908,
+      "signature": "6dffa6dc5610736392f7"
+    },
+    "replyToGatewayCommandEvent": {
+      "mangled": "LXe",
+      "line": 87362,
+      "endLine": 87417,
+      "kind": "async function",
+      "bytes": 1524,
+      "signature": "12baeff03b422425fd6f"
+    },
+    "executeGatewayCommand": {
+      "mangled": "BXe",
+      "line": 87485,
+      "endLine": 87786,
+      "kind": "async function",
+      "bytes": 16900,
+      "signature": "a3fceca8b60cd01454f0"
+    },
+    "writeIngressSnapshot": {
+      "mangled": "VXe",
+      "line": 87787,
+      "endLine": 87805,
+      "kind": "async function",
+      "bytes": 621,
+      "signature": "362b182e76a353c7d01d"
+    },
+    "CHANNEL_CONFIG_KEY_TYPES": {
+      "mangled": "t6",
+      "line": 87923,
+      "endLine": 87943,
+      "kind": "var = ObjectExpression",
+      "bytes": 677,
+      "signature": "484ed62c95f9b2668f52"
+    },
+    "writeInstanceModelAlias": {
+      "mangled": "Lbe",
+      "line": 88456,
+      "endLine": 88458,
+      "kind": "async function",
+      "bytes": 93,
+      "signature": "96e4702eac3d7ef0b266"
+    },
+    "createIdleCompactSweeper": {
+      "mangled": "Xbe",
+      "line": 88480,
+      "endLine": 88636,
+      "kind": "function",
+      "bytes": 5165,
+      "signature": "e533e82df5533766298f"
+    },
+    "createSessionSubscriptionRegistry": {
+      "mangled": "l6",
+      "line": 88639,
+      "endLine": 88808,
+      "kind": "function",
+      "bytes": 5031,
+      "signature": "985b1d20f0a040973698"
+    },
+    "resolveRuntimeWriterLockPath": {
+      "mangled": "d6",
+      "line": 88831,
+      "endLine": 88833,
+      "kind": "function",
+      "bytes": 75,
+      "signature": "ab2bc011284e962949de"
+    },
+    "isProcessAliveByPid": {
+      "mangled": "qut",
+      "line": 88835,
+      "endLine": 88842,
+      "kind": "function",
+      "bytes": 132,
+      "signature": "f58ac12a047db8f188be"
+    },
+    "computeHostBootId": {
+      "mangled": "But",
+      "line": 88845,
+      "endLine": 88860,
+      "kind": "function",
+      "bytes": 515,
+      "signature": "cf415afd7fe42dc25dd8"
+    },
+    "getCachedHostBootId": {
+      "mangled": "eve",
+      "line": 88862,
+      "endLine": 88864,
+      "kind": "function",
+      "bytes": 52,
+      "signature": "59a8d5c2fa073776c5ee"
+    },
+    "isRuntimeWriterLockStale": {
+      "mangled": "Vut",
+      "line": 88866,
+      "endLine": 88869,
+      "kind": "function",
+      "bytes": 175,
+      "signature": "0ae848d8b05a7d20377a"
+    },
+    "acquireRuntimeWriterLock": {
+      "mangled": "p6",
+      "line": 88878,
+      "endLine": 88925,
+      "kind": "async function",
+      "bytes": 1078,
+      "signature": "e00dbd3a4123f4643729"
+    },
+    "readPartitionByteRange": {
+      "mangled": "m6",
+      "line": 88945,
+      "endLine": 88956,
+      "kind": "async function",
+      "bytes": 281,
+      "signature": "e95fe730cfaa3af41769"
+    },
+    "iteratePartitionLinesBackward": {
+      "mangled": "Jut",
+      "line": 88957,
+      "endLine": 88968,
+      "kind": "async function",
+      "bytes": 472,
+      "signature": "b394eb4287fad062255e"
+    },
+    "resolveTailCursorEndOffset": {
+      "mangled": "Zut",
+      "line": 88969,
+      "endLine": 88983,
+      "kind": "async function",
+      "bytes": 521,
+      "signature": "f4fdb787fc6f4506f94e"
+    },
+    "readPartitionTail": {
+      "mangled": "nve",
+      "line": 88984,
+      "endLine": 89022,
+      "kind": "async function",
+      "bytes": 1112,
+      "signature": "cbcc92baaff640385e7d"
+    },
+    "readSpineTail": {
+      "mangled": "rve",
+      "line": 89023,
+      "endLine": 89041,
+      "kind": "async function",
+      "bytes": 640,
+      "signature": "3860d00019de0eebd617"
+    },
+    "isClaudeAuthSource": {
+      "mangled": "Xct",
+      "line": 89053,
+      "endLine": 89055,
+      "kind": "function",
+      "bytes": 116,
+      "signature": "873066527badc08ad236"
+    },
+    "readClaudeAuthSourceEnv": {
+      "mangled": "Q6",
+      "line": 89057,
+      "endLine": 89060,
+      "kind": "function",
+      "bytes": 133,
+      "signature": "d0f07a2bc040f5200c03"
+    },
+    "readEnvIntegerOrFallback": {
+      "mangled": "C0e",
+      "line": 89082,
+      "endLine": 89092,
+      "kind": "function",
+      "bytes": 320,
+      "signature": "f9974d9d31bd9c89b79f"
+    },
+    "buildSdkConfigReport": {
+      "mangled": "uyt",
+      "line": 89131,
+      "endLine": 89148,
+      "kind": "function",
+      "bytes": 479,
+      "signature": "08d3188e31fbbbca0ed3"
+    },
+    "buildSystemConfigReport": {
+      "mangled": "lyt",
+      "line": 89149,
+      "endLine": 89197,
+      "kind": "async function",
+      "bytes": 2257,
+      "signature": "6409bdcb1b368d25f74e"
+    },
+    "normalizeReturnMask": {
+      "mangled": "bJ",
+      "line": 89199,
+      "endLine": 89204,
+      "kind": "function",
+      "bytes": 268,
+      "signature": "f171f27b6ae22757c073"
+    },
+    "resolvePreemptFromCommandText": {
+      "mangled": "kJ",
+      "line": 89211,
+      "endLine": 89214,
+      "kind": "function",
+      "bytes": 159,
+      "signature": "44701a5533d1486ec64f"
+    },
+    "normalizeChannelCapabilityDeclarations": {
+      "mangled": "fyt",
+      "line": 89229,
+      "endLine": 89238,
+      "kind": "function",
+      "bytes": 182,
+      "signature": "e680020ab640dbbc5c67"
+    },
+    "recordChannelCapabilityDeclaration": {
+      "mangled": "pyt",
+      "line": 89239,
+      "endLine": 89260,
+      "kind": "async function",
+      "bytes": 601,
+      "signature": "11c5796e2fc7a440111a"
+    },
+    "classifySessionPlaneByKey": {
+      "mangled": "hyt",
+      "line": 89267,
+      "endLine": 89269,
+      "kind": "function",
+      "bytes": 127,
+      "signature": "394e70f54ca48c5ef84c"
+    },
+    "describeChannelInstance": {
+      "mangled": "_yt",
+      "line": 89363,
+      "endLine": 89417,
+      "kind": "async function",
+      "bytes": 1676,
+      "signature": "56513e64793d10f8cd13"
+    },
+    "resolveSessionByKeyOrAlias": {
+      "mangled": "Kf",
+      "line": 89512,
+      "endLine": 89535,
+      "kind": "function",
+      "bytes": 639,
+      "signature": "7deeb11797381c9e9777"
+    },
+    "resolveIsolatedPlaneKind": {
+      "mangled": "O0e",
+      "line": 89537,
+      "endLine": 89540,
+      "kind": "function",
+      "bytes": 91,
+      "signature": "d0d58f284abc7f8daa64"
+    },
+    "scheduleSessionWakeRecord": {
+      "mangled": "Syt",
+      "line": 89541,
+      "endLine": 89594,
+      "kind": "async function",
+      "bytes": 1504,
+      "signature": "609dd081381946ee743b"
+    },
+    "deliverExternalSessionNotify": {
+      "mangled": "A0e",
+      "line": 89595,
+      "endLine": 89681,
+      "kind": "async function",
+      "bytes": 2382,
+      "signature": "b75e74acdd6d4d6b0b2d"
+    },
+    "readOrSetSessionModel": {
+      "mangled": "xyt",
+      "line": 89707,
+      "endLine": 89736,
+      "kind": "async function",
+      "bytes": 815,
+      "signature": "57002a9ccd063db71d84"
+    },
+    "readOrSetSessionEffort": {
+      "mangled": "Eyt",
+      "line": 89737,
+      "endLine": 89766,
+      "kind": "async function",
+      "bytes": 819,
+      "signature": "7b6e460f1384d9ff620e"
+    },
+    "enqueueSessionCompactCommand": {
+      "mangled": "Ryt",
+      "line": 89767,
+      "endLine": 89819,
+      "kind": "async function",
+      "bytes": 1388,
+      "signature": "f26d1f6ddf539488ceef"
+    },
+    "formatLayerModelAliases": {
+      "mangled": "T0e",
+      "line": 90076,
+      "endLine": 90083,
+      "kind": "function",
+      "bytes": 217,
+      "signature": "e181986b9549e03640a5"
+    },
+    "formatModelConfigIssues": {
+      "mangled": "SJ",
+      "line": 90099,
+      "endLine": 90105,
+      "kind": "function",
+      "bytes": 153,
+      "signature": "aeca610a20357b614773"
+    },
+    "appendConfigChangedEvent": {
+      "mangled": "ty",
+      "line": 90314,
+      "endLine": 90344,
+      "kind": "async function",
+      "bytes": 857,
+      "signature": "57dd586d2bb5d5642f7f"
+    },
+    "upsertChannelSpawnDescriptor": {
+      "mangled": "Ayt",
+      "line": 90345,
+      "endLine": 90411,
+      "kind": "async function",
+      "bytes": 2190,
+      "signature": "e988aae69b3336e696c5"
     }
   }
 }

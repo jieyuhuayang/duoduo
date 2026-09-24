@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function validateConfigValue(e, t) {
-    switch (t6[e]) {
+    switch (CHANNEL_CONFIG_KEY_TYPES[e]) {
         case "string":
             return {
                 ok: !0, value: t
@@ -19,7 +19,7 @@ function validateConfigValue(e, t) {
                 error: `${e}: expected "append" or "override", got "${t}"`
             };
         case "runtime":
-            return Aa(t) ? {
+            return isSupportedRuntime(t) ? {
                 ok: !0,
                 value: t
             } : {

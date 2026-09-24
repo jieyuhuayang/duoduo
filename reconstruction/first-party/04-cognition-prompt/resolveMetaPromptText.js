@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveMetaPromptText() {
-    let e = Zv(process.env.ALADUO_META_PROMPT_PATH),
-        t = Zv(process.env.ALADUO_BOOTSTRAP_DIR),
+    let e = normalizeOptionalEnvString(process.env.ALADUO_META_PROMPT_PATH),
+        t = normalizeOptionalEnvString(process.env.ALADUO_BOOTSTRAP_DIR),
         n = [e, t ? fB.join(t, "meta-prompt.md") : void 0].filter(r => !!r);
     for (let r of n) try {
         if (!dB(r)) continue;

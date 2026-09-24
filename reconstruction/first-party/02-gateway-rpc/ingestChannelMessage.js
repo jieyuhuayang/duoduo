@@ -5,9 +5,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function ingestChannelMessage(e, t, n) {
-    let r = dU(t.text),
+    let r = parseInjectionPromptCommand(t.text),
         i = r ? void 0 : HR(t.text),
-        o = t.routingHint?.intent ?? fU(i),
+        o = t.routingHint?.intent ?? classifyGatewayCommandIntent(i),
         s = resolveRoutingTarget(t, i, r),
         a = s === "session" ? Zle(r, t.text) : void 0;
     return appendBeforeExecuteGateway(e, {

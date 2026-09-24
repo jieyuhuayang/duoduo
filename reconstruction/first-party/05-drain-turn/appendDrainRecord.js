@@ -7,7 +7,7 @@
 async function appendDrainRecord(e, t) {
     await $e(e.usageDir);
     let n = drainRecordPath(e, t.session_key),
-        r = `${Bi(t)}
+        r = `${stringifyJsonlRecord(t)}
 `;
     await BR.appendFile(n, r, "utf8")
 }

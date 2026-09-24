@@ -7,7 +7,7 @@
 async function scanPartitionsForEventId(e, t, n) {
     let r = Date.parse(n.notAfter);
     if (!Number.isFinite(r)) return null;
-    let i = Sm(new Date(r)),
+    let i = formatEventPartitionName(new Date(r)),
         o;
     try {
         o = await oR.readdir(e.eventsDir)
@@ -16,7 +16,7 @@ async function scanPartitionsForEventId(e, t, n) {
     }
     let s = o.filter(a => Y9e.test(a) && a <= i).sort().reverse();
     for (let a of s) {
-        let u = await ise(sR.join(e.eventsDir, a), t);
+        let u = await findEventInPartitionFile(sR.join(e.eventsDir, a), t);
         if (u) return u
     }
     return null

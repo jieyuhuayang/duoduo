@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function advanceConsumerWatermark(e, t, n, r = new Date) {
-    let i = await nb(e, n);
-    return i ? (await $5e(e, t, {
+    let i = await lookupEventIdIndexEntry(e, n);
+    return i ? (await writeConsumerOffsetFile(e, t, {
         updated_at: r.toISOString(),
         partition: i.partition,
         byte_offset: i.byte_offset,

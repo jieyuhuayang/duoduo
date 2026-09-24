@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function detectOrphanMemory(e, t) {
-    let n = Dct(e, {
+    let n = computeOrphanTopicNodes(e, {
         resolve: t.resolve
     });
     if (n.missing) return {

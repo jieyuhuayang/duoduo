@@ -17,11 +17,11 @@ function classifyModelContextRequirement({
     };
     if (e.endsWith(Dm)) {
         let r = uH(e);
-        return Object.hasOwn(t, r) ? aSe(e, t[r]) : {
+        return Object.hasOwn(t, r) ? buildProfiledExternalRequirement(e, t[r]) : {
             kind: "explicit-1m",
             model: e,
             requiredMaxContextTokens: void 0
         }
     }
-    return Object.hasOwn(t, e) ? aSe(e, t[e]) : uSe(e, n)
+    return Object.hasOwn(t, e) ? buildProfiledExternalRequirement(e, t[e]) : uSe(e, n)
 }
