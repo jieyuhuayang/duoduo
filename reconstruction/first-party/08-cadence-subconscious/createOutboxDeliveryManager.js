@@ -39,25 +39,25 @@ function createOutboxDeliveryManager(e) {
         if (s.has(h.id)) return !1;
         s.add(h.id);
         try {
-            if (h = await La(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await Bm(t, h.id), !0;
-            if (await yle(t, h.id)) return await Xd(t, h, {
+            if (h = await readOutboxRecord(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await recordOutboxSentId(t, h.id), !0;
+            if (await yle(t, h.id)) return await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             }), !0;
-            if (Xgt(h)) {
-                let _ = await Xd(t, h, {
+            if (isJobOrMetaOutboxRecord(h)) {
+                let _ = await recordOutboxDeliveryAttempt(t, h, {
                     status: "sent"
                 });
-                return await Bm(t, _.id), !0
+                return await recordOutboxSentId(t, _.id), !0
             }
             if (r.getSubscribers(h.session_key).length === 0) return !1;
-            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await Xd(t, h, {
+            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await recordOutboxDeliveryAttempt(t, h, {
                 status: "failed",
                 error: "delivery failed"
             }), !1;
-            let b = await Xd(t, h, {
+            let b = await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             });
-            return await Bm(t, b.id), po("delivered", b.id, {
+            return await recordOutboxSentId(t, b.id), po("delivered", b.id, {
                 outboxId: b.id,
                 sessionKey: b.session_key
             }), !0
@@ -72,7 +72,7 @@ function createOutboxDeliveryManager(e) {
         return f.add(h), h.then(() => f.delete(h), () => f.delete(h)), h
     }
     async function m() {
-        let h = await Ile(t, i),
+        let h = await listRetryableOutboxRecords(t, i),
             g = 0;
         for (let y of h) await u(y) && (g += 1);
         return g

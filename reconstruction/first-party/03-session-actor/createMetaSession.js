@@ -12,7 +12,7 @@ function createMetaSession(e) {
     } = e, i = e.sdk, o = e.sessionKey ?? "meta:subconscious", s = e.codexAvailability ?? checkCodexAvailability, a = e.codexAdapterFactory ?? (() => createCodexAppServerAdapter({
         sandbox: resolveCodexSandbox(),
         ephemeral: !0,
-        dynamicTools: wA({
+        dynamicTools: buildCodexDynamicTools({
             paths: t,
             sessionKey: o,
             bus: n,
@@ -32,7 +32,7 @@ function createMetaSession(e) {
             N = {
                 session_context_kind: "system"
             },
-            V = TO({
+            V = createPiWorkerAdapter({
                 cwd: S,
                 sdkSessionId: crypto.randomUUID(),
                 sessionDir: k,
@@ -49,7 +49,7 @@ function createMetaSession(e) {
                 model: D,
                 thinkingLevel: $,
                 inMemorySession: !0,
-                workerCommand: eS(),
+                workerCommand: resolvePiWorkerCommand(),
                 env: {
                     [vC]: t.daemonSocketPath,
                     [wC]: kC({
@@ -77,21 +77,21 @@ function createMetaSession(e) {
         }
     }), d = e.maxPartitionsPerIdleTick ?? 2, f = e.cadenceIntervalMs ?? bg, p = !1, m = !1, h = null, g = !1, y = null, v = 0, b = new Map;
     async function _(S, D, $) {
-        let C = await Promise.all(S.map(async F => [F.name, await jf(t, F.name)])),
+        let C = await Promise.all(S.map(async F => [F.name, await readPartitionRunState(t, F.name)])),
             A = new Map(C);
         for (;;) {
-            let F = await _g(t);
+            let F = await readPlaylistRound(t);
             if (F.allDone) {
-                if (await ave(t) === 0) return null;
-                F = await _g(t)
+                if (await rebuildPlaylistRound(t) === 0) return null;
+                F = await readPlaylistRound(t)
             }
             let k = E(F.items, S, $, A, new Date);
             if (!k) return null;
             let N = S.find(J => J.name === k.name);
             if (!N || !N.schedule.enabled) {
                 let J = F.items.filter(j => !j.done).length;
-                await H$(t, k.name);
-                let fe = (await _g(t)).items.filter(j => !j.done).length;
+                await markPlaylistItemExecuted(t, k.name);
+                let fe = (await readPlaylistRound(t)).items.filter(j => !j.done).length;
                 if (fe >= J) return Z("[meta-session] stale playlist item did not advance", {
                     name: k.name,
                     reason: N ? "disabled" : "removed",
@@ -105,7 +105,7 @@ function createMetaSession(e) {
                 continue
             }
             let V = await I(N, D, $),
-                ce = (await Promise.all(S.map(async J => [J.name, await jf(t, J.name)]))).filter(([, J]) => _6(J, new Date)).map(([J]) => J);
+                ce = (await Promise.all(S.map(async J => [J.name, await readPartitionRunState(t, J.name)]))).filter(([, J]) => isPartitionBackedOff(J, new Date)).map(([J]) => J);
             return {
                 ...V,
                 backedOff: ce
@@ -117,7 +117,7 @@ function createMetaSession(e) {
             A, F, k = 0,
             N = 0,
             V = S.runtime,
-            W = V ?? Co();
+            W = V ?? resolveDefaultRuntime();
         te("[v12-observe] partition runtime selected", {
             partition: S.name,
             runtime: W,
@@ -147,17 +147,17 @@ function createMetaSession(e) {
                 runtime: W,
                 requestedFrom: V ? "frontmatter" : "default",
                 reason: ke
-            }), await H$(t, S.name), b.set(S.name, $);
-            let Cn = await jf(t, S.name),
+            }), await markPlaylistItemExecuted(t, S.name), b.set(S.name, $);
+            let Cn = await readPartitionRunState(t, S.name),
                 Ut = new Date,
                 vr = {
                     last_started_at: new Date(C).toISOString(),
                     last_finished_at: Ut.toISOString(),
                     last_result: "error",
                     consecutive_failures: Cn.consecutive_failures + 1,
-                    backoff_until: b6("error", Cn.consecutive_failures + 1, Ut, f)
+                    backoff_until: computePartitionBackoffUntil("error", Cn.consecutive_failures + 1, Ut, f)
                 };
-            return await y6(t, S.name, vr), {
+            return await writePartitionRunState(t, S.name, vr), {
                 name: S.name,
                 outcome: "error",
                 durationMs: qe,
@@ -194,7 +194,7 @@ function createMetaSession(e) {
             });
             let qe = l ? l() : createGrokAcpAdapter({
                 cwd: S.dir,
-                mcpServerFactory: () => Yg(t, {
+                mcpServerFactory: () => createAladuoMcpServer(t, {
                     sessionKey: o,
                     bus: n,
                     sessionContextKind: "meta",
@@ -217,8 +217,8 @@ function createMetaSession(e) {
         let z = [],
             U = !1,
             X = partitionInboxDir(t, S.name),
-            Ee = await uve(t, S.name),
-            be = Hgt(X, Ee),
+            Ee = await readPartitionInboxEntries(t, S.name),
+            be = renderPartitionInboxSection(X, Ee),
             w = `### Partition
 - Name: ${S.name}
 - cwd: ${S.dir}/
@@ -234,7 +234,7 @@ ${be}` : `${S.promptContent}
 
 ${w}
 ${D}`,
-            K = Yg(t, {
+            K = createAladuoMcpServer(t, {
                 sessionKey: o,
                 bus: n,
                 sessionContextKind: "meta",
@@ -286,7 +286,7 @@ ${D}`,
                         })
                     },
                     onExecutionEvent: Cn => {
-                        U || (Cn.type === "tool_use" ? k += 1 : Cn.type === "tool_result" && Cn.isError && (N += 1), z.push(Ugt(t, o, S.name, Cn).catch(Ut => {
+                        U || (Cn.type === "tool_use" ? k += 1 : Cn.type === "tool_result" && Cn.isError && (N += 1), z.push(appendPartitionToolEvent(t, o, S.name, Cn).catch(Ut => {
                             Z("[meta-session] failed to persist execution event", {
                                 partition: S.name,
                                 eventType: Cn.type,
@@ -312,8 +312,8 @@ ${D}`,
             ve && clearTimeout(ve)
         }
         if (!A) {
-            let ke = d0e(F?.text);
-            A = zgt(S.name, ke) ? "invalid_output" : "success"
+            let ke = normalizePartitionOutputText(F?.text);
+            A = detectEmptyRequiredPartitionOutput(S.name, ke) ? "invalid_output" : "success"
         }
         let Be = Date.now() - C;
         if (J) {
@@ -377,7 +377,7 @@ ${D}`,
                 cancelled: A === "timeout",
                 usage: at
             }).catch(() => {}), z.length > 0 && await Promise.all(z), A === "success") {
-            let ke = d0e(F?.text),
+            let ke = normalizePartitionOutputText(F?.text),
                 qe = createSpineEvent({
                     type: "agent.result",
                     source: {
@@ -424,8 +424,8 @@ ${D}`,
                 error: ke
             })
         }
-        await H$(t, S.name), b.set(S.name, $);
-        let Je = await jf(t, S.name),
+        await markPlaylistItemExecuted(t, S.name), b.set(S.name, $);
+        let Je = await readPartitionRunState(t, S.name),
             De = A === "success" ? 0 : Je.consecutive_failures + 1,
             Oe = new Date,
             Gt = {
@@ -433,9 +433,9 @@ ${D}`,
                 last_finished_at: Oe.toISOString(),
                 last_result: A,
                 consecutive_failures: De,
-                backoff_until: b6(A, De, Oe, f)
+                backoff_until: computePartitionBackoffUntil(A, De, Oe, f)
             };
-        return await y6(t, S.name, Gt), {
+        return await writePartitionRunState(t, S.name, Gt), {
             name: S.name,
             outcome: A,
             durationMs: Be,
@@ -449,7 +449,7 @@ ${D}`,
             let k = D.find(ce => ce.name === F.name);
             if (!k || !k.schedule.enabled) return F;
             let N = C.get(F.name);
-            if (N && _6(N, A)) continue;
+            if (N && isPartitionBackedOff(N, A)) continue;
             let V = Math.max(0, k.schedule.cooldown_ticks),
                 W = b.get(F.name);
             if (W === void 0 || $ - W >= V) return F
@@ -467,24 +467,24 @@ ${D}`,
         p = !0, te("[meta-session] starting tick");
         try {
             v += 1;
-            let [S, D, $, C] = await Promise.all([FA(t.memoryFragmentsDir), FA(t.memoryEntitiesDir), FA(t.memoryTopicsDir), Bgt(t)]), A = [S, D, $, C].join(":"), F = qgt(A);
+            let [S, D, $, C] = await Promise.all([readNewestMtimeRecursive(t.memoryFragmentsDir), readNewestMtimeRecursive(t.memoryEntitiesDir), readNewestMtimeRecursive(t.memoryTopicsDir), readLatestExternalEventId(t)]), A = [S, D, $, C].join(":"), F = hashActivityFingerprint(A);
             if (y !== null && F === y) {
                 Re("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
                 return
             }
-            y = F, await Du(t, W => ({
+            y = F, await updateRegistryStatus(t, W => ({
                 ...W,
                 health: {
                     ...W.health,
                     meta_session: "starting"
                 }
             }));
-            let k = await Bw(t),
-                N = await Vgt(t, r),
+            let k = await loadSubconsciousPartitions(t),
+                N = await renderPartitionRuntimeContext(t, r),
                 V = await _(k, N, v);
             if (V?.name && d > 1 && (!r || r.activeCount() <= 1))
                 for (let ce = 1; ce < d && await _(k, N, v); ce++);
-            await Du(t, W => ({
+            await updateRegistryStatus(t, W => ({
                 ...W,
                 health: {
                     ...W.health,
@@ -497,7 +497,7 @@ ${D}`,
                 backedOff: V?.backedOff ?? []
             })
         } catch (S) {
-            Le("[meta-session] tick error:", S), y = null, await Du(t, $ => ({
+            Le("[meta-session] tick error:", S), y = null, await updateRegistryStatus(t, $ => ({
                 ...$,
                 health: {
                     ...$.health,
@@ -534,7 +534,7 @@ ${D}`,
     };
     return {
         start() {
-            m || g || (n.on("cadence.tick", x), g = !0, Du(t, S => ({
+            m || g || (n.on("cadence.tick", x), g = !0, updateRegistryStatus(t, S => ({
                 ...S,
                 health: {
                     ...S.health,

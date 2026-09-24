@@ -43,7 +43,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
                 tags: t.routingHint.tags
             } : void 0
         }),
-        i = await MXe(e),
+        i = await loadRegistryDedupStore(e),
         o = computeDedupKey(r);
     if (o) {
         let f = await i.checkAndRecordDetailed({
@@ -56,7 +56,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
                 notAfter: f.existing.ts
             });
             if (p) {
-                let m = await qm(e, p.id);
+                let m = await findOutboxRecordByEventId(e, p.id);
                 return await zle(e, t.sourceKind, t.sourceChannelId), {
                     event: p,
                     routing: {
@@ -70,7 +70,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
             }
         }
     }
-    let s = await VXe(e, {
+    let s = await writeIngressSnapshot(e, {
         sessionKey: t.sessionKey,
         sourceKind: t.sourceKind,
         sourceName: t.sourceName,
@@ -81,11 +81,11 @@ async function appendBeforeExecuteGateway(e, t, n) {
         rawPayload: t.rawPayload,
         routingHint: t.routingHint
     }, r);
-    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await Du(e, f => ({
+    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await updateRegistryStatus(e, f => ({
         ...f,
         spine: {
             ...f.spine,
-            event_log: ef.join(e.eventsDir, Sm(new Date(r.ts)))
+            event_log: ef.join(e.eventsDir, formatEventPartitionName(new Date(r.ts)))
         },
         health: {
             ...f.health,
@@ -95,7 +95,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
     let a, u = !1,
         l, c, d = readRoutingTarget(r);
     if (d === "gateway") {
-        let f = await LXe(e, r, n?.bus, n?.gatewayCommands);
+        let f = await replyToGatewayCommandEvent(e, r, n?.bus, n?.gatewayCommands);
         l = f.responseText, c = f.outboxId, Re("[gateway] gateway-targeted event (no enqueue)", {
             id: r.id,
             type: r.type,
@@ -106,7 +106,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
     } else if (d === "meta") {
         let f = "meta:subconscious",
             p = `- [ ] @evt(${r.id})`;
-        a = await Xs(e, f, p), u = !0, po("mailbox_enqueued", r.id, {
+        a = await enqueueSessionInboxLine(e, f, p), u = !0, po("mailbox_enqueued", r.id, {
             sessionKey: f
         }), Re("[gateway] meta-targeted event", {
             id: r.id,
@@ -116,7 +116,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         })
     } else {
         let f = `- [ ] @evt(${r.id})`;
-        a = await Xs(e, t.sessionKey, f), u = !0, po("mailbox_enqueued", r.id, {
+        a = await enqueueSessionInboxLine(e, t.sessionKey, f), u = !0, po("mailbox_enqueued", r.id, {
             sessionKey: t.sessionKey
         }), Re("[gateway] session-targeted event", {
             id: r.id,

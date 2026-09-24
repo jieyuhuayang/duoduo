@@ -7,6 +7,9 @@
   "scripts": {
     "rebuild": "bash rebuild.sh"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@babel/parser": "^7",
     "@babel/traverse": "^7",

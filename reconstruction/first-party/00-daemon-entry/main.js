@@ -9,17 +9,17 @@ async function main() {
         resolveRuntimePaths: e
     } = await Promise.resolve().then(() => (yg(), ove)), {
         initializeRuntime: t
-    } = await Promise.resolve().then(() => (sSe(), oSe)), {
+    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), oSe)), {
         createAgentSdkAdapter: n
-    } = await Promise.resolve().then(() => (wo(), bC)), {
+    } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)), {
         createSessionManager: r
     } = await Promise.resolve().then(() => (c0e(), l0e)), {
         createMetaSession: i
-    } = await Promise.resolve().then(() => (p0e(), f0e)), {
+    } = await Promise.resolve().then(() => (initMetaSessionModule(), f0e)), {
         runCadenceTick: o
     } = await Promise.resolve().then(() => (_J(), _0e)), {
         createJobScheduler: s
-    } = await Promise.resolve().then(() => (v0e(), b0e)), {
+    } = await Promise.resolve().then(() => (initJobSchedulerModule(), b0e)), {
         createOutboxDeliveryManager: a
     } = await Promise.resolve().then(() => (S0e(), w0e)), {
         clearHostModelEnvVars: u,
@@ -31,14 +31,14 @@ async function main() {
         Le("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", j), process.exit(1)
     });
     let c = await l();
-    c > 0 && te(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), Q6(process.env) === "claude_code_local" && u(process.env);
+    c > 0 && te(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && u(process.env);
     let d = e(),
-        f = await p6(d);
+        f = await acquireRuntimeWriterLock(d);
     if (!f.acquired) throw new Error(`Runtime lock already held by pid=${f.lock?.pid??"unknown"} at ${f.lockPath}`);
     try {
         await t(d);
-        let j = await sse(d, {
-            retentionDays: ose()
+        let j = await pruneEventIdIndexByRetention(d, {
+            retentionDays: readSpineIndexRetentionDays()
         });
         te(`[pid0] spine by-id index retention: kept=${j.kept} dropped=${j.dropped} cutoff=${j.cutoff}`)
     } catch (j) {
@@ -55,16 +55,16 @@ async function main() {
     let h = ebe(),
         {
             probeClaudeAvailability: g
-        } = await Promise.resolve().then(() => (wo(), bC)),
+        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)),
         {
             primeCodexAvailability: y,
             isCodexAvailable: v
-        } = await Promise.resolve().then(() => (Df(), TV)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), TV)),
         {
             primeGrokAvailability: b,
             isGrokAvailable: _,
             grokUnavailableReason: I
-        } = await Promise.resolve().then(() => (lg(), AV)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), AV)),
         [E] = await Promise.all([g(), y(), b()]),
         R = v(),
         x = _(),
@@ -77,7 +77,7 @@ async function main() {
         claudeReason: E.ok ? void 0 : E.reason,
         grokReason: x ? void 0 : I()
     });
-    let D = l6(),
+    let D = createSessionSubscriptionRegistry(),
         $ = r({
             paths: d,
             bus: h,
@@ -121,14 +121,14 @@ async function main() {
         bus: h
     });
     k.start();
-    let N = Xbe({
+    let N = createIdleCompactSweeper({
         paths: d,
         sessionManager: $,
         sessionIndex: p,
         bus: h
     });
     N.start();
-    let V = C0e("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
+    let V = readEnvIntegerOrFallback("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
     te("[pid0] cadence rhythm", {
         cadenceIntervalMs: V
     });

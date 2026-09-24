@@ -12,13 +12,13 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 53,
-      "renameEntries": 165,
-      "renamesApplied": 165,
-      "referencesRewritten": 625,
+      "inferredNames": 489,
+      "renameEntries": 601,
+      "renamesApplied": 601,
+      "referencesRewritten": 2183,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 165
+      "indexedSymbols": 601
     },
     "cli": {
       "prettyLines": 75391,
@@ -38,34 +38,45 @@
       "indexedSymbols": 40
     }
   },
+  "sha256": {
+    "daemon": {
+      "shipped": "accfe7934f472e2ed562350961cab2ed6d810aec827d00a41509a2339f813c84",
+      "pretty": "335cf323cb527e839e7394ecfdc1375dae85009e5f7339ac022e4b0f01989b46"
+    },
+    "cli": {
+      "shipped": "0bb91833764d2d1a045bbc0790a0dfa927ca0b8dcd10b8901cc4e065086f473f",
+      "pretty": "77739c75d658b94e7b8b42f998b557712e43fd02fb4be4d578a01c8eb97eaa40"
+    }
+  },
   "firstPartyTree": {
-    "files": 165,
+    "files": 601,
     "subsystems": 12,
     "bySubsystem": {
-      "00-daemon-entry": 7,
-      "01-spine-wal": 8,
-      "02-gateway-rpc": 8,
-      "03-session-actor": 14,
-      "04-cognition-prompt": 12,
-      "05-drain-turn": 14,
-      "06-runtime-claude": 23,
-      "07-runtime-codex": 20,
-      "08-cadence-subconscious": 12,
-      "09-memory": 16,
-      "10-runtime-host": 15,
-      "11-runtime-grok": 16
+      "00-daemon-entry": 17,
+      "01-spine-wal": 31,
+      "02-gateway-rpc": 63,
+      "03-session-actor": 88,
+      "04-cognition-prompt": 33,
+      "05-drain-turn": 54,
+      "06-runtime-claude": 38,
+      "07-runtime-codex": 26,
+      "08-cadence-subconscious": 76,
+      "09-memory": 98,
+      "10-runtime-host": 58,
+      "11-runtime-grok": 19
     }
   },
   "verdicts": {
     "anchorCheckers": "pass",
+    "anchorTargetMatches": "pass",
     "citations": "pass",
     "cli.astEquivalent": "pass",
-    "cli.beautifyEquivalent": "skipped",
+    "cli.beautifyEquivalent": "pass",
     "cli.lossless": "pass",
     "cli.syntax": "pass",
     "committedInSync": "promoted",
     "daemon.astEquivalent": "pass",
-    "daemon.beautifyEquivalent": "skipped",
+    "daemon.beautifyEquivalent": "pass",
     "daemon.inferredNames": "pass",
     "daemon.lossless": "pass",
     "daemon.syntax": "pass",
@@ -73,13 +84,13 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.22.2",
+    "node": "v22.23.3",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 205
+    "firstPartySymbols": 641
   }
 }

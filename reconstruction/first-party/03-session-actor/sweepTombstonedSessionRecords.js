@@ -17,8 +17,8 @@ async function sweepTombstonedSessionRecords(e) {
         }), i = []
     }
     for (let s of i)
-        if (s.status !== "pending" && Ks(e, s.session_key)) try {
-            await h0e.unlink(Tb(e, s.channel_kind, s.id)), t += 1
+        if (s.status !== "pending" && isSessionArchived(e, s.session_key)) try {
+            await h0e.unlink(resolveOutboxRecordPath(e, s.channel_kind, s.id)), t += 1
         } catch (a) {
             a.code !== "ENOENT" && Z("[housekeeping] failed to remove tombstoned outbox record", {
                 sessionKey: s.session_key,
@@ -27,9 +27,9 @@ async function sweepTombstonedSessionRecords(e) {
             })
         }
     let o = new Set(i.map(s => s.session_key));
-    for (let s of await _le(e)) o.add(s), !m0e(Jn(e, s)) && !m0e(km(e, s)) && (r += 1);
+    for (let s of await _le(e)) o.add(s), !m0e(resolveSessionDir(e, s)) && !m0e(resolveArchivedSessionDir(e, s)) && (r += 1);
     for (let s of o) {
-        if (!Ks(e, s)) continue;
+        if (!isSessionArchived(e, s)) continue;
         let a = hs(e, s);
         try {
             await h0e.unlink(a), n += 1
@@ -45,7 +45,7 @@ async function sweepTombstonedSessionRecords(e) {
         replayLogsRemoved: n,
         replayLogsWithoutSessionDir: r
     }) : Re("[housekeeping] no tombstoned-session records to sweep", {
-        replayDir: MR(e),
+        replayDir: resolveOutboxReplayDir(e),
         replayLogsWithoutSessionDir: r
     }), {
         outboxRemoved: t,

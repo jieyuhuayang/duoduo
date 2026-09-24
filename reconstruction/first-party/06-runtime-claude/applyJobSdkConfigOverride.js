@@ -12,7 +12,7 @@ function applyJobSdkConfigOverride(e, t) {
         disallowedTools: t.disallowedTools ?? e.disallowedTools,
         additionalDirectories: t.additionalDirectories ?? e.additionalDirectories,
         claudeTools: mergeClaudeToolLists(e.claudeTools, t.claudeTools),
-        claudeModelProfiles: GV(e.claudeModelProfiles, t.claudeModelProfiles, n => ({
+        claudeModelProfiles: overlayConfigEntriesByKey(e.claudeModelProfiles, t.claudeModelProfiles, n => ({
             ...n,
             source: "instance"
         })),
@@ -21,6 +21,6 @@ function applyJobSdkConfigOverride(e, t) {
         claudeModelAliasIssues: F$(e.claudeModelAliasIssues, t.claudeModelAliasIssues),
         piExtensions: t.piExtensions ?? e.piExtensions,
         piSkills: t.piSkills ?? e.piSkills,
-        piConfigIssues: lbe(e.piConfigIssues, t.piConfigIssues)
+        piConfigIssues: appendPiConfigIssues(e.piConfigIssues, t.piConfigIssues)
     }
 }

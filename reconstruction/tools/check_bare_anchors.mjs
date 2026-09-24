@@ -10,7 +10,14 @@
 //                               a keyword) must be on line N, or within N-M, and
 //                               so must every short mangled name it calls
 //   N   `code`（`realName`）    owned HERE, no line number: the same test, run
-//                               over the named symbol's current span (--index);
+//                               over the named symbol's current span (--index),
+//                               strictly -- whole-word identifiers, every number
+//                               the snippet writes, every `x = <number>` clause
+//                               as a token sequence (`Ydt = 5` is refuted where
+//                               the span assigns 5 to another constant), and a
+//                               snippet of short names and numbers only
+//                               (`vH = 5, wH = 180 * 1e3`) as a whole token
+//                               sequence (anchor_forms.mjs snippetHolds);
 //                               `cli:realName` for a cli symbol
 //
 // Every other backticked line number is UNBOUND, and so is one written where
@@ -31,7 +38,9 @@
 // Options:
 //   --index <symbols.json>[,...]   refuse a bundle the index was not built from;
 //                                  also resolves real names in --list output
-//   --bundle cli=<cli.pretty.js>   check anchors written `cli.pretty.js:N`
+//   --bundle cli=<cli.pretty.js>   check anchors written `cli.pretty.js:N`; read
+//                                  (and checked against its index) only when a
+//                                  doc has a cli citation this tool must check
 //   --baseline <path>              per-doc ceilings on unbound anchors and on
 //                                  all line numbers
 //   --write-baseline               record the current counts there and exit 0
@@ -41,10 +50,8 @@
 // Exit: 2 bundle/index mismatch, 1 anything refuted or a baseline exceeded.
 import fs from "node:fs";
 import { parse } from "@babel/parser";
-import _traverse from "@babel/traverse";
-import { f1Forward, f1Reversed, f2Cites, f3, nameBound, lineSpan, looseLineNumbers, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
+import { f1Forward, f1Reversed, f2Cites, f3, nameBound, lineSpans, looseLineNumbers, snippetHolds, looksReal, looksRealName } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
-const traverse = _traverse.default || _traverse;
 
 const argv = process.argv.slice(2);
 const opt = (name) => { const i = argv.indexOf(name); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
@@ -52,6 +59,8 @@ const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return false; 
 const INDEX = opt("--index");
 const BASELINE = opt("--baseline");
 const LIST = opt("--list");
+// @babel/traverse only serves --list (see load()); importing it costs ~0.2 s
+const traverse = LIST ? ((m) => m.default.default || m.default)(await import("@babel/traverse")) : null;
 const WRITE_BASELINE = flag("--write-baseline");
 const ALLOW_RAISE = flag("--allow-raise");
 const extra = new Map();
@@ -66,7 +75,12 @@ if (!BUNDLE || !BLOCKS || !MODULES || !docs.length || (WRITE_BASELINE && !BASELI
 const bundles = new Map([["daemon", BUNDLE], ...extra]);
 const indexes = new Map();
 for (const p of (INDEX || "").split(",").filter(Boolean)) { const ix = loadIndex(p); indexes.set(ix.bundle, ix); }
-const B = new Map(); // name -> { lines, decls, realOf }
+// name -> { lines, realOf, top, all }. A bundle is read the first time a
+// citation needs it, and parsed the first time a question needs its syntax, so
+// the cost of a run follows what the docs cite. This tool used to parse and
+// fully traverse every bundle up front (about 5 s a run), and the mutation test
+// runs it twenty-odd times.
+const B = new Map();
 function load(name) {
   if (B.has(name)) return B.get(name);
   const path = bundles.get(name);
@@ -75,28 +89,41 @@ function load(name) {
   const lines = src.split("\n");
   const ix = indexes.get(name);
   if (ix) assertBundleMatchesIndex(lines, ix, path);
-  // Top-level declarations for the vendor test, plus every named function-like
-  // declaration at any depth for --list: esbuild wraps whole modules in a lazy
-  // initialiser thousands of lines long, so "the enclosing top-level
-  // declaration" often says nothing about what a line is.
-  const ast = parse(src, { sourceType: "module" });
-  const top = [], all = [];
-  for (const s of ast.program.body) {
-    const L = s.loc;
-    if ((s.type === "FunctionDeclaration" || s.type === "ClassDeclaration") && s.id) top.push({ name: s.id.name, a: L.start.line, b: L.end.line });
-    else if (s.type === "VariableDeclaration") for (const d of s.declarations) if (d.id.type === "Identifier") top.push({ name: d.id.name, a: L.start.line, b: L.end.line });
-  }
-  const fnLike = new Set(["FunctionExpression", "ArrowFunctionExpression", "ClassExpression"]);
-  traverse(ast, {
-    FunctionDeclaration(p) { if (p.node.id) all.push({ name: p.node.id.name, a: p.node.loc.start.line, b: p.node.loc.end.line, kind: "function" }); },
-    ClassDeclaration(p) { if (p.node.id) all.push({ name: p.node.id.name, a: p.node.loc.start.line, b: p.node.loc.end.line, kind: "class" }); },
-    VariableDeclarator(p) {
-      const n = p.node;
-      if (n.id.type === "Identifier" && n.init && fnLike.has(n.init.type)) all.push({ name: n.id.name, a: n.loc.start.line, b: n.loc.end.line, kind: "function-expr" });
+  let ast = null, top = null, all = null;
+  const tree = () => (ast ??= parse(src, { sourceType: "module", attachComment: false }));
+  const b = {
+    lines,
+    realOf: new Map(ix ? Object.entries(ix.symbols).map(([r, e]) => [e.mangled, r]) : []),
+    // Top-level declarations, for the vendor test (and --list).
+    get top() {
+      if (top) return top;
+      top = [];
+      for (const s of tree().program.body) {
+        const L = s.loc;
+        if ((s.type === "FunctionDeclaration" || s.type === "ClassDeclaration") && s.id) top.push({ name: s.id.name, a: L.start.line, b: L.end.line });
+        else if (s.type === "VariableDeclaration") for (const d of s.declarations) if (d.id.type === "Identifier") top.push({ name: d.id.name, a: L.start.line, b: L.end.line });
+      }
+      return top;
     },
-  });
-  const realOf = new Map(ix ? Object.entries(ix.symbols).map(([r, e]) => [e.mangled, r]) : []);
-  const b = { lines, top, all, realOf };
+    // Every named function-like declaration at any depth, for --list only:
+    // esbuild wraps whole modules in a lazy initialiser thousands of lines
+    // long, so "the enclosing top-level declaration" often says nothing about
+    // what a line is. Nothing is checked against this.
+    get all() {
+      if (all) return all;
+      all = [];
+      const fnLike = new Set(["FunctionExpression", "ArrowFunctionExpression", "ClassExpression"]);
+      traverse(tree(), {
+        FunctionDeclaration(p) { if (p.node.id) all.push({ name: p.node.id.name, a: p.node.loc.start.line, b: p.node.loc.end.line, kind: "function" }); },
+        ClassDeclaration(p) { if (p.node.id) all.push({ name: p.node.id.name, a: p.node.loc.start.line, b: p.node.loc.end.line, kind: "class" }); },
+        VariableDeclarator(p) {
+          const n = p.node;
+          if (n.id.type === "Identifier" && n.init && fnLike.has(n.init.type)) all.push({ name: n.id.name, a: n.loc.start.line, b: n.loc.end.line, kind: "function-expr" });
+        },
+      });
+      return all;
+    },
+  };
   B.set(name, b);
   return b;
 }
@@ -112,10 +139,10 @@ for (const b of blocksReport.blocks) if ((modules.vendor || []).some(r => matche
 // Mirrors verify_citations.mjs's decision to check a `Real (short)` pairing:
 // the first name is indexed, or is an indexed symbol's short name, or looks
 // like a real name (then an unknown one is a FATAL "missing symbol" there).
+// looksReal is the same function there (anchor_forms.mjs), not a copy of it.
 // Without --index nothing can be decided, and every F1 shape counts as owned.
 const indexedNames = new Set(), indexedShort = new Set();
 for (const ix of indexes.values()) for (const [r, e] of Object.entries(ix.symbols)) { indexedNames.add(r); indexedShort.add(e.mangled); }
-const looksReal = n => n.length >= 8 && /[a-z]/.test(n) && /[A-Z_]/.test(n);
 const f1Checked = (name) => !indexes.size || indexedNames.has(name) || indexedShort.has(name) || looksReal(name);
 
 // ---- docs ----------------------------------------------------------------
@@ -125,34 +152,24 @@ const named = { ok: 0, bad: 0 };
 // "bundle:realName" -> entry; a real name can exist in both bundles (`main`)
 const symbolOf = new Map();
 for (const ix of indexes.values()) for (const [r, e] of Object.entries(ix.symbols)) symbolOf.set(`${ix.bundle}:${r}`, { bundle: ix.bundle, e });
-// does a snippet hold on lines [a, b] of a bundle? (shared by F3 and N)
-// strict (N): identifiers match as whole words, and a lone identifier or a
-// callee of fewer than three characters (`G`, `ea`, `$e(w)` — function locals,
-// found somewhere in any large function) is not a checkable token.
-function snippetHolds(code, bundle, a, b, strict = false) {
-  const toks = snippetTokens(code);
-  const lone = code.trim();
-  if (!toks.length && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(lone) && (!strict || lone.length >= 3)) toks.push(lone);
-  // a two-character callee (`$e(w)`) is not distinctive inside a whole function
-  if (!toks.length) toks.push(...snippetCallHeads(code).filter(h => !strict || h.length >= 3));
-  if (!toks.length) return { checkable: false };
-  const span = bundle.lines.slice(a - 1, b);
-  const word = t => new RegExp("(?<![A-Za-z0-9_$])" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![A-Za-z0-9_$])");
-  const isIdent = t => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(t);
-  const found = t => strict && isIdent(t) ? span.some(l => word(t).test(l)) : span.some(l => l.includes(t));
-  const hit = toks.some(found);
-  const heads = snippetCallHeads(code).filter(h => !span.some(l => word(h).test(l)));
-  return { checkable: true, ok: hit && !heads.length, heads };
-}
+// does a snippet hold on lines [a, b] of a bundle? (F3 and N share one rule:
+// anchor_forms.mjs snippetHolds, which convert_line_citations.mjs imports too)
 const perDoc = {};       // unbound line numbers
 const linesPerDoc = {};  // every line number, whatever its shape
 const listed = [];
 const refuted = [];
+// --list detail is built only when --list is given: resolving what encloses a
+// line takes a full traversal of the bundle, and nothing is decided by it
+const list = LIST ? (rec) => listed.push(rec()) : () => {};
 
 for (const f of docs) {
   const t = fs.readFileSync(f, "utf8");
   const docName = f.split("/").pop();
-  const docLineOf = (off) => t.slice(0, off).split("\n").length;
+  // offset -> 1-based doc line, by binary search over line starts (slicing and
+  // splitting the doc once per number was quadratic)
+  const starts = [0];
+  for (let i = t.indexOf("\n"); i >= 0; i = t.indexOf("\n", i + 1)) starts.push(i + 1);
+  const docLineOf = (off) => { let lo = 0, hi = starts.length - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (starts[mid] <= off) lo = mid; else hi = mid - 1; } return lo + 1; };
   const docLines = t.split("\n");
   perDoc[docName] = 0;
   linesPerDoc[docName] = 0;
@@ -184,20 +201,25 @@ for (const f of docs) {
     const where = `${docName} L${docLineOf(m.index)}`;
     const sym = symbolOf.get(`${qual || "daemon"}:${name}`);
     if (!sym) {
-      // `a`（`b`） is not a citation unless b looks like a real name
-      if (looksReal(name)) { named.bad++; refuted.push(`${where}: \`${code.slice(0, 50)}\` bound to \`${name}\`, which is no indexed symbol`); listed.push({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, status: "refuted: unknown symbol" }); }
+      // `a`（`b`） is not a citation unless b looks like a real name. looksReal
+      // wants a lower-case letter, so an UPPER_SNAKE constant (a value
+      // name_symbol.mjs registers, or upstream's GROK_ACP_COMPACT) that left
+      // the index was skipped as prose; looksRealName reads it as a name.
+      if (looksReal(name) || looksRealName(name)) { named.bad++; refuted.push(`${where}: \`${code.slice(0, 50)}\` bound to \`${name}\`, which is no indexed symbol`); list(() => ({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, status: "refuted: unknown symbol" })); }
       continue;
     }
     const bundle = load(sym.bundle);
-    const r = bundle ? snippetHolds(code, bundle, sym.e.line, sym.e.endLine, true) : { checkable: false };
+    const r = bundle ? snippetHolds(code, bundle.lines, sym.e.line, sym.e.endLine, true) : { checkable: false };
     if (r.checkable && r.ok) { named.ok++; continue; }
     named.bad++;
-    const why = !r.checkable ? "has no checkable token" : `not inside ${name} (${sym.e.mangled})${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}`;
+    const why = !r.checkable ? "has no checkable token" : `not inside ${name} (${sym.e.mangled})${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}${r.numbers ? ` (number ${r.numbers.join(",")} is not there)` : ""}${r.assignments ? ` (assignment ${r.assignments.join("; ")} is not there)` : ""}`;
     refuted.push(`${where}: \`${code.slice(0, 50)}\` ${why}`);
-    listed.push({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, span: `${sym.e.line}-${sym.e.endLine}`, status: `refuted: ${why}` });
+    list(() => ({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, span: `${sym.e.line}-${sym.e.endLine}`, status: `refuted: ${why}` }));
   }
 
-  for (const m of t.matchAll(lineSpan())) {
+  // outside fences only: looseLineNumbers() below owns every number in a fence
+  // (anchor_forms.mjs lineSpans), so each is counted once
+  for (const m of lineSpans(t)) {
     const [, qual, fromS, toS] = m;
     const from = Number(fromS), to = toS ? Number(toS) : null;
     const where = `${docName} L${docLineOf(m.index)}`;
@@ -224,24 +246,24 @@ for (const f of docs) {
     if (bname === "daemon") {
       const txt = (daemon.lines[from - 1] ?? "").trim();
       const top = innermost(daemon.top, from);
-      if (txt === "") { counts.blank++; refuted.push(`${where}: ${from} -> BLANK LINE`); listed.push({ ...entry(), status: "refuted: blank line" }); continue; }
-      if (top && vendor.has(top.name)) { counts.vendor++; refuted.push(`${where}: ${from} -> inside VENDOR ${top.name}`); listed.push({ ...entry(), status: "refuted: vendor code" }); continue; }
+      if (txt === "") { counts.blank++; refuted.push(`${where}: ${from} -> BLANK LINE`); list(() => ({ ...entry(), status: "refuted: blank line" })); continue; }
+      if (top && vendor.has(top.name)) { counts.vendor++; refuted.push(`${where}: ${from} -> inside VENDOR ${top.name}`); list(() => ({ ...entry(), status: "refuted: vendor code" })); continue; }
     }
 
     const code = snippetAt.get(m.index);
     // A snippet binds by its literals and long identifiers; failing those, a
     // single identifier (`lg`) or a short call (`$e(w)`) binds by itself.
-    const r = code && bundle ? snippetHolds(code, bundle, from, to ?? from) : { checkable: false };
+    const r = code && bundle ? snippetHolds(code, bundle.lines, from, to ?? from) : { checkable: false };
     if (r.checkable) {
       if (r.ok) { counts.f3ok++; continue; }
       counts.f3bad++;
       refuted.push(`${where}: \`${code.slice(0, 50)}\` not on ${bname} ${from}${to ? "-" + to : ""}${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}`);
-      listed.push({ ...entry(), status: "refuted: snippet not on line", snippet: code });
+      list(() => ({ ...entry(), status: "refuted: snippet not on line", snippet: code }));
       continue;
     }
     counts.unbound++;
     perDoc[docName]++;
-    listed.push({ ...entry(), status: code ? "unbound: snippet has no checkable token" : (bundle ? "unbound" : `unbound: no ${bname} bundle given`), snippet: code || null });
+    list(() => ({ ...entry(), status: code ? "unbound: snippet has no checkable token" : (bundle ? "unbound" : `unbound: no ${bname} bundle given`), snippet: code || null }));
   }
 
   // Numbers lineSpan() cannot see (anchor_forms.mjs looseLineNumbers): a
@@ -256,8 +278,8 @@ for (const f of docs) {
     if (n.to !== null && n.to < n.from) { counts.backwards++; refuted.push(`${where}: ${n.from}-${n.to} -> RANGE RUNS BACKWARDS`); }
     counts.unbound++;
     perDoc[docName]++;
-    listed.push({ doc: docName, docLine: docLineOf(n.index), anchor: n.text, bundle: bundleOf(n.qual), from: n.from, to: n.to,
-      docText: docLines[docLineOf(n.index) - 1], status: "unbound: not written as a single-line code span" });
+    list(() => ({ doc: docName, docLine: docLineOf(n.index), anchor: n.text, bundle: bundleOf(n.qual), from: n.from, to: n.to,
+      docText: docLines[docLineOf(n.index) - 1], status: "unbound: not written as a single-line code span" }));
   }
 }
 

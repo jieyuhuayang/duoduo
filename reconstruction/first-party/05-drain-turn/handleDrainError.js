@@ -11,7 +11,7 @@ async function handleDrainError(e, t, n) {
 
 ${i}
 
-` + Eft(r, n.hintContext);
+` + renderDrainErrorRuntimeHint(r, n.hintContext);
     for (let u of n.precedingRecords ?? []) n.bus?.emit("session.output", {
         sessionKey: u.session_key,
         record: u
@@ -21,7 +21,7 @@ ${i}
         stage: n.stage
     });
     else try {
-        let u = await $c(e, t, {
+        let u = await emitDrainOutputRecords(e, t, {
             item: n.anchor.item,
             event: n.anchor.event,
             outputText: o

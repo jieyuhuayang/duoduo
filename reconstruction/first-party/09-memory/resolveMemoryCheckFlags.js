@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveMemoryCheckFlags() {
-    let e = V6("ALADUO_EXP_MEMORY_CHECK"),
-        t = V6("ALADUO_EXP_MEMORY_FORGET") && e;
+    let e = isTruthyEnvFlag("ALADUO_EXP_MEMORY_CHECK"),
+        t = isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && e;
     return {
         check: e,
         forget: t

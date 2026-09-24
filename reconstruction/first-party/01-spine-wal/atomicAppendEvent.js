@@ -6,7 +6,7 @@
 
 async function atomicAppendEvent(e, t) {
     let n = await appendEventToPartition(e, t);
-    return await Q9e(e, {
+    return await appendEventIdIndexEntry(e, {
         event_id: n.event.id,
         partition: n.partition,
         byte_offset: n.byteOffset,

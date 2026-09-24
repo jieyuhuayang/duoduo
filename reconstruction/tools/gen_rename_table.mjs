@@ -28,14 +28,31 @@ for (let i = 0; i < src.length; i++) if (src[i] === "\n") starts.push(i + 1);
 const lineAt = (off) => { let lo = 0, hi = starts.length - 1, a = 0; while (lo <= hi) { const m = (lo + hi) >> 1; if (starts[m] <= off) { a = m; lo = m + 1; } else hi = m - 1; } return a + 1; };
 for (const stmt of ast.program.body) {
   if (stmt.type === "FunctionDeclaration" && stmt.id) declLine.set(stmt.id.name, lineAt(stmt.start));
-  else if (stmt.type === "VariableDeclaration") for (const d of stmt.declarations) { if (d.id.type === "Identifier") declLine.set(d.id.name, lineAt(stmt.start)); }
+  // a declarator's own line, as symbol_index.mjs, extract_functions.mjs and
+  // verify_first_party.mjs use: the statement's first line put a value that is
+  // not the first declarator of `var a = 1,\n b = 2` on a different line here
+  // than in its first-party header
+  else if (stmt.type === "VariableDeclaration") for (const d of stmt.declarations) { if (d.id.type === "Identifier") declLine.set(d.id.name, lineAt(d.id.start)); }
   else if (stmt.type === "ClassDeclaration" && stmt.id) declLine.set(stmt.id.name, lineAt(stmt.start));
+}
+
+// Every renamed symbol must have a subsystem when a subsystem map is given.
+// This used to file the rest under a "zz-unclassified" section, which kept the
+// table complete while first-party/ silently dropped the same names; the
+// table now refuses exactly where extract_functions.mjs does.
+if (SUBSYS !== "-") {
+  const unfiled = Object.values(rename).filter(real => !Object.hasOwn(subsys, real));
+  if (unfiled.length) {
+    console.error(`${unfiled.length} renamed symbol(s) have no subsystem in ${SUBSYS}: ${unfiled.join(", ")}`);
+    console.error("file each under one of its NN-* subsystems (name_symbol.mjs does this for inferred names)");
+    process.exit(1);
+  }
 }
 
 // group by subsystem
 const groups = new Map();
 for (const [mangled, real] of Object.entries(rename)) {
-  const sub = subsys[real] || (SUBSYS === "-" ? "all" : "zz-unclassified");
+  const sub = SUBSYS === "-" ? "all" : subsys[real];
   if (!groups.has(sub)) groups.set(sub, []);
   groups.get(sub).push({ mangled, real, source: inferredSet.has(mangled) ? "inferred" : "__export", line: declLine.get(mangled) ?? "—" });
 }

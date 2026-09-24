@@ -14,8 +14,8 @@ function createAgentSdkAdapter() {
         let o = t.permissionMode ?? process.env.ALADUO_PERMISSION_MODE ?? "bypassPermissions";
         if (o && (r.permissionMode = o), t.systemPrompt !== void 0) r.systemPrompt = t.systemPrompt;
         else {
-            let u = Zv(process.env.SYSTEM_PROMPT),
-                l = Zv(process.env.APPEND_SYSTEM_PROMPT),
+            let u = normalizeOptionalEnvString(process.env.SYSTEM_PROMPT),
+                l = normalizeOptionalEnvString(process.env.APPEND_SYSTEM_PROMPT),
                 f = [resolveMetaPromptText(), l].filter(p => !!p).join(`
 
 `).trim();
@@ -27,7 +27,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 append: f
             })
         }
-        if (r.systemPrompt !== void 0 && (r.systemPrompt = Prt(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
+        if (r.systemPrompt !== void 0 && (r.systemPrompt = disableSystemPromptSnapshot(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let u = [...new Set(t.tools)];
             if (r.tools = u, _t("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
                 let l = findDeadAllowedToolEntries(t.allowedTools, u);
@@ -273,10 +273,10 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                             }
                     }
                     if (z.type === "result" && z.subtype === "success")
-                        if (d) c = Vh(z);
+                        if (d) c = mapClaudeResultToDrainUsage(z);
                         else {
                             let U = typeof z.result == "string" ? z.result : "";
-                            U.length > 0 && (r = U, p = !0), z.structured_output !== void 0 && (i = z.structured_output, p = !0), c = Vh(z)
+                            U.length > 0 && (r = U, p = !0), z.structured_output !== void 0 && (i = z.structured_output, p = !0), c = mapClaudeResultToDrainUsage(z)
                         } z.type === "result" && (d = !1), x && z.type === "result" && (D = !0, V()), x && !$ && ce()
                 }
                 if (R) throw Bh("SDK run force-closed after abort timeout", new Error("abort close timeout"))

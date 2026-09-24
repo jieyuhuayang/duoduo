@@ -9,7 +9,7 @@ function forgetMemoryEntry(e, t, n = {}) {
         i = r.map(a => a.rel);
     if (i.length === 0 || n.dryRun) return i;
     let o = Zw.join(t, "memory"),
-        s = Mct(o);
+        s = resolveGitToplevelSync(o);
     if (s !== null && mwe.existsSync(Zw.join(s, ".git", "index.lock"))) return [];
     try {
         let a = kg("git", ["rm", "--ignore-unmatch", "--", ...i], {
@@ -24,7 +24,7 @@ function forgetMemoryEntry(e, t, n = {}) {
             l = u.status === 0 && !u.error ? u.stdout.split(`
 `).map(d => d.trim()).filter(d => d.length > 0) : i;
         if (l.length === 0) return [];
-        let c = kg("git", ["-c", "user.name=aladuo", "-c", "user.email=aladuo@local", "commit", "-m", Uct(r), "--", ...l], {
+        let c = kg("git", ["-c", "user.name=aladuo", "-c", "user.email=aladuo@local", "commit", "-m", formatForgetCommitMessage(r), "--", ...l], {
             cwd: o,
             encoding: "utf8"
         });

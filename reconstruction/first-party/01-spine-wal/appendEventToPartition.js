@@ -6,11 +6,11 @@
 
 async function appendEventToPartition(e, t, n = new Date(t.ts)) {
     await $e(e.eventsDir);
-    let r = Sm(n),
+    let r = formatEventPartitionName(n),
         i = sR.join(e.eventsDir, r),
-        o = `${Bi(t)}
+        o = `${stringifyJsonlRecord(t)}
 `;
-    return G9e(i, async () => {
+    return enqueuePartitionAppend(i, async () => {
         let s = await oR.open(i, "a");
         try {
             let u = (await s.stat()).size,

@@ -10,13 +10,13 @@ async function scanAndSpawnDueJobs(e, t, n) {
     let i = await r.listJobs(),
         o = n?.now ?? new Date,
         s = [],
-        a = await Ggt(e, r, o, n?.bus);
+        a = await fireDueWakeRecords(e, r, o, n?.bus);
     for (let u of i) {
         let l = u.state.last_scheduled_at ?? u.state.last_run_at,
             c = u.state.last_scheduled_at ? new Date(u.state.last_scheduled_at).getTime() : Number.NaN,
             d = u.state.last_run_started_at ? new Date(u.state.last_run_started_at).getTime() : Number.NaN,
             f = !Number.isFinite(d) || Number.isFinite(c) && d < c;
-        if (r$(u.frontmatter.cron) && u.state.last_scheduled_at && f && (u.state.last_result === "unknown" || u.state.last_result === "failure") && (l = null), !Iye(u.frontmatter.cron, l, o, u.frontmatter.created_at, u.state.run_at ?? null)) continue;
+        if (isOneShotJobSchedule(u.frontmatter.cron) && u.state.last_scheduled_at && f && (u.state.last_result === "unknown" || u.state.last_result === "failure") && (l = null), !isJobScheduleDue(u.frontmatter.cron, l, o, u.frontmatter.created_at, u.state.run_at ?? null)) continue;
         if (u.state.last_result === "failure" && u.state.last_scheduled_at) {
             let v = new Date(u.state.last_scheduled_at).getTime();
             if (o.getTime() - v < 3e5) {
@@ -33,7 +33,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
             cron: u.frontmatter.cron,
             cwdRel: u.frontmatter.cwd_rel
         });
-        if (or(p)) {
+        if (isSessionArchiving(p)) {
             Re("[cadence] skip due job: session is being archived", {
                 jobId: u.id,
                 sessionKey: p
@@ -79,7 +79,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         });
         await atomicAppendEvent(e, h);
         let g = `- [ ] @evt(${h.id}) job:${u.id}`;
-        await Xs(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), te("[cadence] spawned due job", {
+        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), te("[cadence] spawned due job", {
             jobId: u.id,
             sessionKey: p,
             cron: u.frontmatter.cron

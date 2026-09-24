@@ -6,6 +6,6 @@
 
 function resolveMemoryLinkTargets(e) {
     let t = new Set;
-    for (let n of Lf(e)) t.add(n.slug);
+    for (let n of scanWikiLinkOccurrences(e)) t.add(n.slug);
     return [...t].sort(Tr)
 }

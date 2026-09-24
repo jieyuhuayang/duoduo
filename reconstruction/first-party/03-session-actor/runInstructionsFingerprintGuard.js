@@ -12,7 +12,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
         c = computeBoardLayerHash(n.memoryBoard),
         d = computeNonBoardInstructionsFingerprint(n),
         f = i.board_layer_hash !== void 0 && i.instructions_nonboard_fingerprint !== void 0 && i.board_layer_hash !== c && i.instructions_nonboard_fingerprint === d;
-    if (u < SESSION_SCHEMA_VERSION) return await et(e, t, {
+    if (u < SESSION_SCHEMA_VERSION) return await patchSessionRuntimeState(e, t, {
         sdk_session_id: null,
         sdk_session_runtime: null,
         pending_fork_to: null,
@@ -39,7 +39,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
     };
     if (a !== s) {
         if (r === "codex") {
-            if (f && to(t) === "channel") return await et(e, t, {
+            if (f && classifySessionKeyOrUnknown(t) === "channel") return await patchSessionRuntimeState(e, t, {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
@@ -63,7 +63,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 nonBoardFingerprint: d
             };
             let m = i.sdk_session_id;
-            return m ? (await et(e, t, {
+            return m ? (await patchSessionRuntimeState(e, t, {
                 pending_fork_to: m,
                 instructions_fingerprint: s,
                 board_layer_hash: c,
@@ -86,7 +86,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 boardOnlyDrift: f,
                 boardLayerHash: c,
                 nonBoardFingerprint: d
-            }) : (await et(e, t, {
+            }) : (await patchSessionRuntimeState(e, t, {
                 sdk_session_id: null,
                 sdk_session_runtime: null,
                 pending_fork_to: null,
@@ -112,7 +112,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 nonBoardFingerprint: d
             })
         }
-        return await et(e, t, {
+        return await patchSessionRuntimeState(e, t, {
             instructions_fingerprint: s,
             board_layer_hash: c,
             instructions_nonboard_fingerprint: d
@@ -136,7 +136,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
             nonBoardFingerprint: d
         }
     }
-    return (i.board_layer_hash === void 0 || i.instructions_nonboard_fingerprint === void 0) && await et(e, t, {
+    return (i.board_layer_hash === void 0 || i.instructions_nonboard_fingerprint === void 0) && await patchSessionRuntimeState(e, t, {
         board_layer_hash: c,
         instructions_nonboard_fingerprint: d
     }), {

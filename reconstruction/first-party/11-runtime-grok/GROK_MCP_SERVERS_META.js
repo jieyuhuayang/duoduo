@@ -4,13 +4,13 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var CV, $V, qst, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, PV, lg = O(() => {
+var CV, $V, qst, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, PV, initGrokAcpRuntimeModule = O(() => {
     "use strict";
     Fl();
     dt();
-    wo();
-    hw();
-    Bu();
+    initAgentSdkAdapterModule();
+    initInterruptMarkerTextModule();
+    initSkipToolModule();
     qst = 5e3;
     GROK_DISALLOWED_TOOLS = ["scheduler_create", "scheduler_list", "scheduler_delete", "monitor", "workflow", "update_goal"], GROK_AGENT_PROFILE = {
         name: "duoduo",

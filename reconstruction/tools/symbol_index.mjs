@@ -15,7 +15,8 @@
 //
 // Usage: node symbol_index.mjs <pretty.js> <rename.json> <out.json> [--version <v>]
 import { parse } from "@babel/parser";
-import { signature } from "./structural_signature.mjs";
+import { signature, signatureContext } from "./structural_signature.mjs";
+import { canonicalLiteral } from "./verify_inferred.mjs";
 import fs from "node:fs";
 
 const argv = process.argv.slice(2);
@@ -31,18 +32,34 @@ if (!PRETTY || !RENAME || !OUT) {
 const src = fs.readFileSync(PRETTY, "utf8");
 const rename = JSON.parse(fs.readFileSync(RENAME, "utf8")); // mangled -> real
 const ast = parse(src, { sourceType: "module", ranges: true });
+// The program's top-level bindings, so a reference to a global (`setTimeout`)
+// hashes by its spelling and one to another top-level symbol by position --
+// the same full mode fingerprint_match.mjs gets from topLevelDecls(). Without
+// it every signature here fell back to normalising globals too, and the index
+// and the bump matcher hashed the same declaration differently.
+const sigCtx = signatureContext(ast);
 
 // Top-level declarations only, first binding wins. The line of a `var` comes
 // from the declarator identifier, matching extract_functions.mjs and
 // verify_first_party.mjs — the first-party tree headers and the gate that
 // checks them both use d.id, and a third convention here would desynchronise
 // them for shared `var A, B, C` statements.
+//
+// The span ends where the STATEMENT ends, with one exception. An uninitialised
+// `var X` of a module is assigned inside the module initialiser that closes
+// its statement (`var X, …, init = __esm(() => { X = … })`), so that is where
+// a citation of X's value has to look, and the span reaches it. A value -- a
+// declarator initialised by literals only (verify_inferred.mjs
+// canonicalLiteral), which name_symbol.mjs can name -- holds its whole value in
+// its own initialiser; a span to the statement's end would also cover the
+// declarators after it, so `jut = 8`（`<the first of var a = 6e4, b = 6e4, jut = 8>`）
+// would hold. Its span is its declarator.
 const decl = new Map(); // mangled -> { line, endLine, kind, node, stmt }
-function put(name, anchorNode, valueNode, stmt, kind) {
+function put(name, anchorNode, valueNode, stmt, kind, end = stmt) {
   if (decl.has(name)) return;
   decl.set(name, {
     line: anchorNode.loc.start.line,
-    endLine: stmt.loc.end.line,
+    endLine: end.loc.end.line,
     kind,
     node: valueNode,
     stmt,
@@ -64,7 +81,7 @@ for (const stmt of ast.program.body) {
         else if (init.type === "CallExpression") kind = "var = call";
         else kind = "var = " + init.type;
       } else kind = "var (uninitialised)";
-      put(d.id.name, d.id, init || d.id, stmt, kind);
+      put(d.id.name, d.id, init || d.id, stmt, kind, init && canonicalLiteral(init) !== null ? d : stmt);
     }
   }
 }
@@ -75,7 +92,7 @@ for (const [mangled, real] of Object.entries(rename)) {
   const d = decl.get(mangled);
   if (!d) { missing.push(`${real} (${mangled})`); continue; }
   let sig = null;
-  try { sig = signature(d.node); } catch { sig = null; }
+  try { sig = signature(d.node, sigCtx); } catch { sig = null; }
   symbols[real] = {
     mangled,
     line: d.line,

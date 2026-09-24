@@ -6,6 +6,6 @@
 
 function summarizeDrainRecords(e) {
     let t = VR();
-    for (let n of e) Lle(t, n);
+    for (let n of e) accumulateDrainRecordIntoSummary(t, n);
     return t
 }

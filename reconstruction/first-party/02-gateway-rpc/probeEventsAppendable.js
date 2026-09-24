@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function probeEventsAppendable(e, t = new Date) {
-    let n = Sm(t),
+    let n = formatEventPartitionName(t),
         r = ef.join(e.eventsDir, n);
     try {
         return await (await NXe.open(r, "a")).close(), !0

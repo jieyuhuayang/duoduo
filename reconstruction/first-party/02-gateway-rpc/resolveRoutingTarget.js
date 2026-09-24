@@ -7,6 +7,6 @@
 function resolveRoutingTarget(e, t, n) {
     if (e.routingHint?.target) return e.routingHint.target;
     if (n) return n.args ? "session" : "gateway";
-    let r = fU(t);
+    let r = classifyGatewayCommandIntent(t);
     return (e.routingHint?.intent ?? r) === "history-control" ? "session" : e.routingHint?.intent === "status" || e.routingHint?.intent === "config" || e.routingHint?.intent === "debug" || r ? "gateway" : "session"
 }

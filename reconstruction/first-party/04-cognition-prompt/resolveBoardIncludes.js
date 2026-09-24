@@ -18,7 +18,7 @@ async function resolveBoardIncludes(e, t, n = 0, r) {
     let {
         content: l,
         includePaths: c
-    } = bgt(u, a);
+    } = parseBoardFileContent(u, a);
     if (!l.trim()) return [];
     let d = [{
         path: i,

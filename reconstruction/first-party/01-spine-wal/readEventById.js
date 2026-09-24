@@ -5,9 +5,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readEventById(e, t, n) {
-    let r = await nb(e, t);
+    let r = await lookupEventIdIndexEntry(e, t);
     if (r) {
-        let i = await e5e(e, r, t);
+        let i = await readEventAtIndexedOffset(e, r, t);
         if (i) return i
     }
     return n ? scanPartitionsForEventId(e, t, n) : null

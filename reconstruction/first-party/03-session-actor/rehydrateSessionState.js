@@ -28,7 +28,7 @@ async function rehydrateSessionState(e) {
                 for (let u of a)
                     if (!(!u.endsWith(".json") || u.startsWith(".") || u === "sessions.snapshot.json")) try {
                         let l = decodeURIComponent(u.slice(0, -5));
-                        if (Oo(l) === r) {
+                        if (hashSessionKey(l) === r) {
                             t.push(l);
                             let c = Hr.join(i, "state.json");
                             try {

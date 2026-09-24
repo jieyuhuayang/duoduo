@@ -18,7 +18,7 @@ async function runManageJobTool(e, t) {
                 }
                 if (!e.id || !e.cron || !e.instruction) throw new Error("Missing required arguments for 'create' action (id, cron, instruction)");
                 if (e.stateless === !0 && e.cron === "keepalive") throw new Error(NV);
-                let o = e.runtime ?? t.callerRuntime ?? Co(),
+                let o = e.runtime ?? t.callerRuntime ?? resolveDefaultRuntime(),
                     s = e.model;
                 if (s === void 0 || s.trim().length === 0) throw new Error(bat);
                 if (zR(s)) throw new Error(`Invalid model id: ${JSON.stringify(s)}. A model id must not contain whitespace.`);
