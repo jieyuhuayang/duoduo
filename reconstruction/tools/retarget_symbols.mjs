@@ -20,6 +20,18 @@
 //    symbol in this bundle — collide with ordinary words. The identifier-only
 //    rule handles this too: prose is never a bare identifier span.
 //
+// One more position is rewritten: the slash pair `real/short` (anchor_forms.mjs
+// slashPair), the shorthand the §0 diagram of AGENT_INTERNALS_ANALYSIS.md
+// writes, in and out of code spans and fences alike. verify_citations.mjs
+// checks it as strictly as `real (short)`, but this tool never read it, so
+// after every bump each one was left stale and the build failed on a pair a
+// mechanical step should have moved. A slash pair names its real name, so it
+// is rewritten only when that name's OLD short name is exactly the one written
+// (`drainSessionMailbox/KSe` with KSe = drainSessionMailbox in the old map):
+// an identity, not a pattern, which keeps it safe inside quoted code, where
+// `a / b` is division. That needs real names, i.e. the two-rename-map form;
+// --migration carries only short names and leaves slash pairs alone.
+//
 // Usage:
 //   node retarget_symbols.mjs [--dry-run] --migration <old2new.json> <doc.md...>
 //   node retarget_symbols.mjs [--dry-run] <old_rename.json> <new_rename.json> <doc.md...>
@@ -27,12 +39,14 @@
 // from fingerprint_match.mjs (covers every declaration, not just first-party).
 // The two-rename-map form derives the migration from stable real names only.
 import fs from "node:fs";
+import { slashPair } from "./anchor_forms.mjs";
 
 let args = process.argv.slice(2);
 const DRY = args[0] === "--dry-run" || args[0] === "-n";
 if (DRY) args = args.slice(1);
 
 let migration = {}, dropped = [];
+let oldByReal = null; // real -> old short name; two-rename-map form only
 let files;
 if (args[0] === "--migration") {
   migration = JSON.parse(fs.readFileSync(args[1], "utf8"));
@@ -46,7 +60,7 @@ if (args[0] === "--migration") {
   }
   files = rest;
   const invert = (m) => { const o = {}; for (const [k, v] of Object.entries(m)) if (!(v in o)) o[v] = k; return o; };
-  const oldByReal = invert(JSON.parse(fs.readFileSync(OLDMAP, "utf8")));
+  oldByReal = invert(JSON.parse(fs.readFileSync(OLDMAP, "utf8")));
   const newByReal = invert(JSON.parse(fs.readFileSync(NEWMAP, "utf8")));
   for (const [real, oldMangled] of Object.entries(oldByReal)) {
     const nm = newByReal[real];
@@ -66,31 +80,53 @@ const CODE = /```[\s\S]*?```|``[^`\n]*(?:`[^`\n]*)*?``|`[^`\n]+`/g;
 const counts = new Map();
 let spansSeen = 0, spansEligible = 0;
 
+let slashSeen = 0, slashRewritten = 0;
+
+// Every substitution is decided on the ORIGINAL text and then applied at once
+// (the CHAINS hazard): code-span edits and slash-pair edits never overlap -- a
+// span that is exactly an identifier or `real (short)` holds no slash.
 function rewrite(text) {
-  return text.replace(CODE, (span) => {
+  const sub = (name) => {
+    const to = migration[name];
+    if (!to) return name;
+    counts.set(name, (counts.get(name) || 0) + 1);
+    return to;
+  };
+  const edits = [];
+  for (const m of text.matchAll(CODE)) {
+    const span = m[0];
     spansSeen++;
     const ticks = span.startsWith("```") ? null : span.match(/^`+/)[0];
-    if (!ticks) return span;                      // fenced block: quoted code, leave alone
+    if (!ticks) continue;                         // fenced block: quoted code, leave alone
     const inner = span.slice(ticks.length, span.length - ticks.length);
     const trimmed = inner.trim();
-
-    const sub = (name) => {
-      const to = migration[name];
-      if (!to) return name;
-      counts.set(name, (counts.get(name) || 0) + 1);
-      return to;
-    };
 
     let replaced = null;
     if (IDENT.test(trimmed)) replaced = sub(trimmed);              // `ple`
     else {
-      const m = NAMED.exec(trimmed);                                // `drainSessionMailbox (Vde)`
-      if (m) replaced = `${m[1]} (${sub(m[2])})`;
+      const n = NAMED.exec(trimmed);                                // `drainSessionMailbox (Vde)`
+      if (n) replaced = `${n[1]} (${sub(n[2])})`;
     }
-    if (replaced == null) return span;             // quoted expression — locals live here
+    if (replaced == null) continue;                // quoted expression — locals live here
     spansEligible++;
-    return ticks + inner.replace(trimmed, replaced) + ticks;
-  });
+    const next = ticks + inner.replace(trimmed, replaced) + ticks;
+    if (next !== span) edits.push({ start: m.index, end: m.index + span.length, text: next });
+  }
+  // real/short, anywhere (header): only an identity with the old map moves it
+  if (oldByReal) for (const m of text.matchAll(slashPair())) {
+    const [, real, short] = m;
+    if (oldByReal[real] !== short) continue;
+    slashSeen++;
+    const to = migration[short];
+    if (!to) continue;
+    sub(short);
+    slashRewritten++;
+    const at = m.index + m[0].lastIndexOf(short);
+    edits.push({ start: at, end: at + short.length, text: to });
+  }
+  let out = text;
+  for (const e of edits.sort((a, b) => b.start - a.start)) out = out.slice(0, e.start) + e.text + out.slice(e.end);
+  return out;
 }
 
 for (const f of files) {
@@ -103,6 +139,7 @@ for (const f of files) {
 
 const total = [...counts.values()].reduce((a, b) => a + b, 0);
 console.error(`\n${total} substitutions across ${counts.size} distinct symbols` +
-              ` (${spansEligible}/${spansSeen} code spans were symbol references)`);
+              ` (${spansEligible}/${spansSeen} code spans were symbol references;` +
+              (oldByReal ? ` ${slashRewritten}/${slashSeen} real/short pairs moved)` : " real/short pairs need the two-rename-map form, left alone)"));
 for (const [k, n] of [...counts].sort((a, b) => b[1] - a[1])) console.error(`  ${k} -> ${migration[k]}  (${n}x)`);
 if (dropped.length) console.error(`not present in the new build (left alone): ${dropped.join(", ")}`);

@@ -8,6 +8,10 @@
 # A failure here needs judgement, not a mechanical rewrite — a vanished symbol,
 # a snippet no longer on its line, a new bare line number, committed artifacts
 # out of step with the bundle — so nothing in CI commits fixes.
+#
+# Node comes from the repo-root .nvmrc. rebuild.sh reads the same file and
+# warns when a local run uses another major, so a local run and CI cannot
+# differ in Node without saying so.
 name: verify
 
 on:
@@ -28,11 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: reconstruction/tools/package-lock.json
 
@@ -66,7 +70,7 @@ jobs:
 
       - name: Keep the pipeline report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pipeline-report
           path: |

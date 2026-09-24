@@ -52,7 +52,7 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
    │
    ▼  ⑤ Du() 更新 registry/status.json（与 ③④ 同一行提交）
    │
-   ▼  ⑥ 按 routing_hint.target 入队（appendBeforeExecuteGateway/Gle）  [→Part III §5 分流]
+   ▼  ⑥ 按 routing_hint.target 入队（appendBeforeExecuteGateway/Kle）  [→Part III §5 分流]
    │      target 由入口 ingestChannelMessage (Gle) 经 resolveRoutingTarget (jXe) 决定，appendBeforeExecuteGateway (Kle) 内由 readRoutingTarget (qle) 读出
    │      gateway → 同步处理不入队
    │      meta    → 写 meta:subconscious mailbox 指针     [→Part IV §6]
@@ -68,7 +68,7 @@ duoduo 故意以 minified JS 发布（作者立场："代码是给 agent 读的�
    │      user-message 面：buildTransientUserBlocks (eke) 瞬态块
    │                        （restart-hint/time/skip/gateway/job-receipts/job-tick→user-input）
    │
-   ▼  ⑩ drain 合批 (drainSessionMailbox/GSe → batchDrainItems/xH) → createAgentSdkAdapter (Ef) → SDK query()
+   ▼  ⑩ drain 合批 (drainSessionMailbox/KSe → batchDrainItems/EH) → createAgentSdkAdapter (Ef) → SDK query()
    │                                                          [→Part I §2 Turn/Drain]
    │      （单 turn 准入——一次只准入一个 turn，后到消息走 steering lane 显式注入
    │        当前 turn，不再折进正跑的 turn 里导致会话永久 busy；createCodexAppServerAdapter (yw)
@@ -671,7 +671,7 @@ Turn/Drain 把离散用户消息重写为"带合并窗口的邮箱批 + 单一�
 
 **存在第二条同构摄入源 `route.deliver`（会话间路由投递，confirmed）。** 会话→会话的路由投递走 `Ps`(`64355-64481`) 全链：`on({type:"route.deliver"…})`(`64395-64396`) 构造事件→先 `atomicAppendEvent (on)`(`64410`) append，后 `Xs`(`64430`) 写 `- [ ] @evt(${h.id})` 指针，且入口带 `or`(`64370`) 归档中 / `Ks`(`64382`) 已归档两道短路；`walOnly` 为真时在 append 之后、写指针之前整条短路（日志 `[route] wal-only route event (no mailbox, no wake)`（`64417`））。它与 `Kle` 是「先 append 后写指针」的同一契约，是 §4 应认清的第二类摄入源。
 
-**单条 append = 恒定两次写入（WAL 行 + `by_id` 索引行，两次写之间不构成原子事务），且只有 `by_id` 一个索引（confirmed）。** `atomicAppendEvent (on)`(`32043`) 只做两件事：先 `appendEventToPartition (X9e)`(`32008`) 追加 WAL 行拿回 `{partition, byteOffset, byteLength}`，再**无条件**调 `Q9e`(`32034`) 把 `{event_id, partition, byte_offset, byte_len}` 追加进 `by_id.jsonl`（路径由 `tb` 拼成 `<eventsIndexDir>/by_id.jsonl`（`32032`）），并同步更新该文件对应的内存 Map（`i.map.set(t.event_id, t)`）。**不存在按 session 切分的第二索引**：`by_session` 在整个 bundle 里零字面量出现，也没有任何模板拼接出这个路径，无论事件带不带 `session_key` 走的都是同一条两写路径（会话维度的检索靠 mailbox 里的 `- [ ] @evt(<id>)` 指针，而不是靠索引文件）。磁盘 append 与内存 Map 的同步更新是同一个函数内的两步——`advanceConsumerWatermark (Nu)` 反查偏移、`readEventByIdSeek (t5e)` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
+**单条 append = 恒定两次写入（WAL 行 + `by_id` 索引行，两次写之间不构成原子事务），且只有 `by_id` 一个索引（confirmed）。** `atomicAppendEvent (on)`(`32043`) 只做两件事：先 `appendEventToPartition (X9e)`(`32008`) 追加 WAL 行拿回 `{partition, byteOffset, byteLength}`，再**无条件**调 `Q9e`(`32034`) 把 `{event_id, partition, byte_offset, byte_len}` 追加进 `by_id.jsonl`（路径由 `tb` 拼成 `<eventsIndexDir>/by_id.jsonl`（`32032`）），并同步更新该文件对应的内存 Map（`i.map.set(t.event_id, t)`）。**不存在按 session 切分的第二索引**：`by_session` 在整个 bundle 里零字面量出现，也没有任何模板拼接出这个路径，无论事件带不带 `session_key` 走的都是同一条两写路径（会话维度的检索靠 mailbox 里的 `- [ ] @evt(<id>)` 指针，而不是靠索引文件）。磁盘 append 与内存 Map 的同步更新是同一个函数内的两步——`advanceConsumerWatermark (Nu)` 反查偏移、`readEventById (Md)` 随机读都**强依赖 by_id 已写入**，这就是 `append → 索引 → watermark` 的隐式依赖链。
 
 **字节区间与全序（confirmed）。** `appendEventToPartition (X9e)`(`32008`) 执行 `oR.open(i,"a")`(`32015`)→`stat().size`(`32017`，stat 早于 write) 取 **byte_offset**→`write().bytesWritten`(`32018`) 取 **byte_len**→`close`(`32026`)，故 `[offset, offset+len)` 恰为该事件行字节区间。全序由 per-file promise 链保证（应用层互斥，非 fsync/DB 事务）：`G9e`(`31988`) `.then(t,t)` 两回调相同，成功失败都续链，同一分区 append 顺序与偏移计算无竞态。**架构假设**：单 daemon 单进程写；跨进程并发写同一分区无保护。
 

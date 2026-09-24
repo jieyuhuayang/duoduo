@@ -23,16 +23,32 @@
 //   `realName (short)`（`1234`）
 //   `daemon.pretty.js:1234-1299` (`short`=realName)
 // Every other `realName (short)` pairing -- no line, a line in another shape,
-// no backticks (diagrams, tables, prose) -- is checked for (2): a short name is
-// a claim about code whatever surrounds it, and those forms are exactly where
-// stale ones had accumulated unseen. Only pairings whose real name is in the
-// index count, and the gap before the parenthesis must be whitespace or a
-// full-width （, so a call like `realName(e)` is not read as a citation.
-// Plus bare `realName` mentions in backticks, which are checked for (1) only.
+// no backticks (diagrams, tables, prose) -- and the `realName/short` shorthand
+// (the shapes are anchor_forms.mjs namePair/slashPair) is checked for (1) and
+// (2): a short name is a claim about code whatever surrounds it, and those
+// forms are exactly where stale ones had accumulated unseen. The gap before the
+// parenthesis must be whitespace or a full-width （, so a call like
+// `realName(e)` is not read as a citation.
+//
+// (1) used to apply only to the line-bearing forms: a line-less pair whose real
+// name was not in the index was skipped as "not a citation", so
+// `readEventByIdSeek (t5e)` outlived its own rename (the function became
+// scanPartitionsForEventId) with every check green, and no slash pair was read
+// at all. Without a line there is less redundancy to decide "is this a claim
+// about code", so an unknown real name is reported only when it is spelled the
+// way real names are (looksRealName) and paired with a short-name-shaped token;
+// a slash pair additionally needs a short name that is indexed or
+// mangled-shaped, because `a/b` is also how prose writes "a or b".
+// A line-less pair is judged against ONE bundle: the one a `cli:` / `daemon:`
+// prefix names (`cli:main (QXe)`), else the daemon's entry when the daemon has
+// that real name, else the other bundle's -- so a cli-only name needs no
+// prefix, and a name both bundles have means the daemon's unless it has one.
+// Plus bare `realName` mentions in backticks, which are counted only.
 //
 // Usage: node verify_citations.mjs <symbols.json>[,<symbols2.json>...] <doc.md...> [--fix] [--quiet]
+//          [--bundle <name>=<pretty.js>]...
 import fs from "node:fs";
-import { ID, f1Forward, f1Reversed } from "./anchor_forms.mjs";
+import { f1Forward, f1Reversed, namePair, slashPair, looksReal, looksRealName, isShortName, looksMangled, identRe } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex } from "./bundle_guard.mjs";
 
 const argv = process.argv.slice(2);
@@ -54,7 +70,11 @@ if (!INDEXES || !DOCS.length) {
   process.exit(2);
 }
 
-// bundle -> { symbolName -> entry }; also a flat view for unqualified citations.
+// bundle -> { symbolName -> entry }; also a flat view for unqualified
+// citations, in which the daemon's entry wins whatever order the indexes were
+// given in (a real name both bundles have, `main`, means the daemon's unless
+// the citation says otherwise).
+const DEFAULT_BUNDLE = "daemon";
 const byBundle = new Map();
 const indexVersion = new Map();
 const flat = new Map();
@@ -63,10 +83,9 @@ for (const p of INDEXES.split(",")) {
   byBundle.set(idx.bundle, idx.symbols);
   indexVersion.set(idx.bundle, idx.version);
   for (const [name, e] of Object.entries(idx.symbols)) {
-    if (!flat.has(name)) flat.set(name, { ...e, bundle: idx.bundle });
+    if (!flat.has(name) || idx.bundle === DEFAULT_BUNDLE) flat.set(name, { ...e, bundle: idx.bundle });
   }
 }
-const DEFAULT_BUNDLE = "daemon";
 
 function lookup(name, bundle) {
   if (bundle && byBundle.has(bundle)) {
@@ -75,6 +94,22 @@ function lookup(name, bundle) {
   }
   return flat.get(name) || null;
 }
+// Every OTHER bundle's entry for a real name, for the hint on a stale pair. A
+// real name can exist in more than one bundle (`main` is `Fyt` in the daemon
+// and `QXe` in the cli). An unqualified line-less pair is judged by lookup()
+// alone -- the daemon's entry when there is one -- and a pair about the cli's
+// symbol of that name says so: `cli:main (QXe)`. Accepting ANY bundle's short
+// name for an unqualified pair (as this tool briefly did) let a daemon-context
+// `main (QXe)` pass, and every real name added to the cli that the daemon also
+// has would have widened that gap.
+function elsewhere(name, bundle) {
+  const out = [];
+  for (const [b, syms] of byBundle) if (b !== bundle && Object.hasOwn(syms, name)) out.push({ ...syms[name], bundle: b });
+  return out;
+}
+// the bundle a line-less pair names by a `cli:` / `daemon:` prefix, as the
+// name-bound form `code`（`cli:realName`） does
+const QUALIFIER = /(?<![A-Za-z0-9_$.])(daemon|cli|stdio):$/;
 
 // A line check against the wrong bundle reports drift on correct citations, and
 // --fix would then rewrite them.
@@ -95,20 +130,28 @@ function mangledOf(short, bundle) {
   const real = r?.get(short);
   return real ? { real, mangled: short } : null;
 }
-// A name that *looks* like a real symbol name: long and camel-cased. Used only
-// to decide whether an unresolved citation is worth reporting or is just prose.
-const KNOWN_REAL = new Set([...flat.keys()]);
-const looksReal = n => n.length >= 8 && /[a-z]/.test(n) && /[A-Z_]/.test(n);
+// short name -> the real names it belongs to in any bundle ("real (cli)" for
+// cli), for the hint on a stale pair: the short name usually survived and
+// names the function the doc meant
+function ownersOf(short) {
+  const out = [];
+  for (const [b, r] of reverse) if (r.has(short)) out.push(b === DEFAULT_BUNDLE ? r.get(short) : `${r.get(short)} (${b})`);
+  return out;
+}
+// looksReal (loose, for the line-bearing F1 below) is shared with
+// check_bare_anchors.mjs through anchor_forms.mjs: that tool treats an F1 line
+// number as owned exactly when handle() below would check it.
 
 // F1 shapes live in anchor_forms.mjs, shared with check_bare_anchors.mjs, which
 // has to know exactly which line numbers this tool already covers.
 const FORWARD = f1Forward();
 const REVERSED = f1Reversed();
-// any `Real (short)` / Real (short) / Real（short）, identity only
-const PAIR = new RegExp("(?<![A-Za-z0-9_$])(" + ID + ")(?:\\s+\\(|\\s*（)\\s*`?(" + ID + ")`?\\s*[)）]", "g");
+// any `Real (short)` / Real (short) / Real（short）, and Real/short
+const PAIR = namePair();
+const SLASH = slashPair();
 const BARE_NAME = /`([A-Za-z_$][A-Za-z0-9_$]{5,})`/g;
 
-let missingSymbol = 0, wrongMangled = 0, wrongLine = 0, checked = 0, pairs = 0, mentions = 0, fixedCount = 0;
+let missingSymbol = 0, wrongMangled = 0, wrongLine = 0, checked = 0, pairs = 0, slashPairs = 0, mentions = 0, fixedCount = 0;
 const problems = [];
 
 for (const doc of DOCS) {
@@ -151,7 +194,7 @@ for (const doc of DOCS) {
     const inside = n => Number(n) >= sym.line && Number(n) <= sym.endLine;
     // whole-identifier match: a substring test accepts any line that happens to
     // contain the letters (`on` is inside half the bundle)
-    const mention = new RegExp("(?<![A-Za-z0-9_$])" + sym.mangled.replace(/\$/g, "\\$") + "(?![A-Za-z0-9_$])");
+    const mention = identRe(sym.mangled);
     const refs = n => srcLines ? mention.test(srcLines[Number(n) - 1] || "") : true;
     const holds = n => inside(n) || refs(n);
     const drifted = from && (!holds(from) || (to && !holds(to)));
@@ -174,18 +217,55 @@ for (const doc of DOCS) {
   REVERSED.lastIndex = 0;
   while ((m = REVERSED.exec(text))) handle("reversed", m, m[5], m[4], m[1] || DEFAULT_BUNDLE, m[2], m[3]);
 
-  PAIR.lastIndex = 0;
-  while ((m = PAIR.exec(text))) {
-    const [, real, short] = m;
-    if (seenPair.has(m.index)) continue;
-    const sym = lookup(real);
-    if (!sym || short === real) continue;
-    pairs++;
-    if (sym.mangled !== short) {
+  // P: line-less pairs, (1) and (2) only.
+  const pair = (m, real, short, slash) => {
+    if (short === real) return;
+    const q = (text.slice(Math.max(0, m.index - 8), m.index).match(QUALIFIER) || [])[1];
+    const bundle = q && byBundle.has(q) ? q : undefined;
+    const sym = lookup(real, bundle);
+    const owners = ownersOf(short);
+    const shape = (q ? q + ":" : "") + (slash ? `${real}/${short}` : `${real} (${short})`);
+    if (sym) {
+      // `a/b` also writes "a or b". With an indexed real name on the left that
+      // reading is all but unused, so the right half counts whenever it is
+      // shaped like a short name and is not itself a real name
+      // (`atomicAppendEvent/main`). It used to need an indexed owner or a
+      // mangled shape as well, and a stale all-lowercase short name owned by
+      // nothing -- `drainRecordPath/zb`, the usual state after a bump, when an
+      // old short name lands on one of the ~2400 unindexed declarations --
+      // passed unread.
+      if (slash && (flat.has(short) || !isShortName(short))) return;
+      pairs++; if (slash) slashPairs++;
+      if (sym.mangled === short) return;
       wrongMangled++;
-      problems.push({ sev: "FATAL", doc, line: lineOf(m.index), msg: `\`${real}\` is \`${sym.mangled}\`, cited as \`${short}\`` });
+      const other = elsewhere(real, sym.bundle).find(s => s.mangled === short);
+      problems.push({ sev: "FATAL", doc, line: lineOf(m.index), msg: `\`${real}\` is \`${sym.mangled}\`${sym.bundle === DEFAULT_BUNDLE ? "" : ` (${sym.bundle})`}, cited as \`${shape}\``
+        + (other ? `; \`${short}\` is its ${other.bundle} symbol -- write \`${other.bundle}:${real} (${short})\` for that one`
+          : owners.length ? `; \`${short}\` is ${owners.map(o => `\`${o}\``).join(", ")}` : "") });
+      return;
     }
-  }
+    // qualified for a bundle that does not have it: `cli:createSpineEvent (x)`
+    if (bundle && flat.has(real)) {
+      pairs++; if (slash) slashPairs++;
+      missingSymbol++;
+      const there = flat.get(real);
+      problems.push({ sev: "FATAL", doc, line: lineOf(m.index), msg: `\`${shape}\`: \`${real}\` is not in the ${bundle} index; it is ${there.bundle}'s \`${there.mangled}\`` });
+      return;
+    }
+    // The real name is in no index. Report it only if it is spelled like one
+    // and paired with something shaped like a short name. A slash pair, which
+    // prose also writes, needs a short name that is indexed or mangled-shaped
+    // (`vanishedSymbolName/Xq9`), not a word (`ALADUO_BOOTSTRAP_DIR/meta`).
+    if (!looksRealName(real) || !isShortName(short) || (slash && !(owners.length || looksMangled(short)))) return;
+    pairs++; if (slash) slashPairs++;
+    missingSymbol++;
+    problems.push({ sev: "FATAL", doc, line: lineOf(m.index), msg: `\`${shape}\`: \`${real}\` is in no symbol index — deleted or renamed upstream, or hand-named in prose but absent from maps/inferred_*.json?`
+      + (owners.length ? ` \`${short}\` is now ${owners.map(o => `\`${o}\``).join(", ")}` : "") });
+  };
+  PAIR.lastIndex = 0;
+  while ((m = PAIR.exec(text))) if (!seenPair.has(m.index)) pair(m, m[1], m[2], false);
+  SLASH.lastIndex = 0;
+  while ((m = SLASH.exec(text))) pair(m, m[1], m[2], true);
 
   // Bare mentions: a backticked identifier of 6+ chars that IS a known symbol
   // name is a claim about code, even without a line. Worth counting, and worth
@@ -203,13 +283,15 @@ for (const doc of DOCS) {
 }
 
 if (!QUIET) {
+  // one pass per citation shape finds them out of order; report in doc order
+  problems.sort((a, b) => a.doc.localeCompare(b.doc) || a.line - b.line);
   const fatal = problems.filter(p => p.sev === "FATAL");
   const fixable = problems.filter(p => p.sev === "fixable");
   for (const p of fatal) console.error(`  FATAL  ${p.doc}:${p.line}  ${p.msg}`);
   for (const p of fixable.slice(0, 40)) console.error(`  fix    ${p.doc}:${p.line}  ${p.msg}`);
   if (fixable.length > 40) console.error(`  ... and ${fixable.length - 40} more fixable line offsets`);
 }
-console.error(`  citations: ${checked} checked with line, ${pairs} more name/short pairs checked, ${mentions} bare symbol mentions`
+console.error(`  citations: ${checked} checked with line, ${pairs} more name/short pairs checked (${slashPairs} written real/short), ${mentions} bare symbol mentions`
   + `; ${missingSymbol} missing symbol, ${wrongMangled} wrong short name, ${wrongLine} wrong line`
   + (FIX ? ` (${fixedCount} rewritten)` : ""));
 

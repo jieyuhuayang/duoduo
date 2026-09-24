@@ -9,25 +9,33 @@
 // disagrees with the rename map all cost exactly nothing at runtime and every
 // check still passes green.
 //
-// Five redundancies, each independently checkable:
+// Six redundancies, each independently checkable:
 //   1. body       - the extract IS the symbol's whole top-level declaration in
 //                   daemon.recon.js, character for character. "Appears somewhere
 //                   in recon" is not enough: a truncated body, a lone `}`, or
 //                   another symbol's body all appear somewhere.
-//   2. symbol     - header's mangled->real pair agrees with the rename map
+//   2. symbol     - header's mangled->real pair agrees with the rename map, and
+//                   the file is named after that real name
 //   3. anchor     - header's pretty.js line IS the symbol's declaration line
 //   4. provenance - header's "name:" line says INFERRED exactly for the names in
 //                   maps/inferred_daemon.json
 //   5. index.json - agrees with what is on disk, and resolved every anchor
+//   6. coverage   - the files are exactly the renamed symbols: one file per
+//                   rename-map entry, none missing, none extra, none twice; with
+//                   the subsystem map given, each file sits in the directory
+//                   that map files it under
+// Checks 1-5 only look at files that exist, so before 6 a renamed symbol that
+// never got a file (no subsystem entry, a stale tree, a case-insensitive
+// filesystem folding two names into one file) passed with every count green.
 //
-// Usage: node verify_first_party.mjs <first-party-dir> <recon.js> <rename.json> <pretty.js> <inferred.json>
+// Usage: node verify_first_party.mjs <first-party-dir> <recon.js> <rename.json> <pretty.js> <inferred.json> [subsys.json]
 import fs from "node:fs";
 import path from "node:path";
 import { parse } from "@babel/parser";
 
-const [, , FPDIR, RECON, RENAME, PRETTY, INFERRED] = process.argv;
+const [, , FPDIR, RECON, RENAME, PRETTY, INFERRED, SUBSYS] = process.argv;
 if (!FPDIR || !RECON || !RENAME || !PRETTY || !INFERRED) {
-  console.error("usage: node verify_first_party.mjs <first-party-dir> <recon.js> <rename.json> <pretty.js> <inferred.json>");
+  console.error("usage: node verify_first_party.mjs <first-party-dir> <recon.js> <rename.json> <pretty.js> <inferred.json> [subsys.json]");
   process.exit(2);
 }
 
@@ -35,6 +43,8 @@ const recon = fs.readFileSync(RECON, "utf8");
 const rename = JSON.parse(fs.readFileSync(RENAME, "utf8")); // mangled -> real
 const pretty = fs.readFileSync(PRETTY, "utf8");
 const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8")); // mangled -> real
+const subsys = SUBSYS ? JSON.parse(fs.readFileSync(SUBSYS, "utf8")) : null; // real -> subsystem
+const subOf = (real) => (subsys && Object.hasOwn(subsys, real) ? subsys[real] : undefined);
 
 // source text of every top-level declaration in recon, keyed by bound name: the
 // whole statement, as extract_functions.mjs slices it
@@ -69,6 +79,7 @@ for (const d of fs.readdirSync(FPDIR)) {
 const HEADER = /^\/\/ symbol: (\S+)\s+\(minified: (\S+), [^:]+:(\S+)\)/m;
 const fail = [];
 let okBody = 0, okSymbol = 0, okAnchor = 0, okProvenance = 0;
+const filesOf = new Map(); // real name (from the header) -> [relative paths]
 
 for (const f of files) {
   const rel = path.relative(FPDIR, f);
@@ -76,6 +87,8 @@ for (const f of files) {
   const m = txt.match(HEADER);
   if (!m) { fail.push(`${rel}: unparseable header`); continue; }
   const [, real, mangled, lineStr] = m;
+  if (!filesOf.has(real)) filesOf.set(real, []);
+  filesOf.get(real).push(rel);
 
   // header = the leading run of `//` lines, then one blank line; body = the rest
   const lines = txt.split("\n");
@@ -94,14 +107,29 @@ for (const f of files) {
   if (says === is) okProvenance++;
   else fail.push(`${rel}: header says the name is ${says ?? "(no name: line)"}, maps/inferred_daemon.json says ${is}`);
 
-  if (rename[mangled] === real) okSymbol++;
-  else fail.push(`${rel}: header says ${mangled}->${real}, rename map says ${mangled}->${rename[mangled] ?? "(absent)"}`);
+  if (rename[mangled] !== real) fail.push(`${rel}: header says ${mangled}->${real}, rename map says ${mangled}->${rename[mangled] ?? "(absent)"}`);
+  else if (path.basename(f, ".js") !== real) fail.push(`${rel}: file is named ${path.basename(f)} but holds ${real}`);
+  else okSymbol++;
 
   const line = declLine.get(mangled);
   if (line === undefined) fail.push(`${rel}: ${mangled} is not a top-level declaration in ${path.basename(PRETTY)}`);
   else if (String(line) === lineStr) okAnchor++;
   else fail.push(`${rel}: anchor says line ${lineStr}, ${mangled} is declared at ${line}`);
 }
+
+// coverage: the tree holds exactly the renamed symbols, once each
+let okCoverage = 0;
+const renamed = Object.values(rename);
+for (const real of renamed) {
+  const at = filesOf.get(real) ?? [];
+  if (!at.length) { fail.push(`coverage: renamed symbol ${real} has no file in the tree${subsys && !subOf(real) ? ` (and no subsystem in ${path.basename(SUBSYS)})` : ""}`); continue; }
+  if (at.length > 1) { fail.push(`coverage: ${real} has ${at.length} files: ${at.join(", ")}`); continue; }
+  if (subsys && subOf(real) !== path.dirname(at[0])) { fail.push(`coverage: ${at[0]} is filed under ${path.dirname(at[0])}, ${path.basename(SUBSYS)} says ${subOf(real) ?? "(no subsystem)"}`); continue; }
+  okCoverage++;
+}
+const renamedSet = new Set(renamed);
+for (const [real, at] of filesOf) if (!renamedSet.has(real)) fail.push(`coverage: ${at.join(", ")} hold ${real}, which is not in the rename map`);
+if (subsys) for (const real of Object.keys(subsys)) if (!renamedSet.has(real)) fail.push(`coverage: ${path.basename(SUBSYS)} files ${real} under ${subsys[real]}, but no renamed symbol has that name`);
 
 // index.json must describe exactly what is on disk
 const idxPath = path.join(FPDIR, "index.json");
@@ -120,7 +148,8 @@ console.error(`first-party files: ${files.length}`);
 console.error(`  body == declaration    : ${okBody}/${files.length}`);
 console.error(`  header vs rename map   : ${okSymbol}/${files.length}`);
 console.error(`  line anchor exact      : ${okAnchor}/${files.length}`);
-console.error(`  name provenance       : ${okProvenance}/${files.length}`);
+console.error(`  name provenance        : ${okProvenance}/${files.length}`);
+console.error(`  renamed symbols filed : ${okCoverage}/${renamed.length}${subsys ? " (in their subsystem's directory)" : ""}`);
 if (!fail.length) { console.error("RESULT: first-party tree is consistent with the bundle"); process.exit(0); }
 console.error(`\n${fail.length} problem(s):`);
 for (const f of fail.slice(0, 40)) console.error(`  ${f}`);

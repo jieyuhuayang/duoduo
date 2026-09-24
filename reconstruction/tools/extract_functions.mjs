@@ -3,6 +3,16 @@
 // (function/const) sliced from the renamed source, plus a header noting its
 // original mangled name and pretty-file line. These files are for READING; the
 // runnable artifact is the whole daemon.recon.js.
+//
+// The tree must hold EVERY renamed symbol, so the rename map is what drives the
+// loop, and maps/subsys_daemon.json (hand-made) must classify exactly that set.
+// This loop used to iterate the subsystem map instead: a first-party name that
+// build_rename.mjs recovered but nobody had filed under a subsystem was left
+// out of first-party/ without a word, gen_rename_table.mjs filed it under
+// "zz-unclassified", and verify_first_party.mjs never compared the file set with
+// the rename map -- so a new upstream symbol could miss the readable tree
+// indefinitely. Now either direction of disagreement stops the build here,
+// before anything is written, with the names to fix.
 // Usage: node extract_functions.mjs <daemon.recon.js> <rename.json> <subsys.json> <outdir> <origPretty.js> <inferred.json>
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
@@ -54,11 +64,35 @@ function origLineOf(mangled) {
   return origDeclLine.get(mangled) ?? null;
 }
 
+// Completeness, both directions. A subsystem is also a directory name, so it
+// must look like the other twelve (`NN-name`): a typo would open a new one.
+const renamed = Object.values(renameMap);
+const renamedSet = new Set(renamed);
+const unfiled = renamed.filter(n => !Object.hasOwn(subsys, n)).sort();
+const stale = Object.keys(subsys).filter(n => !renamedSet.has(n)).sort();
+const badDir = Object.entries(subsys).filter(([, s]) => !/^\d\d-[a-z][a-z0-9-]*$/.test(s)).map(([n, s]) => `${n} -> "${s}"`);
+const notTopLevel = renamed.filter(n => !programScope.bindings[n]).sort();
+if (unfiled.length || stale.length || badDir.length || notTopLevel.length) {
+  console.error(`FIRST-PARTY TREE INCOMPLETE: ${path.basename(SUBSYS)} and ${path.basename(MAP)} disagree`);
+  if (unfiled.length) {
+    console.error(`  ${unfiled.length} renamed symbol(s) have no subsystem, so they would be missing from first-party/:`);
+    for (const n of unfiled) console.error(`    ${n}  (${inv[n]})`);
+    console.error(`  file each under one of the NN-* subsystems in ${path.basename(SUBSYS)} (name_symbol.mjs does this for inferred names).`);
+  }
+  if (stale.length) {
+    console.error(`  ${stale.length} subsystem entries name no renamed symbol (dropped upstream, or a typo):`);
+    for (const n of stale) console.error(`    ${n} -> ${subsys[n]}`);
+  }
+  if (badDir.length) console.error(`  subsystem not of the form NN-name: ${badDir.join(", ")}`);
+  if (notTopLevel.length) console.error(`  renamed but not a top-level binding of ${path.basename(RECON)}: ${notTopLevel.join(", ")}`);
+  process.exit(1);
+}
+
 const index = [];
-let extracted = 0, missing = [];
-for (const [newName, sub] of Object.entries(subsys)) {
+let extracted = 0;
+for (const newName of renamed) {
+  const sub = subsys[newName];
   const binding = programScope.bindings[newName];
-  if (!binding) { missing.push(newName); continue; }
   // enclosing statement
   let p = binding.path;
   if (p.isVariableDeclarator()) p = p.parentPath; // -> VariableDeclaration
@@ -83,7 +117,6 @@ for (const [newName, sub] of Object.entries(subsys)) {
 index.sort((a, b) => (a.subsystem + a.symbol).localeCompare(b.subsystem + b.symbol));
 fs.writeFileSync(path.join(OUTDIR, "index.json"), JSON.stringify(index, null, 2));
 console.log(`extracted ${extracted} first-party functions into ${OUTDIR}`);
-if (missing.length) console.log(`not top-level (skipped): ${missing.join(", ")}`);
 // per-subsystem counts
 const bySub = {};
 for (const e of index) bySub[e.subsystem] = (bySub[e.subsystem] || 0) + 1;

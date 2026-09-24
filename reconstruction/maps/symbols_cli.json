@@ -1,7 +1,7 @@
 {
   "bundle": "cli",
   "version": "v0.8.3",
-  "source": "/tmp/pretty_new/cli.pretty.js",
+  "source": "/private/tmp/claude-501/-Users-lilu-Projects-duoduo/f0383fb7-80d6-43f6-90f6-e03eca0fef09/scratchpad/build-promote1/beautified/v0.8.3/cli.pretty.js",
   "symbolCount": 40,
   "notTopLevel": [],
   "symbols": {
@@ -19,7 +19,7 @@
       "endLine": 20793,
       "kind": "function",
       "bytes": 933,
-      "signature": "3bfae12c87bf3a6910d0"
+      "signature": "e1abd0af4a30af0988dc"
     },
     "getLaunchdPid": {
       "mangled": "vp",
@@ -27,7 +27,7 @@
       "endLine": 20816,
       "kind": "async function",
       "bytes": 356,
-      "signature": "407239491887d8eb6d45"
+      "signature": "f60515e4df84af2cfba7"
     },
     "getUid": {
       "mangled": "b_",
@@ -35,7 +35,7 @@
       "endLine": 20747,
       "kind": "async function",
       "bytes": 103,
-      "signature": "2e2544615f97aae38dbb"
+      "signature": "2db7be9a88584cb4f02d"
     },
     "installAndLoad": {
       "mangled": "rk",
@@ -43,7 +43,7 @@
       "endLine": 20827,
       "kind": "async function",
       "bytes": 296,
-      "signature": "30adc50b6335a1da4636"
+      "signature": "a0d13d92884c589f71ae"
     },
     "isAquaSession": {
       "mangled": "tk",
@@ -51,7 +51,7 @@
       "endLine": 20737,
       "kind": "function",
       "bytes": 123,
-      "signature": "31ef8b14f376d17b25d6"
+      "signature": "ccd4144a369fef6f5ad4"
     },
     "isServiceLoaded": {
       "mangled": "D_",
@@ -75,7 +75,7 @@
       "endLine": 20741,
       "kind": "function",
       "bytes": 93,
-      "signature": "09fd58caf83f16373590"
+      "signature": "2f6c27b7007e69c87206"
     },
     "uninstall": {
       "mangled": "ok",
@@ -83,7 +83,7 @@
       "endLine": 20842,
       "kind": "async function",
       "bytes": 84,
-      "signature": "f0c9a0bdc2afac179d4b"
+      "signature": "d3750ee917b711ff9ee2"
     },
     "unload": {
       "mangled": "y1",
@@ -99,7 +99,7 @@
       "endLine": 63138,
       "kind": "function",
       "bytes": 1270,
-      "signature": "413eb2d2ed5a7daad3c1"
+      "signature": "2f14c50cba243945dcd8"
     },
     "renderConfigResult": {
       "mangled": "qge",
@@ -107,7 +107,7 @@
       "endLine": 63542,
       "kind": "function",
       "bytes": 2792,
-      "signature": "2223afd1bc2ce940a269"
+      "signature": "3d2031b0799ab20656b8"
     },
     "renderSessionList": {
       "mangled": "Yge",
@@ -115,7 +115,7 @@
       "endLine": 62679,
       "kind": "function",
       "bytes": 243,
-      "signature": "99e719a10cba71f06a19"
+      "signature": "08a86c8723cb05704eea"
     },
     "runSessionSubcommand": {
       "mangled": "y$e",
@@ -123,7 +123,7 @@
       "endLine": 62618,
       "kind": "async function",
       "bytes": 913,
-      "signature": "3ad269898c3680384ab4"
+      "signature": "f350ee9efc33cbc7ca8e"
     },
     "jobHelp": {
       "mangled": "nU",
@@ -131,7 +131,7 @@
       "endLine": 63633,
       "kind": "function",
       "bytes": 1017,
-      "signature": "c68e275cb35768fa8f61"
+      "signature": "29f627fb69732f400666"
     },
     "parseJobCli": {
       "mangled": "Kge",
@@ -139,7 +139,7 @@
       "endLine": 63721,
       "kind": "function",
       "bytes": 2584,
-      "signature": "ac4524badddab91000ae"
+      "signature": "b8d18aae6fc9a2d05e20"
     },
     "renderInterruptReceipt": {
       "mangled": "jge",
@@ -147,7 +147,7 @@
       "endLine": 63765,
       "kind": "function",
       "bytes": 898,
-      "signature": "72feb4cde2f1f1ace24b"
+      "signature": "b1f48603b42b1f4061b2"
     },
     "renderJobList": {
       "mangled": "$ge",
@@ -155,7 +155,7 @@
       "endLine": 63739,
       "kind": "function",
       "bytes": 350,
-      "signature": "968b5233c006c1071077"
+      "signature": "34e0091955237ab685ce"
     },
     "renderJobRead": {
       "mangled": "Jge",
@@ -163,7 +163,7 @@
       "endLine": 63751,
       "kind": "function",
       "bytes": 923,
-      "signature": "f821c2931ba1dd172798"
+      "signature": "5ab866308c514fc5908f"
     },
     "renderRpcError": {
       "mangled": "Xge",
@@ -171,7 +171,7 @@
       "endLine": 63778,
       "kind": "function",
       "bytes": 225,
-      "signature": "60391b01023c42b2e3ca"
+      "signature": "ad045c16dfb4acee0a67"
     },
     "runJobSubcommand": {
       "mangled": "nJe",
@@ -179,7 +179,7 @@
       "endLine": 63848,
       "kind": "async function",
       "bytes": 1972,
-      "signature": "0f87f1c58778d3209b6d"
+      "signature": "3f09ac5906edbc825aea"
     },
     "runPromptsSubcommand": {
       "mangled": "iJe",
@@ -187,7 +187,7 @@
       "endLine": 64031,
       "kind": "async function",
       "bytes": 971,
-      "signature": "c5ef7b04113eb7bcdf81"
+      "signature": "7b57b233d691fbf04266"
     },
     "runMemoryCommand": {
       "mangled": "Uje",
@@ -195,7 +195,7 @@
       "endLine": 66024,
       "kind": "async function",
       "bytes": 681,
-      "signature": "7e8d480ecf558bdcfe1e"
+      "signature": "2c69dbd8bf8d880356b8"
     },
     "runSpineCommand": {
       "mangled": "Zje",
@@ -203,7 +203,7 @@
       "endLine": 66636,
       "kind": "async function",
       "bytes": 424,
-      "signature": "3775e89bf21df25d4c63"
+      "signature": "782716a43e95cef5c9ad"
     },
     "defaultExistingDaemonChoice": {
       "mangled": "REe",
@@ -219,7 +219,7 @@
       "endLine": 74537,
       "kind": "function",
       "bytes": 220,
-      "signature": "3e7e6a2e751162dc4a98"
+      "signature": "cb9c64139cdb27107140"
     },
     "isDetachedUpgradeWorker": {
       "mangled": "vXe",
@@ -235,7 +235,7 @@
       "endLine": 74471,
       "kind": "function",
       "bytes": 120,
-      "signature": "1d9383afbdc1a28a5b85"
+      "signature": "8473fb87c41a1ef45792"
     },
     "main": {
       "mangled": "QXe",
@@ -243,7 +243,7 @@
       "endLine": 75371,
       "kind": "async function",
       "bytes": 1997,
-      "signature": "727b34194d7467137dbd"
+      "signature": "9a6de050b1b763611a3e"
     },
     "parseExistingDaemonChoice": {
       "mangled": "SXe",
@@ -251,7 +251,7 @@
       "endLine": 74528,
       "kind": "function",
       "bytes": 171,
-      "signature": "c7b1ba7c446b4ee49fdc"
+      "signature": "77373b401f2015ed3405"
     },
     "parseRestartArgs": {
       "mangled": "bXe",
@@ -259,7 +259,7 @@
       "endLine": 74726,
       "kind": "function",
       "bytes": 1269,
-      "signature": "894c0ad27d5862ee73d4"
+      "signature": "ad80431a470d0d913cf1"
     },
     "parseRootCli": {
       "mangled": "CXe",
@@ -267,7 +267,7 @@
       "endLine": 74519,
       "kind": "function",
       "bytes": 1251,
-      "signature": "8f011ae01464fcd49b08"
+      "signature": "e5da5d4278f61689fe2b"
     },
     "parseUpgradeArgs": {
       "mangled": "wXe",
@@ -275,7 +275,7 @@
       "endLine": 74974,
       "kind": "function",
       "bytes": 1149,
-      "signature": "40c40c2b252f6f6eb70a"
+      "signature": "12a67c081d37fc309add"
     },
     "printHelp": {
       "mangled": "bEe",
@@ -283,7 +283,7 @@
       "endLine": 74576,
       "kind": "function",
       "bytes": 1333,
-      "signature": "f014acf4d7cd5ad92d8d"
+      "signature": "0bb5fdbf56e09f85f08f"
     },
     "readCliPackageVersion": {
       "mangled": "yXe",
@@ -291,7 +291,7 @@
       "endLine": 74572,
       "kind": "function",
       "bytes": 101,
-      "signature": "7a4f3d2457cd39e04f68"
+      "signature": "762ec139bc75771b22fd"
     },
     "readOption": {
       "mangled": "tv",
@@ -299,7 +299,7 @@
       "endLine": 74558,
       "kind": "function",
       "bytes": 456,
-      "signature": "468af1cafb527dd8f07e"
+      "signature": "8f232a62b3fee04620f2"
     },
     "reasonlessRestartRefusal": {
       "mangled": "DXe",
@@ -307,7 +307,7 @@
       "endLine": 74732,
       "kind": "function",
       "bytes": 548,
-      "signature": "a002c5ceb1e1c6dd0319"
+      "signature": "ba97220495ceae18bb79"
     },
     "restartWakeReport": {
       "mangled": "NXe",
@@ -315,7 +315,7 @@
       "endLine": 74748,
       "kind": "function",
       "bytes": 665,
-      "signature": "625e5e8b640610277703"
+      "signature": "27e6c609581d8cb20f39"
     },
     "runUpgradeChannelPhase": {
       "mangled": "xXe",
@@ -323,7 +323,7 @@
       "endLine": 75041,
       "kind": "async function",
       "bytes": 2924,
-      "signature": "2819275d5f6bca3ed8fb"
+      "signature": "84f064971a078e5a562f"
     }
   }
 }
