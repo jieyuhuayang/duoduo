@@ -239,11 +239,13 @@ if [ -d "$DOCS" ]; then
     verdict citations pass
   else verdict citations fail; rc=1; fi
 
-  # 10. the line numbers step 9 does not own (anchor_forms.mjs): F2 short-name
-  #    citations, F3 code-snippet citations, and unbound bare numbers, which
-  #    may only decrease against maps/bare_anchor_baseline.json. Both fatal.
-  #    On a version bump F2/F3 lines move with the bundle: retarget them
-  #    (remap_doc_anchors -> retarget_docs -> retarget_symbols) before this runs.
+  # 10. everything step 9 does not own (anchor_forms.mjs): name-bound snippets
+  #    `code`（`realName`） (no line; checked inside the symbol's span), and the
+  #    legacy line numbers — F2 short-name and F3 snippet citations, unbound
+  #    numbers — whose per-doc counts may only decrease against
+  #    maps/bare_anchor_baseline.json. All fatal. On a version bump the legacy
+  #    lines move with the bundle: retarget them (remap_doc_anchors ->
+  #    retarget_docs -> retarget_symbols) before this runs.
   echo "==== line anchors (short names, snippets, unbound) ===="
   if node "$HERE/check_doc_anchors.mjs" --resolve --index "$OUT/symbols_daemon.json" \
        "$BEAUTIFIED/daemon.pretty.js" "$DOCS"/*.md \

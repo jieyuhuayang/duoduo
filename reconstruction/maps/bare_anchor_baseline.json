@@ -1,9 +1,17 @@
 {
-  "note": "Per-doc ceiling on UNBOUND line numbers (check_bare_anchors.mjs). It may only go down: write new citations in an F1/F2/F3 shape (anchor_forms.mjs).",
+  "note": "Per-doc ceilings (check_bare_anchors.mjs); neither may go up. unbound: line numbers in none of the F1/F2/F3 shapes. lineNumbers: every line number, whatever its shape. Line numbers are legacy: cite by real name (`real (short)`, no line) or by a string literal inside a named function, and lower these with --write-baseline when citations are removed.",
   "unbound": {
     "AGENT_FRAMEWORKS_COMPARISON.md": 0,
     "AGENT_INTERNALS_ANALYSIS.md": 0,
     "ARCHITECTURE_ANALYSIS.md": 0,
+    "DUODUO_FRAMEWORK_GUIDE.md": 0,
+    "README.md": 0,
+    "SOURCE_RECONSTRUCTION.md": 0
+  },
+  "lineNumbers": {
+    "AGENT_FRAMEWORKS_COMPARISON.md": 7,
+    "AGENT_INTERNALS_ANALYSIS.md": 1525,
+    "ARCHITECTURE_ANALYSIS.md": 39,
     "DUODUO_FRAMEWORK_GUIDE.md": 0,
     "README.md": 0,
     "SOURCE_RECONSTRUCTION.md": 0

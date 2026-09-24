@@ -12,13 +12,13 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 39,
-      "renameEntries": 151,
-      "renamesApplied": 151,
-      "referencesRewritten": 586,
+      "inferredNames": 53,
+      "renameEntries": 165,
+      "renamesApplied": 165,
+      "referencesRewritten": 625,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 151
+      "indexedSymbols": 165
     },
     "cli": {
       "prettyLines": 75391,
@@ -39,26 +39,26 @@
     }
   },
   "firstPartyTree": {
-    "files": 151,
+    "files": 165,
     "subsystems": 12,
     "bySubsystem": {
       "00-daemon-entry": 7,
       "01-spine-wal": 8,
-      "02-gateway-rpc": 4,
-      "03-session-actor": 13,
-      "04-cognition-prompt": 8,
-      "05-drain-turn": 12,
+      "02-gateway-rpc": 8,
+      "03-session-actor": 14,
+      "04-cognition-prompt": 12,
+      "05-drain-turn": 14,
       "06-runtime-claude": 23,
       "07-runtime-codex": 20,
-      "08-cadence-subconscious": 11,
+      "08-cadence-subconscious": 12,
       "09-memory": 16,
-      "10-runtime-host": 13,
+      "10-runtime-host": 15,
       "11-runtime-grok": 16
     }
   },
   "verdicts": {
     "anchorCheckers": "pass",
-    "citations": "fail",
+    "citations": "pass",
     "cli.astEquivalent": "pass",
     "cli.beautifyEquivalent": "skipped",
     "cli.lossless": "pass",
@@ -70,7 +70,7 @@
     "daemon.lossless": "pass",
     "daemon.syntax": "pass",
     "firstPartyTree": "pass",
-    "lineAnchors": "fail"
+    "lineAnchors": "pass"
   },
   "environment": {
     "node": "v22.22.2",
@@ -80,6 +80,6 @@
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 191
+    "firstPartySymbols": 205
   }
 }

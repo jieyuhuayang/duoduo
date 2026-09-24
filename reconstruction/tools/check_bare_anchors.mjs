@@ -9,6 +9,9 @@
 //                               (a string literal, or an identifier that is not
 //                               a keyword) must be on line N, or within N-M, and
 //                               so must every short mangled name it calls
+//   N   `code`（`realName`）    owned HERE, no line number: the same test, run
+//                               over the named symbol's current span (--index);
+//                               `cli:realName` for a cli symbol
 //
 // Every other backticked line number is UNBOUND, and so is one written where
 // lineSpan() cannot match it — `daemon:N` in plain text, several lines in one
@@ -29,14 +32,17 @@
 //   --index <symbols.json>[,...]   refuse a bundle the index was not built from;
 //                                  also resolves real names in --list output
 //   --bundle cli=<cli.pretty.js>   check anchors written `cli.pretty.js:N`
-//   --baseline <path>              per-doc ceiling on unbound anchors
+//   --baseline <path>              per-doc ceilings on unbound anchors and on
+//                                  all line numbers
 //   --write-baseline               record the current counts there and exit 0
+//                                  (never above an existing ceiling...)
+//   --allow-raise                  (...unless this is given)
 //   --list <out.json>              every unbound / refuted anchor, with context
 // Exit: 2 bundle/index mismatch, 1 anything refuted or a baseline exceeded.
 import fs from "node:fs";
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
-import { f1Forward, f1Reversed, f2Cites, f3, lineSpan, looseLineNumbers, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
+import { f1Forward, f1Reversed, f2Cites, f3, nameBound, lineSpan, looseLineNumbers, snippetTokens, snippetCallHeads } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
 const traverse = _traverse.default || _traverse;
 
@@ -47,6 +53,7 @@ const INDEX = opt("--index");
 const BASELINE = opt("--baseline");
 const LIST = opt("--list");
 const WRITE_BASELINE = flag("--write-baseline");
+const ALLOW_RAISE = flag("--allow-raise");
 const extra = new Map();
 for (let v; (v = opt("--bundle")); ) { const [n, p] = v.split("="); extra.set(n, p); }
 const [BUNDLE, BLOCKS, MODULES, ...docs] = argv;
@@ -114,7 +121,31 @@ const f1Checked = (name) => !indexes.size || indexedNames.has(name) || indexedSh
 // ---- docs ----------------------------------------------------------------
 const bundleOf = (q) => (q === "cli" || q === "stdio") ? q : "daemon";
 const counts = { f3ok: 0, f3bad: 0, unbound: 0, blank: 0, vendor: 0, backwards: 0, owned: 0 };
-const perDoc = {};
+const named = { ok: 0, bad: 0 };
+// "bundle:realName" -> entry; a real name can exist in both bundles (`main`)
+const symbolOf = new Map();
+for (const ix of indexes.values()) for (const [r, e] of Object.entries(ix.symbols)) symbolOf.set(`${ix.bundle}:${r}`, { bundle: ix.bundle, e });
+// does a snippet hold on lines [a, b] of a bundle? (shared by F3 and N)
+// strict (N): identifiers match as whole words, and a lone identifier or a
+// callee of fewer than three characters (`G`, `ea`, `$e(w)` — function locals,
+// found somewhere in any large function) is not a checkable token.
+function snippetHolds(code, bundle, a, b, strict = false) {
+  const toks = snippetTokens(code);
+  const lone = code.trim();
+  if (!toks.length && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(lone) && (!strict || lone.length >= 3)) toks.push(lone);
+  // a two-character callee (`$e(w)`) is not distinctive inside a whole function
+  if (!toks.length) toks.push(...snippetCallHeads(code).filter(h => !strict || h.length >= 3));
+  if (!toks.length) return { checkable: false };
+  const span = bundle.lines.slice(a - 1, b);
+  const word = t => new RegExp("(?<![A-Za-z0-9_$])" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![A-Za-z0-9_$])");
+  const isIdent = t => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(t);
+  const found = t => strict && isIdent(t) ? span.some(l => word(t).test(l)) : span.some(l => l.includes(t));
+  const hit = toks.some(found);
+  const heads = snippetCallHeads(code).filter(h => !span.some(l => word(h).test(l)));
+  return { checkable: true, ok: hit && !heads.length, heads };
+}
+const perDoc = {};       // unbound line numbers
+const linesPerDoc = {};  // every line number, whatever its shape
 const listed = [];
 const refuted = [];
 
@@ -124,6 +155,7 @@ for (const f of docs) {
   const docLineOf = (off) => t.slice(0, off).split("\n").length;
   const docLines = t.split("\n");
   perDoc[docName] = 0;
+  linesPerDoc[docName] = 0;
 
   // offsets of every line number F1/F2 already own
   const owned = [];
@@ -146,10 +178,30 @@ for (const f of docs) {
     for (const s of m[2].matchAll(/`[^`]+`/g)) snippetAt.set(listStart + s.index, code);
   }
 
+  // N: `code`（`realName`） — evidence bound to a symbol, not to a line
+  if (indexes.size) for (const m of t.matchAll(nameBound())) {
+    const [, code, qual, name] = m;
+    const where = `${docName} L${docLineOf(m.index)}`;
+    const sym = symbolOf.get(`${qual || "daemon"}:${name}`);
+    if (!sym) {
+      // `a`（`b`） is not a citation unless b looks like a real name
+      if (looksReal(name)) { named.bad++; refuted.push(`${where}: \`${code.slice(0, 50)}\` bound to \`${name}\`, which is no indexed symbol`); listed.push({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, status: "refuted: unknown symbol" }); }
+      continue;
+    }
+    const bundle = load(sym.bundle);
+    const r = bundle ? snippetHolds(code, bundle, sym.e.line, sym.e.endLine, true) : { checkable: false };
+    if (r.checkable && r.ok) { named.ok++; continue; }
+    named.bad++;
+    const why = !r.checkable ? "has no checkable token" : `not inside ${name} (${sym.e.mangled})${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}`;
+    refuted.push(`${where}: \`${code.slice(0, 50)}\` ${why}`);
+    listed.push({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, span: `${sym.e.line}-${sym.e.endLine}`, status: `refuted: ${why}` });
+  }
+
   for (const m of t.matchAll(lineSpan())) {
     const [, qual, fromS, toS] = m;
     const from = Number(fromS), to = toS ? Number(toS) : null;
     const where = `${docName} L${docLineOf(m.index)}`;
+    linesPerDoc[docName]++;
     if (to !== null && to < from) { counts.backwards++; refuted.push(`${where}: ${from}-${to} -> RANGE RUNS BACKWARDS`); }
     if (isOwned(m.index)) { counts.owned++; continue; }
 
@@ -177,19 +229,13 @@ for (const f of docs) {
     }
 
     const code = snippetAt.get(m.index);
-    const toks = code ? snippetTokens(code) : [];
-    // A snippet that is a single identifier binds by that identifier even when
-    // it is short: `lg`（`63829`/`63900`） — F2 owns the first, this the rest.
-    if (code && !toks.length && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(code.trim())) toks.push(code.trim());
-    // …and a snippet that is only a short call, `$e(w)`, by its callee.
-    if (code && !toks.length) toks.push(...snippetCallHeads(code));
-    if (toks.length && bundle) {
-      const span = bundle.lines.slice(from - 1, (to ?? from));
-      const hit = toks.some(tk => span.some(l => l.includes(tk)));
-      const heads = snippetCallHeads(code).filter(h => !span.some(l => new RegExp("(?<![A-Za-z0-9_$])" + h.replace(/\$/g, "\\$") + "(?![A-Za-z0-9_$])").test(l)));
-      if (hit && !heads.length) { counts.f3ok++; continue; }
+    // A snippet binds by its literals and long identifiers; failing those, a
+    // single identifier (`lg`) or a short call (`$e(w)`) binds by itself.
+    const r = code && bundle ? snippetHolds(code, bundle, from, to ?? from) : { checkable: false };
+    if (r.checkable) {
+      if (r.ok) { counts.f3ok++; continue; }
       counts.f3bad++;
-      refuted.push(`${where}: \`${code.slice(0, 50)}\` not on ${bname} ${from}${to ? "-" + to : ""}${heads.length ? ` (callee ${heads.join(",")} is not there)` : ""}`);
+      refuted.push(`${where}: \`${code.slice(0, 50)}\` not on ${bname} ${from}${to ? "-" + to : ""}${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}`);
       listed.push({ ...entry(), status: "refuted: snippet not on line", snippet: code });
       continue;
     }
@@ -204,6 +250,7 @@ for (const f of docs) {
   // without backticks of its own, a number inside a fence. Unless F1/F2 own it
   // (`Name`(12345) needs no backticks there), each is unbound.
   for (const n of looseLineNumbers(t)) {
+    linesPerDoc[docName]++;
     if (isOwned(n.index)) { counts.owned++; continue; }
     const where = `${docName} L${docLineOf(n.index)}`;
     if (n.to !== null && n.to < n.from) { counts.backwards++; refuted.push(`${where}: ${n.from}-${n.to} -> RANGE RUNS BACKWARDS`); }
@@ -223,23 +270,41 @@ console.log(`  REFUTED - lands on a blank line  : ${counts.blank}`);
 console.log(`  REFUTED - lands in vendor code   : ${counts.vendor}`);
 console.log(`  REFUTED - range runs backwards   : ${counts.backwards}`);
 console.log(`  UNBOUND (nothing can check them) : ${counts.unbound}`);
+console.log(`name-bound snippets (no line)     : ${named.ok + named.bad}`);
+console.log(`  hold inside the named symbol     : ${named.ok}`);
+console.log(`  REFUTED                          : ${named.bad}`);
+const perDocLines = Object.entries(linesPerDoc).filter(([, n]) => n).map(([d, n]) => `${d} ${n}`).join(", ");
+console.log(`line numbers per doc (legacy)     : ${perDocLines || "none"}`);
 if (refuted.length) { console.log(`\nrefuted:`); refuted.slice(0, 20).forEach(e => console.log("  " + e)); if (refuted.length > 20) console.log(`  ... and ${refuted.length - 20} more (--list for all)`); }
 
 let over = 0;
 if (BASELINE) {
+  const NOTE = "Per-doc ceilings (check_bare_anchors.mjs); neither may go up. unbound: line numbers in none of the F1/F2/F3 shapes. lineNumbers: every line number, whatever its shape. Line numbers are legacy: cite by real name (`real (short)`, no line) or by a string literal inside a named function, and lower these with --write-baseline when citations are removed.";
+  const prev = fs.existsSync(BASELINE) ? JSON.parse(fs.readFileSync(BASELINE, "utf8")) : {};
+  const ceilings = { unbound: prev.unbound || {}, lineNumbers: prev.lineNumbers || {} };
+  const measured = { unbound: perDoc, lineNumbers: linesPerDoc };
   if (WRITE_BASELINE) {
-    fs.writeFileSync(BASELINE, JSON.stringify({
-      note: "Per-doc ceiling on UNBOUND line numbers (check_bare_anchors.mjs). It may only go down: write new citations in an F1/F2/F3 shape (anchor_forms.mjs).",
-      unbound: perDoc,
-    }, null, 2) + "\n");
+    const raised = [];
+    for (const kind of ["unbound", "lineNumbers"])
+      for (const [d, n] of Object.entries(measured[kind])) {
+        const cap = ceilings[kind][d];
+        // an unrecorded doc starts at 0, so recording it with any count is a raise
+        if (n > (cap ?? 0) && !(kind === "lineNumbers" && !prev.lineNumbers)) raised.push(`${d} ${kind}: ${cap ?? 0} -> ${n}`);
+      }
+    if (raised.length && !ALLOW_RAISE) {
+      console.log(`\nrefusing to raise a ceiling (pass --allow-raise if this is really intended):`);
+      raised.forEach(r => console.log("  " + r));
+      process.exit(1);
+    }
+    fs.writeFileSync(BASELINE, JSON.stringify({ note: NOTE, unbound: measured.unbound, lineNumbers: measured.lineNumbers }, null, 2) + "\n");
     console.log(`\nbaseline written: ${BASELINE}`);
     process.exit(0);
   }
-  const base = fs.existsSync(BASELINE) ? JSON.parse(fs.readFileSync(BASELINE, "utf8")).unbound : {};
-  for (const [d, n] of Object.entries(perDoc)) {
-    const cap = base[d] ?? 0;
-    if (n > cap) { over++; console.log(`  BASELINE EXCEEDED  ${d}: ${n} unbound, ceiling ${cap}`); }
-    else if (n < cap) console.log(`  (${d}: ${n} unbound, below ceiling ${cap} — lower it with --write-baseline)`);
-  }
+  for (const kind of ["unbound", "lineNumbers"])
+    for (const [d, n] of Object.entries(measured[kind])) {
+      const cap = ceilings[kind][d] ?? 0;
+      if (n > cap) { over++; console.log(`  BASELINE EXCEEDED  ${d}: ${n} ${kind}, ceiling ${cap}${kind === "lineNumbers" ? " — cite by name instead of adding a line number" : ""}`); }
+      else if (n < cap) console.log(`  (${d}: ${n} ${kind}, below ceiling ${cap} — lower it with --write-baseline)`);
+    }
 }
 process.exit(refuted.length + over > 0 ? 1 : 0);

@@ -1,4 +1,4 @@
-// Mutation test for the four doc-anchor checkers.
+// Mutation test for the doc-anchor checkers.
 //
 // A checker that has never been seen to fail proves nothing: check_bare_anchors
 // once had a vendor arm that could not fire, and its green runs meant nothing
@@ -39,7 +39,8 @@ function literalLine(lines, e) {
 }
 const pickWithLiteral = (idx, lines) => { for (const [real, e] of fnSyms(idx)) { const l = literalLine(lines, e); if (l) return { real, e, ...l }; } throw new Error("no symbol with a quotable literal"); };
 const A = pickWithLiteral(idxD, dLines);
-const other = fnSyms(idxD).find(([, e]) => e.mangled !== A.e.mangled && !dLines[A.e.line - 1].includes(e.mangled))[1];
+const [otherReal, other] = fnSyms(idxD).find(([, e]) => e.mangled !== A.e.mangled && !dLines[A.e.line - 1].includes(e.mangled)
+  && !dLines.slice(e.line - 1, e.endLine).some(l => l.includes(A.code.slice(1, -1))));
 const C = pickWithLiteral(idxC, cLines);
 
 const clean = [
@@ -50,6 +51,9 @@ const clean = [
   `range \`${A.e.mangled}\`（\`${A.e.line}-${A.e.endLine}\`）`,
   // F2 needs no backticks on the number, so a parenthesis after a span is owned
   `F2bare \`${A.e.mangled}\`(${A.e.line})`,
+  // N: evidence bound to the symbol by name, no line number at all
+  `N \`${A.code}\`（\`${A.real}\`）`,
+  `Ncli \`${C.code}\`（\`cli:${C.real}\`）`,
   // numbers that are not line citations must stay invisible: a count in prose
   // (qualified or not), a port inside code, a date/error code/size/expression
   // in a fence
@@ -64,10 +68,11 @@ fs.writeFileSync(shifted, "\n" + dLines.join("\n"));
 const baseline = path.join(tmp, "baseline.json");
 fs.writeFileSync(baseline, JSON.stringify({ unbound: {} }));
 const node = (args) => spawnSync(process.execPath, args, { encoding: "utf8" }).status;
+const bareArgs = (doc, d) => [path.join(HERE, "check_bare_anchors.mjs"), "--index", `${MAPS}/symbols_daemon.json,${MAPS}/symbols_cli.json`, "--bundle", `cli=${CLI}`, "--baseline", baseline, d, `${MAPS}/blocks_daemon.json`, MODULES, doc];
 const checks = {
   verify_citations: (doc, d = DAEMON) => node([path.join(HERE, "verify_citations.mjs"), `${MAPS}/symbols_daemon.json,${MAPS}/symbols_cli.json`, "--bundle", `daemon=${d}`, "--bundle", `cli=${CLI}`, doc, "--quiet"]),
   check_doc_anchors: (doc, d = DAEMON) => node([path.join(HERE, "check_doc_anchors.mjs"), "--resolve", "--index", `${MAPS}/symbols_daemon.json`, d, doc]),
-  check_bare_anchors: (doc, d = DAEMON) => node([path.join(HERE, "check_bare_anchors.mjs"), "--index", `${MAPS}/symbols_daemon.json,${MAPS}/symbols_cli.json`, "--bundle", `cli=${CLI}`, "--baseline", baseline, d, `${MAPS}/blocks_daemon.json`, MODULES, doc]),
+  check_bare_anchors: (doc, d = DAEMON) => node(bareArgs(doc, d)),
 };
 
 const mutants = [
@@ -92,11 +97,18 @@ const mutants = [
   ["line number inside a fenced diagram", "check_bare_anchors", clean + "\n```\n" + `step ① ${A.real}  [${A.ln}]` + "\n```\n"],
   ["space-qualified number in a table row", "check_bare_anchors", clean + `\n| claim | \`${A.code}\` | daemon ${A.ln} | confirmed |\n`],
   ["un-backticked number in a parenthesis after a snippet", "check_bare_anchors", clean + `\nsee \`${A.code}\`(${A.ln})\n`],
+  ["N snippet bound to a symbol that does not contain it", "check_bare_anchors", clean.replace(`\`${A.code}\`（\`${A.real}\`）`, `\`${A.code}\`（\`${otherReal}\`）`)],
+  ["N snippet bound to a real name that is not indexed", "check_bare_anchors", clean.replace(`\`${A.code}\`（\`${A.real}\`）`, `\`${A.code}\`（\`nonexistentSymbolName\`）`)],
+  // line numbers are legacy: even a correct, well-formed one may not be added
+  ["a new, correct F1 line number beyond the ratchet", "check_bare_anchors", clean + `\nagain \`${A.real} (${A.e.mangled})\`（\`${A.e.line}\`）\n`],
 ];
 
 let bad = 0;
 const docPath = path.join(tmp, "doc.md");
 fs.writeFileSync(docPath, clean);
+// the clean doc's counts become the ceilings every mutant is measured against
+const recorded = node([...bareArgs(docPath, DAEMON), "--write-baseline"]);
+if (recorded !== 0) { console.log(`FAIL  could not record the clean doc's baseline (exit ${recorded})`); bad++; }
 for (const [name, run] of Object.entries(checks)) {
   const s = run(docPath);
   console.log(`${s === 0 ? "ok  " : "FAIL"}  clean doc passes ${name} (exit ${s})`);
@@ -109,6 +121,11 @@ for (const [label, owner, text] of mutants) {
   console.log(`${s === 1 ? "ok  " : "FAIL"}  ${label} -> ${owner} exit ${s}`);
   if (s !== 1) bad++;
 }
+// the ratchet cannot be dodged by re-recording: a raise needs --allow-raise
+fs.writeFileSync(docPath, clean + `\nagain \`${A.real} (${A.e.mangled})\`（\`${A.e.line}\`）\n`);
+const raise = node([...bareArgs(docPath, DAEMON), "--write-baseline"]);
+console.log(`${raise === 1 ? "ok  " : "FAIL"}  --write-baseline refuses to raise a ceiling (exit ${raise})`);
+if (raise !== 1) bad++;
 fs.writeFileSync(docPath, clean);
 for (const [name, run] of Object.entries(checks)) {
   const s = run(docPath, shifted);

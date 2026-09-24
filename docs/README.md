@@ -2,20 +2,23 @@
 
 对 `@openduo/duoduo` 的深度逆向分析（2026-07-01 起，持续更新）。证据基础：本机实际部署 + minified 运行时**还原为可证明等价的源码**（见 [`../reconstruction/`](../reconstruction/)）+ 活体 daemon 观测，三路交叉印证。
 
-> **各文档的对齐版本不一致，看行号锚点前先看这里**（2026-09-07 核实）：
+> **各文档的对齐版本**（2026-09-24 核实）：
 >
-> | 文档 | 对齐版本 | 行号锚点状态 |
+> | 文档 | 对齐版本 | 引用状态 |
 > |---|---|---|
-> | [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) | **v0.8.2** | 已重定向；`真名 (短名)` 式引用经 `verify_citations.mjs` 全绿 |
-> | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) | **v0.8.2**（部分复核，范围见其头部） | 已重定向 |
-> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | **v0.8.2** | **不含行号锚点，设计如此**：面向产品经理的入门指南，每节的证据经其附录 C 指向 `AGENT_INTERNALS_ANALYSIS.md` 的对应小节 |
-> | [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md) | v0.7.1（机制叙述）/ v0.8.2（锚点） | 短名与行号随 v0.8.2 一并重定向；**机制结论本身仍停在 v0.7.1，未逐条重新验证** |
+> | [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) | **v0.8.3** | 已重定向，所有检查全绿；仍带存量行号，逐步改为按名引用 |
+> | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) | **v0.8.3**（部分复核，范围见其头部） | 已重定向 |
+> | [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) | **v0.8.3** | **不含代码引用，设计如此**：面向产品经理的入门指南，每节的证据经其附录 C 指向 `AGENT_INTERNALS_ANALYSIS.md` 的对应小节 |
+> | [`AGENT_FRAMEWORKS_COMPARISON.md`](./AGENT_FRAMEWORKS_COMPARISON.md) | v0.7.1（机制叙述）/ v0.8.3（引用） | 短名随版本重定向；**机制结论本身仍停在 v0.7.1，未逐条重新验证** |
 >
-> 锚点为什么必须每版重定向：esbuild 每次构建重新 mangle，短名与行号都不跨版本存活；机制叙述则通常跨版本成立。两者的失效节奏不同，所以「对齐版本」这一列对同一份文档可能有两个答案。
+> **引用按名字写，不写行号。**esbuild 每次构建重新 mangle、格式化器重新断行，行号几乎每版都整体移动：v0.8.3 这一轮有约两百处行号无法重新定位，只能删掉。真名来自 esbuild 的 `__export` 表，跨版本不变；它在哪一行由符号索引 `reconstruction/maps/symbols_*.json` 和 `reconstruction/first-party/` 给出，文档不用重复。两种写法，都由构建检查（定义在 `reconstruction/tools/anchor_forms.mjs`）：
 >
-> **现在由什么来保证。**文档里的每个行号都必须属于三种可校验写法之一（定义在 `reconstruction/tools/anchor_forms.mjs`），每种由一个检查器负责，三者都会失败构建：`真名 (短名)`（行号）由 `verify_citations.mjs` 按符号身份核对，符号消失或短名对不上即失败，行号漂移用 `--fix` 重生成；`短名`（行号）由 `check_doc_anchors.mjs --resolve` 核对短名在该行或包住该行；`代码片段`（行号）由 `check_bare_anchors.mjs` 核对片段里的字面量或标识符在该行，片段调用的短名也必须在该行。三个检查器在拿到与符号索引不一致的 bundle 时一律拒绝运行，它们自身由 `mutate_anchor_checks.mjs` 做变异测试。
+> - `` `真名 (短名)` ``，不带行号：`verify_citations.mjs` 核对真名仍存在、短名仍是它的 mangled 名，任一不成立即失败。短名保留是为了方便在 pretty bundle 里搜索，升级时由 `retarget_symbols.mjs` 更新。
+> - `` `代码片段`（`真名`） ``：表示"这句代码就是证据"。`check_bare_anchors.mjs` 要求片段里有辨识度的字面量或标识符、以及片段调用的每个短名，都落在该真名当前的函数体内。优先引用字符串字面量，它们跨版本基本不变。
 >
-> **三种写法之外的裸行号不允许出现。**v0.8.2 这一轮把存量的裸行号逐条对照代码改成了上述写法：多数行号停留在更早的版本、指向无关函数，其中二十余处区间首尾颠倒，全部已重新定位；找不到对应代码的（例如 v0.8.0 已移除的 `/undo`）删去行号。`check_bare_anchors.mjs` 按 `reconstruction/maps/bare_anchor_baseline.json` 统计每份文档的裸行号，只允许减少。仍未覆盖的是 fenced 代码块内的行号引用（如 `name:12345` 注释），它们不在任何检查器的扫描范围内。
+> 没有真名的函数，先在 `reconstruction/maps/inferred_daemon.json` 登记一个推断名，再按第一种写法引用；只写裸短名无法被任何检查核对，而且下一版可能指向完全不同的函数（v0.8.3 就把 `AXe`、`UEe`、`WEe` 复用给了别的代码）。
+>
+> **存量行号只减不增。**旧的 `真名 (短名)`（行号）、`短名`（行号）、`代码片段`（行号）三种写法在删掉之前仍逐条检查；三种写法之外的裸行号一律不允许。`reconstruction/maps/bare_anchor_baseline.json` 给每份文档记两个上限：全部行号的数量（`lineNumbers`）和裸行号的数量（`unbound`，保持为 0）。任何新增行号——包括写法正确的——都会让构建失败。改到带行号的段落时，顺手改成上面两种写法，并用 `check_bare_anchors.mjs --write-baseline` 把上限调低；该命令拒绝调高上限。
 
 ## 先看这张阅读地图
 
