@@ -1,7 +1,7 @@
 # duoduo 项目深度架构分析
 
-> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` **v0.8.2**（npm 运行时）
-> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向锚点；2026-08-20 随上游 v0.7.1 重定向行号锚点，并以隔离实启复核控制面三分面结论；2026-09-05 随上游 v0.8.0 部分复核——新增 daemon 重启 `--wake` 跨会话唤醒与 `duoduo spine cat/show` 只读事件读取入口，pi 加入为第四运行时并复用 Claude 的 job-config 叠加口，`/undo`与 Grok rewind 扩展方法已从代码中移除；本轮**未**对全文逐条重新核实，仅更新下方明确标注 v0.8.0 的段落，详见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 复核状态）；2026-09-21 随上游 v0.8.2 重定向锚点，并新增 `duoduo job` 生命周期子命令一节（10.4）
+> 分析对象：`openduo/duoduo`（GitHub 仓库）/ `@openduo/duoduo` **v0.8.3**（npm 运行时）
+> 分析日期：2026-07-01（2026-07-09 依据还原源码复核更新；2026-07-29 随上游 v0.6.2 重定向锚点；2026-08-20 随上游 v0.7.1 重定向行号锚点，并以隔离实启复核控制面三分面结论；2026-09-05 随上游 v0.8.0 部分复核——新增 daemon 重启 `--wake` 跨会话唤醒与 `duoduo spine cat/show` 只读事件读取入口，pi 加入为第四运行时并复用 Claude 的 job-config 叠加口，`/undo`与 Grok rewind 扩展方法已从代码中移除；本轮**未**对全文逐条重新核实，仅更新下方明确标注 v0.8.0 的段落，详见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 复核状态）；2026-09-21 随上游 v0.8.2 重定向锚点，并新增 `duoduo job` 生命周期子命令一节（10.4）；2026-09-23 随上游 v0.8.3 重定向，引用改为按名字写（不再新增行号）
 > 分析方式：仓库文档审读 + 本机实际部署、运行与运行时探测（host 模式，Claude Code 本地认证）
 > 本文所有架构主张均标注了「文档来源」与「本次部署的实测证据」。
 >
@@ -79,7 +79,7 @@ README 提出六项核心创新。下表把每一项与本次部署中**实际�
                             #   新 daemon 启动时读一次即删（一次性认领）
 ```
 
-> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent, wake_targets?}`（`claimDaemonRestartReason (zbe)`（`daemon.pretty.js:65802-65805`））。`wake_targets` 是可选项：`duoduo daemon restart` 与 `duoduo upgrade` 都接受 `--wake <session-or-alias>`，给了目标时 CLI 才在载荷里加上 `wake_targets: u`（`cli.pretty.js:68090`），此时即使没写 `-r` 也会写这个文件（`reason` 为空串）。daemon 认领时只保留非空字符串项（`r.wake_targets.filter`（`daemon.pretty.js:65797`）），`reason` 与 `wake_targets` 都为空才当作没有文件；启动完成后由 `kyt`（`daemon.pretty.js:89682`）向每个目标发一条 `source: "daemon-restart"`（`89689`）的强制唤醒消息，失败只记日志。
+> `daemon-restart-reason.json` 只在 `duoduo daemon restart -r "…"` / `duoduo upgrade` 发出重启、到新 daemon 完成启动之间存在。它是**唯一不走 WAL 的跨进程状态**——由 CLI 进程写、daemon 进程读，没有事件 ID、没有 `by_id` 索引、没有 TTL 也没有 daemon 身份标识。理由是它必须在 daemon 存在**之前**就写好；代价是任何一次 daemon 启动都会认领当时躺在那里的文件。载荷为 `{reason, requested_at, requested_by_agent, wake_targets?}`（`claimDaemonRestartReason (zbe)`）。`wake_targets` 是可选项：`duoduo daemon restart` 与 `duoduo upgrade` 都接受 `--wake <session-or-alias>`，给了目标时 CLI 才在载荷里加上 `wake_targets: u`（`cli.pretty.js:68090`），此时即使没写 `-r` 也会写这个文件（`reason` 为空串）。daemon 认领时只保留非空字符串项（`r.wake_targets.filter`（`claimDaemonRestartReason`）），`reason` 与 `wake_targets` 都为空才当作没有文件；启动完成后由 `deliverDaemonRestartWakes (kyt)` 向每个目标发一条 `source: "daemon-restart"`（`deliverDaemonRestartWakes`）的强制唤醒消息，失败只记日志。
 
 ### 3.3 持久化的配置面
 
@@ -168,7 +168,7 @@ subconscious/
 
 **v0.8 的结构性变化是"两级子代理"塌缩成"两个平级分区的读写分权"。** 旧版 `memory-weaver` 一个分区靠 `.claude/agents/*.md` 挂三个子代理（`spine-scanner`→`entity-crystallizer`→`intuition-updater`）串起流水线；现在出厂脚手架里**已无任何 `.claude/agents/*.md`**，改由两个平级分区按"谁能写什么"切开：`gradient-distiller` 只读 Spine 事件日志与当前广播板，把外部事件蒸馏成**可回溯到 `memory/CLAUDE.md` 具体某一行**的 text gradient 碎片，除碎片外几乎不写；`intuition-weaver` 则自称"广播板、`memory/effectiveness/`、`memory/entities/` 的唯一写者"，合法动作限定为 add/rewrite/reorder/retire/re-wire，受行预算、语域、来源边界与用户显式数值策略四条约束。**"算梯度"与"应用梯度"由此落在两个不同的分区、两个不同的写权限域里**，而不再是同一个分区内部的三个子代理。
 
-**`cadence-executor` 与 `memory-weaver` 是被运行时显式"退休"的，不是被删掉的（confirmed）。** 退休名单 `sdt`）写死两条：`{memory-weaver, selfId:"contract"}` 与 `{cadence-executor, selfId:"contract-absent"}`，由 `Gwe`（`69151`）在 init 期逐条交给 `fdt`（`69164`）处理。`fdt` 的四道闸门都在防"误伤用户自己的东西"：① charter 解析失败只告警不动手（`parse-fail`→`unreadable`）；② **自证闸**——`memory-weaver` 必须仍持有 valid contract、`cadence-executor` 必须仍无 contract，否则判为"这个目录名已被你挪作他用"，原样留下并记 `not-self-identified`；③ **一次性闸**——落 `<partitionStateDir>/<name>.retired` 标记（`adt = ".retired"`（`69230`）），标记已存在就跳过，且若用户事后重新 enable，日志明说"retirement runs once"并放手；④ 只有 `schedule.enabled === true` 才动。四闸全过才写标记、把 charter 的 `schedule.enabled` 翻成 `false`，正文原样保留。**退休 = 关掉调度并留痕，从不删除分区目录或其历史**——想继续跑，手工改回 `enabled: true` 即可，运行时不会再翻第二次。
+**`cadence-executor` 与 `memory-weaver` 是被运行时显式"退休"的，不是被删掉的（confirmed）。** 退休名单 `sdt`写死两条：`{memory-weaver, selfId:"contract"}` 与 `{cadence-executor, selfId:"contract-absent"}`，由 `Gwe`（`69151`）在 init 期逐条交给 `fdt`（`69164`）处理。`fdt` 的四道闸门都在防"误伤用户自己的东西"：① charter 解析失败只告警不动手（`parse-fail`→`unreadable`）；② **自证闸**——`memory-weaver` 必须仍持有 valid contract、`cadence-executor` 必须仍无 contract，否则判为"这个目录名已被你挪作他用"，原样留下并记 `not-self-identified`；③ **一次性闸**——落 `<partitionStateDir>/<name>.retired` 标记（`adt = ".retired"`（`69230`）），标记已存在就跳过，且若用户事后重新 enable，日志明说"retirement runs once"并放手；④ 只有 `schedule.enabled === true` 才动。四闸全过才写标记、把 charter 的 `schedule.enabled` 翻成 `false`，正文原样保留。**退休 = 关掉调度并留痕，从不删除分区目录或其历史**——想继续跑，手工改回 `enabled: true` 即可，运行时不会再翻第二次。
 
 与之配套，v0.8 里 `cadence-executor` 赖以工作的 `queue.md` 路由机制**已从 bundle 整体消失**（全 bundle `queue.md` 字面量零命中），因此"潜意识靠一个纯路由分区分发任务"这一层在当前版本已不存在。
 
@@ -242,7 +242,7 @@ duoduo channel feishu start
 **v0.7.0 起，`:20233` 不再是唯一控制面端口，也不再拥有全部权限**——旧版"任何能连上 20233 的进程都能读写会话状态、无任何鉴权"的模型被拆成三层：
 
 1. **TCP `:20233`（`ALADUO_PORT`，默认恒 loopback）——只读**。`/rpc` 只放行一份方法白名单：`system.status, usage.get, job.list, spine.tail, system.runtime.info, system.config`；其余方法返回 JSON-RPC `-32601 "Method not available on read-only endpoint"`（HTTP 200，非连接层拒绝）。`/ws`（双向流式 RPC）在只读模式下直接返回 HTTP 426，响应体指路"Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead"并附 `socket_path`。这个监听器还额外做 Host/Origin 白名单（`127.0.0.1`/`localhost`/`::1`）防 DNS-rebinding。`/healthz`/`/dashboard`/`/readyz` 三个端点在只读/全权模式下都注册，行为不变。
-2. **unix socket（默认 `<runDir>/daemon.sock`，可用 `daemonSocketPath` 选项或 `ALADUO_DAEMON_SOCKET` 覆盖）——全权限**。daemon 启动时校验 socket 所在目录属主为当前 uid 且权限 0700（`mode 0700`）），`listen` 之后再显式 `chmod` socket 文件为 0600（`Ms.chmod(x, 384)`（`91472`））——**只有本机同一个 OS 用户能打开它，鉴权靠文件系统权限本身，不是应用层 token**。CLI 与 channel gateway 的"全权限客户端"默认走这条路径。
+2. **unix socket（默认 `<runDir>/daemon.sock`，可用 `daemonSocketPath` 选项或 `ALADUO_DAEMON_SOCKET` 覆盖）——全权限**。daemon 启动时校验 socket 所在目录属主为当前 uid 且权限 0700（`mode 0700`（`createDaemon`）），`listen` 之后再显式 `chmod` socket 文件为 0600（`Ms.chmod(x, 384)`（`91472`））——**只有本机同一个 OS 用户能打开它，鉴权靠文件系统权限本身，不是应用层 token**。CLI 与 channel gateway 的"全权限客户端"默认走这条路径。
 3. **可选的第三个监听器——非 loopback、token 网关，opt-in**。把 `ALADUO_DAEMON_HOST` 设成非 loopback 主机会打开第三个监听器，此时必须同时提供 `ALADUO_DAEMON_TOKEN`（经 `duoduo daemon token new [--force]` 生成，持久化进 `~/.config/duoduo/.env`，文件权限 0600（`Rl.chmod(n, 384)`（`cli.pretty.js:67171`）））和一个独立的 `ALADUO_REMOTE_PORT`（否则拒绝启动）。该监听器上 `/rpc`/`/ws` 都会校验 `Authorization: Bearer <token>` 的 SHA-256 是否与配置的 token 的 SHA-256 用 `crypto.timingSafeEqual` 比对相等——这是旧版"网络端口=全权控制"模型里唯一保留、且现在默认关闭、需要显式两步开启的形态。
 
 **本轮活体验证**（隔离环境，`ALADUO_PORT=20334`）：

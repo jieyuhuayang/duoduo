@@ -37,5 +37,19 @@
   "r5e": "isUsableEventIndexEntry",
   "Zst": "mapGrokUsageToDrainUsage",
   "Md": "readEventById",
-  "KSe": "drainSessionMailbox"
+  "KSe": "drainSessionMailbox",
+  "JEe": "resolveBoardIncludes",
+  "hgt": "renderTranscludedFiles",
+  "qEe": "normalizeIncludePathKey",
+  "ygt": "realpathOrSelf",
+  "XEe": "collectInstructionsInputs",
+  "jXe": "resolveRoutingTarget",
+  "Gle": "ingestChannelMessage",
+  "qle": "readRoutingTarget",
+  "Yle": "probeEventsAppendable",
+  "Cft": "renderRuntimeUnavailableGuidance",
+  "$ft": "renderRuntimeMismatchGuidance",
+  "cg": "runManageJobTool",
+  "kut": "validateConfigValue",
+  "Ei": "isEffortLevel"
 }

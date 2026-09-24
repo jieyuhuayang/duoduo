@@ -2,7 +2,7 @@
   "bundle": "daemon",
   "version": "v0.8.3",
   "source": "/tmp/pretty_new/daemon.pretty.js",
-  "symbolCount": 151,
+  "symbolCount": 165,
   "notTopLevel": [],
   "symbols": {
     "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
@@ -1212,6 +1212,118 @@
       "kind": "async function",
       "bytes": 44236,
       "signature": "0e1634489165ed97e85f"
+    },
+    "resolveBoardIncludes": {
+      "mangled": "JEe",
+      "line": 82212,
+      "endLine": 82238,
+      "kind": "async function",
+      "bytes": 626,
+      "signature": "abaafd63e973c3472cd7"
+    },
+    "renderTranscludedFiles": {
+      "mangled": "hgt",
+      "line": 82205,
+      "endLine": 82211,
+      "kind": "function",
+      "bytes": 105,
+      "signature": "687530ee56121c9bf631"
+    },
+    "normalizeIncludePathKey": {
+      "mangled": "qEe",
+      "line": 82254,
+      "endLine": 82257,
+      "kind": "function",
+      "bytes": 108,
+      "signature": "56408ae814502240c951"
+    },
+    "realpathOrSelf": {
+      "mangled": "ygt",
+      "line": 82246,
+      "endLine": 82252,
+      "kind": "async function",
+      "bytes": 109,
+      "signature": "9cf53c487eedfaf550a5"
+    },
+    "collectInstructionsInputs": {
+      "mangled": "XEe",
+      "line": 82549,
+      "endLine": 82583,
+      "kind": "async function",
+      "bytes": 1042,
+      "signature": "51b4aeb76b23fcc1bf02"
+    },
+    "resolveRoutingTarget": {
+      "mangled": "jXe",
+      "line": 87155,
+      "endLine": 87160,
+      "kind": "function",
+      "bytes": 369,
+      "signature": "00d3f0ac3cc54e4c12cc"
+    },
+    "ingestChannelMessage": {
+      "mangled": "Gle",
+      "line": 87161,
+      "endLine": 87185,
+      "kind": "async function",
+      "bytes": 809,
+      "signature": "1b22498b73ef52292083"
+    },
+    "readRoutingTarget": {
+      "mangled": "qle",
+      "line": 87075,
+      "endLine": 87078,
+      "kind": "function",
+      "bytes": 133,
+      "signature": "cda9f36d66bc8a7cf492"
+    },
+    "probeEventsAppendable": {
+      "mangled": "Yle",
+      "line": 87347,
+      "endLine": 87355,
+      "kind": "async function",
+      "bytes": 201,
+      "signature": "fdb0f37ff3473c8366df"
+    },
+    "renderRuntimeUnavailableGuidance": {
+      "mangled": "Cft",
+      "line": 72358,
+      "endLine": 72364,
+      "kind": "function",
+      "bytes": 1140,
+      "signature": "0f5d4d109ce3ac9d2278"
+    },
+    "renderRuntimeMismatchGuidance": {
+      "mangled": "$ft",
+      "line": 72366,
+      "endLine": 72375,
+      "kind": "function",
+      "bytes": 887,
+      "signature": "bfff054eea79abfea87b"
+    },
+    "runManageJobTool": {
+      "mangled": "cg",
+      "line": 63802,
+      "endLine": 63938,
+      "kind": "async function",
+      "bytes": 7320,
+      "signature": "7cbddf3606ef7930a227"
+    },
+    "validateConfigValue": {
+      "mangled": "kut",
+      "line": 87961,
+      "endLine": 88034,
+      "kind": "function",
+      "bytes": 2246,
+      "signature": "291d6843d96d76ddf6d6"
+    },
+    "isEffortLevel": {
+      "mangled": "Ei",
+      "line": 31533,
+      "endLine": 31535,
+      "kind": "function",
+      "bytes": 44,
+      "signature": "f1902871f6f5a036a272"
     }
   }
 }

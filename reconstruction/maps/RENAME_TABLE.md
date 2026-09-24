@@ -2,7 +2,7 @@
 
 下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 `daemon.pretty.js`。
 
-共 151 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.3。
+共 165 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.3。
 
 ## 00-daemon-entry
 
@@ -34,7 +34,11 @@
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
 | `cO` | `DAEMON_TOKEN_ENV_KEY` | __export | 68920 |
+| `qle` | `readRoutingTarget` | inferred | 87075 |
+| `jXe` | `resolveRoutingTarget` | inferred | 87155 |
+| `Gle` | `ingestChannelMessage` | inferred | 87161 |
 | `Kle` | `appendBeforeExecuteGateway` | inferred | 87214 |
+| `Yle` | `probeEventsAppendable` | inferred | 87347 |
 | `Myt` | `isLoopbackBindHost` | __export | 90436 |
 | `jyt` | `resolveRemoteListenerConfig` | __export | 90443 |
 
@@ -52,6 +56,7 @@
 | `$A` | `diffStreamingConfigSignature` | __export | 82364 |
 | `YEe` | `computeMissionFingerprint` | __export | 82397 |
 | `OA` | `runInstructionsFingerprintGuard` | __export | 82402 |
+| `XEe` | `collectInstructionsInputs` | inferred | 82549 |
 | `Agt` | `createSessionManager` | __export | 83651 |
 | `Wgt` | `createMetaSession` | __export | 85819 |
 | `Jgt` | `sweepTombstonedSessionRecords` | __export | 86403 |
@@ -68,6 +73,10 @@
 | `Vbe` | `renderDaemonRestartHint` | inferred | 65850 |
 | `eke` | `buildTransientUserBlocks` | inferred | 71668 |
 | `WEe` | `transcludeBroadcastBoard` | inferred | 82197 |
+| `hgt` | `renderTranscludedFiles` | inferred | 82205 |
+| `JEe` | `resolveBoardIncludes` | inferred | 82212 |
+| `ygt` | `realpathOrSelf` | inferred | 82246 |
+| `qEe` | `normalizeIncludePathKey` | inferred | 82254 |
 
 ## 05-drain-turn
 
@@ -85,6 +94,8 @@
 | `zye` | `computeCodexTurnUsage` | __export | 61901 |
 | `EH` | `batchDrainItems` | inferred | 71807 |
 | `Xw` | `handleDrainError` | inferred | 72237 |
+| `Cft` | `renderRuntimeUnavailableGuidance` | inferred | 72358 |
+| `$ft` | `renderRuntimeMismatchGuidance` | inferred | 72366 |
 
 ## 06-runtime-claude
 
@@ -144,6 +155,7 @@
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
 | `mB` | `PARTITION_CORE_TOOLS` | __export | 55516 |
+| `cg` | `runManageJobTool` | inferred | 63802 |
 | `A_e` | `classifyConsumerStaleness` | inferred | 64840 |
 | `VV` | `resolveNotifyUnconsumedHours` | inferred | 64853 |
 | `P$` | `evaluateNotifyConsumerRefusal` | inferred | 64867 |
@@ -180,6 +192,7 @@
 
 | minified | 还原名 | 来源 | pretty 行 |
 |---|---|---|---|
+| `Ei` | `isEffortLevel` | inferred | 31533 |
 | `Yut` | `resolveRuntimePaths` | __export | 66090 |
 | `dO` | `parseDotEnv` | __export | 68754 |
 | `Ku` | `hostDotEnvPath` | __export | 68769 |
@@ -193,6 +206,7 @@
 | `Yct` | `loadHostDotEnv` | __export | 68907 |
 | `K6` | `HOST_MODEL_ENV_KEYS` | __export | 68920 |
 | `Rdt` | `initializeRuntime` | __export | 69543 |
+| `kut` | `validateConfigValue` | inferred | 87961 |
 
 ## 11-runtime-grok
 

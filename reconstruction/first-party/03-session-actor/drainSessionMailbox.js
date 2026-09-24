@@ -346,7 +346,7 @@ async function drainSessionMailbox(e, t, n = {}) {
         let Ht = n.runtime ?? "claude",
             pi = n.runtimeUnavailableReason ?? (n.runtime === "claude" ? claudeUnavailableReason() : void 0);
         if (pt.length > 0 && pi) return vr({
-            guidance: Cft(pi, Ht),
+            guidance: renderRuntimeUnavailableGuidance(pi, Ht),
             stage: "runtime_unavailable",
             payloadExtra: {
                 outcome: "runtime_unavailable",
@@ -358,7 +358,7 @@ async function drainSessionMailbox(e, t, n = {}) {
         let Ke = z?.sdk_session_id,
             Bn = z?.sdk_session_runtime;
         if (pt.length > 0 && !X && Ke && Bn && Bn !== Ht) return vr({
-            guidance: $ft({
+            guidance: renderRuntimeMismatchGuidance({
                 boundRuntime: Bn,
                 sdkSessionId: Ke,
                 requestedRuntime: Ht,

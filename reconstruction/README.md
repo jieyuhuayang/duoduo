@@ -73,7 +73,7 @@ OLD=/path/to/beautified/v0.6.1 NEW=/path/to/beautified/v0.6.2 bash tools/bump.sh
 # 复核并更新 maps/inferred_*.json 后，再跑 rebuild.sh 取得等价性证明
 ```
 
-升级后文档引用怎么办：**写成 `真名 (短名)`(行号) 形式的那些不需要人工迁移**——`verify_citations.mjs` 按符号身份核对，符号还在就只是行号漂移，`--fix` 机械重生成即可；只有"符号消失"和"短名对不上"才需要人来看，而那正是真的机制变更。没有真名的引用写成 `短名`(行号) 或 `代码片段`(行号)，分别由 `check_doc_anchors.mjs --resolve` 与 `check_bare_anchors.mjs` 核对（写法定义在 `tools/anchor_forms.mjs`；不属于这三种形式的裸行号会被后者按 `maps/bare_anchor_baseline.json` 拒收）。短名形式抓得住一类特殊错误：**同一个短名可以既是过期名、又是新版里另一个函数的正确名**（v0.6.2 的 `eKe`/`rle`/`sle` 即是），此时任何"旧名换新名"的整体替换都会把本来对的改错。
+升级后文档引用怎么办：**按名字写的引用不需要迁移**。`真名 (短名)`（不带行号）由 `verify_citations.mjs` 按符号身份核对，升级时只有短名会变，`retarget_symbols.mjs` 统一更新；`代码片段`（`真名`）由 `check_bare_anchors.mjs` 在该真名当前的函数体内核对，字面量在函数内挪了位置照样成立。只有"符号消失""短名对不上""片段不在函数里了"才需要人来看，而那正是真的机制变更。文档里残留的行号是旧写法（`真名 (短名)`（行号）、`短名`（行号）、`代码片段`（行号）），升级时仍要按 `remap_doc_anchors` → `retarget_docs` → `retarget_symbols` → `verify_citations --fix` 迁移；`maps/bare_anchor_baseline.json` 限定每份文档的行号总数只减不增，新增任何行号都会让构建失败（写法定义在 `tools/anchor_forms.mjs`）。只写裸短名不可取：**同一个短名可以既是过期名、又是新版里另一个函数的正确名**（v0.6.2 的 `eKe`/`rle`/`sle`、v0.8.3 的 `AXe`/`UEe`/`WEe` 即是），此时任何"旧名换新名"的整体替换都会把本来对的改错；没有真名的函数先在 `maps/inferred_daemon.json` 登记推断名再引用。
 
 第 2 步报 `RE-ANCHOR` 的条目，用 `locate_by_anchor.mjs` 拿该函数独有的字符串字面量在新包里重新定位——**但要看它打印的 `[kind]`**：字面量在旧版里"独属于某函数"不代表新版里还在那个函数体内，上游把它提升成模块级常量后，命中的就是 esbuild 的 lazy-init 包装器（`var X = N(() => {...})`），工具会以 `!! NOT a function` 标出，此时改用第 3 步 `pairs_*.json` 的配对或 `bump.sh` 的 block 提示。第 4 步的“归一化后完全相同”是个好用的过滤器：v0.6.2 的 daemon 31 处声明差异里有 10 处属于纯 minifier churn。推断表复核完毕后跑 `verify_inferred.mjs record` 刷新 `maps/inferred_*.shape.json`，下一次 bump 才有可比的基线。
 

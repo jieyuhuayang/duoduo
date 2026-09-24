@@ -10,6 +10,11 @@
 //   F1  `real (short)`（`N`）            verify_citations.mjs   symbol identity
 //   F2  `short`（`N`）, `short`@N, ...   check_doc_anchors.mjs  short name on the line
 //   F3  `code`（`N`）                    check_bare_anchors.mjs a token of the code on the line
+//   N   `code`（`realName`）             check_bare_anchors.mjs a token of the code inside that symbol
+//
+// F1-F3 carry a line number and are legacy (maps/bare_anchor_baseline.json
+// only lets their count fall). New citations use `real (short)` with no line
+// (verify_citations.mjs checks the pairing) and N for statement-level evidence.
 //
 // Anything else holding a line number is UNBOUND: nothing can tell whether it
 // still points where it meant to.
@@ -167,6 +172,18 @@ export function looseLineNumbers(text) {
 // in the list is bound to the snippet.
 export const f3 = () => new RegExp(
   "`([^`\\n]+)`\\s*[（(]\\s*((?:`(?:(?:daemon|cli|stdio)\\.pretty\\.js:)?\\d{4,6}(?:\\s*[-–]\\s*\\d{4,6})?`\\s*[/、,，;；]?\\s*)+)",
+  "g");
+
+// --- N: name-bound snippet (no line number) ---------------------------------
+// `code`（`realName`） — the preferred way to say "this statement proves it".
+// A cli symbol is written `code`（`cli:realName`）; unqualified means daemon.
+// The real name comes from the symbol index and survives every release; the
+// checker (check_bare_anchors.mjs) finds the symbol's current span and requires
+// a distinctive token of the snippet, and every short name it calls, inside it.
+// Nothing here needs retargeting on a bump: a literal that moved within the
+// function still holds, and a re-mangled callee is refuted, as in F3.
+export const nameBound = () => new RegExp(
+  "`([^`\\n]+)`\\s*[（(]\\s*`(?:(daemon|cli|stdio):)?([A-Za-z_$][A-Za-z0-9_$]*)`\\s*[）)]",
   "g");
 
 // Tokens of a snippet that are distinctive enough to find on a line: string

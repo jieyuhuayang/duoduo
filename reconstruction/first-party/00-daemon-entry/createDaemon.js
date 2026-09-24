@@ -203,7 +203,7 @@ Content-Length: 0\r
                 }, C;
                 if (typeof S.params != "object" || S.params === null) throw new zt("Invalid params");
                 if (S.method === "job.manage") {
-                    let k = await cg(S.params, {
+                    let k = await runManageJobTool(S.params, {
                         paths: u,
                         sessionKey: A.session_key,
                         callerJobCron: A.job_cron,
@@ -282,7 +282,7 @@ Content-Length: 0\r
                     code: -32010,
                     message: V.guidance
                 }, C;
-                let W = await Gle(u, {
+                let W = await ingestChannelMessage(u, {
                     sessionKey: k.session_key,
                     sourceKind: N,
                     sourceName: k.channel_id ?? D?.wsSubscriberId,
@@ -768,7 +768,7 @@ Content-Length: 0\r
             } catch {
                 return F.code(404).send("Dashboard not found")
             }
-        }), S.get("/readyz", async (A, F) => await Yle(u) ? {
+        }), S.get("/readyz", async (A, F) => await probeEventsAppendable(u) ? {
             status: "ok"
         } : F.code(503).send({
             status: "not_ready"

@@ -13,7 +13,7 @@
     "mangled": "Lyt",
     "origLine": 90469,
     "inferred": false,
-    "bytes": 46096
+    "bytes": 46145
   },
   {
     "subsystem": "00-daemon-entry",
@@ -125,7 +125,7 @@
     "mangled": "Kle",
     "origLine": 87214,
     "inferred": true,
-    "bytes": 4606
+    "bytes": 4634
   },
   {
     "subsystem": "02-gateway-rpc",
@@ -137,11 +137,35 @@
   },
   {
     "subsystem": "02-gateway-rpc",
+    "symbol": "ingestChannelMessage",
+    "mangled": "Gle",
+    "origLine": 87161,
+    "inferred": true,
+    "bytes": 866
+  },
+  {
+    "subsystem": "02-gateway-rpc",
     "symbol": "isLoopbackBindHost",
     "mangled": "Myt",
     "origLine": 90436,
     "inferred": false,
     "bytes": 249
+  },
+  {
+    "subsystem": "02-gateway-rpc",
+    "symbol": "probeEventsAppendable",
+    "mangled": "Yle",
+    "origLine": 87347,
+    "inferred": true,
+    "bytes": 219
+  },
+  {
+    "subsystem": "02-gateway-rpc",
+    "symbol": "readRoutingTarget",
+    "mangled": "qle",
+    "origLine": 87075,
+    "inferred": true,
+    "bytes": 147
   },
   {
     "subsystem": "02-gateway-rpc",
@@ -152,12 +176,28 @@
     "bytes": 990
   },
   {
+    "subsystem": "02-gateway-rpc",
+    "symbol": "resolveRoutingTarget",
+    "mangled": "jXe",
+    "origLine": 87155,
+    "inferred": true,
+    "bytes": 386
+  },
+  {
     "subsystem": "03-session-actor",
     "symbol": "archiveLegacyRegistrySessionsDir",
     "mangled": "iSe",
     "origLine": 69371,
     "inferred": false,
     "bytes": 2635
+  },
+  {
+    "subsystem": "03-session-actor",
+    "symbol": "collectInstructionsInputs",
+    "mangled": "XEe",
+    "origLine": 82549,
+    "inferred": true,
+    "bytes": 1104
   },
   {
     "subsystem": "03-session-actor",
@@ -197,7 +237,7 @@
     "mangled": "Agt",
     "origLine": 83651,
     "inferred": false,
-    "bytes": 94573
+    "bytes": 94595
   },
   {
     "subsystem": "03-session-actor",
@@ -213,7 +253,7 @@
     "mangled": "KSe",
     "origLine": 70371,
     "inferred": true,
-    "bytes": 44692
+    "bytes": 44747
   },
   {
     "subsystem": "03-session-actor",
@@ -281,6 +321,22 @@
   },
   {
     "subsystem": "04-cognition-prompt",
+    "symbol": "normalizeIncludePathKey",
+    "mangled": "qEe",
+    "origLine": 82254,
+    "inferred": true,
+    "bytes": 128
+  },
+  {
+    "subsystem": "04-cognition-prompt",
+    "symbol": "realpathOrSelf",
+    "mangled": "ygt",
+    "origLine": 82246,
+    "inferred": true,
+    "bytes": 120
+  },
+  {
+    "subsystem": "04-cognition-prompt",
     "symbol": "renderDaemonRestartHint",
     "mangled": "Vbe",
     "origLine": 65850,
@@ -305,6 +361,22 @@
   },
   {
     "subsystem": "04-cognition-prompt",
+    "symbol": "renderTranscludedFiles",
+    "mangled": "hgt",
+    "origLine": 82205,
+    "inferred": true,
+    "bytes": 124
+  },
+  {
+    "subsystem": "04-cognition-prompt",
+    "symbol": "resolveBoardIncludes",
+    "mangled": "JEe",
+    "origLine": 82212,
+    "inferred": true,
+    "bytes": 711
+  },
+  {
+    "subsystem": "04-cognition-prompt",
     "symbol": "resolveMetaPromptText",
     "mangled": "Xv",
     "origLine": 55069,
@@ -317,7 +389,7 @@
     "mangled": "WEe",
     "origLine": 82197,
     "inferred": true,
-    "bytes": 155
+    "bytes": 191
   },
   {
     "subsystem": "05-drain-turn",
@@ -406,6 +478,22 @@
     "origLine": 36889,
     "inferred": false,
     "bytes": 502
+  },
+  {
+    "subsystem": "05-drain-turn",
+    "symbol": "renderRuntimeMismatchGuidance",
+    "mangled": "$ft",
+    "origLine": 72366,
+    "inferred": true,
+    "bytes": 913
+  },
+  {
+    "subsystem": "05-drain-turn",
+    "symbol": "renderRuntimeUnavailableGuidance",
+    "mangled": "Cft",
+    "origLine": 72358,
+    "inferred": true,
+    "bytes": 1169
   },
   {
     "subsystem": "05-drain-turn",
@@ -841,6 +929,14 @@
   },
   {
     "subsystem": "08-cadence-subconscious",
+    "symbol": "runManageJobTool",
+    "mangled": "cg",
+    "origLine": 63802,
+    "inferred": true,
+    "bytes": 7423
+  },
+  {
+    "subsystem": "08-cadence-subconscious",
     "symbol": "scanAndSpawnDueJobs",
     "mangled": "yJ",
     "origLine": 86494,
@@ -1025,6 +1121,14 @@
   },
   {
     "subsystem": "10-runtime-host",
+    "symbol": "isEffortLevel",
+    "mangled": "Ei",
+    "origLine": 31533,
+    "inferred": true,
+    "bytes": 55
+  },
+  {
+    "subsystem": "10-runtime-host",
     "symbol": "loadHostDotEnv",
     "mangled": "Yct",
     "origLine": 68907,
@@ -1062,6 +1166,14 @@
     "origLine": 66090,
     "inferred": false,
     "bytes": 3023
+  },
+  {
+    "subsystem": "10-runtime-host",
+    "symbol": "validateConfigValue",
+    "mangled": "kut",
+    "origLine": 87961,
+    "inferred": true,
+    "bytes": 2273
   },
   {
     "subsystem": "10-runtime-host",

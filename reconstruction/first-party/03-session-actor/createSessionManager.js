@@ -508,7 +508,7 @@ function createSessionManager(e) {
                 let {
                     instructions: pi,
                     missionContent: Ke
-                } = await XEe(t, P, w, Ht), Bn = await ct(t, P), Di = await runInstructionsFingerprintGuard(t, P, pi, w.runtime, {
+                } = await collectInstructionsInputs(t, P, w, Ht), Bn = await ct(t, P), Di = await runInstructionsFingerprintGuard(t, P, pi, w.runtime, {
                     instructions_fingerprint: Bn?.instructions_fingerprint,
                     mission_fingerprint: Bn?.mission_fingerprint,
                     schema_version: Bn?.schema_version,

@@ -60,7 +60,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
                 return await zle(e, t.sourceKind, t.sourceChannelId), {
                     event: p,
                     routing: {
-                        target: qle(p),
+                        target: readRoutingTarget(p),
                         enqueued: !1
                     },
                     deduplicated: !0,
@@ -93,7 +93,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         }
     }), new Date(r.ts));
     let a, u = !1,
-        l, c, d = qle(r);
+        l, c, d = readRoutingTarget(r);
     if (d === "gateway") {
         let f = await LXe(e, r, n?.bus, n?.gatewayCommands);
         l = f.responseText, c = f.outboxId, Re("[gateway] gateway-targeted event (no enqueue)", {

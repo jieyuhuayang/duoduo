@@ -200,7 +200,7 @@ RESULT: first-party tree is consistent with the bundle
 
 文档里的机制论断以 `真名 (短名)`(行号) 的形式指向代码。`verify_citations.mjs` 用 `maps/symbols_daemon.json` 逐条核对：真名必须仍存在，短名必须仍是它的 mangled 名，两者任一不成立则构建失败；行号漂移只报告，`--fix` 机械重生成。v0.8.2 起，不带反引号、不带行号或行号位数少于 4 的 `真名 (短名)` 写法也纳入短名核对，首次运行即报出 17 处此前没有任何检查覆盖的过期短名，已全部修正。
 
-没有真名的行号同样必须可核对：写成 `短名`（行号）由 `check_doc_anchors.mjs --resolve` 核对，写成 `代码片段`（行号）由 `check_bare_anchors.mjs` 核对（片段里的字面量或标识符、以及它调用的短名，都要出现在该行），三种写法之外的裸行号按 `maps/bare_anchor_baseline.json` 只减不增。裸行号也包括单行号代码片段匹配不到的写法：正文里不带反引号的 `daemon:N`、`daemon.pretty.js:N`、`cli.pretty.js:N`（表格行里还有 `daemon N`），一个代码片段里列多个行号（`` `N/M` ``），以行号开头的代码片段（`` `N code` ``），代码片段后括号里不带反引号的行号（`` `code`(N/M) ``），以及 ``` 围栏里的行号，由 `anchor_forms.mjs` 的 `looseLineNumbers()` 识别。围栏里的图示和清单无法携带可核对的引用，行号改写在围栏下方的正文里。v0.8.2 这一轮把存量的裸行号逐条对照代码改写完毕，基线为 0；改写过程中多数行号被证明指向旧版本或无关函数，已重新定位。
+v0.8.3 起文档引用改为按名字写，不再新增行号：`真名 (短名)` 不带行号，由本工具核对身份；需要引用具体语句时写成 `代码片段`（`真名`），由 `check_bare_anchors.mjs` 要求片段里的字面量或标识符、以及它调用的短名，都落在该符号当前的声明范围内。理由是行号不跨版本存活：v0.8.3 这一轮约两百处行号无法重新定位，只能删除。存量行号仍按原规则逐条核对——`短名`（行号）由 `check_doc_anchors.mjs --resolve` 核对，`代码片段`（行号）由 `check_bare_anchors.mjs` 核对，三种写法之外的裸行号（正文里不带反引号的 `daemon:N`、一个代码片段里列多个行号、以行号开头的代码片段、代码片段后括号里不带反引号的行号、``` 围栏里的行号，由 `anchor_forms.mjs` 的 `looseLineNumbers()` 识别）一律不允许——并由 `maps/bare_anchor_baseline.json` 记下每份文档的行号总数（`lineNumbers`）与裸行号数（`unbound`，为 0）两个上限，只减不增；`--write-baseline` 拒绝调高上限。
 
 ---
 
@@ -218,6 +218,7 @@ RESULT: first-party tree is consistent with the bundle
 | 推断名两两互换（741 种组合） | 同种类同参数个数的互换全部通过 | 741/741 报出；用 v0.8.1 基线检查正确迁移到 v0.8.2 的表不误报，检查未迁移的旧表报出 26/31 |
 | 不带反引号、不带行号或行号少于 4 位的 `真名 (短名)` | 从不检查 | 检查短名；当时文档里的 17 处过期短名全部报出并已修正 |
 | 文档引用的 9 类错误（F1/F2 短名换错、F2 范围倒置、F3 片段的行号挪动 50、F3 片段保留字面量但调用的短名已换、形如 `foo(x)`（行号）的调用片段行号错误、cli 引用丢掉 `cli.pretty.js:` 前缀、新增一个裸行号、单个反引号内的范围倒置） | F3 从不检查；`foo(x)`（行号）被当成 `真名 (短名)` 而两边都不查；`` `N-M` `` 与 `` `daemon.pretty.js:N` `` 不在扫描范围内；裸行号只能证伪"落在空行"和"落进第三方代码" | 9/9 报出（`mutate_anchor_checks.mjs`，用符号索引和 bundle 现场生成测试文档，已接进 `rebuild.sh`） |
+| 新增一个写法正确的行号；绑定到不含该片段的函数或不存在的真名的 `代码片段`（`真名`）；用 `--write-baseline` 调高上限（v0.8.3） | 行号只按裸行号计数，写法正确即放行；无行号的片段引用无人检查 | 均报出（`mutate_anchor_checks.mjs`） |
 | 检查器读到另一个版本的 bundle（`.build/beautified/` 里残留的 v0.8.1） | `verify_citations` 在正确的引用上报"行号越界"，`--fix` 会据此改坏它们 | 三个检查器都以 exit 2 拒绝（`bundle_guard.mjs`：索引里每个符号的短名必须出现在记录的声明行上） |
 
 同一轮还确认了两条之前没有被检查的链接，现已接进 `rebuild.sh`：出厂压缩文件与 `*.pretty.js` 的 AST 等价（daemon、cli 均成立）；新生成的产物与已提交的 `recon/`、`maps/`、`first-party/` 一致（`promote.mjs`）。

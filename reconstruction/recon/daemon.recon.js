@@ -31530,7 +31530,7 @@ var Ad = O(() => {
     "use strict"
 });
 
-function Ei(e) {
+function isEffortLevel(e) {
     return qi.includes(e)
 }
 var qi, sz = O(() => {
@@ -31578,7 +31578,7 @@ function N0(e) {
 }
 
 function D0(e) {
-    return !Nt(e) || typeof e.session_key != "string" || e.session_key.trim().length === 0 || Object.keys(e).some(t => t !== "session_key" && t !== "effort") ? !1 : Object.hasOwn(e, "effort") ? e.effort === null || typeof e.effort == "string" && Ei(e.effort) : !0
+    return !Nt(e) || typeof e.session_key != "string" || e.session_key.trim().length === 0 || Object.keys(e).some(t => t !== "session_key" && t !== "effort") ? !1 : Object.hasOwn(e, "effort") ? e.effort === null || typeof e.effort == "string" && isEffortLevel(e.effort) : !0
 }
 
 function M0(e) {
@@ -35315,7 +35315,7 @@ function X7e(e, t) {
     if (t != null) {
         if (typeof t == "string") {
             let n = t.trim();
-            if (Ei(n)) return n
+            if (isEffortLevel(n)) return n
         }
         Re(`[channel-config] ignoring ${e}.effort: expected one of ${qi.join(", ")}`)
     }
@@ -61242,7 +61242,7 @@ function Nye(e, t) {
             ...r
         };
     for (let a of wst) delete s[a];
-    o && (s.prompt_mode = o), s.effort !== void 0 && !(typeof s.effort == "string" && Ei(s.effort)) && (Z("[JobManager] ignoring invalid job effort", {
+    o && (s.prompt_mode = o), s.effort !== void 0 && !(typeof s.effort == "string" && isEffortLevel(s.effort)) && (Z("[JobManager] ignoring invalid job effort", {
         job: t ?? "(unknown job file)",
         effort: typeof s.effort == "string" ? s.effort : typeof s.effort,
         accepted: qi.join(", ")
@@ -63799,7 +63799,7 @@ function m$(e) {
         ...f_e(e)
     }
 }
-async function cg(e, t) {
+async function runManageJobTool(e, t) {
     let n = new Ur(t.paths);
     await n.init();
     try {
@@ -63819,7 +63819,7 @@ async function cg(e, t) {
                 if (zR(s)) throw new Error(`Invalid model id: ${JSON.stringify(s)}. A model id must not contain whitespace.`);
                 if (o === "pi" && !UR(s)) throw new Error(`Invalid pi model id: ${JSON.stringify(s)}. Pi model ids use the canonical "provider/modelId" form. List what this host serves with a pi channel session's \`/model\`, or \`duoduo session model <pi-channel-session>\`.`);
                 let a = e.effort;
-                if (a !== void 0 && !Ei(a)) throw new Error(`Invalid effort: ${JSON.stringify(a)}. Accepted values are ${qi.join(", ")}.`);
+                if (a !== void 0 && !isEffortLevel(a)) throw new Error(`Invalid effort: ${JSON.stringify(a)}. Accepted values are ${qi.join(", ")}.`);
                 let u = e.acceptance;
                 if (u === void 0 || u.trim().length === 0) throw new Error(vat);
                 let l = e.prompt_mode;
@@ -66234,7 +66234,7 @@ async function Xut(e, t, n) {
         });
         let p = i.data?.effort,
             m;
-        return typeof p == "string" && Ei(p) ? m = p : p !== void 0 && Re(`[playlist] partition '${e}' has invalid effort frontmatter; ignoring it`, {
+        return typeof p == "string" && isEffortLevel(p) ? m = p : p !== void 0 && Re(`[playlist] partition '${e}' has invalid effort frontmatter; ignoring it`, {
             rawEffort: p
         }), {
             name: e,
@@ -70710,7 +70710,7 @@ async function drainSessionMailbox(e, t, n = {}) {
         let Ht = n.runtime ?? "claude",
             pi = n.runtimeUnavailableReason ?? (n.runtime === "claude" ? claudeUnavailableReason() : void 0);
         if (pt.length > 0 && pi) return vr({
-            guidance: Cft(pi, Ht),
+            guidance: renderRuntimeUnavailableGuidance(pi, Ht),
             stage: "runtime_unavailable",
             payloadExtra: {
                 outcome: "runtime_unavailable",
@@ -70722,7 +70722,7 @@ async function drainSessionMailbox(e, t, n = {}) {
         let Ke = z?.sdk_session_id,
             Bn = z?.sdk_session_runtime;
         if (pt.length > 0 && !X && Ke && Bn && Bn !== Ht) return vr({
-            guidance: $ft({
+            guidance: renderRuntimeMismatchGuidance({
                 boundRuntime: Bn,
                 sdkSessionId: Ke,
                 requestedRuntime: Ht,
@@ -72355,7 +72355,7 @@ function Pft(e, t, n) {
 `)
 }
 
-function Cft(e, t) {
+function renderRuntimeUnavailableGuidance(e, t) {
     return t === "codex" ? ["Agent runtime 'codex' is unavailable. Request was not executed.", `- reason: ${e}`, "- Install the codex CLI, run `codex login`, then send the message again."].join(`
 `) : t === "grok" ? ["Agent runtime 'grok' is unavailable. Request was not executed.", `- reason: ${e}`, "- Install the grok CLI, run `grok login`, then send the message again."].join(`
 `) : t === "pi" ? ["This pi session has no model yet. Request was not executed.", `- reason: ${e}`, "- Model ids are canonical `provider/modelId`, and the providers are whatever your pi agent dir configures — `models.json`, or an extension that registers them.", "- Nothing to install: the pi runtime ships inside duoduo."].join(`
@@ -72363,7 +72363,7 @@ function Cft(e, t) {
 `)
 }
 
-function $ft(e) {
+function renderRuntimeMismatchGuidance(e) {
     let {
         boundRuntime: t,
         sdkSessionId: n,
@@ -79936,7 +79936,7 @@ function Yg(e, t = {}) {
     }, async s => ({
         content: [{
             type: "text",
-            text: await cg(s, {
+            text: await runManageJobTool(s, {
                 paths: e,
                 sessionKey: t.sessionKey,
                 callerJobCron: t.callerJobCron,
@@ -80074,7 +80074,7 @@ function wA(e) {
             description: n ? f$() : d$(),
             inputSchema: Xg(o),
             handler: async s => {
-                let a = await cg(s, {
+                let a = await runManageJobTool(s, {
                     paths: e.paths,
                     sessionKey: e.sessionKey,
                     callerJobCron: e.callerJobCron,
@@ -82195,29 +82195,29 @@ import {
 import dgt from "node:os";
 import ha from "node:path";
 async function transcludeBroadcastBoard(e) {
-    let t = await JEe(ha.resolve(e), new Set);
+    let t = await resolveBoardIncludes(ha.resolve(e), new Set);
     return {
         files: t,
-        rendered: hgt(t)
+        rendered: renderTranscludedFiles(t)
     }
 }
 
-function hgt(e) {
+function renderTranscludedFiles(e) {
     return e.map(t => `Contents of ${t.path}${mgt}:
 
 ${t.content.trim()}`).join(`
 
 `)
 }
-async function JEe(e, t, n = 0, r) {
+async function resolveBoardIncludes(e, t, n = 0, r) {
     if (n >= fgt) return [];
     let i = ha.resolve(e),
-        o = qEe(i);
+        o = normalizeIncludePathKey(i);
     if (t.has(o)) return [];
     let s = ha.extname(i).toLowerCase();
     if (s && !pgt.has(s)) return [];
-    let a = await ygt(i);
-    t.add(o), t.add(qEe(a));
+    let a = await realpathOrSelf(i);
+    t.add(o), t.add(normalizeIncludePathKey(a));
     let u = await ggt(i);
     if (u === void 0) return [];
     let {
@@ -82231,7 +82231,7 @@ async function JEe(e, t, n = 0, r) {
         parentPath: r
     }];
     for (let f of c) {
-        let p = await JEe(f, t, n + 1, i);
+        let p = await resolveBoardIncludes(f, t, n + 1, i);
         d.push(...p)
     }
     return d
@@ -82243,7 +82243,7 @@ async function ggt(e) {
         return
     }
 }
-async function ygt(e) {
+async function realpathOrSelf(e) {
     try {
         return await BEe.realpath(e)
     } catch {
@@ -82251,7 +82251,7 @@ async function ygt(e) {
     }
 }
 
-function qEe(e) {
+function normalizeIncludePathKey(e) {
     let t = ha.resolve(e);
     return process.platform === "win32" ? t.toLowerCase() : t
 }
@@ -82546,7 +82546,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
         nonBoardFingerprint: d
     }
 }
-async function XEe(e, t, n, r) {
+async function collectInstructionsInputs(e, t, n, r) {
     let i = resolveMetaPromptText() ?? void 0,
         o;
     try {
@@ -84152,7 +84152,7 @@ function createSessionManager(e) {
                 let {
                     instructions: pi,
                     missionContent: Ke
-                } = await XEe(t, P, w, Ht), Bn = await ct(t, P), Di = await runInstructionsFingerprintGuard(t, P, pi, w.runtime, {
+                } = await collectInstructionsInputs(t, P, w, Ht), Bn = await ct(t, P), Di = await runInstructionsFingerprintGuard(t, P, pi, w.runtime, {
                     instructions_fingerprint: Bn?.instructions_fingerprint,
                     mission_fingerprint: Bn?.mission_fingerprint,
                     schema_version: Bn?.schema_version,
@@ -87072,7 +87072,7 @@ async function MXe(e) {
     return n || (n = new mR(t), Ule.set(t, n)), await n.ensureLoaded(), n
 }
 
-function qle(e) {
+function readRoutingTarget(e) {
     let t = e.routing_hint?.target;
     return t === "gateway" || t === "meta" || t === "session" ? t : "session"
 }
@@ -87152,17 +87152,17 @@ function fU(e) {
     }
 }
 
-function jXe(e, t, n) {
+function resolveRoutingTarget(e, t, n) {
     if (e.routingHint?.target) return e.routingHint.target;
     if (n) return n.args ? "session" : "gateway";
     let r = fU(t);
     return (e.routingHint?.intent ?? r) === "history-control" ? "session" : e.routingHint?.intent === "status" || e.routingHint?.intent === "config" || e.routingHint?.intent === "debug" || r ? "gateway" : "session"
 }
-async function Gle(e, t, n) {
+async function ingestChannelMessage(e, t, n) {
     let r = dU(t.text),
         i = r ? void 0 : HR(t.text),
         o = t.routingHint?.intent ?? fU(i),
-        s = jXe(t, i, r),
+        s = resolveRoutingTarget(t, i, r),
         a = s === "session" ? Zle(r, t.text) : void 0;
     return appendBeforeExecuteGateway(e, {
         eventType: "channel.message",
@@ -87267,7 +87267,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
                 return await zle(e, t.sourceKind, t.sourceChannelId), {
                     event: p,
                     routing: {
-                        target: qle(p),
+                        target: readRoutingTarget(p),
                         enqueued: !1
                     },
                     deduplicated: !0,
@@ -87300,7 +87300,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         }
     }), new Date(r.ts));
     let a, u = !1,
-        l, c, d = qle(r);
+        l, c, d = readRoutingTarget(r);
     if (d === "gateway") {
         let f = await LXe(e, r, n?.bus, n?.gatewayCommands);
         l = f.responseText, c = f.outboxId, Re("[gateway] gateway-targeted event (no enqueue)", {
@@ -87344,7 +87344,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         gatewayOutboxId: c
     }
 }
-async function Yle(e, t = new Date) {
+async function probeEventsAppendable(e, t = new Date) {
     let n = Sm(t),
         r = ef.join(e.eventsDir, n);
     try {
@@ -87749,7 +87749,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
                 responseText: d.applied === "live" ? "Session effort reset to the runtime default (applied to the live session)." : "Session effort override cleared. The runtime default applies from the next message."
             }
         }
-        if (!Ei(a)) return {
+        if (!isEffortLevel(a)) return {
             responseText: `Invalid effort level: "${t.args.trim()}". Valid levels: ${qi.join(", ")}. ${o}`
         };
         let l = await r.setSessionEffort(n, a);
@@ -87958,7 +87958,7 @@ function zw(e) {
 }
 var pbe = Object.keys(t6);
 
-function kut(e, t) {
+function validateConfigValue(e, t) {
     switch (t6[e]) {
         case "string":
             return {
@@ -88018,7 +88018,7 @@ function kut(e, t) {
         }
         case "effort_level": {
             let r = t.trim();
-            return Ei(r) ? {
+            return isEffortLevel(r) ? {
                 ok: !0,
                 value: r
             } : {
@@ -88041,7 +88041,7 @@ function mbe(e) {
             t.push(`unknown config key: "${r}"`);
             continue
         }
-        let o = kut(r, i);
+        let o = validateConfigValue(r, i);
         if (!o.ok) {
             t.push(o.error);
             continue
@@ -90665,7 +90665,7 @@ Content-Length: 0\r
                 }, C;
                 if (typeof S.params != "object" || S.params === null) throw new zt("Invalid params");
                 if (S.method === "job.manage") {
-                    let k = await cg(S.params, {
+                    let k = await runManageJobTool(S.params, {
                         paths: u,
                         sessionKey: A.session_key,
                         callerJobCron: A.job_cron,
@@ -90744,7 +90744,7 @@ Content-Length: 0\r
                     code: -32010,
                     message: V.guidance
                 }, C;
-                let W = await Gle(u, {
+                let W = await ingestChannelMessage(u, {
                     sessionKey: k.session_key,
                     sourceKind: N,
                     sourceName: k.channel_id ?? D?.wsSubscriberId,
@@ -91230,7 +91230,7 @@ Content-Length: 0\r
             } catch {
                 return F.code(404).send("Dashboard not found")
             }
-        }), S.get("/readyz", async (A, F) => await Yle(u) ? {
+        }), S.get("/readyz", async (A, F) => await probeEventsAppendable(u) ? {
             status: "ok"
         } : F.code(503).send({
             status: "not_ready"
