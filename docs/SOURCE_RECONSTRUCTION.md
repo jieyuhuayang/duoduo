@@ -120,14 +120,17 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 
 **报出而不猜，是因为标错的名字比缺失的名字危害更大**：缺失的名字会让引用检查失败，标错的名字不会。RE-ANCHOR 的名字用 `locate_by_anchor.mjs` 重新定位：挑一个只出现在该函数体里的字符串字面量，在新版本里找到包含它的顶层声明。工具同时打印命中的是哪一种代码，只有种类相同时才能记录，原因见第 2 节的种类检查。模块初始化器的签名包含它初始化的模块列表，所以多一个 import 就会 RE-ANCHOR，要按它赋值的字符串字面量重新定位；常量只有在字面量不变时才被迁移。
 
-`bump.sh` 同时列出本版本改动了哪些声明。它先对新版本运行模块归属检查，生成新版本自己的改名表，并列出需要归入子系统的新名字。`pair_changes.mjs` 按顶层顺序把“改了的旧声明”与“新出现的声明”配对：esbuild 的输出顺序稳定，一个改了的声明在两个版本里夹在同样两个未变的声明之间，数量对不上时整段作为一块输出。`diff_decls.mjs` 为每一对输出标识符归一化后的形式和字面量的增删；归一化后相同的是纯粹的重新压缩，剩下的才是需要阅读的真实变化，两侧各用本版本自己的真名标注。导出名集合的增减（`exports_map.mjs` 生成的 `*.exports.json` 的键）直接给出新增或消失了哪些具名函数，不需要推断。
+`bump.sh` 同时列出本版本改动了哪些声明。它先对新版本运行模块归属检查，生成新版本自己的改名表，并列出需要归入子系统的新名字。`pair_changes.mjs` 按顶层顺序把“改了的旧声明”与“新出现的声明”配对：esbuild 的输出顺序稳定，一个改了的声明在两个版本里夹在同样两个未变的声明之间，数量对不上时整段作为一块输出。`diff_decls.mjs` 为每一对输出三种形式。位置归一化形式判断声明是否只是被重新压缩；它按标识符首次出现的顺序编号，函数里多一个局部变量，后面的编号全部改变，所以不用来阅读。给人读的是行级 diff：对齐时局部变量一律视为 `_`，顶层名字两侧统一写成真名，没有真名的写成新版本里同一声明的短名，只因局部变量改名而不同的行算作未变，打印的是代码原文；v0.8.2→v0.8.3 显示为变化的行因此从 4239 行降到 318 行。第三种是字符串、属性名与数字的增删。导出名集合的增减（`exports_map.mjs` 生成的 `*.exports.json` 的键）直接给出新增或消失了哪些具名函数，不需要推断。
+
+**升级的工作量跟上游改了多少成正比，不跟文档篇幅成正比，前提是文档按名字引用代码。** `impact_report.mjs` 把改动的声明与文档里的引用按真名对上，列出每一处引用了改动代码的位置，并分三档：代码片段落在改动行上或在新版本里找不到的要重读，段落与改动共有有辨识度的记号的要核对，其余略读。v0.8.2→v0.8.3 的文档里有 2746 处按名字的代码引用，664 处指向改动的声明，需要重读的 69 处。同一份清单还列出没有任何文档覆盖的新声明与新增字符串，以及出厂包和上游仓库的明文变化（`plaintext_delta.mjs`）在文档里被提到的位置。清单看不到两类论断：引用的函数没变、但它调用的函数变了的，以及没有引用的。
 
 `bump.sh` 只写 `$OUT`，最后按各道检查能接受的唯一顺序打印剩余步骤：
 
 1. 复核迁移后的推断名表，复制进 `maps/`，重新定位全部 RE-ANCHOR 名字，给新名字归入子系统，然后用 `verify_inferred.mjs record` 把它记为新的 shape 基线（没有重新记录的基线会得到 warn，promote 拒绝）；
 2. 带 `PKG` 的检查模式 `rebuild.sh`。此时引用和行号检查失败是预期的，这次运行产出文档重定向需要的新索引和新美化文件；
 3. 用这次运行的产物重定向文档（见第 5 节）；
-4. `PROMOTE=1 PKG=… bash rebuild.sh`，全部检查对候选产物通过才写入。
+4. 按影响清单更新文档的实质内容：`doc_sections.mjs` 把文档按 `## ` 节拆成单独的文件，仓库里保存的 workflow `upgrade-docs` 按清单的工作分组给每组一个写作 agent、一个对照新代码反驳的核验 agent，最后拼回文档、登记新名字、重跑检查；
+5. `PROMOTE=1 PKG=… bash rebuild.sh`，全部检查对候选产物通过才写入。
 
 这个顺序由 PROMOTE 的前置条件决定：文档必须已经对准新版本，所有结论必须是 pass。
 
@@ -183,7 +186,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs`、`exports_map.mjs` |
 | 产物检查与写入 | `build_rename.mjs` 的模块归属检查、`verify_inferred.mjs`、`verify_first_party.mjs`、`pipeline_report.mjs`、`promote.mjs` |
 | 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs` |
-| 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`；由 `bump.sh` 串起 |
+| 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`plaintext_delta.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
 | 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs` |
 
 三条做法可以直接用到别的逆向项目上。
