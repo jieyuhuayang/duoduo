@@ -90,6 +90,7 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 - 可读 diff 在两侧使用同一套名字：新短名不再带着旧版本里同一拼写的含义。结构指纹覆盖不到的顶层名字有 1504 个（daemon）与 351 个（cli）通过引用它们的未变声明对齐。参与比对的约 2530 个 daemon 顶层声明里 14 个有变化，整理成 12 份 diff；显示为变化的行从位置归一化形式的 4210 行降到 314 行、50 处，cli 从 29 行降到 4 行、2 处。`drainSessionMailbox` 的 diff 共 61 行变化、6 处，正好是新增的 `runtime_mismatch` 拒绝分支、被移到拒绝检查之后的 fork 处理和 `sdk_session_runtime` 的写入；
 - 明文变化：出厂包里 bundle 以外 3 个文件（`bootstrap/config/runtime.md` 的推理力度多了 `max`、`dashboard.html`、`package.json`），上游仓库两个标签之间 15 个文件（CHANGELOG 与 skills/），各自附文档中提到它们的位置；
 - 影响清单：文档（`docs/*.md` 与 `CLAUDE.md`）里 2746 处按名字的代码引用中，664 处指向改动的声明，分为重读 69、核对 70、略读 525。第 1 档的 69 处是 10 个声明里的 50 个不同片段，逐个查看了它们匹配到的 v0.8.3 代码行：49 个就在改动的行上（新增的 `runtime_mismatch` 拒绝分支、ManageJob 的新限制与提示文字、`sdk_session_runtime` 字段、重写的引擎不可用提示等），1 个在一处插入点的相邻行上。这组数字的新版本一侧名字取自已提交的 v0.8.3 改名表：现在的文档引用了本仓库在 v0.8.3 才命名的符号，v0.8.2 的映射里没有它们；下一次升级时，文档引用的名字都在旧映射里，不需要这样替换；
+- 模拟升级进行到一半的状态（v0.8.2 的映射，推断表已换成承接后按 v0.8.3 短名作键的表）：`bump.sh` 第 0 步的 `verify_inferred.mjs check` 对照 OLD 报出 19 个名字不成立，拒绝运行并给出恢复命令；用原来的 v0.8.2 映射时这一步通过。同一状态下对 v0.8.3 做一次 check 模式运行后，`name_symbol.mjs` 不加 `--build` 时拒绝 v0.8.3 的 bundle（`maps/symbols_daemon.json` 仍是 v0.8.2），加 `--build <该次运行的 OUT>` 后能登记 `renderRuntimeUnavailableGuidance`；
 - 从 `maps/modules_daemon.json` 删掉一条自研模块记录后，其余结果照常产出，最后以 exit 1 结束；
 - `PKG_OLD` 与 `PKG_NEW` 取同一个包时，两侧都报 unchanged，美化输出与锁定版本的美化文件逐字节相同。
 
