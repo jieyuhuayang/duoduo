@@ -30,6 +30,7 @@ When someone says "analyze duoduo's logic" or "restore the source," they mean wo
 - `reconstruction/maps/pipeline_report.json` — **generated**; the authoritative record of a run: its counts (export blocks, recovered and inferred names, rename entries, first-party tree size), each gate's verdict, the sha256 of every shipped and pretty bundle it read, and the toolchain versions. Cite it rather than restating numbers in prose: the hand-copied versions of these had drifted into three contradictory values.
 - `reconstruction/maps/RENAME_TABLE.md` and `RENAME_TABLE_cli.md` — the generated mangled↔real name tables for daemon and cli.
 - `reconstruction/tools/*.mjs` — the Babel-based reconstruction pipeline (`rebuild.sh` runs it; `bump.sh` retargets it to a new release).
+- `.claude/workflows/upgrade-docs.js` — the saved multi-agent workflow for the doc half of a version bump (step 3b below): it works through `bump.sh`'s impact report, one agent per group of doc sections. Run it by name; `bump.sh` prints its args.
 
 ## Core discipline: the reconstruction must stay *provably equivalent*
 
@@ -174,7 +175,8 @@ scope-safe and the tree only proves internal agreement. At v0.8.1 → v0.8.2 thi
 # Install both releases in scratch dirs; PKG_OLD is the release maps/pipeline_report.json
 # records. bump.sh beautifies both with the pinned js-beautify, checks that OLD is the
 # release maps/ describes, fingerprint-matches the two, carries the inferred names
-# across, runs the module gate on NEW and diffs the changed declarations. It writes
+# across, runs the module gate on NEW, diffs the changed declarations, collects the
+# plain-text delta and writes .build/bump/impact.md (read it first). It writes
 # only under .build/bump. (OLD=/NEW= dirs of *.pretty.js also work, but without
 # PKG_NEW nothing ties NEW to a release.)
 PKG_OLD=<old dist/release> PKG_NEW=<new dist/release> bash tools/bump.sh
@@ -182,7 +184,8 @@ cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # after reviewin
 #  → anything bump.sh reports as RE-ANCHOR must be relocated BY HAND with
 #    locate_by_anchor.mjs (pick a string literal unique to that function body; for a
 #    module initialiser, a string literal it assigns) and confirmed against the old
-#    body before it is written back. Every name bump.sh lists under "need a subsystem"
+#    body before it is written back; impact.md names the declaration the positional
+#    pairing suggests for each. Every name bump.sh lists under "need a subsystem"
 #    goes into maps/subsys_daemon.json, and a module-gate failure needs a decision in
 #    maps/modules_<bundle>.json.
 # 1. record the reviewed inferred names as the shape baseline
@@ -193,9 +196,29 @@ PKG_VERSION=v<new> node tools/verify_inferred.mjs record \
 #    anchors are expected here.
 PKG=<new dist/release> bash tools/rebuild.sh
 # 3. retarget the docs to v<new> against this run's .build (next paragraph)
+# 3b. bring the substance of the release into the docs: split them into one file per
+#    `## ` section, then run the saved workflow upgrade-docs (.claude/workflows/
+#    upgrade-docs.js; bump.sh prints its args). It surveys the delta, updates each work
+#    group of impact.json with a writer, an adversarial verifier and a fixer, then joins
+#    the sections, registers new names, reruns this check-mode build and updates the GUIDE.
+node tools/doc_sections.mjs split .build/bump/chunks ../docs/*.md ../CLAUDE.md
 # 4. promote, once the docs pass
 PROMOTE=1 PKG=<new dist/release> bash tools/rebuild.sh
 ```
+
+**The work of a bump should scale with what upstream changed, not with the size of the
+docs**, and step 3 only makes the citations point at the right code again. What bump.sh
+adds for step 3b: `diff_decls.mjs` writes a readable `.diff` per changed declaration
+(aligned with every local as `_` and top-level names in one vocabulary, so esbuild's local
+renaming is not shown as change; at v0.8.2 → v0.8.3 the positional `.norm` form showed
+4239 changed lines, the readable diffs 318); `plaintext_delta.mjs` collects the package's
+non-bundle files and upstream's repository between the release tags; `impact_report.mjs`
+lists every doc citation of a changed declaration in three tiers (1 re-read: a name-bound
+snippet on a changed line or gone from the new code; 2 check: a whole-declaration citation
+whose paragraph shares a distinctive token with the change, or of a short declaration; 3
+skim), what no doc covers yet, and packs the affected `## ` sections into work groups. It
+drops nothing; the tier orders the reading. It cannot see a claim about an unchanged
+function whose callee changed, so cite the callee too.
 
 `verify_inferred.mjs check` (rebuild step 2b) is the only gate that can catch a mis-anchored
 inferred name. It checks that each name sits on code of its kind (function, module
@@ -272,10 +295,11 @@ how v0.7.1 lost 19 symbols in silence, and `pi` cannot be a substring rule becau
 matches `pipeline` and `api`.
 
 Individual tools, run from `reconstruction/`. All take explicit paths and write only their
-named outputs, except four that change repository files by design: `name_symbol.mjs`
+named outputs, except five that change repository files by design: `name_symbol.mjs`
 (`maps/`), `convert_line_citations.mjs --write` and `verify_citations.mjs --fix` (the docs
-given), and `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
-docs given, so pass all of `../docs/*.md`).
+given), `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
+docs given, so pass all of `../docs/*.md`), and `doc_sections.mjs join` (every doc a
+manifest under the given dir names; it refuses a doc changed since the split).
 
 ```bash
 node tools/split.mjs <pretty.js> <outdir>            # AST byte-slice de-bundle → modules/ + manifest.json
@@ -298,6 +322,11 @@ node tools/check_bare_anchors.mjs [--index <symbols.json>[,...]] [--bundle cli=<
 node tools/convert_line_citations.mjs --index <symbols_daemon.json>[,<symbols_cli.json>] \
      --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--write] [--report <o.json>] <doc.md...>  # legacy line citations → the two line-free forms
 MAPS=<dir> PKG=<dist/release> bash tools/rebuild.sh               # full run on a copy of the hand-maintained maps; PROMOTE refuses it
+node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] \
+     [--fp <fp.json>] [--old-label v] [--new-label v]            # per changed declaration: readable .diff, .norm, .delta.json
+node tools/plaintext_delta.mjs --out <dir> [--pkg <old pkg root> <new pkg root>] [--git <repo> <old tag> <new tag>]
+node tools/impact_report.mjs --bump <bump OUT> [--old <dir>] [--new <dir>] [--maps <dir>] [--groups <K>] <doc.md...>  # impact.json + impact.md
+node tools/doc_sections.mjs split <dir> <doc.md...>   |   node tools/doc_sections.mjs join <dir> [--force]
 ```
 
 ## Running / verifying the actual runtime
