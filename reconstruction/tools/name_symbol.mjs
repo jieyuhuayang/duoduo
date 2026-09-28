@@ -18,8 +18,8 @@
 //   - a subsystem typo -- a thirteenth directory
 //
 // Checks, all before anything is written (a batch is all-or-nothing):
-//   1. BUNDLE  the bundle is the release maps/ describes: every indexed symbol
-//              sits on its recorded line (bundle_guard.mjs). Takes the pretty
+//   1. BUNDLE  the bundle is the release maps/ (or --build) describes: every indexed
+//              symbol sits on its recorded line (bundle_guard.mjs). Takes the pretty
 //              bundle or daemon.recon.js; rename preserves lines, and an unnamed
 //              function has the same short name in both.
 //   2. KIND    shortName is a top-level declaration of a kind verify_inferred.mjs
@@ -144,13 +144,23 @@
 // review).
 //
 // Usage:
-//   node name_symbol.mjs [--maps <dir>] [--dry-run] [--allow-unproven] \
+//   node name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] [--allow-unproven] \
 //        <daemon.pretty.js|daemon.recon.js> <shortName> <realName> <subsystem>
-//   node name_symbol.mjs [--maps <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>
+//   node name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>
 // A TSV line is `short<TAB>realName<TAB>subsystem[<TAB>allow-unproven]` (# comments
 // and blank lines skipped); JSON is an array of {short, name, subsystem,
 // allowUnproven?}. --maps defaults to ../maps. Exit: 0 written (or a clean dry
 // run), 1 refused, 2 usage error or a bundle maps/ does not describe.
+//
+// --build <dir> reads the GENERATED maps (symbols_*, rename_*, blocks_*) from a
+// rebuild.sh run's $OUT instead of --maps, and the hand-made ones (inferred,
+// subsys, shape, asserted) still from --maps, which is also where it writes.
+// That is the mid-bump case: until PROMOTE, maps/symbols_daemon.json describes
+// the OLD release, so check 1 refuses every new-release bundle (at v0.8.3 with
+// a v0.8.2 bundle: 513 of 601 symbols off their line), while the step-2
+// check-mode run's $OUT (reconstruction/.build) describes the new one and
+// maps/inferred_daemon.json already holds the carried names. Pass the bundle
+// that run beautified: .build/beautified/v<new>/daemon.pretty.js.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -166,11 +176,12 @@ const argv = process.argv.slice(2);
 const opt = (name) => { const i = argv.indexOf(name); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return false; argv.splice(i, 1); return true; };
 const MAPS = opt("--maps") ?? path.join(HERE, "../maps");
+const GEN = opt("--build") ?? MAPS; // where the generated maps come from (header)
 const BATCH = opt("--batch");
 const DRY = flag("--dry-run");
 const ALLOW_UNPROVEN = flag("--allow-unproven");
-const USAGE = "usage: node name_symbol.mjs [--maps <dir>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem>\n" +
-              "       node name_symbol.mjs [--maps <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
+const USAGE = "usage: node name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem>\n" +
+              "       node name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
 const [BUNDLE, ...rest] = argv;
 if (!BUNDLE || (BATCH ? rest.length : rest.length !== 3)) { console.error(USAGE); process.exit(2); }
 
@@ -198,11 +209,12 @@ if (!entries.length) { console.error("nothing to register"); process.exit(2); }
 // ---- maps --------------------------------------------------------------------
 const mapPath = (f) => path.join(MAPS, f);
 const readJson = (f) => JSON.parse(fs.readFileSync(mapPath(f), "utf8"));
-const rename = readJson("rename_daemon.json");     // mangled -> real (generated)
+const readGen = (f) => JSON.parse(fs.readFileSync(path.join(GEN, f), "utf8"));
+const rename = readGen("rename_daemon.json");      // mangled -> real (generated)
 const inferred = readJson("inferred_daemon.json"); // mangled -> real (hand-made)
 const subsys = readJson("subsys_daemon.json");     // real -> NN-subsystem (hand-made)
-const blocksReport = readJson("blocks_daemon.json");
-const index = loadIndex(mapPath("symbols_daemon.json"));
+const blocksReport = readGen("blocks_daemon.json");
+const index = loadIndex(path.join(GEN, "symbols_daemon.json"));
 const SHAPE = mapPath("inferred_daemon.shape.json");
 const shapeFile = fs.existsSync(SHAPE) ? JSON.parse(fs.readFileSync(SHAPE, "utf8")) : null;
 // real name -> the verdict an allow-unproven registration was made over
@@ -211,10 +223,10 @@ const assertedFile = fs.existsSync(ASSERTED) ? JSON.parse(fs.readFileSync(ASSERT
 const asserted = assertedFile ?? {};
 // every real name another bundle already uses (its maps and export blocks)
 const otherBundleNames = [];
-for (const f of fs.readdirSync(MAPS)) {
+for (const f of fs.readdirSync(GEN)) {
   const m = f.match(/^(rename|symbols|blocks)_(\w+)\.json$/);
   if (!m || m[2] === "daemon") continue;
-  const j = readJson(f);
+  const j = readGen(f);
   if (m[1] === "rename") otherBundleNames.push(...Object.values(j));
   else if (m[1] === "symbols") otherBundleNames.push(...Object.keys(j.symbols ?? {}));
   else otherBundleNames.push(...(j.blocks ?? []).flatMap(b => b.names), ...Object.keys(j.entryExports || {}));
@@ -478,7 +490,7 @@ for (const [f, obj, norm] of conventions) {
   if (fs.readFileSync(mapPath(f), "utf8") !== canonical(norm(obj))) problems.push(`${f} is not in its usual layout (2-space JSON${norm === sortedKeys ? ", sorted keys" : ""}); normalise it by hand first rather than have this tool reformat it`);
 }
 
-console.error(`bundle: ${path.basename(BUNDLE)} (${isRecon ? "renamed recon" : "pretty"}), ${index.version}; maps: ${MAPS}`);
+console.error(`bundle: ${path.basename(BUNDLE)} (${isRecon ? "renamed recon" : "pretty"}), ${index.version}; maps: ${MAPS}${GEN !== MAPS ? `; generated maps: ${GEN}` : ""}`);
 console.error(`module boundaries: ${wrappers.length ? `${wrappers.length} lazy-init wrappers (${[...ESM].join(", ")}), CommonJS wrappers (${CJS ?? "none"}) judged alone` : "none found; every statement judged alone"}`);
 for (const p of planned) {
   console.error(`  ok   ${p.name} (${p.short}) -> ${p.subsystem}   [${p.decl.kind} @${p.decl.line}]`);

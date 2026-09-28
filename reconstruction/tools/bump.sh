@@ -129,6 +129,22 @@ for name in "${NAMES[@]}"; do
   ' "$HERE/bundle_guard.mjs" "$OLD/$name.pretty.js" "$MAPS/symbols_$name.json" \
     || { echo "  $name: OLD is not the release maps/ was generated from -- bump from $COMMITTED_VERSION"; exit 1; }
   echo "  $name: OLD matches maps/symbols_$name.json"
+  # ...and so must the inferred-name map. bundle_guard reads only the generated
+  # index, which stays on OLD until PROMOTE; the hand-made inferred map does not:
+  # once the carried map is copied into maps/ (after review, step 2 of the bump)
+  # it is keyed by NEW's short names, and a second bump.sh would carry it across
+  # again, from the wrong base, onto the wrong declarations, with every later
+  # gate passing. verify_inferred.mjs check against OLD catches that state.
+  INF="$MAPS/inferred_$name.json" SHP="$MAPS/inferred_$name.shape.json"
+  if [ -f "$INF" ] && [ -f "$SHP" ]; then
+    if ! node --max-old-space-size=8192 "$HERE/verify_inferred.mjs" check "$OLD/$name.pretty.js" "$INF" "$SHP" >"$OUT/inferred_$name.old-check.log" 2>&1; then
+      echo "  $name: maps/inferred_$name.json does not describe OLD (see $OUT/inferred_$name.old-check.log)."
+      echo "  It has probably been replaced by a carried map already; bump.sh must start from the"
+      echo "  committed one: git checkout origin/main -- reconstruction/maps/inferred_$name.json reconstruction/maps/inferred_$name.shape.json"
+      exit 1
+    fi
+    echo "  $name: maps/inferred_$name.json describes OLD"
+  fi
 done
 
 gate_failed=()
@@ -154,7 +170,8 @@ for name in "${NAMES[@]}"; do
   if [ -f "$INF" ]; then
     echo "-- carry inferred names across the bump"
     node "$HERE/remap_inferred.mjs" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
-    echo "   review $NEW_INF, then: cp $NEW_INF $INF"
+    echo "   review $NEW_INF, then, as the LAST step of the review: cp $NEW_INF $INF"
+    echo "   (afterwards bump.sh refuses to run again until $INF is restored from origin/main)"
   fi
 
   # NEW's own names: its export blocks through the module gate, plus the carried
