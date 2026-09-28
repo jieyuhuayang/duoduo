@@ -12,8 +12,12 @@
 #   3. run the module gate on NEW and build NEW's own rename map, then list the
 #      first-party names that still need a subsystem
 #   4. pair the changed/added declarations so the delta is reviewable
-#   5. emit per-declaration cross-version diffs (alpha-normalized + literal delta),
-#      each side labelled with ITS OWN release's real names
+#   5. emit per-declaration cross-version diffs (readable line diff, alpha-
+#      normalized form, literal delta), in one vocabulary of real names
+#   5b. the plain-text delta (package files outside the bundles, and upstream's
+#      repository between the two release tags), and impact.md / impact.json:
+#      every doc citation of changed code by priority, what no doc covers yet,
+#      a suggested declaration for each RE-ANCHOR name (impact_report.mjs)
 #   6. hand off, printing the rest of the bump in the order the gates accept:
 #      record the inferred-name baseline, a check-mode rebuild.sh (with PKG, so
 #      the beautify-fidelity proof runs), retarget the docs against that run,
@@ -100,6 +104,7 @@ if [ -z "$NEW_GIVEN" ]; then
   echo "==== beautify NEW ($PKG_NEW, v$(pkg_version "$PKG_NEW")) ===="
   NEW="$OUT/pretty_new"; beautify "$PKG_NEW" "$NEW"
 fi
+if [ -n "${PKG_NEW:-}" ]; then NEW_LABEL="v$(pkg_version "$PKG_NEW")"; else NEW_LABEL="new"; fi
 for name in "${NAMES[@]}"; do
   for side in "$OLD" "$NEW"; do
     [ -f "$side/$name.pretty.js" ] || { echo "missing $side/$name.pretty.js"; exit 2; }
@@ -130,6 +135,9 @@ gate_failed=()
 changed=()   # bundles with an fp_/pairs_ file, i.e. whose doc line numbers move
 for name in "${NAMES[@]}"; do
   echo "==== $name ===="
+  # a previous run into the same $OUT must not leave diffs or carried names
+  # behind for impact_report.mjs to read as this run's
+  rm -rf "$OUT/diff/$name" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/inferred_$name.json"
   if cmp -s "$OLD/$name.pretty.js" "$NEW/$name.pretty.js"; then
     echo "  unchanged between releases (byte-identical) — nothing to re-derive"
     continue
@@ -196,7 +204,8 @@ for name in "${NAMES[@]}"; do
   echo "-- emit per-declaration cross-version diffs"
   node --max-old-space-size=8192 "$HERE/diff_decls.mjs" \
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/pairs_$name.json" "$OUT/diff/$name" \
-    "$MAPS/rename_$name.json" "$NEW_MAP"
+    "$MAPS/rename_$name.json" "$NEW_MAP" \
+    --fp "$OUT/fp_$name.json" --old-label "$COMMITTED_VERSION" --new-label "$NEW_LABEL"
 
   echo "-- authoritative export-name delta (added/removed real names)"
   node "$HERE/exports_map.mjs" "$NEW/$name.pretty.js" > "$OUT/$name.exports.new.json" 2>/dev/null
@@ -212,13 +221,31 @@ for name in "${NAMES[@]}"; do
   ' "$MAPS/$name.exports.json" "$OUT/$name.exports.new.json"
 done
 
+# 5b. what upstream says in plain text, and which doc statements the delta touches
+ROOT="$(cd "$HERE/../.." && pwd)"
+echo "==== plain-text delta ===="
+rm -rf "$OUT/plaintext"
+pt=()
+if [ -n "${PKG_OLD:-}" ] && [ -n "${PKG_NEW:-}" ]; then pt+=(--pkg "$PKG_OLD/../.." "$PKG_NEW/../.."); fi
+if git -C "$ROOT" rev-parse -q --verify "refs/tags/$COMMITTED_VERSION" >/dev/null &&
+   git -C "$ROOT" rev-parse -q --verify "refs/tags/$NEW_LABEL" >/dev/null; then
+  pt+=(--git "$ROOT" "$COMMITTED_VERSION" "$NEW_LABEL")
+fi
+if [ "${#pt[@]}" -gt 0 ]; then node "$HERE/plaintext_delta.mjs" --out "$OUT/plaintext" "${pt[@]}"
+else echo "  skipped: needs PKG_OLD and PKG_NEW, or both release tags in this clone (git fetch upstream --tags)"; fi
+echo "==== impact on the docs ===="
+node "$HERE/impact_report.mjs" --bump "$OUT" --old "$OLD" --new "$NEW" --maps "$MAPS" \
+  --old-label "$COMMITTED_VERSION" --new-label "$NEW_LABEL" "$DOCS"/*.md "$ROOT/CLAUDE.md"
+
 # 6. the hand-off, in the only order the gates accept (header)
 if [ -n "${PKG_NEW:-}" ]; then P="$PKG_NEW" V="v$(pkg_version "$PKG_NEW")"
 else P="<the new release's dist/release dir>" V="<vX.Y.Z>"; fi
 R="$(cd "$HERE/.." && pwd)/.build"   # the check-mode run's OUT: the docs are retargeted against its artifacts
 echo
-echo "review the diffs under $OUT/diff/, relocate every RE-ANCHOR name, copy the reviewed"
-echo "inferred map(s) into maps/, file new first-party names under a subsystem, then, in this order:"
+echo "read $OUT/impact.md first: the plain-text delta, the changed declarations with their"
+echo "readable diffs, every doc citation of changed code by priority, and a suggested declaration"
+echo "for each RE-ANCHOR name. Relocate every RE-ANCHOR name, copy the reviewed inferred map(s)"
+echo "into maps/, file new first-party names under a subsystem, then, in this order:"
 echo "  1. record the reviewed inferred names as the shape baseline (an unrecorded one is"
 echo "     inferredNames=warn, which promote.mjs refuses):"
 echo "     PKG_VERSION=$V node $HERE/verify_inferred.mjs record $NEW/daemon.pretty.js $MAPS/inferred_daemon.json $MAPS/inferred_daemon.shape.json"
@@ -243,6 +270,12 @@ echo "     node $HERE/retarget_symbols.mjs $MAPS/rename_daemon.json $R/rename_da
 echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     (retarget_symbols takes one bundle's maps; a stale cli short name is left for"
 echo "     verify_citations to report, and a stale short name quoted mid-snippet for check_bare_anchors)"
+echo "  3b. bring what the release changed in substance into the docs: impact.md's citations by"
+echo "     priority, its plain-text delta and what no doc covers yet. Split the docs into one file"
+echo "     per section, then run the upgrade-docs workflow (.claude/workflows/upgrade-docs.js), which"
+echo "     gives each agent its own sections and joins them back:"
+echo "     node $HERE/doc_sections.mjs split $OUT/chunks $DOCS/*.md $ROOT/CLAUDE.md"
+echo "     workflow args: {\"bump\": \"$OUT\", \"build\": \"$R\", \"pkg\": \"$P\", \"from\": \"$COMMITTED_VERSION\", \"to\": \"$V\"}"
 echo "  4. once the docs pass verify_citations and the line-anchor checks, promote. It runs every"
 echo "     gate against the candidate artifacts and writes nothing unless all of them pass:"
 echo "     PROMOTE=1 PKG=$P bash $HERE/rebuild.sh"
