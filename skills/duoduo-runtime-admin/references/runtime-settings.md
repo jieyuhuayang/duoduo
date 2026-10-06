@@ -74,9 +74,9 @@ binary or env from your shell.
   `--date` narrows that scan. Verify the
   effective cutoff in the boot log's `spine by-id index retention` line.
 - `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`): global fallback
-  for actors without a more-specific runtime declaration. Any other value,
-  `void` included, stops the daemon at boot with a sentence naming it (before
-  v0.8.4 it fell back to `claude` silently). Use a channel kind
+  for actors without a more-specific runtime declaration. Absent or empty
+  means `claude`. Any other value, `void` included, stops the daemon at boot
+  with a sentence naming it (before v0.8.4 it fell back to `claude` silently). Use a channel kind
   descriptor when only one surface should change. `grok` or `codex` here is a
   hard failure (the turn is refused) if the CLI is missing or, for codex, not
   logged in — neither falls back to Claude. Changing this key does not move

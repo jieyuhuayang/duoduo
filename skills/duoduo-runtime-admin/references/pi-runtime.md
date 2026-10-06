@@ -13,7 +13,7 @@ place is its own section below. What a pi session DOES need:
 - **A model pointer.** Pi has no runtime default model inside duoduo: a
   pi session without one fails with an actionable message instead of
   silently running on something else. Canonical form is
-  `provider/modelId` (e.g. `deepseek/deepseek-chat`). Three sources: a
+  `provider/modelId` (e.g. `deepseek/deepseek-flash`). Three sources: a
   stored `/model`, job frontmatter `model:`, partition frontmatter
   `model:`. A stored `/model` wins over job frontmatter — on a job too,
   where both can exist.
@@ -498,10 +498,10 @@ issues:
   user extension written for a newer pi may fail to load here; the
   worker logs the load error and continues.
 - **Extension-triggered runs outside a duoduo turn are "orphan runs".**
-  A run an extension starts from its `agent_settled` handler is not one:
-  since pi 1.0 it runs before the turn ends, so its text is the turn's
-  reply and its tokens count toward the turn. A run an extension starts
-  any other time after the turn settled is an orphan: its text does
+  During a duoduo turn, a run deferred from an `agent_settled` handler
+  is not one: since pi 1.0 it finishes before that turn closes, so its
+  text is the turn's reply and its tokens count toward the turn. A run
+  with no owning duoduo turn is an orphan: its text does
   not ride the turn's reply and **its tokens do not reach the usage
   ledger at all** — ledger attribution is not implemented; the frame is
   logged at debug level and dropped. Model calls an extension makes

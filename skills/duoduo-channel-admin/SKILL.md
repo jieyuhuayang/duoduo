@@ -67,8 +67,10 @@ Editable keys by hand:
   model pointer; see duoduo-runtime-admin's pi-runtime reference). A live
   session is bound to its runtime: `/clear` it before changing this key,
   or its next turn is refused. A value duoduo does not know is refused on
-  every turn, never run on Claude. `void` is for channel plugins whose
-  sessions run no model; on a chat channel it means duoduo stops answering
+  every turn it would select, never replaced by another runtime. `void` is
+  meant for plugins such as tether whose sessions run no model; do not set it
+  on an ordinary chat channel — no model runs, and the plugin may send the
+  incoming messages back instead of a reply
 - `stream`
 - `allowedTools` (permission auto-approve — does not extend the tool surface)
 - `disallowedTools` (MCP tools only)

@@ -501,20 +501,24 @@ with a daemon WebSocket error instead of printing a version. It prints now.
 ## Changes landing in v0.8.4
 
 **Check every written runtime value before upgrading.** Up to v0.8.3 a
-runtime value duoduo did not know (a typo such as `runtime: codx`) ran on
-Claude without a word. From v0.8.4 it is refused with a sentence that names
-the value and the valid ones:
+runtime value duoduo did not know (a typo such as `runtime: codx`) was
+dropped without a word: a channel or partition fell through to the next
+layer (instance, then kind, then the global default), often but not always
+Claude, and an invalid `ALADUO_DEFAULT_RUNTIME` fell back to Claude. From
+v0.8.4 it is refused with a sentence that names the value and the valid ones:
 
 | where the value is written | after the upgrade |
 | --- | --- |
-| `ALADUO_DEFAULT_RUNTIME` in `~/.config/duoduo/.env` | the daemon does not boot |
-| a channel kind or instance descriptor | every turn of those sessions is refused ("Request was not executed") |
+| `ALADUO_DEFAULT_RUNTIME` in `~/.config/duoduo/.env` | the daemon does not boot (absent or empty still means `claude`) |
+| a channel kind or instance descriptor | turns are refused ("Request was not executed") for sessions whose runtime that layer selects; a valid instance value overrides an unknown kind value |
 | job frontmatter | the job fails |
 | subconscious partition frontmatter | the partition is skipped |
 
-Valid values are `claude`, `codex`, `grok` and `pi`; `void` is valid only on a
-channel whose plugin sets it (tether). Find every written value first, with
-the paths from `duoduo daemon config`:
+Model runtimes are `claude`, `codex`, `grok` and `pi`. Channel configuration
+also accepts `void`, meant for plugins such as tether whose sessions never
+run a model; do not set it on an ordinary chat channel (see
+`duoduo-channel-admin`). Find every written value first, with the paths
+from `duoduo daemon config`:
 
 ```bash
 grep -n 'ALADUO_DEFAULT_RUNTIME' ~/.config/duoduo/.env
@@ -522,27 +526,47 @@ grep -rn --include='*.md' '^runtime:' <kernel_dir>/config <kernel_dir>/subconsci
   <runtime_dir>/var/channels <runtime_dir>/var/jobs/active
 ```
 
-Fix a misspelled value to the runtime it was meant to be. If the sessions it
-governs have been answering on Claude all along, write `claude` instead (or
-`/clear` them first): they are bound to Claude, and switching only the value
-refuses their next turn (see "Switching a session's runtime" in
-`duoduo-runtime-admin`).
+Fix a misspelled value to the runtime the sessions it governs have actually
+been running on — the layer it fell through to, not necessarily Claude.
+Writing a different runtime refuses their next turn unless you `/clear` them
+first (see "Switching a session's runtime" in `duoduo-runtime-admin`).
+
+**Rename pi's built-in DeepSeek Flash id before upgrading.** The bundled pi
+1.0 no longer has `deepseek/deepseek-v4-flash`; upstream renamed it
+`deepseek/deepseek-flash`. A `model:` pin that names the old id — partition
+or job frontmatter, a channel config, a stored `/model` choice — no longer
+resolves after the upgrade. Find and change it:
+
+```bash
+grep -rn 'deepseek/deepseek-v4-flash' <kernel_dir>/config <kernel_dir>/subconscious \
+  <runtime_dir>/var/channels <runtime_dir>/var/jobs/active <runtime_dir>/var/sessions
+```
+
+A stored `/model` choice is changed by sending `/model deepseek/deepseek-flash`
+in that session, not by editing its files.
 
 Three changes need no action, only knowing:
 
 - **Claude cost after a process restart.** The first Claude turn after a
   session's process restarted (idle reclaim, daemon restart) used to report
   the session's lifetime cost and its most-used model as that one turn's, in
-  the footer and in the usage ledger. It now reports the turn's own. The first
-  such turn per session after the upgrade has nothing to measure from and
+  the footer and in the usage ledger. Once a session has a saved baseline
+  (written by any Claude turn after the upgrade), a resumed turn reports its
+  own figures. An existing session's first resume without a saved baseline
   shows no cost and no model. Ledger records written before the upgrade keep
   their inflated values.
-- **Claude Code's own auto memory is off** in every Claude session duoduo
-  starts. That memory store would sit beside duoduo's memory as a second one;
-  nothing migrates, and no setting turns it back on.
-- **The bundled pi moves to 1.0.** Extensions are now judged against pi 1.0;
-  after the upgrade, check the daemon log for an extension load error. A run
-  an extension starts from its settle hook now counts as part of the turn.
+- **Claude Code's own auto memory is off** in the Claude sessions duoduo
+  starts: duoduo disables it in the spawn environment, because that memory
+  store would sit beside duoduo's memory as a second one. Nothing migrates.
+  An `env` entry for `CLAUDE_CODE_DISABLE_AUTO_MEMORY` in a Claude settings
+  file the session loads (for example the user-scope `~/.claude/settings.json`)
+  still wins, so check there if auto memory is still active.
+- **The bundled pi moves to 1.0.** Extensions are now judged against pi 1.0.
+  A load error reaches the daemon log only at debug level and only when a pi
+  worker is built: set `ALADUO_LOG_LEVEL=debug`, restart the daemon, send a
+  message to a pi session, then look for `extension FAILED to load` in the
+  log. Extension behaviour changes are in the caveats of `pi-runtime.md` in
+  `duoduo-runtime-admin`.
 
 ## Stdio output behavior in v0.5.3
 

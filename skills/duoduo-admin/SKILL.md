@@ -162,7 +162,7 @@ bare `duoduo` interactive use works without any of them.
   batch-archive per channel.
 - **Runtime selection**: Claude, Codex, Grok, and Pi are peer
   runtimes. Claude is the default when no runtime is declared; a
-  declared runtime duoduo does not know is refused, never run on Claude. Codex
+  declared runtime duoduo does not know is refused, not replaced by a fallback. Codex
   and Grok (`runtime: codex|grok`, or `ALADUO_DEFAULT_RUNTIME`) have
   **no silent Claude fallback** — install the CLI and log in; an
   unavailable runtime refuses the turn, and sending the message again
