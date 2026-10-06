@@ -18,7 +18,7 @@ duoduo 是一个让大语言模型无人值守持续运行的程序；模型自�
 
 ## 1 分发形态
 
-duoduo 的运行时只以 npm 包 `@openduo/duoduo` 里的压缩 JavaScript 分发，GitHub 仓库 `openduo/duoduo` 不含运行时源码，所以部署就是 `npm install -g @openduo/duoduo` 后启动 daemon，不需要克隆源码再构建。仓库里有 `README.md`、`CHANGELOG.md`、`skills/`（运维技能）、`subconscious/`（后台分区提示词的参考版本）、`contrib/`（社区扩展）、`assets/`（截图）和 `.github/`（issue 模板）。README 给出的不发布源码的理由是这套代码不是写给人读的：agent 能直接阅读和修改压缩后的代码，压缩只是为了节省带宽、让上下文窗口保持精简；README 原文还有一句 "we are called openduo and we don't publish source either"。许可标注为 `Private. All rights reserved.`。
+duoduo 的运行时只以 npm 包 `@openduo/duoduo` 里的压缩 JavaScript 分发，GitHub 仓库 `openduo/duoduo` 不含运行时源码，所以部署就是 `npm install -g @openduo/duoduo` 后启动 daemon，不需要克隆源码再构建。仓库里有 `README.md`、`CHANGELOG.md`、`skills/`（运维技能）、`subconscious/`（后台分区提示词的参考版本）、`contrib/`（社区扩展）、`assets/`（截图）和 `.github/`（issue 模板）。README 给出的不发布源码的理由是这套代码不是写给人读的：agent 能直接阅读和修改压缩后的代码，压缩只是为了节省带宽、让上下文窗口保持精简；README 原文还有一句 "we are called openduo and we don't publish source either"。
 
 npm 包的 `dist/release/` 下有六个 JavaScript bundle，其中被引用的是三个：`bin/duoduo` 启动 `cli.js`，CLI 用 `daemon.js` 拉起 daemon，daemon 为 pi 引擎的会话派生 `pi-worker.js`。同目录的 `stdio.js`、`channel-acp.js`、`feishu-gateway.js` 不被 cli 与 daemon 两个 bundle 引用：在两个 bundle 里检索 `.js` 文件名，只找到 `daemon.js`（cli）与 `pi-worker.js`（daemon）（confirmed）。渠道适配器的实际安装方式见 §6。
 
@@ -408,7 +408,7 @@ $ curl -s -H 'Content-Type: application/json' \
 
 以下六项风险影响日常运维，后五项都对照 v0.8.3 的代码或包内文件确认过；设计上可借鉴的做法见 GUIDE 6.1，这里不重复。
 
-- **闭源与压缩发布。**运行时代码对人不可读，调试与审计只能依靠运行时的可观测面（文件、事件日志、RPC、CLI）、官方 issue 流程，以及本仓库的还原源码（[`../reconstruction/`](../reconstruction/)）。
+- **压缩发布。**运行时代码对人不可读，调试与审计只能依靠运行时的可观测面（文件、事件日志、RPC、CLI）、官方 issue 流程，以及本仓库的还原源码（[`../reconstruction/`](../reconstruction/)）。
 - **后台模型费用取决于外部事件，job 也算在内。**心跳按 `ALADUO_CADENCE_INTERVAL_MS`（默认 37 分钟）定时触发，不论前台是否活跃（README 所说的 "runs on a cadence regardless of foreground activity" 指的是心跳本身）；但只有外部事件或三个记忆目录（`memory/fragments`、`memory/entities`、`memory/topics`）自上一次心跳以来有变化，心跳才运行分区、调用模型（`activity gate: skipping tick (fingerprint unchanged)`（`createMetaSession`），confirmed）。job 会话启动时写的 `job.spawn` 和结束时写的 `job.complete`、`job.fail` 来源是 `job`，算外部事件（`kind: "job",`（`createJobSessionFinalizer`））；60 秒扫描器为到期 job 写的那条 `job.spawn` 来源是 `cadence`，属于内部来源，不算（`kind: "cadence"`（`scanAndSpawnDueJobs`））。所以一个周期 job 除了自己的模型费用，还会让下一次心跳运行分区；只改记忆板 `memory/CLAUDE.md` 不会，daemon 启动后的第一次心跳总会运行。机制见 GUIDE 3.3 与 5.2，代码证据见 INTERNALS 11.2 与附录 B.1。要降低后台费用，可以调大心跳间隔、减少周期 job，或停用分区。
 - **分区提示词不随升级更新。**npm 升级不覆盖内核里已有的分区提示词，需要按 §5.3 的流程显式刷新；不刷新时，新版运行时新增的记忆检查对带旧契约声明的分区不生效。
 - **渠道适配器没有自动重启。**适配器进程由 CLI 以 detached 方式启动，之后没有任何进程在它崩溃或主机重启后把它拉起来：daemon bundle 里没有启动渠道适配器的代码，macOS 的 launchd 服务只托管 daemon 本身（confirmed，否定性证据：daemon bundle 中不含适配器的 `pid.json`、`plugin.log` 路径；主机重启后的行为未实测）。`duoduo upgrade` 只重启它升级过的渠道，`duoduo channel install` 不重启任何进程（§6）。所以要在主机重启、适配器崩溃或 daemon 重启之后用 `duoduo channel <kind> status` 检查。

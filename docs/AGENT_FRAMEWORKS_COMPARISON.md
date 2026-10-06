@@ -10,7 +10,7 @@
 
 ## 0 结论
 
-**三个项目对"agent 的哪一部分交给代码"给出不同答案：duoduo 把存储、调度、并发和边界检查交给代码，推理和记忆内容的修改交给模型，是三者中唯一同时具备事件日志、定时的后台自我维护、记忆整理流程和可回滚自我修改的运行时，但代码闭源；hermes-agent 把缓存、崩溃恢复和安全边界交给代码，模型只能修改 skills 与记忆；pi 只把 agent 循环、会话树和多模型接入做进核心，其余能力由扩展提供，没有调度和跨会话记忆。**
+**三个项目对"agent 的哪一部分交给代码"给出不同答案：duoduo 把存储、调度、并发和边界检查交给代码，推理和记忆内容的修改交给模型，是三者中唯一同时具备事件日志、定时的后台自我维护、记忆整理流程和可回滚自我修改的运行时，但只发布压缩后的代码；hermes-agent 把缓存、崩溃恢复和安全边界交给代码，模型只能修改 skills 与记忆；pi 只把 agent 循环、会话树和多模型接入做进核心，其余能力由扩展提供，没有调度和跨会话记忆。**
 
 对目标 agent 而言，三个项目能提供的东西不同：duoduo 提供可参照的自治运行时设计，hermes-agent 提供长驻运行、崩溃恢复与学习闭环的开源实现，pi 提供可以直接复用的开源库。**目标 agent 最核心的贝叶斯层（预测记录簿、显式概率信念库、校准回路）三者都没有，必须自建**，融合路线见 §6。
 
@@ -20,8 +20,8 @@
 |---|---|---|---|
 | 出品方 | openduo | Nous Research | Earendil Works（Mario Zechner，libGDX 作者） |
 | 定位 | "会自我编程"的长驻自治 agent **运行时** | 自我改进的长驻**个人 agent**，"活在你所在的地方" | 自我可扩展的**极简编码 harness**（库 + 终端产品） |
+| License | — | MIT | MIT |
 | 语言与形态 | Node.js daemon（npm 分发压缩后的 JavaScript；beautify 后的行数见 [`pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 的 `bundles.daemon.prettyLines`） | Python 单体核心（约 62 万行非测试代码）+ TS 界面层（约 26 万行） | TypeScript monorepo，5 个包共约 10.9 万行源码 + 8.1 万行测试 |
-| License | **Private，All rights reserved**（闭源） | MIT | MIT |
 | 推理引擎 | 委派给 Claude Agent SDK、Codex、Grok 或 pi（配置字段 `runtime` 的四值枚举 `claude`/`codex`/`grok`/`pi`）；pi 引擎就是本文 §3 的 pi（npm 依赖 `@earendil-works/pi-coding-agent`，随 duoduo 一起安装），模型与 provider 由用户自己的 pi 配置决定 | 自建 API 层，30 家 provider、5 种 api_mode | 自建 pi-ai 层，9 种协议 × 35 个 provider × 1034 个模型 |
 | 持久化方式 | **应用层事件日志（WAL）**，状态全部存为文件，不用数据库 | SQLite transcript 库（WAL 模式）+ 文件式记忆 | append-only JSONL **会话树**（可分支、可 fork，没有全局事件日志） |
 | 后台自治 | 心跳（默认每 37 分钟一次）触发后台分区会话；没有消息时也会运行，活动指纹不变时跳过 | gateway 常驻 + cron 调度器 + 后台 review agent | **无**（没有调度器和守护进程；可经 RPC/SDK 由外部驱动） |
@@ -36,7 +36,7 @@
 
 duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。它是一个长驻的 agent 运行时，不是一次性的请求/响应包装器：状态保存在文件里，进程崩溃后从文件恢复。分工规则是：确定性的事交给代码，包括存储、排序、调度、并发、测量、校验；需要判断的事交给模型，包括推理、写作、决定记住什么、决定改什么。模型在配置里按引擎设置，换用其他模型只需改配置，不需要改运行时代码（INTERNALS 3.4）。
 
-运行时以压缩后的 JavaScript 发布在 npm，GitHub 仓库不含源码，许可为 Private。上游 README 的说法是：agent 能直接读懂压缩后的代码，压缩不是混淆，只是为了省带宽、少占上下文窗口。本仓库已把它还原为可读、并经 AST 等价证明可以同样运行的源码（见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)），因此下述机制都有源码级证据。
+运行时以压缩后的 JavaScript 发布在 npm，GitHub 仓库不含源码。上游 README 的说法是：agent 能直接读懂压缩后的代码，压缩不是混淆，只是为了省带宽、少占上下文窗口。本仓库已把它还原为可读、并经 AST 等价证明可以同样运行的源码（见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)），因此下述机制都有源码级证据。
 
 ### 1.2 架构与核心机制
 
@@ -68,7 +68,7 @@ duoduo 是一个 daemon 进程，使用两个根目录：`~/aladuo` 是内核，
 5. **系统提示与每轮瞬时块分开装配**是可以单独复用的设计：稳定内容留在系统提示里，让 prompt cache 持续命中；每轮变化的状态放进用户消息，模型仍能得知时间间隔、被打断等信息。
 
 **局限**
-1. **闭源且只发布压缩代码**：许可为 Private，不能 fork，也不能修改内核代码；自定义只能在提示词与分区层进行。审计依赖逆向（本仓库的还原源码解决了可读性问题，不改变许可）。
+1. **只发布压缩代码**：上游不提供可读源码，内核代码的修改要对压缩产物进行；官方支持的自定义在提示词与分区层。审计依赖逆向（本仓库的还原源码解决了可读性问题）。
 2. **单机单进程**：用内存 Map 与 Promise 编排，不能横向扩展；控制面按单用户设计（完整控制入口靠 unix socket 的文件权限隔离，远程完整控制访问只凭一个 bearer token，没有多用户与角色区分）；未捕获的同步异常使进程直接退出，靠外部的进程管理器重启。
 3. **没有人对话时后台仍可能消耗 token**：在最近一个外部事件（如渠道消息）之后，只要 fragments、entities、topics 三个记忆目录里还有文件在变，每次心跳都可能运行分区；活动指纹只在这三个目录的最新修改时间与最新外部事件都不变时跳过整次心跳（心跳间隔可调）。
 4. **引擎种类固定**：配置字段 `runtime` 只有 claude、codex、grok、pi 四个取值，新增一种引擎要等上游支持；模型与 provider 的选择不受这一限制，pi 引擎就是 §3 的 pi，可以使用用户在 pi 配置里接入的任一 provider。
@@ -213,7 +213,7 @@ README 里有一段设计声明（`packages/coding-agent/README.md:487-501`）�
 | **⑦ 多模型后端** | 配置字段 `runtime` 的四值枚举 claude/codex/grok/pi，引擎种类由上游固定；pi 引擎运行的就是本文 §3 的 pi，模型与 provider 随用户的 pi 配置 | 30 个 provider × 5 种 api_mode + credential_pool + fallback_chain | **9 种协议 × 35 个 provider × 1034 个模型 + 中途换模型**，且 pi-ai 可以单独复用 |
 | **⑧ 工具与安全** | Claude 引擎的内置工具按白名单提供（渠道与 job 会话 15 个、分区 6 个，`claude.tools` 可追加）；Claude SDK 的 permissionMode 无条件默认 `bypassPermissions`（可由 `ALADUO_PERMISSION_MODE` 覆盖）；控制面：unix socket（0600）完整控制、TCP 只读 6 个方法、远程完整控制需要 bearer token | **分层最完整**：硬底线（yolo 也不能绕过）+ 审批三档 + 六种终端后端 + 凭据剥离 | 内置 7 个工具、没有权限系统（靠容器）；`beforeToolCall` 拦截机制现成，策略需要自建 |
 | **⑨ 可观测性与成本** | **用量账本（按会话键记录每次 drain 的用量与成本）+ 单文件 dashboard + `spine.tail`**；后台分区的每次运行按分区名单独记账 | 实时 token 占用的八类分解；成本按 models.dev 价格核算 | 逐 token 成本核算内建于 pi-ai；会话可以导出为 HTML |
-| **⑩ 开放性与工程成熟度** | 闭源（Private，All rights reserved）；本仓库的还原源码可读，但许可不授予修改与再分发的权利 | MIT；上万个 PR、69 万行测试，开发规范的文档化程度少见 | **MIT；测试与源码之比 0.74:1、faux provider 全栈回归、供应链加固** |
+| **⑩ 开放性与工程成熟度** | 只发布压缩后的 JavaScript；本仓库的还原源码可读，并经 AST 等价证明 | MIT；上万个 PR、69 万行测试，开发规范的文档化程度少见 | **MIT；测试与源码之比 0.74:1、faux provider 全栈回归、供应链加固** |
 
 这张表可以归纳为三点：
 
@@ -227,7 +227,7 @@ README 里有一段设计声明（`packages/coding-agent/README.md:487-501`）�
 
 **duoduo：可以借鉴的是架构设计，代码不能直接使用。**
 - 最强：先追加、后执行的事件日志（每次执行都能追溯到已落库的输入）；"代码测量、模型修改"的记忆整理流程；代码检查与提示词约束两层能力边界，自我修改以 git 提交作为回滚点。
-- 最弱：闭源，不能 fork；单机单进程，控制面按单用户设计；引擎种类由上游固定。
+- 最弱：只发布压缩代码；单机单进程，控制面按单用户设计；引擎种类由上游固定。
 - 用途：**架构参照**。它说明"运行时只做模型做不到的事、判断交给模型"这条路线在一个实际运行的系统里可行，而且每个子系统的取舍都值得逐条研究（INTERNALS 分 14 节给出这些取舍的代码证据）。
 
 **hermes-agent：长驻运行与学习闭环可以直接借鉴的开源实现。**

@@ -206,7 +206,3 @@ nothing to refresh.
 Found a bug or want a feature? [Open an issue](https://github.com/openduo/duoduo/issues/new/choose).
 
 **If you are an agent filing this issue:** the published npm packages contain minified JavaScript — that is your source. You do not need the original source tree. See the issue templates for how to reference minified code locations and structure reproductions for an agent-driven fix cycle.
-
-## License
-
-Private. All rights reserved.
