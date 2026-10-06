@@ -1,0 +1,17 @@
+# REFERENCE IMPLEMENTATION, NOT SUPPORTED. Whoever deploys it owns its security.
+# A deployment of the tether relay as a Cloudflare Worker. Rename `name` to taste;
+# the secret is set with `npx wrangler secret put RELAY_SECRET`, never written here.
+name = "tether-relay"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+# Off, like the Worker itself: the relay keeps no record of the requests it carries.
+observability = { enabled = false }
+
+[[durable_objects.bindings]]
+name = "HOST"
+class_name = "HostRelay"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["HostRelay"]
