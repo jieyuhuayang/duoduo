@@ -66,7 +66,9 @@ Editable keys by hand:
 - `runtime` (`claude` | `codex` | `grok` | `pi` — pi sessions also need a
   model pointer; see duoduo-runtime-admin's pi-runtime reference). A live
   session is bound to its runtime: `/clear` it before changing this key,
-  or its next turn is refused
+  or its next turn is refused. A value duoduo does not know is refused on
+  every turn, never run on Claude. `void` is for channel plugins whose
+  sessions run no model; on a chat channel it means duoduo stops answering
 - `stream`
 - `allowedTools` (permission auto-approve — does not extend the tool surface)
 - `disallowedTools` (MCP tools only)

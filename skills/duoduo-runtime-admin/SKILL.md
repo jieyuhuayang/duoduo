@@ -74,6 +74,12 @@ Be precise:
   frontmatter, `/model`, or partition frontmatter.
 - Runtime selection can happen per actor, per channel kind, or globally with
   `ALADUO_DEFAULT_RUNTIME` (`claude`, `codex`, `grok`, or `pi`).
+- A runtime value duoduo does not know is refused, never replaced by Claude:
+  in `ALADUO_DEFAULT_RUNTIME` the daemon does not boot, in a channel
+  descriptor every turn is refused, a job fails, a partition is skipped —
+  each with a sentence naming the value and the valid ones. `void` is a
+  channel value for sessions that never run a model (a channel plugin such as
+  tether sets it); it is refused as the default, on a job, and on a partition.
 - Verify `codex` is installed and authenticated before routing work to it.
   For `grok`, duoduo only checks the binary — verify the login yourself
   before routing work to it. Explicit codex or grok that cannot be served

@@ -498,6 +498,52 @@ need nothing.
 One bug fix worth knowing during preflight: `duoduo --version` used to exit
 with a daemon WebSocket error instead of printing a version. It prints now.
 
+## Changes landing in v0.8.4
+
+**Check every written runtime value before upgrading.** Up to v0.8.3 a
+runtime value duoduo did not know (a typo such as `runtime: codx`) ran on
+Claude without a word. From v0.8.4 it is refused with a sentence that names
+the value and the valid ones:
+
+| where the value is written | after the upgrade |
+| --- | --- |
+| `ALADUO_DEFAULT_RUNTIME` in `~/.config/duoduo/.env` | the daemon does not boot |
+| a channel kind or instance descriptor | every turn of those sessions is refused ("Request was not executed") |
+| job frontmatter | the job fails |
+| subconscious partition frontmatter | the partition is skipped |
+
+Valid values are `claude`, `codex`, `grok` and `pi`; `void` is valid only on a
+channel whose plugin sets it (tether). Find every written value first, with
+the paths from `duoduo daemon config`:
+
+```bash
+grep -n 'ALADUO_DEFAULT_RUNTIME' ~/.config/duoduo/.env
+grep -rn --include='*.md' '^runtime:' <kernel_dir>/config <kernel_dir>/subconscious \
+  <runtime_dir>/var/channels <runtime_dir>/var/jobs/active
+```
+
+Fix a misspelled value to the runtime it was meant to be. If the sessions it
+governs have been answering on Claude all along, write `claude` instead (or
+`/clear` them first): they are bound to Claude, and switching only the value
+refuses their next turn (see "Switching a session's runtime" in
+`duoduo-runtime-admin`).
+
+Three changes need no action, only knowing:
+
+- **Claude cost after a process restart.** The first Claude turn after a
+  session's process restarted (idle reclaim, daemon restart) used to report
+  the session's lifetime cost and its most-used model as that one turn's, in
+  the footer and in the usage ledger. It now reports the turn's own. The first
+  such turn per session after the upgrade has nothing to measure from and
+  shows no cost and no model. Ledger records written before the upgrade keep
+  their inflated values.
+- **Claude Code's own auto memory is off** in every Claude session duoduo
+  starts. That memory store would sit beside duoduo's memory as a second one;
+  nothing migrates, and no setting turns it back on.
+- **The bundled pi moves to 1.0.** Extensions are now judged against pi 1.0;
+  after the upgrade, check the daemon log for an extension load error. A run
+  an extension starts from its settle hook now counts as part of the turn.
+
 ## Stdio output behavior in v0.5.3
 
 The stdio terminal UI buffers assistant text more cleanly around status

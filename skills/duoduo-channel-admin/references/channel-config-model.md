@@ -89,8 +89,15 @@ so read the effective surface rather than trusting a quiet log.
 
 ### Binding and runtime keys
 
-- `runtime` — one of `claude`, `codex`, `grok`, or `pi`. The agent runtime this
-  instance is bound to. Readers default to `claude` when absent. Set it in a kind
+- `runtime` — one of `claude`, `codex`, `grok`, `pi`, or `void`. The agent runtime this
+  instance is bound to. Readers default to `claude` when absent. A value that is
+  written but not one of these is refused, never replaced by `claude`: each turn
+  of the session is refused with a sentence naming the value, and `/model` /
+  `/effort` refuse too (a valid instance value overrides an unknown kind value).
+  `void` marks a session that never runs a model: a message to it lands in its
+  outbox for the channel plugin to collect, nothing wakes, and `/model`,
+  `/effort`, `/compact` and wakes are refused. Only a channel built for it (the
+  tether channel) sets it; on a chat channel it means duoduo stops answering. Set it in a kind
   descriptor to make a default for all channels of that kind, or in an instance
   descriptor for one specific channel. For Feishu, prefer the `/setup` card
   when possible so the plugin's active binding cache and descriptor stay in
