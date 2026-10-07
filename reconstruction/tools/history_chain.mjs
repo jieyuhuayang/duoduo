@@ -33,6 +33,7 @@
 // Usage: node history_chain.mjs <history dir> <rename_daemon.json> <out.json> [--package @openduo/duoduo] [--min 0.5] [--lead 0.1] [--slim]
 import fs from "node:fs";
 import path from "node:path";
+import { makeStep } from "./release_pairing.mjs";
 
 const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf(k); if (i === -1) return d; const v = argv[i + 1]; argv.splice(i, 2); return v; };
@@ -51,105 +52,15 @@ const current = versions[versions.length - 1];
 const features = new Map(); // version -> decl_features output (loaded lazily)
 const featuresOf = v => { if (!features.has(v)) { const f = path.join(HIST, "features", `${v}.json`); features.set(v, fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null); } return features.get(v); };
 
-// per consecutive pair: reverse maps new -> old
+// per consecutive pair: the three-layer pairing of release_pairing.mjs
 const steps = []; // index i: from versions[i] to versions[i+1]
 for (let i = 0; i + 1 < versions.length; i++) {
   const a = versions[i], b = versions[i + 1];
   const fp = JSON.parse(fs.readFileSync(path.join(HIST, "fp", `${a}__${b}.json`), "utf8"));
   const pr = JSON.parse(fs.readFileSync(path.join(HIST, "pairs", `${a}__${b}.json`), "utf8"));
-  const identical = new Map(), changed = new Map(), twins = new Map(); // twins: new -> [old candidates with the same body]
-  for (const [old, m] of Object.entries(fp.matched)) {
-    if (m.unique) identical.set(m.new, old);
-    else for (const nu of m.new) (twins.get(nu) ?? twins.set(nu, []).get(nu)).push(old);
-  }
-  for (const [old, nu] of Object.entries(pr.pairs ?? {})) if (!identical.has(nu)) changed.set(nu, old);
-  steps.push({ from: a, to: b, identical, changed, twins, claimedOld: new Set([...identical.values(), ...changed.values()]), similar: new Map() });
-}
-
-// weighted Jaccard over the four feature kinds
-const W = { p: 1, s: 1.5, n: 0.5, g: 0.5 };
-function score(x, y) {
-  let inter = 0, union = 0;
-  for (const k of Object.keys(W)) {
-    const A = new Set(x[k]), B = new Set(y[k]);
-    for (const t of A) { union += W[k]; if (B.has(t)) inter += W[k]; }
-    for (const t of B) if (!A.has(t)) union += W[k];
-  }
-  return union ? inter / union : 0;
-}
-const thin = f => (f.p.length + f.s.length + f.n.length + f.g.length) < 3;
-const family = k => /function|class|module-init/.test(k) ? "code" : "data";
-
-// the window of old positions `name` (in release s.to) can map into: between
-// the nearest neighbours in the new order that have a known old counterpart.
-// strict=false widens an empty or inverted window by 400 declarations.
-function windowOf(s, name, FN, FO) {
-  const f = FN.decls[name];
-  if (!f) return null;
-  const order = FN.order, idx = f.i;
-  const oldIdx = n => { const o = s.identical.get(n) ?? s.changed.get(n); return o && FO.decls[o] ? FO.decls[o].i : null; };
-  let lo = null, hi = null;
-  for (let j = idx - 1; j >= 0 && lo === null; j--) lo = oldIdx(order[j]);
-  for (let j = idx + 1; j < order.length && hi === null; j++) hi = oldIdx(order[j]);
-  if (lo === null) lo = -1;
-  if (hi === null) hi = FO.order.length;
-  const strict = hi > lo;
-  if (!strict) { lo = Math.max(-1, lo - 400); hi = Math.min(FO.order.length, hi + 400); }
-  return { lo, hi, strict };
-}
-
-// a new declaration whose body several old declarations share (`e => X.includes(e)`
-// twins): the one inside the window wins when it is the only one there
-function twin(s, name) {
-  const cands = s.twins.get(name);
-  if (!cands) return undefined;
-  const FN = featuresOf(s.to), FO = featuresOf(s.from);
-  if (!FN || !FO) return undefined;
-  const w = windowOf(s, name, FN, FO);
-  if (!w) return undefined;
-  const inside = cands.filter(o => !s.claimedOld.has(o) && FO.decls[o] && FO.decls[o].i > w.lo && FO.decls[o].i < w.hi);
-  return inside.length === 1 ? inside[0] : undefined;
-}
-
-// overlap coefficient: how much of the smaller feature set the other contains --
-// what survives when a body grows a lot between releases (an initialiser that
-// gained a module's worth of constants) and Jaccard falls below MIN
-function overlap(x, y) {
-  let inter = 0, a = 0, b = 0;
-  for (const k of Object.keys(W)) {
-    const A = new Set(x[k]), B = new Set(y[k]);
-    a += A.size * W[k]; b += B.size * W[k];
-    for (const t of A) if (B.has(t)) inter += W[k];
-  }
-  const m = Math.min(a, b);
-  return m ? inter / m : 0;
-}
-
-// similarity fallback for `name` (in release s.to) across step s; returns the old name or undefined
-function similar(s, name) {
-  if (s.similar.has(name)) return s.similar.get(name);
-  const FN = featuresOf(s.to), FO = featuresOf(s.from);
-  let result;
-  const f = FN?.decls[name];
-  if (f && !thin(f) && FO) {
-    const w = windowOf(s, name, FN, FO);
-    const scored = [];
-    for (let j = w.lo + 1; j < w.hi; j++) {
-      const on = FO.order[j], of = FO.decls[on];
-      if (s.claimedOld.has(on) || !of || thin(of)) continue;
-      if (family(of.kind) !== family(f.kind)) continue;
-      // a parameter added or dropped is an ordinary change; two or more is another function
-      if (f.arity != null && of.arity != null && Math.abs(f.arity - of.arity) > 1) continue;
-      scored.push([score(f, of), on, overlap(f, of)]);
-    }
-    scored.sort((x, y) => y[0] - x[0]);
-    const lead = scored.length === 1 || (scored.length > 1 && scored[0][0] - scored[1][0] >= LEAD);
-    if (scored.length && scored[0][0] >= MIN && lead) result = { old: scored[0][1], score: +scored[0][0].toFixed(3) };
-    // a grown body: most of the smaller side is in the larger, inside a strict window, and leads
-    else if (scored.length && w.strict && scored[0][2] >= 0.75 && scored[0][0] >= 0.25 && lead) result = { old: scored[0][1], score: +scored[0][0].toFixed(3), overlap: +scored[0][2].toFixed(3) };
-  }
-  s.similar.set(name, result);
-  return result;
+  const FO = featuresOf(a), FN = featuresOf(b);
+  if (!FO || !FN) { console.error(`missing features/${a}.json or features/${b}.json (run decl_features.mjs)`); process.exit(1); }
+  steps.push({ from: a, to: b, step: makeStep({ fp, pairs: pr, FO, FN, min: MIN, lead: LEAD }) });
 }
 
 const symbols = {};
@@ -165,27 +76,13 @@ for (const [mangled, real] of Object.entries(rename)) {
   let untraceable = null;
   for (let i = steps.length - 1; i >= 0; i--) {
     const s = steps[i];
-    let prev = s.identical.get(name);
-    if (prev !== undefined) how[s.to] = "identical";
-    else {
-      prev = s.changed.get(name);
-      if (prev !== undefined) how[s.to] = "positional";
-      else if ((prev = twin(s, name)) !== undefined) { how[s.to] = "identical (twin by order)"; s.claimedOld.add(prev); }
-      else {
-        // a declaration with (almost) no features -- an uninitialised `var`,
-        // a one-line predicate -- cannot be followed by similarity, and its
-        // walk ending here says nothing about where it first appeared
-        const f = featuresOf(s.to)?.decls[name];
-        if (!f || thin(f) || family(f.kind) === "data") { untraceable = `${f ? f.kind : "declaration"} with too few features to follow past v${s.to}`; break; }
-        const sim = similar(s, name);
-        if (!sim) break;
-        prev = sim.old; how[s.to] = `similar ${sim.score}${sim.overlap ? ` (overlap ${sim.overlap})` : ""}`;
-        s.claimedOld.add(prev);
-      }
-      if (!how[s.to].startsWith("identical")) changes.push(s.to);
-    }
-    name = prev;
-    chain[s.from] = prev;
+    const r = s.step.resolve(name);
+    if (!r) break;
+    if (r.untraceable) { untraceable = `${r.untraceable} past v${s.to}`; break; }
+    how[s.to] = r.how === "similar" ? `similar ${r.score}${r.overlap ? ` (overlap ${r.overlap})` : ""}` : r.how;
+    if (!r.how.startsWith("identical")) changes.push(s.to);
+    name = r.old;
+    chain[s.from] = r.old;
     firstSeen = s.from;
   }
   changes.reverse();

@@ -165,13 +165,22 @@ for name in "${NAMES[@]}"; do
   node --max-old-space-size=8192 "$HERE/fingerprint_match.mjs" \
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json"
 
+  # the pairing of the two releases (identical, twin by order, positional,
+  # similar) comes first: the carry step proposes a new short name for every
+  # RE-ANCHOR entry from it
+  echo "-- pair changed/added declarations"
+  node --max-old-space-size=8192 "$HERE/pair_changes.mjs" \
+    "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json"
+  node --max-old-space-size=8192 "$HERE/pair_releases.mjs" \
+    "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/pairing_$name.json"
+
   INF="$MAPS/inferred_$name.json"
   NEW_INF="$OUT/inferred_$name.json"
   rm -f "$NEW_INF"
   if [ -f "$INF" ]; then
     echo "-- carry inferred names across the bump"
-    node "$HERE/remap_inferred.mjs" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
-    echo "   review $NEW_INF, then, as the LAST step of the review: cp $NEW_INF $INF"
+    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
+    echo "   review $NEW_INF (and the PROPOSED entries in $OUT/inferred_$name.proposed.json), then, as the LAST step of the review: cp $NEW_INF $INF"
     echo "   (afterwards bump.sh refuses to run again until $INF is restored from origin/main)"
   fi
 
@@ -214,10 +223,6 @@ for name in "${NAMES[@]}"; do
       console.error(`   gone upstream, drop from the subsystem map (${gone.length}): ${gone.join(", ") || "(none)"}`);
     ' "$NEW_MAP" "$SUB" "$INF" "$NEW_INF"
   fi
-
-  echo "-- pair changed/added declarations"
-  node --max-old-space-size=8192 "$HERE/pair_changes.mjs" \
-    "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json"
 
   echo "-- emit per-declaration cross-version diffs"
   node --max-old-space-size=8192 "$HERE/diff_decls.mjs" \

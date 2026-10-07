@@ -27,7 +27,7 @@ const PRETTY = `${BUILD}/beautified/${A.to}`
 const CONTEXT = `
 The duoduo runtime moved from ${A.from} to ${A.to}. The reconstruction pipeline has already carried the names across and retargeted every citation mechanically; what is left is substance: statements in the docs that the new code makes wrong, incomplete or outdated, and new behaviour no doc describes. The doc rules are in the project CLAUDE.md ("Writing / editing the analysis docs"): cite code by name only, tag every mechanism claim confirmed / 未证实推测, update in place to the latest verified conclusion with no errata or version narration in AGENT_INTERNALS_ANALYSIS.md, and keep the Pyramid structure.
 Material (paths are absolute or relative to ${WHERE}):
-- ${B}/impact.md and ${B}/impact.json: every doc citation of changed code with a tier (1 re-read, 2 check, 3 skim) and the reason; the changed declarations with their readable diff files; what no doc covers yet; the plain-text delta.
+- ${B}/impact.md and ${B}/impact.json: every doc citation of changed code with a tier (1 re-read, 2 check, 3 skim) and the reason, plus tier 2c: citations of unchanged code whose direct callee changed, each naming the callee and its diff; the changed declarations with their readable diff files; what no doc covers yet; the plain-text delta.
 - ${B}/diff/<bundle>/*.diff: readable diffs. Top-level names are real names where known, else ${A.to} short names; \`old:X\` is a ${A.from} name with no counterpart; lines differing only in local-variable names are context.
 - ${B}/plaintext/package.diff and upstream.diff (CHANGELOG, skills/, bootstrap prompts): upstream's own words for the change.
 - New code: ${PRETTY}/daemon.pretty.js and cli.pretty.js; ${BUILD}/daemon.recon.js (same lines, first-party names applied); new names in ${BUILD}/symbols_daemon.json and symbols_cli.json.
@@ -38,7 +38,7 @@ Checks for .md files (run from ${WHERE}):
 Never run git, rebuild.sh or name_symbol.mjs without --dry-run unless your task says so; never edit reconstruction/maps/.`
 
 const UNITS_SCHEMA = { type: 'array', items: { type: 'object', properties: {
-  key: { type: 'string' }, doc: { type: 'string' }, section: { type: 'number' }, title: { type: 'string' }, tiers: { type: 'array', items: { type: 'number' } } },
+  key: { type: 'string' }, doc: { type: 'string' }, section: { type: 'number' }, title: { type: 'string' }, tiers: { type: 'array', items: { type: 'number' } }, calleeChanged: { type: 'number' } },
   required: ['key', 'doc', 'section', 'title'] } }
 const GROUPS_SCHEMA = { type: 'object', properties: { groups: { type: 'array', items: { type: 'object', properties: {
   id: { type: 'string' }, weight: { type: 'number' }, changes: { type: 'array', items: { type: 'string' } }, units: UNITS_SCHEMA },
@@ -114,11 +114,11 @@ const results = await pipeline(groups,
     return agent(CONTEXT + `
 
 YOUR TASK: bring these doc sections up to ${A.to}. You own ONLY these files; edit nothing else:
-${g.units.map((u) => `- ${chunk(u.key)}  (${u.doc} section ${u.section}: ${u.title}; tiers re-read/check/skim ${(u.tiers || []).join('/')})`).join('\n')}
+${g.units.map((u) => `- ${chunk(u.key)}  (${u.doc} section ${u.section}: ${u.title}; tiers re-read/check/skim ${(u.tiers || []).join('/')}, callee-changed ${u.calleeChanged || 0})`).join('\n')}
 Your citations: node -e 'const r=require("${B}/impact.json"), k=new Set(${JSON.stringify(keys)}); for (const c of r.citations) if (k.has(c.doc+"#"+c.section)) console.log(c.tier, c.doc+":"+c.line, c.real, c.form, c.code||"", "--", c.why)'
 The survey's notes for your sections:
 ${JSON.stringify(mine, null, 1)}
-Work tier 1 first: re-read the code each citation names in the new version (its readable diff, then the new pretty bundle or recon), and correct the statement, its snippet and its confidence tag so they hold for ${A.to}. Then tier 2; then skim tier 3 against the diff summaries. Write the new behaviour the notes assign to your sections, in the section's structure and style. A snippet must hold in the new code (check_bare_anchors). To cite unnamed daemon code, propose a name: check it with \`node ${T}/name_symbol.mjs --dry-run --build ${BUILD} ${PRETTY}/daemon.pretty.js <short> <name> <NN-subsystem>\` (--build: until PROMOTE, maps/ still indexes the old release), use it in the doc, and return it in \`names\`; the integration step registers it, so until then verify_citations reports it as missing, which is expected. Run both checks on your files until nothing else fails.`,
+Work tier 1 first: re-read the code each citation names in the new version (its readable diff, then the new pretty bundle or recon), and correct the statement, its snippet and its confidence tag so they hold for ${A.to}. Then tier 2, and tier 2c (the cited code did not change, but a callee it names did: read the claim against that callee's diff); then skim tier 3 against the diff summaries. Write the new behaviour the notes assign to your sections, in the section's structure and style. A snippet must hold in the new code (check_bare_anchors). To cite unnamed daemon code, propose a name: check it with \`node ${T}/name_symbol.mjs --dry-run --build ${BUILD} ${PRETTY}/daemon.pretty.js <short> <name> <NN-subsystem>\` (--build: until PROMOTE, maps/ still indexes the old release), use it in the doc, and return it in \`names\`; the integration step registers it, so until then verify_citations reports it as missing, which is expected. Run both checks on your files until nothing else fails.`,
       { label: `write:${g.id}`, phase: 'Update', schema: WRITE_SCHEMA })
   },
   (w, g) => w && agent(CONTEXT + `

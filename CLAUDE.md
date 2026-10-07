@@ -31,7 +31,7 @@ When someone says "analyze duoduo's logic" or "restore the source," they mean wo
   - `changelog_daemon.json` — the upstream `CHANGELOG.md` entries that describe a symbol, paired per release with the symbols born or changed in it, each with a confidence (`high`: the entry names a literal, flag or command in the body; `medium`: behaviour only) and the reason. Written by `changelog_merge.mjs` from per-release pairing files (`.build/history/changelog_pairs/`, written by reading each entry against the function bodies). A reading, not a proof: the headers print it with its confidence.
   - `bare_anchor_baseline.json` — per-doc ceilings on legacy line numbers, written by `check_bare_anchors.mjs --write-baseline`, which refuses to raise one.
 - `reconstruction/maps/symbols_<bundle>.json` — generated symbol index: real name → mangled name, declaration line, and a structural signature of the body. This is the authority for "where is symbol X"; line numbers are derived from it, never hand-written.
-- `reconstruction/maps/xref_<bundle>.json` — generated cross-reference index (`xref.mjs`, rebuild step 5b): per renamed symbol, the first-party symbols and unnamed top-level code it refers to (resolved through Babel scopes), the inverse, the env vars it reads, its log prefixes, dotted names (RPC methods, event types), paths and other string literals, plus the inverse indexes from each literal to its symbols and the unnamed declarations first-party code uses most (the naming queue). Query it with `tools/symbol_card.mjs` (a card per symbol: callers, callees, literals, name origin, first release, CHANGELOG entry, doc sections citing it; reverse queries `env:`, `log:`, `dotted:`, `path:`, `string:`, `unnamed`, `uncited`) instead of grepping the bundle; `tools/doc_coverage.mjs` writes which symbols no doc cites and how many symbols each section cites.
+- `reconstruction/maps/xref_<bundle>.json` — generated cross-reference index (`xref.mjs`, rebuild step 5b): per renamed symbol, the first-party symbols and unnamed top-level code it refers to (resolved through Babel scopes), the inverse, the env vars it reads, its log prefixes, dotted names (RPC methods, event types), paths and other string literals, plus the inverse indexes from each literal to its symbols, the unnamed declarations first-party code uses most (the naming queue), and per symbol `inner`: the named closures inside its declaration (`outer>name`, the names instrument.mjs traces under) with their lines, the outline of a factory such as `createDaemon`. Query it with `tools/symbol_card.mjs` (a card per symbol: callers, callees, literals, name origin, first release, CHANGELOG entry, doc sections citing it; reverse queries `env:`, `log:`, `dotted:`, `path:`, `string:`, `unnamed`, `uncited`) instead of grepping the bundle; `tools/doc_coverage.mjs` writes which symbols no doc cites and how many symbols each section cites.
 - `reconstruction/scenarios/` — runtime scenarios: `run.sh` instruments `recon/daemon.recon.js` with `instrument.mjs` (every first-party function and, with `--inner`, every closure inside one, named `outer>name`, writes enter/exit/fail lines to a trace) into `$PKG/daemon.traced.js`, then each `NN-*.sh` boots it in an isolated HOME on its own port (20300 + NN) through `lib.sh`, drives it over the socket and the read-only TCP port, marks its steps in the trace, and `trace_report.mjs` writes the call tree per step to `.build/scenarios/<name>/report.md`. The default auth source cannot reach a model. The conclusions, per scenario, are committed in `scenarios/findings/<name>.md`: the claim tested, the evidence, the verdict, the sentence for the doc. The instrumented file is a run artifact outside the equivalence proof.
 - `reconstruction/maps/pipeline_report.json` — **generated**; the authoritative record of a run: its counts (export blocks, recovered and inferred names, rename entries, first-party tree size), each gate's verdict, the sha256 of every shipped and pretty bundle it read, and the toolchain versions. Cite it rather than restating numbers in prose: the hand-copied versions of these had drifted into three contradictory values.
 - `reconstruction/maps/RENAME_TABLE.md` and `RENAME_TABLE_cli.md` — the generated mangled↔real name tables for daemon and cli.
@@ -191,6 +191,12 @@ cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # after reviewin
 #    refuses to run again (it checks the map against OLD) until it is restored from
 #    origin/main. Before step 1 overwrites the shape baseline, run verify_inferred.mjs
 #    check on the NEW bundle against the OLD baseline and settle every finding.
+#  → bump.sh also writes $OUT/pairing_<bundle>.json (pair_releases.mjs: the three-layer
+#    pairing of the two releases that history_chain.mjs uses) and remap_inferred.mjs
+#    prints a PROPOSED new short name for every RE-ANCHOR and AMBIGUOUS entry, into
+#    .build/bump/inferred_<bundle>.proposed.json, with how it was paired. Replayed on
+#    v0.8.3 → v0.8.4: 43 of 45 proposals were the hand-confirmed name, the one miss a
+#    twin body picked by order. Read each proposal's body before merging it.
 #  → anything bump.sh reports as RE-ANCHOR must be relocated BY HAND with
 #    locate_by_anchor.mjs (pick a string literal unique to that function body; for a
 #    module initialiser, a string literal it assigns) and confirmed against the old
@@ -235,8 +241,15 @@ skim, which includes a snippet whose quoted code is in both versions with only i
 identifiers spelled differently: counted as `respelled`, left for `retarget_snippets.mjs`;
 at v0.8.4 that moved 106 of 215 tier-1/2 citations, every one of which `retarget_snippets`
 fixes or already held), what no doc covers yet, and packs the affected `## ` sections into work groups. It
-drops nothing; the tier orders the reading. It cannot see a claim about an unchanged
-function whose callee changed, so cite the callee too.
+drops nothing; the tier orders the reading. A fourth list, tier 2c (`callee-changed`), holds
+the citations of a declaration that did not change but refers directly to one that changed or
+was removed, by the OLD release's call graph (`maps/xref_<bundle>.json` in `--maps`; a module
+initialiser does not count as a callee); each entry names the changed callees and their diffs,
+and it is packed into work groups with the weight of tier 2. It looks one call deep only:
+replayed on v0.8.3 → v0.8.4 it listed 96 citations in 66 paragraphs, 33 of them reached by no
+tier 1–3 entry, and one of those 33 (`runGapLint`, whose callee `readGapLintDayEvents` changed
+which events end a gap interval) was rewritten by hand at v0.8.4. A claim that cites only a
+caller two calls away from a change is still not listed, so cite the callee too.
 
 `verify_inferred.mjs check` (rebuild step 2b) is the only gate that can catch a mis-anchored
 inferred name. It checks that each name sits on code of its kind (function, module
@@ -352,13 +365,14 @@ node tools/match_published_source.mjs --src <dir of *.ts> --package <name@versio
      [--pick <short>=<name>]... [--report <o.json>] <pretty.js>   # pair a published sibling package's declarations with the bundle's (features + order), for name_symbol --published
 node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--dry-run] <pretty.js> --batch <list.tsv|list.json>   # register inferred names; --build <OUT> mid-bump
 node tools/xref.mjs <pretty.js> <rename.json> <out.json> [--version <v>]   # cross-reference index (rebuild step 5b)
-node tools/symbol_card.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] [--body] <real|short|env:VAR|log:prefix|dotted:a.b|path:text|string:text|unnamed[:N]|uncited[:NN-dir]>...
+node tools/symbol_card.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] [--body] [--inner] <real|short|env:VAR|log:prefix|dotted:a.b|path:text|string:text|unnamed[:N]|uncited[:NN-dir]>...
 node tools/doc_coverage.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] <out.md>   # uncited symbols per subsystem, symbols per doc section, naming queue
 node tools/instrument.mjs <daemon.recon.js> <symbols_daemon.json> <out.js> [--all] [--inner]   # tracing wrappers; writes $DUO_TRACE_FILE at run time
 node tools/trace_report.mjs <trace.jsonl> [--depth N] [--filter regex] [--out report.md] [--json o.json]
 PKG=<dist/release> bash scenarios/run.sh [NN-name ...]            # instrument once, run the scenarios; outputs under $OUT/scenarios/
 bash tools/history.sh [--write]                                    # every npm release → .build/history; --write maps/history_daemon.json (needs network)
 node tools/history_chain.mjs <history dir> <rename_daemon.json> <out.json> [--min 0.5] [--lead 0.1] [--slim]
+node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json>   # three-layer old→new pairing (bump.sh runs it; remap_inferred --pairing)
 node tools/changelog_merge.mjs <pairs dir> <rename_daemon.json> <out.json>
 node tools/verify_citations.mjs <symbols.json>[,...] [--bundle <name>=<pretty.js>]... <doc.md...> [--fix]  # real (short) and real/short pairs by symbol identity
 node tools/check_doc_anchors.mjs [--resolve] [--index <symbols.json>[,...]] [--bundle cli=<cli.pretty.js>] \

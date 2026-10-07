@@ -16,6 +16,8 @@
    "mangled": "VC",
    "line": 63038,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -44,6 +46,8 @@
    "mangled": "Cr",
    "line": 55834,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -63,6 +67,8 @@
    "mangled": "Ur",
    "line": 55834,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -82,6 +88,8 @@
    "mangled": "eH",
    "line": 88302,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -119,6 +127,8 @@
    "mangled": "ZH",
    "line": 69211,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -135,6 +145,8 @@
    "mangled": "mg",
    "line": 55834,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -152,6 +164,8 @@
    "mangled": "JO",
    "line": 69211,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -169,6 +183,8 @@
    "mangled": "kbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -185,6 +201,8 @@
    "mangled": "wbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -201,6 +219,8 @@
    "mangled": "Sbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -217,6 +237,8 @@
    "mangled": "vbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -233,6 +255,8 @@
    "mangled": "bbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -249,6 +273,8 @@
    "mangled": "xbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -265,6 +291,8 @@
    "mangled": "Ebe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -281,6 +309,8 @@
    "mangled": "Rbe",
    "line": 63995,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -297,6 +327,8 @@
    "mangled": "KH",
    "line": 69211,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -315,6 +347,8 @@
    "mangled": "rde",
    "line": 37201,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -331,6 +365,8 @@
    "mangled": "Tt",
    "line": 90474,
    "kind": "class-expr",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -349,6 +385,8 @@
    "mangled": "Uc",
    "line": 89447,
    "kind": "class-expr",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -366,6 +404,8 @@
    "mangled": "gV",
    "line": 55834,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -382,6 +422,8 @@
    "mangled": "wy",
    "line": 80573,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -398,6 +440,8 @@
    "mangled": "tp",
    "line": 90350,
    "kind": "class-expr",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -416,6 +460,8 @@
    "mangled": "got",
    "line": 55347,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Yge"
@@ -432,6 +478,8 @@
    "mangled": "yot",
    "line": 55351,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -446,6 +494,8 @@
    "mangled": "Rut",
    "line": 62161,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -460,6 +510,8 @@
    "mangled": "Dut",
    "line": 63289,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -474,6 +526,8 @@
    "mangled": "ode",
    "line": 37128,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -497,6 +551,8 @@
    "mangled": "fH",
    "line": 89259,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getCachedHostBootId",
     "isRuntimeWriterLockStale",
@@ -523,6 +579,8 @@
    "mangled": "sxe",
    "line": 70162,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readDrainLockFile",
     "resolveSessionDrainLockPath",
@@ -545,6 +603,8 @@
    "mangled": "PW",
    "line": 70485,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -564,6 +624,8 @@
    "mangled": "Bu",
    "line": 32961,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "lookupEventIdIndexEntry",
     "writeConsumerOffsetFile"
@@ -585,6 +647,8 @@
    "mangled": "j6",
    "line": 64474,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "recordTelemetryMetric",
     "updateDeliveryCursorFile"
@@ -610,6 +674,8 @@
    "mangled": "sde",
    "line": 37145,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "accumulateDrainRecordIntoSummary",
     "createEmptyUsageSummary"
@@ -632,6 +698,8 @@
    "mangled": "yde",
    "line": 87568,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "advanceConsumerWatermark",
     "assertValidChannelId",
@@ -688,6 +756,8 @@
    "mangled": "ky",
    "line": 91842,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "createSpineEvent"
@@ -721,6 +791,8 @@
    "mangled": "pf",
    "line": 37043,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "drainRecordPath",
     "ensureDirectoryExists",
@@ -745,6 +817,8 @@
    "mangled": "J8e",
    "line": 32137,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "isIndexLoadStillCurrent",
@@ -768,6 +842,8 @@
    "mangled": "W8e",
    "line": 32111,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "enqueuePartitionAppend",
     "ensureDirectoryExists",
@@ -789,6 +865,8 @@
    "mangled": "nSe",
    "line": 67866,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Wwe",
@@ -811,6 +889,8 @@
    "mangled": "xbt",
    "line": 86066,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "createSpineEvent",
@@ -839,6 +919,8 @@
    "mangled": "Ive",
    "line": 65874,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -856,6 +938,8 @@
    "mangled": "Db",
    "line": 32798,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureSessionMailboxPendingDir",
     "resolveSessionMailboxNotesPath"
@@ -875,6 +959,8 @@
    "mangled": "yYe",
    "line": 32914,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists"
    ],
@@ -897,6 +983,8 @@
    "mangled": "WSe",
    "line": 69127,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "clearHostModelEnvVars"
    ],
@@ -916,6 +1004,8 @@
    "mangled": "Z6",
    "line": 65853,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "appendPiConfigIssues",
     "mergeClaudeToolLists",
@@ -942,6 +1032,8 @@
    "mangled": "fvt",
    "line": 91407,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "appendConfigChangedEvent",
     "checkChannelRuntimeRebindConflict",
@@ -1009,6 +1101,8 @@
    "mangled": "Gke",
    "line": 69662,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "logWarnMessage"
@@ -1054,6 +1148,14 @@
    "mangled": "hwe",
    "line": 66154,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "i",
+     "line": 66157,
+     "endLine": 66157
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [
     "hashSessionKey",
     "moveSessionDirToArchive",
@@ -1093,6 +1195,8 @@
    "mangled": "mwe",
    "line": 66138,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "clearSessionArchiving",
     "moveSessionDirToArchive",
@@ -1117,6 +1221,8 @@
    "mangled": "nvt",
    "line": 90842,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "archiveSessionAndArtifacts",
     "clearSessionArchiving",
@@ -1162,6 +1268,8 @@
    "mangled": "_6",
    "line": 61319,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1182,6 +1290,8 @@
    "mangled": "ec",
    "line": 32538,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Ab",
@@ -1206,6 +1316,8 @@
    "mangled": "ah",
    "line": 35809,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isValidChannelId"
    ],
@@ -1231,6 +1343,8 @@
    "mangled": "mIe",
    "line": 90486,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "JsonRpcInvalidParamsError",
     "assertValidChannelId"
@@ -1256,6 +1370,8 @@
    "mangled": "tn",
    "line": 32146,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "appendEventIdIndexEntry",
     "appendEventToPartition"
@@ -1290,6 +1406,29 @@
    "mangled": "Xl",
    "line": 31880,
    "kind": "function",
+   "inner": [
+    {
+     "name": "o",
+     "line": 31883,
+     "endLine": 31885
+    },
+    {
+     "name": "s",
+     "line": 31886,
+     "endLine": 31888
+    },
+    {
+     "name": "a",
+     "line": 31889,
+     "endLine": 31891
+    },
+    {
+     "name": "close",
+     "line": 31893,
+     "endLine": 31895
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "gae"
@@ -1316,6 +1455,8 @@
    "mangled": "hI",
    "line": 36545,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "lookupOutboxByIdIndexEntry",
     "resolveOutboxReplayFilePath"
@@ -1340,6 +1481,14 @@
    "mangled": "jW",
    "line": 72109,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "u",
+     "line": 72119,
+     "endLine": 72119
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "classifyDrainBatchClass",
     "extractJobCompletionJobId",
@@ -1365,6 +1514,8 @@
    "mangled": "pIe",
    "line": 90477,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "assertValidChannelId",
     "patchSessionRuntimeState"
@@ -1384,6 +1535,8 @@
    "mangled": "lbe",
    "line": 62248,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1410,6 +1563,8 @@
    "mangled": "cdt",
    "line": 67073,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifyTopicNodeFormat",
     "classifyTopicNodeType",
@@ -1441,6 +1596,8 @@
    "mangled": "X$",
    "line": 55211,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1461,6 +1618,8 @@
    "mangled": "rct",
    "line": 65615,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Qlt",
@@ -1485,6 +1644,8 @@
    "mangled": "E6",
    "line": 62143,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ALADUO_TOOL_NAMESPACE"
    ],
@@ -1505,6 +1666,39 @@
    "mangled": "pN",
    "line": 80367,
    "kind": "function",
+   "inner": [
+    {
+     "name": "handler",
+     "line": 80378,
+     "endLine": 80390
+    },
+    {
+     "name": "handler",
+     "line": 80397,
+     "endLine": 80407
+    },
+    {
+     "name": "handler",
+     "line": 80418,
+     "endLine": 80431
+    },
+    {
+     "name": "handler",
+     "line": 80436,
+     "endLine": 80445
+    },
+    {
+     "name": "handler",
+     "line": 80450,
+     "endLine": 80460
+    },
+    {
+     "name": "handler",
+     "line": 80465,
+     "endLine": 80475
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "buildCodexStringInputSchema",
     "buildJobSessionInputSchema",
@@ -1560,6 +1754,8 @@
    "mangled": "vy",
    "line": 80347,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1579,6 +1775,8 @@
    "mangled": "R6",
    "line": 62280,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1600,6 +1798,8 @@
    "mangled": "cbe",
    "line": 62266,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ALADUO_TOOL_NAMESPACE"
    ],
@@ -1633,6 +1833,8 @@
    "mangled": "Tve",
    "line": 65878,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "appendPiConfigIssues",
     "buildEffectiveRuntimeFields",
@@ -1666,6 +1868,8 @@
    "mangled": "fct",
    "line": 65708,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveLayeredChannelRuntime"
    ],
@@ -1684,6 +1888,8 @@
    "mangled": "BO",
    "line": 67949,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1701,6 +1907,8 @@
    "mangled": "wU",
    "line": 32984,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1724,6 +1932,8 @@
    "mangled": "Cbe",
    "line": 64080,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderJobExtraToolsDescription",
     "renderJobPromptModeDescription"
@@ -1749,6 +1959,8 @@
    "mangled": "Abe",
    "line": 64096,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isSupportedRuntime",
     "listSelectableJobRuntimes"
@@ -1772,6 +1984,8 @@
    "mangled": "KC",
    "line": 64113,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildJobPromptModeExtraToolsSchema",
     "buildJobRuntimeSchemaField"
@@ -1795,6 +2009,8 @@
    "mangled": "Cc",
    "line": 61533,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "w6"
@@ -1819,6 +2035,8 @@
    "mangled": "Pke",
    "line": 69258,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1839,6 +2057,8 @@
    "mangled": "ZC",
    "line": 64104,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildJobPromptModeExtraToolsSchema",
     "buildJobRuntimeSchemaField"
@@ -1862,6 +2082,8 @@
    "mangled": "JH",
    "line": 68850,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveMemoryCheckFlags"
    ],
@@ -1882,6 +2104,8 @@
    "mangled": "DO",
    "line": 67330,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1901,6 +2125,8 @@
    "mangled": "gO",
    "line": 65266,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isJobSessionKeyKind"
    ],
@@ -1943,6 +2169,8 @@
    "mangled": "MSe",
    "line": 68760,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderOrphanIslandsBody"
    ],
@@ -1968,6 +2196,8 @@
    "mangled": "ASe",
    "line": 68683,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "compareStringsAscending",
     "routeContractDecision"
@@ -1995,6 +2225,8 @@
    "mangled": "Eht",
    "line": 73045,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2015,6 +2247,8 @@
    "mangled": "Yke",
    "line": 69961,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2033,6 +2267,8 @@
    "mangled": "$ke",
    "line": 69270,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2053,6 +2289,8 @@
    "mangled": "Bdt",
    "line": 67940,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderScanGapSignalBody"
    ],
@@ -2076,6 +2314,8 @@
    "mangled": "Wbt",
    "line": 90550,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readClaudeAuthSourceEnv",
     "resolveEnvConfigEntry"
@@ -2106,6 +2346,8 @@
    "mangled": "sRe",
    "line": 80502,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "stringifyExecutionToolInput"
    ],
@@ -2129,6 +2371,8 @@
    "mangled": "Qce",
    "line": 36861,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2147,6 +2391,8 @@
    "mangled": "dh",
    "line": 36847,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildSessionIndexEntry",
     "createMapBackedSessionIndex",
@@ -2171,6 +2417,8 @@
    "mangled": "Zg",
    "line": 72634,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionPlane"
    ],
@@ -2197,6 +2445,8 @@
    "mangled": "Jbt",
    "line": 90568,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "buildSdkConfigReport",
     "loadSubconsciousPartitions",
@@ -2270,6 +2520,8 @@
    "mangled": "gg",
    "line": 55436,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderPromptLayers"
    ],
@@ -2294,6 +2546,8 @@
    "mangled": "Vxe",
    "line": 71970,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getPendingRestartReason",
     "renderBoardUpdatedHint",
@@ -2345,6 +2599,14 @@
    "mangled": "Fxe",
    "line": 70627,
    "kind": "function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 70628,
+     "endLine": 70628
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Rmt",
@@ -2365,6 +2627,8 @@
    "mangled": "OO",
    "line": 66761,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2382,6 +2646,8 @@
    "mangled": "mde",
    "line": 87442,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2412,6 +2678,8 @@
    "mangled": "mbe",
    "line": 62823,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2429,6 +2697,8 @@
    "mangled": "uk",
    "line": 80532,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2448,6 +2718,8 @@
    "mangled": "RIe",
    "line": 91398,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "readSessionRuntimeState"
    ],
@@ -2475,6 +2747,8 @@
    "mangled": "Ac",
    "line": 62169,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2505,6 +2779,8 @@
    "mangled": "Nc",
    "line": 63292,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Mut"
@@ -2533,6 +2809,8 @@
    "mangled": "Dpt",
    "line": 90418,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Nm",
@@ -2559,6 +2837,8 @@
    "mangled": "iwe",
    "line": 66055,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 4,
    "refs": [
     "daemonRestartReasonPath"
    ],
@@ -2581,6 +2861,8 @@
    "mangled": "Gbe",
    "line": 64743,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Rlt"
@@ -2599,6 +2881,8 @@
    "mangled": "Cxe",
    "line": 72203,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isChannelMessageEvent",
     "isWorkerTaskNotifyDelivery"
@@ -2623,6 +2907,8 @@
    "mangled": "mq",
    "line": 87496,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2659,6 +2945,8 @@
    "mangled": "lk",
    "line": 80541,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isOneShotJobSchedule"
    ],
@@ -2681,6 +2969,8 @@
    "mangled": "wW",
    "line": 69991,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildProfiledExternalRequirement"
    ],
@@ -2707,6 +2997,8 @@
    "mangled": "_n",
    "line": 36840,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2753,6 +3045,8 @@
    "mangled": "no",
    "line": 71746,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2786,6 +3080,8 @@
    "mangled": "hht",
    "line": 72679,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2808,6 +3104,8 @@
    "mangled": "Qbt",
    "line": 90686,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2830,6 +3128,8 @@
    "mangled": "cRe",
    "line": 80561,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -2850,6 +3150,8 @@
    "mangled": "rdt",
    "line": 66957,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "splitLinesDropTrailingEmpty"
    ],
@@ -2875,6 +3177,8 @@
    "mangled": "idt",
    "line": 66965,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "splitLinesDropTrailingEmpty"
    ],
@@ -2897,6 +3201,8 @@
    "mangled": "kw",
    "line": 55340,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Sc"
@@ -2916,6 +3222,8 @@
    "mangled": "ZSe",
    "line": 69155,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hostDotEnvPath",
     "removeHostModelEnvLines",
@@ -2936,6 +3244,8 @@
    "mangled": "YH",
    "line": 69123,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "HOST_MODEL_ENV_KEYS"
    ],
@@ -2954,6 +3264,8 @@
    "mangled": "lht",
    "line": 72595,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "logInfoMessage",
     "mutateSessionRuntimeState"
@@ -2978,6 +3290,8 @@
    "mangled": "gA",
    "line": 72102,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "clearSessionRuntimeStateField"
    ],
@@ -2999,6 +3313,8 @@
    "mangled": "BR",
    "line": 32530,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Ab"
@@ -3018,6 +3334,8 @@
    "mangled": "ra",
    "line": 35763,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "assertSessionNotArchiving",
     "isSessionArchived",
@@ -3055,6 +3373,8 @@
    "mangled": "sbe",
    "line": 62216,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3078,6 +3398,8 @@
    "mangled": "xut",
    "line": 62153,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "T6"
@@ -3094,6 +3416,8 @@
    "mangled": "Oi",
    "line": 63322,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3118,6 +3442,19 @@
    "mangled": "ibt",
    "line": 82597,
    "kind": "function",
+   "inner": [
+    {
+     "name": "r",
+     "line": 82599,
+     "endLine": 82607
+    },
+    {
+     "name": "i",
+     "line": 82608,
+     "endLine": 82622
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "isBoardIncludePathCandidate",
     "normalizeBoardIncludeToken",
@@ -3148,6 +3485,8 @@
    "mangled": "Mwe",
    "line": 67040,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildBoardLintTarget",
     "compareBoardLintTargets",
@@ -3177,6 +3516,8 @@
    "mangled": "Ibe",
    "line": 63365,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "coerceToPlainObject"
    ],
@@ -3201,6 +3542,8 @@
    "mangled": "qRe",
    "line": 82851,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "readChannelDescriptor",
     "readSessionRuntimeState",
@@ -3226,6 +3569,8 @@
    "mangled": "Qmt",
    "line": 72245,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "extractJobCompletionJobId",
     "loadDrainItemEventCached",
@@ -3248,6 +3593,8 @@
    "mangled": "odt",
    "line": 66989,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "compareStringsAscending",
     "rankEffectivenessTrajectory"
@@ -3267,6 +3614,8 @@
    "mangled": "Ar",
    "line": 66796,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3294,6 +3643,8 @@
    "mangled": "wG",
    "line": 82655,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3313,6 +3664,8 @@
    "mangled": "Jlt",
    "line": 65329,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3329,6 +3682,8 @@
    "mangled": "abe",
    "line": 62220,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3348,6 +3703,8 @@
    "mangled": "sS",
    "line": 65679,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "sf"
@@ -3371,6 +3728,8 @@
    "mangled": "GR",
    "line": 87260,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3390,6 +3749,8 @@
    "mangled": "Kmt",
    "line": 72211,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveEventSourceChannelId",
     "resolveReplyTargetSessionKeys"
@@ -3409,6 +3770,8 @@
    "mangled": "Lct",
    "line": 89226,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3436,6 +3799,8 @@
    "mangled": "mk",
    "line": 82650,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3457,6 +3822,8 @@
    "mangled": "Bpt",
    "line": 69335,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "w6"
@@ -3477,6 +3844,8 @@
    "mangled": "Aft",
    "line": 68769,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "listMarkdownSlugsSync",
     "readMemoryFileSyncOrNull",
@@ -3499,6 +3868,8 @@
    "mangled": "URe",
    "line": 82699,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "computeInstructionsFingerprint"
    ],
@@ -3515,6 +3886,8 @@
    "mangled": "SG",
    "line": 82659,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "computeInstructionsFingerprint"
    ],
@@ -3533,6 +3906,8 @@
    "mangled": "$ft",
    "line": 68611,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "bytesToKibCeil",
     "computeMemoryLinkIndegree",
@@ -3565,6 +3940,8 @@
    "mangled": "_H",
    "line": 66723,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Xct",
@@ -3589,6 +3966,8 @@
    "mangled": "xG",
    "line": 82903,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "SN",
@@ -3608,6 +3987,8 @@
    "mangled": "Bxe",
    "line": 71933,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Nmt"
@@ -3627,6 +4008,8 @@
    "mangled": "_I",
    "line": 36824,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3644,6 +4027,8 @@
    "mangled": "umt",
    "line": 69796,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "copyDirTreeMissingOnly",
     "copyDirTreeOverwrite",
@@ -3671,6 +4056,8 @@
    "mangled": "bW",
    "line": 69770,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "pathExistsAsync"
@@ -3690,6 +4077,8 @@
    "mangled": "_W",
    "line": 69759,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists"
    ],
@@ -3708,6 +4097,8 @@
    "mangled": "$we",
    "line": 66800,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "splitLinesDropTrailingEmpty"
    ],
@@ -3726,6 +4117,8 @@
    "mangled": "AO",
    "line": 66807,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3743,6 +4136,8 @@
    "mangled": "fg",
    "line": 55027,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -3762,6 +4157,84 @@
    "mangled": "Lf",
    "line": 55529,
    "kind": "function",
+   "inner": [
+    {
+     "name": "e",
+     "line": 55530,
+     "endLine": 55586
+    },
+    {
+     "name": "stderr",
+     "line": 55533,
+     "endLine": 55535
+    },
+    {
+     "name": "run",
+     "line": 55588,
+     "endLine": 55821
+    },
+    {
+     "name": "v",
+     "line": 55614,
+     "endLine": 55638
+    },
+    {
+     "name": "E",
+     "line": 55641,
+     "endLine": 55645
+    },
+    {
+     "name": "R",
+     "line": 55646,
+     "endLine": 55663
+    },
+    {
+     "name": "N",
+     "line": 55671,
+     "endLine": 55671
+    },
+    {
+     "name": "J",
+     "line": 55677,
+     "endLine": 55679
+    },
+    {
+     "name": "ce",
+     "line": 55680,
+     "endLine": 55682
+    },
+    {
+     "name": "ie",
+     "line": 55683,
+     "endLine": 55685
+    },
+    {
+     "name": "Ce",
+     "line": 55686,
+     "endLine": 55693
+    },
+    {
+     "name": "se",
+     "line": 55694,
+     "endLine": 55698
+    },
+    {
+     "name": "ne",
+     "line": 55703,
+     "endLine": 55707
+    },
+    {
+     "name": "te",
+     "line": 55712,
+     "endLine": 55719
+    },
+    {
+     "name": "createStreamingQuery",
+     "line": 55822,
+     "endLine": 55831
+    }
+   ],
+   "innerAnonymous": 5,
    "refs": [
     "buildClaudeCostBaseline",
     "createAbortErrorWithCause",
@@ -3863,6 +4336,8 @@
    "mangled": "by",
    "line": 80220,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 6,
    "refs": [
     "buildJobSessionInputSchema",
     "buildManageJobInputSchema",
@@ -3923,6 +4398,59 @@
    "mangled": "KRe",
    "line": 83211,
    "kind": "function",
+   "inner": [
+    {
+     "name": "o",
+     "line": 83218,
+     "endLine": 83255
+    },
+    {
+     "name": "s",
+     "line": 83256,
+     "endLine": 83271
+    },
+    {
+     "name": "a",
+     "line": 83272,
+     "endLine": 83905
+    },
+    {
+     "name": "S",
+     "line": 83345,
+     "endLine": 83347
+    },
+    {
+     "name": "D",
+     "line": 83348,
+     "endLine": 83367
+    },
+    {
+     "name": "F",
+     "line": 83521,
+     "endLine": 83543
+    },
+    {
+     "name": "J",
+     "line": 83544,
+     "endLine": 83591
+    },
+    {
+     "name": "ce",
+     "line": 83591,
+     "endLine": 83591
+    },
+    {
+     "name": "ie",
+     "line": 83591,
+     "endLine": 83591
+    },
+    {
+     "name": "Ce",
+     "line": 83591,
+     "endLine": 83619
+    }
+   ],
+   "innerAnonymous": 12,
    "refs": [
     "AgentSdkPromptNotAcceptedAbortError",
     "AgentSdkTurnInterruptedError",
@@ -4044,6 +4572,129 @@
    "mangled": "Bw",
    "line": 62293,
    "kind": "function",
+   "inner": [
+    {
+     "name": "a",
+     "line": 62302,
+     "endLine": 62305
+    },
+    {
+     "name": "l",
+     "line": 62307,
+     "endLine": 62307
+    },
+    {
+     "name": "c",
+     "line": 62308,
+     "endLine": 62310
+    },
+    {
+     "name": "d",
+     "line": 62311,
+     "endLine": 62333
+    },
+    {
+     "name": "run",
+     "line": 62335,
+     "endLine": 62627
+    },
+    {
+     "name": "R",
+     "line": 62380,
+     "endLine": 62402
+    },
+    {
+     "name": "P",
+     "line": 62403,
+     "endLine": 62412
+    },
+    {
+     "name": "k",
+     "line": 62413,
+     "endLine": 62423
+    },
+    {
+     "name": "A",
+     "line": 62426,
+     "endLine": 62438
+    },
+    {
+     "name": "G",
+     "line": 62463,
+     "endLine": 62476
+    },
+    {
+     "name": "U",
+     "line": 62479,
+     "endLine": 62481
+    },
+    {
+     "name": "Y",
+     "line": 62482,
+     "endLine": 62550
+    },
+    {
+     "name": "me",
+     "line": 62551,
+     "endLine": 62553
+    },
+    {
+     "name": "re",
+     "line": 62555,
+     "endLine": 62570
+    },
+    {
+     "name": "compact",
+     "line": 62628,
+     "endLine": 62722
+    },
+    {
+     "name": "h",
+     "line": 62632,
+     "endLine": 62632
+    },
+    {
+     "name": "y",
+     "line": 62651,
+     "endLine": 62653
+    },
+    {
+     "name": "_",
+     "line": 62655,
+     "endLine": 62683
+    },
+    {
+     "name": "E",
+     "line": 62684,
+     "endLine": 62686
+    },
+    {
+     "name": "activeTurnId",
+     "line": 62723,
+     "endLine": 62725
+    },
+    {
+     "name": "activeTurnStartedAt",
+     "line": 62726,
+     "endLine": 62728
+    },
+    {
+     "name": "activeTurnSkipObserved",
+     "line": 62729,
+     "endLine": 62731
+    },
+    {
+     "name": "steerActiveTurn",
+     "line": 62732,
+     "endLine": 62748
+    },
+    {
+     "name": "shutdown",
+     "line": 62749,
+     "endLine": 62751
+    }
+   ],
+   "innerAnonymous": 15,
    "refs": [
     "ALADUO_TOOL_NAMESPACE",
     "buildBaseInstructions",
@@ -4144,6 +4795,144 @@
    "mangled": "Svt",
    "line": 92035,
    "kind": "function",
+   "inner": [
+    {
+     "name": "o",
+     "line": 92044,
+     "endLine": 92056
+    },
+    {
+     "name": "s",
+     "line": 92057,
+     "endLine": 92060
+    },
+    {
+     "name": "a",
+     "line": 92061,
+     "endLine": 92063
+    },
+    {
+     "name": "R",
+     "line": 92100,
+     "endLine": 92751
+    },
+    {
+     "name": "cancelSession",
+     "line": 92133,
+     "endLine": 92143
+    },
+    {
+     "name": "clearSession",
+     "line": 92144,
+     "endLine": 92147
+    },
+    {
+     "name": "listActors",
+     "line": 92148,
+     "endLine": 92160
+    },
+    {
+     "name": "listPersistentSessions",
+     "line": 92161,
+     "endLine": 92167
+    },
+    {
+     "name": "getSessionModel",
+     "line": 92168,
+     "endLine": 92171
+    },
+    {
+     "name": "setSessionModel",
+     "line": 92172,
+     "endLine": 92175
+    },
+    {
+     "name": "getSessionEffort",
+     "line": 92176,
+     "endLine": 92179
+    },
+    {
+     "name": "setSessionEffort",
+     "line": 92180,
+     "endLine": 92183
+    },
+    {
+     "name": "getSessionStatus",
+     "line": 92268,
+     "endLine": 92268
+    },
+    {
+     "name": "Ce",
+     "line": 92653,
+     "endLine": 92660
+    },
+    {
+     "name": "se",
+     "line": 92660,
+     "endLine": 92663
+    },
+    {
+     "name": "P",
+     "line": 92752,
+     "endLine": 92996
+    },
+    {
+     "name": "C",
+     "line": 92758,
+     "endLine": 92758
+    },
+    {
+     "name": "ie",
+     "line": 92839,
+     "endLine": 92867
+    },
+    {
+     "name": "Ce",
+     "line": 92868,
+     "endLine": 92966
+    },
+    {
+     "name": "send",
+     "line": 92914,
+     "endLine": 92914
+    },
+    {
+     "name": "close",
+     "line": 92915,
+     "endLine": 92919
+    },
+    {
+     "name": "send",
+     "line": 92939,
+     "endLine": 92939
+    },
+    {
+     "name": "onDelivered",
+     "line": 92940,
+     "endLine": 92946
+    },
+    {
+     "name": "se",
+     "line": 92980,
+     "endLine": 92982
+    },
+    {
+     "name": "remoteApp",
+     "line": 93008,
+     "endLine": 93010
+    },
+    {
+     "name": "start",
+     "line": 93013,
+     "endLine": 93065
+    },
+    {
+     "name": "stop",
+     "line": 93066,
+     "endLine": 93070
+    }
+   ],
+   "innerAnonymous": 39,
    "refs": [
     "JsonRpcInvalidParamsError",
     "MemoryReadRpcError",
@@ -4441,6 +5230,8 @@
    "mangled": "Yxe",
    "line": 72285,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "atomicAppendEvent",
     "createSpineEvent",
@@ -4477,6 +5268,8 @@
    "mangled": "Xce",
    "line": 36857,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "createMapBackedSessionIndex"
    ],
@@ -4495,6 +5288,8 @@
    "mangled": "kI",
    "line": 37068,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -4514,6 +5309,199 @@
    "mangled": "Ww",
    "line": 63437,
    "kind": "function",
+   "inner": [
+    {
+     "name": "b",
+     "line": 63455,
+     "endLine": 63462
+    },
+    {
+     "name": "M",
+     "line": 63462,
+     "endLine": 63464
+    },
+    {
+     "name": "F",
+     "line": 63464,
+     "endLine": 63467
+    },
+    {
+     "name": "J",
+     "line": 63467,
+     "endLine": 63476
+    },
+    {
+     "name": "ce",
+     "line": 63476,
+     "endLine": 63533
+    },
+    {
+     "name": "ie",
+     "line": 63533,
+     "endLine": 63545
+    },
+    {
+     "name": "Ce",
+     "line": 63545,
+     "endLine": 63553
+    },
+    {
+     "name": "se",
+     "line": 63553,
+     "endLine": 63555
+    },
+    {
+     "name": "j",
+     "line": 63555,
+     "endLine": 63559
+    },
+    {
+     "name": "ne",
+     "line": 63559,
+     "endLine": 63570
+    },
+    {
+     "name": "K",
+     "line": 63570,
+     "endLine": 63572
+    },
+    {
+     "name": "te",
+     "line": 63572,
+     "endLine": 63582
+    },
+    {
+     "name": "B",
+     "line": 63582,
+     "endLine": 63586
+    },
+    {
+     "name": "G",
+     "line": 63586,
+     "endLine": 63613
+    },
+    {
+     "name": "Ze",
+     "line": 63600,
+     "endLine": 63602
+    },
+    {
+     "name": "qe",
+     "line": 63603,
+     "endLine": 63605
+    },
+    {
+     "name": "resolve",
+     "line": 63609,
+     "endLine": 63609
+    },
+    {
+     "name": "reject",
+     "line": 63610,
+     "endLine": 63610
+    },
+    {
+     "name": "H",
+     "line": 63613,
+     "endLine": 63676
+    },
+    {
+     "name": "Y",
+     "line": 63614,
+     "endLine": 63622
+    },
+    {
+     "name": "q",
+     "line": 63676,
+     "endLine": 63713
+    },
+    {
+     "name": "pe",
+     "line": 63713,
+     "endLine": 63734
+    },
+    {
+     "name": "onEof",
+     "line": 63728,
+     "endLine": 63730
+    },
+    {
+     "name": "fe",
+     "line": 63734,
+     "endLine": 63738
+    },
+    {
+     "name": "Se",
+     "line": 63738,
+     "endLine": 63798
+    },
+    {
+     "name": "w",
+     "line": 63798,
+     "endLine": 63814
+    },
+    {
+     "name": "T",
+     "line": 63814,
+     "endLine": 63832
+    },
+    {
+     "name": "L",
+     "line": 63832,
+     "endLine": 63832
+    },
+    {
+     "name": "currentModelId",
+     "line": 63836,
+     "endLine": 63836
+    },
+    {
+     "name": "hasSession",
+     "line": 63837,
+     "endLine": 63837
+    },
+    {
+     "name": "compact",
+     "line": 63839,
+     "endLine": 63864
+    },
+    {
+     "name": "activeTurnId",
+     "line": 63865,
+     "endLine": 63865
+    },
+    {
+     "name": "activeTurnStartedAt",
+     "line": 63866,
+     "endLine": 63866
+    },
+    {
+     "name": "activeTurnSkipObserved",
+     "line": 63867,
+     "endLine": 63867
+    },
+    {
+     "name": "steerActiveTurn",
+     "line": 63868,
+     "endLine": 63885
+    },
+    {
+     "name": "run",
+     "line": 63886,
+     "endLine": 63992
+    },
+    {
+     "name": "markFirstToken",
+     "line": 63931,
+     "endLine": 63933
+    },
+    {
+     "name": "qe",
+     "line": 63935,
+     "endLine": 63950
+    }
+   ],
+   "innerAnonymous": 14,
    "refs": [
     "AgentSdkTurnInterruptedError",
     "GROK_ACP_COMPACT",
@@ -4631,6 +5619,54 @@
    "mangled": "gwe",
    "line": 88861,
    "kind": "function",
+   "inner": [
+    {
+     "name": "f",
+     "line": 88869,
+     "endLine": 88874
+    },
+    {
+     "name": "p",
+     "line": 88876,
+     "endLine": 88880
+    },
+    {
+     "name": "m",
+     "line": 88882,
+     "endLine": 88889
+    },
+    {
+     "name": "h",
+     "line": 88890,
+     "endLine": 88949
+    },
+    {
+     "name": "g",
+     "line": 88950,
+     "endLine": 88991
+    },
+    {
+     "name": "start",
+     "line": 88993,
+     "endLine": 89000
+    },
+    {
+     "name": "stop",
+     "line": 89001,
+     "endLine": 89009
+    },
+    {
+     "name": "isSweeping",
+     "line": 89010,
+     "endLine": 89012
+    },
+    {
+     "name": "sweepNow",
+     "line": 89013,
+     "endLine": 89015
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [
     "classifySessionKeyKind",
     "ingestChannelCommand",
@@ -4677,6 +5713,34 @@
    "mangled": "Nbt",
    "line": 87008,
    "kind": "function",
+   "inner": [
+    {
+     "name": "l",
+     "line": 87014,
+     "endLine": 87037
+    },
+    {
+     "name": "c",
+     "line": 87039,
+     "endLine": 87041
+    },
+    {
+     "name": "start",
+     "line": 87043,
+     "endLine": 87049
+    },
+    {
+     "name": "stop",
+     "line": 87050,
+     "endLine": 87058
+    },
+    {
+     "name": "isScanning",
+     "line": 87059,
+     "endLine": 87061
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [
     "logDebugMessage",
     "logErrorMessage",
@@ -4702,6 +5766,49 @@
    "mangled": "fRe",
    "line": 80578,
    "kind": "function",
+   "inner": [
+    {
+     "name": "i",
+     "line": 80584,
+     "endLine": 80586
+    },
+    {
+     "name": "o",
+     "line": 80587,
+     "endLine": 80600
+    },
+    {
+     "name": "s",
+     "line": 80602,
+     "endLine": 80604
+    },
+    {
+     "name": "a",
+     "line": 80605,
+     "endLine": 80631
+    },
+    {
+     "name": "u",
+     "line": 80632,
+     "endLine": 80787
+    },
+    {
+     "name": "l",
+     "line": 80788,
+     "endLine": 80816
+    },
+    {
+     "name": "c",
+     "line": 80817,
+     "endLine": 80868
+    },
+    {
+     "name": "d",
+     "line": 80869,
+     "endLine": 80912
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "archiveSessionDirUnlessAlreadyArchiving",
     "atomicAppendEvent",
@@ -4772,6 +5879,44 @@
    "mangled": "ede",
    "line": 36885,
    "kind": "function",
+   "inner": [
+    {
+     "name": "get",
+     "line": 36887,
+     "endLine": 36889
+    },
+    {
+     "name": "list",
+     "line": 36890,
+     "endLine": 36892
+    },
+    {
+     "name": "listByKind",
+     "line": 36893,
+     "endLine": 36897
+    },
+    {
+     "name": "listUserVisible",
+     "line": 36898,
+     "endLine": 36902
+    },
+    {
+     "name": "upsert",
+     "line": 36903,
+     "endLine": 36910
+    },
+    {
+     "name": "remove",
+     "line": 36911,
+     "endLine": 36913
+    },
+    {
+     "name": "size",
+     "line": 36914,
+     "endLine": 36916
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "isUserVisibleSessionKey"
@@ -4794,6 +5939,8 @@
    "mangled": "Lc",
    "line": 67138,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isSafeMemorySlug",
     "readMemoryFileSyncOrNull"
@@ -4818,6 +5965,99 @@
    "mangled": "Pbt",
    "line": 86170,
    "kind": "function",
+   "inner": [
+    {
+     "name": "logDebug",
+     "line": 86224,
+     "endLine": 86226
+    },
+    {
+     "name": "shutdown",
+     "line": 86230,
+     "endLine": 86239
+    },
+    {
+     "name": "_",
+     "line": 86242,
+     "endLine": 86277
+    },
+    {
+     "name": "E",
+     "line": 86278,
+     "endLine": 86609
+    },
+    {
+     "name": "j",
+     "line": 86290,
+     "endLine": 86329
+    },
+    {
+     "name": "ie",
+     "line": 86349,
+     "endLine": 86349
+    },
+    {
+     "name": "mcpServerFactory",
+     "line": 86362,
+     "endLine": 86367
+    },
+    {
+     "name": "Ce",
+     "line": 86369,
+     "endLine": 86369
+    },
+    {
+     "name": "se",
+     "line": 86380,
+     "endLine": 86380
+    },
+    {
+     "name": "onStream",
+     "line": 86446,
+     "endLine": 86452
+    },
+    {
+     "name": "onExecutionEvent",
+     "line": 86453,
+     "endLine": 86461
+    },
+    {
+     "name": "R",
+     "line": 86611,
+     "endLine": 86623
+    },
+    {
+     "name": "P",
+     "line": 86624,
+     "endLine": 86688
+    },
+    {
+     "name": "k",
+     "line": 86688,
+     "endLine": 86699
+    },
+    {
+     "name": "D",
+     "line": 86695,
+     "endLine": 86697
+    },
+    {
+     "name": "start",
+     "line": 86701,
+     "endLine": 86709
+    },
+    {
+     "name": "stop",
+     "line": 86710,
+     "endLine": 86715
+    },
+    {
+     "name": "isProcessing",
+     "line": 86716,
+     "endLine": 86718
+    }
+   ],
+   "innerAnonymous": 19,
    "refs": [
     "PARTITION_CORE_TOOLS",
     "advanceConsumerWatermark",
@@ -4946,6 +6186,34 @@
    "mangled": "VRe",
    "line": 82955,
    "kind": "function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 82958,
+     "endLine": 82961
+    },
+    {
+     "name": "r",
+     "line": 82962,
+     "endLine": 82968
+    },
+    {
+     "name": "i",
+     "line": 82969,
+     "endLine": 82972
+    },
+    {
+     "name": "o",
+     "line": 82973,
+     "endLine": 82984
+    },
+    {
+     "name": "s",
+     "line": 82985,
+     "endLine": 83021
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [
     "buildSessionInfoFromState",
     "computeContextProfileSignature",
@@ -4995,6 +6263,49 @@
    "mangled": "Mbt",
    "line": 87079,
    "kind": "function",
+   "inner": [
+    {
+     "name": "u",
+     "line": 87087,
+     "endLine": 87097
+    },
+    {
+     "name": "l",
+     "line": 87098,
+     "endLine": 87102
+    },
+    {
+     "name": "c",
+     "line": 87103,
+     "endLine": 87109
+    },
+    {
+     "name": "d",
+     "line": 87110,
+     "endLine": 87139
+    },
+    {
+     "name": "p",
+     "line": 87142,
+     "endLine": 87145
+    },
+    {
+     "name": "m",
+     "line": 87146,
+     "endLine": 87151
+    },
+    {
+     "name": "start",
+     "line": 87153,
+     "endLine": 87155
+    },
+    {
+     "name": "stop",
+     "line": 87156,
+     "endLine": 87158
+    }
+   ],
+   "innerAnonymous": 6,
    "refs": [
     "isJobOrMetaOutboxRecord",
     "listRetryableOutboxRecords",
@@ -5029,6 +6340,8 @@
    "mangled": "Ba",
    "line": 36044,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "generateOutboxRecordId"
    ],
@@ -5053,6 +6366,124 @@
    "mangled": "vA",
    "line": 73070,
    "kind": "function",
+   "inner": [
+    {
+     "name": "p",
+     "line": 73079,
+     "endLine": 73091
+    },
+    {
+     "name": "cancel",
+     "line": 73089,
+     "endLine": 73089
+    },
+    {
+     "name": "m",
+     "line": 73092,
+     "endLine": 73101
+    },
+    {
+     "name": "h",
+     "line": 73102,
+     "endLine": 73108
+    },
+    {
+     "name": "g",
+     "line": 73109,
+     "endLine": 73111
+    },
+    {
+     "name": "y",
+     "line": 73112,
+     "endLine": 73147
+    },
+    {
+     "name": "v",
+     "line": 73148,
+     "endLine": 73179
+    },
+    {
+     "name": "b",
+     "line": 73180,
+     "endLine": 73184
+    },
+    {
+     "name": "_",
+     "line": 73185,
+     "endLine": 73242
+    },
+    {
+     "name": "E",
+     "line": 73242,
+     "endLine": 73250
+    },
+    {
+     "name": "R",
+     "line": 73250,
+     "endLine": 73330
+    },
+    {
+     "name": "N",
+     "line": 73265,
+     "endLine": 73269
+    },
+    {
+     "name": "te",
+     "line": 73279,
+     "endLine": 73279
+    },
+    {
+     "name": "se",
+     "line": 73282,
+     "endLine": 73282
+    },
+    {
+     "name": "P",
+     "line": 73330,
+     "endLine": 73340
+    },
+    {
+     "name": "k",
+     "line": 73340,
+     "endLine": 73383
+    },
+    {
+     "name": "C",
+     "line": 73342,
+     "endLine": 73345
+    },
+    {
+     "name": "S",
+     "line": 73383,
+     "endLine": 73395
+    },
+    {
+     "name": "C",
+     "line": 73388,
+     "endLine": 73393
+    },
+    {
+     "name": "D",
+     "line": 73395,
+     "endLine": 73403
+    },
+    {
+     "name": "activeTurnId",
+     "line": 73408,
+     "endLine": 73408
+    },
+    {
+     "name": "activeTurnStartedAt",
+     "line": 73409,
+     "endLine": 73409
+    },
+    {
+     "name": "activeTurnSkipObserved",
+     "line": 73410,
+     "endLine": 73410
+    }
+   ],
+   "innerAnonymous": 24,
    "refs": [
     "AgentSdkPromptNotAcceptedAbortError",
     "AgentSdkTurnInterruptedError",
@@ -5140,6 +6571,314 @@
    "mangled": "gbt",
    "line": 83964,
    "kind": "function",
+   "inner": [
+    {
+     "name": "v",
+     "line": 83979,
+     "endLine": 83979
+    },
+    {
+     "name": "S",
+     "line": 83995,
+     "endLine": 84016
+    },
+    {
+     "name": "N",
+     "line": 84032,
+     "endLine": 84034
+    },
+    {
+     "name": "x",
+     "line": 84036,
+     "endLine": 84038
+    },
+    {
+     "name": "M",
+     "line": 84040,
+     "endLine": 84087
+    },
+    {
+     "name": "se",
+     "line": 84093,
+     "endLine": 84107
+    },
+    {
+     "name": "j",
+     "line": 84108,
+     "endLine": 84110
+    },
+    {
+     "name": "ne",
+     "line": 84111,
+     "endLine": 84131
+    },
+    {
+     "name": "K",
+     "line": 84133,
+     "endLine": 84166
+    },
+    {
+     "name": "run",
+     "line": 84135,
+     "endLine": 84137
+    },
+    {
+     "name": "run",
+     "line": 84139,
+     "endLine": 84163
+    },
+    {
+     "name": "te",
+     "line": 84168,
+     "endLine": 84272
+    },
+    {
+     "name": "B",
+     "line": 84274,
+     "endLine": 84342
+    },
+    {
+     "name": "G",
+     "line": 84343,
+     "endLine": 85196
+    },
+    {
+     "name": "admissionCallback",
+     "line": 84517,
+     "endLine": 84699
+    },
+    {
+     "name": "enqueueAsNewTurn",
+     "line": 84646,
+     "endLine": 84677
+    },
+    {
+     "name": "getSessionStatus",
+     "line": 84716,
+     "endLine": 84716
+    },
+    {
+     "name": "onNotifyCalled",
+     "line": 84717,
+     "endLine": 84719
+    },
+    {
+     "name": "mcpServerFactory",
+     "line": 84731,
+     "endLine": 84743
+    },
+    {
+     "name": "getSessionStatus",
+     "line": 84739,
+     "endLine": 84739
+    },
+    {
+     "name": "onNotifyCalled",
+     "line": 84740,
+     "endLine": 84742
+    },
+    {
+     "name": "onDetachedTurn",
+     "line": 84744,
+     "endLine": 84746
+    },
+    {
+     "name": "onToolEnd",
+     "line": 84834,
+     "endLine": 84834
+    },
+    {
+     "name": "logDebug",
+     "line": 84835,
+     "endLine": 84837
+    },
+    {
+     "name": "logWarn",
+     "line": 84838,
+     "endLine": 84840
+    },
+    {
+     "name": "getStreamGeneration",
+     "line": 84857,
+     "endLine": 84857
+    },
+    {
+     "name": "onBatchContext",
+     "line": 84865,
+     "endLine": 84868
+    },
+    {
+     "name": "mcpServersFactory",
+     "line": 84869,
+     "endLine": 84883
+    },
+    {
+     "name": "getSessionStatus",
+     "line": 84878,
+     "endLine": 84878
+    },
+    {
+     "name": "onNotifyCalled",
+     "line": 84879,
+     "endLine": 84881
+    },
+    {
+     "name": "onSdkTurnStarted",
+     "line": 84888,
+     "endLine": 84905
+    },
+    {
+     "name": "onSdkTurnRejected",
+     "line": 84906,
+     "endLine": 84923
+    },
+    {
+     "name": "onStream",
+     "line": 84924,
+     "endLine": 84931
+    },
+    {
+     "name": "onExecutionEvent",
+     "line": 84932,
+     "endLine": 84950
+    },
+    {
+     "name": "H",
+     "line": 85198,
+     "endLine": 85279
+    },
+    {
+     "name": "q",
+     "line": 85280,
+     "endLine": 85304
+    },
+    {
+     "name": "pe",
+     "line": 85306,
+     "endLine": 85308
+    },
+    {
+     "name": "fe",
+     "line": 85309,
+     "endLine": 85319
+    },
+    {
+     "name": "Se",
+     "line": 85320,
+     "endLine": 85360
+    },
+    {
+     "name": "logDebug",
+     "line": 85343,
+     "endLine": 85343
+    },
+    {
+     "name": "start",
+     "line": 85362,
+     "endLine": 85396
+    },
+    {
+     "name": "stop",
+     "line": 85397,
+     "endLine": 85413
+    },
+    {
+     "name": "getActor",
+     "line": 85415,
+     "endLine": 85417
+    },
+    {
+     "name": "activeCount",
+     "line": 85418,
+     "endLine": 85420
+    },
+    {
+     "name": "activeChannelCount",
+     "line": 85421,
+     "endLine": 85423
+    },
+    {
+     "name": "activeJobCount",
+     "line": 85424,
+     "endLine": 85426
+    },
+    {
+     "name": "isRunning",
+     "line": 85427,
+     "endLine": 85429
+    },
+    {
+     "name": "attachChannel",
+     "line": 85430,
+     "endLine": 85477
+    },
+    {
+     "name": "detachChannel",
+     "line": 85478,
+     "endLine": 85485
+    },
+    {
+     "name": "hasAttachedChannels",
+     "line": 85486,
+     "endLine": 85489
+    },
+    {
+     "name": "spawnJobSession",
+     "line": 85490,
+     "endLine": 85492
+    },
+    {
+     "name": "interruptSession",
+     "line": 85493,
+     "endLine": 85518
+    },
+    {
+     "name": "clearSdkSession",
+     "line": 85519,
+     "endLine": 85548
+    },
+    {
+     "name": "getSessionModelView",
+     "line": 85549,
+     "endLine": 85628
+    },
+    {
+     "name": "setSessionModel",
+     "line": 85629,
+     "endLine": 85767
+    },
+    {
+     "name": "getSessionEffortView",
+     "line": 85768,
+     "endLine": 85791
+    },
+    {
+     "name": "setSessionEffort",
+     "line": 85792,
+     "endLine": 85934
+    },
+    {
+     "name": "getActorView",
+     "line": 85935,
+     "endLine": 85949
+    },
+    {
+     "name": "listActors",
+     "line": 85951,
+     "endLine": 85966
+    },
+    {
+     "name": "getSweeperActorState",
+     "line": 85967,
+     "endLine": 85976
+    },
+    {
+     "name": "markAgentNotified",
+     "line": 85977,
+     "endLine": 85980
+    }
+   ],
+   "innerAnonymous": 63,
    "refs": [
     "AgentSdkPromptNotAcceptedAbortError",
     "atomicAppendEvent",
@@ -5359,6 +7098,74 @@
    "mangled": "uH",
    "line": 89020,
    "kind": "function",
+   "inner": [
+    {
+     "name": "o",
+     "line": 89026,
+     "endLine": 89026
+    },
+    {
+     "name": "s",
+     "line": 89028,
+     "endLine": 89049
+    },
+    {
+     "name": "a",
+     "line": 89050,
+     "endLine": 89076
+    },
+    {
+     "name": "u",
+     "line": 89077,
+     "endLine": 89103
+    },
+    {
+     "name": "l",
+     "line": 89104,
+     "endLine": 89131
+    },
+    {
+     "name": "c",
+     "line": 89133,
+     "endLine": 89141
+    },
+    {
+     "name": "d",
+     "line": 89143,
+     "endLine": 89150
+    },
+    {
+     "name": "getSubscribers",
+     "line": 89154,
+     "endLine": 89157
+    },
+    {
+     "name": "finalSubscriberCount",
+     "line": 89159,
+     "endLine": 89168
+    },
+    {
+     "name": "subscriberCount",
+     "line": 89169,
+     "endLine": 89171
+    },
+    {
+     "name": "start",
+     "line": 89172,
+     "endLine": 89174
+    },
+    {
+     "name": "stop",
+     "line": 89175,
+     "endLine": 89184
+    },
+    {
+     "name": "setAttachmentCallbacks",
+     "line": 89185,
+     "endLine": 89187
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -5388,6 +7195,8 @@
    "mangled": "en",
    "line": 32104,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "generateSpineEventId"
    ],
@@ -5421,6 +7230,24 @@
    "mangled": "tde",
    "line": 36957,
    "kind": "function",
+   "inner": [
+    {
+     "name": "i",
+     "line": 36959,
+     "endLine": 36961
+    },
+    {
+     "name": "onAttach",
+     "line": 36963,
+     "endLine": 36965
+    },
+    {
+     "name": "onDetach",
+     "line": 36966,
+     "endLine": 36966
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [
     "isVoidRuntimeSession"
    ],
@@ -5439,6 +7266,8 @@
    "mangled": "Ect",
    "line": 66052,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -5457,6 +7286,8 @@
    "mangled": "_xe",
    "line": 70449,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -5478,6 +7309,8 @@
    "mangled": "awe",
    "line": 66093,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind"
    ],
@@ -5503,6 +7336,8 @@
    "mangled": "Mo",
    "line": 32742,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionMailboxPendingDir"
    ],
@@ -5527,6 +7362,8 @@
    "mangled": "avt",
    "line": 91202,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "deliverExternalSessionNotify",
     "logInfoMessage",
@@ -5554,6 +7391,14 @@
    "mangled": "EIe",
    "line": 91037,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "c",
+     "line": 91073,
+     "endLine": 91079
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "deliverRouteEventToSession",
@@ -5603,6 +7448,8 @@
    "mangled": "As",
    "line": 65038,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "createSpineEvent",
@@ -5651,6 +7498,8 @@
    "mangled": "cSe",
    "line": 68003,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "appendGapHandedSpan",
     "buildGapReadFaultResult",
@@ -5679,6 +7528,8 @@
    "mangled": "tvt",
    "line": 90778,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 4,
    "refs": [
     "JsonRpcInvalidParamsError",
     "initAgentSdkAdapterModule",
@@ -5716,6 +7567,8 @@
    "mangled": "aA",
    "line": 69907,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "pmt"
@@ -5740,6 +7593,8 @@
    "mangled": "cae",
    "line": 31624,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -5758,6 +7613,8 @@
    "mangled": "nU",
    "line": 31628,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord",
     "textKeysProblem",
@@ -5781,6 +7638,8 @@
    "mangled": "rU",
    "line": 31632,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isRecord",
     "unknownKeyProblem"
@@ -5820,6 +7679,8 @@
    "mangled": "iU",
    "line": 31644,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "describeConversationProblem",
     "isRecord",
@@ -5853,6 +7714,8 @@
    "mangled": "kbt",
    "line": 86063,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Sbt"
@@ -5875,6 +7738,8 @@
    "mangled": "cq",
    "line": 37028,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "IN_PROCESS_BREAK_HIT_RATIO_FLOOR"
    ],
@@ -5893,6 +7758,8 @@
    "mangled": "OSe",
    "line": 68660,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "computeOrphanTopicNodes"
    ],
@@ -5918,6 +7785,19 @@
    "mangled": "kN",
    "line": 82666,
    "kind": "function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 82667,
+     "endLine": 82673
+    },
+    {
+     "name": "s",
+     "line": 82677,
+     "endLine": 82680
+    }
+   ],
+   "innerAnonymous": 4,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -5938,6 +7818,8 @@
    "mangled": "kot",
    "line": 55518,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -5958,6 +7840,8 @@
    "mangled": "Za",
    "line": 37040,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Pet"
@@ -5982,6 +7866,84 @@
    "mangled": "zxe",
    "line": 70662,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "g",
+     "line": 70686,
+     "endLine": 70696
+    },
+    {
+     "name": "y",
+     "line": 70697,
+     "endLine": 70720
+    },
+    {
+     "name": "b",
+     "line": 70729,
+     "endLine": 70759
+    },
+    {
+     "name": "ne",
+     "line": 70820,
+     "endLine": 70829
+    },
+    {
+     "name": "K",
+     "line": 70829,
+     "endLine": 70834
+    },
+    {
+     "name": "te",
+     "line": 70834,
+     "endLine": 70836
+    },
+    {
+     "name": "B",
+     "line": 70836,
+     "endLine": 70852
+    },
+    {
+     "name": "Us",
+     "line": 70926,
+     "endLine": 70975
+    },
+    {
+     "name": "onTurnRejected",
+     "line": 70979,
+     "endLine": 70981
+    },
+    {
+     "name": "fn",
+     "line": 71051,
+     "endLine": 71066
+    },
+    {
+     "name": "gn",
+     "line": 71066,
+     "endLine": 71071
+    },
+    {
+     "name": "Mn",
+     "line": 71071,
+     "endLine": 71073
+    },
+    {
+     "name": "ji",
+     "line": 71073,
+     "endLine": 71075
+    },
+    {
+     "name": "onTurnAcknowledged",
+     "line": 71151,
+     "endLine": 71155
+    },
+    {
+     "name": "onTurnAcknowledged",
+     "line": 71457,
+     "endLine": 71461
+    }
+   ],
+   "innerAnonymous": 31,
    "refs": [
     "acquireSessionDrainLock",
     "addToNumericField",
@@ -6155,6 +8117,8 @@
    "mangled": "Bc",
    "line": 72455,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "classifySessionKeyOrUnknown",
@@ -6189,6 +8153,8 @@
    "mangled": "FW",
    "line": 72964,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -6207,6 +8173,8 @@
    "mangled": "UO",
    "line": 67634,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -6234,6 +8202,8 @@
    "mangled": "B8e",
    "line": 32091,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "bae"
@@ -6252,6 +8222,8 @@
    "mangled": "cvt",
    "line": 91287,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "ingestChannelCommand",
@@ -6293,6 +8265,8 @@
    "mangled": "ta",
    "line": 32650,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "assertSessionNotArchiving",
     "ensureDirectoryExists",
@@ -6323,6 +8297,8 @@
    "mangled": "SIe",
    "line": 90703,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "resolveExistingDirRealpath"
    ],
@@ -6342,6 +8318,8 @@
    "mangled": "P6",
    "line": 62206,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logDebugMessage"
    ],
@@ -6368,6 +8346,8 @@
    "mangled": "Ne",
    "line": 31985,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -6426,6 +8406,8 @@
    "mangled": "Cke",
    "line": 69286,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isKernelGitToplevel",
     "logDebugMessage",
@@ -6461,6 +8443,8 @@
    "mangled": "det",
    "line": 36373,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "lookupOutboxByIdIndexEntry",
     "resolveOutboxReplayFilePath"
@@ -6485,6 +8469,8 @@
    "mangled": "nh",
    "line": 35600,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "assertSessionNotArchiving",
     "ensureDirectoryExists",
@@ -6523,6 +8509,8 @@
    "mangled": "bU",
    "line": 32647,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionMailboxPendingDir"
    ],
@@ -6544,6 +8532,8 @@
    "mangled": "Ut",
    "line": 71727,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -6571,6 +8561,8 @@
    "mangled": "Ng",
    "line": 64770,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifyConsumerStaleness",
     "classifySessionKeyKind",
@@ -6598,6 +8590,8 @@
    "mangled": "Lft",
    "line": 68995,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -6614,6 +8608,8 @@
    "mangled": "bV",
    "line": 55474,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [
     "wot"
@@ -6636,6 +8632,29 @@
    "mangled": "Fet",
    "line": 87857,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "o",
+     "line": 87998,
+     "endLine": 87998
+    },
+    {
+     "name": "u",
+     "line": 88001,
+     "endLine": 88009
+    },
+    {
+     "name": "l",
+     "line": 88010,
+     "endLine": 88010
+    },
+    {
+     "name": "u",
+     "line": 88082,
+     "endLine": 88086
+    }
+   ],
+   "innerAnonymous": 10,
    "refs": [
     "containsWhitespaceChar",
     "hashSessionKey",
@@ -6854,6 +8873,8 @@
    "mangled": "hde",
    "line": 87471,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -6871,6 +8892,8 @@
    "mangled": "yft",
    "line": 68482,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "gft"
@@ -6889,6 +8912,8 @@
    "mangled": "pbe",
    "line": 62795,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isCodexPlainObject",
     "isImageGenerationItemType"
@@ -6916,6 +8941,8 @@
    "mangled": "Gxe",
    "line": 72190,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isNonNullObject",
     "readStringProperty"
@@ -6942,6 +8969,8 @@
    "mangled": "Zxe",
    "line": 72196,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "extractJobCompletePayload",
     "readStringProperty"
@@ -6964,6 +8993,8 @@
    "mangled": "DW",
    "line": 71676,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isNonNullObject",
     "readStringProperty"
@@ -6989,6 +9020,8 @@
    "mangled": "uA",
    "line": 69921,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7008,6 +9041,8 @@
    "mangled": "H$",
    "line": 55032,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7030,6 +9065,8 @@
    "mangled": "Rxe",
    "line": 70567,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7048,6 +9085,8 @@
    "mangled": "W$",
    "line": 55065,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7072,6 +9111,8 @@
    "mangled": "J$",
    "line": 55093,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7096,6 +9137,8 @@
    "mangled": "ube",
    "line": 62244,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7114,6 +9157,8 @@
    "mangled": "Olt",
    "line": 64885,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "evaluateNotifyConsumerRefusal"
    ],
@@ -7132,6 +9177,8 @@
    "mangled": "DSe",
    "line": 68756,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7148,6 +9195,8 @@
    "mangled": "Ift",
    "line": 68547,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Eft",
@@ -7167,6 +9216,8 @@
    "mangled": "Zge",
    "line": 55261,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7187,6 +9238,8 @@
    "mangled": "wae",
    "line": 32262,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "iterateStreamLines"
    ],
@@ -7208,6 +9261,14 @@
    "mangled": "fft",
    "line": 68420,
    "kind": "function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 68422,
+     "endLine": 68446
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableMemoryPath"
    ],
@@ -7228,6 +9289,8 @@
    "mangled": "lh",
    "line": 36147,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "loadOutboxByEventIndex",
     "readOutboxRecord"
@@ -7249,6 +9312,8 @@
    "mangled": "Obt",
    "line": 86938,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "deliverRouteEventToSession",
     "logInfoMessage",
@@ -7279,6 +9344,8 @@
    "mangled": "RN",
    "line": 82937,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isLiveStreamRebuildRequired",
     "logAlwaysAtLevel"
@@ -7304,6 +9371,8 @@
    "mangled": "SO",
    "line": 65727,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7324,6 +9393,8 @@
    "mangled": "NSe",
    "line": 68692,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 5,
    "refs": [
     "compareStringsAscending",
     "formatForgetCommitMessage",
@@ -7368,6 +9439,8 @@
    "mangled": "qxe",
    "line": 71922,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7394,6 +9467,8 @@
    "mangled": "zm",
    "line": 32100,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7416,6 +9491,8 @@
    "mangled": "Mft",
    "line": 68809,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7436,6 +9513,8 @@
    "mangled": "bIe",
    "line": 91604,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -7452,6 +9531,8 @@
    "mangled": "hA",
    "line": 70426,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "kmt",
@@ -7474,6 +9555,8 @@
    "mangled": "NG",
    "line": 91627,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -7490,6 +9573,8 @@
    "mangled": "vft",
    "line": 68505,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -7509,6 +9594,8 @@
    "mangled": "Kbe",
    "line": 64904,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -7531,6 +9618,8 @@
    "mangled": "Wi",
    "line": 35089,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7556,6 +9645,8 @@
    "mangled": "cmt",
    "line": 69844,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Jke",
@@ -7579,6 +9670,8 @@
    "mangled": "QQe",
    "line": 36036,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7597,6 +9690,8 @@
    "mangled": "Qpt",
    "line": 69536,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 6,
    "refs": [
     "parseAgentMarkdown",
     "renderAgentToml"
@@ -7627,6 +9722,8 @@
    "mangled": "V8e",
    "line": 32096,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7645,6 +9742,8 @@
    "mangled": "_we",
    "line": 89243,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "computeHostBootId"
    ],
@@ -7666,6 +9765,8 @@
    "mangled": "FO",
    "line": 67575,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readPartitionContract"
    ],
@@ -7687,6 +9788,8 @@
    "mangled": "K8e",
    "line": 32212,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveEventIdIndexPath"
    ],
@@ -7707,6 +9810,8 @@
    "mangled": "swe",
    "line": 66085,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "xO"
@@ -7725,6 +9830,8 @@
    "mangled": "Hw",
    "line": 63313,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "GROK_ACP_EXT_PREFIX"
    ],
@@ -7746,6 +9853,8 @@
    "mangled": "Aut",
    "line": 63281,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "A6"
@@ -7762,6 +9871,8 @@
    "mangled": "sve",
    "line": 65390,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 7,
    "refs": [],
    "refsUnnamed": [
     "Wlt",
@@ -7783,6 +9894,8 @@
    "mangled": "TS",
    "line": 72539,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "createSpineEvent",
@@ -7815,6 +9928,8 @@
    "mangled": "hEe",
    "line": 73657,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logWarnMessage",
     "parsePiToolResultDetails",
@@ -7844,6 +9959,8 @@
    "mangled": "Qwe",
    "line": 67708,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "enforceContractGate",
     "getCachedPartitionContract"
@@ -7866,6 +9983,8 @@
    "mangled": "fbe",
    "line": 62779,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isCodexPlainObject",
     "isImageGenerationItemType"
@@ -7890,6 +10009,8 @@
    "mangled": "Zf",
    "line": 64850,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7913,6 +10034,8 @@
    "mangled": "Mf",
    "line": 55021,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -7933,6 +10056,8 @@
    "mangled": "Hmt",
    "line": 72093,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "readSessionRuntimeState"
    ],
@@ -7951,6 +10076,8 @@
    "mangled": "Wxe",
    "line": 72176,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "computeDrainCoalesceKey"
    ],
@@ -7970,6 +10097,8 @@
    "mangled": "met",
    "line": 36631,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "listAllOutboxRecords"
    ],
@@ -7991,6 +10120,8 @@
    "mangled": "Ebt",
    "line": 86105,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -8010,6 +10141,8 @@
    "mangled": "Do",
    "line": 32360,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -8038,6 +10171,8 @@
    "mangled": "ll",
    "line": 69060,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -8066,6 +10201,8 @@
    "mangled": "aG",
    "line": 80549,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -8089,6 +10226,8 @@
    "mangled": "rv",
    "line": 87540,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "appendBeforeExecuteGateway",
     "classifyGatewayCommandIntent",
@@ -8119,6 +10258,8 @@
    "mangled": "gde",
    "line": 87515,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "appendBeforeExecuteGateway",
     "classifyGatewayCommandIntent",
@@ -8146,6 +10287,34 @@
    "mangled": "JRe",
    "line": 83053,
    "kind": "var",
+   "inner": [
+    {
+     "name": "enqueue",
+     "line": 83058,
+     "endLine": 83065
+    },
+    {
+     "name": "dequeue",
+     "line": 83066,
+     "endLine": 83085
+    },
+    {
+     "name": "s",
+     "line": 83075,
+     "endLine": 83078
+    },
+    {
+     "name": "cleanup",
+     "line": 83081,
+     "endLine": 83083
+    },
+    {
+     "name": "drain",
+     "line": 83086,
+     "endLine": 83089
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [
     "O",
@@ -8167,6 +10336,8 @@
    "mangled": "UH",
    "line": 68404,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initBroadcastBudgetLintModule",
     "initMemorySignalKindsModule"
@@ -8201,6 +10372,24 @@
    "mangled": "ko",
    "line": 55834,
    "kind": "var",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 55843,
+     "endLine": 55845
+    },
+    {
+     "name": "constructor",
+     "line": 55847,
+     "endLine": 55849
+    },
+    {
+     "name": "Yge",
+     "line": 55851,
+     "endLine": 55851
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [
     "initCallerSessionEnvModule",
     "initSkipToolModule",
@@ -8260,6 +10449,8 @@
    "mangled": "jwe",
    "line": 67126,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -8288,6 +10479,8 @@
    "mangled": "LRe",
    "line": 82639,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "$Re",
@@ -8419,6 +10612,8 @@
    "mangled": "DH",
    "line": 68160,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -8444,6 +10639,8 @@
    "mangled": "PSe",
    "line": 68593,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -8468,6 +10665,8 @@
    "mangled": "ISe",
    "line": 68540,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -8492,6 +10691,8 @@
    "mangled": "V$",
    "line": 55016,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "O"
@@ -8514,6 +10715,8 @@
    "mangled": "Ja",
    "line": 36816,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Kr",
@@ -8544,6 +10747,8 @@
    "mangled": "dae",
    "line": 31723,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Hd",
@@ -8569,6 +10774,89 @@
    "mangled": "Gf",
    "line": 63038,
    "kind": "var",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 63055,
+     "endLine": 63060
+    },
+    {
+     "name": "start",
+     "line": 63069,
+     "endLine": 63089
+    },
+    {
+     "name": "request",
+     "line": 63090,
+     "endLine": 63120
+    },
+    {
+     "name": "u",
+     "line": 63107,
+     "endLine": 63114
+    },
+    {
+     "name": "notify",
+     "line": 63121,
+     "endLine": 63126
+    },
+    {
+     "name": "shutdown",
+     "line": 63127,
+     "endLine": 63140
+    },
+    {
+     "name": "isAlive",
+     "line": 63141,
+     "endLine": 63143
+    },
+    {
+     "name": "send",
+     "line": 63144,
+     "endLine": 63147
+    },
+    {
+     "name": "handleLine",
+     "line": 63148,
+     "endLine": 63171
+    },
+    {
+     "name": "setToolHandlers",
+     "line": 63172,
+     "endLine": 63174
+    },
+    {
+     "name": "setToolCallObserved",
+     "line": 63177,
+     "endLine": 63179
+    },
+    {
+     "name": "setToolCallSettled",
+     "line": 63181,
+     "endLine": 63183
+    },
+    {
+     "name": "handleServerRequest",
+     "line": 63184,
+     "endLine": 63225
+    },
+    {
+     "name": "respond",
+     "line": 63226,
+     "endLine": 63232
+    },
+    {
+     "name": "respondError",
+     "line": 63233,
+     "endLine": 63242
+    },
+    {
+     "name": "rejectAllPending",
+     "line": 63243,
+     "endLine": 63245
+    }
+   ],
+   "innerAnonymous": 10,
    "refs": [
     "attachStreamLineReader",
     "initInterruptMarkerTextModule",
@@ -8631,6 +10919,8 @@
    "mangled": "qwe",
    "line": 67244,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -8658,6 +10948,8 @@
    "mangled": "ESe",
    "line": 68473,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule",
     "initPartitionRunStateModule"
@@ -8682,6 +10974,8 @@
    "mangled": "dSe",
    "line": 68047,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initGapSpanModule",
     "initMemorySignalDeliveryModule",
@@ -8714,6 +11008,8 @@
    "mangled": "bS",
    "line": 67476,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Nm",
@@ -8736,6 +11032,39 @@
    "mangled": "Og",
    "line": 63995,
    "kind": "var",
+   "inner": [
+    {
+     "name": "start",
+     "line": 64014,
+     "endLine": 64014
+    },
+    {
+     "name": "close",
+     "line": 64015,
+     "endLine": 64019
+    },
+    {
+     "name": "send",
+     "line": 64020,
+     "endLine": 64024
+    },
+    {
+     "name": "dispatch",
+     "line": 64025,
+     "endLine": 64047
+    },
+    {
+     "name": "resolve",
+     "line": 64039,
+     "endLine": 64041
+    },
+    {
+     "name": "reject",
+     "line": 64042,
+     "endLine": 64044
+    }
+   ],
+   "innerAnonymous": 3,
    "refs": [
     "GROK_DISALLOWED_TOOLS",
     "grokAcpExtMethod",
@@ -8785,6 +11114,8 @@
    "mangled": "hk",
    "line": 82886,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initAgentSdkAdapterModule",
     "initBoardTransclusionModule",
@@ -8817,6 +11148,8 @@
    "mangled": "Uw",
    "line": 62106,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "O"
@@ -8842,6 +11175,164 @@
    "mangled": "ol",
    "line": 61640,
    "kind": "var",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 61656,
+     "endLine": 61658
+    },
+    {
+     "name": "activeDir",
+     "line": 61660,
+     "endLine": 61662
+    },
+    {
+     "name": "archiveDir",
+     "line": 61663,
+     "endLine": 61665
+    },
+    {
+     "name": "getJobPath",
+     "line": 61666,
+     "endLine": 61668
+    },
+    {
+     "name": "getStatePath",
+     "line": 61669,
+     "endLine": 61671
+    },
+    {
+     "name": "getArchiveJobPath",
+     "line": 61672,
+     "endLine": 61674
+    },
+    {
+     "name": "getArchiveStatePath",
+     "line": 61675,
+     "endLine": 61677
+    },
+    {
+     "name": "init",
+     "line": 61678,
+     "endLine": 61680
+    },
+    {
+     "name": "createJob",
+     "line": 61681,
+     "endLine": 61720
+    },
+    {
+     "name": "rescheduleJob",
+     "line": 61721,
+     "endLine": 61734
+    },
+    {
+     "name": "archiveJob",
+     "line": 61735,
+     "endLine": 61737
+    },
+    {
+     "name": "archiveJobHoldingLock",
+     "line": 61738,
+     "endLine": 61762
+    },
+    {
+     "name": "renameSidecarOrRollback",
+     "line": 61763,
+     "endLine": 61775
+    },
+    {
+     "name": "archiveJobIfNotRearmed",
+     "line": 61776,
+     "endLine": 61788
+    },
+    {
+     "name": "createWakeRecord",
+     "line": 61789,
+     "endLine": 61816
+    },
+    {
+     "name": "getWakeRecord",
+     "line": 61817,
+     "endLine": 61845
+    },
+    {
+     "name": "listWakeRecords",
+     "line": 61846,
+     "endLine": 61868
+    },
+    {
+     "name": "fireWakeRecord",
+     "line": 61869,
+     "endLine": 61888
+    },
+    {
+     "name": "getJob",
+     "line": 61889,
+     "endLine": 61891
+    },
+    {
+     "name": "getArchivedJob",
+     "line": 61892,
+     "endLine": 61894
+    },
+    {
+     "name": "classifyActiveJob",
+     "line": 61895,
+     "endLine": 61921
+    },
+    {
+     "name": "readJobByPath",
+     "line": 61922,
+     "endLine": 61930
+    },
+    {
+     "name": "buildJobDefinition",
+     "line": 61931,
+     "endLine": 61964
+    },
+    {
+     "name": "listJobs",
+     "line": 61965,
+     "endLine": 61988
+    },
+    {
+     "name": "updateState",
+     "line": 61989,
+     "endLine": 62004
+    },
+    {
+     "name": "finalizeJobState",
+     "line": 62005,
+     "endLine": 62028
+    },
+    {
+     "name": "quarantineOrphanSidecarIfPresent",
+     "line": 62029,
+     "endLine": 62037
+    },
+    {
+     "name": "readStateStrict",
+     "line": 62038,
+     "endLine": 62057
+    },
+    {
+     "name": "pathExists",
+     "line": 62058,
+     "endLine": 62065
+    },
+    {
+     "name": "exists",
+     "line": 62066,
+     "endLine": 62068
+    },
+    {
+     "name": "buildSessionKey",
+     "line": 62069,
+     "endLine": 62075
+    }
+   ],
+   "innerAnonymous": 11,
    "refs": [
     "buildJobSessionKey",
     "ensureDirectoryExists",
@@ -8974,6 +11465,8 @@
    "mangled": "cIe",
    "line": 87064,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "$G",
@@ -8994,6 +11487,8 @@
    "mangled": "Oke",
    "line": 69314,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [],
    "refsUnnamed": [
     "O",
@@ -9016,6 +11511,8 @@
    "mangled": "PS",
    "line": 72917,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initAgentSdkAdapterModule",
     "initChannelConfigLoaderModule",
@@ -9066,6 +11563,8 @@
    "mangled": "Gw",
    "line": 64260,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initAgentSdkAdapterModule",
     "initCodexAppServerModule",
@@ -9209,6 +11708,8 @@
    "mangled": "aS",
    "line": 65691,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Kn",
@@ -9242,6 +11743,8 @@
    "mangled": "GH",
    "line": 69002,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initActivationLintModule",
     "initBoardLintModule",
@@ -9277,6 +11780,8 @@
    "mangled": "OH",
    "line": 67720,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -9308,6 +11813,8 @@
    "mangled": "Go",
    "line": 66889,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "O"
@@ -9352,6 +11859,8 @@
    "mangled": "rIe",
    "line": 86721,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initAgentSdkAdapterModule",
     "initChannelConfigLoaderModule",
@@ -9395,6 +11904,8 @@
    "mangled": "Vwe",
    "line": 67340,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initMemorySignalKindsModule"
    ],
@@ -9417,6 +11928,8 @@
    "mangled": "q6",
    "line": 64762,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initOutboxStoreModule"
    ],
@@ -9443,6 +11956,8 @@
    "mangled": "oS",
    "line": 65586,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initJobManagerModule"
    ],
@@ -9474,6 +11989,8 @@
    "mangled": "jSe",
    "line": 68812,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initActivationLintModule",
     "initMemorySignalKindsModule"
@@ -9497,6 +12014,8 @@
    "mangled": "jo",
    "line": 36718,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "DR",
@@ -9529,6 +12048,8 @@
    "mangled": "zke",
    "line": 69507,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Kn",
@@ -9561,6 +12082,8 @@
    "mangled": "PO",
    "line": 66735,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Kn",
@@ -9583,6 +12106,8 @@
    "mangled": "Qz",
    "line": 31536,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "O"
@@ -9609,6 +12134,8 @@
    "mangled": "pae",
    "line": 31757,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Hd",
@@ -9628,6 +12155,8 @@
    "mangled": "oU",
    "line": 31647,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initProtocolEffortModule"
    ],
@@ -9704,6 +12233,8 @@
    "mangled": "AS",
    "line": 73608,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "$r",
@@ -9782,6 +12313,8 @@
    "mangled": "nS",
    "line": 65006,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initJobManagerModule"
    ],
@@ -9816,6 +12349,8 @@
    "mangled": "Kke",
    "line": 69867,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initKernelGitModule",
     "initPartitionRetirementModule"
@@ -9851,6 +12386,19 @@
    "mangled": "Fu",
    "line": 31837,
    "kind": "var",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 31842,
+     "endLine": 31844
+    },
+    {
+     "name": "hae",
+     "line": 31845,
+     "endLine": 31845
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [
     "O",
@@ -9881,6 +12429,14 @@
    "mangled": "Fa",
    "line": 32541,
    "kind": "var",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 32547,
+     "endLine": 32549
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "O"
@@ -9909,6 +12465,8 @@
    "mangled": "el",
    "line": 55006,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "$r",
@@ -9964,6 +12522,8 @@
    "mangled": "Ao",
    "line": 32324,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "DR",
@@ -9996,6 +12556,8 @@
    "mangled": "TO",
    "line": 66669,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initRuntimeValidationModule"
    ],
@@ -10027,6 +12589,8 @@
    "mangled": "eS",
    "line": 64953,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initJobManagerModule"
    ],
@@ -10061,6 +12625,8 @@
    "mangled": "ff",
    "line": 36998,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "initChannelConfigLoaderModule",
     "initOutboxStoreModule"
@@ -10090,6 +12656,8 @@
    "mangled": "lmt",
    "line": 69834,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "archiveLegacyRegistrySessionsDir",
     "buildInitialRegistryStatus",
@@ -10123,6 +12691,8 @@
    "mangled": "PN",
    "line": 83136,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10141,6 +12711,8 @@
    "mangled": "hg",
    "line": 55284,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10163,6 +12735,8 @@
    "mangled": "gR",
    "line": 31669,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "mR"
@@ -10184,6 +12758,8 @@
    "mangled": "Sw",
    "line": 55280,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "AgentSdkPromptNotAcceptedAbortError"
    ],
@@ -10203,6 +12779,8 @@
    "mangled": "ww",
    "line": 55276,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "AgentSdkTurnInterruptedError"
    ],
@@ -10222,6 +12800,8 @@
    "mangled": "gdt",
    "line": 67254,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -10243,6 +12823,8 @@
    "mangled": "O8e",
    "line": 31709,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isRecord"
    ],
@@ -10263,6 +12845,8 @@
    "mangled": "uRe",
    "line": 80537,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10282,6 +12866,8 @@
    "mangled": "sbt",
    "line": 82632,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10301,6 +12887,8 @@
    "mangled": "cS",
    "line": 65988,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "mct"
@@ -10322,6 +12910,8 @@
    "mangled": "wR",
    "line": 31697,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10342,6 +12932,8 @@
    "mangled": "A8e",
    "line": 31713,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "isMimePattern",
     "isRecord"
@@ -10364,6 +12956,8 @@
    "mangled": "vR",
    "line": 31693,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isOptionalString",
     "isRecord"
@@ -10385,6 +12979,8 @@
    "mangled": "SR",
    "line": 31701,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isOptionalString",
     "isRecord"
@@ -10406,6 +13002,8 @@
    "mangled": "bR",
    "line": 31685,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10426,6 +13024,8 @@
    "mangled": "_R",
    "line": 31681,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10446,6 +13046,8 @@
    "mangled": "yR",
    "line": 31677,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isAttachmentArray",
     "isOptionalString",
@@ -10468,6 +13070,8 @@
    "mangled": "yA",
    "line": 70572,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10489,6 +13093,8 @@
    "mangled": "Mm",
    "line": 31689,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isChannelCapabilities",
     "isRecord"
@@ -10516,6 +13122,8 @@
    "mangled": "kR",
    "line": 31705,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isAgentRuntime",
     "isOptionalString",
@@ -10539,6 +13147,8 @@
    "mangled": "Jft",
    "line": 89434,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10559,6 +13169,8 @@
    "mangled": "_V",
    "line": 55336,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Sc"
@@ -10577,6 +13189,8 @@
    "mangled": "IS",
    "line": 70227,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10597,6 +13211,8 @@
    "mangled": "Jf",
    "line": 62149,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "I6"
@@ -10620,6 +13236,8 @@
    "mangled": "qw",
    "line": 62768,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10641,6 +13259,8 @@
    "mangled": "omt",
    "line": 69751,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10659,6 +13279,8 @@
    "mangled": "Ii",
    "line": 31533,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "qi"
@@ -10684,6 +13306,8 @@
    "mangled": "N6",
    "line": 63277,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "O6"
@@ -10702,6 +13326,8 @@
    "mangled": "Uut",
    "line": 63374,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "collectGrokToolCallNames"
    ],
@@ -10722,6 +13348,8 @@
    "mangled": "dbe",
    "line": 62772,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10744,6 +13372,8 @@
    "mangled": "Uu",
    "line": 31944,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10767,6 +13397,8 @@
    "mangled": "IR",
    "line": 31746,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10787,6 +13419,8 @@
    "mangled": "xR",
    "line": 31734,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10807,6 +13441,8 @@
    "mangled": "ER",
    "line": 31738,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10827,6 +13463,8 @@
    "mangled": "PR",
    "line": 31754,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10847,6 +13485,8 @@
    "mangled": "RR",
    "line": 31742,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10865,6 +13505,8 @@
    "mangled": "Dbt",
    "line": 87075,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10886,6 +13528,8 @@
    "mangled": "TR",
    "line": 31750,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -10906,6 +13550,8 @@
    "mangled": "G_e",
    "line": 61356,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "parseScheduleDurationMs"
    ],
@@ -10933,6 +13579,8 @@
    "mangled": "dve",
    "line": 65213,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "cve"
@@ -10954,6 +13602,8 @@
    "mangled": "Sb",
    "line": 31516,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -10974,6 +13624,8 @@
    "mangled": "Upt",
    "line": 69273,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildKernelGitEnv",
     "buildSafeDirectoryGitArgs"
@@ -10999,6 +13651,8 @@
    "mangled": "NR",
    "line": 31793,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isAgentRuntime"
    ],
@@ -11018,6 +13672,8 @@
    "mangled": "EG",
    "line": 82931,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11035,6 +13691,8 @@
    "mangled": "vvt",
    "line": 92002,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "MG"
@@ -11056,6 +13714,8 @@
    "mangled": "Ug",
    "line": 66857,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableMemoryPath"
    ],
@@ -11076,6 +13736,8 @@
    "mangled": "jc",
    "line": 66849,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableMemoryPath"
    ],
@@ -11098,6 +13760,8 @@
    "mangled": "Gmt",
    "line": 72168,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hasUniformDrainCoalesceKey"
    ],
@@ -11116,6 +13780,8 @@
    "mangled": "Jmt",
    "line": 72164,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "hasUniformDrainCoalesceKey",
     "isChannelMessageEvent",
@@ -11137,6 +13803,8 @@
    "mangled": "N8e",
    "line": 31720,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11155,6 +13823,8 @@
    "mangled": "sU",
    "line": 31673,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "hR"
@@ -11175,6 +13845,8 @@
    "mangled": "$8e",
    "line": 31600,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11193,6 +13865,8 @@
    "mangled": "to",
    "line": 71661,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11218,6 +13892,8 @@
    "mangled": "FC",
    "line": 61323,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11239,6 +13915,8 @@
    "mangled": "Ri",
    "line": 31526,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11260,6 +13938,8 @@
    "mangled": "fve",
    "line": 65292,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -11279,6 +13959,8 @@
    "mangled": "eSe",
    "line": 67717,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "enforceContractGate",
     "getCachedPartitionContract"
@@ -11300,6 +13982,8 @@
    "mangled": "yH",
    "line": 66719,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11316,6 +14000,8 @@
    "mangled": "jct",
    "line": 89216,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11332,6 +14018,8 @@
    "mangled": "bI",
    "line": 36828,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11349,6 +14037,8 @@
    "mangled": "at",
    "line": 31522,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11402,6 +14092,8 @@
    "mangled": "rR",
    "line": 31545,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11423,6 +14115,8 @@
    "mangled": "Fct",
    "line": 89247,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getCachedHostBootId",
     "isProcessAliveByPid"
@@ -11442,6 +14136,8 @@
    "mangled": "kH",
    "line": 67134,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11461,6 +14157,8 @@
    "mangled": "iR",
    "line": 31552,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11481,6 +14179,8 @@
    "mangled": "Qs",
    "line": 32376,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveArchivedSessionDir",
     "resolveSessionDir"
@@ -11505,6 +14205,8 @@
    "mangled": "dr",
    "line": 32534,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Ab"
@@ -11533,6 +14235,8 @@
    "mangled": "dR",
    "line": 31584,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11553,6 +14257,8 @@
    "mangled": "fR",
    "line": 31588,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "isRecord"
    ],
@@ -11584,6 +14290,8 @@
    "mangled": "cR",
    "line": 31580,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isEffortLevel",
     "isRecord"
@@ -11607,6 +14315,8 @@
    "mangled": "eU",
    "line": 31556,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11629,6 +14339,8 @@
    "mangled": "oR",
    "line": 31560,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord",
     "isSessionListKind"
@@ -11650,6 +14362,8 @@
    "mangled": "lR",
    "line": 31576,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isRecord"
    ],
@@ -11672,6 +14386,8 @@
    "mangled": "uR",
    "line": 31572,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11693,6 +14409,8 @@
    "mangled": "sR",
    "line": 31564,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11713,6 +14431,8 @@
    "mangled": "aR",
    "line": 31568,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11733,6 +14453,8 @@
    "mangled": "OR",
    "line": 31774,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11754,6 +14476,8 @@
    "mangled": "Eb",
    "line": 31797,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isModelRuntime"
    ],
@@ -11775,6 +14499,8 @@
    "mangled": "CR",
    "line": 31770,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11793,6 +14519,8 @@
    "mangled": "nR",
    "line": 31541,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11815,6 +14543,8 @@
    "mangled": "$R",
    "line": 31766,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -11833,6 +14563,8 @@
    "mangled": "_Ye",
    "line": 32919,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "vU"
@@ -11851,6 +14583,8 @@
    "mangled": "VH",
    "line": 68829,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11872,6 +14606,8 @@
    "mangled": "Y8e",
    "line": 32222,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -11888,6 +14624,8 @@
    "mangled": "uq",
    "line": 36844,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind"
    ],
@@ -11910,6 +14648,8 @@
    "mangled": "sh",
    "line": 35805,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "KQe",
@@ -11933,6 +14673,8 @@
    "mangled": "Gu",
    "line": 36952,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionChannelRuntime"
    ],
@@ -11958,6 +14700,8 @@
    "mangled": "Jxe",
    "line": 72182,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isNonNullObject",
     "readStringProperty"
@@ -11984,6 +14728,8 @@
    "mangled": "oC",
    "line": 55858,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "nye",
@@ -12006,6 +14752,8 @@
    "mangled": "qct",
    "line": 89338,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readPartitionByteRange"
    ],
@@ -12026,6 +14774,29 @@
    "mangled": "gs",
    "line": 31898,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "a",
+     "line": 31903,
+     "endLine": 31906
+    },
+    {
+     "name": "l",
+     "line": 31908,
+     "endLine": 31910
+    },
+    {
+     "name": "c",
+     "line": 31911,
+     "endLine": 31913
+    },
+    {
+     "name": "d",
+     "line": 31914,
+     "endLine": 31916
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [
     "gae"
@@ -12058,6 +14829,8 @@
    "mangled": "Qb",
    "line": 36115,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Pce"
@@ -12080,6 +14853,8 @@
    "mangled": "pwe",
    "line": 66316,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -12096,6 +14871,8 @@
    "mangled": "oft",
    "line": 68173,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableMemoryPath"
    ],
@@ -12116,6 +14893,8 @@
    "mangled": "eh",
    "line": 35450,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "of"
@@ -12135,6 +14914,8 @@
    "mangled": "Nb",
    "line": 32720,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "resolveSessionMailboxPendingDir"
    ],
@@ -12158,6 +14939,8 @@
    "mangled": "ou",
    "line": 66865,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "compareStringsAscending",
     "recordUnreadableMemoryPath"
@@ -12185,6 +14968,8 @@
    "mangled": "Mdt",
    "line": 67767,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableUnlessMissing"
    ],
@@ -12207,6 +14992,8 @@
    "mangled": "Nft",
    "line": 68780,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "compareStringsAscending",
     "listMarkdownSlugsSync",
@@ -12233,6 +15020,8 @@
    "mangled": "$b",
    "line": 32414,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -12255,6 +15044,8 @@
    "mangled": "Bce",
    "line": 36700,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readOutboxRecord",
     "resolveOutboxPendingQueuePath"
@@ -12280,6 +15071,8 @@
    "mangled": "llt",
    "line": 64087,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isClaudeAvailable",
     "isCodexAvailable",
@@ -12305,6 +15098,14 @@
    "mangled": "oO",
    "line": 64866,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "s",
+     "line": 64875,
+     "endLine": 64875
+    }
+   ],
+   "innerAnonymous": 4,
    "refs": [
     "classifySessionKeyKind",
     "filterDeliverableSessions",
@@ -12331,6 +15132,8 @@
    "mangled": "$lt",
    "line": 64793,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "buildSessionIndexFromDisk",
     "readLatestDeliveryCursorUpdate",
@@ -12355,6 +15158,8 @@
    "mangled": "lA",
    "line": 69952,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -12372,6 +15177,8 @@
    "mangled": "nde",
    "line": 36969,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "isVoidRuntimeSession",
@@ -12394,6 +15201,8 @@
    "mangled": "Wa",
    "line": 36800,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logWarnMessage",
     "parseChannelConfigFields"
@@ -12433,6 +15242,8 @@
    "mangled": "Hxe",
    "line": 72146,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "readEventById",
     "runTimedDrainPhase"
@@ -12455,6 +15266,8 @@
    "mangled": "X8e",
    "line": 32225,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "getOrCreateEventIdIndexCache",
     "isUsableEventIndexEntry",
@@ -12479,6 +15292,8 @@
    "mangled": "li",
    "line": 36772,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "parseClaudeFrontmatterBlock"
    ],
@@ -12519,6 +15334,8 @@
    "mangled": "Wft",
    "line": 69198,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hostDotEnvPath",
     "parseDotEnv"
@@ -12538,6 +15355,8 @@
    "mangled": "ret",
    "line": 36196,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "iterateStreamLines",
     "memoizeIndexLoad",
@@ -12560,6 +15379,8 @@
    "mangled": "nv",
    "line": 87423,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "spineEventDedupStore"
    ],
@@ -12584,6 +15405,8 @@
    "mangled": "hS",
    "line": 66462,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "parsePartitionDefinition"
    ],
@@ -12608,6 +15431,8 @@
    "mangled": "vt",
    "line": 32069,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Jd"
@@ -12639,6 +15464,8 @@
    "mangled": "ke",
    "line": 32053,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Jd"
@@ -12689,6 +15516,8 @@
    "mangled": "Ue",
    "line": 32041,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Jd"
@@ -12726,6 +15555,8 @@
    "mangled": "ee",
    "line": 32049,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Jd"
@@ -12772,6 +15603,8 @@
    "mangled": "go",
    "line": 32927,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logDebugMessage"
    ],
@@ -12798,6 +15631,8 @@
    "mangled": "Z",
    "line": 32045,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Jd"
@@ -12865,6 +15700,8 @@
    "mangled": "Ib",
    "line": 32198,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isIndexLoadStillCurrent",
     "loadEventIdIndex",
@@ -12894,6 +15731,8 @@
    "mangled": "Wce",
    "line": 87390,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "gI"
@@ -12912,6 +15751,8 @@
    "mangled": "ia",
    "line": 36320,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "uet"
@@ -12935,6 +15776,14 @@
    "mangled": "kvt",
    "line": 93073,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "se",
+     "line": 93224,
+     "endLine": 93226
+    }
+   ],
+   "innerAnonymous": 23,
    "refs": [
     "acquireRuntimeWriterLock",
     "buildSessionIndexFromDisk",
@@ -13027,6 +15876,8 @@
    "mangled": "pg",
    "line": 55179,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "selectDominantModelByInputTokens"
    ],
@@ -13051,6 +15902,8 @@
    "mangled": "qut",
    "line": 63378,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "coerceToPlainObject"
    ],
@@ -13074,6 +15927,8 @@
    "mangled": "ybe",
    "line": 62965,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "capitalizeFirstChar",
     "warnUnmappedCodexItemOnce"
@@ -13137,6 +15992,8 @@
    "mangled": "gbe",
    "line": 62854,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "capitalizeFirstChar",
     "warnUnmappedCodexItemOnce"
@@ -13195,6 +16052,8 @@
    "mangled": "IO",
    "line": 66564,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "writeFileAtomic"
    ],
@@ -13220,6 +16079,8 @@
    "mangled": "Pxe",
    "line": 72099,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hasSkipRewindRecordSince",
     "isClaudeRuntimeOrDefault"
@@ -13239,6 +16100,8 @@
    "mangled": "Glt",
    "line": 65348,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "computeBoundedEditDistance"
    ],
@@ -13268,6 +16131,8 @@
    "mangled": "yve",
    "line": 65668,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildClaudeSettingsEnvOverrides",
     "writeFileAtomic"
@@ -13292,6 +16157,8 @@
    "mangled": "NO",
    "line": 66877,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13311,6 +16178,8 @@
    "mangled": "XRe",
    "line": 83957,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13327,6 +16196,8 @@
    "mangled": "zu",
    "line": 31939,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13349,6 +16220,8 @@
    "mangled": "wve",
    "line": 65723,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13366,6 +16239,8 @@
    "mangled": "oSe",
    "line": 67915,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13382,6 +16257,8 @@
    "mangled": "nu",
    "line": 65794,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "mergeRuntimeEffortLayers",
     "mergeRuntimeModelLayers",
@@ -13416,6 +16293,8 @@
    "mangled": "HR",
    "line": 32661,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureSessionMailboxPendingDir",
     "listPendingInboxFiles",
@@ -13454,6 +16333,8 @@
    "mangled": "qpt",
    "line": 69295,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "logDebugMessage"
    ],
@@ -13480,6 +16361,8 @@
    "mangled": "Qxe",
    "line": 72775,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13499,6 +16382,8 @@
    "mangled": "Eve",
    "line": 65766,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "foldConfigLayersByKey"
    ],
@@ -13518,6 +16403,8 @@
    "mangled": "xve",
    "line": 65756,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "foldConfigLayersByKey"
    ],
@@ -13537,6 +16424,8 @@
    "mangled": "Dke",
    "line": 69390,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logInfoMessage",
     "logWarnMessage"
@@ -13569,6 +16458,8 @@
    "mangled": "Gd",
    "line": 32340,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists"
    ],
@@ -13589,6 +16480,8 @@
    "mangled": "Ob",
    "line": 32483,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "resolveArchivedSessionDir",
@@ -13613,6 +16506,8 @@
    "mangled": "uf",
    "line": 35727,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "assertSessionNotArchiving",
     "isSessionArchived",
@@ -13646,6 +16541,8 @@
    "mangled": "kG",
    "line": 82899,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13665,6 +16562,8 @@
    "mangled": "obt",
    "line": 82626,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13681,6 +16580,8 @@
    "mangled": "Kbt",
    "line": 90648,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13699,6 +16600,8 @@
    "mangled": "ORe",
    "line": 82556,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13717,6 +16620,8 @@
    "mangled": "pxe",
    "line": 70389,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13738,6 +16643,8 @@
    "mangled": "fO",
    "line": 65019,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Flt"
@@ -13760,6 +16667,8 @@
    "mangled": "vw",
    "line": 55297,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13778,6 +16687,8 @@
    "mangled": "tIe",
    "line": 86048,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13796,6 +16707,8 @@
    "mangled": "Wb",
    "line": 35135,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13817,6 +16730,8 @@
    "mangled": "CG",
    "line": 90618,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13838,6 +16753,8 @@
    "mangled": "Nwe",
    "line": 66885,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13856,6 +16773,8 @@
    "mangled": "Pg",
    "line": 62103,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13877,6 +16796,8 @@
    "mangled": "th",
    "line": 35572,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "_ce"
@@ -13899,6 +16820,8 @@
    "mangled": "G6",
    "line": 65830,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -13918,6 +16841,8 @@
    "mangled": "Vke",
    "line": 69610,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Bke",
@@ -13945,6 +16870,8 @@
    "mangled": "nbt",
    "line": 82569,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "collectBoardIncludePaths",
     "stripBoardHtmlComments",
@@ -13969,6 +16896,8 @@
    "mangled": "cI",
    "line": 35514,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "normalizePromptMode",
     "parseChannelRuntimeField",
@@ -13996,6 +16925,8 @@
    "mangled": "WQe",
    "line": 35468,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "validateKnownRuntimeValue"
    ],
@@ -14016,6 +16947,8 @@
    "mangled": "Jb",
    "line": 35336,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "pce",
@@ -14041,6 +16974,8 @@
    "mangled": "GO",
    "line": 69045,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14059,6 +16994,8 @@
    "mangled": "tdt",
    "line": 66918,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "splitLinesDropTrailingEmpty"
    ],
@@ -14083,6 +17020,8 @@
    "mangled": "edt",
    "line": 66908,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "splitLinesDropTrailingEmpty"
    ],
@@ -14108,6 +17047,8 @@
    "mangled": "Fm",
    "line": 32012,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14131,6 +17072,8 @@
    "mangled": "$xe",
    "line": 72158,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14147,6 +17090,8 @@
    "mangled": "tv",
    "line": 87480,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "canonicalizeGatewayCommand"
    ],
@@ -14171,6 +17116,8 @@
    "mangled": "xI",
    "line": 87455,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "lookupInjectionPrompt"
    ],
@@ -14195,6 +17142,8 @@
    "mangled": "Z$",
    "line": 55130,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14218,6 +17167,8 @@
    "mangled": "tbe",
    "line": 61555,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isEffortLevel",
     "logWarnMessage",
@@ -14249,6 +17200,8 @@
    "mangled": "Lw",
    "line": 61344,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "assertScheduleDurationRepresentable",
     "parseScheduleDurationMs"
@@ -14279,6 +17232,8 @@
    "mangled": "Wct",
    "line": 66486,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isEffortLevel",
     "logDebugMessage",
@@ -14314,6 +17269,8 @@
    "mangled": "mEe",
    "line": 73651,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14332,6 +17289,8 @@
    "mangled": "Jct",
    "line": 66545,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14353,6 +17312,8 @@
    "mangled": "hV",
    "line": 55512,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Sot"
@@ -14371,6 +17332,8 @@
    "mangled": "jw",
    "line": 61308,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "out"
@@ -14393,6 +17356,8 @@
    "mangled": "HU",
    "line": 35454,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "parseClaudeFrontmatterBlock"
    ],
@@ -14418,6 +17383,8 @@
    "mangled": "G$",
    "line": 55115,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14441,6 +17408,8 @@
    "mangled": "ndt",
    "line": 66937,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "splitLinesDropTrailingEmpty"
    ],
@@ -14461,6 +17430,8 @@
    "mangled": "mS",
    "line": 66447,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "partitionInboxDirFromVar"
    ],
@@ -14480,6 +17451,8 @@
    "mangled": "Mc",
    "line": 66451,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14504,6 +17477,8 @@
    "mangled": "et",
    "line": 35690,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "assertSessionNotArchiving",
     "isSessionArchived",
@@ -14547,6 +17522,8 @@
    "mangled": "Ds",
    "line": 69219,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14569,6 +17546,8 @@
    "mangled": "Va",
    "line": 36076,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureOutboxRecordInReplay"
    ],
@@ -14594,6 +17573,8 @@
    "mangled": "zO",
    "line": 67581,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "enforceContractGate",
     "getCachedPartitionContract",
@@ -14620,6 +17601,8 @@
    "mangled": "fA",
    "line": 70230,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isClaudeRuntimeOrDefault",
     "loadGlobalRuntimeConfig",
@@ -14654,6 +17637,8 @@
    "mangled": "NW",
    "line": 70575,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "applyJobSdkConfigOverride",
     "buildSystemPromptForChannelConfig",
@@ -14689,6 +17674,14 @@
    "mangled": "GRe",
    "line": 83115,
    "kind": "function",
+   "inner": [
+    {
+     "name": "o",
+     "line": 83120,
+     "endLine": 83129
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "lbt"
@@ -14709,6 +17702,8 @@
    "mangled": "hot",
    "line": 55343,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "probeClaudeAvailability"
    ],
@@ -14725,6 +17720,8 @@
    "mangled": "Eut",
    "line": 62156,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "checkCodexAvailability"
    ],
@@ -14743,6 +17740,8 @@
    "mangled": "Nut",
    "line": 63284,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "checkGrokAvailability"
    ],
@@ -14761,6 +17760,8 @@
    "mangled": "Xge",
    "line": 55306,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 4,
    "refs": [],
    "refsUnnamed": [
     "Jge",
@@ -14784,6 +17785,8 @@
    "mangled": "_de",
    "line": 87719,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "formatEventPartitionName"
    ],
@@ -14802,6 +17805,8 @@
    "mangled": "Cb",
    "line": 32429,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "listPendingInboxFiles",
     "resolveSessionDir"
@@ -14831,6 +17836,8 @@
    "mangled": "Lxe",
    "line": 70528,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14848,6 +17855,8 @@
    "mangled": "kae",
    "line": 32282,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "formatEventPartitionName",
     "iterateStreamLines",
@@ -14872,6 +17881,8 @@
    "mangled": "Dwe",
    "line": 66976,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14892,6 +17903,8 @@
    "mangled": "rh",
    "line": 35672,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -14914,6 +17927,8 @@
    "mangled": "dq",
    "line": 37150,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "aggregateSessionDrainSummary",
     "createEmptyUsageSummary",
@@ -14936,6 +17951,8 @@
    "mangled": "vs",
    "line": 35849,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "parseChannelConfigFields"
    ],
@@ -14971,6 +17988,8 @@
    "mangled": "QH",
    "line": 89438,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isClaudeAuthSource"
    ],
@@ -14990,6 +18009,8 @@
    "mangled": "Lbe",
    "line": 64431,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveDeliveryCursorPath"
    ],
@@ -15014,6 +18035,8 @@
    "mangled": "lxe",
    "line": 70205,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15033,6 +18056,8 @@
    "mangled": "ph",
    "line": 37062,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "ide"
@@ -15054,6 +18079,8 @@
    "mangled": "wIe",
    "line": 90501,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logWarnMessage"
    ],
@@ -15075,6 +18102,8 @@
    "mangled": "G8e",
    "line": 32163,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "findEventInPartitionFile"
    ],
@@ -15097,6 +18126,8 @@
    "mangled": "Oo",
    "line": 32155,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "lookupEventIdIndexEntry",
     "readEventAtIndexedOffset",
@@ -15124,6 +18155,8 @@
    "mangled": "rSe",
    "line": 67874,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableUnlessMissing"
    ],
@@ -15149,6 +18182,8 @@
    "mangled": "fq",
    "line": 37167,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "aggregateSessionDrainSummary",
     "createEmptyUsageSummary",
@@ -15172,6 +18207,8 @@
    "mangled": "Vft",
    "line": 69166,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "DAEMON_TOKEN_ENV_KEY",
     "hostDotEnvPath",
@@ -15193,6 +18230,8 @@
    "mangled": "KSe",
    "line": 69189,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hostDotEnvPath",
     "parseDotEnv"
@@ -15212,6 +18251,8 @@
    "mangled": "kSe",
    "line": 68414,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readPartitionRunState"
    ],
@@ -15232,6 +18273,8 @@
    "mangled": "tO",
    "line": 64718,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Hbe",
@@ -15252,6 +18295,8 @@
    "mangled": "Rbt",
    "line": 86108,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "qg"
@@ -15275,6 +18320,8 @@
    "mangled": "EN",
    "line": 82921,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15292,6 +18339,8 @@
    "mangled": "QSe",
    "line": 89453,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "MemoryReadRpcError",
     "describeMemoryReadProblem",
@@ -15325,6 +18374,8 @@
    "mangled": "Tn",
    "line": 66841,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableMemoryPath"
    ],
@@ -15356,6 +18407,8 @@
    "mangled": "NH",
    "line": 68111,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Hdt",
@@ -15380,6 +18433,8 @@
    "mangled": "CN",
    "line": 86127,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15396,6 +18451,8 @@
    "mangled": "zdt",
    "line": 67824,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "listMemoryFragmentDates",
     "recordUnreadableMemoryPath"
@@ -15425,6 +18482,8 @@
    "mangled": "lvt",
    "line": 91257,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "isSessionArchiving",
@@ -15452,6 +18511,8 @@
    "mangled": "uvt",
    "line": 91227,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "isSessionArchiving",
@@ -15479,6 +18540,8 @@
    "mangled": "Ha",
    "line": 36090,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveOutboxRecordPath"
    ],
@@ -15505,6 +18568,8 @@
    "mangled": "Yw",
    "line": 64574,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "backfillOutboxByIdIndexFromReplay",
     "lookupOutboxByIdIndexEntry",
@@ -15542,6 +18607,8 @@
    "mangled": "pH",
    "line": 89326,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15559,6 +18626,8 @@
    "mangled": "vS",
    "line": 67484,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "normalizeSignalKindVersion"
    ],
@@ -15597,6 +18666,8 @@
    "mangled": "Iwe",
    "line": 66626,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 6,
    "refs": [
     "logDebugMessage",
     "partitionInboxDir"
@@ -15623,6 +18694,8 @@
    "mangled": "Xf",
    "line": 66692,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolvePartitionStatePath"
    ],
@@ -15649,6 +18722,8 @@
    "mangled": "vwe",
    "line": 89365,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "iteratePartitionLinesBackward",
     "resolveTailCursorEndOffset"
@@ -15668,6 +18743,8 @@
    "mangled": "MW",
    "line": 72105,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "mergeOutboundAttachmentLists",
     "readSessionRuntimeState"
@@ -15688,6 +18765,8 @@
    "mangled": "OS",
    "line": 73452,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "sEe"
@@ -15715,6 +18794,8 @@
    "mangled": "Fg",
    "line": 66527,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "parsePlaylistCurrentRound"
    ],
@@ -15736,6 +18817,8 @@
    "mangled": "$et",
    "line": 37184,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "ensureDirectoryExists",
     "readDrainRecords"
@@ -15755,6 +18838,8 @@
    "mangled": "Mb",
    "line": 33014,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveRegistryStatusPath"
    ],
@@ -15777,6 +18862,8 @@
    "mangled": "lde",
    "line": 87429,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15797,6 +18884,8 @@
    "mangled": "lS",
    "line": 65780,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15814,6 +18903,8 @@
    "mangled": "uS",
    "line": 65776,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15831,6 +18922,8 @@
    "mangled": "na",
    "line": 35631,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionMetaPath"
    ],
@@ -15861,6 +18954,8 @@
    "mangled": "rt",
    "line": 35664,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionStatePath"
    ],
@@ -15903,6 +18998,8 @@
    "mangled": "Sae",
    "line": 32276,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logWarnMessage"
    ],
@@ -15928,6 +19025,8 @@
    "mangled": "wwe",
    "line": 89404,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readPartitionTail"
    ],
@@ -15948,6 +19047,8 @@
    "mangled": "dwe",
    "line": 66295,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -15967,6 +19068,8 @@
    "mangled": "on",
    "line": 71665,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -15991,6 +19094,8 @@
    "mangled": "ebt",
    "line": 82548,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16007,6 +19112,8 @@
    "mangled": "Rwe",
    "line": 66582,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 6,
    "refs": [
     "loadSubconsciousPartitions",
     "logDebugMessage",
@@ -16037,6 +19144,8 @@
    "mangled": "Xwe",
    "line": 67665,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "enforceContractGate",
     "getCachedPartitionContract",
@@ -16064,6 +19173,8 @@
    "mangled": "Ybt",
    "line": 90658,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "mutateSessionRuntimeState",
     "normalizeChannelCapabilityDeclarations"
@@ -16086,6 +19197,8 @@
    "mangled": "Eke",
    "line": 90429,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "SpineRpcParamsError",
     "atomicAppendEvent",
@@ -16116,6 +19229,8 @@
    "mangled": "df",
    "line": 36155,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "resolveOutboxRecordPath",
@@ -16143,6 +19258,8 @@
    "mangled": "ch",
    "line": 36243,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "resolveOutboxSentIdsPath"
@@ -16165,6 +19282,8 @@
    "mangled": "ubt",
    "line": 83093,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "selectInterruptMarkerText"
    ],
@@ -16183,6 +19302,8 @@
    "mangled": "_s",
    "line": 32935,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "appendTelemetryRecord",
     "isTelemetryEnabled"
@@ -16211,6 +19332,8 @@
    "mangled": "Ro",
    "line": 66829,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16239,6 +19362,8 @@
    "mangled": "VO",
    "line": 67742,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "recordUnreadableMemoryPath"
    ],
@@ -16263,6 +19388,8 @@
    "mangled": "Wf",
    "line": 62079,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "cce"
@@ -16284,6 +19411,8 @@
    "mangled": "Npt",
    "line": 90373,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind",
     "isRecord",
@@ -16315,6 +19444,14 @@
    "mangled": "amt",
    "line": 69781,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 69784,
+     "endLine": 69793
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "pathExistsAsync"
@@ -16338,6 +19475,8 @@
    "mangled": "axe",
    "line": 70185,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readDrainLockFile",
     "resolveSessionDrainLockPath",
@@ -16358,6 +19497,8 @@
    "mangled": "kIe",
    "line": 90915,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readSessionMetaFile",
     "readSessionRuntimeState"
@@ -16380,6 +19521,8 @@
    "mangled": "Tae",
    "line": 32443,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "hashSessionKey"
    ],
@@ -16407,6 +19550,8 @@
    "mangled": "EO",
    "line": 89312,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveRuntimeWriterLockPath"
    ],
@@ -16428,6 +19573,8 @@
    "mangled": "uxe",
    "line": 70190,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDrainLockPath"
    ],
@@ -16446,6 +19593,8 @@
    "mangled": "HSe",
    "line": 69087,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "BSe",
@@ -16466,6 +19615,8 @@
    "mangled": "VSe",
    "line": 69080,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "BSe",
@@ -16487,6 +19638,8 @@
    "mangled": "dft",
    "line": 68299,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderActivationReportHeader",
     "renderBoardTemperatureSection",
@@ -16507,6 +19660,8 @@
    "mangled": "uft",
    "line": 68277,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "MH"
@@ -16546,6 +19701,8 @@
    "mangled": "Hke",
    "line": 69625,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Xpt",
@@ -16572,6 +19729,8 @@
    "mangled": "lft",
    "line": 68282,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16600,6 +19759,8 @@
    "mangled": "bxe",
    "line": 70473,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16619,6 +19780,8 @@
    "mangled": "eht",
    "line": 72273,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16642,6 +19805,8 @@
    "mangled": "uwe",
    "line": 66122,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16663,6 +19828,8 @@
    "mangled": "uht",
    "line": 72512,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16699,6 +19866,8 @@
    "mangled": "mdt",
    "line": 67196,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16730,6 +19899,8 @@
    "mangled": "pft",
    "line": 68450,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16751,6 +19922,8 @@
    "mangled": "cft",
    "line": 68292,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "_Se"
@@ -16780,6 +19953,8 @@
    "mangled": "_ot",
    "line": 55396,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16803,6 +19978,8 @@
    "mangled": "$mt",
    "line": 71750,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -16830,6 +20007,8 @@
    "mangled": "olt",
    "line": 64076,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isCodexAvailable"
    ],
@@ -16852,6 +20031,8 @@
    "mangled": "gut",
    "line": 61576,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -16887,6 +20068,8 @@
    "mangled": "eye",
    "line": 55402,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderJobAcceptanceBlock"
    ],
@@ -16932,6 +20115,8 @@
    "mangled": "ilt",
    "line": 64069,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isCodexAvailable"
    ],
@@ -16954,6 +20139,8 @@
    "mangled": "GC",
    "line": 64058,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Qut"
@@ -16973,6 +20160,14 @@
    "mangled": "Fmt",
    "line": 71956,
    "kind": "function",
+   "inner": [
+    {
+     "name": "t",
+     "line": 71957,
+     "endLine": 71960
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "formatElapsedDuration",
     "formatLocalTimestampWithZone"
@@ -17004,6 +20199,8 @@
    "mangled": "_A",
    "line": 71793,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyOrUnknown",
     "escapeXmlText",
@@ -17093,6 +20290,8 @@
    "mangled": "JC",
    "line": 64051,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isCodexAvailable"
    ],
@@ -17117,6 +20316,8 @@
    "mangled": "_dt",
    "line": 67269,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildNodeSignalKey"
    ],
@@ -17153,6 +20354,8 @@
    "mangled": "uve",
    "line": 65470,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Zbe"
@@ -17186,6 +20389,8 @@
    "mangled": "rO",
    "line": 64819,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Xw",
@@ -17223,6 +20428,8 @@
    "mangled": "ave",
    "line": 65408,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "pO"
@@ -17246,6 +20453,8 @@
    "mangled": "hO",
    "line": 65247,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isJobSessionKeyKind"
    ],
@@ -17275,6 +20484,8 @@
    "mangled": "Oft",
    "line": 68742,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Pft",
@@ -17311,6 +20522,8 @@
    "mangled": "Dm",
    "line": 31617,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "C8e",
@@ -17338,6 +20551,8 @@
    "mangled": "Tbt",
    "line": 86160,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17358,6 +20573,8 @@
    "mangled": "Ibt",
    "line": 86153,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17393,6 +20610,8 @@
    "mangled": "tye",
    "line": 55409,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderJobMissionBlock",
     "resolveMetaPromptText"
@@ -17421,6 +20640,8 @@
    "mangled": "lwe",
    "line": 66127,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17442,6 +20663,8 @@
    "mangled": "mht",
    "line": 72668,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17472,6 +20695,8 @@
    "mangled": "pht",
    "line": 72660,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17502,6 +20727,8 @@
    "mangled": "qdt",
    "line": 67934,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "RH",
@@ -17530,6 +20757,8 @@
    "mangled": "WR",
    "line": 32808,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionMailboxMarkdownPath",
     "resolveSessionMailboxNotesPath",
@@ -17558,6 +20787,8 @@
    "mangled": "Amt",
    "line": 71876,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "formatLocalTimestampWithZone"
    ],
@@ -17589,6 +20820,8 @@
    "mangled": "Mmt",
    "line": 71913,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17622,6 +20855,8 @@
    "mangled": "jmt",
    "line": 71942,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "escapeXmlText",
     "formatElapsedDuration",
@@ -17650,6 +20885,8 @@
    "mangled": "X_t",
    "line": 82507,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Y_t"
@@ -17670,6 +20907,8 @@
    "mangled": "svt",
    "line": 91177,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -17692,6 +20931,8 @@
    "mangled": "Ube",
    "line": 64632,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readOutboxRecordsPastCursor"
    ],
@@ -17714,6 +20955,8 @@
    "mangled": "Net",
    "line": 87734,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "createOutboxRecord",
@@ -17747,6 +20990,8 @@
    "mangled": "gk",
    "line": 83149,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "interruptActorQuery"
    ],
@@ -17775,6 +21020,8 @@
    "mangled": "Sxe",
    "line": 70522,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "wxe"
@@ -17795,6 +21042,8 @@
    "mangled": "Um",
    "line": 32372,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hashSessionKey",
     "resolveSessionsArchiveRoot"
@@ -17818,6 +21067,8 @@
    "mangled": "abt",
    "line": 82636,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17836,6 +21087,8 @@
    "mangled": "jRe",
    "line": 82514,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "normalizeIncludePathKey",
     "parseBoardFileContent",
@@ -17860,6 +21113,8 @@
    "mangled": "FSe",
    "line": 68843,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "zg"
@@ -17880,6 +21135,8 @@
    "mangled": "iu",
    "line": 66018,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "logWarnMessage",
     "readChannelDescriptor",
@@ -17908,6 +21165,8 @@
    "mangled": "Jg",
    "line": 70133,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "classifyModelContextRequirement",
     "selectProfileIssuesForModel"
@@ -17933,6 +21192,8 @@
    "mangled": "Y$",
    "line": 55202,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17950,6 +21211,8 @@
    "mangled": "$g",
    "line": 62165,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17973,6 +21236,8 @@
    "mangled": "Tut",
    "line": 62755,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -17996,6 +21261,8 @@
    "mangled": "xYe",
    "line": 32955,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18014,6 +21281,8 @@
    "mangled": "np",
    "line": 69897,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "fmt"
@@ -18038,6 +21307,8 @@
    "mangled": "ho",
    "line": 31828,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "validateRunnableRuntimeValue"
    ],
@@ -18070,6 +21341,8 @@
    "mangled": "jbe",
    "line": 64419,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -18095,6 +21368,8 @@
    "mangled": "Ixe",
    "line": 70643,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "handleDrainError",
     "prepareClaudeContextProfile"
@@ -18118,6 +21393,8 @@
    "mangled": "ru",
    "line": 65973,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildEffectiveChannelConfig",
     "loadChannelKindConfig",
@@ -18150,6 +21427,8 @@
    "mangled": "K6",
    "line": 66001,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildEffectiveChannelConfig",
     "loadChannelKindConfig",
@@ -18178,6 +21457,8 @@
    "mangled": "Hn",
    "line": 90519,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "parseEnvBooleanFlag"
    ],
@@ -18206,6 +21487,8 @@
    "mangled": "Rb",
    "line": 32134,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18228,6 +21511,8 @@
    "mangled": "Ymt",
    "line": 72219,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18250,6 +21535,8 @@
    "mangled": "dp",
    "line": 90693,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18271,6 +21558,8 @@
    "mangled": "Cft",
    "line": 68728,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18292,6 +21581,14 @@
    "mangled": "hIe",
    "line": 90710,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "c",
+     "line": 90720,
+     "endLine": 90730
+    }
+   ],
+   "innerAnonymous": 5,
    "refs": [
     "classifySessionPlaneByKey",
     "ensureAbsoluteWorkspaceDir",
@@ -18327,6 +21624,8 @@
    "mangled": "xIe",
    "line": 90973,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifySessionKeyKind"
    ],
@@ -18349,6 +21648,8 @@
    "mangled": "Klt",
    "line": 65428,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "normalizeNotifyChannelTarget"
    ],
@@ -18376,6 +21677,8 @@
    "mangled": "Ua",
    "line": 35477,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18399,6 +21702,8 @@
    "mangled": "WH",
    "line": 68834,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isTruthyEnvFlag"
    ],
@@ -18424,6 +21729,8 @@
    "mangled": "Ni",
    "line": 66751,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18453,6 +21760,8 @@
    "mangled": "ep",
    "line": 66790,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "compareStringsAscending",
     "scanWikiLinkOccurrences"
@@ -18474,6 +21783,8 @@
    "mangled": "xw",
    "line": 55385,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "normalizeOptionalEnvString"
    ],
@@ -18501,6 +21812,8 @@
    "mangled": "Ylt",
    "line": 65437,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 5,
    "refs": [
     "groupNotifyTargetCandidates",
     "readAllSessionStateFiles",
@@ -18535,6 +21848,8 @@
    "mangled": "U6",
    "line": 64756,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "eO",
@@ -18555,6 +21870,8 @@
    "mangled": "nq",
    "line": 36179,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18578,6 +21895,8 @@
    "mangled": "rq",
    "line": 36268,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -18600,6 +21919,8 @@
    "mangled": "ic",
    "line": 36581,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18626,6 +21947,8 @@
    "mangled": "Xb",
    "line": 36040,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18648,6 +21971,8 @@
    "mangled": "mI",
    "line": 36249,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18669,6 +21994,8 @@
    "mangled": "ws",
    "line": 36257,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveOutboxReplayDir"
    ],
@@ -18699,6 +22026,8 @@
    "mangled": "Cce",
    "line": 36183,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18719,6 +22048,8 @@
    "mangled": "Pwe",
    "line": 66689,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18738,6 +22069,8 @@
    "mangled": "Dmt",
    "line": 71890,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18754,6 +22087,14 @@
    "mangled": "cht",
    "line": 72612,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "r",
+     "line": 72613,
+     "endLine": 72624
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [
     "logInfoMessage",
     "mutateSessionRuntimeState"
@@ -18779,6 +22120,8 @@
    "mangled": "CS",
    "line": 73448,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18802,6 +22145,8 @@
    "mangled": "$S",
    "line": 73033,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18829,6 +22174,8 @@
    "mangled": "DG",
    "line": 90630,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18852,6 +22199,8 @@
    "mangled": "KR",
    "line": 32980,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -18872,6 +22221,8 @@
    "mangled": "wvt",
    "line": 92009,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isLoopbackBindHost"
    ],
@@ -18896,6 +22247,8 @@
    "mangled": "Xxe",
    "line": 72443,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "isNonNullObject"
    ],
@@ -18917,6 +22270,8 @@
    "mangled": "Aet",
    "line": 87509,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "classifyGatewayCommandIntent"
    ],
@@ -18942,6 +22297,8 @@
    "mangled": "kwe",
    "line": 66362,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Swe"
@@ -19000,6 +22357,8 @@
    "mangled": "cH",
    "line": 89212,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -19021,6 +22380,8 @@
    "mangled": "ivt",
    "line": 90936,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hasNonEmptyDisplayName"
    ],
@@ -19041,6 +22402,8 @@
    "mangled": "fp",
    "line": 90948,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "hasNonEmptyDisplayName"
    ],
@@ -19069,6 +22432,8 @@
    "mangled": "fh",
    "line": 36944,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "loadChannelKindConfig",
     "readChannelDescriptor",
@@ -19092,6 +22457,8 @@
    "mangled": "Yn",
    "line": 32364,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hashSessionKey"
    ],
@@ -19126,6 +22493,8 @@
    "mangled": "xW",
    "line": 70202,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -19146,6 +22515,8 @@
    "mangled": "Tb",
    "line": 32380,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19168,6 +22539,8 @@
    "mangled": "Iae",
    "line": 32388,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19188,6 +22561,8 @@
    "mangled": "zR",
    "line": 32384,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19210,6 +22585,8 @@
    "mangled": "Pb",
    "line": 32396,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19235,6 +22612,8 @@
    "mangled": "Zd",
    "line": 32392,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19261,6 +22640,8 @@
    "mangled": "La",
    "line": 32400,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19287,6 +22668,8 @@
    "mangled": "ys",
    "line": 32404,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionDir"
    ],
@@ -19315,6 +22698,8 @@
    "mangled": "nYe",
    "line": 32368,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -19333,6 +22718,8 @@
    "mangled": "Bct",
    "line": 89350,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "lookupEventIdIndexEntry",
     "readPartitionByteRange"
@@ -19354,6 +22741,8 @@
    "mangled": "xxe",
    "line": 70551,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readRuntimeEffortSetting"
    ],
@@ -19374,6 +22763,8 @@
    "mangled": "kxe",
    "line": 70538,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readRuntimeModelSetting"
    ],
@@ -19394,6 +22785,8 @@
    "mangled": "Fke",
    "line": 69442,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "formatYamlErrorMessage",
     "logWarnMessage",
@@ -19422,6 +22815,14 @@
    "mangled": "Zpt",
    "line": 69455,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "i",
+     "line": 69459,
+     "endLine": 69463
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "logInfoMessage",
@@ -19478,6 +22879,8 @@
    "mangled": "Vpt",
    "line": 69356,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveSessionMetaPath",
     "resolveSessionStatePath",
@@ -19502,6 +22905,8 @@
    "mangled": "qH",
    "line": 68797,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -19526,6 +22931,8 @@
    "mangled": "bSe",
    "line": 68305,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "compareStringsAscending",
     "createMemorySlugReader",
@@ -19567,6 +22974,8 @@
    "mangled": "ddt",
    "line": 67104,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [
     "Vn",
@@ -19600,6 +23009,8 @@
    "mangled": "hSe",
    "line": 68121,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "readMemoryFileSyncOrNull",
     "readMemoryMaxLinesLimit",
@@ -19633,6 +23044,8 @@
    "mangled": "TSe",
    "line": 68572,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "findBoardHeadingLines",
     "readMemoryFileSyncOrNull",
@@ -19659,6 +23072,8 @@
    "mangled": "RSe",
    "line": 68519,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "extractBoardSlugLinks",
     "readMemoryFileSyncOrNull",
@@ -19686,6 +23101,8 @@
    "mangled": "Cbt",
    "line": 86816,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "advanceConsumerWatermark",
     "atomicAppendEvent",
@@ -19719,6 +23136,8 @@
    "mangled": "Dxe",
    "line": 72694,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "clearPendingOutboundAttachments",
     "mergeOutboundAttachmentLists",
@@ -19742,6 +23161,44 @@
    "mangled": "vht",
    "line": 72785,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "g",
+     "line": 72814,
+     "endLine": 72817
+    },
+    {
+     "name": "onStream",
+     "line": 72819,
+     "endLine": 72825
+    },
+    {
+     "name": "onExecutionEvent",
+     "line": 72825,
+     "endLine": 72827
+    },
+    {
+     "name": "v",
+     "line": 72828,
+     "endLine": 72844
+    },
+    {
+     "name": "P",
+     "line": 72851,
+     "endLine": 72851
+    },
+    {
+     "name": "S",
+     "line": 72853,
+     "endLine": 72868
+    },
+    {
+     "name": "onStream",
+     "line": 72894,
+     "endLine": 72900
+    }
+   ],
+   "innerAnonymous": 4,
    "refs": [
     "clearSessionRuntimeStateField",
     "describeContextProfileSource",
@@ -19787,6 +23244,8 @@
    "mangled": "Uwe",
    "line": 67204,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "bytesToKibCeil",
     "countDatedStampLines",
@@ -19825,6 +23284,8 @@
    "mangled": "xSe",
    "line": 68456,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "findNewestFragmentMtimeMs",
     "renderFoldGapBody"
@@ -19849,6 +23310,8 @@
    "mangled": "Vdt",
    "line": 67967,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildGapReadFaultResult",
     "mergeContiguousHourRanges",
@@ -19881,6 +23344,8 @@
    "mangled": "aht",
    "line": 72421,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -19910,6 +23375,8 @@
    "mangled": "xN",
    "line": 82704,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "SESSION_SCHEMA_VERSION",
     "classifySessionKeyOrUnknown",
@@ -19943,6 +23410,8 @@
    "mangled": "pW",
    "line": 69240,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildKernelGitEnv",
     "buildSafeDirectoryGitArgs"
@@ -19966,6 +23435,8 @@
    "mangled": "Ag",
    "line": 64121,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "checkCodexAvailability",
     "checkGrokAvailability",
@@ -20058,6 +23529,8 @@
    "mangled": "HH",
    "line": 68980,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logErrorMessage"
    ],
@@ -20079,6 +23552,14 @@
    "mangled": "jft",
    "line": 68864,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "d",
+     "line": 68889,
+     "endLine": 68894
+    }
+   ],
+   "innerAnonymous": 16,
    "refs": [
     "buildOrphanIslandsSignal",
     "buildOrphanNewbornSignals",
@@ -20146,6 +23627,8 @@
    "mangled": "Bwe",
    "line": 67281,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "buildNodeSignalKey",
     "countNewlineChars",
@@ -20183,6 +23666,8 @@
    "mangled": "Lg",
    "line": 65484,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "deliverRouteEventToSession",
     "evaluateNotifyConsumerRefusal",
@@ -20232,6 +23717,8 @@
    "mangled": "Yg",
    "line": 73577,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "logErrorMessage",
     "mutateSessionRuntimeState",
@@ -20284,6 +23771,8 @@
    "mangled": "fa",
    "line": 68988,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logErrorMessage",
     "runMemoryCheckSubStep"
@@ -20311,6 +23800,8 @@
    "mangled": "Mg",
    "line": 64973,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logErrorMessage"
    ],
@@ -20351,6 +23842,8 @@
    "mangled": "B$",
    "line": 54982,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logErrorMessage",
     "logInfoMessage",
@@ -20380,6 +23873,14 @@
    "mangled": "xke",
    "line": 90393,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "redact",
+     "line": 90407,
+     "endLine": 90407
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [
     "SpineRpcParamsError",
     "describeSpineCatProblem",
@@ -20411,6 +23912,8 @@
    "mangled": "Io",
    "line": 70493,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "addToNumericField"
    ],
@@ -20431,6 +23934,8 @@
    "mangled": "Dg",
    "line": 64941,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logErrorMessage"
    ],
@@ -20458,6 +23963,8 @@
    "mangled": "Vi",
    "line": 32513,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "UR"
@@ -20485,6 +23992,8 @@
    "mangled": "aft",
    "line": 68200,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "listEventPartitionDates",
     "recordUnreadableMemoryPath"
@@ -20521,6 +24030,8 @@
    "mangled": "PG",
    "line": 86847,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "atomicAppendEvent",
     "buildJobSessionKey",
@@ -20563,6 +24074,8 @@
    "mangled": "Z8e",
    "line": 32181,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "findEventInPartitionFile",
     "formatEventPartitionName"
@@ -20584,6 +24097,8 @@
    "mangled": "Qf",
    "line": 66765,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20604,6 +24119,8 @@
    "mangled": "ovt",
    "line": 90977,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isVoidRuntimeSession",
     "parseJobRearmTime",
@@ -20642,6 +24159,8 @@
    "mangled": "cot",
    "line": 55154,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20661,6 +24180,8 @@
    "mangled": "Tg",
    "line": 62099,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "_ut",
@@ -20684,6 +24205,8 @@
    "mangled": "Wg",
    "line": 70017,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "mmt"
@@ -20704,6 +24227,8 @@
    "mangled": "owe",
    "line": 66081,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20720,6 +24245,8 @@
    "mangled": "rvt",
    "line": 90919,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hasNonEmptyDisplayName",
     "refreshSessionIndexEntry",
@@ -20742,6 +24269,8 @@
    "mangled": "Apt",
    "line": 90355,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isRecord"
    ],
@@ -20764,6 +24293,8 @@
    "mangled": "$N",
    "line": 83192,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "logWarnMessage"
    ],
@@ -20784,6 +24315,8 @@
    "mangled": "ZRe",
    "line": 83158,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20800,6 +24333,49 @@
    "mangled": "JR",
    "line": 87200,
    "kind": "class-expr",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 87204,
+     "endLine": 87206
+    },
+    {
+     "name": "ensureLoaded",
+     "line": 87207,
+     "endLine": 87209
+    },
+    {
+     "name": "load",
+     "line": 87210,
+     "endLine": 87234
+    },
+    {
+     "name": "has",
+     "line": 87235,
+     "endLine": 87237
+    },
+    {
+     "name": "get",
+     "line": 87238,
+     "endLine": 87240
+    },
+    {
+     "name": "record",
+     "line": 87241,
+     "endLine": 87246
+    },
+    {
+     "name": "checkAndRecord",
+     "line": 87247,
+     "endLine": 87249
+    },
+    {
+     "name": "checkAndRecordDetailed",
+     "line": 87250,
+     "endLine": 87257
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [
     "ensureDirectoryExists",
     "iterateStreamLines",
@@ -20828,6 +24404,8 @@
    "mangled": "Kge",
    "line": 55266,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20846,6 +24424,8 @@
    "mangled": "Jo",
    "line": 66814,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20871,6 +24451,8 @@
    "mangled": "eC",
    "line": 55502,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20890,6 +24472,8 @@
    "mangled": "iRe",
    "line": 80488,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20911,6 +24495,8 @@
    "mangled": "Bi",
    "line": 31932,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20942,6 +24528,8 @@
    "mangled": "wbt",
    "line": 86053,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20961,6 +24549,8 @@
    "mangled": "K$",
    "line": 55143,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -20984,6 +24574,8 @@
    "mangled": "rbt",
    "line": 82580,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "DRe"
@@ -21006,6 +24598,8 @@
    "mangled": "tbt",
    "line": 82561,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "NRe",
@@ -21025,6 +24619,8 @@
    "mangled": "Ske",
    "line": 90359,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -21041,6 +24637,8 @@
    "mangled": "af",
    "line": 35592,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -21062,6 +24660,8 @@
    "mangled": "ev",
    "line": 37140,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "accumulateDrainRecordIntoSummary",
     "createEmptyUsageSummary"
@@ -21082,6 +24682,8 @@
    "mangled": "$bt",
    "line": 86756,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "isSessionArchived",
     "listAllOutboxRecords",
@@ -21114,6 +24716,8 @@
    "mangled": "cp",
    "line": 83163,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logAlwaysAtLevel",
     "recordPendingInterruptMarker"
@@ -21139,6 +24743,8 @@
    "mangled": "lae",
    "line": 31609,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isNonEmptyText"
    ],
@@ -21161,6 +24767,8 @@
    "mangled": "MRe",
    "line": 82499,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderTranscludedFiles",
     "resolveBoardIncludes"
@@ -21180,6 +24788,8 @@
    "mangled": "RG",
    "line": 83140,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "interruptActorQuery"
    ],
@@ -21198,6 +24808,8 @@
    "mangled": "qR",
    "line": 32526,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "Ab"
@@ -21217,6 +24829,8 @@
    "mangled": "tU",
    "line": 31604,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -21237,6 +24851,8 @@
    "mangled": "Dbe",
    "line": 64398,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "ensureDirectoryExists",
     "isSessionArchived",
@@ -21265,6 +24881,8 @@
    "mangled": "Vu",
    "line": 33022,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "buildInitialRegistryStatus",
     "readRegistryStatusFile",
@@ -21287,6 +24905,8 @@
    "mangled": "wce",
    "line": 35640,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "assertSessionNotArchiving",
     "notifySessionFileChanged",
@@ -21317,6 +24937,8 @@
    "mangled": "yvt",
    "line": 91873,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "checkChannelRuntimeRebindConflict",
     "classifySessionKeyKind",
@@ -21372,6 +24994,8 @@
    "mangled": "_ct",
    "line": 88340,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "CHANNEL_CONFIG_KEY_TYPES",
     "isEffortLevel",
@@ -21416,6 +25040,8 @@
    "mangled": "J_e",
    "line": 61327,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "assertScheduleDurationRepresentable",
     "parseScheduleDurationMs"
@@ -21444,6 +25070,8 @@
    "mangled": "uU",
    "line": 31801,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isKnownRuntimeValue"
    ],
@@ -21469,6 +25097,8 @@
    "mangled": "Wd",
    "line": 31814,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "isSupportedRuntime",
     "validateKnownRuntimeValue"
@@ -21496,6 +25126,8 @@
    "mangled": "Qge",
    "line": 55355,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "normalizeOptionalEnvString"
    ],
@@ -21537,6 +25169,19 @@
    "mangled": "IG",
    "line": 83178,
    "kind": "function",
+   "inner": [
+    {
+     "name": "i",
+     "line": 83181,
+     "endLine": 83183
+    },
+    {
+     "name": "wakeResolver",
+     "line": 83184,
+     "endLine": 83186
+    }
+   ],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -21553,6 +25198,8 @@
    "mangled": "Fc",
    "line": 67153,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "compareStringsAscending",
     "isSafeMemorySlug",
@@ -21576,6 +25223,8 @@
    "mangled": "hbe",
    "line": 62846,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "logAlwaysAtLevel"
    ],
@@ -21602,6 +25251,8 @@
    "mangled": "EYe",
    "line": 32958,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveConsumerOffsetPath",
     "writeJsonFileAtomic"
@@ -21621,6 +25272,8 @@
    "mangled": "Dt",
    "line": 31956,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -21659,6 +25312,8 @@
    "mangled": "GSe",
    "line": 69142,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
     "hostDotEnvPath",
@@ -21680,6 +25335,8 @@
    "mangled": "Hft",
    "line": 69178,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "DAEMON_TOKEN_ENV_KEY",
     "hostDotEnvPath",
@@ -21701,6 +25358,8 @@
    "mangled": "ZO",
    "line": 69099,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "hostDotEnvPath"
    ],
@@ -21726,6 +25385,8 @@
    "mangled": "JSe",
    "line": 69130,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hostDotEnvPath",
     "removeHostModelEnvLines",
@@ -21748,6 +25409,8 @@
    "mangled": "zet",
    "line": 88165,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "hashSessionKey",
     "recordTelemetryMetric",
@@ -21772,6 +25435,8 @@
    "mangled": "nwe",
    "line": 88835,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Kve",
@@ -21793,6 +25458,8 @@
    "mangled": "Bt",
    "line": 31972,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "writeFileAtomic"
    ],
@@ -21829,6 +25496,8 @@
    "mangled": "gH",
    "line": 66715,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "ensureDirectoryExists",
     "resolvePartitionStatePath",
@@ -21849,6 +25518,8 @@
    "mangled": "SU",
    "line": 33011,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveRegistryStatusPath",
     "writeJsonFileAtomic"
@@ -21869,6 +25540,8 @@
    "mangled": "wI",
    "line": 36981,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "createOutboxRecord",
     "persistOutboxRecord"

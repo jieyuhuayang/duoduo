@@ -12,6 +12,7 @@
 //   node symbol_card.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] [--body] <query>...
 //
 //   <realName> | <shortName>   the card: kind, line, subsystem, name origin,
+//                              (--inner: the named closures inside it, with lines)
 //                              env vars, log prefixes, dotted names, paths,
 //                              refs (first-party and unnamed), refBy, docs
 //   env:<VAR>                  the symbols that read process.env.VAR
@@ -39,6 +40,7 @@ const MAPS = opt("--maps", path.join(ROOT, "maps"));
 const BUILD = opt("--build", null);
 const DOCS = opt("--docs", path.resolve(ROOT, "..", "docs"));
 const BODY = flag("--body");
+const INNER = flag("--inner");
 if (!argv.length) { console.error(fs.readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").filter(l => l.startsWith("//")).join("\n")); process.exit(2); }
 
 const readJson = p => JSON.parse(fs.readFileSync(p, "utf8"));
@@ -88,6 +90,10 @@ function card(real) {
   list("refs (unnamed)", s.refsUnnamed, m => `${m}@${xref.unnamed[m]?.line ?? "?"}(used by ${xref.unnamed[m]?.usedBy.length ?? 0})`);
   list("refBy (first-party)", s.refBy);
   list("refBy (unnamed)", s.refByUnnamed);
+  if (s.inner) {
+    console.log(`  inner functions: ${s.inner.length} named, ${s.innerAnonymous} anonymous${INNER || !s.inner.length ? "" : " (--inner lists them)"}`);
+    if (INNER) for (const f of s.inner) console.log(`    ${real}>${f.name}  lines ${f.line}-${f.endLine}`);
+  }
   const c = cites.get(real);
   if (c) { console.log(`  docs (${c.reduce((n, x) => n + x.count, 0)} mentions):`); for (const x of c) console.log(`    ${x.doc}:${x.line}  ${x.section}  ×${x.count}`); }
   else console.log("  docs: none");
