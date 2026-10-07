@@ -223,7 +223,10 @@ non-bundle files and upstream's repository between the release tags; `impact_rep
 lists every doc citation of a changed declaration in three tiers (1 re-read: a name-bound
 snippet on a changed line or gone from the new code; 2 check: a whole-declaration citation
 whose paragraph shares a distinctive token with the change, or of a short declaration; 3
-skim), what no doc covers yet, and packs the affected `## ` sections into work groups. It
+skim, which includes a snippet whose quoted code is in both versions with only its short
+identifiers spelled differently: counted as `respelled`, left for `retarget_snippets.mjs`;
+at v0.8.4 that moved 106 of 215 tier-1/2 citations, every one of which `retarget_snippets`
+fixes or already held), what no doc covers yet, and packs the affected `## ` sections into work groups. It
 drops nothing; the tier orders the reading. It cannot see a claim about an unchanged
 function whose callee changed, so cite the callee too.
 
