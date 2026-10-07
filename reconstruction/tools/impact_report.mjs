@@ -25,8 +25,9 @@
 //
 // Also reported: what no doc covers yet (declarations with no old
 // counterpart; strings and properties the release added that no doc
-// mentions), inferred names that lost their anchor, with the declaration the
-// positional pairing suggests; the plain-text delta (plaintext_delta.mjs) with
+// mentions), inferred names that lost their anchor, with the candidates
+// anchor_candidates.mjs ranks for each (and the declaration the positional
+// pairing suggests); the plain-text delta (plaintext_delta.mjs) with
 // the doc lines that mention each file; and the affected doc sections (`## `
 // headings) packed into at most --groups work packages, each section in exactly
 // one -- the unit the upgrade workflow hands to one agent.
@@ -42,6 +43,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { namePair, nameBound, codeSpans, fencedRanges, snippetTokens, identRe, looksMangled } from "./anchor_forms.mjs";
+import { rankAnchors, describeRanking } from "./anchor_candidates.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
@@ -258,6 +260,24 @@ for (const bundle of ["daemon", "cli"]) {
     reanchor.push({ bundle, real, oldShort: short, suggestion: P.pairs?.[short] ? [P.pairs[short]] : block ? block.newNames : [],
       basis: P.pairs?.[short] ? "positional pair" : block ? "the reshaped block it sat in" : "none" });
   }
+  // rank every candidate on callers, callees and strings (anchor_candidates.mjs)
+  const mine = reanchor.filter((r) => r.bundle === bundle);
+  const fp = readJSON(path.join(BUMP, `fp_${bundle}.json`), null);
+  const oldP = path.join(OLDD, `${bundle}.pretty.js`), newP = path.join(NEWD, `${bundle}.pretty.js`);
+  if (mine.length && fp && fs.existsSync(oldP) && fs.existsSync(newP)) {
+    const ranked = rankAnchors(oldP, newP, fp, mine.map((r) => {
+      const m = fp.matched?.[r.oldShort];
+      return { short: r.oldShort, candidates: [...(m && Array.isArray(m.new) ? m.new : []), ...r.suggestion] };
+    }), { pairs: P.pairs || {} });
+    mine.forEach((r, i) => {
+      const k = ranked[i];
+      r.ranking = k.ranked.map(({ name, score }) => ({ name, score }));
+      r.rankingText = describeRanking(k);
+      // a pick is clear when it scores and leads the runner-up by at least 1
+      // (one full overlap of the callers or the strings)
+      r.clear = !!k.ranked[0] && k.ranked[0].score > 0 && (!k.ranked[1] || k.ranked[0].score - k.ranked[1].score >= 1);
+    });
+  }
 }
 
 // --- plain text ---------------------------------------------------------------
@@ -346,8 +366,14 @@ if (MD) {
     L.push("");
   }
   if (reanchor.length) {
-    L.push("## Inferred names to re-anchor", "", "Confirm each suggestion against the old body with locate_by_anchor.mjs before writing it into maps/.", "");
-    for (const r of reanchor) L.push(`- ${r.real} (${r.bundle}, was \`${r.oldShort}\`): ${r.suggestion.length ? r.suggestion.map((x) => "`" + x + "`").join(" or ") + ` (${r.basis})` : "no suggestion"}`);
+    L.push("## Inferred names to re-anchor", "",
+      "Confirm each pick against the old body with locate_by_anchor.mjs before writing it into maps/. " +
+      "Ranked by anchor_candidates.mjs (callers and callees mapped across the bump, strings); " +
+      "a name marked CLOSE has no candidate leading by 1 or more: read the bodies.", "");
+    const byDoubt = [...reanchor].sort((a, b) => (a.clear === b.clear ? 0 : a.clear ? 1 : -1));
+    for (const r of byDoubt) L.push(`- ${r.clear === false ? "CLOSE " : ""}${r.real} (${r.bundle}, was \`${r.oldShort}\`): ` +
+      (r.rankingText ? `${r.rankingText}; ` : "") +
+      `positional: ${r.suggestion.length ? r.suggestion.map((x) => "`" + x + "`").join(" or ") + ` (${r.basis})` : "none"}`);
     L.push("");
   }
   L.push(`## Work groups (${report.groups.length})`, "");

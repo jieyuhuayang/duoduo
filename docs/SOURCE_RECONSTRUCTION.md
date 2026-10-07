@@ -118,7 +118,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 
 **判断新旧两个声明是不是同一段代码，依据是 `structural_signature.mjs` 计算的结构签名。** 它只把压缩器每次都会重新选择的名字换成按首次出现顺序编号的位置槽：声明内部绑定的标识符（参数、局部变量、内层函数名）、对其他顶层符号的引用、私有类成员名和标签。压缩器改不了的内容原样保留：字面量的值，非计算的属性名、对象键和类成员名（API 的形状），以及全局名（`setTimeout`、`process` 这类在程序里没有绑定的名字）。位置和格式不计入。两个声明的签名相同，就是同一段代码被重新压缩的结果。`fingerprint_match.mjs` 用签名配对两个版本的顶层声明，`remap_inferred.mjs` 沿唯一的配对迁移推断名；一个旧声明对应多个同签名的新声明时报 AMBIGUOUS，由人挑选；函数体改了、找不到配对的报 RE-ANCHOR。同一个签名也写进符号索引的 `signature` 字段，所以比较两个版本的签名就能回答“这个机制到底改了没有”。
 
-**报出而不猜，是因为标错的名字比缺失的名字危害更大**：缺失的名字会让引用检查失败，标错的名字不会。RE-ANCHOR 的名字用 `locate_by_anchor.mjs` 重新定位：挑一个只出现在该函数体里的字符串字面量，在新版本里找到包含它的顶层声明。工具同时打印命中的是哪一种代码，只有种类相同时才能记录，原因见第 2 节的种类检查。模块初始化器的签名包含它初始化的模块列表，所以多一个 import 就会 RE-ANCHOR，要按它赋值的字符串字面量重新定位；常量只有在字面量不变时才被迁移。
+**报出而不猜，是因为标错的名字比缺失的名字危害更大**：缺失的名字会让引用检查失败，标错的名字不会。`impact.md` 为每个 RE-ANCHOR 名字列出 `anchor_candidates.mjs` 排序的候选：函数体变了，它在调用图里的位置和它的字符串通常没变，所以按调用方、被调用方（都经指纹匹配映射到新版本）和字符串字面量的重合度打分，领先不足 1 分的标为 CLOSE。候选只是建议，名字仍要人工确认后才写入。确认用 `locate_by_anchor.mjs`：挑一个只出现在该函数体里的字符串字面量，在新版本里找到包含它的顶层声明。工具同时打印命中的是哪一种代码，只有种类相同时才能记录，原因见第 2 节的种类检查。模块初始化器的签名包含它初始化的模块列表，所以多一个 import 就会 RE-ANCHOR，要按它赋值的字符串字面量重新定位；常量只有在字面量不变时才被迁移。
 
 `bump.sh` 同时列出本版本改动了哪些声明。它先对新版本运行模块归属检查，生成新版本自己的改名表，并列出需要归入子系统的新名字。`pair_changes.mjs` 按顶层顺序把“改了的旧声明”与“新出现的声明”配对：esbuild 的输出顺序稳定，一个改了的声明在两个版本里夹在同样两个未变的声明之间，数量对不上时整段作为一块输出。`diff_decls.mjs` 为每一对输出三种形式。位置归一化形式判断声明是否只是被重新压缩；它按标识符首次出现的顺序编号，函数里多一个局部变量，后面的编号全部改变，所以不用来阅读。给人读的是行级 diff：对齐时局部变量一律视为 `_`，顶层名字两侧统一写成真名，没有真名的写成新版本里同一声明的短名，只因局部变量改名而不同的行算作未变，打印的是代码原文；v0.8.2→v0.8.3 显示为变化的行因此从 4239 行降到 318 行。第三种是字符串、属性名与数字的增删。导出名集合的增减（`exports_map.mjs` 生成的 `*.exports.json` 的键）直接给出新增或消失了哪些具名函数，不需要推断。
 
@@ -187,7 +187,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | 产物检查与写入 | `build_rename.mjs` 的模块归属检查、`verify_inferred.mjs`、`verify_first_party.mjs`、`pipeline_report.mjs`、`promote.mjs` |
 | 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs` |
 | 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`plaintext_delta.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
-| 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs` |
+| 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs` |
 
 三条做法可以直接用到别的逆向项目上。
 
