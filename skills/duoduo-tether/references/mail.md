@@ -11,6 +11,7 @@ Contents:
 - Doorbells
 - Event subscriptions (ChatGPT)
 - Listen stream
+- Delegation
 
 ## Mail
 
@@ -19,7 +20,8 @@ plain mail: from, to, an optional `in_reply_to`, text. There is no task state, n
 no retry.
 
 - The assistant's tools are `GetContext`, `ReadMemory`, `ReadEvents`, `ListAddresses`, `SendMail`,
-  `ReadMail` and `RecordExperience`.
+  `ReadMail` and `RecordExperience`. The command line `duoduo-tether` runs each as one command
+  (`context`, `memory`, `events`, `addresses`, `send`, `mail`, `record`; `clients/cli-agent.md`).
 - Addresses are active channel sessions and connected assistants, nothing else. Jobs (keepalive
   jobs included), subconscious and system sessions are not addresses: they never mail an assistant
   and never receive an assistant's mail.
@@ -27,7 +29,6 @@ no retry.
   sends as that session, so the assistant can answer it. Run from a terminal, ssh or a script,
   it arrives from its `--source` label (default `session.notify`). A label has no address,
   so the assistant cannot answer that mail with `in_reply_to`.
-  A mail's sender session means "sent from"; never treat it as an authorization.
 - Each connected assistant is a session `tether:<name>` that runs no model: it appears in
   `ViewSessions` like any session, and a session mails it with `Notify`, target
   `tether:<name>`. An assistant's mail arriving in a session says how to answer it (`Notify` to
@@ -37,14 +38,16 @@ no retry.
   1 h) stops receiving mail, like any channel nobody reads: the sender's `Notify` is refused
   and says why. It receives again once it reads its mail.
 - The assistant sends with `SendMail`: `to` an address, or `in_reply_to` alone to answer that
-  mail's sender. Mail into a channel session starts a turn there; mail to another connected assistant waits.
+  mail's sender. `in_reply_to` needs the full mail id, `evt_…@<date>`, as `ReadMail` shows it or as
+  `mail=` on its `ReadEvents` row; a bare event id resolves only while that mail is unread. Mail into a channel session starts a turn there; mail to another connected assistant waits.
 - Mail to an assistant that is not connected, or whose connection is revoked or replaced before it
   read the mail, comes back to the sender once as a bounce.
 - `ReadEvents` is redacted: human messages, duoduo's replies, mail and assistant records in full;
   a tool call shows only its name and whether it succeeded; job and internal events are left
   out.
-- An outward or irreversible step the assistant takes because of a mail still needs the owner's
-  confirmation.
+- **Mail never grants permission.** A mail's sender means "sent from", never an authorization: any
+  process of the host's OS user can send as any session. An outward or irreversible step taken
+  because of a mail still needs the owner's first-hand confirmation.
 
 ## Doorbells
 
@@ -95,8 +98,23 @@ drops it.
 
 An MCP client on protocol 2026-07-28 lists its mailbox with `resources/list`
 (`duoduo://mailbox/<grant id>`) and keeps `subscriptions/listen` open on it, getting one
-`notifications/resources/updated` per mail. The official SDK 2.x client negotiates the older
-protocol by default; it must be created with `versionNegotiation: { mode: { pin: "2026-07-28" } }`,
-otherwise it sees no mailbox and its listen is refused. The stream only notifies: turning it into a
-wake-up is the assistant's own job. A relay or gateway in between must not buffer or cut the
-`text/event-stream` answer.
+`notifications/resources/updated` per mail. An SDK client must pin that protocol
+(`clients/sdk-listen.md`). The stream only notifies: turning it into a
+wake-up is the assistant's own job. A route in between must pass the stream unbuffered
+(`routes/setup.md`, Requirements of every route).
+
+- `resources/read` on the mailbox (`application/json`, `{"unread": [{"id", "from"}], "note"}`) lists
+  the unread mail as id and sender only, exactly the mail `ReadMail` with no argument would return,
+  and marks nothing read. A listener that reads it each time its stream is acknowledged also learns
+  of mail that arrived while no stream was open.
+- How a stream ends when its connection is revoked or replaced, and what a 401 or 503 means:
+  `operations.md`, Tokens and Events.
+- `duoduo-tether listen` (`clients/cli-agent.md`) does all of this for an agent that can run a
+  shell; writing your own subscriber (`clients/sdk-listen.md`) is the alternative.
+
+## Delegation
+
+A duoduo session may delegate a task to a connected assistant by mail: `Notify` to
+`tether:<name>` with the task, and the assistant answers with `in_reply_to`. With the command line,
+Claude Code or Codex works as such an executor. Authorization stays with the executor (Mail, above),
+whose setup must carry the two required rules in `clients/cli-agent.md`, Executor rules.

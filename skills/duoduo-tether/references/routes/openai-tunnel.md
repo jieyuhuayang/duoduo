@@ -1,10 +1,7 @@
 # OpenAI Secure MCP Tunnel (R7, OpenAI clients only)
 
-Reference notes for one way to expose the tether channel. The agent and its owner choose this
-option and own it, its security included; it is not an official procedure, and tether supports
-no route. Read `SKILL.md` first for its general policy, and `setup.md` for the shared requirements of every
-route and the route-neutral sections (grant handover, verification, persistence and
-handoff) apply here.
+Route notes. Read `setup.md` first: what these notes are, the requirements every route meets, and
+the route-neutral sections (grant handover, verification, persistence and handoff) that apply here.
 
 ## R7: OpenAI Secure MCP Tunnel (OpenAI clients only)
 

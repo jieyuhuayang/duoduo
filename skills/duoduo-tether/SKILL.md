@@ -1,11 +1,11 @@
 ---
 name: duoduo-tether
-description: "Connect one of the owner's other AI assistants (ChatGPT or Dots, Grok Bot, Claude, Cursor, a self-built agent) to duoduo through the tether channel, an MCP server on this host behind OAuth and passkey approval. Use when the owner wants to connect an assistant: make this host reachable if needed (gateway, tunnel, Funnel, fixed IP, Worker relay), enroll the passkey, guide the owner's clicks and approval, hand the assistant its wake-up prompt, and prove an unprompted wake. Also for revoking connections, mail and doorbells. Triggers: 接入 Dots / Grok, 让 ChatGPT 连上多多, MCP 连接, tether, passkey, 给多多一个公网地址."
+description: "Connect one of the owner's other AI assistants to duoduo through the tether channel, an MCP server behind passkey approval: ChatGPT or Dots, Grok Bot, Cursor, a self-built agent, or Claude Code and Codex through the duoduo-tether CLI. Use when the owner wants to connect an assistant, make this host reachable for one (gateway, tunnel, Funnel, fixed IP, Worker relay), let an assistant execute tasks duoduo delegates by mail, revoke a connection, or set up mail or a doorbell. Triggers: 接入 Dots / Grok, 让 ChatGPT 连上多多, MCP 连接, tether, passkey, 给多多一个公网地址."
 ---
 
 # Duoduo Tether
 
-The owner says "connect Dots" (or Grok Bot, or a self-built agent). You drive it from start to
+The owner says "connect Dots" (or Grok Bot, Claude Code, or a self-built agent). You drive it from start to
 finish: the assistant ends up connected to `https://<host name>/mcp`, woken by duoduo's mail, and
 proven by a test mail it answered on its own. The owner only grants consents, clicks in the
 client, approves with the passkey and pastes one prompt.
@@ -49,12 +49,13 @@ Each install, `.env` edit and restart needs the owner's approval. Never print a 
 
 ### 0. Which client? Pick its playbook
 
-| The owner's assistant                                 | Playbook                                                             | Wake                                                 |
-| ----------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| ChatGPT, including OpenAI's Dots                      | [references/clients/chatgpt.md](references/clients/chatgpt.md)       | MCP Events automation, set up by the assistant       |
-| Grok Bot                                              | [references/clients/grokbot.md](references/clients/grokbot.md)       | Webhook-triggered routine, registered as a doorbell  |
-| An agent running its own MCP SDK client, such as Muse | [references/clients/sdk-listen.md](references/clients/sdk-listen.md) | `subscriptions/listen` process, its exit is the wake |
-| Claude, Cursor, another or unknown client             | [references/clients/generic.md](references/clients/generic.md)       | Chosen by what the client can do; possibly none      |
+| The owner's assistant                                                                    | Playbook                                                             | Wake                                                  |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------- |
+| ChatGPT, including OpenAI's Dots                                                         | [references/clients/chatgpt.md](references/clients/chatgpt.md)       | MCP Events automation, set up by the assistant        |
+| Grok Bot                                                                                 | [references/clients/grokbot.md](references/clients/grokbot.md)       | Webhook-triggered routine, registered as a doorbell   |
+| Claude Code, Codex, Muse, or any agent that can run a shell                              | [references/clients/cli-agent.md](references/clients/cli-agent.md)   | `duoduo-tether listen`, or a loop the owner assembles |
+| Fallback: an agent that will not run the command and holds its own MCP SDK listen stream | [references/clients/sdk-listen.md](references/clients/sdk-listen.md) | `subscriptions/listen` process, its exit is the wake  |
+| Claude apps, Cursor, another or unknown client                                           | [references/clients/generic.md](references/clients/generic.md)       | Chosen by what the client can do; possibly none       |
 
 Read the playbook whole now. Agree a connection name with the owner (lowercase, for example
 `dots`); it names the assistant's address `tether:<name>` everywhere after.
@@ -70,35 +71,26 @@ grep -E '^(ALADUO_TETHER_PORT|ALADUO_TETHER_HOST|ALADUO_TETHER_PUBLIC_URL)=' ~/.
 @openduo/channel-tether`. The flow needs a channel with the `passkey` verb; if
   `duoduo channel tether passkey list` is an unknown verb, stop and tell the owner. Pick a free
   port, add `ALADUO_TETHER_PORT=<port>` to `.env` (the channel refuses to start without it), and
-  `duoduo channel tether start`. It binds `127.0.0.1` unless `ALADUO_TETHER_HOST` names another IP
-  (R8); it serves plain HTTP either way. Installing and starting it is the opt-in;
+  `duoduo channel tether start` (the address it binds: [direct](references/routes/direct.md)).
+  Installing and starting it is the opt-in;
   `duoduo channel tether stop` closes it. Until a public URL is set it serves no route (`status`
   says `Public URL not set`, and a local request answers 404).
-- **Public URL set**: run the check below. If it passes, go to step 2.
+- **Public URL set**: run the positive checks of [references/routes/setup.md](references/routes/setup.md),
+  Verify both directions. If they pass, go to step 2. A CLI agent
+  (`cli-agent.md`) needs the channel at 0.2.1 or later: `duoduo channel list` shows its version.
+  If it is older, `duoduo channel install @openduo/channel-tether`, then
+  `duoduo channel tether stop` and `start`, with the owner's approval.
 - **No public URL, or the check fails**: read [references/routes/setup.md](references/routes/setup.md)
   and follow it: discovery, route choice, the route's notes, verification, persistence. The route
   notes are [gateway](references/routes/gateway.md) (R6),
   [cloudflare-tunnel](references/routes/cloudflare-tunnel.md) (R3, R4),
   [tailscale](references/routes/tailscale.md) (R1, R2), [relay](references/routes/relay.md) (R5, with
   [relay-protocol](references/routes/relay-protocol.md) and the reference code in
-  `references/routes/relay/`), [openai-tunnel](references/routes/openai-tunnel.md) (R7) and
+  `assets/relay/`), [openai-tunnel](references/routes/openai-tunnel.md) (R7) and
   [direct](references/routes/direct.md) (R8). Then record the URL: write the origin, no path, as
   `ALADUO_TETHER_PUBLIC_URL=https://<host name>` in `~/.config/duoduo/.env`, then
-  `duoduo channel tether stop` and `start`. The URL becomes the OAuth issuer and the passkey's
-  hostname, so it must not change later.
-
-The check (on a tailnet route pin the public address, as `routes/setup.md` shows):
-
-```bash
-curl -sS -o /dev/null -w '%{http_code}\n' -X POST 'https://<host name>/mcp'                # 401
-curl -sS -D - -o /dev/null -X POST 'https://<host name>/mcp' | grep -i '^www-authenticate'
-curl -sS 'https://<host name>/.well-known/oauth-protected-resource'                         # JSON
-curl -sS 'https://<host name>/.well-known/oauth-authorization-server'                       # JSON
-```
-
-The 401 carries `Bearer resource_metadata="https://<host name>/.well-known/oauth-protected-resource"`,
-and the metadata's `resource` and `issuer` equal `https://<host name>` exactly. Anything else (a
-loopback address, a port, a relay's connect URL) means `ALADUO_TETHER_PUBLIC_URL` is wrong.
+  `duoduo channel tether stop` and `start`. The URL must never change (`routes/setup.md`,
+  Requirements of every route).
 
 ### 2. Passkey, first time only
 
@@ -125,9 +117,11 @@ public URL is set and no passkey exists.
 ### 3. The owner adds the connector
 
 The playbook's section 2 gives what the owner does in the client, with the URL
-`https://<host name>/mcp` (R7: a `tunnel_id` instead). An agent that runs its own OAuth (the
+`https://<host name>/mcp` (R7, unmeasured: a `tunnel_id` instead). An agent that runs its own OAuth (the
 `sdk-listen.md` and some `generic.md` kinds) needs its handoff prompt first: do step 5 now, and the
-agent prints the authorization link for the owner.
+agent prints the authorization link for the owner. A CLI agent (`cli-agent.md`) is the same: its
+prompt has it run `duoduo-tether login https://<host name> --name <name>` itself; the owner opens the
+link it prints, or the browser it opens, and approves.
 
 ### 4. The owner approves; you check
 
@@ -146,25 +140,32 @@ Before the owner approves, tell the owner:
 
 The page shows the full client document URL and return address, both marked not verified, the
 access asked for, and a name field prefilled from the client's host (for example `chatgpt-com`).
-Only after the passkey does the channel fetch the client document and check the return address. A
-refused name brings the page back with the reason; the owner edits it and touches the passkey
-again. On a relay or gateway route, this first approval is also the redirect check: the browser
-must land back in the assistant and the connection must complete, not stop on an error page of
-whatever sits in between.
+For a CLI agent the page shows the client `duoduo-tether` as built into this duoduo, and the name
+field is empty unless the agent passed `--name`. Only after the passkey does the channel fetch the
+client document and check the return address (the matching rule: `generic.md`, Client documents).
+A refused name brings the page back with the reason; the owner edits it and touches the passkey
+again. This first approval is also the route's redirect check (`routes/setup.md`, Verify both
+directions).
 
-Then check: `duoduo channel tether list` shows the connection under its name. The assistant's
+Then check: `duoduo channel tether list` shows the connection under its name (client
+`duoduo-tether` for a CLI agent). The assistant's
 records read `◀ reported via <name> · client <client host>` in duoduo's event log.
 
 ### 5. Hand the assistant its prompt
 
 Tool usage reaches the assistant through MCP, but its wake setup is its own work, on its side, and
-nothing tells it to do that except the owner. Fill the playbook's handoff prompt (section 3):
-connection name, host name, the sessions it may serve, and a unique acceptance marker (for example
+nothing tells it to do that except the owner. Fill the playbook's handoff prompt:
+connection name, host name, the sessions it may serve (list the channel sessions with
+`duoduo session list`, or the `ViewSessions` tool inside a session, and agree the list with the
+owner), and a unique acceptance marker (for example
 `tether-check-<random 6 hex>`). Send the filled prompt to the owner in the one-to-one chat; the
 owner pastes it to the assistant. The prompt carries no secret: a webhook key goes from the
 client's panel to the host terminal, never through a prompt. Do the playbook's host-side setup
 (section 1) once the assistant's wake exists, then check it (`doorbell list` shows a doorbell or
 subscription for kinds that have one).
+
+For a CLI agent, also pick its wake block and apply its two required executor rules
+(`cli-agent.md`, Choose the wake and Executor rules).
 
 How mail, doorbells, subscriptions and the listen stream work:
 [references/mail.md](references/mail.md).
@@ -179,7 +180,9 @@ It passes only when both hold:
 
 - **A real, unprompted wake.** The owner confirms nobody prompted the assistant. For a doorbell,
   `plugin.log` shows no `doorbell ring failed` for it; for a subscription or listen stream, the
-  assistant's run started without the owner.
+  assistant's run started without the owner. For a CLI agent, the run that answered started from
+  `duoduo-tether listen` (a background command finishing, a Monitor line, or the loop starting
+  `claude -p`), not from the owner typing.
 - **The reply reaches the sender**: a mail from `tether:<name>` answering the test arrives in the
   sending session with the marker.
 
@@ -193,14 +196,14 @@ reply arrives; say plainly that it is not woken. If it fails, read the playbook'
 Add to the route's handoff note (`routes/setup.md`, Persistence; create one beside the channel's
 state if the route had none). No credentials in it. Record per connection: the name, the client and
 its playbook, the wake kind and where its client-side setup lives (an automation, a routine panel,
-a subscriber process), the doorbell if any, the acceptance result with its marker, and how to end
+a subscriber process, a `listen` loop and its supervisor), the sessions it accepts delegations
+from, the doorbell if any, the acceptance result with its marker, and how to end
 it (`duoduo channel tether revoke <name>`).
 
 ## Later
 
-- `duoduo channel tether list` shows connections; `duoduo channel tether revoke <name>` ends one.
-- Status, tokens, limits, a hostname change, a lost passkey, a doorbell that does not ring, a
-  suspected compromise, and what is measured:
+- Delegating a task to a connected assistant by mail: [references/mail.md](references/mail.md),
+  Delegation.
+- Listing and revoking connections, status, tokens, limits, a hostname change, a second or lost
+  passkey, a doorbell that does not ring, a suspected compromise, and what is measured:
   [references/operations.md](references/operations.md).
-- A second passkey or a recovery while clients are connected goes through a host terminal or an
-  outside agent, confirmed on the page with a passkey already enrolled.
