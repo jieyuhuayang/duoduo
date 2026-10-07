@@ -1,6 +1,5 @@
 {
   "CHANNEL_CONFIG_KEY_TYPES": "no reference evidence either way; position: first-party region (nearest export block above: @86718 createOutboxDeliveryManager)",
-  "IDLE_COMPACT_FIRE_CAP_PER_SWEEP": "no reference evidence either way; position: first-party region (nearest export block above: @86718 createOutboxDeliveryManager)",
   "acquireRuntimeWriterLock": "no reference evidence either way; position: first-party region (nearest export block above: @86718 createOutboxDeliveryManager)",
   "acquireSessionDrainLock": "no reference evidence either way; position: first-party region (nearest export block above: @69362 archiveLegacyRegistrySessionsDir, initializeRuntime)",
   "appendTelemetryRecord": "first-party only through a name asserted by hand, which is no evidence: its module (lines 32799-32849) refers to the module at lines 31903-31980 (parseEnvBooleanFlag)",

@@ -15,7 +15,6 @@
   "GROK_MCP_SERVERS_META": "11-runtime-grok",
   "GROK_MCP_SERVER_NAME": "11-runtime-grok",
   "HOST_MODEL_ENV_KEYS": "10-runtime-host",
-  "IDLE_COMPACT_FIRE_CAP_PER_SWEEP": "03-session-actor",
   "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": "05-drain-turn",
   "PARTITION_CORE_TOOLS": "08-cadence-subconscious",
   "SESSION_SCHEMA_VERSION": "03-session-actor",
