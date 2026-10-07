@@ -128,6 +128,14 @@
 //     (`parent_tool_use_id`, line ~54.7k) sit in a "vendor" region
 // Sound vendor evidence (export, use, inconsistency) is never overridable.
 //
+// Being referenced by first-party code is no evidence either: duoduo calls the
+// libraries it bundles. Measured on v0.8.4, the rule "every reference to it
+// comes from proven first-party code" would have proven 127 more statements
+// and modules, among them marked's lexer and the MCP SDK's zod helpers
+// ("inputSchema must be a Zod schema"); the four names registered
+// allow-unproven at that bump (resolveClaudeCostBaseline, ...) were the case
+// that suggested it.
+//
 // Writes, in each file's existing convention (refusing a file not already in
 // it, rather than reformatting a hand edit):
 //   inferred_daemon.json        appended, in order (insertion-ordered)
@@ -184,12 +192,17 @@ const argv = process.argv.slice(2);
 const opt = (name) => { const i = argv.indexOf(name); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return false; argv.splice(i, 1); return true; };
 const MAPS = opt("--maps") ?? path.join(HERE, "../maps");
+// the bundle whose maps are read and written (header): daemon, or cli, which has
+// no first-party tree and so no subsystem map: its entries' subsystem is `-`
+const B = opt("--bundle") ?? "daemon";
+if (!/^(daemon|cli)$/.test(B)) { console.error(`--bundle must be daemon or cli, not ${B}`); process.exit(2); }
+const HAS_TREE = B === "daemon";
 const GEN = opt("--build") ?? MAPS; // where the generated maps come from (header)
 const BATCH = opt("--batch");
 const DRY = flag("--dry-run");
 const ALLOW_UNPROVEN = flag("--allow-unproven");
-const USAGE = "usage: node name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem>\n" +
-              "       node name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
+const USAGE = "usage: node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem|->\n" +
+              "       node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
 const [BUNDLE, ...rest] = argv;
 if (!BUNDLE || (BATCH ? rest.length : rest.length !== 3)) { console.error(USAGE); process.exit(2); }
 
@@ -218,22 +231,28 @@ if (!entries.length) { console.error("nothing to register"); process.exit(2); }
 const mapPath = (f) => path.join(MAPS, f);
 const readJson = (f) => JSON.parse(fs.readFileSync(mapPath(f), "utf8"));
 const readGen = (f) => JSON.parse(fs.readFileSync(path.join(GEN, f), "utf8"));
-const rename = readGen("rename_daemon.json");      // mangled -> real (generated)
-const inferred = readJson("inferred_daemon.json"); // mangled -> real (hand-made)
-const subsys = readJson("subsys_daemon.json");     // real -> NN-subsystem (hand-made)
-const blocksReport = readGen("blocks_daemon.json");
-const index = loadIndex(path.join(GEN, "symbols_daemon.json"));
-const SHAPE = mapPath("inferred_daemon.shape.json");
-const shapeFile = fs.existsSync(SHAPE) ? JSON.parse(fs.readFileSync(SHAPE, "utf8")) : null;
+const F = { inferred: `inferred_${B}.json`, subsys: `subsys_${B}.json`, shape: `inferred_${B}.shape.json`, asserted: `inferred_${B}.asserted.json` };
+const rename = readGen(`rename_${B}.json`);        // mangled -> real (generated)
+// the cli's first registration creates its inferred map and shape baseline
+const NEW_MAP = !fs.existsSync(mapPath(F.inferred));
+if (NEW_MAP && HAS_TREE) { console.error(`no ${mapPath(F.inferred)}`); process.exit(2); }
+const inferred = NEW_MAP ? {} : readJson(F.inferred); // mangled -> real (hand-made)
+const subsys = HAS_TREE ? readJson(F.subsys) : {};    // real -> NN-subsystem (hand-made)
+const blocksReport = readGen(`blocks_${B}.json`);
+const index = loadIndex(path.join(GEN, `symbols_${B}.json`));
+const SHAPE = mapPath(F.shape);
+const shapeFile = fs.existsSync(SHAPE) ? JSON.parse(fs.readFileSync(SHAPE, "utf8"))
+  : NEW_MAP ? { source: `${B}.pretty.js`, recorded: new Date().toISOString().slice(0, 10), package: index.version, shapes: {} } : null;
+const NEW_SHAPE = !fs.existsSync(SHAPE) && !!shapeFile;
 // real name -> the verdict an allow-unproven registration was made over
-const ASSERTED = mapPath("inferred_daemon.asserted.json");
+const ASSERTED = mapPath(F.asserted);
 const assertedFile = fs.existsSync(ASSERTED) ? JSON.parse(fs.readFileSync(ASSERTED, "utf8")) : null;
 const asserted = assertedFile ?? {};
 // every real name another bundle already uses (its maps and export blocks)
 const otherBundleNames = [];
 for (const f of fs.readdirSync(GEN)) {
   const m = f.match(/^(rename|symbols|blocks)_(\w+)\.json$/);
-  if (!m || m[2] === "daemon") continue;
+  if (!m || m[2] === B) continue;
   const j = readGen(f);
   if (m[1] === "rename") otherBundleNames.push(...Object.values(j));
   else if (m[1] === "symbols") otherBundleNames.push(...Object.keys(j.symbols ?? {}));
@@ -442,7 +461,7 @@ const problems = [], planned = [];
 for (const e of entries) {
   const bad = (why) => problems.push(`${e.where}: ${e.short ?? "?"} -> ${e.name ?? "?"}: ${why}`);
   if (e.bad) { bad(e.bad); continue; }
-  if (!e.short || !e.name || !e.subsystem) { bad("needs a short name, a real name and a subsystem"); continue; }
+  if (!e.short || !e.name || !e.subsystem) { bad(`needs a short name, a real name and a subsystem${HAS_TREE ? "" : " (`-`: the cli has no first-party tree)"}`); continue; }
   // 2. KIND
   const d = decls.get(e.short);
   if (!d) { bad(`${e.short} is not a top-level declaration in ${path.basename(BUNDLE)}`); continue; }
@@ -485,7 +504,8 @@ for (const e of entries) {
   if (seenName.has(e.name)) nameProblems.push(`also used at ${seenName.get(e.name)}`);
   seenName.set(e.name, e.where);
   // 6. PLACE
-  if (!subsystems.has(e.subsystem) || !/^\d\d-/.test(e.subsystem)) nameProblems.push(`unknown subsystem "${e.subsystem}" (one of: ${[...subsystems].sort().join(", ")})`);
+  if (!HAS_TREE) { if (e.subsystem !== "-") nameProblems.push(`subsystem "${e.subsystem}": the ${B} has no first-party tree, write \`-\``); }
+  else if (!subsystems.has(e.subsystem) || !/^\d\d-/.test(e.subsystem)) nameProblems.push(`unknown subsystem "${e.subsystem}" (one of: ${[...subsystems].sort().join(", ")})`);
   // 4. ORIGIN
   const o = origin(e.short, d);
   if (!o.ok && !(o.unproven && e.allowUnproven)) nameProblems.push(o.why + (o.unproven ? " -- mark the entry allow-unproven only if you have read the body and know it is duoduo's" : ""));
@@ -497,10 +517,10 @@ for (const e of entries) {
 const canonical = (obj) => JSON.stringify(obj, null, 2) + "\n";
 const sortedKeys = (obj) => Object.fromEntries(Object.keys(obj).sort().map(k => [k, obj[k]]));
 const conventions = [
-  ["inferred_daemon.json", inferred, x => x],
-  ["subsys_daemon.json", subsys, sortedKeys],
-  ...(shapeFile ? [["inferred_daemon.shape.json", shapeFile, x => x]] : []),
-  ...(assertedFile ? [["inferred_daemon.asserted.json", assertedFile, sortedKeys]] : []),
+  ...(NEW_MAP ? [] : [[F.inferred, inferred, x => x]]),
+  ...(HAS_TREE ? [[F.subsys, subsys, sortedKeys]] : []),
+  ...(shapeFile && !NEW_SHAPE ? [[F.shape, shapeFile, x => x]] : []),
+  ...(assertedFile ? [[F.asserted, assertedFile, sortedKeys]] : []),
 ];
 for (const [f, obj, norm] of conventions) {
   if (fs.readFileSync(mapPath(f), "utf8") !== canonical(norm(obj))) problems.push(`${f} is not in its usual layout (2-space JSON${norm === sortedKeys ? ", sorted keys" : ""}); normalise it by hand first rather than have this tool reformat it`);
@@ -525,7 +545,7 @@ const nextShape = shapeFile ? { ...shapeFile, shapes: { ...shapeFile.shapes } } 
 const nextAsserted = { ...asserted };
 for (const p of planned) {
   nextInferred[p.short] = p.name;
-  nextSubsys[p.name] = p.subsystem;
+  if (HAS_TREE) nextSubsys[p.name] = p.subsystem;
   if (nextShape) {
     const sh = shapeOf(p.decl);
     if (p.decl.kind === "value") sh.readers = readerFeatures(decls, (readers ??= valueReaders(decls)).get(p.short));
@@ -534,10 +554,10 @@ for (const p of planned) {
   if (p.weak) nextAsserted[p.name] = p.why;
 }
 const writes = [
-  ["inferred_daemon.json", canonical(nextInferred)],
-  ["subsys_daemon.json", canonical(sortedKeys(nextSubsys))],
-  ...(nextShape ? [["inferred_daemon.shape.json", canonical(nextShape)]] : []),
-  ...(planned.some(p => p.weak) ? [["inferred_daemon.asserted.json", canonical(sortedKeys(nextAsserted))]] : []),
+  [F.inferred, canonical(nextInferred)],
+  ...(HAS_TREE ? [[F.subsys, canonical(sortedKeys(nextSubsys))]] : []),
+  ...(nextShape ? [[F.shape, canonical(nextShape)]] : []),
+  ...(planned.some(p => p.weak) ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : []),
 ];
 if (DRY) console.error(`\ndry run: would register ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
 else {
@@ -547,16 +567,16 @@ else {
   if (GEN !== MAPS) {
     // header: bring --build's rename map and index up to date
     const run = (args) => spawnSync(process.execPath, ["--max-old-space-size=8192", ...args], { encoding: "utf8" });
-    const r1 = run([path.join(HERE, "build_rename.mjs"), path.join(GEN, "blocks_daemon.json"), mapPath("modules_daemon.json"),
-      mapPath("inferred_daemon.json"), path.join(GEN, "rename_daemon.json")]);
-    const r2 = r1.status === 0 && run([path.join(HERE, "symbol_index.mjs"), index.source, path.join(GEN, "rename_daemon.json"),
-      path.join(GEN, "symbols_daemon.json"), "--version", index.version]);
+    const r1 = run([path.join(HERE, "build_rename.mjs"), path.join(GEN, `blocks_${B}.json`), mapPath(`modules_${B}.json`),
+      mapPath(F.inferred), path.join(GEN, `rename_${B}.json`)]);
+    const r2 = r1.status === 0 && run([path.join(HERE, "symbol_index.mjs"), index.source, path.join(GEN, `rename_${B}.json`),
+      path.join(GEN, `symbols_${B}.json`), "--version", index.version]);
     if (r1.status !== 0 || r2.status !== 0) {
       console.error(`  could not update ${GEN}'s rename map and symbol index (${r1.status !== 0 ? "build_rename" : "symbol_index"} exit ${(r2 || r1).status}):\n${(r2 || r1).stderr}`);
       console.error("  run rebuild.sh before citing the new names");
       process.exit(1);
     }
-    console.error(`  updated ${path.join(GEN, "rename_daemon.json")} and symbols_daemon.json: the new names can be cited and checked now (check_docs.sh)`);
+    console.error(`  updated ${path.join(GEN, `rename_${B}.json`)} and symbols_${B}.json: the new names can be cited and checked now (check_docs.sh)`);
   }
   console.error("  next: rebuild.sh (PKG=...) regenerates recon/, first-party/ and the symbol index; PROMOTE=1 after review");
 }
