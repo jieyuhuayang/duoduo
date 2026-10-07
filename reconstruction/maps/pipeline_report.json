@@ -29,13 +29,13 @@
       "distinctNamesInBlocks": 29,
       "firstPartyNamesFromBlocks": 29,
       "namesFromEntryExports": 17,
-      "inferredNames": 0,
-      "renameEntries": 46,
-      "renamesApplied": 46,
-      "referencesRewritten": 158,
+      "inferredNames": 14,
+      "renameEntries": 60,
+      "renamesApplied": 60,
+      "referencesRewritten": 197,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 46
+      "indexedSymbols": 60
     }
   },
   "sha256": {
@@ -72,6 +72,7 @@
     "citations": "pass",
     "cli.astEquivalent": "pass",
     "cli.beautifyEquivalent": "pass",
+    "cli.inferredNames": "pass",
     "cli.lossless": "pass",
     "cli.syntax": "pass",
     "committedInSync": "promoted",
@@ -91,6 +92,6 @@
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 670
+    "firstPartySymbols": 684
   }
 }

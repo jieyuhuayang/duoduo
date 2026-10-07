@@ -1,0 +1,326 @@
+{
+  "source": "cli.pretty.js",
+  "recorded": "2026-10-07",
+  "package": "v0.8.4",
+  "shapes": {
+    "runSessionNotifyCommand": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "\nUsage: duoduo session notify <target> -m <message> [--source <label>] [--force]\n",
+        "error",
+        "error: daemon rejected session.notify: ",
+        "error: daemon returned an empty response\n",
+        "json",
+        "session.notify"
+      ],
+      "props": [
+        "caller_session",
+        "env",
+        "error",
+        "exit",
+        "force",
+        "message",
+        "ok",
+        "result",
+        "source",
+        "stderr",
+        "stdout",
+        "stringify",
+        "target",
+        "trim",
+        "write"
+      ]
+    },
+    "resolveRestartReasonFilePath": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "daemon-restart-reason.json"
+      ],
+      "props": [
+        "join",
+        "varDir"
+      ]
+    },
+    "writeRestartReasonFile": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "clearOwnRestartReasonFile": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "catch",
+        "parse",
+        "readFile",
+        "requested_at",
+        "rm"
+      ]
+    },
+    "restartDaemonWithReason": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "daemon restart timed out waiting for health checks at "
+      ],
+      "props": [
+        "env",
+        "filter",
+        "healthy",
+        "length",
+        "map",
+        "now",
+        "paths",
+        "pollIntervalMs",
+        "probeTimeoutMs",
+        "reason",
+        "requested_at",
+        "started",
+        "startupTimeoutMs",
+        "toISOString",
+        "trim",
+        "wakeTargets"
+      ]
+    },
+    "notifyRestartWakeTargets": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " — candidates: ",
+        "daemon-restart",
+        "notify failed",
+        "notify refused",
+        "session.notify"
+      ],
+      "props": [
+        "candidates",
+        "error",
+        "join",
+        "map",
+        "message",
+        "ok",
+        "push",
+        "reason",
+        "result",
+        "session_key"
+      ]
+    },
+    "runUpgradeCommand": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        " (npm default prefix)...",
+        " and the restart was issued, but the daemon had not answered a health check yet. On a slow-booting host this is expected — confirm with: duoduo daemon status",
+        " but the daemon restart failed (",
+        " failed:\n",
+        "). Restart it manually: duoduo daemon restart -r \"upgraded @openduo/duoduo to ",
+        "--depth=0",
+        "--json",
+        "--prefix",
+        "@openduo/duoduo",
+        "@openduo/duoduo@",
+        "daemon restarted pid=",
+        "darwin",
+        "failed to wake ",
+        "install",
+        "installed @openduo/duoduo@",
+        "list",
+        "node:child_process",
+        "node:util",
+        "note: agent skills are published from the GitHub repo, not this package. If you use them, refresh them too:\n  npx -y skills add https://github.com/openduo/duoduo --global --all",
+        "note: installed @openduo/duoduo@",
+        "npm install of ",
+        "restarting daemon...",
+        "unknown",
+        "unknown error"
+      ],
+      "props": [
+        "argv",
+        "channels",
+        "command",
+        "daemonUrl",
+        "dependencies",
+        "env",
+        "error",
+        "execPath",
+        "exitCode",
+        "healthy",
+        "installFromNpm",
+        "isServiceLoaded",
+        "leadingArgs",
+        "length",
+        "listInstalled",
+        "log",
+        "message",
+        "ok",
+        "parse",
+        "pid",
+        "platform",
+        "pluginRoot",
+        "resolve",
+        "sessionKey",
+        "start",
+        "started",
+        "stderr",
+        "stdout",
+        "stop",
+        "target",
+        "then",
+        "toISOString",
+        "trim",
+        "version",
+        "wake"
+      ]
+    },
+    "createDaemonToken": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate."
+      ],
+      "props": [
+        "env",
+        "force"
+      ]
+    },
+    "generateDaemonTokenHex": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": [
+        "randomBytes",
+        "toString"
+      ]
+    },
+    "writeDaemonTokenToEnvFile": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "env",
+        "length",
+        "push",
+        "readFile"
+      ]
+    },
+    "readDaemonTokenFromEnvFile": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "ENOENT",
+        "utf8"
+      ],
+      "props": [
+        "code",
+        "env",
+        "readFile",
+        "trim"
+      ]
+    },
+    "runChannelCommand": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "\nLocal-tarball installs run arbitrary code as a daemon plugin. If you intend this, re-run:\n  duoduo channel install --from-path ",
+        "\nOtherwise install from the npm registry by package name.",
+        "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]",
+        "  duoduo channel install --from-path <plugin.tgz>   # from a local tarball",
+        "  duoduo channel install <package-name>             # from npm registry",
+        "  duoduo channel list",
+        " already running pid=",
+        " not installed",
+        " not running",
+        " pid=",
+        "(no channel plugins installed)",
+        "(no logs for ",
+        "--daemon-url",
+        "--from-path",
+        "--from-path expects a local tarball path, got: ",
+        "--help",
+        "Missing action for channel '",
+        "Refusing to install from a local path without --from-path: ",
+        "Unknown channel action: ",
+        "Usage:",
+        "doctor",
+        "help",
+        "install",
+        "installed "
+      ],
+      "props": [
+        "channelType",
+        "channels",
+        "daemonUrl",
+        "doctor",
+        "env",
+        "error",
+        "execPath",
+        "exit",
+        "exitCode",
+        "find",
+        "includes",
+        "installFromNpm",
+        "installFromTarball",
+        "length",
+        "listInstalled",
+        "log",
+        "manifest",
+        "packageName",
+        "pid",
+        "pluginRoot",
+        "readLogs",
+        "rest",
+        "running",
+        "slice",
+        "start",
+        "started",
+        "status",
+        "stderr",
+        "stdout",
+        "stop",
+        "stopped",
+        "value",
+        "version",
+        "write"
+      ]
+    },
+    "resolveHostEnvFilePath": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        ".config",
+        ".env",
+        "duoduo"
+      ],
+      "props": [
+        "HOME",
+        "USERPROFILE",
+        "homedir",
+        "join"
+      ]
+    },
+    "CLI_DAEMON_TOKEN_ENV_KEY": {
+      "kind": "value",
+      "params": null,
+      "value": "77f65f21e6961ff3",
+      "preview": "\"ALADUO_DAEMON_TOKEN\"",
+      "readers": [
+        "lit:ENOENT",
+        "lit:utf8",
+        "prop:code",
+        "prop:env",
+        "prop:length",
+        "prop:push",
+        "prop:readFile",
+        "prop:trim"
+      ]
+    }
+  }
+}

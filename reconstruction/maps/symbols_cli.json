@@ -2,7 +2,7 @@
   "bundle": "cli",
   "version": "v0.8.4",
   "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
-  "symbolCount": 46,
+  "symbolCount": 60,
   "notTopLevel": [],
   "symbols": {
     "PLIST_LABEL": {
@@ -372,6 +372,118 @@
       "kind": "async function",
       "bytes": 2924,
       "signature": "84f064971a078e5a562f"
+    },
+    "runSessionNotifyCommand": {
+      "mangled": "rJe",
+      "line": 62971,
+      "endLine": 62989,
+      "kind": "async function",
+      "bytes": 791,
+      "signature": "69393d124a4c8961e79d"
+    },
+    "resolveRestartReasonFilePath": {
+      "mangled": "p8",
+      "line": 67803,
+      "endLine": 67805,
+      "kind": "function",
+      "bytes": 78,
+      "signature": "75743d38543efb5ee3a6"
+    },
+    "writeRestartReasonFile": {
+      "mangled": "E8",
+      "line": 67806,
+      "endLine": 67808,
+      "kind": "async function",
+      "bytes": 50,
+      "signature": "452476ce3d9a0239ab24"
+    },
+    "clearOwnRestartReasonFile": {
+      "mangled": "m8",
+      "line": 67809,
+      "endLine": 67820,
+      "kind": "async function",
+      "bytes": 270,
+      "signature": "c97ebbbdc0bd379be081"
+    },
+    "restartDaemonWithReason": {
+      "mangled": "pk",
+      "line": 68254,
+      "endLine": 68293,
+      "kind": "async function",
+      "bytes": 1233,
+      "signature": "e09141f31101cc3af1b5"
+    },
+    "notifyRestartWakeTargets": {
+      "mangled": "BJ",
+      "line": 68294,
+      "endLine": 68336,
+      "kind": "async function",
+      "bytes": 1114,
+      "signature": "4dc35fb7aa42ace4d12e"
+    },
+    "runUpgradeCommand": {
+      "mangled": "lZe",
+      "line": 75224,
+      "endLine": 75339,
+      "kind": "async function",
+      "bytes": 5141,
+      "signature": "9aa6236df84a2d497208"
+    },
+    "createDaemonToken": {
+      "mangled": "OJ",
+      "line": 68243,
+      "endLine": 68253,
+      "kind": "async function",
+      "bytes": 390,
+      "signature": "fb6d93d7506d53ac21b5"
+    },
+    "generateDaemonTokenHex": {
+      "mangled": "Y2e",
+      "line": 68240,
+      "endLine": 68242,
+      "kind": "function",
+      "bytes": 65,
+      "signature": "c1a659e0171c66a85162"
+    },
+    "writeDaemonTokenToEnvFile": {
+      "mangled": "i8",
+      "line": 67377,
+      "endLine": 67387,
+      "kind": "async function",
+      "bytes": 289,
+      "signature": "ca71b61e81556e8108a0"
+    },
+    "readDaemonTokenFromEnvFile": {
+      "mangled": "r8",
+      "line": 67365,
+      "endLine": 67376,
+      "kind": "async function",
+      "bytes": 254,
+      "signature": "a8e9da322ff7a859fd8c"
+    },
+    "runChannelCommand": {
+      "mangled": "cZe",
+      "line": 75340,
+      "endLine": 75494,
+      "kind": "async function",
+      "bytes": 6117,
+      "signature": "40a89e25160eca260af8"
+    },
+    "resolveHostEnvFilePath": {
+      "mangled": "BA",
+      "line": 67259,
+      "endLine": 67262,
+      "kind": "function",
+      "bytes": 123,
+      "signature": "7f5a783cf9b36aa0a140"
+    },
+    "CLI_DAEMON_TOKEN_ENV_KEY": {
+      "mangled": "TB",
+      "line": 67257,
+      "endLine": 67257,
+      "kind": "var = StringLiteral",
+      "bytes": 31,
+      "signature": "9ce48c54b612ccd24be6"
     }
   }
 }
