@@ -283,10 +283,12 @@ if [ "${#changed[@]}" -gt 0 ]; then
 else
   echo "     (no bundle changed, so no line moved) echo $V > $DOCS/.pretty-anchor-target"
 fi
-echo "     node $HERE/retarget_symbols.mjs $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
+echo "     node $HERE/retarget_symbols.mjs --bundle daemon $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
+echo "     node $HERE/retarget_symbols.mjs --bundle cli $MAPS/rename_cli.json $R/rename_cli.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
-echo "     (retarget_symbols takes one bundle's maps; a stale cli short name is left for"
-echo "     verify_citations to report, and a stale short name quoted mid-snippet for check_bare_anchors)"
+echo "     (each retarget_symbols run moves only the pairs its old map vouches for, and lists the"
+echo "     one-identifier spans it left for you to decide; a stale short name quoted mid-snippet is"
+echo "     left for check_bare_anchors)"
 echo "  3b. bring what the release changed in substance into the docs: impact.md's citations by"
 echo "     priority, its plain-text delta and what no doc covers yet. Split the docs into one file"
 echo "     per section, then run the upgrade-docs workflow (.claude/workflows/upgrade-docs.js), which"

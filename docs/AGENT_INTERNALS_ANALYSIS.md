@@ -267,9 +267,9 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 合法取值在一处定义为两个数组：`mR = ["claude", "codex", "grok", "pi", "void"], hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`），前者是 duoduo 认识的全部取值，后者是会运行模型的四个引擎；成员判定相应分成两个，`isRuntimeKind (gR)` 查五值数组，`isSupportedRuntime (Eb)` 查四引擎数组（confirmed）。校验函数也分两级，结果都是"接受"或"一段拒绝说明"，没有改用默认值的分支（confirmed）：`validateKnownRuntimeValue (uU)` 把未给出的值当作未设置，接受五个已知取值，其余值的说明写明 `which is not a runtime this duoduo knows. Valid runtimes:` 并列出五个值；`validateRunnableRuntimeValue (Wd)` 在它之上再拒绝 `void`，说明写明 `void` 从不运行模型、不能用在这个位置。
 
-每个入口用哪一级校验，取决于这个入口能不能接受 `void`（confirmed）。渠道种类与渠道实例配置文件里的 `runtime` 由 `parseChannelRuntimeField (WQe)` 经 `uU` 解析，配置写入时的键值校验 `validateConfigValue (_ct)` 对 runtime 类型用 `isKnownRuntimeValue (NR)`，`channel.spawn` 也只要求取值在五值数组里，这三处都接受 `void`。job frontmatter、ManageJob 的 `runtime` 参数、后台分区 `CLAUDE.md` frontmatter 和 `ALADUO_DEFAULT_RUNTIME` 都经 `Wd`，只接受四个引擎。渠道配置文件里的非法值不会让解析失败：解析结果记下 `runtimeRefusal`（拒绝说明）而不是 `runtime`，等这个配置真正被用来决定引擎时才拒绝（3.3）。
+每个入口用哪一级校验，取决于这个入口能不能接受 `void`（confirmed）。渠道种类与渠道实例配置文件里的 `runtime` 由 `parseChannelRuntimeField (WQe)` 经 `validateKnownRuntimeValue (uU)` 解析，配置写入时的键值校验 `validateConfigValue (_ct)` 对 runtime 类型用 `isKnownRuntimeValue (NR)`，`channel.spawn` 也只要求取值在五值数组里，这三处都接受 `void`。job frontmatter、ManageJob 的 `runtime` 参数、后台分区 `CLAUDE.md` frontmatter 和 `ALADUO_DEFAULT_RUNTIME` 都经 `validateRunnableRuntimeValue (Wd)`，只接受四个引擎。渠道配置文件里的非法值不会让解析失败：解析结果记下 `runtimeRefusal`（拒绝说明）而不是 `runtime`，等这个配置真正被用来决定引擎时才拒绝（3.3）。
 
-宿主默认值由 `resolveDefaultRuntime (ho)` 计算（confirmed）：读取 `ALADUO_DEFAULT_RUNTIME`，未设置或去掉首尾空白后为空时取 `"claude"`；否则转成小写交给 `Wd`，被拒时抛出 `InvalidRuntimeError`（`initRuntimeValidationModule (Fu)` 定义的错误类）。`main (kvt)` 在加载 `~/.config/duoduo/.env` 之后、取进程写锁之前调用一次 `ho()`，所以环境或 `.env` 里写了未知值或 `void` 时 daemon 以 `[pid0] fatal startup error` 退出，不会以 claude 启动。
+宿主默认值由 `resolveDefaultRuntime (ho)` 计算（confirmed）：读取 `ALADUO_DEFAULT_RUNTIME`，未设置或去掉首尾空白后为空时取 `"claude"`；否则转成小写交给 `validateRunnableRuntimeValue (Wd)`，被拒时抛出 `InvalidRuntimeError`（`initRuntimeValidationModule (Fu)` 定义的错误类）。`main (kvt)` 在加载 `~/.config/duoduo/.env` 之后、取进程写锁之前调用一次 `ho()`，所以环境或 `.env` 里写了未知值或 `void` 时 daemon 以 `[pid0] fatal startup error` 退出，不会以 claude 启动。
 
 每类会话按自己的顺序取值，取到的值写在 actor 的 `runtime` 字段上（confirmed）。下表的来源标签只写进 actor 启动时的告警日志（探测失败时，以及 job 在 codex 上设置了 `prompt_mode` 时）。drain 拒绝执行时写进 `agent.error` 负载的 `runtime_source` 另有算法：它只看 actor 的 `runtime` 是否有值，而会话 actor 的 `runtime` 总有值，所以这个字段在会话 actor 上恒为 `explicit`（confirmed，静态阅读）。
 
@@ -284,7 +284,7 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 `void` 只能经渠道配置生效，`isVoidRuntimeSession (Gu)` 判定一个会话的渠道 runtime 是否解析为 `void`（confirmed）。对这样的会话，运行时从不调用模型（confirmed，各处判定见本节证据表）：网关把入站消息追加进事件日志之后不写邮箱指针、不唤醒，而是由 `writeVoidSessionOutboxRecord (wI)` 把原文作为一条出站记录写进出站队列并在总线上发出 `session.output`，交给会话执行的斜杠命令和注入提示不执行，回复 `This session never runs a model (runtime void).` 加上"命令未运行"；Notify 等会话间投递同样只写出站队列、不写邮箱、不唤醒；`session.wake` 与 `session.compact` 以 `void_session` 拒绝；`/model`、`/effort` 回复这个会话没有模型或推理力度可以显示或设置；渠道挂接回调 `createVoidAwareAttachmentCallbacks (tde)` 不挂接 void 会话；空闲压缩扫描跳过它。这样的会话只在出站队列里积累记录，由拉取或订阅它的出站记录的渠道读走（6.3）。消息与命令在网关与路由上的分流见 6.2。
 
-job 的引擎在创建时就写进文件。ManageJob 的 create 动作先用 `Wd` 校验参数（被拒就报错），再按"参数 → 调用方会话的引擎 → 宿主默认值"解析出一个值写进 frontmatter（4.2），JSON-RPC `job.create` 直接写入宿主默认值（10.1）；因此之后修改 `ALADUO_DEFAULT_RUNTIME` 不影响已有 job（confirmed）。
+job 的引擎在创建时就写进文件。ManageJob 的 create 动作先用 `validateRunnableRuntimeValue (Wd)` 校验参数（被拒就报错），再按"参数 → 调用方会话的引擎 → 宿主默认值"解析出一个值写进 frontmatter（4.2），JSON-RPC `job.create` 直接写入宿主默认值（10.1）；因此之后修改 `ALADUO_DEFAULT_RUNTIME` 不影响已有 job（confirmed）。
 
 ### 3.2 进程模型与可用性探测
 
@@ -309,7 +309,7 @@ pi 没有探测函数。`resolvePiWorkerCommand ($S)` 在 daemon bundle 同目�
 
 会话 actor 在 drain 循环开始前按 3.1 的顺序解析 runtime：配置的取值被拒绝时记下拒绝说明，否则把引擎写到 actor 上，然后才探测；探测失败只记下原因，`runtime` 保持不变。到 drain 处理邮箱时，有拒绝说明就以 `runtime_refused` 拒绝，有探测失败原因就以 `runtime_unavailable` 拒绝，会话历史所属的引擎与当前引擎不同就以 `runtime_mismatch` 拒绝。后两种拒绝结束 actor，下一条消息重新绑定、重新探测；渠道会话上的 `runtime_refused` 不结束 actor（confirmed）。
 
-绑定在 `createSessionManager (gbt)` 的 actor 启动段里完成（confirmed）。job 分支用 `Wd` 校验 frontmatter 的 `runtime`，渠道分支调用 `resolveSessionChannelRuntime (fh)`；取值被拒时，拒绝说明存进一个局部变量，job 的 actor 改用宿主默认值，渠道的 actor 保留创建时的值，渠道分支另写一条 `"[session-manager] channel runtime refused"`（`createSessionManager`）日志。渠道 runtime 解析为 `void` 时同样记下拒绝说明（`A message queued before it became void was not run.`（`createSessionManager`）），它只作用于渠道变成 `void` 之前已经进了邮箱的消息，之后的消息不再进邮箱（3.1）。两个分支随后把解析出的引擎写到 actor 的 `runtime` 字段，然后才调用探测函数（渠道分支在取值被拒时不探测）；探测函数只对 codex 与 grok 运行 CLI 探测，claude 与 pi 在这里不探测。探测失败时，原因存进一个局部变量，日志写一条"job 或渠道请求了某引擎但它不可用"的告警（`but it is unavailable`（`createSessionManager`）），actor 的 `runtime` 不改。pi 的对应检查发生在构造 worker 之前：会话既没有存下的 pi 模型、job frontmatter 和配置层也没有给出模型时，原因被设为 "pi binds its model when the worker is built, and this session has none."。这一段代码里没有改用 claude 的分支；选中 codex、grok 或 pi 却没有构造出适配器的 actor，一旦被调用就直接报错，错误文字写明拒绝回落到 Claude（证据见本节证据表）。
+绑定在 `createSessionManager (gbt)` 的 actor 启动段里完成（confirmed）。job 分支用 `validateRunnableRuntimeValue (Wd)` 校验 frontmatter 的 `runtime`，渠道分支调用 `resolveSessionChannelRuntime (fh)`；取值被拒时，拒绝说明存进一个局部变量，job 的 actor 改用宿主默认值，渠道的 actor 保留创建时的值，渠道分支另写一条 `"[session-manager] channel runtime refused"`（`createSessionManager`）日志。渠道 runtime 解析为 `void` 时同样记下拒绝说明（`A message queued before it became void was not run.`（`createSessionManager`）），它只作用于渠道变成 `void` 之前已经进了邮箱的消息，之后的消息不再进邮箱（3.1）。两个分支随后把解析出的引擎写到 actor 的 `runtime` 字段，然后才调用探测函数（渠道分支在取值被拒时不探测）；探测函数只对 codex 与 grok 运行 CLI 探测，claude 与 pi 在这里不探测。探测失败时，原因存进一个局部变量，日志写一条"job 或渠道请求了某引擎但它不可用"的告警（`but it is unavailable`（`createSessionManager`）），actor 的 `runtime` 不改。pi 的对应检查发生在构造 worker 之前：会话既没有存下的 pi 模型、job frontmatter 和配置层也没有给出模型时，原因被设为 "pi binds its model when the worker is built, and this session has none."。这一段代码里没有改用 claude 的分支；选中 codex、grok 或 pi 却没有构造出适配器的 actor，一旦被调用就直接报错，错误文字写明拒绝回落到 Claude（证据见本节证据表）。
 
 拒绝发生在 `drainSessionMailbox (zxe)` 的第五步（7.1），工作目录检查之后依次做三项检查，都只在本次确有待处理事件时进行（confirmed）：
 
@@ -325,7 +325,7 @@ actor 结束之后，下一条消息到达时创建新 actor，重新走一遍�
 
 改引擎的配置入口也检查历史归属。`channel.spawn` 更新渠道实例描述符时若 `runtime` 变了，`upsertChannelSpawnDescriptor (yvt)` 先调用 `checkChannelRuntimeRebindConflict (RIe)`，检查这个渠道下是否有会话持有另一个引擎的历史，有就拒绝修改并列出这些会话，要求逐个 `/clear` 之后再改；`session.config` 的处理函数 `applySessionConfigVerb (fvt)` 设置 `runtime` 时调用同一个检查（confirmed）。渠道描述符里的 `runtime` 已是被拒绝的值、而这次 `channel.spawn` 没有给出新值时，它拒绝更新并要求给出一个 runtime（`Send a runtime to replace it.`（`upsertChannelSpawnDescriptor`））（confirmed）。
 
-后台分区不经过 actor，但遵守同一条规则（confirmed）：`createMetaSession (Pbt)` 在执行分区前先看分区定义是否记有拒绝说明（frontmatter 的 `runtime` 未知或为 `void`，由 `parsePartitionDefinition (Wct)` 经 `Wd` 记下），有就追加一条 `outcome` 为 `runtime_refused`、`error` 为拒绝说明的 `agent.error` 事件；否则探测 codex 与 grok（claude 读启动时的缓存结果），不可用就追加一条 `outcome: "runtime_unavailable"` 的 `agent.error` 事件。两种情况都跳过本次执行并按失败计入退避（11.2），同样不改用其他引擎。pi 分区没有配置模型时走同一个分支，错误文字要求在分区 frontmatter 写 `model: provider/modelId` 或设置全局的 `pi.model`（confirmed）。
+后台分区不经过 actor，但遵守同一条规则（confirmed）：`createMetaSession (Pbt)` 在执行分区前先看分区定义是否记有拒绝说明（frontmatter 的 `runtime` 未知或为 `void`，由 `parsePartitionDefinition (Wct)` 经 `validateRunnableRuntimeValue (Wd)` 记下），有就追加一条 `outcome` 为 `runtime_refused`、`error` 为拒绝说明的 `agent.error` 事件；否则探测 codex 与 grok（claude 读启动时的缓存结果），不可用就追加一条 `outcome: "runtime_unavailable"` 的 `agent.error` 事件。两种情况都跳过本次执行并按失败计入退避（11.2），同样不改用其他引擎。pi 分区没有配置模型时走同一个分支，错误文字要求在分区 frontmatter 写 `model: provider/modelId` 或设置全局的 `pi.model`（confirmed）。
 
 `/model` 与 `/effort` 需要知道会话用哪个引擎，它们用 `createModelCommandResolvers (VRe)` 返回的解析函数，不做探测（confirmed）：有 actor 且其引擎为 codex、grok 或 pi 时取它（`if (u?.runtime === "codex") return "codex";`（`createModelCommandResolvers`））；其余情况，包括绑定为 claude 的 actor，按来源渠道的实例描述符、渠道种类配置、宿主默认值推出。因此一个仍绑定 claude 的 actor，在渠道配置改成别的引擎之后，`/model` 按新配置的引擎解释（confirmed，静态阅读）。这个结果只决定命令按哪个引擎的语义执行（3.6），不改变 actor 的绑定。同一组函数里的 `runtimeCommandRefusal` 另按渠道配置检查一次：渠道 runtime 被拒时返回拒绝说明，解析为 `void` 时返回“这个会话没有模型或推理力度可以显示或设置”；会话管理器的 `/model`、`/effort` 读取与设置四个方法遇到这段说明都直接返回，设置方法的原因为 `runtime_rejected`，不写入任何状态（confirmed）。
 
@@ -430,7 +430,7 @@ pi 的内置工具由 pi SDK 提供。worker 创建 pi 会话时以 init 帧里�
 
 | 机制主张 | 代码证据 | 置信 |
 |---|---|---|
-| runtime 取值在一处定义为五值与四引擎两个数组，成员判定各查一个 | `mR = ["claude", "codex", "grok", "pi", "void"], hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`）；`return typeof e == "string" && mR.includes(e)`（`isRuntimeKind`）；`isSupportedRuntime (Eb)`；`isKnownRuntimeValue (NR)` | confirmed（`Eb` 调用的四引擎判定函数没有真名） |
+| runtime 取值在一处定义为五值与四引擎两个数组，成员判定各查一个 | `mR = ["claude", "codex", "grok", "pi", "void"], hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`）；`return typeof e == "string" && mR.includes(e)`（`isRuntimeKind`）；`isSupportedRuntime (Eb)`；`isKnownRuntimeValue (NR)` | confirmed（`isSupportedRuntime (Eb)` 调用的四引擎判定函数没有真名） |
 | 两级校验返回拒绝说明，不改用默认值；第二级拒绝 void | `which is not a runtime this duoduo knows. Valid runtimes:`（`validateKnownRuntimeValue`）；`which never runs a model, so it cannot run there.`（`validateRunnableRuntimeValue`） | confirmed |
 | 渠道配置、配置键与 channel.spawn 接受五值；渠道配置的非法值记为拒绝说明 | `let t = uU(e, "This channel's config");`（`parseChannelRuntimeField`）；`runtimeRefusal: t.reason`（`parseChannelRuntimeField`）；`...WQe(e.runtime),`（`parseChannelConfigFields`）；`case "runtime": return NR(t) ? {`（`validateConfigValue`）；`if (!gIe.includes(a)) return {`（`upsertChannelSpawnDescriptor`） | confirmed |
 | job、ManageJob、分区与默认值只接受四个引擎 | `let i = Wd(e.runtime, "This job");`（`runManageJobTool`）；`Wd(_t.frontmatter.runtime,`（`createSessionManager`）；`a = Wd(i.data?.runtime,`（`parsePartitionDefinition`）；`let r = Wd(n, "ALADUO_DEFAULT_RUNTIME");`（`resolveDefaultRuntime`） | confirmed |
@@ -2269,7 +2269,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | 机制主张 | 代码证据 | 置信 |
 |---|---|---|
 | 落库事件的 14 种类型与写入方 | `createSpineEvent (en)`；`atomicAppendEvent (tn)`；逐类引用见 5.2 的证据表；`external.record` 见下一行 | confirmed（bundle 中 `createSpineEvent` 的 24 处调用与 `atomicAppendEvent` 的 24 处调用一一对应） |
-| `external.record` 由 spine.record 写入，来源为调用方给出的名字，内部来源名与会话键前缀被拒，不写邮箱指针 | `type: tA, source: { kind: r.source },`（`recordExternalSpineEvent`）；`${r.source}:${r.conversation}`（`recordExternalSpineEvent`）；`i = Dpt(r.source);`（`recordExternalSpineEvent`）；`reason: "reserved_source",`（`checkReservedRecordSource`）；`duplicate: !0`（`recordExternalSpineEvent`） | confirmed（函数体内只有 `en` 与 `tn` 两次写入，没有邮箱写入；`tA` 是取值为 `"external.record"` 的模块级常量，尚无真名） |
+| `external.record` 由 spine.record 写入，来源为调用方给出的名字，内部来源名与会话键前缀被拒，不写邮箱指针 | `type: tA, source: { kind: r.source },`（`recordExternalSpineEvent`）；`${r.source}:${r.conversation}`（`recordExternalSpineEvent`）；`i = Dpt(r.source);`（`recordExternalSpineEvent`）；`reason: "reserved_source",`（`checkReservedRecordSource`）；`duplicate: !0`（`recordExternalSpineEvent`） | confirmed（函数体内只有 `createSpineEvent (en)` 与 `atomicAppendEvent (tn)` 两次写入，没有邮箱写入；`tA` 是取值为 `"external.record"` 的模块级常量，尚无真名） |
 | void 会话不写邮箱指针，改写出站记录 | `"[gateway] void-session event (outbox, no enqueue)"`（`appendBeforeExecuteGateway`）；`"[route] delivered to void session outbox (no mailbox, no wake)"`（`deliverRouteEventToSession`） | confirmed |
 | 渠道消息与命令的来源种类取自调用方 | `kind: t.sourceKind,`（`appendBeforeExecuteGateway`）；`M = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc")`（`createDaemon`） | confirmed |
 | 渠道挂接的来源种类是会话键推出的渠道种类 | `name: "session-manager"`（`createSessionManager`）；`channel_kind: U,`（`createSessionManager`） | confirmed |
