@@ -31,7 +31,7 @@ import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import { parse } from "@babel/parser";
 import { snippetTokens, identRe, codeTokens } from "./anchor_forms.mjs";
-import { topLevelDeclarations, shapeOf, isFunctionLike, initialiserShapes, judgeInitialiser, TRIVIAL_VALUES } from "./verify_inferred.mjs";
+import { topLevelDeclarations, shapeOf, isFunctionLike, initialiserShapes, judgeInitialiser, TRIVIAL_VALUES, valueReaders, readerFeatures } from "./verify_inferred.mjs";
 
 const [DAEMON, CLI, MAPS, MODULES_ARG] = process.argv.slice(2);
 if (!DAEMON || !CLI || !MAPS) { console.error("usage: node mutate_anchor_checks.mjs <daemon.pretty.js> <cli.pretty.js> <maps-dir> [modules_daemon.json]"); process.exit(2); }
@@ -300,6 +300,9 @@ async function runAll(jobs) {
 //   - two initialisers with one shape (TW): a name on either passed clean
 //   - a move onto an initialiser sharing exactly one constant and no literal
 //     (SH): only warned, since "shares something" was the rule
+//   - two constants with one literal (TV): a name on either only warned, for
+//     ever; now their readers tell them apart, so the name on its own constant
+//     passes and moved onto the twin is refuted
 //   - a record that shares only default values (null, 0, ...) with the
 //     initialiser the name is on, its own module gone (DF): run in-process on
 //     judgeInitialiser with that one initialiser in the bundle, because with
@@ -354,6 +357,18 @@ const DF = (() => {
   }
   return null;
 })();
+// two constants with one literal, each read by code with its own strings and
+// member names, and no third holder reading like the first
+const TV = (() => {
+  const readers = valueReaders(decls);
+  for (const holders of byCanonical.values()) {
+    if (holders.length < 2) continue;
+    const feats = holders.map(n => readerFeatures(decls, readers.get(n)).join("\n"));
+    const i = feats.findIndex((f, k) => f && feats.filter(g => g === f).length === 1);
+    if (i >= 0) return [holders[i], holders.find((n, k) => k !== i)];
+  }
+  return null;
+})();
 const inferredJobs = [];
 if (!V || !M || !M2 || !M0 || !F) console.log(`skip  verify_inferred cases: no ${[!V && "unique literal constant", !M && "module initialiser with a unique shape assigning a constant", !M2 && "second, unrelated initialiser", !M0 && "initialiser without literals", !F && "function"].filter(Boolean).join(", ")} in this release`);
 else {
@@ -368,7 +383,8 @@ else {
   // check must see only the names its map has, or it warns about the rest
   const recorded = path.join(dir, "shape.all.json");
   const rec = spawnSync(process.execPath, [VI, "record", DAEMON, map({ ...base,
-    ...(TW ? { [TW[0]]: "initMutationTwinModule" } : {}), ...(SH ? { [SH[0]]: "initMutationShareModule" } : {}) }), recorded], { encoding: "utf8" });
+    ...(TW ? { [TW[0]]: "initMutationTwinModule" } : {}), ...(SH ? { [SH[0]]: "initMutationShareModule" } : {}),
+    ...(TV ? { [TV[0]]: "MUTATION_TWIN_CONSTANT" } : {}) }), recorded], { encoding: "utf8" });
   if (rec.status !== 0) { console.log(`FAIL  verify_inferred could not record the clean baseline (exit ${rec.status})\n${rec.stderr}`); bad++; }
   else {
     const all = JSON.parse(fs.readFileSync(recorded, "utf8"));
@@ -400,6 +416,13 @@ else {
         { label: `module initialiser name moved ${TW[0]} -> ${TW[1]}, its twin -> verify_inferred warns`, args: vi(DAEMON, map({ [TW[1]]: "initMutationTwinModule" }), twinShape), expect: 3 },
       );
     }
+    if (TV) {
+      const twinValueShape = baselineOf("shape.twin-value.json", ["MUTATION_TWIN_CONSTANT"]);
+      inferredJobs.push(
+        { label: `constant name on ${TV[0]}, which shares its literal with ${TV[1]}, passes on its readers`, args: vi(DAEMON, map({ [TV[0]]: "MUTATION_TWIN_CONSTANT" }), twinValueShape), expect: 0 },
+        { label: `constant name moved ${TV[0]} -> ${TV[1]}, same literal, other readers -> verify_inferred`, args: vi(DAEMON, map({ [TV[1]]: "MUTATION_TWIN_CONSTANT" }), twinValueShape), expect: 1 },
+      );
+    }
     if (SH) {
       const shareShape = baselineOf("shape.share.json", ["initMutationShareModule"]);
       inferredJobs.push(
@@ -410,6 +433,7 @@ else {
   }
 }
 if (!TW) console.log("skip  no two module initialisers share one shape this release: the twin cases did not run");
+if (!TV) console.log("skip  no two top-level constants share a literal with readers that tell them apart: the twin-constant cases did not run");
 if (!SH) console.log("skip  no two module initialisers share exactly one constant and no literal: that move did not run");
 if (!DF) console.log("skip  no two module initialisers share only default values: the default-value case did not run");
 else {

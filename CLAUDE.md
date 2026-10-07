@@ -231,7 +231,9 @@ function whose callee changed, so cite the callee too.
 inferred name. It checks that each name sits on code of its kind (function, module
 initialiser or literal constant) and is spelled for that kind, compares the code with the
 recorded shape, and fails when another recorded shape fits a body better (two names
-exchanged). It exits 0 (`inferredNames=pass`), 1 (a name is on the wrong code; the build
+exchanged). A literal constant's record also keeps what its readers look like (the strings
+and member names of the declarations that refer to it), so a constant that shares its
+literal with another is told apart by who reads it instead of warning at every rebuild. It exits 0 (`inferredNames=pass`), 1 (a name is on the wrong code; the build
 fails) or 3 (nothing refuted, but a shape changed and needs a human re-read:
 `inferredNames=warn`, which `PROMOTE=1` refuses). The re-read ends with
 `verify_inferred.mjs record` (step 1), which also keeps the next bump from being checked
