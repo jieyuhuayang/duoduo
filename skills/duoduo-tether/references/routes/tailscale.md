@@ -1,10 +1,7 @@
 # Tailscale: Funnel (R1) and a second, isolated node (R2)
 
-Reference notes for one way to expose the tether channel. The agent and its owner choose this
-option and own it, its security included; it is not an official procedure, and tether supports
-no route. Read `SKILL.md` first for its general policy, and `setup.md` for the shared requirements of every
-route and the route-neutral sections (grant handover, verification, persistence and
-handoff) apply here.
+Route notes. Read `setup.md` first: what these notes are, the requirements every route meets, and
+the route-neutral sections (grant handover, verification, persistence and handoff) that apply here.
 
 Contents:
 
@@ -41,28 +38,21 @@ tailscale funnel status
 ## R2: a second Tailscale node, tagged and isolated
 
 A second node has its own name and its own :443, so it coexists with whatever the existing node
-serves. In userspace mode it also opens a door that the policy must close. These facts are
-verified in Tailscale source, v1.102.4:
+serves. In userspace mode it also opens a door that the policy must close (sources: What is
+measured, below):
 
-- **A userspace node forwards inbound tailnet TCP to the host's loopback.**
-  `cmd/tailscaled/netstack.go` sets `ProcessLocalIPs` in userspace mode. In
-  `wgengine/netstack/netstack.go` (`acceptTCP`), a connection to the node's own Tailscale IP on a
-  port with no serve handler is redialled to `127.0.0.1:<same port>`. So every tailnet device the
-  policy lets reach this node reaches every loopback-only service on the host, the daemon's local
-  ports included.
-- **`--shields-up` cannot be the guard.** Tailscale refuses Funnel with shields-up, and shields-up
-  with Funnel: `ipn/ipnlocal/serve.go` ("Unable to turn on Funnel while shields-up is enabled"),
-  `ipn/ipnlocal/local.go` ("Cannot enable shields-up when Funnel is enabled.").
-- **The guard is the policy.** The packet filter runs before netstack (`net/tstun/wrap.go` filters
-  inbound packets; netstack receives only what passes, through its post-filter hook in
-  `wgengine/netstack/netstack.go`). So peers the policy denies never reach the loopback
-  forwarding. The node joins with a tag, and no ACL rule or grant may have a destination covering
-  that tag. The default policy's `"dst": ["*:*"]` covers tagged nodes too, so a tailnet on the
-  default allow-all policy must be edited first.
-- **Funnel does not need tailnet ACL access.** Tailscale's ingress nodes deliver Funnel traffic
-  through the node's peer API (`/v0/ingress`, registered in `ipn/ipnlocal/serve.go`), gated by the
-  ingress capability (`canIngress` in `ipn/ipnlocal/peerapi.go`). It is served only per the serve
-  config (443 → the channel's port).
+- **A userspace node forwards inbound tailnet TCP to the host's loopback.** A connection to the
+  node's Tailscale IP on a port with no serve handler reaches `127.0.0.1:<same port>`, so every
+  tailnet device the policy lets reach this node reaches every loopback-only service on the host.
+- **`--shields-up` cannot be the guard.** Tailscale refuses Funnel with shields-up, and the
+  reverse.
+- **The guard is the policy.** The packet filter runs before that forwarding, so peers the policy
+  denies never reach it. The node joins with a tag, and no ACL rule or grant may have a
+  destination covering that tag. The default policy's `"dst": ["*:*"]` covers tagged nodes too, so
+  a tailnet on the default allow-all policy must be edited first.
+- **Funnel does not need tailnet ACL access.** Funnel traffic arrives through the node's peer API,
+  gated by the ingress capability, and is served only per the serve config (443 → the channel's
+  port).
 
 ### Order of operations
 
@@ -242,3 +232,4 @@ Hand each to the owner as `setup.md` (Hand a grant to the owner) says.
 | R1/R2 with custom DERP regions present                                                      | Measured: R2 worked only while the node's home DERP was a default region. Netcheck moved home back to a closer custom region within minutes; `debug force-prefer-derp` did not hold, even re-applied by a watchdog |
 | Funnel recovery after a home-DERP change                                                    | Measured: about a minute                                                                                                                                                                                           |
 | The host's MagicDNS cannot resolve a node the policy hides                                  | Measured: `ENOTFOUND` on the host while the name resolved through a public resolver                                                                                                                                |
+| Whether vendor clouds or mainland China networks reach `ts.net`                             | Unmeasured                                                                                                                                                                                                         |

@@ -30,12 +30,10 @@ Collect every fact before choosing. Record the answers; the handoff note needs t
 | `cloudflared`, `wrangler` present                | `command -v cloudflared`; `npx wrangler --version`                                                                                                                                                                                                                                                                |
 | Loopback listeners on this host                  | macOS `lsof -nP -iTCP -sTCP:LISTEN`; Linux `ss -ltn`. Note every port: the daemon's ports, `ALADUO_REMOTE_PORT` if set, and anything else. These are the negative-test targets                                                                                                                                    |
 
-Shell notes for macOS: there is no `timeout` command. Run a command that waits for a grant in the
-background with `nohup <command> >"<log>" 2>&1 &`, then read the URL from the log.
-
 ## Choose a route
 
-Every route below is an option. You and the owner choose it, and its security is the owner's. Each
+Every route below is an option. You and the owner choose it, and its security is the owner's;
+tether supports no route. Read `SKILL.md` first for its general policy. Each
 has reference notes: the steps that worked, the security facts behind them, its grants, checks,
 persistence and rollback, and what was measured. They are not an official procedure; adapt them
 to what discovery found. Once a route is chosen, read its file whole before the first step:
@@ -44,9 +42,8 @@ to what discovery found. Once a route is chosen, read its file whole before the 
 - [cloudflare-tunnel.md](cloudflare-tunnel.md): R3 named tunnel, R4 quick tunnel.
 - [tailscale.md](tailscale.md): R1 Funnel on the existing node, R2 a second
   node with its policy edit and negative tests.
-- [relay.md](relay.md): R5, a Cloudflare Worker relay. Its code is in
-  `relay/` (`worker/` and `connector.mjs`, a reference implementation that is not
-  supported), with the frame format and connector configuration in
+- [relay.md](relay.md): R5, a Cloudflare Worker relay, with its code in the skill's
+  `assets/relay/` and the frame format and connector configuration in
   [relay-protocol.md](relay-protocol.md).
 - [openai-tunnel.md](openai-tunnel.md): R7, OpenAI's Secure MCP Tunnel.
 - [direct.md](direct.md): R8, binding the channel to a fixed IP or a LAN
@@ -63,7 +60,8 @@ Whatever the route, it must:
   `/authorize` GET, POST; `/token` POST; `/revoke` POST; `/enroll` GET; `/enroll/options` POST;
   `/enroll/finish` POST (or every path of one hostname that reaches only the channel, which
   answers 404 to the rest);
-- pass request and response bodies and headers unchanged;
+- pass request and response bodies and headers unchanged: MCP 2026-07-28 clients such as ChatGPT
+  fail with -32020 when `Mcp-Method` or `Mcp-Name` is dropped;
 - never rewrite `Origin`: the channel refuses `POST /mcp` whose `Origin` is not the public origin;
 - never buffer a `text/event-stream` answer, and not cut it off while it stays open (an
   assistant's push subscription, `mail.md`, Listen stream);
@@ -92,11 +90,8 @@ Facts that hold across routes:
   Cloudflare terminates TLS and sees bearer tokens, authorization codes and enrollment secrets in
   transit. Tell the owner this before choosing one of them.
 - What you must own: R1 adds nothing; R6 adds a site on the owner's gateway; R3 adds a tunnel; R2
-  adds a node and a policy change; R5 adds a Worker and a connector process you keep; their code is a reference implementation, not supported. R3 and R5 open no inbound
+  adds a node and a policy change; R5 adds a Worker and a connector process you keep. R3 and R5 open no inbound
   port and coexist with anything already running.
-- The passkey's relying party is the public hostname, so the hostname must stay stable. R4's
-  hostname changes on every restart, which voids every passkey and every connection: never use
-  it for assistants.
 
 ### Situation → route
 
@@ -182,7 +177,8 @@ Negative:
 - The route's own checks, in its notes file.
 - The redirect check, with the owner on the first connect (`SKILL.md` step 4): after the owner
   approves with the passkey, the browser must land on the client's redirect URI with a `code` and
-  the app must finish connecting, not stop on an error page of whatever sits in between.
+  the app must finish connecting, not stop on an error page of whatever sits in between. Deny
+  cannot run this check: it follows no address and the app is not told (`SKILL.md` step 4).
 
 If any check fails, take the new path down and tell the owner before anything else.
 

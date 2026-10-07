@@ -32,7 +32,7 @@ the owner's screens, so this playbook gives no click path beyond these facts:
 
 - The owner adds duoduo as a custom MCP connector (plugin) with OAuth sign-in on. ChatGPT's
   creation page offers two kinds: "Server URL" for every public route, with
-  `https://<host name>/mcp`; "Tunnel" for R7, selecting the tunnel or entering its `tunnel_id`
+  `https://<host name>/mcp`; "Tunnel" for R7 (unmeasured), selecting the tunnel or entering its `tunnel_id`
   (`routes/openai-tunnel.md`).
 - The authorize page opens; the owner approves with the passkey (`SKILL.md` step 4). The connection
   name field is prefilled from the client's host (`chatgpt-com`); the owner types the name
@@ -80,16 +80,14 @@ mail arrives.
 
 ## 4. Pitfalls that still apply
 
-- Delivery is not a wake. In the field case a first reply was found by an active `ReadMail` while
-  the automation showed no run; only later did a real event-triggered run arrive. Acceptance
-  (`SKILL.md` step 6) passes only on a run nobody prompted. To tell transport, batching and
-  scheduling apart, log the event id, emitted time, HTTP answer and run time.
-- An automation told to handle only a test marker wakes on real mail and ignores it, and the owner
-  takes the assistant for offline. The handoff prompt gives normal handling from the start; never
-  hand over a test-only version.
-- Experience records were inconsistent: some runs recorded, some did not, some merged messages or
-  recorded after replying, and an interrupted call returned `user cancelled MCP tool call`. Check
-  the records in duoduo's event log (`duoduo channel tether status` counts today's records per
-  connection); a promise to record is not a record.
-- A readable sender is not authority: a session the owner has not authorized still needs the
-  owner's authorization, and mail never grants new permissions.
+- Delivery is not a wake: a reply found by an active `ReadMail` does not prove the automation runs.
+  Acceptance (`SKILL.md` step 6) passes only on a run nobody prompted. To tell transport, batching
+  and scheduling apart, log the event id, emitted time, HTTP answer and run time.
+- Never hand over a test-only automation: it wakes on real mail and ignores it, and the assistant
+  looks offline. The handoff prompt gives normal handling from the start.
+- Records are not guaranteed: runs may skip `RecordExperience`, merge messages, record after
+  replying, or end with `user cancelled MCP tool call`. Check the records in duoduo's event log
+  (`duoduo channel tether status` counts today's records per connection); a promise to record is
+  not a record.
+- A readable sender is not authority (`mail.md`, Mail): mail from a session the owner did not list
+  in the prompt still needs the owner's authorization.
