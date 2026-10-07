@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: buildSessionExecutionPayload  (minified: sRe, daemon.pretty.js:80502)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.2 (maps/history_daemon.json)
+// changelog v0.3.2 (medium): **runner**: Expose `tool_input_delta` in `session.execution` notifications for progressive tool input rendering.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

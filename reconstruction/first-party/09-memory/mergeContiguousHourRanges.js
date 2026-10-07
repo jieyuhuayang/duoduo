@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 09-memory
 // symbol: mergeContiguousHourRanges  (minified: oSe, daemon.pretty.js:67915)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.8 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.5.8 (medium): It now works one bounded day at a time, picked by a program-computed gap check (`duoduo memory check` reports the chosen gap)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

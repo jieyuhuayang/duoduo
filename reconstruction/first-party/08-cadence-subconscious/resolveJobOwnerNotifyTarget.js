@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: resolveJobOwnerNotifyTarget  (minified: Klt, daemon.pretty.js:65428)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.8.0 (maps/history_daemon.json)
+// changelog v0.8.0 (medium): Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

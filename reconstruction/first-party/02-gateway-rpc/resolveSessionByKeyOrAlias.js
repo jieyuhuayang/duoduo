@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: resolveSessionByKeyOrAlias  (minified: fp, daemon.pretty.js:90948)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.5.4 (high): `duoduo session notify <target> -m "<msg>"` — wake another session by key or alias
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
 // symbol: handleDrainError  (minified: TS, daemon.pretty.js:72539)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.4, v0.5.6, v0.5.10, v0.6.0 (maps/history_daemon.json)
+// changelog v0.5.0 (high): the runner now writes a `[duoduo:drain-error]` outbox reply to the anchor event's channel and a matching `agent.error` spine event, instead of silently dropping the turn.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

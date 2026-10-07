@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: renderTimeGapContextBlock  (minified: jmt, daemon.pretty.js:71942)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.3.0 — first release whose bundle holds this declaration; body changed in v0.5.0 (maps/history_daemon.json)
+// changelog v0.3.0 (high): **runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.
+// changelog v0.5.0 (high): Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

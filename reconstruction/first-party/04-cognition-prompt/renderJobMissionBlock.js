@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: renderJobMissionBlock  (minified: eye, daemon.pretty.js:55402)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.4.5 — first release whose bundle holds this declaration; body changed in v0.5.4, v0.8.0 (maps/history_daemon.json)
+// changelog v0.4.5 (high): **Periodic job mission as system prompt** (#45): job instructions are no longer re-sent as user messages on every cron tick. The mission is injected into the system-prompt append layer (new 6th layer in the prompt taxonomy)
+// changelog v0.5.4 (high): Stateless runs receive an explicit contract: state is not retained, any dependency must be persisted, and the run must end with an acceptance rubric.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
 // symbol: buildCodexTurnInput  (minified: R6, daemon.pretty.js:62280)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.7.0 (high): **Codex sessions accept inbound images** as first-class turn input rather than as a path the model has to open for itself.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

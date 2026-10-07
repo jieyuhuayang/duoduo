@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: updateSessionDisplayName  (minified: wce, daemon.pretty.js:35640)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.4, v0.7.0 (maps/history_daemon.json)
+// changelog v0.5.4 (medium): `duoduo session alias <key> "<name>"` — give a session a human label
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -31,6 +31,12 @@ if (!INFERRED) {
 const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8"));
 const PUBLISHED = path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "published_"));
 const published = fs.existsSync(PUBLISHED) ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : {}; // real -> {package, file}
+// release history (tools/history.sh): real -> {firstSeen, changedIn}; and the
+// CHANGELOG entries paired with a symbol's first release: real -> [{version, confidence, changelog}]
+const HISTORY = path.join(path.dirname(INFERRED), "history_daemon.json");
+const history = fs.existsSync(HISTORY) ? JSON.parse(fs.readFileSync(HISTORY, "utf8")).symbols : null;
+const CHANGELOG = path.join(path.dirname(INFERRED), "changelog_daemon.json");
+const changelog = fs.existsSync(CHANGELOG) ? JSON.parse(fs.readFileSync(CHANGELOG, "utf8")).symbols : {};
 const src = fs.readFileSync(RECON, "utf8");
 const renameMap = JSON.parse(fs.readFileSync(MAP, "utf8")); // mangled -> newName
 const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8")); // newName -> subsystem
@@ -111,6 +117,10 @@ for (const newName of renamed) {
         ? `// name: INFERRED — upstream's own spelling, confirmed against the published source ${published[newName].package} ${published[newName].file} (maps/published_daemon.json)\n`
         : `// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)\n`)
       : `// name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement\n`) +
+    (history && history[newName] && history[newName].firstSeen
+      ? `// since: v${history[newName].firstSeen} — first release whose bundle holds this declaration; body changed in ${history[newName].changedIn.length ? history[newName].changedIn.map(v => "v" + v).join(", ") : "no later release"} (maps/history_daemon.json)\n`
+      : "") +
+    (changelog[newName] ?? []).filter(c => c.confidence !== "low").map(c => `// changelog v${c.version} (${c.confidence}): ${c.changelog.replace(/\s+/g, " ")}\n`).join("") +
     `// NOTE: readable extract from daemon.recon.js; references other top-level\n` +
     `// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).\n\n`;
   fs.writeFileSync(path.join(dir, `${newName}.js`), header + text + "\n");

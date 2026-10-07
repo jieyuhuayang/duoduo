@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
 // symbol: createAgentSdkAdapter  (minified: Lf, daemon.pretty.js:55529)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
+// changelog v0.8.4 (high): **Claude Code's own auto memory is off** in every Claude session duoduo starts, because it would keep a second memory store beside duoduo's.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

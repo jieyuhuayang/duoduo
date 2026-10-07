@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: validateConfigValue  (minified: _ct, daemon.pretty.js:88340)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.1 (maps/history_daemon.json)
+// changelog v0.5.10 (medium): enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

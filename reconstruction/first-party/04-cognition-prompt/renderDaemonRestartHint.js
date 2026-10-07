@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: renderDaemonRestartHint  (minified: uwe, daemon.pretty.js:66122)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// changelog v0.6.2 (medium): `-r "<what changed>"` reaches every session that wakes after the restart
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

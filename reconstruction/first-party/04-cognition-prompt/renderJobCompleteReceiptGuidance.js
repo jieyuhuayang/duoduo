@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: renderJobCompleteReceiptGuidance  (minified: $mt, daemon.pretty.js:71750)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.4.0 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.8.0 (maps/history_daemon.json)
+// changelog v0.4.0 (medium): fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

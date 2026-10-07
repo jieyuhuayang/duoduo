@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: collectInstructionsInputs  (minified: qRe, daemon.pretty.js:82851)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.1 — first release whose bundle holds this declaration; body changed in v0.5.2, v0.5.6, v0.8.0 (maps/history_daemon.json)
+// changelog v0.5.1 (high): The per-session sticky-mission guard now fingerprints identity + kind prompt + instance prompt + memory board + mission, not just the mission.
+// changelog v0.5.2 (medium): injects the rendered import graph into both Claude and Codex sessions through one path.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

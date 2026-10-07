@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: removeHostModelEnvLines  (minified: VSe, daemon.pretty.js:69080)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// changelog v0.4.3 (medium): refactor: simplify host onboarding auth flow
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

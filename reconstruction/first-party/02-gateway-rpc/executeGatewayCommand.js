@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: executeGatewayCommand  (minified: Fet, daemon.pretty.js:87857)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.5.0, v0.5.3, v0.5.5, v0.5.6, v0.5.7, v0.6.0, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// changelog v0.8.3 (high): On a Claude model without `max` support the request runs as `high`, and the `/effort max` reply says so.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

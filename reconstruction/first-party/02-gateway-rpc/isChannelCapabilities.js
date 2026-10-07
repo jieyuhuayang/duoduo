@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: isChannelCapabilities  (minified: A8e, daemon.pretty.js:31713)
 // name: INFERRED — upstream's own spelling, confirmed against the published source @openduo/protocol@0.8.4 channel.ts (maps/published_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.6 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

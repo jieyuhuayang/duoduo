@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: describeChannelInstance  (minified: tvt, daemon.pretty.js:90778)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.4, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.0 (high): descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.
+// changelog v0.5.3 (medium): Setup cards only show runtime choices the daemon can actually run.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

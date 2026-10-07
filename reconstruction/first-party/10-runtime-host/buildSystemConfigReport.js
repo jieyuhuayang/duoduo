@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: buildSystemConfigReport  (minified: Jbt, daemon.pretty.js:90568)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.3.3 — first release whose bundle holds this declaration; body changed in v0.4.3, v0.4.5, v0.5.0, v0.5.3, v0.6.0, v0.8.0, v0.8.2, v0.8.4 (maps/history_daemon.json)
+// changelog v0.3.3 (high): **daemon**: `system.config` RPC — inspect effective runtime configuration (network, sessions, cadence, SDK, paths) with source tracking (`env` / `default` / `unset`).
+// changelog v0.4.5 (high): Exposed in `system.config` RPC and dashboard.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

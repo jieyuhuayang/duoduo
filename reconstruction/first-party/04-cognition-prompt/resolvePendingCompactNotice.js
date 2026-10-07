@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: resolvePendingCompactNotice  (minified: Dmt, daemon.pretty.js:71890)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.10 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.5.10 (high): A one-line notice on the session's next reply reports what was compacted and its measured stats, so retuning is based on real numbers rather than guesswork. See the `smart-compaction` skill
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

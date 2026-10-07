@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
 // symbol: mapGrokUsageToDrainUsage  (minified: qut, daemon.pretty.js:63378)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
+// changelog v0.7.1 (high): Token and cache accounting understands Grok's own reporting shape, so cost numbers stay comparable across the three.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

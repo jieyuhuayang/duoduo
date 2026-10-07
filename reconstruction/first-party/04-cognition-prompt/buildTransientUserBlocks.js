@@ -1,6 +1,10 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: buildTransientUserBlocks  (minified: Vxe, daemon.pretty.js:71970)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.5, v0.5.2, v0.5.5, v0.5.10, v0.6.0, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
+// changelog v0.3.0 (medium): **runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.
+// changelog v0.5.10 (medium): A one-line notice on the session's next reply reports what was compacted and its measured stats, so retuning is based on real numbers rather than guesswork. See the `smart-compaction` skill
+// changelog v0.6.2 (medium): `-r "<what changed>"` reaches every session that wakes after the restart
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

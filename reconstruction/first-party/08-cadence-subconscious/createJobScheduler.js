@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: createJobScheduler  (minified: Nbt, daemon.pretty.js:87008)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

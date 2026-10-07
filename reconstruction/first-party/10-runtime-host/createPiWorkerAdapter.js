@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: createPiWorkerAdapter  (minified: vA, daemon.pretty.js:73070)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.2 (maps/history_daemon.json)
+// changelog v0.8.0 (high): pi joins Claude, Codex and Grok as a fourth agent runtime.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

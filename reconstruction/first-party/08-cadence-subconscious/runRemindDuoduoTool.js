@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: runRemindDuoduoTool  (minified: Mg, daemon.pretty.js:64973)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.8.2 (high): `RemindDuoduo` books one future turn of the calling session — no key, no target. For a job session it is one more fire of its own schedule. Cancel a pending one with `duoduo job archive <id>`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

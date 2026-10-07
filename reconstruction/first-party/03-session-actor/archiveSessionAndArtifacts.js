@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: archiveSessionAndArtifacts  (minified: hwe, daemon.pretty.js:66154)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0 (maps/history_daemon.json)
+// changelog v0.5.0 (high): `session.archive` RPC + `duoduo session archive <session_key>` CLI retired the old ad-hoc deletion paths. Archive moves the session dir to `var/sessions-archive/`; recovery is `mv` back.
+// changelog v0.6.0 (high): Archiving now refuses unless the session is provably empty of pending work (checking every shape of in-flight work), ignores channel placeholder actors, and treats the archive marker as a real "about to disappear" signal.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

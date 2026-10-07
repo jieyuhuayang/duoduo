@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
 // symbol: clearModelOverrideOnRuntimeFlip  (minified: lht, daemon.pretty.js:72595)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
+// changelog v0.5.6 (medium): `/model <id>` to switch the running session, `/model reset` to restore the daemon default. On Claude sessions the change takes effect on the next turn; on Codex sessions it is applied at the next thread fork.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

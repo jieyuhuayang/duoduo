@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: isChannelSpawnParams  (minified: kR, daemon.pretty.js:31705)
 // name: INFERRED — upstream's own spelling, confirmed against the published source @openduo/protocol@0.8.4 channel.ts (maps/published_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.7.1, v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.0 (high): new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.
+// changelog v0.8.4 (high): `channel.spawn` takes an optional `session_key` and creates that session bound to the channel.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

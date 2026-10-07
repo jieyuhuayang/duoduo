@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: renderJobFileMarkdown  (minified: gut, daemon.pretty.js:61576)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.4, v0.5.4, v0.5.6, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
+// changelog v0.4.4 (high): fix(job): serialize runtime field in frontmatter
+// changelog v0.5.4 (high): A periodic job that does not depend on prior-run state can set `stateless: true`
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

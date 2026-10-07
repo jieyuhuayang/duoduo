@@ -1,0 +1,3644 @@
+{
+ "bundle": "cli",
+ "version": "v0.8.4",
+ "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
+ "symbolCount": 60,
+ "counts": {
+  "env": 0,
+  "logPrefixes": 0,
+  "dotted": 6,
+  "paths": 10,
+  "strings": 362,
+  "unnamedUsed": 91
+ },
+ "symbols": {
+  "CLI_DAEMON_TOKEN_ENV_KEY": {
+   "mangled": "TB",
+   "line": 67257,
+   "kind": "var",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "readDaemonTokenFromEnvFile",
+    "writeDaemonTokenToEnvFile"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "ALADUO_DAEMON_TOKEN"
+   ]
+  },
+  "PLIST_LABEL": {
+   "mangled": "$b",
+   "line": 20863,
+   "kind": "var (uninitialised)",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "generatePlist",
+    "plistPath"
+   ],
+   "refByUnnamed": [
+    "y1"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "SpineCommandError": {
+   "mangled": "YT",
+   "line": 67186,
+   "kind": "var (uninitialised)",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runSpineCommand"
+   ],
+   "refByUnnamed": [
+    "Ar"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "clearOwnRestartReasonFile": {
+   "mangled": "m8",
+   "line": 67809,
+   "kind": "async function",
+   "refs": [
+    "resolveRestartReasonFilePath"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "restartDaemonWithReason"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "utf8"
+   ]
+  },
+  "createDaemonToken": {
+   "mangled": "OJ",
+   "line": 68243,
+   "kind": "async function",
+   "refs": [
+    "generateDaemonTokenHex",
+    "readDaemonTokenFromEnvFile",
+    "writeDaemonTokenToEnvFile"
+   ],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "oZe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate."
+   ]
+  },
+  "defaultExistingDaemonChoice": {
+   "mangled": "FEe",
+   "line": 74703,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "parseExistingDaemonChoice"
+   ],
+   "refByUnnamed": [
+    "XXe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "once",
+    "save"
+   ]
+  },
+  "executeSpine": {
+   "mangled": "SEe",
+   "line": 66752,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "GXe",
+    "kXe"
+   ],
+   "refBy": [
+    "runSpineCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "cat"
+   ]
+  },
+  "generateDaemonTokenHex": {
+   "mangled": "Y2e",
+   "line": 68240,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createDaemonToken"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "hex"
+   ]
+  },
+  "generatePlist": {
+   "mangled": "yJ",
+   "line": 20781,
+   "kind": "function",
+   "refs": [
+    "PLIST_LABEL"
+   ],
+   "refsUnnamed": [
+    "R_"
+   ],
+   "refBy": [
+    "installAndLoad"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "</string>"
+   ],
+   "strings": [
+    "\n    </array>\n    <key>LimitLoadToSessionType</key>\n    <string>Aqua</string>\n    <key>KeepAlive</key>\n    <true/>\n    <key>StandardOutPath</key>\n    <string>",
+    "\n    </dict>",
+    "\n</dict>\n</plist>\n",
+    "      <key>",
+    "      <string>",
+    "    <key>EnvironmentVariables</key>\n    <dict>\n",
+    "</key>\n      <string>",
+    "</string>\n",
+    "</string>\n    <key>ProgramArguments</key>\n    <array>\n",
+    "</string>\n    <key>StandardErrorPath</key>\n    <string>",
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n    <key>Label</key>\n    <str…"
+   ]
+  },
+  "getLaunchdPid": {
+   "mangled": "Op",
+   "line": 20822,
+   "kind": "async function",
+   "refs": [
+    "getUid"
+   ],
+   "refsUnnamed": [
+    "vp",
+    "y1"
+   ],
+   "refBy": [
+    "restartDaemonWithReason"
+   ],
+   "refByUnnamed": [
+    "D1",
+    "DJ",
+    "L2e",
+    "jb"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "launchctl",
+    "print"
+   ]
+  },
+  "getUid": {
+   "mangled": "b_",
+   "line": 20762,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "vp"
+   ],
+   "refBy": [
+    "getLaunchdPid",
+    "installAndLoad",
+    "isServiceLoaded",
+    "kickstart",
+    "unload"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "-u",
+    "id"
+   ]
+  },
+  "inferOnboardConfigFromProbe": {
+   "mangled": "JXe",
+   "line": 74712,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "BEe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "host",
+    "local"
+   ]
+  },
+  "installAndLoad": {
+   "mangled": "lk",
+   "line": 20837,
+   "kind": "async function",
+   "refs": [
+    "generatePlist",
+    "getUid",
+    "plistPath"
+   ],
+   "refsUnnamed": [
+    "TJ",
+    "vp",
+    "y1"
+   ],
+   "refBy": [],
+   "refByUnnamed": [
+    "L2e"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "bootout",
+    "bootstrap",
+    "launchctl",
+    "utf8"
+   ]
+  },
+  "isAquaSession": {
+   "mangled": "sk",
+   "line": 20755,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "L2e"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "isDetachedUpgradeWorker": {
+   "mangled": "rZe",
+   "line": 74933,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "UEe"
+   ],
+   "refBy": [
+    "runUpgradeCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "isInstallTargetFilePath": {
+   "mangled": "zXe",
+   "line": 74651,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runChannelCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    ".tgz"
+   ],
+   "strings": []
+  },
+  "isServiceLoaded": {
+   "mangled": "D_",
+   "line": 20814,
+   "kind": "async function",
+   "refs": [
+    "getUid"
+   ],
+   "refsUnnamed": [
+    "vp",
+    "y1"
+   ],
+   "refBy": [
+    "restartDaemonWithReason"
+   ],
+   "refByUnnamed": [
+    "D1",
+    "DJ",
+    "Xb"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "launchctl",
+    "print"
+   ]
+  },
+  "jobHelp": {
+   "mangled": "lU",
+   "line": 63723,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runJobSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "                          8601 timestamp with an explicit zone). The job's",
+    "                          Request the end of the run in progress. -r is",
+    "                          Set ONE extra fire at <when> ('@in 30m', or an ISO",
+    "                          required: the reason is what the interrupted",
+    "                          runs to its end; the job's session is archived with it.",
+    "                          schedule class is never changed.",
+    "                          session is told on its next run.",
+    "  archive <id> [--json]   Stop future scheduling. A run already in progress",
+    "  interrupt <id> -r \"<reason>\" [--json]",
+    "  list [--json]           List active jobs with schedule and last outcome.",
+    "  read <id> [--json]      Show one job's definition, instruction and last run.",
+    "  reschedule <id> <when> [--json]",
+    "Nothing is deleted: an archived job's files move to var/jobs/archive/.",
+    "Subcommands:",
+    "Usage: duoduo job <subcommand> [args]"
+   ]
+  },
+  "kickstart": {
+   "mangled": "ck",
+   "line": 20848,
+   "kind": "async function",
+   "refs": [
+    "getUid"
+   ],
+   "refsUnnamed": [
+    "vp",
+    "y1"
+   ],
+   "refBy": [
+    "restartDaemonWithReason"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "-k",
+    "kickstart",
+    "launchctl"
+   ]
+  },
+  "main": {
+   "mangled": "dZe",
+   "line": 75520,
+   "kind": "async function",
+   "refs": [
+    "parseRootCli",
+    "printHelp",
+    "readCliPackageVersion",
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ],
+   "refsUnnamed": [
+    "$a",
+    "BEe",
+    "Epe",
+    "NEe",
+    "ZXe",
+    "aEe",
+    "ape",
+    "epe",
+    "lpe",
+    "oZe",
+    "ppe",
+    "sEe",
+    "tpe",
+    "vEe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "auto",
+    "channel",
+    "chat",
+    "daemon",
+    "help",
+    "job",
+    "memory",
+    "onboard",
+    "prompts",
+    "session",
+    "spine",
+    "upgrade",
+    "version"
+   ]
+  },
+  "notifyRestartWakeTargets": {
+   "mangled": "BJ",
+   "line": 68294,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "$H",
+    "Ba"
+   ],
+   "refBy": [
+    "runUpgradeCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [
+    "session.notify"
+   ],
+   "paths": [],
+   "strings": [
+    " — candidates: ",
+    ", ",
+    "daemon-restart",
+    "notify failed",
+    "notify refused"
+   ]
+  },
+  "parseExistingDaemonChoice": {
+   "mangled": "$Xe",
+   "line": 74707,
+   "kind": "function",
+   "refs": [
+    "defaultExistingDaemonChoice"
+   ],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "XXe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "exit",
+    "once",
+    "save",
+    "wizard"
+   ]
+  },
+  "parseJobCli": {
+   "mangled": "npe",
+   "line": 63728,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runJobSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " argument: ",
+    " requires a job id",
+    " requires a value",
+    " takes no -r/--reason",
+    "--help",
+    "--json",
+    "--reason",
+    "--reason=",
+    "-h",
+    "-r",
+    "archive",
+    "error: ",
+    "error: duoduo job ",
+    "error: duoduo job interrupt requires -r \"<reason>\"",
+    "error: duoduo job interrupt requires a job id",
+    "error: duoduo job reschedule requires <when>: '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone",
+    "error: duoduo job reschedule requires a job id",
+    "error: unknown duoduo job ",
+    "error: unknown duoduo job interrupt argument: ",
+    "error: unknown duoduo job list argument: ",
+    "error: unknown duoduo job reschedule argument: ",
+    "error: unknown duoduo job subcommand: ",
+    "help",
+    "interrupt",
+    "list",
+    "read",
+    "reschedule"
+   ]
+  },
+  "parseRestartArgs": {
+   "mangled": "eZe",
+   "line": 74878,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "oZe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " needs a value\n  try: duoduo daemon restart -r \"what you changed\"",
+    "--reason",
+    "--reason=",
+    "--wake",
+    "--wake=",
+    "-r",
+    "error: ",
+    "error: --wake needs a session key or alias\n  try: duoduo daemon restart -r \"why\" --wake my_journal",
+    "error: unknown daemon restart argument: "
+   ]
+  },
+  "parseRootCli": {
+   "mangled": "KXe",
+   "line": 74655,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "main"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "--help",
+    "--version",
+    "-h",
+    "-v",
+    "auto",
+    "channel",
+    "chat",
+    "daemon",
+    "help",
+    "job",
+    "memory",
+    "onboard",
+    "prompts",
+    "session",
+    "spine",
+    "upgrade",
+    "version"
+   ]
+  },
+  "parseSpineArgs": {
+   "mangled": "hEe",
+   "line": 66743,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "$r",
+    "Ar",
+    "CEe",
+    "DXe",
+    "UXe"
+   ],
+   "refBy": [
+    "runSpineCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "Unknown spine subcommand: ",
+    "cat",
+    "show"
+   ]
+  },
+  "parseUpgradeArgs": {
+   "mangled": "sZe",
+   "line": 75131,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "UJ"
+   ],
+   "refBy": [
+    "runUpgradeCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "\" — expected a version or a dist-tag (e.g. 0.6.2, latest).\n  Installing from a path, URL or git remote is not supported here.",
+    "--wake",
+    "--wake=",
+    "error: --wake needs a session key or alias\n  try: duoduo upgrade --wake my_journal",
+    "error: unexpected extra argument: ",
+    "error: unknown upgrade argument: ",
+    "error: unsupported version \"",
+    "latest"
+   ]
+  },
+  "plistPath": {
+   "mangled": "ak",
+   "line": 20759,
+   "kind": "function",
+   "refs": [
+    "PLIST_LABEL"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "installAndLoad",
+    "uninstall"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    ".plist"
+   ],
+   "strings": [
+    "LaunchAgents",
+    "Library"
+   ]
+  },
+  "printHelp": {
+   "mangled": "PEe",
+   "line": 74756,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "main"
+   ],
+   "refByUnnamed": [
+    "BEe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "  --daemon-url <url>          Override daemon URL",
+    "  -h, --help                  Show chat help",
+    "  -n, --named-session <name>  Use a named session",
+    "  duoduo --version           Print the installed duoduo version",
+    "  duoduo [chat options]",
+    "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]",
+    "  duoduo channel install <package-name>",
+    "  duoduo channel list",
+    "  duoduo chat [chat options]",
+    "  duoduo daemon <start|stop|restart|status|config|logs>",
+    "  duoduo daemon token new     Generate a remote-access bearer token",
+    "  duoduo job list|read|archive|interrupt|reschedule ...",
+    "  duoduo onboard              Run onboarding wizard and exit (no chat, no daemon)",
+    "  duoduo prompts [name]      List named prompts, or print one's full text",
+    "  duoduo session list|alias|notify|compact|archive ...",
+    "  duoduo spine cat|show ...  Read the event log (transcript, or one event)",
+    "  duoduo upgrade [version] [--wake <session-or-alias>]",
+    "Chat options:",
+    "Usage:",
+    "duoduo CLI"
+   ]
+  },
+  "readCliPackageVersion": {
+   "mangled": "jXe",
+   "line": 74752,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "main"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "../../package.json"
+   ],
+   "strings": [
+    "unknown"
+   ]
+  },
+  "readDaemonTokenFromEnvFile": {
+   "mangled": "r8",
+   "line": 67365,
+   "kind": "async function",
+   "refs": [
+    "CLI_DAEMON_TOKEN_ENV_KEY",
+    "resolveHostEnvFilePath"
+   ],
+   "refsUnnamed": [
+    "yB"
+   ],
+   "refBy": [
+    "createDaemonToken"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "ENOENT",
+    "utf8"
+   ]
+  },
+  "readOption": {
+   "mangled": "tv",
+   "line": 74721,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runChannelCommand"
+   ],
+   "refByUnnamed": [
+    "BEe",
+    "oZe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "reasonlessRestartRefusal": {
+   "mangled": "tZe",
+   "line": 74910,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "oZe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "error: refusing to restart the daemon without --reason. The reason reaches every session woken after the restart, and a session whose turn this kills has no other way to learn why — absent one, its li…"
+   ]
+  },
+  "renderChannelNotInstalled": {
+   "mangled": "uZe",
+   "line": 75508,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runDeclaredChannelVerb"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " cannot run. Nothing was done. Install it: duoduo channel install @openduo/channel-",
+    " channel is not installed here, so duoduo channel ",
+    ", then run the same command again.",
+    "The "
+   ]
+  },
+  "renderCompactResult": {
+   "mangled": "Xge",
+   "line": 63210,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "Ch",
+    "dr",
+    "fJe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [
+    "AJe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "\ncompact only applies to interactive channel sessions — ",
+    "\ncompact: session is being archived, retry later.\n",
+    " (event ",
+    " is a ",
+    " session (per-run query, no resident process to compact).\n",
+    " sessions. Re-run with one of the SESSION_KEY values above to disambiguate.\n",
+    "' matches ",
+    ".\nIt runs on that session's next turn; the context shrinks from then on.\nThis call does not wait for completion and returns no token delta.\n",
+    "ALIAS",
+    "AMBIGUOUS_TARGET",
+    "ERROR",
+    "KIND",
+    "SESSION_KEY",
+    "STATUS",
+    "TARGET",
+    "ambiguous",
+    "archiving",
+    "compact queued for ",
+    "delivery_failed",
+    "forbidden_kind",
+    "not_found",
+    "unknown",
+    "void_session"
+   ]
+  },
+  "renderConfigResult": {
+   "mangled": "Zge",
+   "line": 63582,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "CJe",
+    "Ch",
+    "SJe",
+    "TJe",
+    "_Je",
+    "dr",
+    "hJe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [
+    "mJe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "\nclaude.tools (read-only; edit the kind/instance descriptor file — applies on the session's next subprocess respawn):\n",
+    "\ncompact_stats (measured):\n",
+    "\nconfig only applies to interactive channel sessions.\n",
+    "\nconfig: session is being archived, retry later.\n",
+    " sessions. Re-run with one of the SESSION_KEY values above.\n",
+    "' matches ",
+    ", ",
+    "ALIAS",
+    "AMBIGUOUS_TARGET",
+    "ERROR",
+    "KEY",
+    "KIND",
+    "SESSION_KEY",
+    "SOURCE",
+    "STAT",
+    "STATUS",
+    "SURFACE",
+    "TARGET",
+    "TOOLS",
+    "VALUE",
+    "ambiguous",
+    "archiving",
+    "config for ",
+    "effective",
+    "forbidden_kind",
+    "get",
+    "global (kernel/config/runtime.md)",
+    "instance",
+    "instance extra",
+    "invalid",
+    "kind",
+    "kind ",
+    "kind extra",
+    "not_found",
+    "profile_alias_set",
+    "session ",
+    "write_failed"
+   ]
+  },
+  "renderInterruptReceipt": {
+   "mangled": "ope",
+   "line": 63854,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runJobSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "': interruption requested; your reason reaches its next run.",
+    "': no run in progress (",
+    "). Nothing was interrupted and no reason was left for its next run. `duoduo job archive ",
+    "A run that finished in the instant before the request landed settles as the success it",
+    "How far this reaches: the runtime is asked to stop. A tool that ignores its abort",
+    "Job '",
+    "The run settles on its own: a one-shot that was never re-armed is archived and its",
+    "` stops future runs.\n",
+    "owner receives job.fail; any other job stays scheduled and receives no receipt; a run",
+    "signal is not killed, and work the run detached from the runtime is not reached.",
+    "that had not yet acknowledged its turn is preserved as if it never started.",
+    "unknown",
+    "was, and your reason opens the job's next run instead."
+   ]
+  },
+  "renderJobList": {
+   "mangled": "rpe",
+   "line": 63825,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "RJe"
+   ],
+   "refBy": [
+    "runJobSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "CRON",
+    "ID",
+    "LAST_RESULT",
+    "LAST_RUN",
+    "No active jobs.\n",
+    "RUNS",
+    "RUN_AT",
+    "unknown"
+   ]
+  },
+  "renderJobRead": {
+   "mangled": "ipe",
+   "line": 63834,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "bJe"
+   ],
+   "refBy": [
+    "runJobSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "(default)",
+    "--- instruction ---",
+    "active",
+    "cron: ",
+    "execution_cwd: ",
+    "id: ",
+    "kind: ",
+    "last_error: ",
+    "last_result: ",
+    "last_run_at: ",
+    "last_run_started_at: ",
+    "model: ",
+    "run_at: ",
+    "run_count: ",
+    "runtime: ",
+    "session_key: ",
+    "string",
+    "unknown",
+    "wake"
+   ]
+  },
+  "renderRpcError": {
+   "mangled": "spe",
+   "line": 63865,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "kT"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "error: daemon rejected ",
+    "string"
+   ]
+  },
+  "renderSessionList": {
+   "mangled": "jge",
+   "line": 62760,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [
+    "Ch",
+    "dr"
+   ],
+   "refBy": [],
+   "refByUnnamed": [
+    "Z$e"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " (orphan)",
+    "ALIAS",
+    "KIND",
+    "LAST_EVENT",
+    "PLANE",
+    "SESSION_KEY"
+   ]
+  },
+  "resolveHostEnvFilePath": {
+   "mangled": "BA",
+   "line": 67259,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "readDaemonTokenFromEnvFile",
+    "writeDaemonTokenToEnvFile"
+   ],
+   "refByUnnamed": [
+    "$a",
+    "BI",
+    "RB",
+    "jS",
+    "n8",
+    "o8"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    ".config",
+    ".env"
+   ],
+   "strings": [
+    "duoduo"
+   ]
+  },
+  "resolveRestartReasonFilePath": {
+   "mangled": "p8",
+   "line": 67803,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "clearOwnRestartReasonFile",
+    "writeRestartReasonFile"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "daemon-restart-reason.json"
+   ],
+   "strings": []
+  },
+  "restartDaemonWithReason": {
+   "mangled": "pk",
+   "line": 68254,
+   "kind": "async function",
+   "refs": [
+    "clearOwnRestartReasonFile",
+    "getLaunchdPid",
+    "isServiceLoaded",
+    "kickstart",
+    "writeRestartReasonFile"
+   ],
+   "refsUnnamed": [
+    "Bp",
+    "Oa",
+    "Xb",
+    "jb",
+    "ol",
+    "v_"
+   ],
+   "refBy": [
+    "runUpgradeCommand"
+   ],
+   "refByUnnamed": [
+    "oZe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "daemon restart timed out waiting for health checks at "
+   ]
+  },
+  "restartWakeReport": {
+   "mangled": "nZe",
+   "line": 74916,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "oZe"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " -m \"<message>\"",
+    " — delivered by the daemon once it is up",
+    "; ",
+    "duoduo session notify ",
+    "not-restarted",
+    "note: the health check timed out, but --wake is durable — the daemon delivers it when it finishes booting.",
+    "restarted",
+    "wake queued for ",
+    "warning: nothing restarted, so --wake was dropped. To send it anyway: "
+   ]
+  },
+  "runChannelCommand": {
+   "mangled": "cZe",
+   "line": 75340,
+   "kind": "async function",
+   "refs": [
+    "isInstallTargetFilePath",
+    "readOption",
+    "runDeclaredChannelVerb"
+   ],
+   "refsUnnamed": [
+    "$a",
+    "Ek",
+    "du",
+    "ls",
+    "os",
+    "uu",
+    "wEe",
+    "xEe"
+   ],
+   "refBy": [
+    "main"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "n/a"
+   ],
+   "strings": [
+    "\nLocal-tarball installs run arbitrary code as a daemon plugin. If you intend this, re-run:\n  duoduo channel install --from-path ",
+    "\nOtherwise install from the npm registry by package name.",
+    "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]",
+    "  duoduo channel install --from-path <plugin.tgz>   # from a local tarball",
+    "  duoduo channel install <package-name>             # from npm registry",
+    "  duoduo channel list",
+    " already running pid=",
+    " not installed",
+    " not running",
+    " pid=",
+    "(no channel plugins installed)",
+    "(no logs for ",
+    "--daemon-url",
+    "--from-path",
+    "--from-path expects a local tarball path, got: ",
+    "--help",
+    "-h",
+    "Missing action for channel '",
+    "Refusing to install from a local path without --from-path: ",
+    "Unknown channel action: ",
+    "Usage:",
+    "doctor",
+    "help",
+    "install",
+    "installed ",
+    "list",
+    "logs",
+    "package: ",
+    "pid: ",
+    "running",
+    "start",
+    "started ",
+    "status",
+    "stop",
+    "stopped",
+    "stopped "
+   ]
+  },
+  "runDeclaredChannelVerb": {
+   "mangled": "MEe",
+   "line": 75511,
+   "kind": "async function",
+   "refs": [
+    "renderChannelNotInstalled"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "runChannelCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "runJobSubcommand": {
+   "mangled": "DJe",
+   "line": 63877,
+   "kind": "async function",
+   "refs": [
+    "jobHelp",
+    "parseJobCli",
+    "renderInterruptReceipt",
+    "renderJobList",
+    "renderJobRead"
+   ],
+   "refsUnnamed": [
+    "QT",
+    "kT"
+   ],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [
+    "job.archive",
+    "job.get",
+    "job.interrupt",
+    "job.list",
+    "job.reschedule"
+   ],
+   "paths": [],
+   "strings": [
+    " -r \"<reason>\"`.\n",
+    "' fires once more at ",
+    "' removed from the active schedule; its session is archived with it. A run already in progress continues to its end; no future run starts. To end that run, use `duoduo job interrupt ",
+    "); the spent run_at is consumed when that run finalizes.\n",
+    ". Schedule class unchanged (cron: ",
+    "Job '",
+    "Warning: the job's state sidecar could not be moved into the archive and was left behind at ",
+    "archive",
+    "error",
+    "help",
+    "interrupt",
+    "list",
+    "read",
+    "string",
+    "unknown"
+   ]
+  },
+  "runMemoryCommand": {
+   "mangled": "dXe",
+   "line": 66090,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "AXe",
+    "YU",
+    "fXe",
+    "oEe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "--help",
+    "-h",
+    "Unknown memory subcommand: ",
+    "board",
+    "board-lint",
+    "check",
+    "entity",
+    "entity-lint",
+    "help",
+    "node",
+    "node-lint",
+    "reclaim"
+   ]
+  },
+  "runPromptsSubcommand": {
+   "mangled": "vJe",
+   "line": 64092,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "Ape",
+    "OJe",
+    "dpe",
+    "fpe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "\nUsage: duoduo prompts <name>\n",
+    ", ",
+    "--help",
+    "-h",
+    "Named prompts (fetch one with `duoduo prompts <name>`):",
+    "No named prompts registered.\n",
+    "No prompts registered.\n",
+    "Registered prompts: ",
+    "Unexpected extra arguments after prompt name: ",
+    "Unknown prompt: ",
+    "help"
+   ]
+  },
+  "runSessionNotifyCommand": {
+   "mangled": "rJe",
+   "line": 62971,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "$d",
+    "Ba",
+    "Kd",
+    "Lf",
+    "Oge",
+    "j$e",
+    "nJe"
+   ],
+   "refBy": [
+    "runSessionSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [
+    "session.notify"
+   ],
+   "paths": [],
+   "strings": [
+    "\nUsage: duoduo session notify <target> -m <message> [--source <label>] [--force]\n",
+    "error",
+    "error: daemon rejected session.notify: ",
+    "error: daemon returned an empty response\n",
+    "json"
+   ]
+  },
+  "runSessionSubcommand": {
+   "mangled": "K$e",
+   "line": 62659,
+   "kind": "async function",
+   "refs": [
+    "runSessionNotifyCommand"
+   ],
+   "refsUnnamed": [
+    "AJe",
+    "Wge",
+    "Yge",
+    "Z$e",
+    "mJe",
+    "sJe",
+    "tJe",
+    "yJe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "--help",
+    "-h",
+    "Unknown session subcommand: ",
+    "alias",
+    "archive",
+    "compact",
+    "config",
+    "effort",
+    "help",
+    "list",
+    "model",
+    "notify",
+    "wake"
+   ]
+  },
+  "runSpineCommand": {
+   "mangled": "IXe",
+   "line": 66714,
+   "kind": "async function",
+   "refs": [
+    "SpineCommandError",
+    "executeSpine",
+    "parseSpineArgs"
+   ],
+   "refsUnnamed": [
+    "CEe",
+    "Gi",
+    "RXe"
+   ],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "--help",
+    "-h",
+    "help"
+   ]
+  },
+  "runUpgradeChannelPhase": {
+   "mangled": "aZe",
+   "line": 75157,
+   "kind": "async function",
+   "refs": [],
+   "refsUnnamed": [
+    "GJ"
+   ],
+   "refBy": [
+    "runUpgradeCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " failed (",
+    " has no published version — skipping",
+    " is up to date — skipping",
+    " start",
+    " stop and start",
+    " with latest ",
+    " — skipping",
+    ") — skipped, still running ",
+    ") — skipping",
+    ") — skipping channel upgrades",
+    "). Start it manually: duoduo channel ",
+    ", then duoduo channel ",
+    ". The daemon restart may still drop its connection; if it does not recover, install and restart it manually: duoduo channel install ",
+    ": cannot compare installed ",
+    ": could not resolve the latest version of ",
+    ": failed to start (",
+    ": install of ",
+    ": left stopped (was not running before the upgrade)",
+    ": restarted",
+    ": stop failed (",
+    ": stopped for upgrade",
+    ": upgraded ",
+    "channel ",
+    "warning: channel ",
+    "warning: could not list installed channel plugins ("
+   ]
+  },
+  "runUpgradeCommand": {
+   "mangled": "lZe",
+   "line": 75224,
+   "kind": "async function",
+   "refs": [
+    "isDetachedUpgradeWorker",
+    "notifyRestartWakeTargets",
+    "parseUpgradeArgs",
+    "restartDaemonWithReason",
+    "runUpgradeChannelPhase"
+   ],
+   "refsUnnamed": [
+    "$a",
+    "Ak",
+    "D1",
+    "Ek",
+    "Gi",
+    "N1",
+    "Oc",
+    "PJ",
+    "dk",
+    "du",
+    "ev",
+    "iZe",
+    "ls",
+    "ol",
+    "os",
+    "uu",
+    "v_"
+   ],
+   "refBy": [
+    "main"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "@openduo/duoduo",
+    "@openduo/duoduo@"
+   ],
+   "strings": [
+    " (npm default prefix)...",
+    " and the restart was issued, but the daemon had not answered a health check yet. On a slow-booting host this is expected — confirm with: duoduo daemon status",
+    " but the daemon restart failed (",
+    " failed:\n",
+    "). Restart it manually: duoduo daemon restart -r \"upgraded @openduo/duoduo to ",
+    "--depth=0",
+    "--json",
+    "--prefix",
+    "-g",
+    "...",
+    "daemon restarted pid=",
+    "darwin",
+    "failed to wake ",
+    "install",
+    "installed @openduo/duoduo@",
+    "list",
+    "node:child_process",
+    "node:util",
+    "note: agent skills are published from the GitHub repo, not this package. If you use them, refresh them too:\n  npx -y skills add https://github.com/openduo/duoduo --global --all",
+    "note: installed @openduo/duoduo@",
+    "npm install of ",
+    "restarting daemon...",
+    "unknown",
+    "unknown error",
+    "upgraded @openduo/duoduo to ",
+    "upgrading to ",
+    "version",
+    "view",
+    "warning: installed @openduo/duoduo@",
+    "warning: the daemon did not restart (the previous process is still running the old code). Restart it manually: duoduo daemon restart -r \"upgraded @openduo/duoduo to ",
+    "woke "
+   ]
+  },
+  "spineParamsToArgs": {
+   "mangled": "bXe",
+   "line": 66760,
+   "kind": "function",
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "--after",
+    "--count-only",
+    "--date",
+    "--from",
+    "--interval",
+    "--json",
+    "--kind",
+    "--session",
+    "--sessions",
+    "--to",
+    "--type",
+    "--unfiltered",
+    "cat",
+    "show"
+   ]
+  },
+  "uninstall": {
+   "mangled": "uk",
+   "line": 20858,
+   "kind": "async function",
+   "refs": [
+    "plistPath",
+    "unload"
+   ],
+   "refsUnnamed": [],
+   "refBy": [],
+   "refByUnnamed": [
+    "wJ"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "unload": {
+   "mangled": "I1",
+   "line": 20852,
+   "kind": "async function",
+   "refs": [
+    "getUid"
+   ],
+   "refsUnnamed": [
+    "vp",
+    "y1"
+   ],
+   "refBy": [
+    "uninstall"
+   ],
+   "refByUnnamed": [
+    "L2e",
+    "Xb"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "bootout",
+    "launchctl"
+   ]
+  },
+  "writeDaemonTokenToEnvFile": {
+   "mangled": "i8",
+   "line": 67377,
+   "kind": "async function",
+   "refs": [
+    "CLI_DAEMON_TOKEN_ENV_KEY",
+    "resolveHostEnvFilePath"
+   ],
+   "refsUnnamed": [
+    "BI",
+    "t8"
+   ],
+   "refBy": [
+    "createDaemonToken"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "utf8"
+   ]
+  },
+  "writeRestartReasonFile": {
+   "mangled": "E8",
+   "line": 67806,
+   "kind": "async function",
+   "refs": [
+    "resolveRestartReasonFilePath"
+   ],
+   "refsUnnamed": [
+    "NI"
+   ],
+   "refBy": [
+    "restartDaemonWithReason"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  }
+ },
+ "byEnv": {},
+ "byLogPrefix": {},
+ "byDotted": {
+  "job.archive": [
+   "runJobSubcommand"
+  ],
+  "job.get": [
+   "runJobSubcommand"
+  ],
+  "job.interrupt": [
+   "runJobSubcommand"
+  ],
+  "job.list": [
+   "runJobSubcommand"
+  ],
+  "job.reschedule": [
+   "runJobSubcommand"
+  ],
+  "session.notify": [
+   "runSessionNotifyCommand",
+   "notifyRestartWakeTargets"
+  ]
+ },
+ "byPath": {
+  "../../package.json": [
+   "readCliPackageVersion"
+  ],
+  ".config": [
+   "resolveHostEnvFilePath"
+  ],
+  ".env": [
+   "resolveHostEnvFilePath"
+  ],
+  ".plist": [
+   "plistPath"
+  ],
+  ".tgz": [
+   "isInstallTargetFilePath"
+  ],
+  "</string>": [
+   "generatePlist"
+  ],
+  "@openduo/duoduo": [
+   "runUpgradeCommand"
+  ],
+  "@openduo/duoduo@": [
+   "runUpgradeCommand"
+  ],
+  "daemon-restart-reason.json": [
+   "resolveRestartReasonFilePath"
+  ],
+  "n/a": [
+   "runChannelCommand"
+  ]
+ },
+ "byString": {
+  "\n    </array>\n    <key>LimitLoadToSessionType</key>\n    <string>Aqua</string>\n    <key>KeepAlive</key>\n    <true/>\n    <key>StandardOutPath</key>\n    <string>": [
+   "generatePlist"
+  ],
+  "\n    </dict>": [
+   "generatePlist"
+  ],
+  "\n</dict>\n</plist>\n": [
+   "generatePlist"
+  ],
+  "\nLocal-tarball installs run arbitrary code as a daemon plugin. If you intend this, re-run:\n  duoduo channel install --from-path ": [
+   "runChannelCommand"
+  ],
+  "\nOtherwise install from the npm registry by package name.": [
+   "runChannelCommand"
+  ],
+  "\nUsage: duoduo prompts <name>\n": [
+   "runPromptsSubcommand"
+  ],
+  "\nUsage: duoduo session notify <target> -m <message> [--source <label>] [--force]\n": [
+   "runSessionNotifyCommand"
+  ],
+  "\nclaude.tools (read-only; edit the kind/instance descriptor file — applies on the session's next subprocess respawn):\n": [
+   "renderConfigResult"
+  ],
+  "\ncompact only applies to interactive channel sessions — ": [
+   "renderCompactResult"
+  ],
+  "\ncompact: session is being archived, retry later.\n": [
+   "renderCompactResult"
+  ],
+  "\ncompact_stats (measured):\n": [
+   "renderConfigResult"
+  ],
+  "\nconfig only applies to interactive channel sessions.\n": [
+   "renderConfigResult"
+  ],
+  "\nconfig: session is being archived, retry later.\n": [
+   "renderConfigResult"
+  ],
+  "                          8601 timestamp with an explicit zone). The job's": [
+   "jobHelp"
+  ],
+  "                          Request the end of the run in progress. -r is": [
+   "jobHelp"
+  ],
+  "                          Set ONE extra fire at <when> ('@in 30m', or an ISO": [
+   "jobHelp"
+  ],
+  "                          required: the reason is what the interrupted": [
+   "jobHelp"
+  ],
+  "                          runs to its end; the job's session is archived with it.": [
+   "jobHelp"
+  ],
+  "                          schedule class is never changed.": [
+   "jobHelp"
+  ],
+  "                          session is told on its next run.": [
+   "jobHelp"
+  ],
+  "      <key>": [
+   "generatePlist"
+  ],
+  "      <string>": [
+   "generatePlist"
+  ],
+  "    <key>EnvironmentVariables</key>\n    <dict>\n": [
+   "generatePlist"
+  ],
+  "  --daemon-url <url>          Override daemon URL": [
+   "printHelp"
+  ],
+  "  -h, --help                  Show chat help": [
+   "printHelp"
+  ],
+  "  -n, --named-session <name>  Use a named session": [
+   "printHelp"
+  ],
+  "  archive <id> [--json]   Stop future scheduling. A run already in progress": [
+   "jobHelp"
+  ],
+  "  duoduo --version           Print the installed duoduo version": [
+   "printHelp"
+  ],
+  "  duoduo [chat options]": [
+   "printHelp"
+  ],
+  "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]": [
+   "printHelp",
+   "runChannelCommand"
+  ],
+  "  duoduo channel install --from-path <plugin.tgz>   # from a local tarball": [
+   "runChannelCommand"
+  ],
+  "  duoduo channel install <package-name>": [
+   "printHelp"
+  ],
+  "  duoduo channel install <package-name>             # from npm registry": [
+   "runChannelCommand"
+  ],
+  "  duoduo channel list": [
+   "printHelp",
+   "runChannelCommand"
+  ],
+  "  duoduo chat [chat options]": [
+   "printHelp"
+  ],
+  "  duoduo daemon <start|stop|restart|status|config|logs>": [
+   "printHelp"
+  ],
+  "  duoduo daemon token new     Generate a remote-access bearer token": [
+   "printHelp"
+  ],
+  "  duoduo job list|read|archive|interrupt|reschedule ...": [
+   "printHelp"
+  ],
+  "  duoduo onboard              Run onboarding wizard and exit (no chat, no daemon)": [
+   "printHelp"
+  ],
+  "  duoduo prompts [name]      List named prompts, or print one's full text": [
+   "printHelp"
+  ],
+  "  duoduo session list|alias|notify|compact|archive ...": [
+   "printHelp"
+  ],
+  "  duoduo spine cat|show ...  Read the event log (transcript, or one event)": [
+   "printHelp"
+  ],
+  "  duoduo upgrade [version] [--wake <session-or-alias>]": [
+   "printHelp"
+  ],
+  "  interrupt <id> -r \"<reason>\" [--json]": [
+   "jobHelp"
+  ],
+  "  list [--json]           List active jobs with schedule and last outcome.": [
+   "jobHelp"
+  ],
+  "  read <id> [--json]      Show one job's definition, instruction and last run.": [
+   "jobHelp"
+  ],
+  "  reschedule <id> <when> [--json]": [
+   "jobHelp"
+  ],
+  " (event ": [
+   "renderCompactResult"
+  ],
+  " (npm default prefix)...": [
+   "runUpgradeCommand"
+  ],
+  " (orphan)": [
+   "renderSessionList"
+  ],
+  " -m \"<message>\"": [
+   "restartWakeReport"
+  ],
+  " -r \"<reason>\"`.\n": [
+   "runJobSubcommand"
+  ],
+  " already running pid=": [
+   "runChannelCommand"
+  ],
+  " and the restart was issued, but the daemon had not answered a health check yet. On a slow-booting host this is expected — confirm with: duoduo daemon status": [
+   "runUpgradeCommand"
+  ],
+  " argument: ": [
+   "parseJobCli"
+  ],
+  " but the daemon restart failed (": [
+   "runUpgradeCommand"
+  ],
+  " cannot run. Nothing was done. Install it: duoduo channel install @openduo/channel-": [
+   "renderChannelNotInstalled"
+  ],
+  " channel is not installed here, so duoduo channel ": [
+   "renderChannelNotInstalled"
+  ],
+  " failed (": [
+   "runUpgradeChannelPhase"
+  ],
+  " failed:\n": [
+   "runUpgradeCommand"
+  ],
+  " has no published version — skipping": [
+   "runUpgradeChannelPhase"
+  ],
+  " is a ": [
+   "renderCompactResult"
+  ],
+  " is up to date — skipping": [
+   "runUpgradeChannelPhase"
+  ],
+  " needs a value\n  try: duoduo daemon restart -r \"what you changed\"": [
+   "parseRestartArgs"
+  ],
+  " not installed": [
+   "runChannelCommand"
+  ],
+  " not running": [
+   "runChannelCommand"
+  ],
+  " pid=": [
+   "runChannelCommand"
+  ],
+  " requires a job id": [
+   "parseJobCli"
+  ],
+  " requires a value": [
+   "parseJobCli"
+  ],
+  " session (per-run query, no resident process to compact).\n": [
+   "renderCompactResult"
+  ],
+  " sessions. Re-run with one of the SESSION_KEY values above to disambiguate.\n": [
+   "renderCompactResult"
+  ],
+  " sessions. Re-run with one of the SESSION_KEY values above.\n": [
+   "renderConfigResult"
+  ],
+  " start": [
+   "runUpgradeChannelPhase"
+  ],
+  " stop and start": [
+   "runUpgradeChannelPhase"
+  ],
+  " takes no -r/--reason": [
+   "parseJobCli"
+  ],
+  " with latest ": [
+   "runUpgradeChannelPhase"
+  ],
+  " — candidates: ": [
+   "notifyRestartWakeTargets"
+  ],
+  " — delivered by the daemon once it is up": [
+   "restartWakeReport"
+  ],
+  " — skipping": [
+   "runUpgradeChannelPhase"
+  ],
+  "\" — expected a version or a dist-tag (e.g. 0.6.2, latest).\n  Installing from a path, URL or git remote is not supported here.": [
+   "parseUpgradeArgs"
+  ],
+  "' fires once more at ": [
+   "runJobSubcommand"
+  ],
+  "' matches ": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "' removed from the active schedule; its session is archived with it. A run already in progress continues to its end; no future run starts. To end that run, use `duoduo job interrupt ": [
+   "runJobSubcommand"
+  ],
+  "': interruption requested; your reason reaches its next run.": [
+   "renderInterruptReceipt"
+  ],
+  "': no run in progress (": [
+   "renderInterruptReceipt"
+  ],
+  "(default)": [
+   "renderJobRead"
+  ],
+  "(no channel plugins installed)": [
+   "runChannelCommand"
+  ],
+  "(no logs for ": [
+   "runChannelCommand"
+  ],
+  ") — skipped, still running ": [
+   "runUpgradeChannelPhase"
+  ],
+  ") — skipping": [
+   "runUpgradeChannelPhase"
+  ],
+  ") — skipping channel upgrades": [
+   "runUpgradeChannelPhase"
+  ],
+  "). Nothing was interrupted and no reason was left for its next run. `duoduo job archive ": [
+   "renderInterruptReceipt"
+  ],
+  "). Restart it manually: duoduo daemon restart -r \"upgraded @openduo/duoduo to ": [
+   "runUpgradeCommand"
+  ],
+  "). Start it manually: duoduo channel ": [
+   "runUpgradeChannelPhase"
+  ],
+  "); the spent run_at is consumed when that run finalizes.\n": [
+   "runJobSubcommand"
+  ],
+  ", then duoduo channel ": [
+   "runUpgradeChannelPhase"
+  ],
+  ", then run the same command again.": [
+   "renderChannelNotInstalled"
+  ],
+  "--- instruction ---": [
+   "renderJobRead"
+  ],
+  "--after": [
+   "spineParamsToArgs"
+  ],
+  "--count-only": [
+   "spineParamsToArgs"
+  ],
+  "--daemon-url": [
+   "runChannelCommand"
+  ],
+  "--date": [
+   "spineParamsToArgs"
+  ],
+  "--depth=0": [
+   "runUpgradeCommand"
+  ],
+  "--from": [
+   "spineParamsToArgs"
+  ],
+  "--from-path": [
+   "runChannelCommand"
+  ],
+  "--from-path expects a local tarball path, got: ": [
+   "runChannelCommand"
+  ],
+  "--help": [
+   "runSessionSubcommand",
+   "parseJobCli",
+   "runPromptsSubcommand",
+   "runMemoryCommand",
+   "runSpineCommand",
+   "parseRootCli",
+   "runChannelCommand"
+  ],
+  "--interval": [
+   "spineParamsToArgs"
+  ],
+  "--json": [
+   "parseJobCli",
+   "spineParamsToArgs",
+   "runUpgradeCommand"
+  ],
+  "--kind": [
+   "spineParamsToArgs"
+  ],
+  "--prefix": [
+   "runUpgradeCommand"
+  ],
+  "--reason": [
+   "parseJobCli",
+   "parseRestartArgs"
+  ],
+  "--reason=": [
+   "parseJobCli",
+   "parseRestartArgs"
+  ],
+  "--session": [
+   "spineParamsToArgs"
+  ],
+  "--sessions": [
+   "spineParamsToArgs"
+  ],
+  "--to": [
+   "spineParamsToArgs"
+  ],
+  "--type": [
+   "spineParamsToArgs"
+  ],
+  "--unfiltered": [
+   "spineParamsToArgs"
+  ],
+  "--version": [
+   "parseRootCli"
+  ],
+  "--wake": [
+   "parseRestartArgs",
+   "parseUpgradeArgs"
+  ],
+  "--wake=": [
+   "parseRestartArgs",
+   "parseUpgradeArgs"
+  ],
+  ".\nIt runs on that session's next turn; the context shrinks from then on.\nThis call does not wait for completion and returns no token delta.\n": [
+   "renderCompactResult"
+  ],
+  ". Schedule class unchanged (cron: ": [
+   "runJobSubcommand"
+  ],
+  ". The daemon restart may still drop its connection; if it does not recover, install and restart it manually: duoduo channel install ": [
+   "runUpgradeChannelPhase"
+  ],
+  "...": [
+   "runUpgradeCommand"
+  ],
+  "../../package.json": [
+   "readCliPackageVersion"
+  ],
+  ".config": [
+   "resolveHostEnvFilePath"
+  ],
+  ".env": [
+   "resolveHostEnvFilePath"
+  ],
+  ".plist": [
+   "plistPath"
+  ],
+  ".tgz": [
+   "isInstallTargetFilePath"
+  ],
+  ": cannot compare installed ": [
+   "runUpgradeChannelPhase"
+  ],
+  ": could not resolve the latest version of ": [
+   "runUpgradeChannelPhase"
+  ],
+  ": failed to start (": [
+   "runUpgradeChannelPhase"
+  ],
+  ": install of ": [
+   "runUpgradeChannelPhase"
+  ],
+  ": left stopped (was not running before the upgrade)": [
+   "runUpgradeChannelPhase"
+  ],
+  ": restarted": [
+   "runUpgradeChannelPhase"
+  ],
+  ": stop failed (": [
+   "runUpgradeChannelPhase"
+  ],
+  ": stopped for upgrade": [
+   "runUpgradeChannelPhase"
+  ],
+  ": upgraded ": [
+   "runUpgradeChannelPhase"
+  ],
+  "</key>\n      <string>": [
+   "generatePlist"
+  ],
+  "</string>": [
+   "generatePlist"
+  ],
+  "</string>\n": [
+   "generatePlist"
+  ],
+  "</string>\n    <key>ProgramArguments</key>\n    <array>\n": [
+   "generatePlist"
+  ],
+  "</string>\n    <key>StandardErrorPath</key>\n    <string>": [
+   "generatePlist"
+  ],
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n    <key>Label</key>\n    <str…": [
+   "generatePlist"
+  ],
+  "@openduo/duoduo": [
+   "runUpgradeCommand"
+  ],
+  "@openduo/duoduo@": [
+   "runUpgradeCommand"
+  ],
+  "A run that finished in the instant before the request landed settles as the success it": [
+   "renderInterruptReceipt"
+  ],
+  "ALADUO_DAEMON_TOKEN": [
+   "CLI_DAEMON_TOKEN_ENV_KEY"
+  ],
+  "ALIAS": [
+   "renderSessionList",
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "AMBIGUOUS_TARGET": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "CRON": [
+   "renderJobList"
+  ],
+  "Chat options:": [
+   "printHelp"
+  ],
+  "ENOENT": [
+   "readDaemonTokenFromEnvFile"
+  ],
+  "ERROR": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "How far this reaches: the runtime is asked to stop. A tool that ignores its abort": [
+   "renderInterruptReceipt"
+  ],
+  "Job '": [
+   "renderInterruptReceipt",
+   "runJobSubcommand"
+  ],
+  "KEY": [
+   "renderConfigResult"
+  ],
+  "KIND": [
+   "renderSessionList",
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "LAST_EVENT": [
+   "renderSessionList"
+  ],
+  "LAST_RESULT": [
+   "renderJobList"
+  ],
+  "LAST_RUN": [
+   "renderJobList"
+  ],
+  "LaunchAgents": [
+   "plistPath"
+  ],
+  "Library": [
+   "plistPath"
+  ],
+  "Missing action for channel '": [
+   "runChannelCommand"
+  ],
+  "Named prompts (fetch one with `duoduo prompts <name>`):": [
+   "runPromptsSubcommand"
+  ],
+  "No active jobs.\n": [
+   "renderJobList"
+  ],
+  "No named prompts registered.\n": [
+   "runPromptsSubcommand"
+  ],
+  "No prompts registered.\n": [
+   "runPromptsSubcommand"
+  ],
+  "Nothing is deleted: an archived job's files move to var/jobs/archive/.": [
+   "jobHelp"
+  ],
+  "PLANE": [
+   "renderSessionList"
+  ],
+  "RUNS": [
+   "renderJobList"
+  ],
+  "RUN_AT": [
+   "renderJobList"
+  ],
+  "Refusing to install from a local path without --from-path: ": [
+   "runChannelCommand"
+  ],
+  "Registered prompts: ": [
+   "runPromptsSubcommand"
+  ],
+  "SESSION_KEY": [
+   "renderSessionList",
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "SOURCE": [
+   "renderConfigResult"
+  ],
+  "STAT": [
+   "renderConfigResult"
+  ],
+  "STATUS": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "SURFACE": [
+   "renderConfigResult"
+  ],
+  "Subcommands:": [
+   "jobHelp"
+  ],
+  "TARGET": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "TOOLS": [
+   "renderConfigResult"
+  ],
+  "The ": [
+   "renderChannelNotInstalled"
+  ],
+  "The run settles on its own: a one-shot that was never re-armed is archived and its": [
+   "renderInterruptReceipt"
+  ],
+  "Unexpected extra arguments after prompt name: ": [
+   "runPromptsSubcommand"
+  ],
+  "Unknown channel action: ": [
+   "runChannelCommand"
+  ],
+  "Unknown memory subcommand: ": [
+   "runMemoryCommand"
+  ],
+  "Unknown prompt: ": [
+   "runPromptsSubcommand"
+  ],
+  "Unknown session subcommand: ": [
+   "runSessionSubcommand"
+  ],
+  "Unknown spine subcommand: ": [
+   "parseSpineArgs"
+  ],
+  "Usage:": [
+   "printHelp",
+   "runChannelCommand"
+  ],
+  "Usage: duoduo job <subcommand> [args]": [
+   "jobHelp"
+  ],
+  "VALUE": [
+   "renderConfigResult"
+  ],
+  "Warning: the job's state sidecar could not be moved into the archive and was left behind at ": [
+   "runJobSubcommand"
+  ],
+  "` stops future runs.\n": [
+   "renderInterruptReceipt"
+  ],
+  "a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate.": [
+   "createDaemonToken"
+  ],
+  "active": [
+   "renderJobRead"
+  ],
+  "alias": [
+   "runSessionSubcommand"
+  ],
+  "ambiguous": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "archive": [
+   "runSessionSubcommand",
+   "parseJobCli",
+   "runJobSubcommand"
+  ],
+  "archiving": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "auto": [
+   "parseRootCli",
+   "main"
+  ],
+  "board": [
+   "runMemoryCommand"
+  ],
+  "board-lint": [
+   "runMemoryCommand"
+  ],
+  "bootout": [
+   "installAndLoad",
+   "unload"
+  ],
+  "bootstrap": [
+   "installAndLoad"
+  ],
+  "cat": [
+   "parseSpineArgs",
+   "executeSpine",
+   "spineParamsToArgs"
+  ],
+  "channel": [
+   "parseRootCli",
+   "main"
+  ],
+  "channel ": [
+   "runUpgradeChannelPhase"
+  ],
+  "chat": [
+   "parseRootCli",
+   "main"
+  ],
+  "check": [
+   "runMemoryCommand"
+  ],
+  "compact": [
+   "runSessionSubcommand"
+  ],
+  "compact queued for ": [
+   "renderCompactResult"
+  ],
+  "config": [
+   "runSessionSubcommand"
+  ],
+  "config for ": [
+   "renderConfigResult"
+  ],
+  "cron: ": [
+   "renderJobRead"
+  ],
+  "daemon": [
+   "parseRootCli",
+   "main"
+  ],
+  "daemon restart timed out waiting for health checks at ": [
+   "restartDaemonWithReason"
+  ],
+  "daemon restarted pid=": [
+   "runUpgradeCommand"
+  ],
+  "daemon-restart": [
+   "notifyRestartWakeTargets"
+  ],
+  "daemon-restart-reason.json": [
+   "resolveRestartReasonFilePath"
+  ],
+  "darwin": [
+   "runUpgradeCommand"
+  ],
+  "delivery_failed": [
+   "renderCompactResult"
+  ],
+  "doctor": [
+   "runChannelCommand"
+  ],
+  "duoduo": [
+   "resolveHostEnvFilePath"
+  ],
+  "duoduo CLI": [
+   "printHelp"
+  ],
+  "duoduo session notify ": [
+   "restartWakeReport"
+  ],
+  "effective": [
+   "renderConfigResult"
+  ],
+  "effort": [
+   "runSessionSubcommand"
+  ],
+  "entity": [
+   "runMemoryCommand"
+  ],
+  "entity-lint": [
+   "runMemoryCommand"
+  ],
+  "error": [
+   "runSessionNotifyCommand",
+   "runJobSubcommand"
+  ],
+  "error: ": [
+   "parseJobCli",
+   "parseRestartArgs"
+  ],
+  "error: --wake needs a session key or alias\n  try: duoduo daemon restart -r \"why\" --wake my_journal": [
+   "parseRestartArgs"
+  ],
+  "error: --wake needs a session key or alias\n  try: duoduo upgrade --wake my_journal": [
+   "parseUpgradeArgs"
+  ],
+  "error: daemon rejected ": [
+   "renderRpcError"
+  ],
+  "error: daemon rejected session.notify: ": [
+   "runSessionNotifyCommand"
+  ],
+  "error: daemon returned an empty response\n": [
+   "runSessionNotifyCommand"
+  ],
+  "error: duoduo job ": [
+   "parseJobCli"
+  ],
+  "error: duoduo job interrupt requires -r \"<reason>\"": [
+   "parseJobCli"
+  ],
+  "error: duoduo job interrupt requires a job id": [
+   "parseJobCli"
+  ],
+  "error: duoduo job reschedule requires <when>: '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone": [
+   "parseJobCli"
+  ],
+  "error: duoduo job reschedule requires a job id": [
+   "parseJobCli"
+  ],
+  "error: refusing to restart the daemon without --reason. The reason reaches every session woken after the restart, and a session whose turn this kills has no other way to learn why — absent one, its li…": [
+   "reasonlessRestartRefusal"
+  ],
+  "error: unexpected extra argument: ": [
+   "parseUpgradeArgs"
+  ],
+  "error: unknown daemon restart argument: ": [
+   "parseRestartArgs"
+  ],
+  "error: unknown duoduo job ": [
+   "parseJobCli"
+  ],
+  "error: unknown duoduo job interrupt argument: ": [
+   "parseJobCli"
+  ],
+  "error: unknown duoduo job list argument: ": [
+   "parseJobCli"
+  ],
+  "error: unknown duoduo job reschedule argument: ": [
+   "parseJobCli"
+  ],
+  "error: unknown duoduo job subcommand: ": [
+   "parseJobCli"
+  ],
+  "error: unknown upgrade argument: ": [
+   "parseUpgradeArgs"
+  ],
+  "error: unsupported version \"": [
+   "parseUpgradeArgs"
+  ],
+  "execution_cwd: ": [
+   "renderJobRead"
+  ],
+  "exit": [
+   "parseExistingDaemonChoice"
+  ],
+  "failed to wake ": [
+   "runUpgradeCommand"
+  ],
+  "forbidden_kind": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "get": [
+   "renderConfigResult"
+  ],
+  "global (kernel/config/runtime.md)": [
+   "renderConfigResult"
+  ],
+  "help": [
+   "runSessionSubcommand",
+   "parseJobCli",
+   "runJobSubcommand",
+   "runPromptsSubcommand",
+   "runMemoryCommand",
+   "runSpineCommand",
+   "parseRootCli",
+   "runChannelCommand",
+   "main"
+  ],
+  "hex": [
+   "generateDaemonTokenHex"
+  ],
+  "host": [
+   "inferOnboardConfigFromProbe"
+  ],
+  "id: ": [
+   "renderJobRead"
+  ],
+  "install": [
+   "runUpgradeCommand",
+   "runChannelCommand"
+  ],
+  "installed ": [
+   "runChannelCommand"
+  ],
+  "installed @openduo/duoduo@": [
+   "runUpgradeCommand"
+  ],
+  "instance": [
+   "renderConfigResult"
+  ],
+  "instance extra": [
+   "renderConfigResult"
+  ],
+  "interrupt": [
+   "parseJobCli",
+   "runJobSubcommand"
+  ],
+  "invalid": [
+   "renderConfigResult"
+  ],
+  "job": [
+   "parseRootCli",
+   "main"
+  ],
+  "job.archive": [
+   "runJobSubcommand"
+  ],
+  "job.get": [
+   "runJobSubcommand"
+  ],
+  "job.interrupt": [
+   "runJobSubcommand"
+  ],
+  "job.list": [
+   "runJobSubcommand"
+  ],
+  "job.reschedule": [
+   "runJobSubcommand"
+  ],
+  "json": [
+   "runSessionNotifyCommand"
+  ],
+  "kickstart": [
+   "kickstart"
+  ],
+  "kind": [
+   "renderConfigResult"
+  ],
+  "kind ": [
+   "renderConfigResult"
+  ],
+  "kind extra": [
+   "renderConfigResult"
+  ],
+  "kind: ": [
+   "renderJobRead"
+  ],
+  "last_error: ": [
+   "renderJobRead"
+  ],
+  "last_result: ": [
+   "renderJobRead"
+  ],
+  "last_run_at: ": [
+   "renderJobRead"
+  ],
+  "last_run_started_at: ": [
+   "renderJobRead"
+  ],
+  "latest": [
+   "parseUpgradeArgs"
+  ],
+  "launchctl": [
+   "isServiceLoaded",
+   "getLaunchdPid",
+   "installAndLoad",
+   "kickstart",
+   "unload"
+  ],
+  "list": [
+   "runSessionSubcommand",
+   "parseJobCli",
+   "runJobSubcommand",
+   "runUpgradeCommand",
+   "runChannelCommand"
+  ],
+  "local": [
+   "inferOnboardConfigFromProbe"
+  ],
+  "logs": [
+   "runChannelCommand"
+  ],
+  "memory": [
+   "parseRootCli",
+   "main"
+  ],
+  "model": [
+   "runSessionSubcommand"
+  ],
+  "model: ": [
+   "renderJobRead"
+  ],
+  "n/a": [
+   "runChannelCommand"
+  ],
+  "node": [
+   "runMemoryCommand"
+  ],
+  "node-lint": [
+   "runMemoryCommand"
+  ],
+  "node:child_process": [
+   "runUpgradeCommand"
+  ],
+  "node:util": [
+   "runUpgradeCommand"
+  ],
+  "not-restarted": [
+   "restartWakeReport"
+  ],
+  "not_found": [
+   "renderCompactResult",
+   "renderConfigResult"
+  ],
+  "note: agent skills are published from the GitHub repo, not this package. If you use them, refresh them too:\n  npx -y skills add https://github.com/openduo/duoduo --global --all": [
+   "runUpgradeCommand"
+  ],
+  "note: installed @openduo/duoduo@": [
+   "runUpgradeCommand"
+  ],
+  "note: the health check timed out, but --wake is durable — the daemon delivers it when it finishes booting.": [
+   "restartWakeReport"
+  ],
+  "notify": [
+   "runSessionSubcommand"
+  ],
+  "notify failed": [
+   "notifyRestartWakeTargets"
+  ],
+  "notify refused": [
+   "notifyRestartWakeTargets"
+  ],
+  "npm install of ": [
+   "runUpgradeCommand"
+  ],
+  "onboard": [
+   "parseRootCli",
+   "main"
+  ],
+  "once": [
+   "defaultExistingDaemonChoice",
+   "parseExistingDaemonChoice"
+  ],
+  "owner receives job.fail; any other job stays scheduled and receives no receipt; a run": [
+   "renderInterruptReceipt"
+  ],
+  "package: ": [
+   "runChannelCommand"
+  ],
+  "pid: ": [
+   "runChannelCommand"
+  ],
+  "print": [
+   "isServiceLoaded",
+   "getLaunchdPid"
+  ],
+  "profile_alias_set": [
+   "renderConfigResult"
+  ],
+  "prompts": [
+   "parseRootCli",
+   "main"
+  ],
+  "read": [
+   "parseJobCli",
+   "runJobSubcommand"
+  ],
+  "reclaim": [
+   "runMemoryCommand"
+  ],
+  "reschedule": [
+   "parseJobCli"
+  ],
+  "restarted": [
+   "restartWakeReport"
+  ],
+  "restarting daemon...": [
+   "runUpgradeCommand"
+  ],
+  "run_at: ": [
+   "renderJobRead"
+  ],
+  "run_count: ": [
+   "renderJobRead"
+  ],
+  "running": [
+   "runChannelCommand"
+  ],
+  "runtime: ": [
+   "renderJobRead"
+  ],
+  "save": [
+   "defaultExistingDaemonChoice",
+   "parseExistingDaemonChoice"
+  ],
+  "session": [
+   "parseRootCli",
+   "main"
+  ],
+  "session ": [
+   "renderConfigResult"
+  ],
+  "session.notify": [
+   "runSessionNotifyCommand",
+   "notifyRestartWakeTargets"
+  ],
+  "session_key: ": [
+   "renderJobRead"
+  ],
+  "show": [
+   "parseSpineArgs",
+   "spineParamsToArgs"
+  ],
+  "signal is not killed, and work the run detached from the runtime is not reached.": [
+   "renderInterruptReceipt"
+  ],
+  "spine": [
+   "parseRootCli",
+   "main"
+  ],
+  "start": [
+   "runChannelCommand"
+  ],
+  "started ": [
+   "runChannelCommand"
+  ],
+  "status": [
+   "runChannelCommand"
+  ],
+  "stop": [
+   "runChannelCommand"
+  ],
+  "stopped": [
+   "runChannelCommand"
+  ],
+  "stopped ": [
+   "runChannelCommand"
+  ],
+  "string": [
+   "renderJobRead",
+   "renderRpcError",
+   "runJobSubcommand"
+  ],
+  "that had not yet acknowledged its turn is preserved as if it never started.": [
+   "renderInterruptReceipt"
+  ],
+  "unknown": [
+   "renderCompactResult",
+   "renderJobList",
+   "renderJobRead",
+   "renderInterruptReceipt",
+   "runJobSubcommand",
+   "readCliPackageVersion",
+   "runUpgradeCommand"
+  ],
+  "unknown error": [
+   "runUpgradeCommand"
+  ],
+  "upgrade": [
+   "parseRootCli",
+   "main"
+  ],
+  "upgraded @openduo/duoduo to ": [
+   "runUpgradeCommand"
+  ],
+  "upgrading to ": [
+   "runUpgradeCommand"
+  ],
+  "utf8": [
+   "installAndLoad",
+   "readDaemonTokenFromEnvFile",
+   "writeDaemonTokenToEnvFile",
+   "clearOwnRestartReasonFile"
+  ],
+  "version": [
+   "parseRootCli",
+   "runUpgradeCommand",
+   "main"
+  ],
+  "view": [
+   "runUpgradeCommand"
+  ],
+  "void_session": [
+   "renderCompactResult"
+  ],
+  "wake": [
+   "runSessionSubcommand",
+   "renderJobRead"
+  ],
+  "wake queued for ": [
+   "restartWakeReport"
+  ],
+  "warning: channel ": [
+   "runUpgradeChannelPhase"
+  ],
+  "warning: could not list installed channel plugins (": [
+   "runUpgradeChannelPhase"
+  ],
+  "warning: installed @openduo/duoduo@": [
+   "runUpgradeCommand"
+  ],
+  "warning: nothing restarted, so --wake was dropped. To send it anyway: ": [
+   "restartWakeReport"
+  ],
+  "warning: the daemon did not restart (the previous process is still running the old code). Restart it manually: duoduo daemon restart -r \"upgraded @openduo/duoduo to ": [
+   "runUpgradeCommand"
+  ],
+  "was, and your reason opens the job's next run instead.": [
+   "renderInterruptReceipt"
+  ],
+  "wizard": [
+   "parseExistingDaemonChoice"
+  ],
+  "woke ": [
+   "runUpgradeCommand"
+  ],
+  "write_failed": [
+   "renderConfigResult"
+  ]
+ },
+ "unnamed": {
+  "vp": {
+   "line": 20863,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "getLaunchdPid",
+    "getUid",
+    "installAndLoad",
+    "isServiceLoaded",
+    "kickstart",
+    "unload"
+   ]
+  },
+  "y1": {
+   "line": 20773,
+   "kind": "function",
+   "usedBy": [
+    "getLaunchdPid",
+    "installAndLoad",
+    "isServiceLoaded",
+    "kickstart",
+    "unload"
+   ]
+  },
+  "$a": {
+   "line": 67397,
+   "kind": "async function",
+   "usedBy": [
+    "main",
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "Ch": {
+   "line": 62738,
+   "kind": "function",
+   "usedBy": [
+    "renderCompactResult",
+    "renderConfigResult",
+    "renderSessionList"
+   ]
+  },
+  "dr": {
+   "line": 62753,
+   "kind": "function",
+   "usedBy": [
+    "renderCompactResult",
+    "renderConfigResult",
+    "renderSessionList"
+   ]
+  },
+  "Ba": {
+   "line": 20681,
+   "kind": "async function",
+   "usedBy": [
+    "notifyRestartWakeTargets",
+    "runSessionNotifyCommand"
+   ]
+  },
+  "CEe": {
+   "line": 66773,
+   "kind": "function",
+   "usedBy": [
+    "parseSpineArgs",
+    "runSpineCommand"
+   ]
+  },
+  "du": {
+   "line": 254,
+   "kind": "function",
+   "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "Ek": {
+   "line": 68420,
+   "kind": "function",
+   "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "Gi": {
+   "line": 102,
+   "kind": "function",
+   "usedBy": [
+    "runSpineCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "ls": {
+   "line": 20561,
+   "kind": "function",
+   "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "ol": {
+   "line": 67898,
+   "kind": "async function",
+   "usedBy": [
+    "restartDaemonWithReason",
+    "runUpgradeCommand"
+   ]
+  },
+  "os": {
+   "line": 245,
+   "kind": "async function",
+   "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "uu": {
+   "line": 67552,
+   "kind": "function",
+   "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "v_": {
+   "line": 68238,
+   "kind": "class-expr",
+   "usedBy": [
+    "restartDaemonWithReason",
+    "runUpgradeCommand"
+   ]
+  },
+  "_Je": {
+   "line": 63529,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "$d": {
+   "line": 62727,
+   "kind": "function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "$H": {
+   "line": 67828,
+   "kind": "function",
+   "usedBy": [
+    "notifyRestartWakeTargets"
+   ]
+  },
+  "$r": {
+   "line": 67186,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "aEe": {
+   "line": 66462,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "AJe": {
+   "line": 63189,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "Ak": {
+   "line": 20863,
+   "kind": "var",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "ape": {
+   "line": 63706,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "Ape": {
+   "line": 64066,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "Ar": {
+   "line": 66739,
+   "kind": "function",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "AXe": {
+   "line": 66190,
+   "kind": "async function",
+   "usedBy": [
+    "runMemoryCommand"
+   ]
+  },
+  "BEe": {
+   "line": 74823,
+   "kind": "async function",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "BI": {
+   "line": 67298,
+   "kind": "async function",
+   "usedBy": [
+    "writeDaemonTokenToEnvFile"
+   ]
+  },
+  "bJe": {
+   "line": 63846,
+   "kind": "function",
+   "usedBy": [
+    "renderJobRead"
+   ]
+  },
+  "Bp": {
+   "line": 67835,
+   "kind": "function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "CJe": {
+   "line": 63558,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "D1": {
+   "line": 67876,
+   "kind": "async function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "dk": {
+   "line": 20729,
+   "kind": "var",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "dpe": {
+   "line": 64062,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "DXe": {
+   "line": 66806,
+   "kind": "function",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "epe": {
+   "line": 62646,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "Epe": {
+   "line": 64130,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "ev": {
+   "line": 74621,
+   "kind": "async function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "fJe": {
+   "line": 63232,
+   "kind": "function",
+   "usedBy": [
+    "renderCompactResult"
+   ]
+  },
+  "fpe": {
+   "line": 64070,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "fXe": {
+   "line": 66327,
+   "kind": "function",
+   "usedBy": [
+    "runMemoryCommand"
+   ]
+  },
+  "GJ": {
+   "line": 68467,
+   "kind": "function",
+   "usedBy": [
+    "runUpgradeChannelPhase"
+   ]
+  },
+  "GXe": {
+   "line": 67158,
+   "kind": "async function",
+   "usedBy": [
+    "executeSpine"
+   ]
+  },
+  "hJe": {
+   "line": 63549,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "iZe": {
+   "line": 74936,
+   "kind": "async function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "j$e": {
+   "line": 62772,
+   "kind": "function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "jb": {
+   "line": 67954,
+   "kind": "async function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "Kd": {
+   "line": 62723,
+   "kind": "function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "kT": {
+   "line": 63872,
+   "kind": "async function",
+   "usedBy": [
+    "runJobSubcommand"
+   ]
+  },
+  "kXe": {
+   "line": 67079,
+   "kind": "function",
+   "usedBy": [
+    "executeSpine"
+   ]
+  },
+  "Lf": {
+   "line": 62653,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "lpe": {
+   "line": 63942,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "mJe": {
+   "line": 63503,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "N1": {
+   "line": 68380,
+   "kind": "async function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "NEe": {
+   "line": 66704,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "NI": {
+   "line": 75,
+   "kind": "async function",
+   "usedBy": [
+    "writeRestartReasonFile"
+   ]
+  },
+  "nJe": {
+   "line": 62919,
+   "kind": "function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "Oa": {
+   "line": 20618,
+   "kind": "function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "Oc": {
+   "line": 72806,
+   "kind": "function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "oEe": {
+   "line": 66119,
+   "kind": "function",
+   "usedBy": [
+    "runMemoryCommand"
+   ]
+  },
+  "Oge": {
+   "line": 62481,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "OJe": {
+   "line": 64126,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "oZe": {
+   "line": 74964,
+   "kind": "async function",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "PJ": {
+   "line": 68409,
+   "kind": "function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "ppe": {
+   "line": 64088,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "QT": {
+   "line": 63860,
+   "kind": "function",
+   "usedBy": [
+    "runJobSubcommand"
+   ]
+  },
+  "R_": {
+   "line": 20777,
+   "kind": "function",
+   "usedBy": [
+    "generatePlist"
+   ]
+  },
+  "RJe": {
+   "line": 63816,
+   "kind": "function",
+   "usedBy": [
+    "renderJobList"
+   ]
+  },
+  "RXe": {
+   "line": 66733,
+   "kind": "function",
+   "usedBy": [
+    "runSpineCommand"
+   ]
+  },
+  "sEe": {
+   "line": 66086,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "sJe": {
+   "line": 63034,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "SJe": {
+   "line": 63663,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "t8": {
+   "line": 67286,
+   "kind": "function",
+   "usedBy": [
+    "writeDaemonTokenToEnvFile"
+   ]
+  },
+  "TJ": {
+   "line": 20769,
+   "kind": "function",
+   "usedBy": [
+    "installAndLoad"
+   ]
+  },
+  "tJe": {
+   "line": 62875,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "TJe": {
+   "line": 63636,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "tpe": {
+   "line": 63663,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "UEe": {
+   "line": 74931,
+   "kind": "var",
+   "usedBy": [
+    "isDetachedUpgradeWorker"
+   ]
+  },
+  "UJ": {
+   "line": 68447,
+   "kind": "function",
+   "usedBy": [
+    "parseUpgradeArgs"
+   ]
+  },
+  "UXe": {
+   "line": 67137,
+   "kind": "function",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "vEe": {
+   "line": 67186,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "wEe": {
+   "line": 75496,
+   "kind": "function",
+   "usedBy": [
+    "runChannelCommand"
+   ]
+  },
+  "Wge": {
+   "line": 63128,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "Xb": {
+   "line": 68061,
+   "kind": "async function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "xEe": {
+   "line": 75502,
+   "kind": "async function",
+   "usedBy": [
+    "runChannelCommand"
+   ]
+  },
+  "yB": {
+   "line": 67243,
+   "kind": "function",
+   "usedBy": [
+    "readDaemonTokenFromEnvFile"
+   ]
+  },
+  "Yge": {
+   "line": 62706,
+   "kind": "function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "yJe": {
+   "line": 63640,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "YU": {
+   "line": 66394,
+   "kind": "function",
+   "usedBy": [
+    "runMemoryCommand"
+   ]
+  },
+  "Z$e": {
+   "line": 62831,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "ZXe": {
+   "line": 74802,
+   "kind": "async function",
+   "usedBy": [
+    "main"
+   ]
+  }
+ }
+}

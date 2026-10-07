@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: applySessionConfigVerb  (minified: fvt, daemon.pretty.js:91407)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.7.0, v0.8.1, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.10 (high): enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

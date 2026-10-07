@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: rehydrateSessionState  (minified: Tae, daemon.pretty.js:32443)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.4.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.4.0 (high): feat(session): reader fallback chain and session_key backfill (3fd1b1e)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

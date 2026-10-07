@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
 // symbol: collectJobCompletionReceipts  (minified: Qmt, daemon.pretty.js:72245)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.8.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.8.1 (medium): A finished job's completion receipt now arrives as context on the owner's next turn instead of waking a turn of its own.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

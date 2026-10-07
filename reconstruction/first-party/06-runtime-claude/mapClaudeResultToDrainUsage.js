@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
 // symbol: mapClaudeResultToDrainUsage  (minified: pg, daemon.pretty.js:55179)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.3.0 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.5, v0.5.6, v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.6 (high): The footer also shows which model was actually billed (served model may differ from the requested model). The footer reflects per-turn deltas, not process-global accumulators.
+// changelog v0.8.4 (high): A resumed turn now reports its own figures. A session that existed before the upgrade has no saved baseline yet, so its first resume shows no cost and no model.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: validateRunnableRuntimeValue  (minified: Wd, daemon.pretty.js:31814)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.8.4 (high): `void` is not accepted as the default runtime, a job runtime or a partition runtime, and should not be set on an ordinary chat channel.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

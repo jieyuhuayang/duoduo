@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: parsePartitionDefinition  (minified: Wct, daemon.pretty.js:66486)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.10, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
+// changelog v0.8.4 (high): In job frontmatter the job fails, and in partition frontmatter the partition is skipped.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

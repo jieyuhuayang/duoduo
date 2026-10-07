@@ -1,6 +1,11 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: runManageJobTool  (minified: Ag, daemon.pretty.js:64121)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.4.0, v0.4.4, v0.4.5, v0.5.0, v0.5.4, v0.5.6, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// changelog v0.4.4 (medium): Add `runtime` parameter to job definitions (`"claude"` | `"codex"`)
+// changelog v0.4.5 (high): **`ManageJob(list)` improvements**: every entry now includes `session_key` (for notify routing) and `runtime` (claude/codex). Keepalive entries carry a `note` explaining the dormant-but-wakeable lifecycle.
+// changelog v0.5.4 (high): `stateless` is rejected on keepalive jobs, whose whole point is a persistent lifecycle.
+// changelog v0.8.3 (high): **`ManageJob` requires `action`.** A call without it used to be answered with the job list and no error
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

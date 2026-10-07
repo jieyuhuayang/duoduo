@@ -1,6 +1,6 @@
 # duoduo 源代码还原（Source Reconstruction）
 
-`@openduo/duoduo` 只以 esbuild 压缩后的 JavaScript 发布（作者的说法是：代码写给 agent 读，压缩是为了压缩，不是为了混淆）。本目录把其中的 daemon 与 cli 两个 bundle 还原成可读的源代码，并让两件事可以被机器反复核对：还原产物与出厂产物是同一个程序；分析文档里每一处对代码的引用都指向它声称的代码。支撑这两件事的是四个事实：变换链的每一步都被证明不改程序；名字和归属来自 bundle 自身的结构，人工判断只存在于几份受检查的映射里；文档引用按符号身份核对；只有全部检查通过的结果才写进仓库，并且结果绑定到具体的出厂字节。
+`@openduo/duoduo` 只以 esbuild 压缩后的 JavaScript 发布（作者的说法是：代码写给 agent 读，压缩是为了压缩，不是为了混淆）。上游许可证的 agent 附加条款（仓库根目录 `LICENSE.agents.yaml`）明确允许对每个已发布版本做反压缩、反编译和分析并分享补丁，只禁止竞争性商业使用；本目录的还原以此为许可依据。本目录把其中的 daemon 与 cli 两个 bundle 还原成可读的源代码，并让两件事可以被机器反复核对：还原产物与出厂产物是同一个程序；分析文档里每一处对代码的引用都指向它声称的代码。支撑这两件事的是四个事实：变换链的每一步都被证明不改程序；名字和归属来自 bundle 自身的结构，人工判断只存在于几份受检查的映射里；文档引用按符号身份核对；只有全部检查通过的结果才写进仓库，并且结果绑定到具体的出厂字节。
 
 对齐的版本、全部计数和每项检查的结论（`verdicts`）以 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 为准，本文不复述数字。逐条证据见 [VERIFICATION.md](./VERIFICATION.md)。
 
@@ -17,6 +17,7 @@
 | `maps/blocks_<bundle>.json` | 按源模块分组的 `__export` 导出名，外加 bundle 顶层 `export {}` 的入口导出。身份判定的输入。 |
 | `maps/rename_<bundle>.json` | 实际应用的改名表（短名 → 真名）。 |
 | `maps/symbols_<bundle>.json` | 符号索引：真名 → 短名、声明行、结束行、种类、结构签名。"某个符号在哪"以它为准，行号由它派生，不手写。 |
+| `maps/xref_<bundle>.json` | 交叉引用索引：每个改名符号引用的自研符号与未命名顶层代码、被谁引用、读取的环境变量、日志前缀、点分名（RPC 方法与事件类型）、路径和其余字符串字面量，以及这些字面量到符号的反向索引；被自研代码引用的未命名顶层声明按引用数排序（`unnamed`），是 `name_symbol.mjs` 的待办队列。`symbol_card.mjs` 与 `doc_coverage.mjs` 读它。 |
 | `maps/<bundle>.exports.json` | 全部导出名的压平视图。跨模块重名在这里会被后写者覆盖，按模块分组的准确版本是 `blocks_*.json`。 |
 | `maps/RENAME_TABLE.md`、`maps/RENAME_TABLE_cli.md` | 改名表的可读版本，按子系统分组，注明名字来源与声明行。 |
 | `maps/pipeline_report.json` | 一次运行测得的全部计数、每项检查的结论（`verdicts`）、出厂与美化 bundle 的 sha256（`sha256.<bundle>.{shipped,pretty}`）和工具链版本（`environment`）。只随 `PROMOTE=1` 与它描述的产物一起写入。 |
@@ -33,6 +34,8 @@
 | `maps/inferred_daemon.shape.json` | 推断名在最近一次人工复核时的形态基线：种类、参数个数、字面量集合、成员属性名集合；模块初始化器另记它所赋字面量常量的哈希，常量记规范化字面量的哈希。 | 复核后运行 `verify_inferred.mjs record`（设置了 `PKG_VERSION` 时写入版本）；`name_symbol.mjs` 只追加新名字的条目 | `verify_inferred.mjs check` 与它比较 |
 | `maps/inferred_daemon.asserted.json` | 以 `--allow-unproven` 登记的推断名，及登记时的归属判定。 | `name_symbol.mjs`（第一次有这样的登记时创建） | `name_symbol.mjs` 的归属判定不把这些名字当作"是自研代码"的证据 |
 | `maps/published_daemon.json` | 上游自己拼写的推断名：按同作者公开源码包（`@openduo/protocol`，直接发布 TypeScript 源码）配对确认的名字，记录包、文件、行与配对方式。 | `name_symbol.mjs --published <match_published_source.mjs 的报告>` | `gen_rename_table.mjs` 与 `extract_functions.mjs` 据此标注 *published source*；每个名字仍受 `verify_inferred.mjs` 的形态检查 |
+| `maps/history_daemon.json` | 每个 daemon 改名符号在 npm 上首次出现的发行版（`firstSeen`）、函数体改动过的发行版（`changedIn`）、靠特征相似配对的步骤（`similarSteps`）；特征太少、无法跨版本跟随的声明（未初始化的 `var`、单行谓词）记为 `untraceable`。 | `tools/history.sh --write`：取回全部发行版，美化，逐对指纹匹配与位置配对，再由 `history_chain.mjs` 从当前版本逐版本回溯 | 对 v0.8.3 的人工改名表核对最近一步：重合的 125 个符号全部一致；`extract_functions.mjs` 与 `gen_rename_table.mjs` 据此写 `// since:` 行与"首见版本"列 |
+| `maps/changelog_daemon.json` | 上游 `CHANGELOG.md` 里描述某个符号的条目：按符号首次出现或改动的发行版，把该版条目与它配对，记录引文、置信度（high：条目写出了代码里的字面量、标志或命令；medium：行为相符但没有共同字面量）和理由。 | 每个发行版一份配对文件（`.build/history/changelog_pairs/<版本>.json`，由阅读条目与函数体的 agent 写出），`changelog_merge.mjs` 合并 | 是阅读结论，不是证明；`first-party/` 文件头与 `symbol_card.mjs` 原样带出置信度与理由 |
 | `maps/subsys_daemon.json` | 每个 daemon 改名符号所属的子系统目录（`NN-name`）。 | `name_symbol.mjs` 或人工 | `extract_functions.mjs`、`gen_rename_table.mjs` 要求它与改名表一一对应，否则在写任何文件前失败；`verify_first_party.mjs` 核对每个文件所在的目录 |
 | `maps/bare_anchor_baseline.json` | `docs/` 下每份文档的行号总数上限（`lineNumbers`）与裸行号数上限（`unbound`，为 0），按文件名作键。 | `check_bare_anchors.mjs --write-baseline`，只能调低（`--allow-raise` 只用于新文档） | `check_bare_anchors.mjs`：任一文档超过上限即失败 |
 
@@ -218,6 +221,13 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `remap_doc_anchors.mjs`、`retarget_docs.mjs`、`retarget_symbols.mjs` | 升级时迁移遗留行号与短名。 |
 | `retarget_snippets.mjs` | 升级时按新声明重新推出名字绑定片段里过期的标识符。 |
 | `anchor_candidates.mjs` | 给失去锚点的推断名的候选声明打分排序（`impact_report.mjs` 调用）。 |
+| `xref.mjs` | 交叉引用索引（`rebuild.sh` 第 5b 步）：`<pretty.js> <rename.json> <out.json> [--version v]`。引用经 Babel 作用域解析，只计对程序级绑定的引用。 |
+| `symbol_card.mjs` | 从 `maps/` 回答"这个符号是什么、谁用它、它用谁、读哪些环境变量、文档哪几节引用它"：`[--build <OUT>] [--body] <真名\|短名>`；反向查询 `env:<VAR>`、`log:<前缀>`、`dotted:<a.b>`、`path:<文本>`、`string:<文本>`；`unnamed[:N]` 列出最常被自研代码引用的未命名声明；`uncited[:NN-目录]` 列出没有任何文档引用的符号。 |
+| `doc_coverage.mjs`、`doc_cites.mjs` | 文档覆盖报告：每个子系统里没有被任何文档引用的符号、每节引用的不同符号数（升序）、待命名队列；`doc_cites.mjs` 是两者共用的"文档在哪提到这个符号"扫描。 |
+| `instrument.mjs` | 给 `recon/daemon.recon.js` 做插桩：每个自研顶层函数（`--inner` 时连同它内部的闭包，命名为 `外层>名字`）的函数体包进 enter/exit/fail 记录，写 `$DUO_TRACE_FILE`；按文本拼接，不重排版；产物不提交、不在等价证明内。 |
+| `trace_report.mjs` | 把 trace 还原成按 `mark` 分段的调用树报告（首次进入顺序、嵌套、耗时、失败）。 |
+| `scenarios/run.sh`、`scenarios/lib.sh` | 运行场景：插桩一次，再逐个运行 `scenarios/NN-*.sh`，每个场景在隔离 HOME、独立端口上启动插桩 daemon，用 socket 与只读 TCP 驱动，输出到 `.build/scenarios/<名字>/`；结论记在 `scenarios/findings/`。 |
+| `history.sh`、`decl_features.mjs`、`history_chain.mjs`、`changelog_merge.mjs` | 发行历史：取回并美化每个发行版，相邻版本做指纹匹配、位置配对和特征提取，`history_chain.mjs` 逐版本回溯每个当前符号（`--write` 写 `maps/history_daemon.json`）；`changelog_merge.mjs` 把逐版本的 CHANGELOG 配对合并成 `maps/changelog_daemon.json`。 |
 
 ## 覆盖范围与边界
 
@@ -272,6 +282,9 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | cli 的推断名（`maps/inferred_cli.json`，`name_symbol.mjs --bundle cli`） | 没有真名的 cli 函数可以登记推断名并按名字引用；`rebuild.sh`、`bump.sh`、`verify_inferred` 原本就按 bundle 处理推断名表，缺的是登记工具 | 首批 14 个名字（重启原因文件的读写、共用重启函数、upgrade、唤醒投递、token 生成与写入、`session notify`、`channel` 命令），INTERNALS 与 ARCHITECTURE 里 4 组原为未证实推测的论断改为 confirmed |
 | 名字绑定片段的自动重定向（`retarget_snippets.mjs`） | 升级后片段里过期的局部变量名和短名按新声明重新推出，只在唯一匹配且通过严格核对时改写 | 重放 v0.8.3→v0.8.4：689 个不成立的片段改对 626 个，其中 622 个与 v0.8.4 文档手工改出的写法逐字相同；剩下 63 个是代码确实变了的 |
 | 文档分节与升级 workflow（`doc_sections.mjs`、`.claude/workflows/upgrade-docs.js`） | 并行的 agent 各自只改自己那几节的文件，不会互相覆盖；拼回时拒绝拆分后被改过的文档；升级的文档步骤按固定脚本运行，不必每次重写 | 拆分后立即拼回与原文逐字节相同；workflow 的控制流用模拟 agent 跑通（加载分组、分配新节、只在核验发现问题时运行修正）；还没有在真实升级上运行过 |
+| 交叉引用索引与符号卡片（`xref.mjs`、`symbol_card.mjs`、`doc_coverage.mjs`） | "谁读这个环境变量""谁调用它""文档哪节引用它"从一份生成的 JSON 回答，不再 grep 九万行的 bundle；索引随 `rebuild.sh` 生成并随 PROMOTE 提交 | 2026-10-08 在 v0.8.4 上：795 个符号，41 个环境变量、47 个日志前缀、94 个点分名、243 个路径字面量，生成约 2 s；文档覆盖报告：795 个符号中 529 个被某份文档引用，266 个未被引用 |
+| 运行场景（`instrument.mjs`、`trace_report.mjs`、`scenarios/`） | §14 的待实测项可以在插桩的重建 daemon 上复现，证据是函数调用序列、RPC 响应和数据目录内容，而不是静态阅读 | 2026-10-08 在 v0.8.4 上 9 个场景（启动、36 个 RPC 方法、void 会话、心跳、去重、遗忘 GC、socket 建 job、重启原因文件、spine 脱敏）：插桩 1590 个函数体（含闭包）；§14.2 第 2、4、5、7 项与 §14.3 第 2、7 项解决或缩小；发现只读 TCP 端口的 `spine.tail` 不脱敏、去重标志不出现在 RPC 结果里、每次派生写两条 `job.spawn` 等文档未写的行为（`scenarios/findings/`） |
+| 发行历史与 CHANGELOG 证据（`history.sh`、`history_chain.mjs`、`changelog_merge.mjs`） | 每个符号有首见版本与改动版本；上游 CHANGELOG 对该版的描述附在函数文件头上，是独立于本仓库推断的意图说明 | 49 个发行版（0.2.0 到 0.8.4），795 个符号中 673 个可跟随、122 个特征太少；最近一步与 v0.8.3 的人工改名表重合的 125 个符号全部一致；CHANGELOG 配对 413 个符号（158 high、285 medium），165 个首见符号没有条目描述。已知误差：被大幅重写或从别的函数里抽出的函数，回溯会在重写处停住，首见版本偏晚（例如 `createAgentSdkAdapter`） |
 
 ### 未实现
 
@@ -292,7 +305,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 只给 `BEAUTIFIED` 的运行，在美化哈希等于已提交的 `sha256.pretty` 时采用已提交的版本号 | 快速的本地运行也能得到真正的 `committedInSync` 结论（现在是 `unverified`） | 小 | 低 |
 | CI 把 `inferredNames=warn` 当作失败 | 告警在 PR 上就能看到，而不是到 promote 时才出现（现在 `warn` 不让构建失败） | 小 | 中：上游的真实改写也会让 CI 变红，直到复读并 `record` |
 | 常量写入检查覆盖经由调用的写入（`X.push(…)`、`Object.assign(X, …)`），并在每次运行复查常量是否被重新赋值 | 被当作常量命名的可变状态能被发现（现在只在登记时查直接赋值） | 中 | 低 |
-| 影响清单跟踪调用关系：列出引用了"未变函数、但它调用的函数变了"的论断（现在只按被引用声明本身是否改动来判断） | 函数没变、行为因被调用方改变而变的论断也会被列出 | 中：需要顶层声明之间的调用图 | 低：只增加列出的条目 |
+| 影响清单跟踪调用关系：列出引用了"未变函数、但它调用的函数变了"的论断（现在只按被引用声明本身是否改动来判断） | 函数没变、行为因被调用方改变而变的论断也会被列出 | 小：调用图已在 `maps/xref_daemon.json` 里（`refs`、`refBy`） | 低：只增加列出的条目 |
 | 报告记录"未命名的自研顶层符号"数量，并设只减不增的上限 | 命名进度可见，新增的未命名符号有信号 | 小到中 | 低：归属判定沿用 `name_symbol` 的证据规则 |
 | CI：用 `npm pack` 取包代替完整安装；证明与文档检查拆成并行 job；actions 升到最新大版本（现在是 v5，已有 v7） | CI 更快；消除弃用警告 | 小 | 低 |
 

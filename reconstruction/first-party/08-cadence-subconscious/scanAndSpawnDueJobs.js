@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: scanAndSpawnDueJobs  (minified: PG, daemon.pretty.js:86847)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.3.0, v0.4.5, v0.5.0, v0.5.6, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// changelog v0.5.0 (medium): Cadence scheduler skips due jobs whose session is being archived
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

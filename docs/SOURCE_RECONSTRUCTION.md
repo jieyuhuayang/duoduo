@@ -8,9 +8,9 @@
 
 **从出厂的 minified bundle 到 `reconstruction/` 下的可读源码，每一步都是不改变语义的机械变换，每一步都有一道会失败的机器检查；因此还原产物 `recon/daemon.recon.js` 可以被证明与出厂的 `daemon.js` 是同一个程序，分析文档里的每条代码引用也在每次构建时按符号名重新核对。**
 
-上游只以压缩后的 JavaScript 发布运行时。这件事仍然做得到，是因为 esbuild 的 `--minify` 虽然重命名标识符、压缩语法和空白，却把还原需要的三样东西留在了产物里。第一是字符串字面量：事件名、RPC 方法名、日志文本原样保留，逆向时靠它们在 bundle 里定位代码。第二是模块边界：CommonJS 模块包在 `__commonJS` 助手的调用里，延迟初始化的 ESM 模块以一个 `__esm` 初始化器结束。第三是原始导出名：`__export(导出对象, { 原名: () => 短名 })` 调用逐字记录了源码里的导出名。模块边界让无损拆包和按模块判定归属成为可能，导出名让大部分 first-party（duoduo 自研）符号能改回上游自己起的名字。没有导出名的代码由本仓库推断命名；这部分名字不是从产物里读出来的，所以每一个都登记为可以被推翻的主张，在每次构建时核对。
+上游只以压缩后的 JavaScript 发布运行时。上游的许可证（FSL-1.1-Apache-2.0）及其 agent 附加条款（仓库根目录 `LICENSE.agents.yaml`）明确允许对已发布代码做反压缩、反编译、追踪和分析，并允许分享补丁与修改后的构建；这些许可覆盖 `@openduo/duoduo` 的每一个已发布版本，条款只禁止竞争性商业使用，这就是本仓库做还原的许可依据。还原这件事仍然做得到，是因为 esbuild 的 `--minify` 虽然重命名标识符、压缩语法和空白，却把还原需要的三样东西留在了产物里。第一是字符串字面量：事件名、RPC 方法名、日志文本原样保留，逆向时靠它们在 bundle 里定位代码。第二是模块边界：CommonJS 模块包在 `__commonJS` 助手的调用里，延迟初始化的 ESM 模块以一个 `__esm` 初始化器结束。第三是原始导出名：`__export(导出对象, { 原名: () => 短名 })` 调用逐字记录了源码里的导出名。模块边界让无损拆包和按模块判定归属成为可能，导出名让大部分 first-party（duoduo 自研）符号能改回上游自己起的名字。没有导出名的代码由本仓库推断命名；这部分名字不是从产物里读出来的，所以每一个都登记为可以被推翻的主张，在每次构建时核对。
 
-这个结论由下面五节分别证明：
+这个结论由下面五节分别证明，第 6 节说明建立在它们之上的分析索引与发行历史：
 
 | 节 | 手段 | 保证 |
 |------|------|------|
@@ -19,6 +19,7 @@
 | **3 改名安全、运行等价，且被独立证明** | 按作用域解析的改名；按绑定比较标识符的 AST 全等证明；提交产物与生成产物比对，并绑定出厂字节 | 还原产物与美化 bundle 是同一个程序；仓库里提交的正是被证明的那份产物，对应一个确定的发布版本 |
 | **4 跟随上游升级：推断名按结构签名迁移，不沿用旧的短名表** | 结构签名跨版本配对声明；推断名沿配对迁移；后续步骤按固定顺序执行 | 短名整体重排之后，推断名仍标在同一段代码上；无法迁移的名字被报出，不靠猜 |
 | **5 文档引用按符号名核对，不按行号** | 符号索引；两种不带行号的引用写法及其验证工具；遗留行号只减不增 | 符号消失或短名对不上会让构建失败；行号不再承载证据 |
+| **6 索引与历史让分析不必从 bundle 重读** | 交叉引用索引与符号卡片；插桩的重建 daemon 与运行场景；全部发行版的逐版本配对与 CHANGELOG 对读 | 反向问题从一份 JSON 回答；第 14 节的待实测项有可重复的实验；每个符号有首见版本与上游自己的说明
 
 ---
 
@@ -106,9 +107,11 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 
 可读树 `first-party/` 另有一道检查，因为上面的证明都只看 `recon/daemon.recon.js`，而这棵树是人实际阅读的部分，树里出错既不影响运行，也不会让任何等价证明失败。`verify_first_party.mjs` 核对：每个文件的函数体恰好是该符号在 `daemon.recon.js` 中完整的顶层声明；文件头的短名、真名与改名表一致，文件以真名命名；文件头引用的行就是该符号的声明行；`// name:` 行只对 `maps/inferred_daemon.json` 里的名字标 INFERRED；`index.json` 与磁盘内容一致；文件集合恰好等于改名表的符号集合，每个文件位于 `maps/subsys_daemon.json` 为它指定的子系统目录。生成阶段的 `extract_functions.mjs` 和 `gen_rename_table.mjs` 已经拒绝任何没有子系统的改名符号。
 
-### 实机运行是补充证据
+### 实机运行是补充证据，运行场景把它变成可重复的实验
 
-还原的 daemon 可以在隔离的 HOME 和备用端口上作为真实 daemon 启动（方法见 `CLAUDE.md` 的 “Running / verifying the actual runtime”），与出厂 `daemon.js` 做 A/B 对照：启动日志、生成的文件树、只读 TCP 接口、unix socket 上的 RPC、cadence、进程被终止后的恢复行为。这一步不在 `rebuild.sh` 里，不随每个版本自动重做；它在哪个版本上做过、观察了什么，以 [`VERIFICATION.md`](../reconstruction/VERIFICATION.md) 和 [`reconstruction/README.md`](../reconstruction/README.md) 的记录为准。它补充静态证明而不能替代它，因为一次运行只经过被触发的代码路径。
+还原的 daemon 可以在隔离的 HOME 和备用端口上作为真实 daemon 启动（方法见 `CLAUDE.md` 的 “Running / verifying the actual runtime”），与出厂 `daemon.js` 做 A/B 对照：启动日志、生成的文件树、只读 TCP 接口、unix socket 上的 RPC、cadence、进程被终止后的恢复行为。它补充静态证明而不能替代它，因为一次运行只经过被触发的代码路径。
+
+静态阅读得出的机制主张，有一部分只能在运行中的实例上核实（`AGENT_INTERNALS_ANALYSIS.md` 第 14 节）。`reconstruction/scenarios/` 把这类核实写成脚本。`instrument.mjs` 先给 `recon/daemon.recon.js` 做插桩：每个自研顶层函数的函数体，连同它内部的闭包（命名为 `外层>名字`，例如 `createDaemon>R` 是 RPC 分发器），都包进一层记录进入、退出和异常的代码，用 Node 的 `AsyncLocalStorage` 跨 await 记下调用者，一次运行写出一份调用 trace。插桩按文本拼接，只在函数体首尾插入固定文本，不重排版，所以插桩文件与还原文件只差这些包装；它是运行产物，不提交，也不在 AST 等价证明之内。每个场景脚本在隔离 HOME 和自己的 TCP 端口上启动插桩 daemon，用 socket 与只读 TCP 驱动它，在步骤之间往 trace 里写标记，最后由 `trace_report.mjs` 还原成按步骤分段的调用树：每步首次进入的函数顺序、嵌套、耗时与失败。默认的认证来源是一个不能工作的 API key，所以没有场景会在无意中调用模型。每个场景的结论记在 `scenarios/findings/<场景>.md`：测的是文档哪句话、步骤、trace 与文件里的证据、逐条判定，以及建议写进文档的句子。2026-10-08 在 v0.8.4 上运行的 9 个场景覆盖启动序列、全部 36 个 RPC 方法、void 会话、心跳的四步维护与指纹门、去重表、遗忘 GC、经 socket 创建 job、重启原因文件和 `spine.cat` 的脱敏；第 14 节里 6 个开放项由此解决或缩小，另有几处文档没有写到的行为被发现，其中最重要的一条是只读 TCP 端口上的 `spine.tail` 返回未脱敏的事件。一次运行只是那个版本、那条路径的证据，所以文档里据此改为 confirmed 的句子都写明是在重建 daemon 上实测。
 
 ---
 
@@ -161,6 +164,12 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 
 ---
 
+## 6 索引与历史让分析不必从 bundle 重读
+
+**交叉引用索引回答文档作者真正会问的问题。** 符号索引回答"符号 X 在哪"；写文档时的问题是反过来的：谁读 `ALADUO_PORT`，哪个函数写 `run/locks/`，`session.notify` 在哪分发，`drainSessionMailbox` 调用谁、被谁调用，哪几节文档已经引用它。`xref.mjs`（`rebuild.sh` 第 5b 步）为每个改名符号记录它引用的自研符号与未命名顶层代码（经 Babel 作用域解析，局部变量恰好与顶层名同拼写时不计）、它的反向引用、读取的环境变量（`process.env.X`，以及传给 bundle 里环境读取函数的字符串键）、字符串字面量及四个派生视图（日志前缀、点分名、路径、其余），并建立字面量到符号的反向索引；被自研代码引用的未命名顶层声明按引用数排序，是下一批命名的队列。`symbol_card.mjs` 把这些加上子系统、名字来源、首见版本与 CHANGELOG 条目、文档引用位置，打印成一张卡片，也接受 `env:`、`log:`、`dotted:`、`path:`、`string:` 的反向查询；`doc_coverage.mjs` 列出每个子系统里没有任何文档引用的符号和每节引用的不同符号数，让分析投入有依据。索引随每次运行生成，经 PROMOTE 提交为 `maps/xref_<bundle>.json`。
+
+**发行历史给每个符号一个首见版本，上游的 CHANGELOG 由此成为第五类证据。** `@openduo/duoduo` 在 npm 上有 49 个正式发行版，从 0.2.0 到 0.8.4，每版的 `CHANGELOG.md` 条目由作者写成。`tools/history.sh` 取回每个发行版的 `daemon.js`，用锁定版本的 js-beautify 美化，对相邻版本做三层配对：`fingerprint_match.mjs` 按结构签名找函数体完全相同的声明；`pair_changes.mjs` 把改动过的声明按它在两个相邻的相同声明之间的位置配对；`decl_features.mjs` 提取压缩器改不了的特征（属性名、字符串、数字、全局名、参数个数、在 bundle 里的位置），`history_chain.mjs` 在前两层都没有结果时，在相邻相同声明划出的窗口里按加权 Jaccard 取领先的候选，函数体大幅增长时改用重合系数。它从当前版本的每个符号出发逐版本回溯，回溯停住的版本记为首见版本，每一步靠位置或相似配对的版本记为改动版本；特征太少的声明（未初始化的 `var`、`e => X.includes(e)` 这样的单行谓词）无法跟随，记为 `untraceable` 而不是记成当前版本新增。最近一步可以独立核对：v0.8.3 的改名表是升级时人工承接的，与回溯结果重合的 125 个符号全部一致，没有一个不一致。已知的误差是被大幅重写、或从别的函数里抽出成为独立函数的声明，回溯在重写处停住，首见版本偏晚。之后，按每个发行版把该版 CHANGELOG 条目与那一版首见或改动的符号对读，条目写出了代码里的字面量、标志或命令时记 high，只有行为相符时记 medium，猜测不记；配对结果合并成 `maps/changelog_daemon.json`，`first-party/` 文件头据此多出 `// since:` 行和 `// changelog` 行，`RENAME_TABLE.md` 多出"首见版本"列。这类证据说明的是上游为什么写这个函数，与本仓库推断的名字相互独立。
+
 ## 产物地图
 
 | 你想要 | 去哪 |
@@ -173,6 +182,9 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | **自研与第三方的判定** | `maps/modules_<bundle>.json`（逐 `__export` 块，即逐源模块） |
 | **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/published_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建） |
 | **遗留行号的上限** | `maps/bare_anchor_baseline.json` |
+| **谁引用它、它引用谁、谁读某个环境变量** | `reconstruction/maps/xref_<bundle>.json`；查询用 `tools/symbol_card.mjs`，覆盖报告用 `tools/doc_coverage.mjs` |
+| **符号的首见版本与上游 CHANGELOG 的说明** | `maps/history_daemon.json`、`maps/changelog_daemon.json`；`first-party/` 文件头的 `// since:` 与 `// changelog` 行 |
+| **运行实测的结论** | `reconstruction/scenarios/findings/`；脚本在 `reconstruction/scenarios/`，输出在 `.build/scenarios/` |
 | **本次产物的计数、检查结论与出厂字节哈希** | `maps/pipeline_report.json` |
 | **一键复现** | `reconstruction/tools/rebuild.sh` |
 | **跟随上游升级** | `reconstruction/tools/bump.sh`（先跑它，再按它打印的顺序跑 `rebuild.sh`） |
@@ -188,6 +200,9 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs`、`exports_map.mjs` |
 | 产物检查与写入 | `build_rename.mjs` 的模块归属检查、`verify_inferred.mjs`、`verify_first_party.mjs`、`pipeline_report.mjs`、`promote.mjs` |
 | 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs`、`match_published_source.mjs` |
+| 索引与查询 | `xref.mjs`、`symbol_card.mjs`、`doc_coverage.mjs`、`doc_cites.mjs` |
+| 运行场景 | `instrument.mjs`、`trace_report.mjs`；`scenarios/run.sh`、`scenarios/lib.sh` |
+| 发行历史 | `history.sh`、`decl_features.mjs`、`history_chain.mjs`、`changelog_merge.mjs`（复用 `fingerprint_match.mjs` 与 `pair_changes.mjs`） |
 | 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`plaintext_delta.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
 | 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs` |
 
