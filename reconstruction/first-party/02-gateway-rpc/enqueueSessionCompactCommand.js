@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: enqueueSessionCompactCommand  (minified: cvt, daemon.pretty.js:91287)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.8 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.8 (high): `duoduo session compact` — compact a channel session's context on demand. Queue a `/compact` for any channel session by key or name; it runs on that session's next turn ... Channel sessions only.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

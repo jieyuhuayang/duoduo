@@ -1,10 +1,7 @@
 # The owner's own front gateway (R6)
 
-Reference notes for one way to expose the tether channel. The agent and its owner choose this
-option and own it, its security included; it is not an official procedure, and tether supports
-no route. Read `SKILL.md` first for its general policy, and `setup.md` for the shared requirements of every
-route and the route-neutral sections (grant handover, verification, persistence and
-handoff) apply here.
+Route notes. Read `setup.md` first: what these notes are, the requirements every route meets, and
+the route-neutral sections (grant handover, verification, persistence and handoff) that apply here.
 
 ## R6: the owner's own front gateway
 
@@ -15,18 +12,18 @@ following the contract below. This skill gives no configuration for any product.
 
 ### Contract
 
-| Item             | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hostname and TLS | One hostname of its own, served on 443 with a valid certificate. `https://<hostname>` equals `ALADUO_TETHER_PUBLIC_URL` exactly: the OAuth issuer, the OAuth resource and the passkey's relying party all derive from it, so a later hostname change voids every passkey and every connection                                                                                                                                       |
-| Mount point      | The hostname's root. No path prefix: the channel serves its metadata at `/.well-known/…` and every route at a fixed path                                                                                                                                                                                                                                                                                                            |
-| Upstream         | `http://127.0.0.1:<ALADUO_TETHER_PORT>`. The channel listens on loopback unless `ALADUO_TETHER_HOST` says otherwise. A gateway on another machine needs a private link to this host (R8, `direct.md`); never bind a daemon port to a network interface                                                                                                                                                                              |
-| Paths            | Either exactly these: `/mcp` GET, POST; `/.well-known/oauth-protected-resource` GET; `/.well-known/oauth-authorization-server` GET; `/authorize` GET, POST; `/token` POST; `/revoke` POST; `/enroll` GET; `/enroll/options` POST; `/enroll/finish` POST. Or everything under the hostname: the channel has no other route and answers 404                                                                                           |
-| Request          | Pass `Authorization`, `Content-Type`, `Accept`, `Mcp-Protocol-Version`, `Mcp-Method`, `Mcp-Name` and `Origin` unchanged (MCP 2026-07-28 clients such as ChatGPT fail with -32020 without `Mcp-Method` / `Mcp-Name`), and every connected assistant unchanged (JSON and `application/x-www-form-urlencoded`). The channel refuses `POST /mcp` whose `Origin` is not the public origin, so never rewrite `Origin`                     |
-| Response         | Pass the status and `WWW-Authenticate`, `Location`, `Cache-Control`, `Content-Security-Policy`, `Referrer-Policy`, `X-Accel-Buffering` unchanged. Follow no redirect anywhere between the channel and the browser (the gateway, any hop or subrequest behind it) and rewrite no `Location`: the 302 from `/authorize` points at the assistant's own site and must reach the browser as sent                                         |
-| Caching          | None on these routes, `/token` and `/authorize` above all. Add no cache layer and do not override the channel's `Cache-Control`                                                                                                                                                                                                                                                                                                     |
-| Size and time    | The gateway's request size limit is not below `ALADUO_TETHER_REQUEST_LIMIT_BYTES`. One response is a stream: a `text/event-stream` answer on `POST /mcp` (an assistant's push subscription, `mail-and-doorbells.md`) stays open for as long as the assistant listens. Do not buffer it, do not cut it at the upstream timeout, and close the upstream request when the client goes away. Every other response is plain JSON or HTML |
-| Nothing else     | The new hostname reaches only the tether channel. No daemon port, no other upstream, no admin page. Other sites on the gateway stay as they are (`SKILL.md` policy 2)                                                                                                                                                                                                                                                               |
-| Nothing in front | No authentication layer on the hostname (basic auth, single sign-on, forward-auth, an access gateway): it takes over `Authorization` or redirects to its own login, and the assistant's OAuth breaks                                                                                                                                                                                                                                |
+| Item             | Requirement                                                                                                                                                                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hostname and TLS | One hostname of its own, served on 443 with a valid certificate. `https://<hostname>` is `ALADUO_TETHER_PUBLIC_URL` exactly and never changes (`setup.md`, Requirements of every route)                                                                                                    |
+| Mount point      | The hostname's root. No path prefix: the channel serves its metadata at `/.well-known/…` and every route at a fixed path                                                                                                                                                                   |
+| Upstream         | `http://127.0.0.1:<ALADUO_TETHER_PORT>`. The channel listens on loopback unless `ALADUO_TETHER_HOST` says otherwise. A gateway on another machine needs a private link to this host (R8, `direct.md`); never bind a daemon port to a network interface                                     |
+| Paths            | Either exactly the list in `setup.md`, Requirements of every route, or everything under the hostname: the channel has no other route and answers 404                                                                                                                                       |
+| Request          | Pass `Authorization`, `Content-Type`, `Accept`, `Mcp-Protocol-Version`, `Mcp-Method`, `Mcp-Name` and `Origin` unchanged, and every request body unchanged (JSON and `application/x-www-form-urlencoded`); why: `setup.md`, Requirements of every route                                     |
+| Response         | Pass the status and `WWW-Authenticate`, `Location`, `Cache-Control`, `Content-Security-Policy`, `Referrer-Policy`, `X-Accel-Buffering` unchanged. Follow no redirect anywhere between the channel and the browser (the gateway, any hop or subrequest behind it) and rewrite no `Location` |
+| Caching          | None on these routes, `/token` and `/authorize` above all. Add no cache layer and do not override the channel's `Cache-Control`                                                                                                                                                            |
+| Size and time    | The gateway's request size limit is not below `ALADUO_TETHER_REQUEST_LIMIT_BYTES`. The `text/event-stream` answer on `POST /mcp` follows `setup.md`, Requirements of every route; also close the upstream request when the client goes away. Every other response is plain JSON or HTML    |
+| Nothing else     | The new hostname reaches only the tether channel. No daemon port, no other upstream, no admin page. Other sites on the gateway stay as they are (`SKILL.md` policy 2)                                                                                                                      |
+| Nothing in front | No authentication layer on the hostname (basic auth, single sign-on, forward-auth, an access gateway): it takes over `Authorization` or redirects to its own login, and the assistant's OAuth breaks                                                                                       |
 
 Defaults that commonly break the contract (check the gateway's current documentation):
 
@@ -57,11 +54,7 @@ Defaults that commonly break the contract (check the gateway's current documenta
 - A path outside the list answers 404 (from the gateway or the channel). The gateway's other
   sites answer as before. `/authorize` with a valid client answers its page or an error page; a
   302 it sends keeps its `Location` unchanged.
-- Redirect check, done with the owner on the first connect (`SKILL.md` step 4): after the
-  owner approves with the passkey, the browser must land on the client's redirect URI with a
-  `code` and the app must finish connecting, not stop on an error page of the gateway. Deny
-  cannot run this check: it answers a "Connection denied" page from the channel, follows no
-  address, and the app is not told.
+- The redirect check (`setup.md`, Verify both directions).
 
 ## Persistence, handoff and rollback
 
@@ -81,6 +74,6 @@ Hand each to the owner as `setup.md` (Hand a grant to the owner) says.
 
 ## What is measured
 
-| Fact                                                                               | Status     |
-| ---------------------------------------------------------------------------------- | ---------- |
-| R3 Cloudflare named tunnel, R4 quick tunnel, R6 own gateway, end to end for duoduo | Not tested |
+| Fact                                  | Status     |
+| ------------------------------------- | ---------- |
+| R6 own gateway, end to end for duoduo | Not tested |

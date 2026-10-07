@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: buildSessionIndexEntry  (minified: Qce, daemon.pretty.js:36861)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.2, v0.5.10, v0.8.1 (maps/history_daemon.json)
+// changelog v0.5.0 (medium): `SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

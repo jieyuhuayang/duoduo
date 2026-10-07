@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: parseJobRearmTime  (minified: Lw, daemon.pretty.js:61344)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.6.1 (maps/history_daemon.json)
+// changelog v0.5.6 (medium): The loop runs as a job, paces itself via `ScheduleWakeup`
+// changelog v0.6.1 (medium): `@in` and `@every` now accept composite durations such as `2h30m` and `1d6h4m`. Invalid cron strings, malformed durations, and delays outside the representable time range are rejected when the job is created.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,9 +1,10 @@
 # Playbook: any other client, by its wake capability
 
-For Claude, Cursor, a self-built agent, or any client without its own playbook. Choose by what the
-client can do to be woken, then follow that kind's section. Claude and Cursor have no field case
-here: this playbook gives no click path for them. The owner adds the MCP server where the client's
-own documentation says, with the URL `https://<host name>/mcp`.
+For the Claude apps, Cursor, a self-built agent, or any client without its own playbook. Choose by
+what the client can do to be woken, then follow that kind's section. This playbook gives no click
+path: the owner adds the MCP server where the client's own documentation says, with the URL
+`https://<host name>/mcp`. An agent that can run a shell (Claude Code, Codex) is simpler through the
+command line: `cli-agent.md`.
 
 Contents:
 
@@ -13,7 +14,7 @@ Contents:
 - Kind B: a webhook routine or HTTPS endpoint
 - Kind C: a listen process
 - Kind D: no wake
-- Handoff prompt (shared core)
+- Handoff prompt for Kinds B and D
 
 ## Client documents
 
@@ -23,10 +24,16 @@ verified, until the owner approves with the passkey.
 
 | Client situation                                                                                                                   | What to do                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The vendor hosts a client document (ChatGPT, Claude, Cursor and GrokBot on Cursor's)                                               | Nothing. The owner adds the URL                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| The vendor hosts a client document (ChatGPT, Claude, Claude Code, Cursor and GrokBot on Cursor's)                                  | Nothing. The owner adds the URL                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | A client has no hosted client document (a self-built agent; its OAuth callback is loopback, e.g. `http://127.0.0.1:8976/callback`) | Run `duoduo channel tether client add <name> --redirect <its callback>` (you may, inside your session; `--redirect` repeats). Hand the agent the printed `client_id`, `https://<host name>/clients/<name>`, together with the paragraph printed with it, as written: the agent must not fetch its `client_id` (a 404 there is expected) and builds the authorization request directly. The browser then goes to the loopback address with `?code=`: when nothing listens there on the owner's device (the agent runs in a VM or elsewhere), the owner copies the whole address from the address bar back to the agent |
 | A client with a public callback and no document                                                                                    | It has a server, so it hosts its own client document (`client_id` = that document's https URL). `client add` refuses any non-loopback return address                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | A client that wants dynamic client registration (no `client_id`, asks for a registration endpoint)                                 | Not supported: duoduo advertises no registration endpoint. Report it to the owner with the client's name; do not build a workaround                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+
+A loopback `http` return address, in a vendor's document or a `client add` one, matches on any
+port (RFC 8252): the scheme, host, path and query must match exactly, and `localhost` does not match
+`127.0.0.1`. The token request must still send the return address of its authorization request
+exactly, port included. The name `duoduo-tether` is reserved for the built-in client of the command
+line; `client add` refuses it.
 
 Nothing is served at `/clients/<name>`: the channel reads the document locally and answers 404
 there. The authorize page shows such a document as hosted by this duoduo, with the return address
@@ -47,7 +54,7 @@ first that fits.
 | ---- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | A    | Subscribe to MCP Events (OpenAI's) and run an automation on an event                    | Nothing; it subscribes itself (`mail.md`, Event subscriptions) |
 | B    | Run something when an HTTPS URL is POSTed to (a webhook-triggered routine, an endpoint) | A doorbell, `hmac` or `bearer` (`mail.md`, Doorbells)          |
-| C    | Keep its own process running with an MCP client on protocol 2026-07-28                  | Nothing; it listens on its mailbox (`sdk-listen.md`)           |
+| C    | Run a shell command, or keep its own MCP client process on protocol 2026-07-28          | Nothing; it listens on its mailbox (`cli-agent.md`)            |
 | D    | None of these                                                                           | Nothing                                                        |
 
 ## Kind A: MCP Events
@@ -71,14 +78,15 @@ never see the webhook secret; do not ask for it.
 
 ## Kind C: a listen process
 
-Follow `sdk-listen.md` and use its handoff prompt.
+Follow `cli-agent.md` and use its handoff prompt: `duoduo-tether listen` is the listen process, and
+the built-in client needs no `client add`. An agent that runs its own MCP client and will not run
+the command follows `sdk-listen.md` instead.
 
 ## Kind D: no wake
 
 The assistant reads its mail only when the owner talks to it. Say so plainly to the owner: mail
-waits until then, and mail left unread longer than `ALADUO_NOTIFY_UNCONSUMED_HOURS` gets senders'
-`Notify` refused until the assistant reads again (`mail.md`, Mail). Acceptance (`SKILL.md` step 6)
-becomes: the owner asks the assistant to check duoduo, and the reply reaches the sender. Wake setup
+waits until then, and long-unread mail gets senders refused (`mail.md`, Mail). Acceptance is the
+no-wake case of `SKILL.md` step 6. Wake setup
 block:
 
 ```text
@@ -86,9 +94,10 @@ Nothing wakes you when mail arrives. Whenever I talk to you, before anything els
 with the per-wake steps below.
 ```
 
-## Handoff prompt (shared core)
+## Handoff prompt for Kinds B and D
 
-Put the kind's wake setup block where it says, fill the placeholders, and send the whole block to
+This prompt serves Kinds B and D only. Kinds A and C use their own playbook's prompt (`chatgpt.md`,
+`cli-agent.md` or `sdk-listen.md`). Put the kind's wake setup block where it says, fill the placeholders, and send the whole block to
 the owner to paste. It carries no secret.
 
 ```text

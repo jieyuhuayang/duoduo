@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: upsertChannelSpawnDescriptor  (minified: yvt, daemon.pretty.js:91873)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.7.0, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.0 (high): descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins. Enables per-instance runtime selection without restart.
+// changelog v0.8.4 (high): `channel.spawn` never moves a session to another channel. Naming a session that another channel owns is refused before anything is written.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

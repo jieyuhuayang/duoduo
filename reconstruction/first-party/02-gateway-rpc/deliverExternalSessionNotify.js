@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: deliverExternalSessionNotify  (minified: EIe, daemon.pretty.js:91037)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.2, v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.4 (high): `duoduo session notify <target> -m "<msg>"` — wake another session by key or alias with a source-tagged notification (for cross-session orchestration). Only foreground/job sessions are valid targets; the kernel/subconscious plane is isolated and refused.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

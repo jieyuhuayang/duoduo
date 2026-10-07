@@ -1,0 +1,4150 @@
+{
+ "generatedBy": "tools/changelog_merge.mjs",
+ "source": "CHANGELOG.md of openduo/duoduo, read per release against maps/history_daemon.json",
+ "counts": {
+  "born": 379,
+  "changed": 65,
+  "high": 158,
+  "medium": 285,
+  "low": 1,
+  "unknownSymbol": 0
+ },
+ "symbols": {
+  "CHANNEL_CONFIG_KEY_TYPES": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.",
+    "why": "Declares auto_compact_idle_minutes and auto_compact_min_context_tokens as nonneg_number config keys."
+   }
+  ],
+  "SpineRpcParamsError": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.",
+    "why": "Error class thrown by recordExternalSpineEvent and runSpineCatRpc for invalid spine.record / spine.cat params."
+   }
+  ],
+  "accumulateDrainRecordIntoSummary": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The dashboard streams usage summaries",
+    "why": "Adds one drain record to the running summary per provider (\"anthropic\", \"codex\", \"grok\", \"pi\")."
+   }
+  ],
+  "acquireSessionDrainLock": [
+   {
+    "version": "0.3.5",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**runner**: Keep session lock heartbeat and release ownership inside the active drain so actors that never acquired the lock cannot renew or delete it.",
+    "why": "Acquire path of the session drain lock changed in this release and reads the lock file through readDrainLockFile."
+   }
+  ],
+  "advanceOptimisticDeliveryCursor": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**replay**: Harden session-local cursor fallback and recovery when replay indexes are incomplete or stale.",
+    "why": "Writes the session-local optimistic delivery cursor (optimistic_last_outbox_id, optimistic_replay_offset) and records cursor_store_ms; part of the session-local cursor handling."
+   }
+  ],
+  "aggregateSessionDrainSummary": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The dashboard streams usage summaries",
+    "why": "Accumulates drain records into a usage summary while iterating (for await), instead of collecting all records first."
+   }
+  ],
+  "appendBeforeExecuteGateway": [
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Identical text sent twice was silently suppressed as a duplicate. Ingress de-duplication now keys only on an explicit source id, so resending a message always gets an answer.",
+    "why": "Gateway ingest now calls computeDedupKey, which keys only on dedup.source_id."
+   }
+  ],
+  "appendConfigChangedEvent": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.",
+    "why": "Appends a config.changed event with source session.config when the config is set."
+   }
+  ],
+  "appendEventIdIndexEntry": [
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).",
+    "why": "Index writer changed in the release that made the by-id index a date-keyed recency cache."
+   }
+  ],
+  "appendEventToPartition": [
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Log lines containing U+2028 were shredded on read, because the line reader treated it as a line break and JSON does not.",
+    "why": "Now serialises the WAL line through stringifyJsonlRecord, which escapes U+2028."
+   }
+  ],
+  "appendGapHandedSpan": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Appends a handed span to the gap-handed-days record in memory/."
+   }
+  ],
+  "appendSessionMailboxNote": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Appends a note to mailbox/notes.jsonl instead of rewriting the mailbox file (append-only mailbox)."
+   }
+  ],
+  "applyHostModelEnvVars": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "fix(daemon): forward ANTHROPIC_* env and apply onboard state on upgrade",
+    "why": "Sets ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, ANTHROPIC_BASE_URL and the ANTHROPIC_DEFAULT_*_MODEL vars from the onboard model config."
+   }
+  ],
+  "applyJobSdkConfigOverride": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Overlays a job's claudeModelProfiles/claudeModelAliases onto the base config with source \"instance\"."
+   }
+  ],
+  "applySessionConfigVerb": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.",
+    "why": "Implements the get/set/unset verbs of session config against a session resolved by key or alias."
+   }
+  ],
+  "archiveLegacyRegistrySessionsDir": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`var/registry/sessions/` is no longer read on the hot path and is archived to `var/registry.legacy.<ts>/` on first post-upgrade start",
+    "why": "Body logs the literal \"Phase 3 of session-state-refactor: session metadata now lives in var/sessions/\" under [init] and counts backfilled/skipped rows, the one-shot legacy registry sweep (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "archiveSessionAndArtifacts": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`session.archive` RPC + `duoduo session archive <session_key>` CLI retired the old ad-hoc deletion paths. Archive moves the session dir to `var/sessions-archive/`; recovery is `mv` back.",
+    "why": "Moves the session dir plus channels-archive/ingress-archive/outbox-archive artifacts under the per-session mutex via moveSessionDirToArchive, returning not_found/pending_work (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.6.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Archiving now refuses unless the session is provably empty of pending work (checking every shape of in-flight work), ignores channel placeholder actors, and treats the archive marker as a real \"about to disappear\" signal.",
+    "why": "Now calls the new probeSessionPendingWork before archiving."
+   }
+  ],
+  "archiveSessionIfQuiescent": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`session.archive` RPC + `duoduo session archive <session_key>` CLI retired the old ad-hoc deletion paths. Archive moves the session dir to `var/sessions-archive/`; recovery is `mv` back.",
+    "why": "RPC-level handler whose messages include \"Archived — to recover, `mv` the archived directory back\" and refuse live actors/queued work (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.6.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Archiving now refuses unless the session is provably empty of pending work (checking every shape of in-flight work), ignores channel placeholder actors, and treats the archive marker as a real \"about to disappear\" signal.",
+    "why": "Now calls the new probeSessionPendingWork before archiving."
+   }
+  ],
+  "assertScheduleDurationRepresentable": [
+   {
+    "version": "0.6.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`@in` and `@every` now accept composite durations such as `2h30m` and `1d6h4m`. Invalid cron strings, malformed durations, and delays outside the representable time range are rejected when the job is created.",
+    "why": "Throws \"Duration in ... is too large to schedule — it exceeds the representable time range\", the entry's representable-range rejection."
+   }
+  ],
+  "assertSessionNotArchiving": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Closes the last class of \"writer survives past archive's liveness check and writes into a just-renamed path\" races.",
+    "why": "Throws when a writer reaches a session that is being archived; called by every state writer (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "attachStreamLineReader": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "pi joins Claude, Codex and Grok as a fourth agent runtime.",
+    "why": "Line reader on the pi worker stdout, called only by createPiWorkerAdapter."
+   }
+  ],
+  "backfillOutboxByIdIndexFromReplay": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**replay**: Harden session-local cursor fallback and recovery when replay indexes are incomplete or stale.",
+    "why": "Rebuilds missing by_id index entries (replay_offset, replay_byte_length) by scanning the session's replay file, i.e. recovery when the replay index is incomplete."
+   }
+  ],
+  "bindSessionSourceChannel": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`channel.ingress` and `channel.command` validate `channel_id` before they bind the session. A malformed id used to rebind an existing session to it and was refused only afterwards.",
+    "why": "Calls assertValidChannelId(channel_id) before patchSessionRuntimeState writes source_channel_id, i.e. validates before binding."
+   }
+  ],
+  "buildBaseInstructions": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "feat(codex): Codex app-server adapter (Phase 1) for running job sessions on GPT-5.4",
+    "why": "Builds the <aladuo:system-context> base instructions sent to the Codex app-server."
+   }
+  ],
+  "buildClaudeCostBaseline": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A resumed turn now reports its own figures. A session that existed before the upgrade has no saved baseline yet, so its first resume shows no cost and no model.",
+    "why": "Builds the saved baseline {sdk_session_id, total_cost_usd, model_usage} that a resumed Claude turn subtracts."
+   }
+  ],
+  "buildClaudeSettingsEnvOverrides": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Builds the env override set only for a \"profiled-external\" requirement, i.e. a gateway-served model with a declared profile."
+   }
+  ],
+  "buildCodexDirectOnlyToolConfig": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "duoduo's tools are mounted under their own namespace and pinned to the top level, so they no longer get demoted out of the model's directly-visible tool list",
+    "why": "Returns a config keyed by the direct-only option listing [ALADUO_TOOL_NAMESPACE], i.e. pins duoduo's namespace to the top level."
+   }
+  ],
+  "buildCodexDynamicTools": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Dynamic tools bridge: aladuo MCP tools available to Codex sessions",
+    "why": "Builds Codex dynamic tools that call runNotifyTool, runManageJobTool, runSkipTool and the other aladuo tool handlers."
+   },
+   {
+    "version": "0.5.1",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Codex foreground: register missing tools (`Skip`, `QueueOutboundAttachment`)",
+    "why": "Body registers QueueOutboundAttachment for Codex"
+   }
+  ],
+  "buildCodexStringInputSchema": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Dynamic tools bridge: aladuo MCP tools available to Codex sessions",
+    "why": "Builds the JSON input schema for the bridged tools; only buildCodexDynamicTools uses it."
+   }
+  ],
+  "buildCodexTurnInput": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Codex sessions accept inbound images** as first-class turn input rather than as a path the model has to open for itself.",
+    "why": "Maps attachments whose mime starts with \"image/\" to a {type: \"localImage\"} turn-input item next to the \"text\" item."
+   }
+  ],
+  "buildDeveloperInstructions": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "feat(codex): Codex app-server adapter (Phase 1) for running job sessions on GPT-5.4",
+    "why": "Builds the <aladuo:runtime-directives> developer instructions sent to the Codex app-server."
+   }
+  ],
+  "buildEffectiveRuntimeFields": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "In a channel kind or instance descriptor it refuses the turns of the sessions that layer selects; a valid instance value still overrides an unknown kind value.",
+    "why": "Turns resolveLayeredChannelRuntime's result into either a runtime or a runtimeRefusal field for the effective channel config."
+   }
+  ],
+  "buildJobRuntimeSchemaField": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "pi joins Claude, Codex and Grok as a fourth agent runtime.",
+    "why": "Builds the job runtime enum from listSelectableJobRuntimes, which in this release always appends \"pi\"."
+   }
+  ],
+  "buildNotifyInputSchema": [
+   {
+    "version": "0.5.1",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "adds `correlation_id` / `reply_to` fields to the Notify MCP tool",
+    "why": "Schema now contains correlation_id and reply_to"
+   }
+  ],
+  "buildOrphanIslandsSignal": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Builds the orphan-islands.md.pending signal addressed to the intuition-weaver partition, i.e. a signal routed to a subconscious partition."
+   }
+  ],
+  "buildOrphanNewbornSignals": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Builds orphan-newborn-*.md.pending signals and routes them to a partition via routeContractDecision."
+   }
+  ],
+  "buildPiSystemPromptSpec": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "the same kind/instance/job/partition prompt fields including append-or-replace",
+    "why": "Builds pi's system prompt spec from mode \"append\" or \"override\", the append-or-replace prompt field the entry names."
+   }
+  ],
+  "buildProfiledExternalRequirement": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Builds the \"profiled-external\" requirement object for a model that has a declared profile."
+   }
+  ],
+  "buildScanGapSignal": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Builds a signal for the \"gradient-distiller\" partition naming a bounded event interval to process."
+   }
+  ],
+  "buildSdkConfigReport": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Reports the auth source (default \"claude_code_local\") and ALADUO_PERMISSION_MODE in system.config's SDK section."
+   }
+  ],
+  "buildSessionExecutionPayload": [
+   {
+    "version": "0.3.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**runner**: Expose `tool_input_delta` in `session.execution` notifications for progressive tool input rendering.",
+    "why": "Builds the session.execution notification payload, which gained the tool input delta in this release."
+   }
+  ],
+  "buildSessionIndexEntry": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`",
+    "why": "Turns one session's state/meta into an index entry (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "buildSessionIndexFromDisk": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json` (completes Phase 3 of session-state-refactor; `var/registry/sessions/` is no longer read on the hot path",
+    "why": "Builds the index from readAllSessionStateFiles + readSessionMetaFile, i.e. derived from state.json rather than the registry (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "buildSystemConfigReport": [
+   {
+    "version": "0.3.3",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**daemon**: `system.config` RPC — inspect effective runtime configuration (network, sessions, cadence, SDK, paths) with source tracking (`env` / `default` / `unset`).",
+    "why": "Builds the report of ALADUO_* settings grouped as network, sessions, cadence, SDK and paths, the system.config response."
+   },
+   {
+    "version": "0.4.5",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Exposed in `system.config` RPC and dashboard.",
+    "why": "Lists ALADUO_TELEMETRY_ENABLED among the reported env entries."
+   }
+  ],
+  "buildTransientUserBlocks": [
+   {
+    "version": "0.3.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.",
+    "why": "Per-turn transient blocks gained the time-gap context and moved to structured content blocks in this release."
+   },
+   {
+    "version": "0.5.10",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "A one-line notice on the session's next reply reports what was compacted and its measured stats, so retuning is based on real numbers rather than guesswork. See the `smart-compaction` skill",
+    "why": "Gains the compactNotice branch that adds a smart-compact-notice block via renderSmartCompactNoticeBlock."
+   },
+   {
+    "version": "0.6.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "`-r \"<what changed>\"` reaches every session that wakes after the restart",
+    "why": "Passes getPendingRestartReason() to renderDaemonRestartHint for the daemon-restart-hint block."
+   }
+  ],
+  "canonicalizeGatewayCommand": [
+   {
+    "version": "0.5.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "`/compact` and `/undo` work everywhere. Type them in any channel (Feishu DM, stdio, ACP editor).",
+    "why": "Gateway command canonicaliser now recognises /compact"
+   },
+   {
+    "version": "0.5.6",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Type `/model` to list available models ... Kick off a self-pacing loop with `/loop <task>`.",
+    "why": "Gains the \"/model\" case in 0.5.6; the literal does not exist in 0.5.5."
+   }
+  ],
+  "checkChannelRuntimeRebindConflict": [
+   {
+    "version": "0.8.3",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Changing a session's runtime needs `/clear` first.** A session is now bound to the runtime that created its history.",
+    "why": "Refuses \"runtime not changed to '…'\" when sessions \"hold history that only their current runtime can resume\" and says \"Send /clear in each of those sessions first\"."
+   }
+  ],
+  "checkCodexAvailability": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Preflight check for codex CLI availability",
+    "why": "Runs codex --version and codex login status and reports 'Codex CLI ... is not installed or not in PATH'."
+   }
+  ],
+  "checkGrokAvailability": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Availability is checked against the Grok CLI you already have installed, and it fails closed: asking for Grok when Grok is not usable gives you a clear error, never a silent fall back to Claude.",
+    "why": "Runs `grok --version` and returns \"Grok CLI ('…') is not installed or not in PATH. Install it and run 'grok login'.\" on failure."
+   },
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "low",
+    "changelog": "A failed Grok availability probe reported a login problem regardless of the real cause.",
+    "why": "Body changed in this release; the fix concerns its failure reason, but the diff was not inspected."
+   }
+  ],
+  "checkReservedRecordSource": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.",
+    "why": "Refuses (\"reserved_source\") a spine.record source that is one of duoduo's internal sources or begins its session keys; the entry's writers outside duoduo record under their own name."
+   }
+  ],
+  "claimDaemonRestartReason": [
+   {
+    "version": "0.6.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo daemon restart` takes a reason, and can wake what it interrupted. `-r \"<what changed>\"` reaches every session that wakes after the restart; `--wake <session-or-alias>` (repeatable) notifies a specific session",
+    "why": "Reads and deletes daemon-restart-reason.json and returns its reason and wake_targets; the file is absent from 0.6.1."
+   }
+  ],
+  "classifyConsumerStaleness": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "whose last consumer take is older than `ALADUO_NOTIFY_UNCONSUMED_HOURS`",
+    "why": "Compares last_cursor_advance_at age with hours * factor and returns unconsumed=false when the setting is <= 0 (off)."
+   }
+  ],
+  "classifyDrainBatchClass": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A message you send while the agent is mid-turn on something it started by itself now gets its own turn. It used to be folded into that turn",
+    "why": "Assigns each drain item a merge class (\"worker-notify\", channel message, other) so a user channel.message is not merged into a self-started batch."
+   }
+  ],
+  "classifyGatewayCommandIntent": [
+   {
+    "version": "0.5.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "`/compact` and `/undo` work everywhere.",
+    "why": "Command intent classifier now recognises /compact"
+   },
+   {
+    "version": "0.5.6",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Type `/model` to list available models, `/model <id>` to switch the running session",
+    "why": "Gains the mapping of /model to the \"config\" intent in 0.5.6."
+   }
+  ],
+  "classifyJobScheduleType": [
+   {
+    "version": "0.4.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)",
+    "why": "Returns \"one-shot\"/\"periodic\", the second argument the 0.4.0 fallback-notification text branches on."
+   }
+  ],
+  "classifyModelContextRequirement": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Classifies a model as \"native-claude\", \"explicit-1m\" or \"profiled-external\", deciding whether a declared window applies."
+   }
+  ],
+  "claudeUnavailableReason": [
+   {
+    "version": "0.5.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Hosts can expose whichever runtimes are actually installed and authenticated.",
+    "why": "Returns the cached probe failure reason"
+   }
+  ],
+  "clearHostModelEnvConfig": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Removes the onboarding model/auth lines from the host .env file."
+   }
+  ],
+  "clearHostModelEnvVars": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(daemon): forward ANTHROPIC_* env and apply onboard state on upgrade",
+    "why": "Deletes the HOST_MODEL_ENV_KEYS before applyHostModelEnvVars re-applies the onboard state."
+   }
+  ],
+  "clearModelOverrideOnRuntimeFlip": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`/model <id>` to switch the running session, `/model reset` to restore the daemon default. On Claude sessions the change takes effect on the next turn; on Codex sessions it is applied at the next thread fork.",
+    "why": "Clears the session model override (model, model_runtime, pending_model_fork) when the runtime changes; part of /model session state handling."
+   }
+  ],
+  "clearSessionArchiving": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "re-checks the archiving marker after the lock is taken.",
+    "why": "Clears the archiving marker after an archive attempt (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "clearSessionRuntimeStateField": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`updateSessionRuntimeState`, and `enqueueMailboxItem` now take the same lock that `archiveSessionDir` takes.",
+    "why": "state.json field remover that runs inside runWithSessionMutex and calls assertSessionNotArchiving (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "codexNotificationFilterDecision": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A recurring Codex job no longer mishandles a turn-terminal notification, which previously could let a job thread grow until it repeatedly hit compaction.",
+    "why": "Decides drop-wrong-thread / drop-stale-turn for Codex notifications with an exception for turn/completed and error"
+   }
+  ],
+  "collectBoardIncludePaths": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Scans markdown tokens (skipping code/codespan, html comments) for include tokens and resolves them relative to the file"
+   }
+  ],
+  "collectBoardLintReport": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Measures every board-reachable target (buildBoardLintTarget) and feeds runBoardLint."
+   }
+  ],
+  "collectGrokToolCallNames": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "duoduo's own tools reachable from it",
+    "why": "Reads tool names from Grok's \"x.ai/tool\" metadata on a tool call so duoduo's own tools can be recognised."
+   }
+  ],
+  "collectInstructionsInputs": [
+   {
+    "version": "0.5.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The per-session sticky-mission guard now fingerprints identity + kind prompt + instance prompt + memory board + mission, not just the mission.",
+    "why": "Gathers exactly those inputs: resolveMetaPromptText (identity), resolveEffectiveChannelConfig (kind/instance prompts), the memory board, and the job mission"
+   },
+   {
+    "version": "0.5.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "injects the rendered import graph into both Claude and Codex sessions through one path.",
+    "why": "Now calls transcludeBroadcastBoard for the memory-board input"
+   }
+  ],
+  "collectJobCompletionReceipts": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A finished job's completion receipt now arrives as context on the owner's next turn instead of waking a turn of its own.",
+    "why": "Collects job-completion events (extractJobCompletionJobId) from the drain items and renders them as prompt context for the turn."
+   }
+  ],
+  "computeBoundedEditDistance": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Notify \"target not found\" error now matches candidates scope-aware (session_key prefix + channel kind), yielding actionable suggestions.",
+    "why": "Edit-distance helper only called by matchNearMissSessionKey (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "computeCodexTurnUsage": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Every finalized turn now appends a one-line footer ... The footer now includes an absolute context-token count (`ctx Nk`)",
+    "why": "Computes per-turn Codex token deltas against a baseline and sets context_used_tokens, the source of the ctx segment."
+   }
+  ],
+  "computeContextProfileSignature": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "sha256 hex signature of a \"profiled-external\" profile, so a profile change is detected per session."
+   }
+  ],
+  "computeDedupKey": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Identical text sent twice was silently suppressed as a duplicate. Ingress de-duplication now keys only on an explicit source id, so resending a message always gets an answer.",
+    "why": "Returns a key only when dedup.source_id is present (`${source.kind}:${source_id}`), else null: de-duplication keyed only on an explicit source id."
+   }
+  ],
+  "computeInstructionsFingerprint": [
+   {
+    "version": "0.5.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "the legacy `mission_fingerprint` field is cleared, and the new `instructions_fingerprint` is stamped.",
+    "why": "sha256 hex digest over the collected instruction inputs"
+   }
+  ],
+  "computeMissionFingerprint": [
+   {
+    "version": "0.5.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "the legacy `mission_fingerprint` field is cleared, and the new `instructions_fingerprint` is stamped.",
+    "why": "Legacy mission-only fingerprint re-expressed as computeInstructionsFingerprint({mission})"
+   }
+  ],
+  "computeOrphanTopicNodes": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`ALADUO_EXP_MEMORY_FORGET=1` additionally lets it remove long-stale, board-unreachable orphan nodes (git-recoverable).",
+    "why": "Computes topic nodes unreachable from the board (walkReachableMemory) with their in-degree and age, the \"board-unreachable orphan\" set."
+   }
+  ],
+  "computePartitionBackoffUntil": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Computes a per-partition backoff deadline from the run outcome (\"success\", \"timeout\", \"invalid_output\"), so a failing partition no longer stalls the round-robin."
+   }
+  ],
+  "createAgentSdkAdapter": [
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Claude Code's own auto memory is off** in every Claude session duoduo starts, because it would keep a second memory store beside duoduo's.",
+    "why": "The Claude session env now sets CLAUDE_CODE_DISABLE_AUTO_MEMORY = \"1\" (and ALADUO_CALLER_SESSION)."
+   }
+  ],
+  "createCodexAppServerAdapter": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "feat(codex): Codex app-server adapter (Phase 1) for running job sessions on GPT-5.4",
+    "why": "The Codex app-server adapter itself: thread/*, item/* notifications, [codex-adapter] and [codex-transport] logs, AbortError on abort."
+   },
+   {
+    "version": "0.5.1",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "The new behavior calls `thread/fork` from the parent rollout when one is available … Falls back to `thread/start` if the parent rollout has been GC'd.",
+    "why": "Body contains both thread/fork and thread/start"
+   }
+  ],
+  "createDaemon": [
+   {
+    "version": "0.7.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "That interface now lives on a socket file that carries owner-only permissions, so the operating system enforces what nothing was enforcing before.",
+    "why": "\"daemon.sock\" appears in the bundle first in v0.7.0 (0 hits in v0.6.2), and createDaemon is the current holder of it."
+   }
+  ],
+  "createEmptySessionIndex": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`",
+    "why": "Empty variant of createMapBackedSessionIndex (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "createGrokAcpAdapter": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "It sits behind the same seam as Claude and Codex rather than beside it: one long-lived agent process per session, duoduo's own tools reachable from it, mid-turn steering, and the same kind/instance/job/partition prompt fields",
+    "why": "The Grok ACP adapter: spawns one grok process (\"--always-approve\", \"--no-leader\") and drives \"session/new\", \"session/load\", \"session/prompt\", \"session/cancel\", \"session/set_model\"."
+   }
+  ],
+  "createIdleCompactSweeper": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A channel session that has sat idle past a configurable threshold and grown past a token floor now silently runs `/compact` on its next turn",
+    "why": "Reads auto_compact_idle_minutes / auto_compact_min_context_tokens per session and ingests \"/compact\" into idle channel sessions ([idle-compact])."
+   }
+  ],
+  "createJobSessionFinalizer": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.",
+    "why": "Logs \"job outcome delivered to owner\" / \"undeliverable: no owner_session\", delivering job results to owner_session by default (body likely restructured from older job finalisation)."
+   }
+  ],
+  "createMapBackedSessionIndex": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`",
+    "why": "The Map-backed in-memory index object (classifies keys, filters user-visible) (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "createMetaSession": [
+   {
+    "version": "0.3.1",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Partition scheduler body changed in this release and now calls computePartitionBackoffUntil."
+   }
+  ],
+  "createModelCommandResolvers": [
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Model commands (`/model`, `/effort`, `/compact`) refuse it.",
+    "why": "Returns the void-runtime refusal text (initVoidRuntimeModule's constant) for model commands on a void session."
+   }
+  ],
+  "createPiWorkerAdapter": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "pi joins Claude, Codex and Grok as a fourth agent runtime.",
+    "why": "The pi runtime adapter: spawns the pi worker process, exchanges exec/abort/compact frames and maps aborts to the shared AgentSdk turn errors."
+   }
+  ],
+  "createVoidAwareAttachmentCallbacks": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.",
+    "why": "onAttach skips attaching the session when isVoidRuntimeSession is true, so a void session's message wakes nothing."
+   }
+  ],
+  "daemonRestartReasonPath": [
+   {
+    "version": "0.6.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo daemon restart` takes a reason, and can wake what it interrupted. `-r \"<what changed>\"` reaches every session that wakes after the restart; `--wake <session-or-alias>` (repeatable) notifies a specific session",
+    "why": "Returns the path of daemon-restart-reason.json, the file that carries the restart reason."
+   }
+  ],
+  "deleteMailboxPendingItemsByEventIds": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Removes consumed mailbox/pending/*.item.json files by event id, the delete half of the per-item mailbox."
+   }
+  ],
+  "deliverExternalSessionNotify": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session notify <target> -m \"<msg>\"` — wake another session by key or alias with a source-tagged notification (for cross-session orchestration). Only foreground/job sessions are valid targets; the kernel/subconscious plane is isolated and refused.",
+    "why": "Handles session.notify with source \"external:session.notify\", refuses forbidden_kind via resolveIsolatedPlaneKind"
+   }
+  ],
+  "deliverScanGapSignal": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Posts the scan-gap signal to the \"gradient-distiller\" inbox and records the handed span."
+   }
+  ],
+  "describeChannelInstance": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.",
+    "why": "Handler behind channel.describe: reads the channel descriptor and resolves its runtime (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.5.3",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Setup cards only show runtime choices the daemon can actually run.",
+    "why": "channel.describe handler now reports runtime availability (\"available\") to the channel"
+   }
+  ],
+  "describeContextProfileSource": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Renders the source of the context profile (\"explicit-1m\", \"native-claude\", \"profiled-external\", \"unprofiled\") for status output."
+   }
+  ],
+  "describeSpineCatProblem": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`spine.cat` takes `redact: \"external\"` for readers outside duoduo.",
+    "why": "Contains \"\\\"redact\\\" must be \\\"external\\\" or left out\", the validator of the new spine.cat redact parameter."
+   }
+  ],
+  "describeSpineRecordProblem": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.",
+    "why": "Protocol validator for spine.record params (source, payload, dedup_key, conversation); renderParamsProblem(\"spine.record\") reports it."
+   }
+  ],
+  "detectOrphanMemory": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`ALADUO_EXP_MEMORY_FORGET=1` additionally lets it remove long-stale, board-unreachable orphan nodes (git-recoverable).",
+    "why": "Classifies orphan topic nodes into ISLAND / NEWBORN / STALE; STALE is the class forgetMemoryEntry removes."
+   }
+  ],
+  "disableSystemPromptSnapshot": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "duoduo now explicitly opts out of the agent SDK's new system-prompt recording default.",
+    "why": "Wraps the system prompt as {type: \"custom\", …, snapshot: false}; \"snapshot: !1\" first appears in the bundle in v0.8.1."
+   }
+  ],
+  "drainSessionMailbox": [
+   {
+    "version": "0.5.4",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "surfaces a per-session \"runtime unavailable\" error instead of failing silently.",
+    "why": "Now calls renderRuntimeUnavailableGuidance on runtime_unavailable"
+   },
+   {
+    "version": "0.5.5",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Parallel worker-completion notifications are coalesced into one turn.",
+    "why": "drainSessionMailbox is the caller of the new isMergeableDrainBatch that merges worker notify deliveries into one turn."
+   }
+  ],
+  "encodePiWorkerFrame": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "pi joins Claude, Codex and Grok as a fourth agent runtime.",
+    "why": "Frames messages written to the pi worker stdin; only createPiWorkerAdapter uses it."
+   }
+  ],
+  "enforceContractGate": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Returns the gate verdicts no-contract / parse-fail / partition-absent / kind-not-consumed / valid for a signal kind against a partition contract."
+   }
+  ],
+  "enqueueSessionCompactCommand": [
+   {
+    "version": "0.5.8",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session compact` — compact a channel session's context on demand. Queue a `/compact` for any channel session by key or name; it runs on that session's next turn ... Channel sessions only.",
+    "why": "Implements session.compact: resolves the session by key or alias, refuses non-channel kinds (forbidden_kind), ingests \"/compact\" into its mailbox and wakes it."
+   }
+  ],
+  "ensureAgentsMdSymlink": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Auto-symlink `AGENTS.md` to `CLAUDE.md` for Codex sessions",
+    "why": "Creates the AGENTS.md symlink to CLAUDE.md, logged under [codex]."
+   }
+  ],
+  "ensureOutboxRecordInReplay": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runtime**: Split outbox replay bootstrap read/write paths so live appends no longer rebuild replay artifacts on every write.",
+    "why": "Write path that appends a record to replay only when the by_id index lacks it, under a per-session lock, separate from the read/bootstrap path."
+   }
+  ],
+  "ensureSessionMailboxPendingDir": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Creates mailbox/pending/ for the per-item mailbox."
+   }
+  ],
+  "evaluateNotifyConsumerRefusal": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**Notify refuses a session nobody reads.** Delivering into a foreground session whose last consumer take is older than `ALADUO_NOTIFY_UNCONSUMED_HOURS` (default off until set) now fails",
+    "why": "For a \"channel\" target, decides refusal from classifyConsumerStaleness and lists sessions with a recent consumer."
+   }
+  ],
+  "executeGatewayCommand": [
+   {
+    "version": "0.8.3",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "On a Claude model without `max` support the request runs as `high`, and the `/effort max` reply says so.",
+    "why": "The /effort reply text \" On a model without max support the Claude SDK runs it as high.\" appears first in v0.8.3."
+   }
+  ],
+  "expandInjectionPromptCommand": [
+   {
+    "version": "0.5.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The recurring `/loop` capability is now one entry in a general mechanism for named prompt injections, with a self-describing `duoduo prompts` CLI to list what's available.",
+    "why": "Expands a matched named prompt into prompt text plus the user args."
+   }
+  ],
+  "extractCodexGeneratedImageAttachment": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Runtime image output delivery no longer duplicates attachments.",
+    "why": "Turns a Codex imageGeneration item into an image/png outbound attachment, the runtime image output path (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.5.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Codex image generation delivered reliably (Codex 0.140+).",
+    "why": "The Codex image attachment extractor changed in the same release that added hasImageGenerationRecord."
+   }
+  ],
+  "extractProfiledEndpointFields": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Extracts the endpoint and credential fields from a \"profiled-external\" requirement (\"its own endpoint and credential\")."
+   }
+  ],
+  "extractServedModelFromUsage": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The dashboard and the usage ledger record the model that actually served each turn, not the one that was requested",
+    "why": "Takes the model reported in the turn's usage (ignoring \"default\") as the served model."
+   }
+  ],
+  "extractSystemPromptAppend": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "feat(codex): Codex app-server adapter (Phase 1) for running job sessions on GPT-5.4",
+    "why": "Only caller is createCodexAppServerAdapter, which uses it to take the Claude system-prompt append for Codex."
+   }
+  ],
+  "filterDeliverableSessions": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`session.list` accepts `deliverable: true` to list only the sessions a `Notify` would deliver to.",
+    "why": "Keeps only sessions for which evaluateNotifyConsumerRefusal (the Notify refusal check) does not refuse; called when session.list gets deliverable."
+   }
+  ],
+  "findDeadAllowedToolEntries": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "a startup warning flags any descriptor still relying on the old behavior.",
+    "why": "Finds non-mcp__ tool entries not in the core set; createAgentSdkAdapter warns \"move them to the descriptor's claude: { tools: [...] }\"."
+   }
+  ],
+  "findEventInPartitionFile": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Readers that miss it fall back to the day's log partition, so nothing becomes unreadable — and `duoduo spine show <id>` falls back to a full scan.",
+    "why": "Scans one day partition file line by line for an event id, the fallback a reader takes when the bounded index misses."
+   }
+  ],
+  "findNewestFragmentMtimeMs": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one consolidates them into intuition.",
+    "why": "Finds the newest memory/fragments mtime, compared against the intuition-weaver's last run."
+   }
+  ],
+  "fireDueWakeRecords": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A session can schedule its own next turn.",
+    "why": "Cadence step that fires due wake records (\"self-wake\", \"wake:\") into the target session via deliverRouteEventToSession."
+   }
+  ],
+  "forgetMemoryEntry": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`ALADUO_EXP_MEMORY_FORGET=1` additionally lets it remove long-stale, board-unreachable orphan nodes (git-recoverable).",
+    "why": "Removes STALE orphan nodes via git rm (--cached/--ignore-unmatch) and commits \"forget: ... stale orphan memory nodes\", i.e. git-recoverable removal."
+   }
+  ],
+  "formatElapsedDuration": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.",
+    "why": "Formats the elapsed time (\" day\", \" hours\", \" minute\") that renderTimeGapContextBlock puts into the time-gap block; its only role is that block."
+   }
+  ],
+  "formatForgetCommitMessage": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`ALADUO_EXP_MEMORY_FORGET=1` additionally lets it remove long-stale, board-unreachable orphan nodes (git-recoverable).",
+    "why": "Builds the \"forget: N stale orphan memory nodes\" commit message for the git-recoverable removal."
+   }
+  ],
+  "formatLayerModelAliases": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Turns a layer's alias map into {tier, model, source} rows, i.e. tier aliases per config layer."
+   }
+  ],
+  "formatLocalTimestampWithZone": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp on host-mode deployments",
+    "why": "Formats a local date/time with zone offset and name; called by renderTimeGapContextBlock, renderJobTickBlock and renderSkipRewindBlock (all changed in 0.5.0)"
+   }
+  ],
+  "formatViewSessionsListLine": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`ManageSession` is now `ViewSessions`.",
+    "why": "Formats one session line of the ViewSessions list; its \"orphan — job archived…\" literal already existed in v0.8.1 (predecessor under ManageSession)."
+   }
+  ],
+  "getCachedPartitionContract": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Caches readPartitionContract results for the delivery layer."
+   }
+  ],
+  "grokAcpExtMethod": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "It sits behind the same seam as Claude and Codex rather than beside it",
+    "why": "Builds Grok ACP extension method names from GROK_ACP_EXT_PREFIX (\"_x.ai\"), used for compact and MCP calls."
+   }
+  ],
+  "groupNotifyTargetCandidates": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Notify \"target not found\" error now matches candidates scope-aware (session_key prefix + channel kind)",
+    "why": "Groups notify candidates by scope before rendering (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "handleDrainError": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "the runner now writes a `[duoduo:drain-error]` outbox reply to the anchor event's channel and a matching `agent.error` spine event, instead of silently dropping the turn.",
+    "why": "Literal \"[duoduo:drain-error] agent turn failed at\" and appends an agent.error spine event (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   }
+  ],
+  "handlePiToolEndObservation": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Fourth peer behind the same seam as the other three: duoduo's own tools reachable from it",
+    "why": "On a pi tool end it parses result details and runs runQueueOutboundAttachmentTool, so a duoduo tool called from pi takes effect."
+   }
+  ],
+  "hasAnyMemorySignalConsumer": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Asks enforceContractGate whether any partition contract consumes a signal kind before the tick produces it."
+   }
+  ],
+  "hasImageGenerationRecord": [
+   {
+    "version": "0.5.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Generated images produced by Codex were sometimes silently dropped; they are now delivered correctly, including the newer inline-image result shape.",
+    "why": "Searches nested payload/event/msg/item objects for an image-generation item, tolerating several result shapes."
+   }
+  ],
+  "hasNonEmptyDisplayName": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label so it is legible in `list` and usable as a wake target.",
+    "why": "Tests for a non-empty display name; used by alias set and alias resolution"
+   }
+  ],
+  "hasParentToolUseId": [
+   {
+    "version": "0.5.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Internal subagent streaming output is now marked as a side channel and dropped by channels rather than rendered into the main reply.",
+    "why": "Tests parent_tool_use_id, the field that marks a message as subagent output; the literal first appears in 0.5.7 and the callers are the Claude adapters."
+   }
+  ],
+  "hasSkipRewindRecordSince": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The skip-rewind injection only fires on genuine human turns, not on periodic cadence pings.",
+    "why": "Reads pending_skip_rewind.skipped_at from session runtime state to decide whether a skip-rewind record applies."
+   }
+  ],
+  "hasUniformDrainCoalesceKey": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Parallel worker-completion notifications are coalesced into one turn.",
+    "why": "Checks that all items of a candidate batch share one computeDrainCoalesceKey value, the condition isMergeableDrainBatch uses to coalesce worker notifications."
+   }
+  ],
+  "hostDotEnvPath": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(daemon): forward ANTHROPIC_* env and apply onboard state on upgrade",
+    "why": "Path ~/.config/duoduo/.env where the onboard state is stored and from which the daemon applies it."
+   }
+  ],
+  "initActivationLintModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
+    "why": "Module initialiser of the activation lint, routing it to \"intuition-weaver\" and listing write tool names whose touches are excluded."
+   }
+  ],
+  "initBoardTransclusionModule": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "injects the rendered import graph into both Claude and Codex sessions through one path.",
+    "why": "Defines the allowed include file extensions and the \" (project instructions, checked into the codebase)\" heading suffix used by the transclusion"
+   }
+  ],
+  "initBroadcastFlattenLintModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The single memory weaver is now two partitions with separate jobs — one distils raw experience into fragments, one consolidates them into intuition.",
+    "why": "Re-targets the existing \"[memory:claude-flatten]\" lint to the new \"intuition-weaver\" partition (the lint itself is from v0.5.5)."
+   }
+  ],
+  "initBroadcastLinkLintModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The single memory weaver is now two partitions with separate jobs — one distils raw experience into fragments, one consolidates them into intuition.",
+    "why": "Re-targets the existing \"[memory:claude-lint]\" lint to the new \"intuition-weaver\" partition (the lint itself is from v0.5.5)."
+   }
+  ],
+  "initCallerSessionEnvModule": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**`duoduo session notify` inside a session sends as that session.** Run from a session's own shell, the message is recorded with that session as the sender, as the `Notify` tool already did",
+    "why": "Defines ALADUO_CALLER_SESSION, which the Claude spawn env sets per session and deliverExternalSessionNotify reads to record the calling session as sender (error text mentions the --source label)."
+   }
+  ],
+  "initChannelProtocolModule": [
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.",
+    "why": "The runtime value list now contains \"void\"."
+   }
+  ],
+  "initFoldGapLintModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one consolidates them into intuition.",
+    "why": "Initialiser routing the fold-gap signal to \"intuition-weaver\"."
+   }
+  ],
+  "initGapLintModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Initialiser holding \"scan-gap.md.pending\", \"gap-handed-days.txt\" and the external event types (channel.message, external.record) the distiller is pointed at."
+   }
+  ],
+  "initGrokAcpRuntimeModule": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "one long-lived agent process per session, duoduo's own tools reachable from it",
+    "why": "Defines the Grok MCP meta keys \"x.ai/mcp/servers\", \"x.ai/mcp/sdk\", \"mcp/sdk_call\" with server name \"aladuo\", through which duoduo's tools reach Grok."
+   }
+  ],
+  "initInterruptMarkerTextModule": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**The model is told when a human ended its turn**, instead of the turn simply stopping and the next one starting from a gap it cannot explain.",
+    "why": "Defines the marker texts \"[Request interrupted by user]\" and \"[Tool call did not complete: the turn was ended to deliver the message that foll…\"."
+   }
+  ],
+  "initMaterializedClaudeSettingsModule": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Lists the env keys materialized into a per-session Claude settings file: ANTHROPIC_BASE_URL/ANTHROPIC_AUTH_TOKEN (endpoint and credential), ANTHROPIC_DEFAULT_*_MODEL (tier aliases) and CLAUDE_CODE_MAX_CONTEXT_TOKENS (context window)."
+   }
+  ],
+  "initMemorySignalDeliveryModule": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Defines the delivery layer constants: partition ids (memory-weaver, pattern-tracker, ...) and .memory-signals.json."
+   }
+  ],
+  "initMemorySignalKindsModule": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Defines the versioned signal kinds (orphan-islands.v1, node-converge.v1, scan-gap.v2, ...) that contracts declare."
+   }
+  ],
+  "initMetaSessionModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The single memory weaver is now two partitions with separate jobs — one distils raw experience into fragments, one consolidates them into intuition.",
+    "why": "Assigns the two new partition names \"gradient-distiller\" and \"intuition-weaver\"."
+   }
+  ],
+  "initNotifyConsumerStalenessModule": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Delivering into a foreground session whose last consumer take is older than `ALADUO_NOTIFY_UNCONSUMED_HOURS` (default off until set) now fails",
+    "why": "Defines the env key \"ALADUO_NOTIFY_UNCONSUMED_HOURS\" and the \"delivery_cursors\" store it reads."
+   }
+  ],
+  "initPartitionRetirementModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The `memory-weaver` subconscious partition is **replaced** by two partitions. Existing partition prompts are never overwritten by an upgrade, so nothing changes until you refresh them",
+    "why": "Declares \"memory-weaver\" (and \"cadence-executor\") as retired partitions with a \".retired\" marker."
+   }
+  ],
+  "initPartitionRunStateModule": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Module initialiser of the partition run-state module that holds the backoff constants."
+   }
+  ],
+  "initProtocolEffortModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**Model and effort from the CLI.** `duoduo session model` / `duoduo session effort` inspect or set a channel session's model and reasoning effort without going through the chat",
+    "why": "Defines the effort level enum (\"low\"..\"max\") that isSessionEffortParams validates against for the new session effort RPC."
+   }
+  ],
+  "initProtocolSystemModule": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.",
+    "why": "Protocol constants module that lists the new RPC methods spine.record, spine.cat and memory.read with their param keys (dedup_key, conversation, count_only)."
+   }
+  ],
+  "initRemindDuoduoToolModule": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`Wake` is now `RemindDuoduo`",
+    "why": "Defines the tool \"RemindDuoduo\" (\"mcp__aladuo__RemindDuoduo\") with the description \"Schedule one future turn of this session\"."
+   }
+  ],
+  "initRuntimeValidationModule": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "After the upgrade an unknown value in `ALADUO_DEFAULT_RUNTIME` stops the daemon from booting (an absent or empty value still means `claude`).",
+    "why": "Defines InvalidRuntimeError and the quoted list formatter used in the refusal text; resolveDefaultRuntime (changed in 0.8.4) throws on an invalid ALADUO_DEFAULT_RUNTIME."
+   }
+  ],
+  "initSessionLockAndArchivingModule": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Concurrent `channel.ack` during archive refused at entry: prevents delivery-cursor writers from creating files beside a just-renamed session dir; observer re-read is now wrapped in the per-session state lock and re-checks the archiving marker after the lock is taken.",
+    "why": "Defines SessionArchivingError with code session_archiving and message \"Session is being archived; refusing to materialize state\" (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "initSpineEventLogModule": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).",
+    "why": "Assigns the literal \"ALADUO_SPINE_INDEX_RETENTION_DAYS\", the env var the entry names."
+   }
+  ],
+  "initViewSessionsToolModule": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`ManageSession` is now `ViewSessions`.",
+    "why": "Defines the tool \"ViewSessions\" (\"mcp__aladuo__ViewSessions\"), \"Read-only view of the sessions this daemon runs.\""
+   }
+  ],
+  "initVoidRuntimeModule": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Model commands (`/model`, `/effort`, `/compact`) refuse it.",
+    "why": "Holds \"This session never runs a model (runtime void).\", the refusal createModelCommandResolvers (changed) returns for model commands on a void session."
+   }
+  ],
+  "isAgentRuntime": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "From v0.8.4 the value is refused with a sentence that names it and lists the valid ones.",
+    "why": "Protocol-side test that a value is in the full runtime list (void included); isKnownRuntimeValue delegates to it."
+   }
+  ],
+  "isAutoArchivedJobSchedule": [
+   {
+    "version": "0.4.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)",
+    "why": "In 0.4.0 this once/@in predicate is what classifyJobScheduleType called to choose the one-shot fallback notification."
+   }
+  ],
+  "isBoardIncludePathCandidate": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Accepts ./ and ~/ style include targets"
+   }
+  ],
+  "isChannelDescribeParams": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.",
+    "why": "Param validator for channel.describe (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   }
+  ],
+  "isChannelMessageEvent": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A message you send while the agent is mid-turn on something it started by itself now gets its own turn.",
+    "why": "Tests type \"channel.message\", the user-message class classifyDrainBatchClass separates."
+   }
+  ],
+  "isChannelPullParams": [
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`channel.pull` accepts `advance: \"ack\"`: the stream pushes records as before, and only `channel.ack` moves the consumer's cursor.",
+    "why": "Accepts advance: \"ack\"."
+   }
+  ],
+  "isChannelSpawnParams": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.",
+    "why": "Param validator for channel.spawn (checks runtime via isAgentRuntime) (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`channel.spawn` takes an optional `session_key` and creates that session bound to the channel.",
+    "why": "Accepts the new optional session_key parameter."
+   }
+  ],
+  "isClaudeAuthSource": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Recognises the auth sources \"claude_code_local\", \"anthropic_api_key\", \"compatible_endpoint\" of the onboarding auth flow."
+   }
+  ],
+  "isClaudeAvailable": [
+   {
+    "version": "0.5.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Hosts can expose whichever runtimes are actually installed and authenticated.",
+    "why": "Reads the cached probe; consumed by the runtime list offered to jobs/setup"
+   }
+  ],
+  "isGrokSkipToolCall": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "duoduo's own tools reachable from it",
+    "why": "Detects a call to duoduo's Skip tool in a Grok tool call (via collectGrokToolCallNames)."
+   }
+  ],
+  "isJobInterruptParams": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo job list | read | archive | interrupt | reschedule`. Interrupting carries a reason",
+    "why": "Params validator of the RPC \"job.interrupt\" (method absent before v0.8.2); name from published @openduo/protocol job.ts."
+   }
+  ],
+  "isJobRescheduleParams": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo job list | read | archive | interrupt | reschedule`.",
+    "why": "Params validator of the RPC \"job.reschedule\" (method absent before v0.8.2)."
+   }
+  ],
+  "isJobScheduleDue": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The loop runs as a job, paces itself via `ScheduleWakeup`",
+    "why": "CHAIN MIS-STEP: this function already existed in 0.5.5 (4 params); in 0.5.6 it gains a 5th re-arm-time parameter that makes a re-armed once/@in job due, matching the self-pacing loop."
+   }
+  ],
+  "isKnownRuntimeValue": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "From v0.8.4 the value is refused with a sentence that names it and lists the valid ones.",
+    "why": "The membership test validateKnownRuntimeValue uses to decide whether a written runtime value is known."
+   }
+  ],
+  "isLoopbackBindHost": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The remote listener starts only when a host, a port and a token are all present, and every request must carry the token. A misconfigured remote setup — a public address with no token, or a port colliding with the read-only one — refuses to start rather than exposing anything.",
+    "why": "Classifies the bind host as loopback (\"localhost\", \"::1\"), which resolveRemoteListenerConfig uses to tell a public address (token required) from a local one."
+   }
+  ],
+  "isMergeableDrainBatch": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Parallel worker-completion notifications are coalesced into one turn.",
+    "why": "Allows a drain batch of >=2 items to merge into one turn when all are worker-task notify deliveries (or all channel messages) sharing one coalesce key."
+   }
+  ],
+  "isModelRuntime": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`void` is not accepted as the default runtime, a job runtime or a partition runtime, and should not be set on an ordinary chat channel.",
+    "why": "Protocol-side test that a value is one of the model runtimes (the four engines without void); isSupportedRuntime delegates to it."
+   }
+  ],
+  "isOneShotJobSchedule": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Job `keepalive` schedule type** (#44): a new cron value that runs once then keeps its session dormant.",
+    "why": "Treats \"keepalive\" like once/@in as a run-once schedule."
+   }
+  ],
+  "isOrphanWarningDeliverable": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Checks via enforceContractGate that the orphan-warning signal kind is declared by its partition before delivery."
+   }
+  ],
+  "isPartitionBackedOff": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Lets the partition scheduler skip a partition that is in backoff when picking the next one."
+   }
+  ],
+  "isProviderQualifiedModelId": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "a job naming a model pi cannot run is refused when you create it, not when it next fires.",
+    "why": "Tests for a provider/model id (pi's model form); runManageJobTool calls it when a job is created."
+   }
+  ],
+  "isSessionArchiveParams": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`session.archive` RPC + `duoduo session archive <session_key>` CLI retired the old ad-hoc deletion paths.",
+    "why": "Param validator (session_key string) for the session.archive RPC (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "isSessionArchiving": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "re-checks the archiving marker after the lock is taken.",
+    "why": "Reads the archiving marker (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "isSessionCompactParams": [
+   {
+    "version": "0.5.8",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo session compact` — compact a channel session's context on demand.",
+    "why": "Validates the params of the session.compact RPC."
+   }
+  ],
+  "isSessionConfigParams": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Session-config RPC validator accepting the new verbs \"profile_set\", \"profile_unset\", \"profile_alias_set\", \"profile_alias_unset\"."
+   }
+  ],
+  "isSessionEffortParams": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Model and effort from the CLI.** `duoduo session model` / `duoduo session effort` inspect or set a channel session's model and reasoning effort without going through the chat",
+    "why": "RPC param validator for { session_key, effort } checked with isEffortLevel, behind `duoduo session effort`."
+   }
+  ],
+  "isSessionListKind": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session list [--kind …] [--named] [--all] [--json]`",
+    "why": "Accepts the --kind values channel/job/meta/subconscious/system"
+   }
+  ],
+  "isSessionListParams": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session list [--kind …] [--named] [--all] [--json]` — the live route table of every session the daemon knows.",
+    "why": "Validates kind plus boolean flags for the session.list RPC behind the command"
+   },
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`session.list` accepts `deliverable: true` to list only the sessions a `Notify` would deliver to.",
+    "why": "Accepts deliverable."
+   }
+  ],
+  "isSessionModelParams": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Model and effort from the CLI.** `duoduo session model` / `duoduo session effort` inspect or set a channel session's model and reasoning effort without going through the chat",
+    "why": "RPC param validator for { session_key, model }, the request shape behind `duoduo session model`."
+   }
+  ],
+  "isSessionNotifyParams": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo session notify <target> -m \"<msg>\"`",
+    "why": "Param validator for the session.notify RPC"
+   }
+  ],
+  "isSessionSetAliasParams": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label so it is legible in `list` and usable as a wake target.",
+    "why": "Param validator (key + name strings) for the alias RPC"
+   }
+  ],
+  "isSpineTailParams": [
+   {
+    "version": "0.3.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**protocol**: Add `system.status` RPC (health, sessions, subconscious playlist) and `spine.tail` RPC (last N events with incremental `after_id` cursor and cross-midnight boundary support).",
+    "why": "Validator for the spine.tail params (a number limit, an optional string cursor)."
+   }
+  ],
+  "isSupportedRuntime": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`void` is not accepted as the default runtime, a job runtime or a partition runtime, and should not be set on an ordinary chat channel.",
+    "why": "Tests a value against the model-running runtimes; validateRunnableRuntimeValue and buildJobRuntimeSchemaField use it to exclude void."
+   }
+  ],
+  "isSystemRuntimeInfo": [
+   {
+    "version": "0.3.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**daemon**: Expose runtime version in `system.runtime.info` RPC and ATC dashboard.",
+    "why": "Validator of the system.runtime.info response, which carries a version field and changed in this release."
+   },
+   {
+    "version": "0.4.3",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "feat: add `kernel_dir` to `system.runtime.info` for contrib path discovery",
+    "why": "The system.runtime.info validator contains kernel_dir and changed in this release."
+   }
+  ],
+  "isTelemetryEnabled": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**`ALADUO_TELEMETRY_ENABLED` env var**: set to `false` to disable `var/telemetry/*.jsonl` file persistence while keeping in-process debug telemetry logs intact.",
+    "why": "Reads ALADUO_TELEMETRY_ENABLED (default true); recordTelemetryMetric skips the file write when it is false."
+   }
+  ],
+  "isUsableEventIndexEntry": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "guards the by-id index against out-of-range lookups.",
+    "why": "Accepts a by-id index entry only if byte_offset is a safe integer >= 0 and byte_len > 0."
+   }
+  ],
+  "isVoidRuntimeSession": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.",
+    "why": "Returns true when a session's resolved channel runtime is \"void\"; used to skip attaching and to list void sessions."
+   }
+  ],
+  "isWorkerTaskNotifyDelivery": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Parallel worker-completion notifications are coalesced into one turn.",
+    "why": "Recognises a route.deliver event whose source_event_type is \"notify\" and whose payload has a task_id, i.e. a worker-completion notification; absent from 0.5.4."
+   }
+  ],
+  "iteratePartitionLinesBackward": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "bounds event tail reads.",
+    "why": "Yields lines of a partition file backwards in blksize chunks (readPartitionByteRange)."
+   }
+  ],
+  "iterateStreamLines": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Log lines containing U+2028 were shredded on read, because the line reader treated it as a line break and JSON does not.",
+    "why": "A new streaming line reader (own splitter instead of readline) used by the index prune and partition fallback scans; the fix replaced the reader that split on U+2028."
+   }
+  ],
+  "listArchivedCopiesNewestFirst": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`discoverChannelId` prefers the newest archive during retry: partial-archive retries now resolve the owning channel from the freshest archived state.json rather than an orphaned bare-ref stub.",
+    "why": "Lists the bare ref and collision-suffixed archive copies sorted by existence then mtime, newest first (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "listEventPartitionDates": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The activation window counts days on which someone actually interacted, so a quiet week no longer ages memories out.",
+    "why": "Lists var/events partition dates for scanActivationWindowTouches to pick the window days."
+   }
+  ],
+  "listMailboxPendingItems": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Lists mailbox/pending/*.item.json: the mailbox is now one file per pending item instead of a rewritten markdown list."
+   }
+  ],
+  "listMemoryFragmentDates": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Lists dates of memory/fragments, the output of the distilling partition, to seed handed days."
+   }
+  ],
+  "listSelectableJobRuntimes": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`ManageJob` also always exposes the effective `runtime` field.",
+    "why": "Builds the runtime enum for buildJobRuntimeSchemaField (ManageJob schema) from availability probes, falling back to claude"
+   },
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "pi joins Claude, Codex and Grok as a fourth agent runtime.",
+    "why": "Always pushes \"pi\" into the selectable job runtimes."
+   }
+  ],
+  "listSessionIndexSummaries": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`session.list` accepts `deliverable: true` to list only the sessions a `Notify` would deliver to.",
+    "why": "Applies n.deliverable ? await filterDeliverableSessions(...) to the session.list result; the rest of the body existed in 0.8.3 (see suspectChain).",
+    "note": "the release chain may have lost an older body of this symbol; the entry describes a change, not its first appearance"
+   }
+  ],
+  "listSessionsWithRecentConsumer": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "now fails with a message naming the sessions that *do* have a reader",
+    "why": "Lists \"channel\" sessions whose latest delivery-cursor update is within the window."
+   }
+  ],
+  "listSortedAliasKeys": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Lists the keys of a model-alias map, the \"tier aliases\" part of a model declaration."
+   }
+  ],
+  "listVoidChannelSessions": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.cat` takes `redact: \"external\"` for readers outside duoduo.",
+    "why": "Called only by runSpineCatRpc under redact: \"external\" to collect channel sessions whose runtime is void."
+   }
+  ],
+  "loadChannelKindConfig": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Its v0.7.0 body records claudeModelProfileIssues and \"claude.model_aliases\" issues for a channel-kind file (a [channel-config] predecessor existed in v0.6.2)."
+   }
+  ],
+  "loadGlobalRuntimeConfig": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Loads the global runtime config file with parseClaudeFrontmatterBlock and records claude.model_aliases issues."
+   }
+  ],
+  "loadHostDotEnv": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(daemon): forward ANTHROPIC_* env and apply onboard state on upgrade",
+    "why": "Daemon-side load of the host .env at boot, which is how onboard state reaches the daemon after an upgrade."
+   }
+  ],
+  "lookupEventIdIndexEntry": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "guards the by-id index against out-of-range lookups.",
+    "why": "By-id lookup returning null \"as an index miss\" on load failure and checking isIndexLoadStillCurrent; a v0.8.1 predecessor with the same log text existed."
+   }
+  ],
+  "lookupInjectionPrompt": [
+   {
+    "version": "0.5.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The recurring `/loop` capability is now one entry in a general mechanism for named prompt injections, with a self-describing `duoduo prompts` CLI to list what's available.",
+    "why": "Looks a name up in the registry object of named prompt injections."
+   }
+  ],
+  "lookupOutboxByIdIndexEntry": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**replay**: Harden session-local cursor fallback and recovery when replay indexes are incomplete or stale.",
+    "why": "Index lookup that the cursor fallback consults before falling back to a scan."
+   }
+  ],
+  "main": [
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).",
+    "why": "Boot calls pruneEventIdIndexByRetention (\"compacted at boot\")."
+   }
+  ],
+  "mapClaudeResultToDrainUsage": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The footer also shows which model was actually billed (served model may differ from the requested model). The footer reflects per-turn deltas, not process-global accumulators.",
+    "why": "Computes total_cost_usd as the delta against prevTotalCostUsd and picks the billed model from the modelUsage delta: per-turn cost and served model."
+   },
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A resumed turn now reports its own figures. A session that existed before the upgrade has no saved baseline yet, so its first resume shows no cost and no model.",
+    "why": "Uses prevTotalCostUsd / baselineUnknown to report a resumed turn's own cost."
+   }
+  ],
+  "mapGrokUsageToDrainUsage": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Token and cache accounting understands Grok's own reporting shape, so cost numbers stay comparable across the three.",
+    "why": "Converts Grok's usage object into the drain usage record tagged \"grok\"."
+   }
+  ],
+  "matchNearMissSessionKey": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Notify \"target not found\" error now matches candidates scope-aware (session_key prefix + channel kind), yielding actionable suggestions.",
+    "why": "Literals \"matches in a different scope\", \"last segment differs by N char\", \"hash differs — job may have been recreated\" (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "materializeClaudeSettingsFile": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Writes the per-model settings file (writeFileAtomic of buildClaudeSettingsEnvOverrides) that carries the endpoint, credential and window."
+   }
+  ],
+  "memoizeAvailabilityProbeUntilOk": [
+   {
+    "version": "0.8.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A failed check is no longer remembered either: the next message checks again, so installing Codex takes effect without a restart.",
+    "why": "Caches an availability probe promise but resets the cache when the result is not ok or the probe throws."
+   }
+  ],
+  "mergeClaudeToolLists": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "anything else ... is off unless explicitly added via a new nested `claude.tools` key in a channel's kind or instance descriptor.",
+    "why": "Unions two tool lists, used to combine kind and instance claude.tools entries."
+   }
+  ],
+  "mergeContiguousHourRanges": [
+   {
+    "version": "0.5.8",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "It now works one bounded day at a time, picked by a program-computed gap check (`duoduo memory check` reports the chosen gap)",
+    "why": "Only caller is runGapLint; it merges contiguous hour indices into ranges, the gap computation."
+   }
+  ],
+  "mergeGlobalModelConfigLayers": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Overlays model profile entries from \"global\" and \"instance\" layers, tagging each with its source layer."
+   }
+  ],
+  "mergeInboxIntoMailbox": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Moves inbox files into mailbox/pending/*.item.json (with quarantine on parse failure), the ingest half of the per-item mailbox."
+   }
+  ],
+  "mergeOutboundAttachmentLists": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Runtime image output delivery no longer duplicates attachments.",
+    "why": "Merges attachment lists de-duplicated by the key path+NUL+mime (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "mergeRuntimeEffortLayers": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Reasoning effort gets the same global → kind → instance layering as the model",
+    "why": "Folds per-runtime effort maps over the ordered layers, same shape as mergeRuntimeModelLayers."
+   }
+  ],
+  "mergeRuntimeModelLayers": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "globally or per channel kind or per channel instance, with the most specific layer winning.",
+    "why": "Folds per-runtime model maps over the ordered layers (foldConfigLayersByKey), later layers overwriting earlier ones."
+   }
+  ],
+  "moveSessionDirToArchive": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Archive session tombstone** (#44): `ManageJob(archive)` now moves the session directory to `var/sessions-archive/`",
+    "why": "Moves the session directory into the archive directory."
+   }
+  ],
+  "mutateSessionRuntimeState": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`updateSessionRuntimeState`, and `enqueueMailboxItem` now take the same lock that `archiveSessionDir` takes.",
+    "why": "state.json writer that runs inside runWithSessionMutex and calls assertSessionNotArchiving (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "normalizeBoardIncludeToken": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Drops #fragment and unescapes spaces in an include token"
+   }
+  ],
+  "normalizeChannelCapabilityDeclarations": [
+   {
+    "version": "0.3.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**daemon**: Per-consumer channel capabilities to prevent overwrite race ([#7](https://github.com/openduo/duoduo/issues/7)).",
+    "why": "Converts a single legacy declaration (with declared_at) into a map keyed by declared_by, i.e. capabilities stored per consumer."
+   }
+  ],
+  "normalizeIncludePathKey": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself and injects the rendered import graph",
+    "why": "Case-folds include paths on win32 for de-duplication inside resolveBoardIncludes"
+   }
+  ],
+  "normalizeInputTokenTotals": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Every finalized turn now appends a one-line footer: `↑ in · cache% · ↓ out · $cost` for Claude turns",
+    "why": "Normalises total and cached input tokens per protocol, the two numbers a cache% figure needs."
+   }
+  ],
+  "normalizeNotifyChannelTarget": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.",
+    "why": "Normalises a job's owner_session into a route target; used by resolveJobOwnerNotifyTarget and createJobSessionFinalizer to deliver results to the owner."
+   }
+  ],
+  "normalizeReturnMask": [
+   {
+    "version": "0.4.3",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "fix(daemon): add `stream_end` to pull stream return_mask whitelist (#40)",
+    "why": "The return_mask normaliser contains \"stream_end\" and changed in this release."
+   }
+  ],
+  "normalizeSignalKindVersion": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Normalises a declared signal kind to its .v1 versioned form for comparison in the contract."
+   }
+  ],
+  "normalizeTurnAbortReason": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The model is told when a human ended its turn",
+    "why": "Keeps only the abort reasons \"user-cancel\" and \"preempt\" that decide which marker is shown."
+   }
+  ],
+  "parseBoardFileContent": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Strips frontmatter and HTML comments then calls collectBoardIncludePaths"
+   }
+  ],
+  "parseChannelConfigFields": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.",
+    "why": "Parses auto_compact_idle_minutes and auto_compact_min_context_tokens from a channel descriptor."
+   }
+  ],
+  "parseChannelRuntimeField": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "In a channel kind or instance descriptor it refuses the turns of the sessions that layer selects; a valid instance value still overrides an unknown kind value.",
+    "why": "Validates a channel config's runtime with validateKnownRuntimeValue(\"This channel's config\") and keeps the result as runtimeRefusal instead of dropping it."
+   }
+  ],
+  "parseClaudeFrontmatterBlock": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Parses the claude: frontmatter block (\"claude-block-malformed\") that holds model_profiles and model_aliases."
+   }
+  ],
+  "parseDotEnv": [
+   {
+    "version": "0.3.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cli**: Host-side `.env` file support — daemon command auto-loads dotenv before starting.",
+    "why": "A dotenv parser; the entry names .env support, and its callers (loadHostDotEnv, readHostDotEnvFile) read the host .env."
+   }
+  ],
+  "parseInjectionPromptCommand": [
+   {
+    "version": "0.5.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The recurring `/loop` capability is now one entry in a general mechanism for named prompt injections, with a self-describing `duoduo prompts` CLI to list what's available.",
+    "why": "Parses \"/<name> args\" and looks the name up in the injection-prompt registry, returning {name, prompt, usage, args}."
+   }
+  ],
+  "parseInputJsonDelta": [
+   {
+    "version": "0.3.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runner**: Expose `tool_input_delta` in `session.execution` notifications for progressive tool input rendering.",
+    "why": "Parses content_block_delta events of type \"input_json_delta\", the stream fragments of a tool's input that become tool_input_delta."
+   }
+  ],
+  "parseJobFileFrontmatter": [
+   {
+    "version": "0.6.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "A job's frontmatter now accepts `prompt_mode`, `allowedTools`, `disallowedTools`, `additionalDirectories` and a nested `claude: { tools }`",
+    "why": "The job frontmatter parser now reads prompt_mode and allowedTools."
+   }
+  ],
+  "parseJobRearmTime": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The loop runs as a job, paces itself via `ScheduleWakeup`",
+    "why": "Parses a job re-arm time (\"@in <duration>\" or ISO timestamp, \"Reschedule time is not in the future\"), the self-pacing re-schedule of a job."
+   },
+   {
+    "version": "0.6.1",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "`@in` and `@every` now accept composite durations such as `2h30m` and `1d6h4m`. Invalid cron strings, malformed durations, and delays outside the representable time range are rejected when the job is created.",
+    "why": "Re-arm parsing now goes through the composite parser and assertScheduleDurationRepresentable."
+   }
+  ],
+  "parsePartitionDefinition": [
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "In job frontmatter the job fails, and in partition frontmatter the partition is skipped.",
+    "why": "Now validates the partition frontmatter runtime with validateRunnableRuntimeValue, so a bad value skips the partition."
+   }
+  ],
+  "parsePiToolResultDetails": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Fourth peer behind the same seam as the other three: duoduo's own tools reachable from it",
+    "why": "Extracts the details object of a pi tool result for handlePiToolEndObservation."
+   }
+  ],
+  "parsePositiveMsEnv": [
+   {
+    "version": "0.5.8",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Holding the input stream open across background-subagent continuations stops job and subconscious turns from hitting a \"Stream closed\" error.",
+    "why": "In 0.5.8 its callers read ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS (new in 0.5.8) and ALADUO_ABORT_CLOSE_TIMEOUT_MS."
+   }
+  ],
+  "parseScheduleDurationMs": [
+   {
+    "version": "0.6.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`@in` and `@every` now accept composite durations such as `2h30m` and `1d6h4m`. Invalid cron strings, malformed durations, and delays outside the representable time range are rejected when the job is created.",
+    "why": "Sums every (\\d+)([smhdw]) group so \"2h30m\" parses, and throws \"Invalid duration format\" unless the groups cover the whole string. CHAIN MIS-STEP: a single-unit predecessor with the same error literal existed through 0.6.0; this is a rewrite, not a new function."
+   }
+  ],
+  "parseSdkConfigFrontmatter": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "anything else ... is off unless explicitly added via a new nested `claude.tools` key in a channel's kind or instance descriptor.",
+    "why": "Parses allowedTools/disallowedTools and the nested claude block (parseClaudeFrontmatterBlock) from a descriptor."
+   }
+  ],
+  "parseToolUseBlockStart": [
+   {
+    "version": "0.3.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runner**: Expose `tool_input_delta` in `session.execution` notifications for progressive tool input rendering.",
+    "why": "Parses content_block_start of type \"tool_use\" to know which tool the following input deltas belong to."
+   }
+  ],
+  "postMemorySignalsToInboxes": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Before writing a .pending file into a partition inbox it calls enforceContractGate and skips non-valid kinds: the \"validate before posting, withhold undeclared kinds\" behaviour."
+   }
+  ],
+  "prepareClaudeContextProfile": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Resolves the model profile and sets CLAUDE_CODE_MAX_CONTEXT_TOKENS through a materialized settings file for \"profiled-external\" models, logging under [claude-context-profile]."
+   }
+  ],
+  "prepareDrainTurnContext": [
+   {
+    "version": "0.3.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**session-manager**: Streaming turn admission control — new ingress enters a live CLI session without interrupting the active drain. When the CLI's result is delayed (e.g. background tasks polling), later messages are admitted into the same streaming session via a drain-scoped callback",
+    "why": "Turn preparation (effective config, system prompt, transient blocks, coalesced prompt) factored out of the drain and called from both drainSessionMailbox and createSessionManager, so an admitted message can be prepared outside the original drain call."
+   }
+  ],
+  "prependPendingInterruptMarker": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "instead of the turn simply stopping and the next one starting from a gap it cannot explain.",
+    "why": "Injects the pending marker into the first message of the next turn's prompt stream, then clears it."
+   }
+  ],
+  "primeClaudeAvailability": [
+   {
+    "version": "0.5.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Hosts can expose whichever runtimes are actually installed and authenticated.",
+    "why": "Boot-time call (from initializeRuntime) of probeClaudeAvailability"
+   }
+  ],
+  "primeCodexAvailability": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The daemon now probes `codex --version` and `codex login status` at boot: if the CLI is installed and the user is logged in, codex is advertised",
+    "why": "Boot-time call that caches checkCodexAvailability(\"codex\") ok/reason (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   }
+  ],
+  "primeGrokAvailability": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Availability is checked against the Grok CLI you already have installed",
+    "why": "Primes the availability cache entry \"grok\" with checkGrokAvailability."
+   }
+  ],
+  "probeClaudeAvailability": [
+   {
+    "version": "0.5.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Hosts can expose whichever runtimes are actually installed and authenticated. Claude remains the conservative fallback",
+    "why": "Probes the Claude native binary with a timeout and caches ok/reason, giving Claude the same availability probe Codex already had"
+   }
+  ],
+  "probeSessionPendingWork": [
+   {
+    "version": "0.6.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Archiving now refuses unless the session is provably empty of pending work (checking every shape of in-flight work), ignores channel placeholder actors, and treats the archive marker as a real \"about to disappear\" signal.",
+    "why": "Probes inbox .pending files, mailbox pointers and .item.json and returns clear / pending / unreadable; its callers are archiveSessionIfQuiescent and archiveSessionAndArtifacts."
+   }
+  ],
+  "pruneEventIdIndexByRetention": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).",
+    "why": "Rewrites the by-id index (resolveEventIdIndexPath, writeFileAtomic) keeping only entries whose partition date is inside retention; main calls it at boot."
+   }
+  ],
+  "readAllSessionStateFiles": [
+   {
+    "version": "0.4.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "feat(session): add readAllSessionStates() for scanning state.json files (c63683f)",
+    "why": "Reads <sessionsDir>/*/state.json and returns them keyed by session_key, exactly what the entry names."
+   }
+  ],
+  "readClaudeAuthSourceEnv": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Reads the auth source from the environment, validated by isClaudeAuthSource."
+   }
+  ],
+  "readDrainLockFile": [
+   {
+    "version": "0.3.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runner**: Keep session lock heartbeat and release ownership inside the active drain so actors that never acquired the lock cannot renew or delete it.",
+    "why": "Reads the drain lock file so acquireSessionDrainLock and refreshSessionDrainLockHeartbeat can check who owns the lock before renewing it."
+   }
+  ],
+  "readEventAtIndexedOffset": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Reads only the event at an indexed byte offset in the partition file (lazy read)."
+   }
+  ],
+  "readEventById": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Reads one event by id via the index offset and falls back to a partition scan, a lazy read instead of loading whole partitions."
+   }
+  ],
+  "readGapLintDayEvents": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Reads one day's event partition for runGapLint."
+   }
+  ],
+  "readGlobalUsageTotals": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`usage.get` with `mode: \"totals\"` returns a single aggregate summary (~1KB vs ~230KB)",
+    "why": "Aggregates all usage .jsonl records into one summary (its upstream name says Totals); called from createDaemon's RPC handlers."
+   }
+  ],
+  "readHostDaemonToken": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The remote listener starts only when a host, a port and a token are all present, and every request must carry the token.",
+    "why": "Reads DAEMON_TOKEN_ENV_KEY back from the host .env (ENOENT tolerated), the token the remote listener checks."
+   }
+  ],
+  "readHostDotEnvFile": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(daemon): forward ANTHROPIC_* env and apply onboard state on upgrade",
+    "why": "Reads and parses the host .env; same onboard-state plumbing."
+   }
+  ],
+  "readIntuitionWeaverLastFinishedMs": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one consolidates them into intuition.",
+    "why": "Reads the intuition-weaver partition's last_finished_at run state for the fold-gap check."
+   }
+  ],
+  "readLatestDeliveryCursorUpdate": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo daemon status` grew a block listing each channel session's last consumer take",
+    "why": "Reads the latest delivery-cursor record of a session, the \"last consumer take\" timestamp."
+   }
+  ],
+  "readOrSeedGapHandedDays": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Reads or seeds gap-handed-days.txt from the existing memory/fragments dates."
+   }
+  ],
+  "readOrSetSessionEffort": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Model and effort from the CLI.** `duoduo session model` / `duoduo session effort` inspect or set a channel session's model and reasoning effort without going through the chat",
+    "why": "Same shape as readOrSetSessionModel for \"effort\", restricted to \"channel\" sessions."
+   }
+  ],
+  "readOrSetSessionModel": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Model and effort from the CLI.** `duoduo session model` / `duoduo session effort` inspect or set a channel session's model and reasoning effort without going through the chat",
+    "why": "Resolves a session by key or alias, refuses non-channel kinds (\"forbidden_kind\") and archiving sessions, then reads or sets \"model\": a channel session's model from the CLI."
+   }
+  ],
+  "readOutboxRecordsPastCursor": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**replay**: Harden session-local cursor fallback and recovery when replay indexes are incomplete or stale.",
+    "why": "Reads replay records past the consumer cursor, falls back to a scan strategy when the by_id index entry is missing or belongs to another session, and records strategy \"bootstrapped\"/\"repair\"."
+   }
+  ],
+  "readPartitionByteRange": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "bounds event tail reads.",
+    "why": "Reads one byte range of a partition file, the primitive of the bounded backward read."
+   }
+  ],
+  "readPartitionContract": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld",
+    "why": "Parses the partition's CLAUDE.md frontmatter contract and yields no-contract / parse-fail / self-id-mismatch / valid."
+   }
+  ],
+  "readPartitionRunState": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Reads the persisted per-partition run state the settled scheduler uses."
+   }
+  ],
+  "readPartitionTail": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The dashboard streams usage summaries and bounds event tail reads.",
+    "why": "Reads an event partition from the end with a line limit and cursor instead of loading the whole file."
+   }
+  ],
+  "readPiAgentSettings": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A pi worker was torn down and rebuilt when its settings file merely failed to *read* — a transient error was treated as \"not configured\".",
+    "why": "Reads pi's settings.json and sets readFailed only for errors other than ENOENT, separating \"failed to read\" from \"not configured\"."
+   }
+  ],
+  "readRuntimeEffortSetting": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Reasoning effort gets the same global → kind → instance layering as the model",
+    "why": "Reads the per-runtime effort default from a merged config layer."
+   }
+  ],
+  "readRuntimeModelSetting": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Set a default model for Claude, Codex, pi or Grok, globally or per channel kind or per channel instance",
+    "why": "Reads the per-runtime model default from a merged config layer."
+   }
+  ],
+  "readSpineIndexRetentionDays": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).",
+    "why": "Reads the retention-days setting and warns \"[spine] ... is not a positive integer; using <default>\", the 7-day default the entry describes."
+   }
+  ],
+  "readSpineTail": [
+   {
+    "version": "0.3.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**protocol**: Add `system.status` RPC (health, sessions, subconscious playlist) and `spine.tail` RPC (last N events with incremental `after_id` cursor and cross-midnight boundary support).",
+    "why": "Reads the last N events from the dated .jsonl partitions (readPartitionTail), the implementation of spine.tail."
+   }
+  ],
+  "readStateSourceChannelId": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "partial-archive retries now resolve the owning channel from the freshest archived state.json",
+    "why": "Reads source_channel_id from a state.json file (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "realpathOrSelf": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself and injects the rendered import graph",
+    "why": "realpath with fallback used by resolveBoardIncludes for cycle/de-dup"
+   }
+  ],
+  "reconcileMemorySignalInboxes": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "partition inboxes now have defined snapshot semantics, so a partition can no longer quietly lose or re-process work handed to it.",
+    "why": "Per partition, removes inbox files no longer pending and writes a sorted JSON snapshot of the pending filenames."
+   }
+  ],
+  "recordChannelCapabilityDeclaration": [
+   {
+    "version": "0.3.3",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**daemon**: Per-consumer channel capabilities to prevent overwrite race ([#7](https://github.com/openduo/duoduo/issues/7)).",
+    "why": "Writes capability declarations keyed by declared_by, changed in this release."
+   }
+  ],
+  "recordExternalSpineEvent": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.",
+    "why": "Implements spine.record: validates params, checks a reserved source, dedups by computeDedupKey/registry and appends with createSpineEvent/atomicAppendEvent."
+   }
+  ],
+  "recordPendingInterruptMarker": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The model is told when a human ended its turn",
+    "why": "Stores the selected marker on the session as pendingInterruptMarker after an abort."
+   }
+  ],
+  "recordTelemetryMetric": [
+   {
+    "version": "0.4.5",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**`ALADUO_TELEMETRY_ENABLED` env var**: set to `false` to disable `var/telemetry/*.jsonl` file persistence",
+    "why": "Now checks isTelemetryEnabled before appending."
+   }
+  ],
+  "redactJobModelProfileTokens": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Redacts the claudeModelProfiles of a job frontmatter, which carry per-model credentials."
+   }
+  ],
+  "redactSpineEventForExternal": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`spine.cat` takes `redact: \"external\"` for readers outside duoduo.",
+    "why": "The redact hook for redact: \"external\": keeps only channel-session events, strips agent.tool_use/agent.tool_result to tool_name/is_error."
+   }
+  ],
+  "refreshSessionIndexEntry": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "give a session a human label so it is legible in `list`",
+    "why": "Re-reads meta and state to refresh one index entry after alias change"
+   }
+  ],
+  "rehydrateSessionState": [
+   {
+    "version": "0.4.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "feat(session): reader fallback chain and session_key backfill (3fd1b1e)",
+    "why": "Takes session_key from state.json, otherwise falls back to the registry files and writes the found session_key back into state.json."
+   }
+  ],
+  "releaseSessionDrainLock": [
+   {
+    "version": "0.3.5",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**runner**: Keep session lock heartbeat and release ownership inside the active drain so actors that never acquired the lock cannot renew or delete it.",
+    "why": "Release path of the session drain lock changed in this release, matching the ownership fix."
+   }
+  ],
+  "removeDotEnvKeyLines": [
+   {
+    "version": "0.5.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "the override is now persisted into the host `.env` so the daemon picks it up on subsequent restarts.",
+    "why": "Drops existing lines for given keys before writeHostClaudeCodeExecutableEnvConfig rewrites the .env"
+   }
+  ],
+  "removeHostModelEnvLines": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Line filter used only by the two onboarding .env writers."
+   }
+  ],
+  "renderActivationReportBody": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
+    "why": "Joins the activation report header, board temperature and hot orphans sections."
+   }
+  ],
+  "renderActivationReportHeader": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
+    "why": "Header prints \"dead weight\", \"live ratio\" and \"interaction days (days holding channel.message)\", the metrics the entry names."
+   }
+  ],
+  "renderBoardTemperatureSection": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
+    "why": "Lists board [[slug]] lines with touch counts and says a 0-touch line is evidence for retirement (dead weight)."
+   }
+  ],
+  "renderDaemonRestartHint": [
+   {
+    "version": "0.6.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "`-r \"<what changed>\"` reaches every session that wakes after the restart",
+    "why": "The restart hint now renders the pending restart reason."
+   }
+  ],
+  "renderEntityConvergeSignalBody": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Renders the [entity-converge] convergence signal body (\"dated stamps ... lines\") sent to a partition."
+   }
+  ],
+  "renderFoldGapBody": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one consolidates them into intuition.",
+    "why": "Signal text: \"gradient has accumulated since your last wake\", pointing at memory/fragments/ to consolidate."
+   }
+  ],
+  "renderHotOrphansSection": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
+    "why": "Lists files touched but \"outside the board closure\", i.e. material the board does not reach."
+   }
+  ],
+  "renderJobCompleteReceiptGuidance": [
+   {
+    "version": "0.4.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)",
+    "why": "Its 0.4.0 body is the 'System fallback notification' text for a job that completed without calling Notify, split by one-shot/periodic and child job ('A child job you dispatched has completed ... this is the system delivery')."
+   }
+  ],
+  "renderJobFileMarkdown": [
+   {
+    "version": "0.4.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "fix(job): serialize runtime field in frontmatter",
+    "why": "Job file renderer now writes the runtime field and changed in this release."
+   },
+   {
+    "version": "0.5.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A periodic job that does not depend on prior-run state can set `stateless: true`",
+    "why": "Job file frontmatter now writes stateless"
+   }
+  ],
+  "renderJobMissionBlock": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Periodic job mission as system prompt** (#45): job instructions are no longer re-sent as user messages on every cron tick. The mission is injected into the system-prompt append layer (new 6th layer in the prompt taxonomy)",
+    "why": "Renders the \"## Job Mission\" <mission> block that becomes the job-mission prompt layer."
+   },
+   {
+    "version": "0.5.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Stateless runs receive an explicit contract: state is not retained, any dependency must be persisted, and the run must end with an acceptance rubric.",
+    "why": "Mission block now carries the \"not retained\" stateless contract"
+   }
+  ],
+  "renderJobTickBlock": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "each trigger sends a compact `<job-tick>` metadata block with `run_number`, `triggered_at`, and `previous_run_at`.",
+    "why": "Renders <job-tick> with run_number, triggered_at and previous_run_at."
+   },
+   {
+    "version": "0.5.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp",
+    "why": "Renders <job-tick> and now calls formatLocalTimestampWithZone"
+   }
+  ],
+  "renderMailboxEventPrompt": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.",
+    "why": "The 0.3.0 version adds sent_at/delivered_at timestamps to the <job-status> prompt and takes a second (time-context) argument; note the function already existed in 0.2.12 (a5e), so this is a change, not a birth."
+   },
+   {
+    "version": "0.4.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)",
+    "why": "Calls the new fallback-notification guidance for job.complete deliveries."
+   }
+  ],
+  "renderNodeConvergeSignalBody": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Renders the [node-converge] convergence signal body (\"converge to the bounded ...\")."
+   }
+  ],
+  "renderNotifyRefusalMessage": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "now fails with a message naming the sessions that *do* have a reader, instead of writing into a void.",
+    "why": "Renders \"… consumer took output … ago … so there is nowhere a person would see this. Do not re-send it.\" and \"send it to a session that has a consumer\"."
+   }
+  ],
+  "renderNotifyTargetCandidateLines": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Notify \"target not found\" error now matches candidates scope-aware (session_key prefix + channel kind), yielding actionable suggestions.",
+    "why": "Renders \"Closest match:\", \"Other foreground candidates:\", \"Background near-miss (NOT user-visible…\" suggestion lines (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "renderOrphanIslandsBody": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Renders the [orphan-islands] signal body (\"islands: slug | age | indeg | referenced-by\") that a partition consumes."
+   }
+  ],
+  "renderRuntimeMismatchGuidance": [
+   {
+    "version": "0.8.3",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "duoduo now refuses the switch with `runtime_mismatch`, naming both runtimes. `/clear`, then change the runtime.",
+    "why": "Renders the refusal naming the bound runtime and \"but its configured runtime is now '…'\", with \"Session histories cannot move between runtimes\"."
+   }
+  ],
+  "renderRuntimeUnavailableGuidance": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "the daemon now boots healthy and surfaces a per-session \"runtime unavailable\" error instead of failing silently.",
+    "why": "Literal \"Agent runtime 'claude' is unavailable. Request was not executed.\" with install guidance; called from drainSessionMailbox (runtime_unavailable)"
+   }
+  ],
+  "renderScanGapSignalBody": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Signal body: \"dream over this bounded interval — judge each external event\", i.e. distil raw events of var/events/<date>.jsonl."
+   }
+  ],
+  "renderSessionMailboxFile": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Renders \"# Session Mailbox\" with \"## Inbox\" and \"## Notes\" from the append-only parts, so the markdown is derived instead of edited in place."
+   }
+  ],
+  "renderSkipRewindBlock": [
+   {
+    "version": "0.5.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp",
+    "why": "Renders <skip-rewind> and now calls formatLocalTimestampWithZone"
+   }
+  ],
+  "renderSmartCompactNoticeBlock": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A one-line notice on the session's next reply reports what was compacted and its measured stats, so retuning is based on real numbers rather than guesswork. See the `smart-compaction` skill",
+    "why": "Renders <smart-compact-notice> with \"compacted\", ctx before/after, \"suggested\" and \"re-calibrate via smart-compaction skill\"."
+   }
+  ],
+  "renderTimeGapContextBlock": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.",
+    "why": "Renders the <time-context last_interaction=... current_time=...> block saying how much time has elapsed since the last interaction in the session."
+   },
+   {
+    "version": "0.5.0",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp",
+    "why": "Renders <time-context> and now calls formatLocalTimestampWithZone"
+   }
+  ],
+  "renderTranscludedFiles": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "injects the rendered import graph into both Claude and Codex sessions through one path.",
+    "why": "Renders each included file under a \"Contents of …\" heading"
+   }
+  ],
+  "resolveAdditionalDirClaudeMdAutoload": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Before v0.5.2 the directive was silently inert under `additionalDirectories`, so anything referenced there did not reach the system prompt.",
+    "why": "Decides, for runtime \"claude\" with a board and additionalDirectories, whether Claude Code's own CLAUDE.md autoload stays on"
+   }
+  ],
+  "resolveArchivedSessionDir": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Archive session tombstone** (#44): `ManageJob(archive)` now moves the session directory to `var/sessions-archive/`",
+    "why": "Path of a session's directory under the archive root, also used by the delivery guard for archived sessions."
+   }
+  ],
+  "resolveBoardIncludePath": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Resolves ~/ and relative include targets"
+   }
+  ],
+  "resolveBoardIncludes": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself and injects the rendered import graph",
+    "why": "Walks include paths recursively with realpath de-duplication to build the import graph"
+   }
+  ],
+  "resolveChannelConfigBySession": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A channel session that has sat idle past a configurable threshold and grown past a token floor now silently runs `/compact` on its next turn",
+    "why": "createIdleCompactSweeper calls it to read a session's effective channel config, where the per-conversation thresholds live."
+   }
+  ],
+  "resolveClaudeContextRequirement": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Combines classifyModelContextRequirement with the profile issues for the model to produce the requirement the drain uses."
+   }
+  ],
+  "resolveClaudeCostBaseline": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A resumed turn now reports its own figures. A session that existed before the upgrade has no saved baseline yet, so its first resume shows no cost and no model.",
+    "why": "Returns prevTotalCostUsd/prevModelUsage when the saved baseline matches the SDK session, else baselineUnknown, the \"no saved baseline yet\" case."
+   }
+  ],
+  "resolveCodexSandbox": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`ALADUO_CODEX_ENABLED` feature flag and `ALADUO_CODEX_SANDBOX` env var",
+    "why": "Reads ALADUO_CODEX_SANDBOX and validates read-only / workspace-write / danger-full-access."
+   }
+  ],
+  "resolveCodexSandboxForPermissionMode": [
+   {
+    "version": "0.4.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`ALADUO_CODEX_ENABLED` feature flag and `ALADUO_CODEX_SANDBOX` env var",
+    "why": "Maps permission modes to a Codex sandbox value, the fallback when ALADUO_CODEX_SANDBOX is not set."
+   }
+  ],
+  "resolveContextCapToken": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Maps the requirement kinds (\"explicit-1m\", \"native-claude\", \"profiled-external\") to the context-cap value used for the session."
+   }
+  ],
+  "resolveDefaultRuntime": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "it fails closed: asking for Grok when Grok is not usable gives you a clear error, never a silent fall back to Claude.",
+    "why": "Its v0.7.1 body validates ALADUO_DEFAULT_RUNTIME with validateRunnableRuntimeValue and throws; the v0.7.0 predecessor silently returned \"claude\" for an unlisted value."
+   },
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "After the upgrade an unknown value in `ALADUO_DEFAULT_RUNTIME` stops the daemon from booting (an absent or empty value still means `claude`).",
+    "why": "Now reads ALADUO_DEFAULT_RUNTIME through validateRunnableRuntimeValue and throws instead of falling back to claude."
+   }
+  ],
+  "resolveDrainContextProfileOrRefuse": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Calls prepareClaudeContextProfile before a turn and refuses it with \"[duoduo:drain-error] agent turn refused before it started\" and \"Fix the offending claude.model_profiles entry\"."
+   }
+  ],
+  "resolveEnvConfigEntry": [
+   {
+    "version": "0.3.3",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**daemon**: `system.config` RPC — inspect effective runtime configuration (network, sessions, cadence, SDK, paths) with source tracking (`env` / `default` / `unset`).",
+    "why": "Returns each entry with source \"env\", \"default\" or \"unset\" (and masks secrets as \"***\"), the source tracking the entry names."
+   }
+  ],
+  "resolveIsolatedPlaneKind": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo session wake` refuses the kernel plane rather than accepting a target it cannot reach",
+    "why": "Returns the session kind unless it is \"channel\" or \"job\", i.e. names the isolated plane the wake refuses."
+   }
+  ],
+  "resolveJobOwnerNotifyTarget": [
+   {
+    "version": "0.8.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.",
+    "why": "Falls back to the job's owner_session via normalizeNotifyChannelTarget as the default Notify target."
+   }
+  ],
+  "resolveLayeredChannelRuntime": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "In a channel kind or instance descriptor it refuses the turns of the sessions that layer selects; a valid instance value still overrides an unknown kind value.",
+    "why": "Resolves runtime across instance, kind and default layers (\"explicit\"/\"inherited\"/\"default\") and carries a refusal through instead of falling to the next layer."
+   }
+  ],
+  "resolveMemoryCheckFlags": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints; `ALADUO_EXP_MEMORY_FORGET=1` additionally lets it remove long-stale, board-unreachable orphan nodes (git-recoverable).",
+    "why": "Reads exactly the two env flags ALADUO_EXP_MEMORY_CHECK and ALADUO_EXP_MEMORY_FORGET the entry names."
+   }
+  ],
+  "resolveNotifyTargetSessionKey": [
+   {
+    "version": "0.6.2",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "The `Notify` tool accepts display-name aliases ... Archived sessions are excluded from alias resolution",
+    "why": "The Notify target resolver now resolves aliases."
+   }
+  ],
+  "resolveNotifyUnconsumedHours": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`ALADUO_NOTIFY_UNCONSUMED_HOURS` (default off until set)",
+    "why": "Reads that env key and returns the default when unset or non-numeric."
+   }
+  ],
+  "resolveOutboxByIdIndexPath": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runtime**: Split outbox replay bootstrap read/write paths so live appends no longer rebuild replay artifacts on every write.",
+    "why": "Path of the outbox index/by_id.jsonl that the split replay read/write paths use to avoid rebuilding replay artifacts."
+   }
+  ],
+  "resolveOutboxReplayDir": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runtime**: Split outbox replay bootstrap read/write paths so live appends no longer rebuild replay artifacts on every write.",
+    "why": "Path of the outbox replay/ directory introduced with the replay read/write split."
+   }
+  ],
+  "resolveOutboxReplayFilePath": [
+   {
+    "version": "0.3.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**runtime**: Split outbox replay bootstrap read/write paths so live appends no longer rebuild replay artifacts on every write.",
+    "why": "Per-session replay/<key>.jsonl path used by both split replay paths."
+   }
+  ],
+  "resolvePartitionStatePath": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Path of the per-partition state file used by the scheduler fix."
+   }
+  ],
+  "resolvePendingCompactNotice": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A one-line notice on the session's next reply reports what was compacted and its measured stats, so retuning is based on real numbers rather than guesswork. See the `smart-compaction` skill",
+    "why": "Reads last_compact_at and compact_stats (pre/post totals, suggested_min_context_tokens) to decide whether the next reply gets the notice."
+   }
+  ],
+  "resolvePendingModelFork": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`/model <id>` to switch the running session, `/model reset` to restore the daemon default. On Claude sessions the change takes effect on the next turn; on Codex sessions it is applied at the next thread fork.",
+    "why": "Resolves pending_model_fork at Codex drain start and sets forkFrom: the model switch \"applied at the next thread fork\" on Codex."
+   }
+  ],
+  "resolvePiAgentDir": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`/model` lists the models *this* installation can actually run — resolved from the providers and extensions your pi has, not from a list we hardcoded",
+    "why": "Resolves the pi agent dir from PI_CODING_AGENT_DIR or ~/.pi/agent, where this installation's providers and settings are read."
+   }
+  ],
+  "resolvePiWorkerCommand": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "pi joins Claude, Codex and Grok as a fourth agent runtime.",
+    "why": "Locates \"pi-worker.js\" (or worker.ts via tsx) under the package, the process the pi runtime runs."
+   }
+  ],
+  "resolveRemoteListenerConfig": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The remote listener starts only when a host, a port and a token are all present, and every request must carry the token. A misconfigured remote setup — a public address with no token, or a port colliding with the read-only one — refuses to start rather than exposing anything.",
+    "why": "Throws \"remote exposure requires ALADUO_DAEMON_TOKEN; run `duoduo daemon token new`\", requires an explicit ALADUO_REMOTE_PORT, and refuses a port that does not \"differ from the read-only port\"."
+   }
+  ],
+  "resolveRuntimePaths": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "feat(daemon): launchd-based process management for macOS",
+    "why": "Shared path resolver that now includes daemon.stdout.log/daemon.stderr.log (the log files a launchd job writes) and kernelDir (the kernel_dir the entry adds to system.runtime.info)."
+   }
+  ],
+  "resolveSessionByKeyOrAlias": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session notify <target> -m \"<msg>\"` — wake another session by key or alias",
+    "why": "Resolves a target by exact key or display name, returning ambiguous/not_found"
+   }
+  ],
+  "resolveSessionChannelRuntime": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.",
+    "why": "Reads a session's source channel descriptor and kind config to resolve its layered runtime, which isVoidRuntimeSession compares with \"void\"."
+   }
+  ],
+  "resolveSessionMailboxDir": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Path helper for the new session mailbox/ directory."
+   }
+  ],
+  "resolveSessionMailboxNotesPath": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Path helper for mailbox/notes.jsonl, the append-only notes log."
+   }
+  ],
+  "resolveSessionMailboxPendingDir": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.",
+    "why": "Path helper for mailbox/pending/, the per-item pending directory."
+   }
+  ],
+  "resolveSessionsArchiveRoot": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Archive session tombstone** (#44): `ManageJob(archive)` now moves the session directory to `var/sessions-archive/`",
+    "why": "Returns the \"sessions-archive\" directory."
+   }
+  ],
+  "resolveTailCursorEndOffset": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "bounds event tail reads.",
+    "why": "Uses the by-id index (lookupEventIdIndexEntry) to find where a tail read with a cursor should stop."
+   }
+  ],
+  "resolveTurnEffortWithLayer": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Reasoning effort gets the same global → kind → instance layering as the model, so a session's effort no longer depends on the underlying CLI's own configuration file.",
+    "why": "Effort twin of resolveTurnModelWithLayer: resolves effort from the per-runtime setting with its layer."
+   }
+  ],
+  "resolveTurnModelWithLayer": [
+   {
+    "version": "0.8.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Set a default model for Claude, Codex, pi or Grok, globally or per channel kind or per channel instance, with the most specific layer winning.",
+    "why": "Resolves a turn's model from the per-runtime setting (readRuntimeModelSetting) and returns which layer supplied it."
+   }
+  ],
+  "retireListedPartitions": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The `memory-weaver` subconscious partition is **replaced** by two partitions. Existing partition prompts are never overwritten by an upgrade, so nothing changes until you refresh them",
+    "why": "Runs retirePartitionOnce over the retired list at init and logs failures."
+   }
+  ],
+  "retirePartitionOnce": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The `memory-weaver` subconscious partition is **replaced** by two partitions. Existing partition prompts are never overwritten by an upgrade, so nothing changes until you refresh them",
+    "why": "Flips schedule.enabled to false once for a partition \"bootstrap no longer ships\", leaving re-enabled or unreadable charters alone."
+   }
+  ],
+  "routeContractDecision": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Maps a topics/ node prefix (groove-, lesson-) to the consuming partition (intuition-weaver, pattern-tracker): the routing of signals to partitions."
+   }
+  ],
+  "runActivationLint": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
+    "why": "Writes \"activation-report.md.pending\" from touches of memory/{entities,topics} files counted over the activation window."
+   }
+  ],
+  "runBoardLint": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Board lint that emits .md.pending signals to intuition-weaver / pattern-tracker; registered as \"board-lint\" in runMemoryCheckTick."
+   }
+  ],
+  "runCadenceTick": [
+   {
+    "version": "0.5.5",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions.",
+    "why": "The heartbeat tick gains the dynamic import of initMemoryCheckTickModule and calls runMemoryCheckTick, the cadence driving of the lint."
+   }
+  ],
+  "runDrainQueryAndCollectOutboundAttachments": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Runtime image output delivery no longer duplicates attachments.",
+    "why": "Merges runtime-returned attachments with queued ones via mergeOutboundAttachmentLists and clears the pending queue (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "runEntityLint": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Entity lint that writes entity-converge-*.md.pending signals for intuition-weaver."
+   }
+  ],
+  "runFoldGapLint": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one consolidates them into intuition.",
+    "why": "Writes \"fold-gap.md.pending\" when fragments are newer than the intuition-weaver's last finish."
+   }
+  ],
+  "runGapLint": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "one distils raw experience into fragments",
+    "why": "Finds uncovered hour ranges in a day's events for the scan-gap signal to the distiller."
+   }
+  ],
+  "runHistoryControlCommand": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`/compact` and `/undo` work everywhere. … Both runtimes shrink the conversation in place or roll back the last `N` exchanges, with a text reply when the command finishes.",
+    "why": "Handles /compact via adapter compact() with replies \"📦 History compacted (runtime: …\" / \"ℹ️ Nothing to compact\" / \"✗ Compact failed\""
+   }
+  ],
+  "runInstructionsFingerprintGuard": [
+   {
+    "version": "0.4.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Runtime-aware mission fingerprint guard**: when a job's mission file is edited (per the \"everything is a file\" design), the change takes effect on the next drain. On the Claude runtime, conversation history is fully preserved (zero cost). On the Codex runtime, the thread is rebuilt",
+    "why": "Compares instruction fingerprints, logs [instructions-fingerprint] and [session-upgrade] (schema version upgrade), and rebuilds only for \"codex\"."
+   },
+   {
+    "version": "0.5.1",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Instructions fingerprint guard generalized to full surface (schema v1 → v2)",
+    "why": "The guard that compares and stamps the fingerprint"
+   }
+  ],
+  "runManageJobTool": [
+   {
+    "version": "0.4.4",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Add `runtime` parameter to job definitions (`\"claude\"` | `\"codex\"`)",
+    "why": "ManageJob handler changed in this release to accept the runtime parameter."
+   },
+   {
+    "version": "0.4.5",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**`ManageJob(list)` improvements**: every entry now includes `session_key` (for notify routing) and `runtime` (claude/codex). Keepalive entries carry a `note` explaining the dormant-but-wakeable lifecycle.",
+    "why": "ManageJob body contains keepalive, session_key and note, and changed in this release."
+   },
+   {
+    "version": "0.5.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`stateless` is rejected on keepalive jobs, whose whole point is a persistent lifecycle.",
+    "why": "Throws when stateless === true && cron === \"keepalive\"; persists stateless"
+   },
+   {
+    "version": "0.8.3",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**`ManageJob` requires `action`.** A call without it used to be answered with the job list and no error",
+    "why": "The literal \"action is required\" appears in the bundle first in v0.8.3, inside runManageJobTool."
+   }
+  ],
+  "runMemoryCheckTick": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Async tick that runs the lints (board-lint, entity-lint, ...), posts signals to partition inboxes, and gates forgetMemoryEntry on ALADUO_EXP_MEMORY_FORGET."
+   }
+  ],
+  "runNodeLint": [
+   {
+    "version": "0.5.5",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
+    "why": "Node lint that writes node-converge .md.pending signals for pattern-tracker."
+   }
+  ],
+  "runNotifyTool": [
+   {
+    "version": "0.5.1",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "adds `correlation_id` / `reply_to` fields to the Notify MCP tool",
+    "why": "Tool body reads correlation_id and reply_to"
+   }
+  ],
+  "runReadAuditedMemoryCheckStep": [
+   {
+    "version": "0.7.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "partition inboxes now have defined snapshot semantics, so a partition can no longer quietly lose or re-process work handed to it.",
+    "why": "Logs \"[memory] … unreadable path(s): … — results are degraded, inbox sweep suppressed this tick\", so unreadable reads do not cause an inbox sweep that loses work."
+   }
+  ],
+  "runRemindDuoduoTool": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`RemindDuoduo` books one future turn of the calling session — no key, no target. For a job session it is one more fire of its own schedule. Cancel a pending one with `duoduo job archive <id>`.",
+    "why": "Errors \"no calling session is bound, so there is no session to wake\" and tells the model \"`duoduo job archive …\" to cancel."
+   }
+  ],
+  "runSpineCatRpc": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`spine.cat` takes `redact: \"external\"` for readers outside duoduo.",
+    "why": "spine.cat RPC handler: when r.redact === \"external\" it lists void channel sessions and passes redactSpineEventForExternal as the redact hook."
+   }
+  ],
+  "runViewSessionsTool": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`ManageSession` is now `ViewSessions`.",
+    "why": "Executor of the ViewSessions tool, logging \"[ViewSessions] Tool execution failed\"."
+   }
+  ],
+  "runWithSessionMutex": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "All session-dir writers consolidated on one per-session mutex: `ensureSessionDescriptor`, `writeSessionMeta`, `updateSessionRuntimeState`, and `enqueueMailboxItem` now take the same lock that `archiveSessionDir` takes.",
+    "why": "The per-key async mutex itself, used by archiveSessionAndArtifacts and the state writers (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "scanActivationWindowTouches": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The activation window counts days on which someone actually interacted, so a quiet week no longer ages memories out.",
+    "why": "Counts as window days only partitions holding \"channel.message\" and counts agent.tool_use reads of entities/topics .md paths."
+   }
+  ],
+  "scanAndSpawnDueJobs": [
+   {
+    "version": "0.5.0",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "Cadence scheduler skips due jobs whose session is being archived",
+    "why": "Job scanner body references archiving state (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "scheduleSessionWakeRecord": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session wake` refuses the kernel plane rather than accepting a target it cannot reach",
+    "why": "Refuses with \"Only channel and job sessions can be woken — … plane is isolated.\" (forbidden_kind); a v0.8.1 predecessor without the isolated-plane wording existed."
+   }
+  ],
+  "selectDominantModelByInputTokens": [
+   {
+    "version": "0.5.6",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The footer also shows which model was actually billed (served model may differ from the requested model). The footer reflects per-turn deltas, not process-global accumulators.",
+    "why": "Selects the model with the most input tokens in modelUsage, i.e. the model actually billed for the turn."
+   }
+  ],
+  "selectInterruptMarkerText": [
+   {
+    "version": "0.8.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The model is told when a human ended its turn",
+    "why": "Chooses the marker text for an abort reason (\"user-cancel\")."
+   }
+  ],
+  "selectProfileIssuesForModel": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.",
+    "why": "Filters the claude.model_profiles issues down to those for the session's model, consumed by prepareClaudeContextProfile."
+   }
+  ],
+  "setPendingRestartReason": [
+   {
+    "version": "0.6.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo daemon restart` takes a reason, and can wake what it interrupted. `-r \"<what changed>\"` reaches every session that wakes after the restart; `--wake <session-or-alias>` (repeatable) notifies a specific session",
+    "why": "Called by main to keep the claimed restart reason in memory for the sessions that wake after the restart."
+   }
+  ],
+  "setSessionAliasAndReindex": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label so it is legible in `list`",
+    "why": "Writes the display name then refreshes the session index entry so list shows it"
+   }
+  ],
+  "shouldKeepRouteDeliverEvent": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.cat` takes `redact: \"external\"` for readers outside duoduo.",
+    "why": "Helper of redactSpineEventForExternal that decides which route.deliver events stay unredacted (those of the void session set)."
+   }
+  ],
+  "splitDisallowedToolsForClaude": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`disallowedTools` entries naming built-in tools are now no-ops (MCP tool names still work)",
+    "why": "Splits disallowedTools into mcp__ entries and built-ins, the distinction the entry draws."
+   }
+  ],
+  "stringifyJsonlRecord": [
+   {
+    "version": "0.8.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Log lines containing U+2028 were shredded on read, because the line reader treated it as a line break and JSON does not.",
+    "why": "Escapes U+2028/U+2029 (\"\\\\u2028\", \"\\\\u2029\") when serialising a JSONL line, so a line splitter cannot break the record there."
+   }
+  ],
+  "stripBoardHtmlComments": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Removes <!-- --> blocks before include scanning; only used by parseBoardFileContent"
+   }
+  ],
+  "stripBoardIncludeFrontmatter": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself",
+    "why": "Removes frontmatter before include scanning; only used by parseBoardFileContent"
+   }
+  ],
+  "stripSpineEventToEnvelope": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`spine.cat` takes `redact: \"external\"` for readers outside duoduo.",
+    "why": "Helper of redactSpineEventForExternal that reduces an event to its envelope for external readers."
+   }
+  ],
+  "transcludeBroadcastBoard": [
+   {
+    "version": "0.5.2",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The runtime parses Claude Code's `@<file>` directives itself and injects the rendered import graph into both Claude and Codex sessions through one path.",
+    "why": "Single entry point: resolveBoardIncludes then renderTranscludedFiles; also called from collectInstructionsInputs"
+   }
+  ],
+  "tryMarkSessionArchiving": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "re-checks the archiving marker after the lock is taken.",
+    "why": "Sets the in-memory archiving marker that archiveSessionIfQuiescent takes and writers check (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "updateSessionDisplayName": [
+   {
+    "version": "0.5.4",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label",
+    "why": "Writes display_name into the session meta file under the session mutex"
+   }
+  ],
+  "upsertChannelSpawnDescriptor": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins. Enables per-instance runtime selection without restart.",
+    "why": "Literal \"channel.spawn creates channel sessions only\"; writes descriptor runtime and checks rebind conflicts (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.8.4",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`channel.spawn` never moves a session to another channel. Naming a session that another channel owns is refused before anything is written.",
+    "why": "Refuses a session_key owned by another channel before writing the descriptor."
+   }
+  ],
+  "validateConfigValue": [
+   {
+    "version": "0.5.10",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.",
+    "why": "Validates a value given to session config set against CHANNEL_CONFIG_KEY_TYPES (\"expected a non-negative decimal number\")."
+   }
+  ],
+  "validateJobScheduleExpression": [
+   {
+    "version": "0.6.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`@in` and `@every` now accept composite durations such as `2h30m` and `1d6h4m`. Invalid cron strings, malformed durations, and delays outside the representable time range are rejected when the job is created.",
+    "why": "Validates once / keepalive / @in / @every / cron (UTC) schedules at creation, rejecting an empty schedule and bad durations."
+   }
+  ],
+  "validateKnownRuntimeValue": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "From v0.8.4 the value is refused with a sentence that names it and lists the valid ones.",
+    "why": "Its refusal text \"sets runtime ... which is not a runtime this duoduo knows. Valid runtimes: ...\" is the sentence that names the value and lists the valid ones."
+   }
+  ],
+  "validateRunnableRuntimeValue": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "`void` is not accepted as the default runtime, a job runtime or a partition runtime, and should not be set on an ordinary chat channel.",
+    "why": "Refuses with \"sets runtime \\\"void\\\", which never runs a model, so it cannot run there\"; called by resolveDefaultRuntime and parsePartitionDefinition."
+   }
+  ],
+  "verifyClaudeCodeRuntimeAvailable": [
+   {
+    "version": "0.5.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Installs that pass `npm install --omit=optional` or set `NPM_CONFIG_OPTIONAL=false` complete, but the daemon refuses to start at boot with an actionable error naming the missing platform package. Reinstall without those flags, or set `CLAUDE_CODE_EXECUTABLE`",
+    "why": "Reads CLAUDE_CODE_EXECUTABLE and throws \"…not found in node_modules. This usually means the install ran with --omit=optional\" (entry v0.5.0-rc.1; the chain steps 0.4.6→0.5.0 directly, so rc deltas land in 0.5.0)"
+   }
+  ],
+  "writeHostClaudeCodeExecutableEnvConfig": [
+   {
+    "version": "0.5.1",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "When `duoduo onboard` runs with `CLAUDE_CODE_EXECUTABLE` set in the environment … the override is now persisted into the host `.env` so the daemon picks it up on subsequent restarts.",
+    "why": "Writes the CLAUDE_CODE_EXECUTABLE key line into hostDotEnvPath"
+   }
+  ],
+  "writeHostDaemonToken": [
+   {
+    "version": "0.7.0",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "If you genuinely need to reach a daemon from another machine, `duoduo daemon token new` generates a bearer token and stores it with owner-only permissions.",
+    "why": "Writes the DAEMON_TOKEN_ENV_KEY line into the host .env (hostDotEnvPath, writeHostDotEnvLines), the store the token command writes to."
+   }
+  ],
+  "writeHostDotEnvLines": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Atomic (.tmp then rename) writer of the host .env used only by the onboarding writers."
+   }
+  ],
+  "writeHostModelEnvConfig": [
+   {
+    "version": "0.4.3",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "refactor: simplify host onboarding auth flow",
+    "why": "Writes the onboarding model/auth settings into the host .env file."
+   }
+  ],
+  "writePartitionRunState": [
+   {
+    "version": "0.3.1",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.",
+    "why": "Persists per-partition run state (cadence/<partition>.json) for the scheduler."
+   }
+  ],
+  "writeVoidSessionOutboxRecord": [
+   {
+    "version": "0.8.4",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.",
+    "why": "Writes a void session's message as an outbox record and emits session.output, the \"written to ... the outbox\" path."
+   }
+  ]
+ },
+ "unexplained": {
+  "0.3.0": [
+   "addToNumericField",
+   "appendTelemetryRecord",
+   "buildNotifyInputSchema",
+   "classifySessionKeyOrUnknown",
+   "computeHostBootId",
+   "extractSdkMessageTextChunks",
+   "extractStreamTextDeltas",
+   "extractStreamThinkingText",
+   "getCachedHostBootId",
+   "initAbortableAsyncQueueModule",
+   "isRuntimeWriterLockStale",
+   "readRegistryStatusFile",
+   "recordTelemetryMetric",
+   "renderNotifyToolDescription",
+   "runTimedDrainPhase",
+   "stringifyToolResultContent",
+   "writeRegistryStatusFile"
+  ],
+  "0.3.1": [
+   "hasUnqueuedPendingOutboxRecords",
+   "initOutboxStoreModule",
+   "listRetryableOutboxRecords",
+   "resolveOutboxPendingQueuePath"
+  ],
+  "0.4.0": [
+   "inferActorOriginFromSessionKey"
+  ],
+  "0.5.0": [
+   "buildSessionInfoFromState",
+   "classifySessionKeyKind",
+   "isCodexPlainObject",
+   "isImageGenerationItemType",
+   "isUserVisibleSessionKey",
+   "notifySessionFileChanged"
+  ],
+  "0.5.2": [
+   "buildSafeDirectoryGitArgs",
+   "decideRestartHintInjection",
+   "renderDaemonRestartHint"
+  ],
+  "0.5.3": [
+   "__resetClaudeProbeCacheForTest",
+   "__setClaudeVerifierForTest",
+   "extractBoardSlugLinks",
+   "formatSlugLinkLocations",
+   "generateAllPartitionCodexAgents",
+   "generatePartitionCodexAgents",
+   "initBroadcastBudgetLintModule",
+   "initCodexAppServerModule",
+   "parseAgentMarkdown",
+   "partitionInboxDirFromVar",
+   "readLatestExternalEventId",
+   "readNewestMtimeRecursive",
+   "readPartitionInboxEntries",
+   "renderAgentToml",
+   "renderPartitionRuntimeContext"
+  ],
+  "0.5.5": [
+   "buildBoardLintTarget",
+   "buildNodeSignalKey",
+   "bytesToKibCeil",
+   "classifyTopicNodeFormat",
+   "classifyTopicNodeType",
+   "compareBoardLintTargets",
+   "compareStringsAscending",
+   "computeMemoryLinkIndegree",
+   "countDatedStampLines",
+   "countNewlineChars",
+   "createMemorySlugReader",
+   "filterOrphanIslands",
+   "initBoardLintModule",
+   "initEntityLintModule",
+   "initNodeLintModule",
+   "initOrphanMemoryModule",
+   "isAllowedNodeSection",
+   "isMemoryPathDirectory",
+   "isMemoryPathFile",
+   "isMergeableChannelMessageBatch",
+   "isSafeMemorySlug",
+   "isTruthyEnvFlag",
+   "listMarkdownSlugsSync",
+   "listMemorySlugReferrers",
+   "measureUtf8ByteLength",
+   "parseEffectivenessCounts",
+   "parseEffectivenessTrajectory",
+   "parseUpdaterGuidanceVerdict",
+   "rankEffectivenessTrajectory",
+   "resolveGitToplevelSync",
+   "resolveMemoryDirs",
+   "resolveMemoryLinkTargets",
+   "scanWikiLinkOccurrences",
+   "splitLinesDropTrailingEmpty",
+   "walkReachableMemory"
+  ],
+  "0.5.6": [
+   "archiveSessionDirUnlessAlreadyArchiving",
+   "buildMemoryCheckStatus",
+   "containsWhitespaceChar",
+   "evaluatePredicateOrFalse",
+   "initChannelProtocolModule",
+   "initMemoryCheckTickModule",
+   "isSessionArchived",
+   "listPendingInboxFiles",
+   "moveFileIntoDirectory",
+   "partitionInboxDir",
+   "renderDrainErrorRuntimeHint",
+   "sweepTombstonedSessionRecords",
+   "updateDeliveryCursorFile"
+  ],
+  "0.5.10": [
+   "computeBoardLayerHash",
+   "computeNonBoardInstructionsFingerprint",
+   "createAgentSdkAdapter",
+   "decideBoardUpdatedInjection",
+   "detectInProcessBreak",
+   "diffStreamingConfigSignature",
+   "initAgentSdkAdapterModule",
+   "listFrontmatterKeyAliases",
+   "renderBoardUpdatedHint"
+  ],
+  "0.6.0": [
+   "capitalizeFirstChar",
+   "mapItemCompletedToExecEvent",
+   "mapItemStartedToExecEvent",
+   "warnUnmappedCodexItemOnce"
+  ],
+  "0.6.2": [
+   "isOrphanJobSessionKey"
+  ],
+  "0.7.0": [
+   "executeGatewayCommand",
+   "foldConfigLayersByKey",
+   "formatModelConfigIssues",
+   "formatYamlErrorMessage",
+   "initChannelConfigLoaderModule",
+   "isBusinessSourceKind",
+   "overlayConfigEntriesByKey"
+  ],
+  "0.7.1": [
+   "coerceToPlainObject",
+   "initProtocolJobModule",
+   "readMemoryFileSyncOrNull",
+   "recordUnreadableMemoryPath",
+   "runMemoryCheckSubStep"
+  ],
+  "0.8.0": [
+   "appendPiConfigIssues",
+   "buildGapReadFaultResult",
+   "computeLegacyJobSessionKey",
+   "computeStreamingConfigSignature",
+   "extractJobCompletePayload",
+   "extractJobCompletionJobId",
+   "flagStreamRecreationOnModelReject",
+   "interruptActorQuery",
+   "isClaudeRuntimeOrDefault",
+   "isIndexLoadStillCurrent",
+   "isLiveStreamRebuildRequired",
+   "issueWorkerToolContextToken",
+   "markTurnSkippedFromSkipRecord",
+   "memoizeIndexLoad",
+   "migrateLegacyJobSessionKeys",
+   "narrowToModelSettableAdapter",
+   "normalizeOptionalEnvString",
+   "projectJobPromptContext",
+   "readLiveStreamContextToken",
+   "readMemoryMaxLinesLimit",
+   "recordUnreadableUnlessMissing",
+   "rewriteSessionKeyInStateAndMeta",
+   "shutdownActorRuntimeAdapter",
+   "snapshotInflightEventIds",
+   "teardownStreamingSession",
+   "waitForWakeOrIdleTimeout"
+  ],
+  "0.8.1": [
+   "renderCoalescedDrainPrompt"
+  ],
+  "0.8.2": [
+   "createEmptyUsageSummary",
+   "isSessionWakeParams",
+   "readDrainRecords",
+   "summarizeDrainRecords"
+  ],
+  "0.8.4": [
+   "MemoryReadRpcError",
+   "describeConversationProblem",
+   "describeMemoryReadProblem",
+   "isJobArchiveParams",
+   "isJobGetParams",
+   "isNonEmptyText",
+   "isSystemConfigParams",
+   "isSystemStatusParams",
+   "readMemoryFileForRpc",
+   "renderParamsProblem",
+   "replayIdempotentSessionNotify",
+   "resolveSessionByExactKey",
+   "textKeysProblem",
+   "unknownKeyProblem"
+  ]
+ }
+}

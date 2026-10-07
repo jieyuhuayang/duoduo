@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: resolveRuntimePaths  (minified: kwe, daemon.pretty.js:66362)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.4.3 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.3, v0.5.7, v0.6.0, v0.7.0, v0.8.0 (maps/history_daemon.json)
+// changelog v0.4.3 (medium): feat(daemon): launchd-based process management for macOS
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

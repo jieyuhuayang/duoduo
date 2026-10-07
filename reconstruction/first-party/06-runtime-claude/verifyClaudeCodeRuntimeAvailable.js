@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
 // symbol: verifyClaudeCodeRuntimeAvailable  (minified: Qge, daemon.pretty.js:55355)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.5.0 (high): Installs that pass `npm install --omit=optional` or set `NPM_CONFIG_OPTIONAL=false` complete, but the daemon refuses to start at boot with an actionable error naming the missing platform package. Reinstall without those flags, or set `CLAUDE_CODE_EXECUTABLE`
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

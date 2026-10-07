@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: initBoardTransclusionModule  (minified: LRe, daemon.pretty.js:82639)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.2 — first release whose bundle holds this declaration; body changed in v0.7.0 (maps/history_daemon.json)
+// changelog v0.5.2 (medium): injects the rendered import graph into both Claude and Codex sessions through one path.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

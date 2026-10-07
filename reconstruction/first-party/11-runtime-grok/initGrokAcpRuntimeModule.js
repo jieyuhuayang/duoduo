@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
 // symbol: initGrokAcpRuntimeModule  (minified: Og, daemon.pretty.js:63995)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
+// changelog v0.7.1 (high): one long-lived agent process per session, duoduo's own tools reachable from it
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

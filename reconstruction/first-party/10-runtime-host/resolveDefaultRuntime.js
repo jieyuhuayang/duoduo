@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: resolveDefaultRuntime  (minified: ho, daemon.pretty.js:31828)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
+// changelog v0.7.1 (medium): it fails closed: asking for Grok when Grok is not usable gives you a clear error, never a silent fall back to Claude.
+// changelog v0.8.4 (high): After the upgrade an unknown value in `ALADUO_DEFAULT_RUNTIME` stops the daemon from booting (an absent or empty value still means `claude`).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

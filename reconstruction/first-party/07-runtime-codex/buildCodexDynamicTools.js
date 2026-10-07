@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
 // symbol: buildCodexDynamicTools  (minified: pN, daemon.pretty.js:80367)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.4, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// changelog v0.4.4 (high): Dynamic tools bridge: aladuo MCP tools available to Codex sessions
+// changelog v0.5.1 (high): Codex foreground: register missing tools (`Skip`, `QueueOutboundAttachment`)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

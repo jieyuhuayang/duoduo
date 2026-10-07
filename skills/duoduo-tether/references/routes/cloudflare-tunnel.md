@@ -1,10 +1,7 @@
 # Cloudflare tunnels: named (R3) and quick (R4)
 
-Reference notes for one way to expose the tether channel. The agent and its owner choose this
-option and own it, its security included; it is not an official procedure, and tether supports
-no route. Read `SKILL.md` first for its general policy, and `setup.md` for the shared requirements of every
-route and the route-neutral sections (grant handover, verification, persistence and
-handoff) apply here.
+Route notes. Read `setup.md` first: what these notes are, the requirements every route meets, and
+the route-neutral sections (grant handover, verification, persistence and handoff) that apply here.
 
 ## R3: Cloudflare named tunnel
 
@@ -73,12 +70,12 @@ Hand each to the owner as `setup.md` (Hand a grant to the owner) says.
 | -------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
 | `cloudflared tunnel login` | This machine's cloudflared may create tunnels and DNS records in the zone the owner picks. | `~/.cloudflared/cert.pem` exists; the zone is the owner's |
 
-Trust: Cloudflare terminates TLS and sees bearer tokens, authorization codes and enrollment
-secrets in transit. Tell the owner before choosing either.
+Trust: Cloudflare terminates TLS (`setup.md`, Choose a route); tell the owner before choosing
+either.
 
 ## What is measured
 
-| Fact                                                                                                  | Status     |
-| ----------------------------------------------------------------------------------------------------- | ---------- |
-| R3 Cloudflare named tunnel, R4 quick tunnel, R6 own gateway, end to end for duoduo                    | Not tested |
-| Whether vendor clouds or mainland China networks reach `workers.dev`, `trycloudflare.com` or `ts.net` | Unmeasured |
+| Fact                                                                       | Status     |
+| -------------------------------------------------------------------------- | ---------- |
+| R3 Cloudflare named tunnel and R4 quick tunnel, end to end for duoduo      | Not tested |
+| Whether vendor clouds or mainland China networks reach `trycloudflare.com` | Unmeasured |

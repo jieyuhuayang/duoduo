@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
 // symbol: readSpineTail  (minified: wwe, daemon.pretty.js:89404)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.3.2 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
+// changelog v0.3.2 (high): **protocol**: Add `system.status` RPC (health, sessions, subconscious playlist) and `spine.tail` RPC (last N events with incremental `after_id` cursor and cross-midnight boundary support).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

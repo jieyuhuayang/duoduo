@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
 // symbol: renderRuntimeUnavailableGuidance  (minified: pht, daemon.pretty.js:72660)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.7.1, v0.8.0, v0.8.3 (maps/history_daemon.json)
+// changelog v0.5.4 (high): the daemon now boots healthy and surfaces a per-session "runtime unavailable" error instead of failing silently.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

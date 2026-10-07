@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
 // symbol: buildCodexDirectOnlyToolConfig  (minified: E6, daemon.pretty.js:62143)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// changelog v0.7.1 (high): duoduo's tools are mounted under their own namespace and pinned to the top level, so they no longer get demoted out of the model's directly-visible tool list
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
 // symbol: extractCodexGeneratedImageAttachment  (minified: pbe, daemon.pretty.js:62795)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.7 (maps/history_daemon.json)
+// changelog v0.5.0 (medium): Runtime image output delivery no longer duplicates attachments.
+// changelog v0.5.7 (medium): Codex image generation delivered reliably (Codex 0.140+).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

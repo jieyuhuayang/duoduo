@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
 // symbol: hasImageGenerationRecord  (minified: fbe, daemon.pretty.js:62779)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.5.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.5.7 (medium): Generated images produced by Codex were sometimes silently dropped; they are now delivered correctly, including the newer inline-image result shape.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

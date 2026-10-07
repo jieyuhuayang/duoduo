@@ -1,11 +1,9 @@
 # A Cloudflare Worker relay (R5)
 
-Reference notes for one way to expose the tether channel. The agent and its owner choose this
-option and own it, its security included; it is not an official procedure, and tether supports
-no route. The code this option runs (`relay/worker/` and `relay/connector.mjs`) is a reference
-implementation that is not supported: whoever deploys it owns its security. Read `SKILL.md` first for
-its general policy, and `setup.md` for the shared requirements of every route and the route-neutral
-sections (grant handover, verification, persistence and handoff) apply here.
+Route notes. Read `setup.md` first: what these notes are, the requirements every route meets, and
+the route-neutral sections (grant handover, verification, persistence and handoff) that apply here.
+The code this option runs (`assets/relay/`) is a reference implementation that is not supported:
+tether does not ship it, test it, or vouch for it, and whoever deploys it owns its security.
 
 Contents:
 
@@ -27,14 +25,14 @@ path into a frame on that socket; the connector forwards it over HTTP to the tet
 port, no tailnet change. R5 is a convenience for an owner without a domain; with a domain, R6 or R3
 fit better.
 
-The reference code sits beside this file:
+The reference code is under the skill's `assets/relay/` (paths from the skill's root):
 
-| Path                         | What it is                                                                      |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| `relay/worker/src/worker.js` | The Worker, with one Durable Object holding the connector's socket              |
-| `relay/worker/wrangler.toml` | Its deployment; the secret is a Worker secret, never in this file               |
-| `relay/connector.mjs`        | The connector: Node 22 or later, no dependencies                                |
-| `relay-protocol.md`          | The connector's configuration and the frame format between Worker and connector |
+| Path                                | What it is                                                                      |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `assets/relay/worker/src/worker.js` | The Worker, with one Durable Object holding the connector's socket              |
+| `assets/relay/worker/wrangler.toml` | Its deployment; the secret is a Worker secret, never in this file               |
+| `assets/relay/connector.mjs`        | The connector: Node 22 or later, no dependencies                                |
+| `relay-protocol.md`                 | The connector's configuration and the frame format between Worker and connector |
 
 Use the reference code, or write your own Worker or connector from the requirements below and the
 frame format in `relay-protocol.md`. Copy what you deploy into a directory of its own on this host
@@ -49,10 +47,8 @@ The tether channel does not know the relay exists: it sees ordinary HTTP on its 
 
 **Connect endpoint.** One path of your choice outside the public list (for example `/connect`),
 used only by the connector. It is the one non-public path the Worker serves. The connector's
-`TETHER_RELAY_URL` is this endpoint's full URL: `wss://<worker>.<subdomain>.workers.dev/<connect path>`.
-The connector refuses any scheme but `wss://` (plain `ws://` only to a loopback address, for
-testing). Its upgrade request carries `Authorization: Bearer <secret>` and follows no redirect.
-The Worker must:
+`TETHER_RELAY_URL` is this endpoint's full URL: `wss://<worker>.<subdomain>.workers.dev/<connect path>`
+(`relay-protocol.md`, Connector configuration). The Worker must:
 
 - answer 426 to a request that is not a WebSocket upgrade;
 - answer 401 to a wrong or missing secret, comparing in constant time;
@@ -61,26 +57,20 @@ The Worker must:
 - answer the text frame `ping` with the text frame `pong` (the connector's keepalive; without
   the `pong` the connector drops the link and reconnects).
 
-**Frames.** As `relay-protocol.md` specifies. Two kinds of answer come as a stream instead of one
-`response` frame: a `text/event-stream` answer (an assistant's push subscription on `POST /mcp`,
-`mail.md`, Listen stream), and any answer whose `response` frame would exceed the connector's
-frame limit (a large `ReadEvents` or `ReadMail` result). At `response-start` the relay answers
-its client with that status and those headers, writes each chunk's `data` as it arrives without
-buffering, and ends the response at `response-end`. When the client goes away it sends `cancel`
-and drops anything that still arrives for the id. When the socket between relay and connector
-closes, it ends every open client stream; assistants subscribe again.
+**Frames.** As `relay-protocol.md` specifies, streams included: a `text/event-stream` answer
+(`mail.md`, Listen stream) and any answer larger than one frame.
 
 **What passes.** Everything not listed here, except the connect endpoint, is refused by the relay
 with 404.
 
-| Item              | Rule                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Paths and methods | `/mcp` GET, POST; `/.well-known/oauth-protected-resource` GET; `/.well-known/oauth-authorization-server` GET; `/authorize` GET, POST; `/token` POST; `/revoke` POST; `/enroll` GET; `/enroll/options` POST; `/enroll/finish` POST. Exact paths only                                                                                                                                                                                                                                               |
-| Query             | Passed unchanged                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Request headers   | Only `content-type`, `accept`, `authorization`, `mcp-protocol-version`, `mcp-method`, `mcp-name`, `origin`. Never `host`, never `cookie`. MCP 2026-07-28 clients such as ChatGPT fail with -32020 without `mcp-method` / `mcp-name`                                                                                                                                                                                                                                                               |
-| Response headers  | Only `content-type`, `x-accel-buffering`, `www-authenticate`, `location`, `cache-control`, `content-security-policy`, `referrer-policy`                                                                                                                                                                                                                                                                                                                                                           |
-| Cookies           | None, in either direction. No route sets or reads one                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Redirects         | Never followed, anywhere in the relay. Every fetch that carries a tether-channel response sets `redirect: "manual"`: the Worker-to-Durable-Object hop and any internal subrequest included. A Workers `fetch` follows redirects by default, so a missing setting makes the Worker chase the 302 from `POST /authorize` to the assistant's site and fail (Cloudflare error 1101, "Worker threw exception"). A 3xx and its `Location` go back to the browser exactly as the connector returned them |
+| Item              | Rule                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Paths and methods | The list in `setup.md`, Requirements of every route. Exact paths only                                                                                                                                                                                                                                                                                                                                     |
+| Query             | Passed unchanged                                                                                                                                                                                                                                                                                                                                                                                          |
+| Request headers   | An allow-list: `relay-protocol.md`, Frame format, and the code in `assets/relay/`. Never `host`, never `cookie`                                                                                                                                                                                                                                                                                           |
+| Response headers  | An allow-list: `relay-protocol.md`, Frame format, and the code in `assets/relay/`                                                                                                                                                                                                                                                                                                                         |
+| Cookies           | None, in either direction. No route sets or reads one                                                                                                                                                                                                                                                                                                                                                     |
+| Redirects         | Never followed, anywhere in the relay. Every fetch that carries a tether-channel response sets `redirect: "manual"`: the Worker-to-Durable-Object hop and any internal subrequest included. A Workers `fetch` follows redirects by default, so a missing setting makes the Worker chase the 302 from `POST /authorize` to the assistant's site and fail (Cloudflare error 1101, "Worker threw exception") |
 
 **Errors the relay returns itself.** Each response body is short JSON saying what happened and
 that the request did not reach duoduo (for 504: that the outcome is unknown).
@@ -110,8 +100,8 @@ authorization codes and enrollment secrets pass through both.
 **Secret.** Whoever holds the relay secret can become the connector and receive every bearer
 token sent to the public URL. It lives only in the Worker's secret store and in the connector's
 environment file (mode 0600, read by its supervisor). It never appears in a chat, a session's
-output, a log, a command line, a plist or a unit file. Step 4 below generates it without printing
-it; never `cat` the file.
+output, a log, a command line, a plist or a unit file. Step 4 below generates it and writes it
+from file to file without printing it; never show the file's content on a terminal.
 
 ## Steps
 
@@ -121,13 +111,13 @@ it; never `cat` the file.
    registers the Worker's name as the subdomain (giving `<name>.<name>.workers.dev`): have the
    owner choose or confirm the subdomain before the first deploy.
 2. Copy the code into the deployment directory, or write your own from the requirements. The
-   skill's directory is where this file lives (`~/.agents/skills/duoduo-tether/` or
+   skill's directory is the one holding `SKILL.md` (`~/.agents/skills/duoduo-tether/` or
    `~/.claude/skills/…`). Then set the Worker name in `$D/worker/wrangler.toml`.
 
    ```bash
    D="$HOME/.local/share/duoduo-relay"
    mkdir -p "$D" && chmod 700 "$D"
-   cp -R <skill dir>/references/routes/relay/worker <skill dir>/references/routes/relay/connector.mjs "$D/"
+   cp -R <skill dir>/assets/relay/worker <skill dir>/assets/relay/connector.mjs "$D/"
    ```
 
 3. `npx wrangler login` prints a consent URL: a grant (`setup.md`, Hand a grant to the owner).
@@ -140,7 +130,7 @@ it; never `cat` the file.
    ( umask 077
      openssl rand -hex 32 | tr -d '\n' | tee "$D/relay.secret" \
        | ( cd "$D/worker" && npx wrangler secret put RELAY_SECRET )
-     printf 'TETHER_RELAY_SECRET=%s\n' "$(cat "$D/relay.secret")" > "$D/connector.env" )
+     { printf 'TETHER_RELAY_SECRET='; cat "$D/relay.secret"; echo; } > "$D/connector.env" )
    rm "$D/relay.secret"
    grep -o '^[A-Z_]*=' "$D/connector.env"   # names only
    ```
@@ -173,11 +163,7 @@ it; never `cat` the file.
   Start it again; the next request succeeds without a new approval.
 - Watch `npx wrangler tail` during a request with a dummy bearer: no header, body or query may
   appear.
-- Redirect check, done with the owner on the first connect (`SKILL.md` step 4): after the
-  owner approves with the passkey, the browser must land on the client's redirect URI with a
-  `code` and the app must finish connecting, not stop on an error page of the relay. Deny cannot
-  run this check: it answers a "Connection denied" page from the channel, follows no address, and
-  the app is not told.
+- The redirect check (`setup.md`, Verify both directions).
 
 ## Persistence
 
@@ -272,15 +258,15 @@ Hand each to the owner as `setup.md` (Hand a grant to the owner) says.
 | `wrangler login`        | This machine's wrangler may deploy Workers and set Worker secrets in the owner's Cloudflare account. | `npx wrangler whoami` names the owner's account        |
 | `workers.dev` subdomain | The account's Worker hostnames end in `<subdomain>.workers.dev`, for every Worker in the account.    | The deployed URL carries the subdomain the owner chose |
 
-Trust: Cloudflare terminates TLS and sees bearer tokens, authorization codes and enrollment secrets
-in transit. Tell the owner before choosing this option.
+Trust: Cloudflare terminates TLS (`setup.md`, Choose a route); tell the owner before choosing this
+option.
 
 ## What is measured
 
-| Fact                                                                                                        | Status                                                                                                                                                                                        |
-| ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A relay reachable from the internet; immediate 503 when the host is offline                                 | Measured from AWS Tokyo on a prototype relay. The path list, frames and headers above are measured on a macOS host with ChatGPT, Cursor/Grok and a self-built agent connected through a relay |
-| A 2026-07-28 client (ChatGPT) through a relay that drops `Mcp-Method` / `Mcp-Name`                          | Measured: every call fails with -32020 at `server/discover`; passing both headers fixed it                                                                                                    |
-| `wrangler deploy` in CI mode registers the Worker name as the account's `workers.dev` subdomain             | Measured                                                                                                                                                                                      |
-| The standalone `connector.mjs`: OAuth, an MCP call, a streamed listen, an answer cut into frames, reconnect | Measured against a local test relay and a real tether channel, under Node 22 and Node 26. Not yet measured behind a deployed Worker                                                           |
-| Whether vendor clouds or mainland China networks reach `workers.dev`                                        | Unmeasured                                                                                                                                                                                    |
+| Fact                                                                                                        | Status                                                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A relay reachable from the internet; immediate 503 when the host is offline                                 | Measured from the public internet. The path list, frames and headers above are measured on a macOS host with ChatGPT, Cursor/Grok and a self-built agent connected through a relay |
+| A 2026-07-28 client (ChatGPT) through a relay that drops `Mcp-Method` / `Mcp-Name`                          | Measured: every call fails with -32020 at `server/discover`; passing both headers fixed it                                                                                         |
+| `wrangler deploy` in CI mode registers the Worker name as the account's `workers.dev` subdomain             | Measured                                                                                                                                                                           |
+| The standalone `connector.mjs`: OAuth, an MCP call, a streamed listen, an answer cut into frames, reconnect | Measured against a local test relay and a real tether channel, under Node 22 and Node 26. Not yet measured behind a deployed Worker                                                |
+| Whether vendor clouds or mainland China networks reach `workers.dev`                                        | Unmeasured                                                                                                                                                                         |

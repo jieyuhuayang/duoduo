@@ -1,6 +1,9 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: runInstructionsFingerprintGuard  (minified: xN, daemon.pretty.js:82704)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.4.5 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.1, v0.5.2, v0.5.10, v0.7.1, v0.8.0, v0.8.3 (maps/history_daemon.json)
+// changelog v0.4.5 (high): **Runtime-aware mission fingerprint guard**: when a job's mission file is edited (per the "everything is a file" design), the change takes effect on the next drain. On the Claude runtime, conversation history is fully preserved (zero cost). On the Codex runtime, the thread is rebuilt
+// changelog v0.5.1 (high): Instructions fingerprint guard generalized to full surface (schema v1 → v2)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
 // symbol: prepareDrainTurnContext  (minified: NW, daemon.pretty.js:70575)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.3.7 — first release whose bundle holds this declaration; body changed in v0.4.5, v0.5.1, v0.5.2, v0.5.4, v0.5.5, v0.5.10, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
+// changelog v0.3.7 (medium): **session-manager**: Streaming turn admission control — new ingress enters a live CLI session without interrupting the active drain. When the CLI's result is delayed (e.g. background tasks polling), later messages are admitted into the same streaming session via a drain-scoped callback
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

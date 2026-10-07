@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
 // symbol: renderSkipRewindBlock  (minified: Amt, daemon.pretty.js:71876)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.5 (maps/history_daemon.json)
+// changelog v0.5.0 (high): Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

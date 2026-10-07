@@ -9,7 +9,7 @@
 //
 // Compared (fresh in $OUT -> committed under reconstruction/):
 //   daemon.recon.js                        -> recon/daemon.recon.js     (bytes)
-//   {rename,symbols,blocks}_<b>.json       -> maps/                     (JSON, minus machine-local paths)
+//   {rename,symbols,blocks,xref}_<b>.json  -> maps/                     (JSON, minus machine-local paths)
 //   <b>.exports.json                       -> maps/                     (bytes)
 //   RENAME_TABLE.md / RENAME_TABLE_<b>.md  -> maps/                     (bytes; daemon keeps the unsuffixed name)
 //   pipeline_report.json                   -> maps/                     (JSON, minus environment/verdicts)
@@ -97,7 +97,7 @@ function unpromotable(report) {
 const pairs = []; // [fresh, committed, kind]
 if (BUNDLES.includes("daemon")) pairs.push([`${OUT}/daemon.recon.js`, `${ROOT}/recon/daemon.recon.js`, "bytes"]);
 for (const b of BUNDLES) {
-  for (const k of ["rename", "symbols", "blocks"]) pairs.push([`${OUT}/${k}_${b}.json`, `${ROOT}/maps/${k}_${b}.json`, "json"]);
+  for (const k of ["rename", "symbols", "blocks", "xref"]) pairs.push([`${OUT}/${k}_${b}.json`, `${ROOT}/maps/${k}_${b}.json`, "json"]);
   pairs.push([`${OUT}/${b}.exports.json`, `${ROOT}/maps/${b}.exports.json`, "bytes"]);
 }
 const table = b => (b === "daemon" ? "RENAME_TABLE.md" : `RENAME_TABLE_${b}.md`);

@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: createIdleCompactSweeper  (minified: gwe, daemon.pretty.js:88861)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
+// changelog v0.5.10 (high): A channel session that has sat idle past a configurable threshold and grown past a token floor now silently runs `/compact` on its next turn
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

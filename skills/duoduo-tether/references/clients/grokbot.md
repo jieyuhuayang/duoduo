@@ -1,6 +1,6 @@
 # Playbook: Grok Bot
 
-For the Grok Bot app (built by the Cursor team, now part of xAI). Each agent runs as a chat in the
+For the Grok Bot app. Each agent runs as a chat in the
 app, on a persistent Linux cloud machine shared by the owner's agents. Between the owner's turns it
 acts only through saved routines. Wake: a routine with a webhook trigger, registered as a `bearer`
 doorbell. Ruled out: the app has no listener for MCP events, and scheduled routines fire at most
@@ -88,10 +88,9 @@ answer it with SendMail (in_reply_to its id) and the text "<marker> received".
 - A routine prompt that does not name `GetContext` and `RecordExperience` gives runs that skip
   them. The routine's saved prompt is the protocol.
 - After a tether upgrade changes the tool list, the app shows the new tools only after the server
-  is disconnected and reconnected. That reconnect left the app's other HTTP MCP servers in status
-  `needsAuth`, detail `authentication_required`, until the owner logged in to them again.
-  If the reconnect goes through the authorize page again, that approval is a new grant and drops
-  the connection's doorbells (`mail.md`, Doorbells): check `doorbell list` and add it again.
-- The app runs an automatic safety review on MCP calls. The field case added allow rules for
-  `SendMail` replies so runs answer without the owner; it recorded no block message.
-- Keep outward or irreversible actions out of mail-triggered runs; send them to the owner's chat.
+  is disconnected and reconnected. The reconnect can leave the app's other HTTP MCP servers in
+  `needsAuth` (`authentication_required`) until the owner logs in to them again. A reconnect
+  through the authorize page is a new grant and drops the connection's doorbells (`mail.md`,
+  Doorbells): check `doorbell list` and add it again.
+- The app runs an automatic safety review on MCP calls; the allow rules of section 2 let runs
+  answer without the owner.

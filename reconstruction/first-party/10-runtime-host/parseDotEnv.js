@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: parseDotEnv  (minified: GO, daemon.pretty.js:69045)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.3.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.3.3 (medium): **cli**: Host-side `.env` file support — daemon command auto-loads dotenv before starting.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
 // symbol: lookupEventIdIndexEntry  (minified: Ib, daemon.pretty.js:32198)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
+// changelog v0.8.2 (medium): guards the by-id index against out-of-range lookups.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

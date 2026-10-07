@@ -244,6 +244,11 @@ run_bundle() {
   # 5. binding: where each symbol is, and a version-stable hash of its body.
   node --max-old-space-size=8192 "$HERE/symbol_index.mjs" "$PRETTY" \
        "$OUT/rename_$name.json" "$OUT/symbols_$name.json" --version "$PKG_VERSION"
+  # 5b. the reverse questions: who refers to whom, which literals (env vars,
+  #     log prefixes, RPC methods, paths) each symbol carries. symbol_card.mjs
+  #     and doc_coverage.mjs read it so nobody greps the bundle for them.
+  node --max-old-space-size=8192 "$HERE/xref.mjs" "$PRETTY" \
+       "$OUT/rename_$name.json" "$OUT/xref_$name.json" --version "$PKG_VERSION"
 
   # 6. the other generated artifacts, so they can be compared with (or promoted
   #    into) the committed copies instead of being maintained by hand

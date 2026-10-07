@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: scheduleSessionWakeRecord  (minified: ovt, daemon.pretty.js:90977)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.8.2 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
+// changelog v0.8.2 (high): `duoduo session wake` refuses the kernel plane rather than accepting a target it cannot reach
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

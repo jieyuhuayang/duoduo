@@ -1,6 +1,8 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
 // symbol: writeHostClaudeCodeExecutableEnvConfig  (minified: GSe, daemon.pretty.js:69142)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.5.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// changelog v0.5.1 (high): When `duoduo onboard` runs with `CLAUDE_CODE_EXECUTABLE` set in the environment … the override is now persisted into the host `.env` so the daemon picks it up on subsequent restarts.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
