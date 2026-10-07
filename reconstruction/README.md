@@ -189,6 +189,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 |------|------|
 | `rebuild.sh` | 整条流水线，见"如何复现"。 |
 | `bump.sh` | 升级流程的第 1 步，见"跟随上游升级"。 |
+| `check_docs.sh` | 只跑 `rebuild.sh` 的文档引用与行号检查，用上一次运行的 `$OUT`，改文档时用；几秒出结果，不写任何东西。 |
 | `split.mjs`、`reassemble.mjs` | 按字节偏移拆包；按 manifest 拼回。 |
 | `export_blocks.mjs` | 按源模块分组恢复 `__export` 导出名与入口导出。 |
 | `exports_map.mjs` | 压平的导出名视图（`*.exports.json`）；`bump.sh` 用它列导出名的增删。 |
@@ -262,6 +263,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 影响清单（`impact_report.mjs`）与明文变化（`plaintext_delta.mjs`） | 文档里每一处引用了改动代码的地方都被列出并分档；`RE-ANCHOR` 名字附候选声明；出厂包与上游仓库的明文变化附文档中提到它们的位置 | v0.8.2→v0.8.3：2746 处引用中 664 处指向改动声明，分为重读 69、核对 70、略读 525，重读的 50 个不同片段都落在改动的行上；`drainSessionMailbox` 得到的候选声明就是它在 v0.8.3 的位置；明文变化 18 个文件 |
 | `RE-ANCHOR` 候选打分（`anchor_candidates.mjs`，`impact_report.mjs` 调用） | 每个失去锚点的推断名都有按调用方、被调用方、字符串三项重合度排序的候选，领先不足 1 分的标为 `CLOSE` | 重放 v0.8.3→v0.8.4 的 47 个名字：第一名与人工确认的选择一致 46 个（按位置配对只有 22 个，另有 18 个没有任何候选）；唯一不一致的是一个被拆成两个的函数，标为 `CLOSE`；同值常量 `IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 按读取它的函数区分开（2.00 对 0.00） |
 | 同值常量按读取方区分（`verify_inferred` 的 `judgeTwins`，`name_symbol` 同一规则） | 常量的基线另记读取它的顶层声明的字符串与成员属性名；同值常量不再只能永久告警 | 重放 v0.8.3→v0.8.4：`IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 放在 `Oct` 上通过（原来是永久 `warn`，名字只能删掉），挪到同值的 `kS` 上判失败（0.97 对 0.00）；变异测试新增"同值常量上的名字通过、挪到孪生常量上被推翻"两例 |
+| 只查文档的快速检查（`check_docs.sh`） | 用上一次 `rebuild.sh` 留在 `$OUT` 里的索引和美化文件，只跑 `rebuild.sh` 第 9、10 步的引用与行号检查，不写任何东西；`rebuild.sh` 仍是唯一的关卡 | 全部文档约 3 s（带 `PKG` 的完整运行约 2 分钟） |
 | 名字绑定片段的自动重定向（`retarget_snippets.mjs`） | 升级后片段里过期的局部变量名和短名按新声明重新推出，只在唯一匹配且通过严格核对时改写 | 重放 v0.8.3→v0.8.4：689 个不成立的片段改对 626 个，其中 622 个与 v0.8.4 文档手工改出的写法逐字相同；剩下 63 个是代码确实变了的 |
 | 文档分节与升级 workflow（`doc_sections.mjs`、`.claude/workflows/upgrade-docs.js`） | 并行的 agent 各自只改自己那几节的文件，不会互相覆盖；拼回时拒绝拆分后被改过的文档；升级的文档步骤按固定脚本运行，不必每次重写 | 拆分后立即拼回与原文逐字节相同；workflow 的控制流用模拟 agent 跑通（加载分组、分配新节、只在核验发现问题时运行修正）；还没有在真实升级上运行过 |
 
@@ -282,7 +284,6 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `retarget_symbols` 改写不在反引号里的 `真名 (短名)` | 正文、表格、图里的配对在升级时也能自动更新（`verify_citations` 已检查它们） | 小 | 低到中：要和普通的括号文字区分开 |
 | `retarget_docs --stamp` 固定写到 `docs/.pretty-anchor-target`（现在写到第一个文档参数所在的目录） | 第一个参数不在 `docs/` 下时不会写错位置 | 小 | 低 |
 | 只给 `BEAUTIFIED` 的运行，在美化哈希等于已提交的 `sha256.pretty` 时采用已提交的版本号 | 快速的本地运行也能得到真正的 `committedInSync` 结论（现在是 `unverified`） | 小 | 低 |
-| 只改文档时的快速模式：美化哈希与映射都没变时复用 `$OUT` | 文档修改的检查从约 1 分钟降到几秒 | 小到中 | 低：缓存失效条件要完整 |
 | CI 把 `inferredNames=warn` 当作失败 | 告警在 PR 上就能看到，而不是到 promote 时才出现（现在 `warn` 不让构建失败） | 小 | 中：上游的真实改写也会让 CI 变红，直到复读并 `record` |
 | 常量写入检查覆盖经由调用的写入（`X.push(…)`、`Object.assign(X, …)`），并在每次运行复查常量是否被重新赋值 | 被当作常量命名的可变状态能被发现（现在只在登记时查直接赋值） | 中 | 低 |
 | 影响清单跟踪调用关系：列出引用了"未变函数、但它调用的函数变了"的论断（现在只按被引用声明本身是否改动来判断） | 函数没变、行为因被调用方改变而变的论断也会被列出 | 中：需要顶层声明之间的调用图 | 低：只增加列出的条目 |

@@ -347,6 +347,7 @@ node tools/check_bare_anchors.mjs [--index <symbols.json>[,...]] [--bundle cli=<
 node tools/convert_line_citations.mjs --index <symbols_daemon.json>[,<symbols_cli.json>] \
      --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--write] [--report <o.json>] <doc.md...>  # legacy line citations → the two line-free forms
 MAPS=<dir> PKG=<dist/release> bash tools/rebuild.sh               # full run on a copy of the hand-maintained maps; PROMOTE refuses it
+[OUT=<rebuild OUT>] bash tools/check_docs.sh [doc.md...]           # rebuild.sh's citation and line-anchor checks alone, against $OUT's index (seconds; proves nothing else)
 node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] \
      [--fp <fp.json>] [--old-label v] [--new-label v]            # per changed declaration: readable .diff, .norm, .delta.json
 node tools/plaintext_delta.mjs --out <dir> [--pkg <old pkg root> <new pkg root>] [--git <repo> <old tag> <new tag>]
