@@ -42,15 +42,15 @@ records. mtime tracks the last append, so:
 - A session that died 30 days ago — mtime is 30 days old, file moves.
   Correct.
 - A 30-day-old session that fires once today — its file is recreated by
-  `appendDrainRecord` (it uses `fs.appendFile` which opens by path);
+  the ledger writer (it appends by path);
   the archived file keeps its history, the new file starts fresh. No
   data loss, just a small statistical discontinuity for that session.
 
 A 14-day window is the working default. Adjust by changing `-mtime +14`.
 
-## Recipe (Verified Against tracy-mini-m4 On 2026-04-28)
+## Recipe
 
-The daemon does **not** need to be stopped. `appendDrainRecord` only
+The daemon does **not** need to be stopped. The ledger writer only
 touches files whose mtime is by definition recent, so it never collides
 with the mv targets. (See "Race Note" below for the one edge case.)
 
@@ -131,8 +131,8 @@ There is a real but tiny race window:
 
 - `find` listed file X (mtime 14d+1s).
 - A new drain on session X fires before `mv` reaches it.
-- `appendDrainRecord` calls `fs.appendFile` with the original path.
-- `mv` moves the file, then `fs.appendFile` recreates it under the
+- The ledger writer appends to the original path.
+- `mv` moves the file, then the append recreates it under the
   original path with just the new line.
 
 Net effect: the historical lines for session X end up in

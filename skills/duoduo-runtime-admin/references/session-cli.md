@@ -101,6 +101,16 @@ Other refusals (all exit 2, no delivery): `ambiguous` (the alias matches more
 than one session — the candidates are listed; re-run with a specific
 session_key), `not_found` (no session by that key or name).
 
+**Mail to a connected assistant.** The in-session `Notify` tool of a channel
+session also mails a connected assistant (another assistant of the owner,
+connected through the tether channel): target `tether:<name>`, plus
+`in_reply_to` with a mail id to answer that assistant's mail. It wakes nothing;
+the assistant reads it with its `ReadMail` tool. `ViewSessions` lists the
+connected assistants. Jobs never mail them. `duoduo session notify` run inside a
+session sends as that session, so the assistant can answer it; from a terminal
+or script it carries only its `--source` label, which the assistant cannot
+answer. Details are in the `duoduo-tether` skill.
+
 Use this to orchestrate across sessions — e.g. a monitoring job that finds
 something notifies a longer-lived research session to dig in, or an external
 script / webhook (`ssh host 'duoduo session notify "主控台" -m "…"'`) pokes a

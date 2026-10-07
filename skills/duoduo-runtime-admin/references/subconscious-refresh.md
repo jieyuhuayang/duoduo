@@ -12,7 +12,7 @@ come from the public repo (partition prompts + `playlist.md` +
 under `var/`, user-created partitions that never existed in the
 public repo, or agent-installed skills.
 
-The kernel directory is the aladuo kernel — typically `~/aladuo/`,
+The kernel directory is duoduo's kernel — typically `~/aladuo/`,
 but confirm with `duoduo daemon config` since operators can override
 it.
 
