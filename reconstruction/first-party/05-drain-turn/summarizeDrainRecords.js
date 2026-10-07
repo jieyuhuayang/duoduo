@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function summarizeDrainRecords(e) {
-    let t = kI();
+    let t = createEmptyUsageSummary();
     for (let n of e) accumulateDrainRecordIntoSummary(t, n);
     return t
 }

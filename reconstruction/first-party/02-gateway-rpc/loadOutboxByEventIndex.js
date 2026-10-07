@@ -6,11 +6,11 @@
 
 async function loadOutboxByEventIndex(e) {
     let t = net(e);
-    return await zu(t, async () => {
+    return await memoizeIndexLoad(t, async () => {
         let n = resolveOutboxByEventIndexPath(e);
         try {
             let r = eq(n);
-            for await (let i of gs(r)) if (i) try {
+            for await (let i of iterateStreamLines(r)) if (i) try {
                 let o = JSON.parse(i);
                 o?.event_id && t.map.set(o.event_id, o)
             } catch {

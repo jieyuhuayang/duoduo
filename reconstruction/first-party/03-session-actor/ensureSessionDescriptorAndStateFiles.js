@@ -16,22 +16,22 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
         i = !1;
     await runWithSessionMutex(t.session_key, async () => {
         let o = resolveSessionDir(e, n.session_key);
-        await Ne(o);
+        await ensureDirectoryExists(o);
         let s = resolveSessionMetaPath(e, n.session_key);
         try {
             await qa.access(s)
         } catch {
             let u = Gb.default.stringify(["# Session Descriptor", "", "This file describes declarative metadata for this session.", "High-churn runtime state is stored in state.json."].join(`
-`), af(n));
-            await Dt(s, u), r = !0
+`), stripUndefinedFieldsDeep(n));
+            await writeFileAtomic(s, u), r = !0
         }
         let a = resolveSessionStatePath(e, n.session_key);
         try {
             await qa.access(a)
         } catch {
-            await Bt(a, {
+            await writeJsonFileAtomic(a, {
                 updated_at: new Date().toISOString()
             }), i = !0
         }
-    }), r && th(n.session_key, "meta"), i && th(n.session_key, "state")
+    }), r && notifySessionFileChanged(n.session_key, "meta"), i && notifySessionFileChanged(n.session_key, "state")
 }

@@ -17,7 +17,7 @@ async function batchDrainItems(e, t, n) {
         u = () => Zmt(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
     for (let l of t) {
         if (i.length >= u()) break;
-        let c = await Hxe(e, l, r, n.perf);
+        let c = await loadDrainItemEventCached(e, l, r, n.perf);
         if (c && extractJobCompletionJobId(c) !== null) continue;
         if (i.length === 0) {
             a = classifyDrainBatchClass(c), i.push(l), o = c ? parseEventTimestampMs(c.ts) : null, o === null && (s = !1);

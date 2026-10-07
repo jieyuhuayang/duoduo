@@ -20,11 +20,11 @@ async function runSkipTool(e, t) {
                 reason: o,
                 skipped_at: new Date().toISOString()
             }
-        }), ee("[Skip] skip rewind saved", {
+        }), logInfoMessage("[Skip] skip rewind saved", {
             sessionKey: i,
             reason: o
         }), "Skipped. End your turn now — no further text, no further tool calls."
     } catch (n) {
-        return Ue("[Skip] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
+        return logErrorMessage("[Skip] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
     }
 }

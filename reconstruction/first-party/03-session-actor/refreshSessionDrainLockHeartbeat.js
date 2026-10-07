@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function refreshSessionDrainLockHeartbeat(e, t, n = new Date) {
-    let r = xW(e, t),
-        i = await lxe(r);
-    i && (i.last_heartbeat_at = n.toISOString(), await Bt(r, i))
+    let r = resolveSessionDrainLockPath(e, t),
+        i = await readDrainLockFile(r);
+    i && (i.last_heartbeat_at = n.toISOString(), await writeJsonFileAtomic(r, i))
 }

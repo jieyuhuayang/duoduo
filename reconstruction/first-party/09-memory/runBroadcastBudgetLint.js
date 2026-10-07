@@ -6,9 +6,9 @@
 
 function runBroadcastBudgetLint(e) {
     let t = resolveMemoryDirs(e).boardPath,
-        n = NH(),
+        n = readMemoryMaxLinesLimit(),
         r = mSe("ALADUO_MEMORY_MAX_LINE_CHARS", Wdt),
-        i = Tn(t);
+        i = readMemoryFileSyncOrNull(t);
     if (i === null) return {
         selected: [],
         overLimit: !1,

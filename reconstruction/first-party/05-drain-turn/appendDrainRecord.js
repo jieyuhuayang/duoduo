@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendDrainRecord(e, t) {
-    await Ne(e.usageDir);
+    await ensureDirectoryExists(e.usageDir);
     let n = drainRecordPath(e, t.session_key),
         r = `${stringifyJsonlRecord(t)}
 `;

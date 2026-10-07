@@ -6,12 +6,12 @@
 
 function createMemorySlugReader(e) {
     return t => {
-        if (!kH(t)) return null;
-        let n = Tn(SH.join(e.topicsDir, `${t}.md`)),
-            r = Tn(SH.join(e.entitiesDir, `${t}.md`)),
+        if (!isSafeMemorySlug(t)) return null;
+        let n = readMemoryFileSyncOrNull(SH.join(e.topicsDir, `${t}.md`)),
+            r = readMemoryFileSyncOrNull(SH.join(e.entitiesDir, `${t}.md`)),
             i = [];
         if (n !== null && i.push(n), r !== null && i.push(r), i.length > 0) {
-            let o = Tn(SH.join(e.effectivenessDir, `${t}.md`));
+            let o = readMemoryFileSyncOrNull(SH.join(e.effectivenessDir, `${t}.md`));
             o !== null && i.push(o)
         }
         return i.length > 0 ? i.join(`

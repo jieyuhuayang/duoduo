@@ -6,9 +6,9 @@
 
 function buildBoardLintTarget(e, t, n, r) {
     let i = Cwe(t, e),
-        o = Tn(r) ?? "",
+        o = readMemoryFileSyncOrNull(r) ?? "",
         s = wH.join(n.effectivenessDir, `${e}.md`),
-        a = Tn(s),
+        a = readMemoryFileSyncOrNull(s),
         u = "NO-EFF",
         l = 0,
         c = 0,
@@ -31,6 +31,6 @@ function buildBoardLintTarget(e, t, n, r) {
         verdict: f,
         fmt: classifyTopicNodeFormat(o),
         cls: classifyTopicNodeType(o),
-        dual: jc(wH.join(n.entitiesDir, `${e}.md`))
+        dual: isMemoryPathFile(wH.join(n.entitiesDir, `${e}.md`))
     }
 }

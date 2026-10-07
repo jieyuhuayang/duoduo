@@ -12,7 +12,7 @@ function createJobScheduler(e) {
     } = e, i = e.intervalMs ?? Abt, o = null, s = !1, a = null, u = !1;
     async function l() {
         if (s || u) {
-            s && ke("[job-scheduler] scan skipped: previous scan still running");
+            s && logDebugMessage("[job-scheduler] scan skipped: previous scan still running");
             return
         }
         s = !0;
@@ -21,7 +21,7 @@ function createJobScheduler(e) {
             let f = await scanAndSpawnDueJobs(t, n, {
                 bus: r
             });
-            ke("[job-scheduler] scan complete", {
+            logDebugMessage("[job-scheduler] scan complete", {
                 scanned: f.scanned,
                 spawned: f.spawned.length,
                 spawnedIds: f.spawned,
@@ -29,7 +29,7 @@ function createJobScheduler(e) {
                 durationMs: Date.now() - d
             })
         } catch (f) {
-            Ue("[job-scheduler] scan error", f)
+            logErrorMessage("[job-scheduler] scan error", f)
         } finally {
             s = !1
         }
@@ -42,7 +42,7 @@ function createJobScheduler(e) {
         start() {
             o || u || (r && r.on("job.created", c), a = l(), o = setInterval(() => {
                 a = l()
-            }, i), ee("[job-scheduler] started", {
+            }, i), logInfoMessage("[job-scheduler] started", {
                 intervalMs: i
             }))
         },
@@ -53,7 +53,7 @@ function createJobScheduler(e) {
                 } catch {}
                 a = null
             }
-            ee("[job-scheduler] stopped")
+            logInfoMessage("[job-scheduler] stopped")
         },
         isScanning() {
             return s

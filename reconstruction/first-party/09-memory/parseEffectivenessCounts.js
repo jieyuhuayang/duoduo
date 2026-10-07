@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseEffectivenessCounts(e) {
-    for (let t of Jo(e))
+    for (let t of splitLinesDropTrailingEmpty(e))
         if (/strengthening\s*=/i.test(t)) return {
             s: vH(t, "strengthening"),
             n: vH(t, "neutral"),

@@ -7,12 +7,12 @@
 async function resolveEffectiveChannelConfigForEvent(e, t) {
     let n = await Ece(e, t);
     if (t.source.kind === "route" && !n && t.session_key) {
-        let s = await iu(e, t.session_key);
+        let s = await resolveChannelConfigBySession(e, t.session_key);
         if (s) return s
     }
     let r = hct(t, n);
     if (!r) return null;
-    let [i, o] = await Promise.all([li(e.channelConfigDir), loadChannelKindConfig(e.channelConfigDir, r)]);
+    let [i, o] = await Promise.all([loadGlobalRuntimeConfig(e.channelConfigDir), loadChannelKindConfig(e.channelConfigDir, r)]);
     return buildEffectiveChannelConfig({
         channelKind: r,
         channelId: gct(t, n),

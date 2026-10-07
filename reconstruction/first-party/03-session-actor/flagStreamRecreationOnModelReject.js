@@ -7,7 +7,7 @@
 function flagStreamRecreationOnModelReject(e, t) {
     if (!isLiveStreamRebuildRequired(e, t.requirementKind)) return !1;
     let n = e.streamingState;
-    return n ? (n.needsRecreation = !0, vt("warn", "[kv-cache] needsRecreation flagged", {
+    return n ? (n.needsRecreation = !0, logAlwaysAtLevel("warn", "[kv-cache] needsRecreation flagged", {
         sessionKey: e.sessionKey,
         reason: "model-apply-rejected",
         via: t.reason,

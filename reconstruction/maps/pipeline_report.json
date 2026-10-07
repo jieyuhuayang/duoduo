@@ -12,13 +12,13 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 512,
-      "renameEntries": 624,
-      "renamesApplied": 624,
-      "referencesRewritten": 2286,
+      "inferredNames": 683,
+      "renameEntries": 795,
+      "renamesApplied": 795,
+      "referencesRewritten": 3684,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 624
+      "indexedSymbols": 795
     },
     "cli": {
       "prettyLines": 75611,
@@ -49,21 +49,21 @@
     }
   },
   "firstPartyTree": {
-    "files": 624,
+    "files": 795,
     "subsystems": 12,
     "bySubsystem": {
-      "00-daemon-entry": 18,
-      "01-spine-wal": 33,
-      "02-gateway-rpc": 71,
-      "03-session-actor": 91,
-      "04-cognition-prompt": 33,
-      "05-drain-turn": 54,
-      "06-runtime-claude": 40,
-      "07-runtime-codex": 26,
-      "08-cadence-subconscious": 76,
-      "09-memory": 98,
-      "10-runtime-host": 65,
-      "11-runtime-grok": 19
+      "00-daemon-entry": 22,
+      "01-spine-wal": 42,
+      "02-gateway-rpc": 132,
+      "03-session-actor": 109,
+      "04-cognition-prompt": 36,
+      "05-drain-turn": 65,
+      "06-runtime-claude": 55,
+      "07-runtime-codex": 30,
+      "08-cadence-subconscious": 87,
+      "09-memory": 113,
+      "10-runtime-host": 84,
+      "11-runtime-grok": 20
     }
   },
   "verdicts": {
@@ -85,13 +85,13 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.22.0",
+    "node": "v22.23.3",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 684
+    "firstPartySymbols": 855
   }
 }

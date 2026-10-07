@@ -18,7 +18,7 @@ function deliverScanGapSignal(e, t, n, r, i) {
     let s = i.dryRun === !0,
         a = readOrSeedGapHandedDays(t, r.varDir, s);
     if (a.readFault) return {
-        ...BO(null),
+        ...buildGapReadFaultResult(null),
         pending: !1,
         recorded: !1,
         delivery: qO()

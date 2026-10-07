@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readRecentDrainRecords(e, t) {
-    await Ne(e.usageDir);
+    await ensureDirectoryExists(e.usageDir);
     let n;
     try {
         n = await SI.readdir(e.usageDir)

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function listVoidChannelSessions(e) {
-    let t = await rh(e),
+    let t = await readAllSessionStateFiles(e),
         n = new Map,
         r = new Set;
     for (let [i, o] of Object.entries(t)) {

@@ -19,8 +19,8 @@ function createAladuoMcpServer(e, t = {}) {
         i = t.sessionContextKind === "job";
     return t.sessionContextKind === "meta" || t.sessionContextKind === "system" || (n.registerTool(Jw, {
         title: Jw,
-        description: i ? GC() : JC(),
-        inputSchema: i ? KC(t.callerRuntime) : ZC(t.callerRuntime),
+        description: i ? renderJobSessionToolDescription() : renderManageJobToolDescription(),
+        inputSchema: i ? buildJobSessionInputSchema(t.callerRuntime) : buildManageJobInputSchema(t.callerRuntime),
         _meta: r
     }, async s => ({
         content: [{

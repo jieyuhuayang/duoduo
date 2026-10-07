@@ -9,11 +9,11 @@ function hasImageGenerationRecord(e) {
         n = new Set;
     for (; t.length > 0;) {
         let r = t.pop();
-        if (!(!qw(r) || n.has(r))) {
-            if (n.add(r), dbe(r)) return !0;
+        if (!(!isCodexPlainObject(r) || n.has(r))) {
+            if (n.add(r), isImageGenerationItemType(r)) return !0;
             for (let i of ["payload", "event", "msg", "item"]) {
                 let o = r[i];
-                qw(o) && t.push(o)
+                isCodexPlainObject(o) && t.push(o)
             }
         }
     }

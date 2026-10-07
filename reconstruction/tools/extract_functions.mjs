@@ -29,6 +29,8 @@ if (!INFERRED) {
 // esbuild __export block. The header says which kind each name is: a reader of
 // the tree cannot otherwise tell an upstream author's name from our guess.
 const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8"));
+const PUBLISHED = path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "published_"));
+const published = fs.existsSync(PUBLISHED) ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : {}; // real -> {package, file}
 const src = fs.readFileSync(RECON, "utf8");
 const renameMap = JSON.parse(fs.readFileSync(MAP, "utf8")); // mangled -> newName
 const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8")); // newName -> subsystem
@@ -105,7 +107,9 @@ for (const newName of renamed) {
   const header = `// duoduo reconstruction — subsystem: ${sub}\n` +
     `// symbol: ${newName}  (minified: ${mangled}, daemon.pretty.js:${origLine ?? "?"})\n` +
     (inferred[mangled] === newName
-      ? `// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)\n`
+      ? (Object.hasOwn(published, newName)
+        ? `// name: INFERRED — upstream's own spelling, confirmed against the published source ${published[newName].package} ${published[newName].file} (maps/published_daemon.json)\n`
+        : `// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)\n`)
       : `// name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement\n`) +
     `// NOTE: readable extract from daemon.recon.js; references other top-level\n` +
     `// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).\n\n`;

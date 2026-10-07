@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function renderNodeConvergeSignalBody(e) {
-    let t = DO(e),
+    let t = buildNodeSignalKey(e),
         n = [`[node-converge] [[${t}]]`, `node: topics/${t}.md`];
     if (e.lines > xH && n.push(`lines: ${e.lines} (over ${xH})`), e.unexpectedSectionCount > 0) {
         n.push(`unexpected-sections: ${e.unexpectedSectionCount}`);

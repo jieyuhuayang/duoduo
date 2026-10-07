@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readDeliveryCursorFile(e, t, n) {
-    let r = jbe(e, t, n);
+    let r = resolveDeliveryCursorPath(e, t, n);
     try {
         let i = await vlt.readFile(r, "utf8"),
             o = JSON.parse(i);

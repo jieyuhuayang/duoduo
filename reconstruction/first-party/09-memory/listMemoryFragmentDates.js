@@ -13,7 +13,7 @@ function listMemoryFragmentDates(e) {
     } catch (r) {
         return {
             dates: [],
-            readFault: VO(r)
+            readFault: recordUnreadableUnlessMissing(r)
         }
     }
     let n = [];

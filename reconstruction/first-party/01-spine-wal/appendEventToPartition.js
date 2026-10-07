@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendEventToPartition(e, t, n = new Date(t.ts)) {
-    await Ne(e.eventsDir);
+    await ensureDirectoryExists(e.eventsDir);
     let r = formatEventPartitionName(n),
         i = FR.join(e.eventsDir, r),
         o = `${stringifyJsonlRecord(t)}

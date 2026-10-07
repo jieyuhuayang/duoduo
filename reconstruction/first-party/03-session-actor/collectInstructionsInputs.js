@@ -14,11 +14,11 @@ async function collectInstructionsInputs(e, t, n, r) {
     }
     let s, a;
     if (n.origin === "channel") {
-        let d = (await rt(e, t))?.source_channel_id;
+        let d = (await readSessionRuntimeState(e, t))?.source_channel_id;
         if (d) {
-            let f = await vs(e, d).catch(() => null);
+            let f = await readChannelDescriptor(e, d).catch(() => null);
             if (f?.channel_kind) {
-                let p = await ru(e, {
+                let p = await resolveEffectiveChannelConfig(e, {
                     channel_kind: f.channel_kind,
                     channel_id: d
                 }).catch(() => null);

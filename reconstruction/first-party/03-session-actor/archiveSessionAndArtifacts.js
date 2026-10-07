@@ -13,7 +13,7 @@ async function archiveSessionAndArtifacts(e, t) {
         a = {
             state: "clear"
         },
-        u = await runWithSessionMutex(t, async () => (a.state = await Cb(e, t), a.state !== "clear" ? null : await Ob(e, t)));
+        u = await runWithSessionMutex(t, async () => (a.state = await probeSessionPendingWork(e, t), a.state !== "clear" ? null : await moveSessionDirToArchive(e, t)));
     if (u === null) return {
         archived: !1,
         reason: a.state === "unreadable" ? "unreadable" : "pending_work",

@@ -5,11 +5,11 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function acquireSessionDrainLock(e, t, n = {}) {
-    let r = xW(e, t),
+    let r = resolveSessionDrainLockPath(e, t),
         i = n.now ?? new Date,
         o = n.ttlMs ?? 12e4,
         s = n.pid ?? process.pid,
-        a = await lxe(r);
+        a = await readDrainLockFile(r);
     if (a && !vmt(a, i, o)) return {
         acquired: !1,
         stale: !1,
@@ -21,7 +21,7 @@ async function acquireSessionDrainLock(e, t, n = {}) {
         started_at: i.toISOString(),
         last_heartbeat_at: i.toISOString()
     };
-    return await Bt(r, u), {
+    return await writeJsonFileAtomic(r, u), {
         acquired: !0,
         stale: !!a,
         lock: u

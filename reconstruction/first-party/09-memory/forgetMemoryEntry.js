@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function forgetMemoryEntry(e, t, n = {}) {
-    let r = e.filter(a => a.state === "STALE").sort((a, u) => Ar(a.rel, u.rel)),
+    let r = e.filter(a => a.state === "STALE").sort((a, u) => compareStringsAscending(a.rel, u.rel)),
         i = r.map(a => a.rel);
     if (i.length === 0 || n.dryRun) return i;
     let o = wS.join(t, "memory"),

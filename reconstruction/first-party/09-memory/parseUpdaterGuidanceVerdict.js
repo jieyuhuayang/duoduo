@@ -6,7 +6,7 @@
 
 function parseUpdaterGuidanceVerdict(e) {
     let t = !1;
-    for (let n of Jo(e)) {
+    for (let n of splitLinesDropTrailingEmpty(e)) {
         if (/updater guidance:/i.test(n)) {
             t = !0;
             continue

@@ -6,7 +6,7 @@
 
 function collectBoardLintReport(e, t = 1, n) {
     let r = resolveMemoryDirs(e),
-        i = Tn(r.boardPath);
+        i = readMemoryFileSyncOrNull(r.boardPath);
     if (i === null) return {
         boardMissing: !0,
         targets: [],
@@ -23,7 +23,7 @@ function collectBoardLintReport(e, t = 1, n) {
     let o = [];
     for (let u of resolveMemoryLinkTargets(i)) {
         let l = wH.join(r.topicsDir, `${u}.md`);
-        jc(l) && o.push(buildBoardLintTarget(u, i, r, l))
+        isMemoryPathFile(l) && o.push(buildBoardLintTarget(u, i, r, l))
     }
     let s = [...o].sort(compareBoardLintTargets),
         a = runBoardLint(s, t);

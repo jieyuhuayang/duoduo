@@ -6,7 +6,7 @@
 
 function createDrainExecutionEventRecorder(e, t, n, r, i) {
     return async o => {
-        if (tht(o) && ke("[runner] execution event", {
+        if (tht(o) && logDebugMessage("[runner] execution event", {
                 sessionKey: t,
                 eventType: o.type,
                 ...o.type === "tool_use" ? {

@@ -201,7 +201,17 @@ const GEN = opt("--build") ?? MAPS; // where the generated maps come from (heade
 const BATCH = opt("--batch");
 const DRY = flag("--dry-run");
 const ALLOW_UNPROVEN = flag("--allow-unproven");
-const USAGE = "usage: node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem|->\n" +
+// --published <report.json>: a match_published_source.mjs report. An entry whose
+// short name that report matched to a published declaration OF THE SAME NAME
+// (verdict unique, ordered or picked), or whose short name is the module
+// initialiser the report found assigning a published file's constants, is
+// first-party by upstream's own published source, and is recorded in
+// maps/published_<bundle>.json (real name -> package, file, line, verdict) so a
+// reader can tell a name upstream spelled from one this repository inferred.
+// Vendor evidence still refuses: the report says what the code is, not that it
+// is safe to rename.
+const PUBLISHED = opt("--published");
+const USAGE = "usage: node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem|->\n" +
               "       node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
 const [BUNDLE, ...rest] = argv;
 if (!BUNDLE || (BATCH ? rest.length : rest.length !== 3)) { console.error(USAGE); process.exit(2); }
@@ -248,6 +258,16 @@ const NEW_SHAPE = !fs.existsSync(SHAPE) && !!shapeFile;
 const ASSERTED = mapPath(F.asserted);
 const assertedFile = fs.existsSync(ASSERTED) ? JSON.parse(fs.readFileSync(ASSERTED, "utf8")) : null;
 const asserted = assertedFile ?? {};
+const PUBLISHED_MAP = mapPath(`published_${B}.json`);
+const publishedFile = fs.existsSync(PUBLISHED_MAP) ? JSON.parse(fs.readFileSync(PUBLISHED_MAP, "utf8")) : null;
+const publishedPrior = publishedFile ?? {};
+const report = PUBLISHED ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : null;
+const pubByShort = new Map(); // short -> { name, file, line, verdict, score }
+const pubInitByShort = new Map(); // short -> { file, hits, of }
+if (report) {
+  for (const m of report.matches ?? []) if (m.best && ["unique", "ordered", "picked"].includes(m.verdict)) pubByShort.set(m.best.short, { name: m.name, file: m.file, line: m.line, verdict: m.verdict, score: m.best.score, exported: m.exported });
+  for (const [file, fi] of Object.entries(report.files ?? {})) if (fi.initialiser) pubInitByShort.set(fi.initialiser.short, { file, hits: fi.initialiser.hits, of: fi.initialiser.of });
+}
 // every real name another bundle already uses (its maps and export blocks)
 const otherBundleNames = [];
 for (const f of fs.readdirSync(GEN)) {
@@ -426,8 +446,18 @@ for (let changed = true; changed;) {
   }
 }
 const blocks = [...blocksReport.blocks].sort((a, b) => a.line - b.line);
-function origin(short, decl) {
+function origin(short, decl, realName) {
   if (vendorExport.has(short)) return { ok: false, why: `vendor: exported by a vendor module's export block` };
+  const pub = pubByShort.get(short), pubInit = pubInitByShort.get(short);
+  const publishedWhy = pub && pub.name === realName ? `published source: ${report.package} ${pub.file}:${pub.line} ${pub.exported ? "export " : ""}${pub.name} (${pub.verdict}${pub.verdict === "ordered" ? "" : `, score ${pub.score}`})`
+    : pubInit && decl.kind === "moduleInit" ? `published source: ${report.package} ${pubInit.file}: this initialiser assigns ${pubInit.hits} of its ${pubInit.of} constants`
+    : null;
+  if (publishedWhy) {
+    const node = nodeOfName.get(short), vd = vendorWhy.get(node);
+    if (vd) return { ok: false, why: `vendor: ${node.startsWith("M") ? "its module" : "it"} is ${vd} -- although ${publishedWhy}` };
+    return { ok: true, published: { package: report.package, file: pub ? pub.file : pubInit.file, line: pub ? pub.line : null, verdict: pub ? pub.verdict : "initialiser" }, why: publishedWhy };
+  }
+  if (pub && pub.name !== realName) return { ok: false, why: `the published report matches ${short} to ${pub.file}:${pub.line} ${pub.name}, not ${realName}` };
   const node = nodeOfName.get(short);
   const scope = node.startsWith("M") ? `its module (lines ${moduleSpan.get(node).join("-")})` : "it";
   const fp = fpWhy.get(node), vd = vendorWhy.get(node);
@@ -507,10 +537,10 @@ for (const e of entries) {
   if (!HAS_TREE) { if (e.subsystem !== "-") nameProblems.push(`subsystem "${e.subsystem}": the ${B} has no first-party tree, write \`-\``); }
   else if (!subsystems.has(e.subsystem) || !/^\d\d-/.test(e.subsystem)) nameProblems.push(`unknown subsystem "${e.subsystem}" (one of: ${[...subsystems].sort().join(", ")})`);
   // 4. ORIGIN
-  const o = origin(e.short, d);
+  const o = origin(e.short, d, e.name);
   if (!o.ok && !(o.unproven && e.allowUnproven)) nameProblems.push(o.why + (o.unproven ? " -- mark the entry allow-unproven only if you have read the body and know it is duoduo's" : ""));
   if (nameProblems.length) { for (const p of nameProblems) bad(p); continue; }
-  planned.push({ ...e, decl: d, why: o.why, origin: o.ok ? o.why : `ASSERTED by hand (allow-unproven): ${o.why}`, weak: !o.ok, propertyToo: propertyNames.has(e.name) });
+  planned.push({ ...e, decl: d, why: o.why, origin: o.ok ? o.why : `ASSERTED by hand (allow-unproven): ${o.why}`, weak: !o.ok, published: o.published ?? null, propertyToo: propertyNames.has(e.name) });
 }
 
 // ---- file conventions -------------------------------------------------------------
@@ -521,6 +551,7 @@ const conventions = [
   ...(HAS_TREE ? [[F.subsys, subsys, sortedKeys]] : []),
   ...(shapeFile && !NEW_SHAPE ? [[F.shape, shapeFile, x => x]] : []),
   ...(assertedFile ? [[F.asserted, assertedFile, sortedKeys]] : []),
+  ...(publishedFile ? [[`published_${B}.json`, publishedFile, sortedKeys]] : []),
 ];
 for (const [f, obj, norm] of conventions) {
   if (fs.readFileSync(mapPath(f), "utf8") !== canonical(norm(obj))) problems.push(`${f} is not in its usual layout (2-space JSON${norm === sortedKeys ? ", sorted keys" : ""}); normalise it by hand first rather than have this tool reformat it`);
@@ -543,7 +574,9 @@ const nextInferred = { ...inferred };
 const nextSubsys = { ...subsys };
 const nextShape = shapeFile ? { ...shapeFile, shapes: { ...shapeFile.shapes } } : null;
 const nextAsserted = { ...asserted };
+const nextPublished = { ...publishedPrior };
 for (const p of planned) {
+  if (p.published) nextPublished[p.name] = p.published;
   nextInferred[p.short] = p.name;
   if (HAS_TREE) nextSubsys[p.name] = p.subsystem;
   if (nextShape) {
@@ -558,6 +591,7 @@ const writes = [
   ...(HAS_TREE ? [[F.subsys, canonical(sortedKeys(nextSubsys))]] : []),
   ...(nextShape ? [[F.shape, canonical(nextShape)]] : []),
   ...(planned.some(p => p.weak) ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : []),
+  ...(planned.some(p => p.published) ? [[`published_${B}.json`, canonical(sortedKeys(nextPublished))]] : []),
 ];
 if (DRY) console.error(`\ndry run: would register ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
 else {

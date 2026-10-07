@@ -46,7 +46,7 @@ function mapItemStartedToExecEvent(e) {
             return {
                 type: "tool_use",
                 toolUseId: n,
-                toolName: `CollabAgent${mbe(r)}`,
+                toolName: `CollabAgent${capitalizeFirstChar(r)}`,
                 input: {
                     tool: r,
                     receiverThreadIds: e.receiverThreadIds,
@@ -111,6 +111,6 @@ function mapItemStartedToExecEvent(e) {
         case "functionCallOutput":
             return null;
         default:
-            return hbe("started", t), null
+            return warnUnmappedCodexItemOnce("started", t), null
     }
 }

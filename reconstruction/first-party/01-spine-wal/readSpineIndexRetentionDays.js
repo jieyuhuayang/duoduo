@@ -8,5 +8,5 @@ function readSpineIndexRetentionDays(e = process.env) {
     let t = e[vae];
     if (t === void 0 || t.trim() === "") return mU;
     let n = Number(t);
-    return Number.isInteger(n) && n >= 1 ? n : (Z(`[spine] ${vae}=${JSON.stringify(t)} is not a positive integer; using ${mU}`), mU)
+    return Number.isInteger(n) && n >= 1 ? n : (logWarnMessage(`[spine] ${vae}=${JSON.stringify(t)} is not a positive integer; using ${mU}`), mU)
 }

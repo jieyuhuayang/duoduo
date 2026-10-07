@@ -18,7 +18,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 await refreshSessionDrainLockHeartbeat(e, r)
             } catch {}
         }, o);
-    s.unref?.(), go("drain_started", t, {
+    s.unref?.(), logLatencyStageTelemetry("drain_started", t, {
         sessionKey: t
     });
     let a = Date.now(),
@@ -164,7 +164,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             ie, Ce, se, j = [],
             ne = async (Ie, de) => {
                 Ie.length !== 0 && await deleteMailboxPendingItemsByEventIds(e, t, Ie).catch(X => {
-                    Z("[runner] eager markDone failed (will retry at drain end)", {
+                    logWarnMessage("[runner] eager markDone failed (will retry at drain end)", {
                         sessionKey: t,
                         stage: de,
                         eventIds: Ie,
@@ -194,7 +194,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 lastOutboxId: Ce,
                 lastOutboxRecord: se,
                 outboxRecords: j
-            }), G = await runTimedDrainPhase(m, "session_state_ms", async () => rt(e, t)), H = buildSessionInfoFromState(e, t, G ?? void 0), q = n.jobContext?.stateless === !0, pe = G?.pending_gateway_notice, fe = G?.pending_interrupted_context, Se = G?.pending_skip_rewind, w = !1, T = !1, L = !1, z = G?.claude_cost_baseline, U = !1, Y = resolvePendingCompactNotice(G), me = !1, re = decideRestartHintInjection({
+            }), G = await runTimedDrainPhase(m, "session_state_ms", async () => readSessionRuntimeState(e, t)), H = buildSessionInfoFromState(e, t, G ?? void 0), q = n.jobContext?.stateless === !0, pe = G?.pending_gateway_notice, fe = G?.pending_interrupted_context, Se = G?.pending_skip_rewind, w = !1, T = !1, L = !1, z = G?.claude_cost_baseline, U = !1, Y = resolvePendingCompactNotice(G), me = !1, re = decideRestartHintInjection({
                 currentDaemonStartedAt: IW,
                 sessionKey: t,
                 lastEventAt: G?.last_event_at,
@@ -245,7 +245,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 } : void 0,
                 jt = S.events.get(de) ?? await runTimedDrainPhase(m, "event_read_ms", async () => readEventById(e, de, bt));
             if (!jt) {
-                Z(`[runner] mailbox event unresolved: session_key=${t} event_id=${de} not_after=${bt?.notAfter??"none"} item_file=${Ie.file??"none"}`), M += 1;
+                logWarnMessage(`[runner] mailbox event unresolved: session_key=${t} event_id=${de} not_after=${bt?.notAfter??"none"} item_file=${Ie.file??"none"}`), M += 1;
                 continue
             }
             gt.push({
@@ -258,8 +258,8 @@ async function drainSessionMailbox(e, t, n = {}) {
             let Ie = 0;
             for (let X of gt)
                 if (X.event.type === "route.deliver") {
-                    let bt = to(X.event.payload) ? X.event.payload : void 0,
-                        jt = to(bt?.payload) ? bt.payload : void 0,
+                    let bt = isNonNullObject(X.event.payload) ? X.event.payload : void 0,
+                        jt = isNonNullObject(bt?.payload) ? bt.payload : void 0,
                         Lt = typeof jt?.notify_depth == "number" ? jt.notify_depth : 0;
                     Lt > Ie && (Ie = Lt)
                 } let de = gt.map(X => X.item.eventId).filter(X => !!X);
@@ -394,7 +394,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             sessionInfo: H
         });
         let fn = Ie => async de => {
-            if (de.type === "system" && de.subtype === "init" && de.data && typeof de.data.session_id == "string" && (Gt = de.data.session_id, H.sessionId && Gt !== H.sessionId && Z("[runner] SDK session ID mismatch — context lost", {
+            if (de.type === "system" && de.subtype === "init" && de.data && typeof de.data.session_id == "string" && (Gt = de.data.session_id, H.sessionId && Gt !== H.sessionId && logWarnMessage("[runner] SDK session ID mismatch — context lost", {
                     sessionKey: t,
                     requestedSessionId: H.sessionId,
                     actualSessionId: Gt
@@ -414,7 +414,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 sdk_session_id: Ie
             })
         }, Mn = async (Ie, de) => {
-            await gn(), !(await rt(e, t))?.pending_skip_rewind && await qmt(e, t, zmt(Ie, de ? fe : void 0))
+            await gn(), !(await readSessionRuntimeState(e, t))?.pending_skip_rewind && await qmt(e, t, zmt(Ie, de ? fe : void 0))
         }, ji = async Ie => {
             Ie.gatewayNoticeInjected && !w && (await Umt(e, t), w = !0), Ie.interruptedContextInjected && !T && (await Bmt(e, t), T = !0), Ie.skipRewindInjected && !L && (await Vmt(e, t), L = !0)
         };
@@ -476,7 +476,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 last_seen_daemon_started_at: Oe
             }).catch(() => {})), !ve && Ie.injectionResult.boardUpdatedInjected && (ve = !0, Ae && await patchSessionRuntimeState(e, t, {
                 last_seen_board_hash: Ae
-            }).catch(() => {})), go("sdk_start", de.event.id, {
+            }).catch(() => {})), logLatencyStageTelemetry("sdk_start", de.event.id, {
                 eventIds: Xo,
                 coalesced: gt.length > 1
             });
@@ -544,7 +544,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 }), Le
             }
             let an = va.sdkResult;
-            if (u += Date.now() - ao, await markTurnSkippedFromSkipRecord(e, t, n.runtime, an), an.skipped && (gi.skipped = !0, F = !0), an.sessionId && (d = an.sessionId), g(an.usage), typeof an.firstTokenLatencyMs == "number" && (PW(m, "sdk_ttft_ms_total", an.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), go("sdk_end", de.event.id, {
+            if (u += Date.now() - ao, await markTurnSkippedFromSkipRecord(e, t, n.runtime, an), an.skipped && (gi.skipped = !0, F = !0), an.sessionId && (d = an.sessionId), g(an.usage), typeof an.firstTokenLatencyMs == "number" && (addToNumericField(m, "sdk_ttft_ms_total", an.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), logLatencyStageTelemetry("sdk_end", de.event.id, {
                     eventIds: Xo,
                     sdkDurationMs: Date.now() - ao,
                     usedFallback: an.usedFallback
@@ -553,7 +553,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 for (let Le of gt) Le.item.eventId && x.push(Le.item.eventId);
                 return K(), B()
             }
-            if (await ji(xt), an.skipped) ee("[runner] Skip called — suppressing outbox", {
+            if (await ji(xt), an.skipped) logInfoMessage("[runner] Skip called — suppressing outbox", {
                 sessionKey: t,
                 eventId: de.event.id
             });
@@ -569,7 +569,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         turnMeta: b()
                     }));
                 if (j.push(...Ht.records), Ht.primaryRecord) {
-                    gi.hadOutput = !0, go("outbox_written", de.event.id, {
+                    gi.hadOutput = !0, logLatencyStageTelemetry("outbox_written", de.event.id, {
                         outboxId: Ht.primaryRecord.id,
                         eventIds: Xo
                     }), te(Ht.primaryRecord);
@@ -627,7 +627,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             sessionKey: t,
                             gapCounts: Hr
                         });
-                    Le.last_compact_at = un, Le.compact_stats = nr, p = nr, ee("[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack", {
+                    Le.last_compact_at = un, Le.compact_stats = nr, p = nr, logInfoMessage("[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack", {
                         sessionKey: t,
                         eventId: de.event.id,
                         trigger: dt.trigger,
@@ -644,14 +644,14 @@ async function drainSessionMailbox(e, t, n = {}) {
                 let bt = !1,
                     jt;
                 if (X.event.routing_hint?.intent === "history-control") {
-                    let ht = to(X.event.payload) ? X.event.payload : void 0,
+                    let ht = isNonNullObject(X.event.payload) ? X.event.payload : void 0,
                         wa = (ht?.text ?? ht?.command ?? "").trim(),
                         mu = /^(\S+)/.exec(wa)?.[1]?.toLowerCase() ?? "";
                     if (mu === "/compact" && X.event.source?.name === "idle-compact" && rht(X.event.ts, {
                             actorSpawnedAt: n.actorSpawnedAt,
                             actorLastTurnCompletedAt: n.actorLastTurnCompletedAt
                         })) {
-                        ee("[runner] dropping stale idle-compact item (no SDK call)", {
+                        logInfoMessage("[runner] dropping stale idle-compact item (no SDK call)", {
                             sessionKey: t,
                             eventId: X.event.id,
                             itemTs: X.event.ts,
@@ -671,7 +671,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                                     sdkSessionId: Ie
                                 });
                             j.push(...mp.records), te(mp.primaryRecord, ed), X.item.eventId && (x.push(X.item.eventId), await deleteMailboxPendingItemsByEventIds(e, t, [X.item.eventId]).catch(hp => {
-                                Z("[runner] history-control mailbox finalize failed (will be retried at drain end)", {
+                                logWarnMessage("[runner] history-control mailbox finalize failed (will be retried at drain end)", {
                                     sessionKey: t,
                                     eventId: X.item.eventId,
                                     error: hp instanceof Error ? hp.message : String(hp)
@@ -703,8 +703,8 @@ async function drainSessionMailbox(e, t, n = {}) {
                     }
                 }
                 let Lt = fn(createDrainExecutionEventRecorder(e, t, X.event.session_key ?? t, n.onExecutionEvent, X.event.id)),
-                    Xo = to(X.event.payload) ? X.event.payload : void 0,
-                    Ve = DW(X.event.payload),
+                    Xo = isNonNullObject(X.event.payload) ? X.event.payload : void 0,
+                    Ve = extractPayloadMediaRefs(X.event.payload),
                     xt = applyJobSdkConfigOverride(await runTimedDrainPhase(m, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(e, X.event)), n.jobContext?.sdkConfig),
                     jn = await Exe(e, xt, n.jobContext?.sdkConfig),
                     Yt = resolveTurnModelWithLayer({
@@ -736,7 +736,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     }),
                     Er = de,
                     $n = n.resume === !1 || Er || q ? void 0 : Ie,
-                    Po = yA(X.event),
+                    Po = isChannelMessageEvent(X.event),
                     ao = classifySessionKeyOrUnknown(t) === "channel",
                     gi = computeTimeGapContext({
                         consumed: U,
@@ -749,7 +749,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     va = ao && !Po,
                     an, gl = X.prompt;
                 if (X.event.type === "job.spawn" && n.jobContext) {
-                    let ht = to(Xo?.tick) ? Xo.tick : void 0;
+                    let ht = isNonNullObject(Xo?.tick) ? Xo.tick : void 0;
                     if (ht) {
                         let Dr = ht.run_number,
                             wa = ht.triggered_at,
@@ -852,7 +852,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     }), ht
                 }
                 let ur = NN.sdkResult;
-                if (await markTurnSkippedFromSkipRecord(e, t, n.runtime, ur), ur.skipped && (pp.skipped = !0, F = !0), u += Date.now() - TIe, ur.sessionId && (d = ur.sessionId), g(ur.usage), typeof ur.firstTokenLatencyMs == "number" && (PW(m, "sdk_ttft_ms_total", ur.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), n.abortController?.signal.aborted) {
+                if (await markTurnSkippedFromSkipRecord(e, t, n.runtime, ur), ur.skipped && (pp.skipped = !0, F = !0), u += Date.now() - TIe, ur.sessionId && (d = ur.sessionId), g(ur.usage), typeof ur.firstTokenLatencyMs == "number" && (addToNumericField(m, "sdk_ttft_ms_total", ur.firstTokenLatencyMs), m.sdk_ttft_samples = (m.sdk_ttft_samples ?? 0) + 1), n.abortController?.signal.aborted) {
                     await Mn(X.prompt, nr.interruptedContextInjected), sn = !0, X.item.eventId && x.push(X.item.eventId), K();
                     break
                 }
@@ -867,12 +867,12 @@ async function drainSessionMailbox(e, t, n = {}) {
                             turnMeta: b()
                         }));
                     j.push(...Dr.records), Dr.primaryRecord && (pp.hadOutput = !0), te(Dr.primaryRecord)
-                } else if (bt) ee("[runner] in-band /compact turn — suppressing empty outbox", {
+                } else if (bt) logInfoMessage("[runner] in-band /compact turn — suppressing empty outbox", {
                     sessionKey: t,
                     eventId: X.event.id
                 });
                 else {
-                    ee("[runner] Skip called — suppressing outbox", {
+                    logInfoMessage("[runner] Skip called — suppressing outbox", {
                         sessionKey: t,
                         eventId: X.event.id
                     });
@@ -896,7 +896,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                                 sdkSessionId: ur.sessionId ?? Ie
                             });
                         j.push(...wa.records), wa.primaryRecord && (pp.hadOutput = !0), te(wa.primaryRecord, Dr)
-                    } else ee("[runner] compact_boundary — telemetry only, no channel ack", {
+                    } else logInfoMessage("[runner] compact_boundary — telemetry only, no channel ack", {
                         sessionKey: t,
                         eventId: X.event.id,
                         trigger: ht.trigger,
@@ -908,7 +908,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     if (jt = {
                             hadBoundary: !1,
                             origin: xy ? "idle-compact" : "manual"
-                        }, xy) ee("[runner] idle-compact no-op (nothing to compact) — no channel ack", {
+                        }, xy) logInfoMessage("[runner] idle-compact no-op (nothing to compact) — no channel ack", {
                         sessionKey: t,
                         eventId: X.event.id
                     });

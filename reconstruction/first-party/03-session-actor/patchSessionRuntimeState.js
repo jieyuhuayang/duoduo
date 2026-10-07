@@ -9,7 +9,7 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
         o = !1;
     await runWithSessionMutex(t, async () => {
         if (assertSessionNotArchiving(t), !i && isSessionArchived(e, t)) {
-            ke("[session] skipping runtime-state patch for tombstoned session", {
+            logDebugMessage("[session] skipping runtime-state patch for tombstoned session", {
                 sessionKey: t
             });
             return
@@ -31,13 +31,13 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
                     continue
                 }
                 u[f] = p
-            } let c = af(u),
+            } let c = stripUndefinedFieldsDeep(u),
             d = {
                 ...a,
                 ...c,
                 updated_at: new Date().toISOString()
             };
         for (let f of l) delete d[f];
-        await Bt(s, d), o = !0
-    }), o && th(t, "state")
+        await writeJsonFileAtomic(s, d), o = !0
+    }), o && notifySessionFileChanged(t, "state")
 }

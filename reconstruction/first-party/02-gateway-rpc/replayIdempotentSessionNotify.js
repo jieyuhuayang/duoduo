@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function replayIdempotentSessionNotify(e, t) {
-    let n = at(e.payload) ? e.payload : {},
-        r = at(n.payload) ? n.payload : {};
+    let n = isRecord(e.payload) ? e.payload : {},
+        r = isRecord(n.payload) ? n.payload : {};
     return e.session_key !== t.sessionKey || r.notify_content !== t.message ? {
         ok: !1,
         reason: "idempotency_conflict",

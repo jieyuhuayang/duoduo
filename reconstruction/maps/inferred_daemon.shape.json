@@ -1113,7 +1113,7 @@
         "method"
       ]
     },
-    "isDaemonRuntimeInfo": {
+    "isSystemRuntimeInfo": {
       "kind": "function",
       "params": 1,
       "literals": [
@@ -1130,7 +1130,7 @@
         "work_dir"
       ]
     },
-    "isRuntimeKind": {
+    "isAgentRuntime": {
       "kind": "function",
       "params": 1,
       "literals": [
@@ -9280,6 +9280,2106 @@
         "object"
       ],
       "props": []
+    },
+    "isModelRuntime": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "includes"
+      ]
+    },
+    "isChannelIngressParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "attachments",
+        "channel_id",
+        "cwd_abs",
+        "display_name",
+        "idempotency_key",
+        "session_key",
+        "source_kind",
+        "text"
+      ]
+    },
+    "isChannelFileUploadParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "content_base64",
+        "mime",
+        "name",
+        "session_key"
+      ]
+    },
+    "isChannelFileDownloadParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "path"
+      ]
+    },
+    "isChannelPullParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "final",
+        "number",
+        "stream",
+        "stream_end",
+        "string",
+        "tool"
+      ],
+      "props": [
+        "advance",
+        "channel_capabilities",
+        "consumer_id",
+        "cursor",
+        "every",
+        "isArray",
+        "isInteger",
+        "length",
+        "limit",
+        "return_mask",
+        "session_key",
+        "trim",
+        "wait_ms"
+      ]
+    },
+    "isChannelCommandParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "channel_id",
+        "command",
+        "cwd_abs",
+        "idempotency_key",
+        "session_key",
+        "source_kind"
+      ]
+    },
+    "isChannelAckParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "consumer_id",
+        "cursor",
+        "length",
+        "session_key",
+        "trim"
+      ]
+    },
+    "isChannelDescribeParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "channel_id",
+        "channel_kind",
+        "length",
+        "session_key",
+        "trim"
+      ]
+    },
+    "isChannelSpawnParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "boolean",
+        "string"
+      ],
+      "props": [
+        "bound_by",
+        "channel_id",
+        "channel_kind",
+        "cwd_abs",
+        "display_name",
+        "length",
+        "require_mention",
+        "runtime",
+        "session_key",
+        "trim"
+      ]
+    },
+    "isAttachmentArray": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "every",
+        "isArray",
+        "mime",
+        "path"
+      ]
+    },
+    "isChannelCapabilities": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "number",
+        "string"
+      ],
+      "props": [
+        "accept_mime",
+        "accept_stream_end_reasons",
+        "every",
+        "isArray",
+        "isInteger",
+        "max_bytes",
+        "outbound",
+        "trim"
+      ]
+    },
+    "isMimePattern": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "exec",
+        "length"
+      ]
+    },
+    "isSystemStatusParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isSystemConfigParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isSpineTailParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "number",
+        "string"
+      ],
+      "props": [
+        "after_id",
+        "limit"
+      ]
+    },
+    "isJobGetParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "id"
+      ]
+    },
+    "isJobListParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isJobArchiveParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "id"
+      ]
+    },
+    "isJobRescheduleParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "id",
+        "when"
+      ]
+    },
+    "isJobInterruptParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "id",
+        "reason"
+      ]
+    },
+    "isRecord": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "isOptionalString": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": []
+    },
+    "isRuntimeInfoParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "source_kind",
+        "string"
+      ],
+      "props": [
+        "keys",
+        "length",
+        "source_kind"
+      ]
+    },
+    "isSessionArchiveParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "length",
+        "session_key"
+      ]
+    },
+    "isSessionListKind": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "channel",
+        "meta",
+        "subconscious",
+        "system"
+      ],
+      "props": []
+    },
+    "isSessionListParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "boolean"
+      ],
+      "props": [
+        "deliverable",
+        "include_orphans",
+        "kind",
+        "named_only"
+      ]
+    },
+    "isSessionSetAliasParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "display_name",
+        "length",
+        "session_key",
+        "trim"
+      ]
+    },
+    "isSessionWakeParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "context",
+        "length",
+        "session_key",
+        "trim",
+        "when"
+      ]
+    },
+    "isSessionNotifyParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "boolean",
+        "string"
+      ],
+      "props": [
+        "caller_session",
+        "exact_key",
+        "force",
+        "idempotency_key",
+        "in_reply_to",
+        "length",
+        "message",
+        "source",
+        "target",
+        "trim"
+      ]
+    },
+    "isSessionModelParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "model",
+        "session_key",
+        "string"
+      ],
+      "props": [
+        "hasOwn",
+        "keys",
+        "length",
+        "model",
+        "session_key",
+        "some",
+        "test",
+        "trim"
+      ]
+    },
+    "isSessionEffortParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "effort",
+        "session_key",
+        "string"
+      ],
+      "props": [
+        "effort",
+        "hasOwn",
+        "keys",
+        "length",
+        "session_key",
+        "some",
+        "trim"
+      ]
+    },
+    "isSessionCompactParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "length",
+        "source",
+        "target",
+        "trim"
+      ]
+    },
+    "isSessionConfigParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "boolean",
+        "number",
+        "profile_alias_set",
+        "profile_alias_unset",
+        "profile_set",
+        "profile_unset",
+        "string"
+      ],
+      "props": [
+        "every",
+        "filter",
+        "global",
+        "includes",
+        "isArray",
+        "kind",
+        "length",
+        "profile_alias_model",
+        "profile_alias_tier",
+        "profile_auth_field",
+        "profile_auth_token",
+        "profile_base_url",
+        "profile_max_context_tokens",
+        "profile_model",
+        "set",
+        "target",
+        "trim",
+        "unset",
+        "values",
+        "verb"
+      ]
+    },
+    "isNonEmptyText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "length",
+        "trim"
+      ]
+    },
+    "unknownKeyProblem": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "Unknown key \""
+      ],
+      "props": [
+        "find",
+        "includes",
+        "keys"
+      ]
+    },
+    "textKeysProblem": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "\" must be non-empty text",
+        "Missing key \""
+      ],
+      "props": [
+        "hasOwn"
+      ]
+    },
+    "renderParamsProblem": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " Accepted keys for ",
+        " Send it again with that fixed.",
+        ". Nothing was ",
+        "done"
+      ],
+      "props": [
+        "hasOwn",
+        "join",
+        "test"
+      ]
+    },
+    "describeConversationProblem": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "\" has a space or ':'"
+      ],
+      "props": [
+        "test"
+      ]
+    },
+    "describeMemoryReadProblem": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "params must be one JSON object",
+        "path"
+      ],
+      "props": []
+    },
+    "describeSpineCatProblem": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "\" must be text",
+        "\" must be true or false",
+        "\"date\" is required with \"show\": no partition was read. Without a day, show scans every partition and blocks the duoduo host while it runs. Re-run duoduo spine show <id> --date <yyyy-mm-dd>; the day is in the header of the spine cat output the id came from.",
+        "\"redact\" must be \"external\" or left out",
+        "\"types\" must be an array of strings, for example [\"channel.message\"]",
+        "boolean",
+        "date",
+        "external",
+        "params must be one JSON object",
+        "redact",
+        "show",
+        "spine.cat",
+        "string",
+        "types"
+      ],
+      "props": [
+        "every",
+        "hasOwn",
+        "isArray",
+        "redact",
+        "types"
+      ]
+    },
+    "describeSpineRecordProblem": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "\"payload\" must be one JSON object",
+        "\"source\" must be lowercase letters, digits and '-', starting with a letter",
+        "conversation",
+        "dedup_key",
+        "params must be one JSON object",
+        "source",
+        "spine.record"
+      ],
+      "props": [
+        "conversation",
+        "payload",
+        "source",
+        "test"
+      ]
+    },
+    "initProtocolEffortModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "high",
+        "medium",
+        "xhigh"
+      ],
+      "props": [],
+      "values": [
+        "f5e2f18094507f3d"
+      ]
+    },
+    "initProtocolJobModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [],
+      "props": [],
+      "values": [
+        "522a552ea29ea16f"
+      ]
+    },
+    "initProtocolSystemModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "after",
+        "anthropic_auth_token",
+        "cadence",
+        "claude_code_oauth_token",
+        "conversation",
+        "count_only",
+        "date",
+        "dedup_key",
+        "from",
+        "gateway",
+        "interval",
+        "json",
+        "kind",
+        "lark",
+        "memory.read",
+        "meta",
+        "path",
+        "payload",
+        "profile_alias_model",
+        "profile_alias_set",
+        "profile_alias_tier",
+        "profile_alias_unset",
+        "profile_auth_field",
+        "profile_auth_token"
+      ],
+      "props": [],
+      "values": [
+        "001d04a7d5afe29e",
+        "524aacc8ed79a455",
+        "53fa794a5b183311",
+        "575c607f3c8f5172",
+        "57bb676a691806e9",
+        "93330c50d7e04844",
+        "9f5ffd4ad192aefd",
+        "c5392d879069d1dc",
+        "d447a1f0c57c7e9b",
+        "d69f22f1bd387414"
+      ]
+    },
+    "logWarnMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "warn"
+      ],
+      "props": []
+    },
+    "logDebugMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "debug"
+      ],
+      "props": []
+    },
+    "logInfoMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "info"
+      ],
+      "props": []
+    },
+    "ensureDirectoryExists": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "mkdir"
+      ]
+    },
+    "logErrorMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "error"
+      ],
+      "props": []
+    },
+    "readSessionRuntimeState": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "parse",
+        "readFile"
+      ]
+    },
+    "writeJsonFileAtomic": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "space",
+        "stringify"
+      ]
+    },
+    "writeFileAtomic": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        ".tmp"
+      ],
+      "props": [
+        "basename",
+        "dirname",
+        "join",
+        "mkdir",
+        "now",
+        "pid",
+        "randomUUID",
+        "rename",
+        "unlink",
+        "writeFile"
+      ]
+    },
+    "readMemoryFileSyncOrNull": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "readFileSync"
+      ]
+    },
+    "logAlwaysAtLevel": {
+      "kind": "function",
+      "params": 3,
+      "literals": [],
+      "props": []
+    },
+    "compareStringsAscending": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "splitLinesDropTrailingEmpty": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "length",
+        "pop",
+        "split"
+      ]
+    },
+    "iterateStreamLines": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "close",
+        "data",
+        "error",
+        "stream error"
+      ],
+      "props": [
+        "destroy",
+        "flush",
+        "length",
+        "off",
+        "on",
+        "onEof",
+        "pause",
+        "push",
+        "resume",
+        "shift",
+        "write"
+      ]
+    },
+    "logLatencyStageTelemetry": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "[telemetry]"
+      ],
+      "props": [
+        "now"
+      ]
+    },
+    "notifySessionFileChanged": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "readChannelDescriptor": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "channel_id",
+        "channel_kind",
+        "display_name",
+        "readFile",
+        "revision",
+        "schema_version",
+        "trim"
+      ]
+    },
+    "persistOutboxRecord": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "in_reply_to_event_id"
+      ]
+    },
+    "resolveEffectiveChannelConfig": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "\" != ingress kind \"",
+        "\" because descriptor kind \"",
+        "[channel-config] ignoring descriptor for ingress channel_id=\""
+      ],
+      "props": [
+        "all",
+        "channelConfigDir",
+        "channel_id",
+        "channel_kind",
+        "length",
+        "toLowerCase",
+        "trim"
+      ]
+    },
+    "listMarkdownSlugsSync": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "endsWith",
+        "push",
+        "readdirSync",
+        "slice",
+        "sort"
+      ]
+    },
+    "attachStreamLineReader": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "close",
+        "data"
+      ],
+      "props": [
+        "flush",
+        "off",
+        "on",
+        "onEof",
+        "write"
+      ]
+    },
+    "stripUndefinedFieldsDeep": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "entries",
+        "filter",
+        "fromEntries",
+        "isArray",
+        "map"
+      ]
+    },
+    "loadGlobalRuntimeConfig": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "absent",
+        "claude.model_aliases",
+        "file-unparseable",
+        "unreadable"
+      ],
+      "props": [
+        "data",
+        "join",
+        "status"
+      ]
+    },
+    "hasNonEmptyDisplayName": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "display_name",
+        "length",
+        "trim"
+      ]
+    },
+    "resolveChannelConfigBySession": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "[channel-config] effective-config resolve failed for by-session resolve",
+        "[channel-config] readChannelDescriptor failed for by-session resolve",
+        "[channel-config] readSessionRuntimeState failed for by-session resolve"
+      ],
+      "props": [
+        "catch",
+        "channel_kind",
+        "message",
+        "source_channel_id"
+      ]
+    },
+    "writeHostDotEnvLines": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        ".tmp",
+        "utf8"
+      ],
+      "props": [
+        "chmod",
+        "dirname",
+        "join",
+        "length",
+        "mkdir",
+        "pop",
+        "rename",
+        "rm",
+        "some",
+        "trim",
+        "writeFile"
+      ]
+    },
+    "isChannelMessageEvent": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "channel.message"
+      ],
+      "props": [
+        "type"
+      ]
+    },
+    "isNonNullObject": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": []
+    },
+    "readStringProperty": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "string"
+      ],
+      "props": []
+    },
+    "memoizeIndexLoad": {
+      "kind": "function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "catch",
+        "load"
+      ]
+    },
+    "moveSessionDirToArchive": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "access",
+        "dirname",
+        "isDirectory",
+        "rename",
+        "replace",
+        "stat",
+        "toISOString"
+      ]
+    },
+    "readRegistryStatusFile": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "parse",
+        "readFile"
+      ]
+    },
+    "assertValidChannelId": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "\". Must match [A-Za-z0-9_-]{1,128}.",
+        "Invalid channel_id: \""
+      ],
+      "props": []
+    },
+    "resolveOutboxReplayFilePath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        ".jsonl"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "createEmptyUsageSummary": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": []
+    },
+    "buildJobSessionKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "cron",
+        "cwdRel",
+        "jobId",
+        "join",
+        "trim"
+      ]
+    },
+    "coerceToPlainObject": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "isMemoryPathFile": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "isFile",
+        "statSync"
+      ]
+    },
+    "isMemoryPathDirectory": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "isDirectory",
+        "statSync"
+      ]
+    },
+    "resolveContextCapToken": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "explicit-1m",
+        "native-claude",
+        "profiled-external"
+      ],
+      "props": [
+        "hostMaxContextTokens",
+        "kind",
+        "liveGenerationToken",
+        "requiredMaxContextTokens",
+        "requirement"
+      ]
+    },
+    "resolveSessionDrainLockPath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        ".json"
+      ],
+      "props": [
+        "join",
+        "runLocksDir"
+      ]
+    },
+    "formatLocalTimestampWithZone": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "getDate",
+        "getFullYear",
+        "getHours",
+        "getMinutes",
+        "getMonth",
+        "getSeconds",
+        "getTime",
+        "isNaN"
+      ]
+    },
+    "parseGatewayCommandText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "length",
+        "slice",
+        "trim"
+      ]
+    },
+    "SpineRpcParamsError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "JsonRpcInvalidParamsError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "resolveExistingDirRealpath": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "inaccessible"
+      ],
+      "props": [
+        "access",
+        "catch",
+        "isAbsolute",
+        "isDirectory",
+        "realpath",
+        "resolve",
+        "stat"
+      ]
+    },
+    "isIndexLoadStillCurrent": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "catch",
+        "load"
+      ]
+    },
+    "moveFileIntoDirectory": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "basename",
+        "join",
+        "rename"
+      ]
+    },
+    "listPendingInboxFiles": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        ".pending",
+        "ENOENT"
+      ],
+      "props": [
+        "code",
+        "endsWith",
+        "filter",
+        "readdir"
+      ]
+    },
+    "probeSessionPendingWork": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        ".item.json",
+        "ENOENT",
+        "clear",
+        "inbox",
+        "mailbox",
+        "pending",
+        "unreadable"
+      ],
+      "props": [
+        "code",
+        "endsWith",
+        "join",
+        "length",
+        "readdir",
+        "some"
+      ]
+    },
+    "ensureSessionMailboxPendingDir": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "buildInitialRegistryStatus": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        ".jsonl",
+        "layered",
+        "starting",
+        "unknown"
+      ],
+      "props": [
+        "eventsDir",
+        "join",
+        "kernelDir",
+        "kernelVersion",
+        "slice",
+        "toISOString",
+        "workDir"
+      ]
+    },
+    "writeRegistryStatusFile": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "formatYamlErrorMessage": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "YAMLException"
+      ],
+      "props": [
+        "message",
+        "name",
+        "split",
+        "trim"
+      ]
+    },
+    "listFrontmatterKeyAliases": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "parseSdkConfigFrontmatter": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "additionalDirectories",
+        "allowedTools",
+        "disallowedTools"
+      ]
+    },
+    "readSessionMetaFile": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "string",
+        "utf8"
+      ],
+      "props": [
+        "data",
+        "default",
+        "display_name",
+        "kind",
+        "readFile",
+        "session_key"
+      ]
+    },
+    "readAllSessionStateFiles": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "state.json",
+        "utf8"
+      ],
+      "props": [
+        "join",
+        "parse",
+        "readFile",
+        "readdir",
+        "session_key",
+        "sessionsDir"
+      ]
+    },
+    "isValidChannelId": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "length",
+        "test"
+      ]
+    },
+    "listAllOutboxRecords": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "isDirectory",
+        "join",
+        "outboxDir",
+        "push",
+        "readdir",
+        "stat"
+      ]
+    },
+    "containsWhitespaceChar": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "test"
+      ]
+    },
+    "isProviderQualifiedModelId": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "indexOf",
+        "length"
+      ]
+    },
+    "buildSessionIndexFromDisk": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "entries",
+        "set"
+      ]
+    },
+    "aggregateSessionDrainSummary": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": []
+    },
+    "hasParentToolUseId": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object",
+        "string"
+      ],
+      "props": [
+        "length",
+        "parent_tool_use_id"
+      ]
+    },
+    "createAbortErrorWithCause": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "AbortError"
+      ],
+      "props": [
+        "cause",
+        "name"
+      ]
+    },
+    "extractSdkMessageTextChunks": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "delta",
+        "object",
+        "partial",
+        "string"
+      ],
+      "props": [
+        "content",
+        "delta",
+        "includes",
+        "isArray",
+        "length",
+        "message",
+        "push",
+        "text",
+        "toLowerCase",
+        "type"
+      ]
+    },
+    "extractStreamTextDeltas": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "content_block_delta",
+        "content_block_start",
+        "object",
+        "string",
+        "text",
+        "text_delta"
+      ],
+      "props": [
+        "content_block",
+        "delta",
+        "length",
+        "push",
+        "text",
+        "type"
+      ]
+    },
+    "extractStreamThinkingText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "content_block_delta",
+        "content_block_start",
+        "object",
+        "string",
+        "thinking",
+        "thinking_delta"
+      ],
+      "props": [
+        "content_block",
+        "delta",
+        "length",
+        "push",
+        "thinking",
+        "type"
+      ]
+    },
+    "parseToolUseBlockStart": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "content_block_start",
+        "number",
+        "object",
+        "string",
+        "tool_use"
+      ],
+      "props": [
+        "content_block",
+        "id",
+        "index",
+        "name",
+        "type"
+      ]
+    },
+    "parseInputJsonDelta": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "content_block_delta",
+        "input_json_delta",
+        "number",
+        "object",
+        "string"
+      ],
+      "props": [
+        "delta",
+        "index",
+        "partial_json",
+        "type"
+      ]
+    },
+    "stringifyToolResultContent": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "[unparseable]",
+        "object",
+        "string",
+        "text"
+      ],
+      "props": [
+        "filter",
+        "isArray",
+        "join",
+        "map",
+        "stringify",
+        "text",
+        "type"
+      ]
+    },
+    "issueWorkerToolContextToken": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "delete",
+        "get",
+        "session_key",
+        "set",
+        "toString"
+      ]
+    },
+    "redactJobModelProfileTokens": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "claudeModelProfiles",
+        "frontmatter"
+      ]
+    },
+    "isCodexPlainObject": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "isImageGenerationItemType": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "imagegeneration",
+        "imagegenerationcall",
+        "imagegenerationend",
+        "string"
+      ],
+      "props": [
+        "replace",
+        "toLowerCase",
+        "type"
+      ]
+    },
+    "capitalizeFirstChar": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "length",
+        "slice",
+        "toUpperCase"
+      ]
+    },
+    "warnUnmappedCodexItemOnce": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " has no execution-event mapping — dropping silently",
+        "[codex] item/",
+        "info"
+      ],
+      "props": [
+        "add",
+        "has"
+      ]
+    },
+    "renderManageJobToolDescription": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": [
+        "join",
+        "push"
+      ]
+    },
+    "renderJobSessionToolDescription": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": []
+    },
+    "buildManageJobInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "buildJobSessionInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "resolveDeliveryCursorPath": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        ".json",
+        "delivery_cursors"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "readLatestDeliveryCursorUpdate": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "normalizeNotifyChannelTarget": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "channel:",
+        "session:"
+      ],
+      "props": [
+        "indexOf",
+        "length",
+        "slice",
+        "startsWith",
+        "test",
+        "trim"
+      ]
+    },
+    "isJobSessionKeyKind": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "computeContextProfileSignature": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "profiled-external",
+        "sha256"
+      ],
+      "props": [
+        "aliases",
+        "auth",
+        "baseUrl",
+        "capToken",
+        "createHash",
+        "digest",
+        "field",
+        "flatMap",
+        "kind",
+        "requirement",
+        "slice",
+        "stringify",
+        "token",
+        "update"
+      ]
+    },
+    "mergeGlobalModelConfigLayers": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "global",
+        "instance"
+      ],
+      "props": [
+        "claudeModelAliasIssues",
+        "claudeModelAliases",
+        "claudeModelProfileIssues",
+        "claudeModelProfiles",
+        "runtimeEfforts",
+        "runtimeModels"
+      ]
+    },
+    "isBusinessSourceKind": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "has"
+      ]
+    },
+    "resolvePartitionStatePath": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        ".json"
+      ],
+      "props": [
+        "join",
+        "partitionStateDir"
+      ]
+    },
+    "bytesToKibCeil": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "ceil"
+      ]
+    },
+    "countNewlineChars": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "length"
+      ]
+    },
+    "measureUtf8ByteLength": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "byteLength"
+      ]
+    },
+    "isSafeMemorySlug": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "includes",
+        "length"
+      ]
+    },
+    "buildNodeSignalKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "slug",
+        "type"
+      ]
+    },
+    "recordUnreadableUnlessMissing": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "buildGapReadFaultResult": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "readMemoryMaxLinesLimit": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "ALADUO_MEMORY_MAX_LINES"
+      ],
+      "props": []
+    },
+    "removeHostModelEnvLines": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "filter"
+      ]
+    },
+    "removeDotEnvKeyLines": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "filter",
+        "has"
+      ]
+    },
+    "buildSafeDirectoryGitArgs": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "safe.directory="
+      ],
+      "props": []
+    },
+    "describeContextProfileSource": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "explicit-1m",
+        "native-claude",
+        "profiled-external",
+        "unprofiled"
+      ],
+      "props": [
+        "kind",
+        "modelOrigin",
+        "source"
+      ]
+    },
+    "extractProfiledEndpointFields": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "profiled-external"
+      ],
+      "props": [
+        "auth",
+        "baseUrl",
+        "field",
+        "kind"
+      ]
+    },
+    "listSortedAliasKeys": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "keys",
+        "length",
+        "sort"
+      ]
+    },
+    "selectProfileIssuesForModel": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "filter",
+        "length",
+        "model"
+      ]
+    },
+    "readDrainLockFile": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "parse",
+        "readFile"
+      ]
+    },
+    "prepareClaudeContextProfile": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "[claude-context-profile] refusing to run under an unresolved model context profile for model \"",
+        "profiled-external"
+      ],
+      "props": [
+        "CLAUDE_CODE_MAX_CONTEXT_TOKENS",
+        "channelConfigDir",
+        "claudeModelAliases",
+        "claudeModelProfileIssues",
+        "claudeModelProfiles",
+        "cwd",
+        "effective",
+        "env",
+        "jobOverlay",
+        "kind",
+        "kindlessConfig",
+        "length",
+        "model",
+        "modelOrigin",
+        "runtime"
+      ]
+    },
+    "addToNumericField": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "number"
+      ],
+      "props": []
+    },
+    "extractPayloadMediaRefs": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "mime",
+        "path"
+      ],
+      "props": [
+        "isArray",
+        "length",
+        "media",
+        "push"
+      ]
+    },
+    "escapeXmlText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "&amp;",
+        "&apos;",
+        "&gt;",
+        "&lt;",
+        "&quot;"
+      ],
+      "props": [
+        "replace"
+      ]
+    },
+    "formatElapsedDuration": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " days",
+        " hour",
+        " hours",
+        " minute",
+        "1 day",
+        "1 hour"
+      ],
+      "props": [
+        "floor",
+        "round"
+      ]
+    },
+    "clearPendingOutboundAttachments": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "pending_outbound_attachments"
+      ],
+      "props": []
+    },
+    "loadDrainItemEventCached": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "event_read_ms"
+      ],
+      "props": [
+        "createdAt",
+        "eventId",
+        "get",
+        "set"
+      ]
+    },
+    "resolveReplyTargetSessionKeys": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "filter",
+        "includes",
+        "isArray",
+        "length",
+        "map",
+        "payload",
+        "push",
+        "replySessionKey",
+        "reply_fanout_session_keys",
+        "session_key",
+        "trim"
+      ]
+    },
+    "mergeOutboundAttachmentLists": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "from",
+        "mime",
+        "path",
+        "set",
+        "size",
+        "values"
+      ]
+    },
+    "resolvePiAgentDir": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "agent"
+      ],
+      "props": [
+        "PI_CODING_AGENT_DIR",
+        "env",
+        "join"
+      ]
+    },
+    "readPiAgentSettings": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "ENOENT",
+        "always",
+        "never",
+        "settings.json",
+        "utf-8"
+      ],
+      "props": [
+        "code",
+        "defaultProjectTrust",
+        "join",
+        "parse",
+        "seed",
+        "unknown"
+      ]
+    },
+    "channelKindFromSessionKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "unknown"
+      ],
+      "props": [
+        "indexOf",
+        "slice"
+      ]
+    },
+    "readLiveStreamContextToken": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "closed",
+        "spawnMaxContextToken",
+        "streamingState"
+      ]
+    },
+    "expandInjectionPromptCommand": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "args",
+        "prompt",
+        "trim"
+      ]
+    },
+    "releaseRuntimeWriterLock": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "pid",
+        "unlink"
+      ]
+    },
+    "MemoryReadRpcError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "resolveEnvConfigEntry": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "boolean",
+        "default",
+        "number",
+        "unset"
+      ],
+      "props": [
+        "env",
+        "isFinite"
+      ]
+    },
+    "ensureAbsoluteWorkspaceDir": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "catch",
+        "isAbsolute",
+        "mkdir",
+        "resolve"
+      ]
+    },
+    "refreshSessionIndexEntry": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "all"
+      ]
+    },
+    "redactSpineEventForExternal": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "agent.tool_result",
+        "agent.tool_use",
+        "boolean",
+        "channel",
+        "string"
+      ],
+      "props": [
+        "has",
+        "is_error",
+        "payload",
+        "session_key",
+        "tool_name",
+        "type"
+      ]
+    },
+    "shouldKeepRouteDeliverEvent": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "route.deliver"
+      ],
+      "props": [
+        "has",
+        "payload",
+        "session_key",
+        "source_event_type",
+        "type"
+      ]
+    },
+    "stripSpineEventToEnvelope": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "id",
+        "kind",
+        "session_key",
+        "source",
+        "ts",
+        "type"
+      ]
     }
   }
 }

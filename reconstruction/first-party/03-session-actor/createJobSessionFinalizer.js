@@ -11,14 +11,14 @@ function createJobSessionFinalizer(e) {
         jobManager: r
     } = e;
     async function i(f) {
-        return new Set(await $b(resolveSessionInboxDir(t, f)))
+        return new Set(await listPendingInboxFiles(resolveSessionInboxDir(t, f)))
     }
     async function o(f, p) {
         let m;
         try {
             m = await i(f)
         } catch (h) {
-            return Z("[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)", {
+            return logWarnMessage("[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)", {
                 sessionKey: f,
                 error: h instanceof Error ? h.message : String(h)
             }), "conservative"
@@ -37,12 +37,12 @@ function createJobSessionFinalizer(e) {
                 consumeRunAt: h,
                 expectedClaimCursor: g
             });
-            return v === S6 ? (ee(`[session-manager] job gone at finalize (${y}) — state frozen`, {
+            return v === S6 ? (logInfoMessage(`[session-manager] job gone at finalize (${y}) — state frozen`, {
                 jobId: f,
                 sessionKey: p
             }), {
                 kind: "gone"
-            }) : v === k6 ? (Z(`[session-manager] stale finalize (${y}) — a fresh claim owns the sidecar; nothing written`, {
+            }) : v === k6 ? (logWarnMessage(`[session-manager] stale finalize (${y}) — a fresh claim owns the sidecar; nothing written`, {
                 jobId: f,
                 sessionKey: p,
                 claimCursor: g
@@ -53,7 +53,7 @@ function createJobSessionFinalizer(e) {
                 runAt: v.run_at
             }
         } catch (v) {
-            return Ue(`[session-manager] job state finalize failed (${y})`, v), {
+            return logErrorMessage(`[session-manager] job state finalize failed (${y})`, v), {
                 kind: "failed"
             }
         }
@@ -93,7 +93,7 @@ function createJobSessionFinalizer(e) {
                         job: P,
                         cron: k,
                         errorMsg: S
-                    }), ee("[session-manager] job failed (never started, spawn-class) — job preserved", {
+                    }), logInfoMessage("[session-manager] job failed (never started, spawn-class) — job preserved", {
                         jobId: m,
                         sessionKey: h,
                         cron: k,
@@ -118,7 +118,7 @@ function createJobSessionFinalizer(e) {
                         sessionKey: h,
                         cron: k,
                         state: D
-                    }), ee("[session-manager] job failed", {
+                    }), logInfoMessage("[session-manager] job failed", {
                         jobId: m,
                         sessionKey: h,
                         error: S
@@ -142,7 +142,7 @@ function createJobSessionFinalizer(e) {
                         job: P,
                         cron: k,
                         errorMsg: "cancelled — the run was interrupted after it started and this one-shot job has been archived, so it will not run again"
-                    }), Z(D ? "[session-manager] job run cancelled after turn ack — archived, owner notified" : "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery", {
+                    }), logWarnMessage(D ? "[session-manager] job run cancelled after turn ack — archived, owner notified" : "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery", {
                         jobId: m,
                         sessionKey: h
                     });
@@ -152,14 +152,14 @@ function createJobSessionFinalizer(e) {
                     await a(m, h, {
                         last_result: "failure",
                         last_error: "zero-fed run — no items merged"
-                    }, !1, b, "zero-fed"), Z("[session-manager] zero-fed job run — failure marker written, job preserved", {
+                    }, !1, b, "zero-fed"), logWarnMessage("[session-manager] zero-fed job run — failure marker written, job preserved", {
                         jobId: m,
                         sessionKey: h
                     });
                     break
                 }
                 case "CANCELLED_PRE_ACK": {
-                    Z("[session-manager] job run ended without turn ack (cancelled before start) — finalize skipped, job preserved", {
+                    logWarnMessage("[session-manager] job run ended without turn ack (cancelled before start) — finalize skipped, job preserved", {
                         jobId: m,
                         sessionKey: h,
                         processedCount: v
@@ -190,7 +190,7 @@ function createJobSessionFinalizer(e) {
                         jobId: m,
                         sessionKey: h,
                         resultSummary: A
-                    }), f.agentNotifiedThisDrain ? ke("[session-manager] skipping system job.complete delivery: agent called Notify", {
+                    }), f.agentNotifiedThisDrain ? logDebugMessage("[session-manager] skipping system job.complete delivery: agent called Notify", {
                         jobId: m,
                         sessionKey: h
                     }) : await d(P, h, "job.complete", {
@@ -203,7 +203,7 @@ function createJobSessionFinalizer(e) {
                         sessionKey: h,
                         cron: k,
                         state: S
-                    }), ee("[session-manager] job completed", {
+                    }), logInfoMessage("[session-manager] job completed", {
                         jobId: m,
                         sessionKey: h
                     });
@@ -211,7 +211,7 @@ function createJobSessionFinalizer(e) {
                 }
             }
         } catch (P) {
-            Ue("[session-manager] error finalizing job session", P)
+            logErrorMessage("[session-manager] error finalizing job session", P)
         }
     }
     async function l(f) {
@@ -253,22 +253,22 @@ function createJobSessionFinalizer(e) {
         if (!isAutoArchivedJobSchedule(h)) return !1;
         switch (g.kind) {
             case "gone":
-                return ee("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
+                return logInfoMessage("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
                     jobId: p,
                     cron: h
                 }), !1;
             case "stale":
-                return ee("[session-manager] skip auto-archive: stale finalize (a fresh claim owns the job)", {
+                return logInfoMessage("[session-manager] skip auto-archive: stale finalize (a fresh claim owns the job)", {
                     jobId: p,
                     cron: h
                 }), !1;
             case "failed":
-                return Z("[session-manager] skip auto-archive: job state unreadable at finalize (failing toward stale-active)", {
+                return logWarnMessage("[session-manager] skip auto-archive: job state unreadable at finalize (failing toward stale-active)", {
                     jobId: p,
                     cron: h
                 }), !1;
             case "written":
-                if (g.runAt !== null) return ee("[session-manager] skip auto-archive: job re-armed via reschedule", {
+                if (g.runAt !== null) return logInfoMessage("[session-manager] skip auto-archive: job re-armed via reschedule", {
                     jobId: p,
                     cron: h,
                     runAt: g.runAt
@@ -280,34 +280,34 @@ function createJobSessionFinalizer(e) {
         let y = !1;
         try {
             let v = await r.archiveJobIfNotRearmed(p);
-            return v.archived ? (y = !0, (await archiveSessionDirUnlessAlreadyArchiving(t, m)).reason === "archive_in_flight" ? (Z("[session-manager] skip finalize session archive: archive already in flight", {
+            return v.archived ? (y = !0, (await archiveSessionDirUnlessAlreadyArchiving(t, m)).reason === "archive_in_flight" ? (logWarnMessage("[session-manager] skip finalize session archive: archive already in flight", {
                 jobId: p,
                 sessionKey: m
-            }), !0) : (ee("[session-manager] auto-archived one-shot job", {
+            }), !0) : (logInfoMessage("[session-manager] auto-archived one-shot job", {
                 jobId: p,
                 cron: h
-            }), !0)) : (ee("[session-manager] skip auto-archive: job re-armed during finalize", {
+            }), !0)) : (logInfoMessage("[session-manager] skip auto-archive: job re-armed during finalize", {
                 jobId: p,
                 cron: h,
                 runAt: v.runAt
             }), !1)
         } catch (v) {
-            return Ue("[session-manager] failed to auto-archive one-shot job", v), y
+            return logErrorMessage("[session-manager] failed to auto-archive one-shot job", v), y
         }
     }
     async function d(f, p, m, h) {
         if (!f) return;
         let g = f.frontmatter.owner_session?.trim();
         if (!g) {
-            Z("[session-manager] job outcome undeliverable: no owner_session", {
+            logWarnMessage("[session-manager] job outcome undeliverable: no owner_session", {
                 jobId: f.id,
                 eventType: m
             });
             return
         }
-        let y = fO(g);
+        let y = normalizeNotifyChannelTarget(g);
         if (!y) {
-            Z("[session-manager] job outcome undeliverable: owner_session is not a route target", {
+            logWarnMessage("[session-manager] job outcome undeliverable: owner_session is not a route target", {
                 jobId: f.id,
                 owner: g,
                 eventType: m
@@ -324,14 +324,14 @@ function createJobSessionFinalizer(e) {
                 eventType: m,
                 payload: h,
                 enqueueWithoutWake: m === "job.complete"
-            }), ke("[session-manager] job outcome delivered to owner", {
+            }), logDebugMessage("[session-manager] job outcome delivered to owner", {
                 jobId: f.id,
                 targetSessionKey: y,
                 eventType: m,
                 woke: m === "job.fail"
             })
         } catch (v) {
-            Z("[session-manager] failed to deliver job outcome to owner", {
+            logWarnMessage("[session-manager] failed to deliver job outcome to owner", {
                 jobId: f.id,
                 targetSessionKey: y,
                 eventType: m,

@@ -9,7 +9,7 @@ function createAgentSdkAdapter() {
         let r = {},
             i = !!process.env.ALADUO_SDK_DEBUG;
         i && (r.debug = !0, r.stderr = u => {
-            vt("debug", "[claude-sdk stderr]", u)
+            logAlwaysAtLevel("debug", "[claude-sdk stderr]", u)
         }), t.sessionId && (r.resume = t.sessionId), t.abortController && (r.abortController = t.abortController), t.cwd && (r.cwd = t.cwd), t.settingSources && (r.settingSources = t.settingSources), t.persistSession !== void 0 && (r.persistSession = t.persistSession), "outputFormat" in t && t.outputFormat && (r.outputFormat = t.outputFormat), "model" in t && t.model && (r.model = t.model), "effort" in t && t.effort && (r.effort = t.effort);
         let o = t.permissionMode ?? process.env.ALADUO_PERMISSION_MODE ?? "bypassPermissions";
         if (o && (r.permissionMode = o), t.systemPrompt !== void 0) r.systemPrompt = t.systemPrompt;
@@ -29,9 +29,9 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
         }
         if (r.systemPrompt !== void 0 && (r.systemPrompt = disableSystemPromptSnapshot(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let u = [...new Set(t.tools)];
-            if (r.tools = u, vt("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
+            if (r.tools = u, logAlwaysAtLevel("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
                 let l = findDeadAllowedToolEntries(t.allowedTools, u);
-                l.length > 0 && Z(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${l.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
+                l.length > 0 && logWarnMessage(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${l.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
             }
         }
         if (t.disallowedTools !== void 0) {
@@ -39,7 +39,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 mcpTools: u,
                 builtIns: l
             } = splitDisallowedToolsForClaude(t.disallowedTools);
-            l.length > 0 && Z(`[claude-sdk] disallowedTools no longer governs built-in tools (allowlist-only via claude.tools); ignoring: ${l.join(",")}`), u.length > 0 && (r.disallowedTools = u)
+            l.length > 0 && logWarnMessage(`[claude-sdk] disallowedTools no longer governs built-in tools (allowlist-only via claude.tools); ignoring: ${l.join(",")}`), u.length > 0 && (r.disallowedTools = u)
         }
         t.mcpServers && (r.mcpServers = t.mcpServers), t.additionalDirectories !== void 0 && (r.additionalDirectories = t.additionalDirectories);
         let s = {
@@ -58,7 +58,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 tools: r.tools,
                 includePartialMessages: r.includePartialMessages
             };
-            vt("debug", "[claude-sdk debug] execPath:", process.execPath), vt("debug", "[claude-sdk debug] PATH:", process.env.PATH), vt("debug", "[claude-sdk debug] options:", JSON.stringify(u))
+            logAlwaysAtLevel("debug", "[claude-sdk debug] execPath:", process.execPath), logAlwaysAtLevel("debug", "[claude-sdk debug] PATH:", process.env.PATH), logAlwaysAtLevel("debug", "[claude-sdk debug] options:", JSON.stringify(u))
         }
         return r
     };
@@ -83,7 +83,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                     q = H.PreToolUse ?? [];
                 q.push({
                     matcher: wc,
-                    hooks: [async pe => (pe?.agent_id !== void 0 || (m = !0, p = !0, ee("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
+                    hooks: [async pe => (pe?.agent_id !== void 0 || (m = !0, p = !0, logInfoMessage("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
                         continue: !1,
                         stopReason: "The agent intentionally ended this turn silently by calling Skip."
                     })]
@@ -91,7 +91,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
             }
             let v = (H, q, pe = !1) => {
                     if (!(!t.onStream || !H) && !p) {
-                        if (u || (u = !0, l = Date.now() - a, go("sdk_first_token", t.sessionId ?? "new", {
+                        if (u || (u = !0, l = Date.now() - a, logLatencyStageTelemetry("sdk_first_token", t.sessionId ?? "new", {
                                 ttftMs: l
                             })), pe) {
                             t.onStream(H, !0);
@@ -163,7 +163,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 },
                 Ce = () => {
                     !D || C || (J(), $ && (F = setTimeout(() => {
-                        C || (vt("warn", "[claude-sdk] hold-input idle watchdog fired — SDK went silent with background Agent task(s) still tracked; force-releasing stdin to avoid an unbounded hang. If this was a legitimate long-running task, its continuation's in-process MCP call may fail; investigate.", JSON.stringify({
+                        C || (logAlwaysAtLevel("warn", "[claude-sdk] hold-input idle watchdog fired — SDK went silent with background Agent task(s) still tracked; force-releasing stdin to avoid an unbounded hang. If this was a legitimate long-running task, its continuation's in-process MCP call may fail; investigate.", JSON.stringify({
                             idleTimeoutMs: M,
                             inFlightAgentTaskIds: Array.from(A)
                         })), ie())
@@ -180,7 +180,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 }),
                 ne = () => {
                     k = setTimeout(() => {
-                        S = !0, ke("[claude-sdk] abort close timeout reached, closing query"), j.close()
+                        S = !0, logDebugMessage("[claude-sdk] abort close timeout reached, closing query"), j.close()
                     }, P)
                 };
             t.abortController?.signal.aborted ? ne() : t.abortController?.signal.addEventListener("abort", ne, {
@@ -218,15 +218,15 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                         })
                     }
                     if (q.type === "stream_event") {
-                        let pe = Mf(q),
-                            fe = W$(q.event);
+                        let pe = hasParentToolUseId(q),
+                            fe = extractStreamTextDeltas(q.event);
                         for (let L of fe) v(L.text, L.isDelta, pe);
-                        let Se = J$(q.event);
+                        let Se = extractStreamThinkingText(q.event);
                         for (let L of Se) E({
                             type: "thought_chunk",
                             text: L
                         });
-                        let w = G$(q.event);
+                        let w = parseToolUseBlockStart(q.event);
                         w && (_.set(w.index, {
                             toolUseId: w.toolUseId,
                             toolName: w.toolName
@@ -237,7 +237,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                             input: void 0,
                             ephemeral: !0
                         }));
-                        let T = Z$(q.event);
+                        let T = parseInputJsonDelta(q.event);
                         if (T) {
                             let L = _.get(T.index);
                             L && E({
@@ -249,8 +249,8 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                         }
                     }
                     if (typeof q.type == "string" && q.type.includes("assistant")) {
-                        let pe = Mf(q),
-                            fe = H$(q);
+                        let pe = hasParentToolUseId(q),
+                            fe = extractSdkMessageTextChunks(q);
                         for (let Se of fe) v(Se.text, Se.isDelta, pe);
                         R(q)
                     }
@@ -268,7 +268,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                                         toolUseId: w,
                                         toolName: b.get(w),
                                         isError: T,
-                                        summary: K$(L)
+                                        summary: stringifyToolResultContent(L)
                                     }), s = "")
                                 }
                             }
@@ -280,9 +280,9 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                             pe.length > 0 && (r = pe, h = !0), q.structured_output !== void 0 && (i = q.structured_output, h = !0), c = mapClaudeResultToDrainUsage(q, d)
                         } q.type === "result" && (p = !1, f = q), D && q.type === "result" && ($ = !0, ce()), D && !C && Ce()
                 }
-                if (S) throw fg("SDK run force-closed after abort timeout", new Error("abort close timeout"))
+                if (S) throw createAbortErrorWithCause("SDK run force-closed after abort timeout", new Error("abort close timeout"))
             } catch (H) {
-                throw g && vt("error", "[claude-sdk error]", H instanceof Error ? H.stack ?? H.message : String(H)), t.abortController?.signal.aborted && !isAbortLikeError(H) ? fg("SDK run aborted", H) : H
+                throw g && logAlwaysAtLevel("error", "[claude-sdk error]", H instanceof Error ? H.stack ?? H.message : String(H)), t.abortController?.signal.aborted && !isAbortLikeError(H) ? createAbortErrorWithCause("SDK run aborted", H) : H
             } finally {
                 k && clearTimeout(k), t.abortController?.signal.removeEventListener("abort", ne), ie()
             }

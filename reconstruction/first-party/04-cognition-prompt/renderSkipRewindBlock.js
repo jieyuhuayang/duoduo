@@ -12,7 +12,7 @@ function renderSkipRewindBlock(e) {
         i = Date.now() - new Date(t).getTime(),
         o = Math.round(i / 6e4),
         s = o < 1 ? "<1m" : `${o}m`,
-        a = hA(n),
+        a = formatLocalTimestampWithZone(n),
         u = a ? `Current time: ${r} (daemon: ${a}) (elapsed: ${s} since skip)` : `Current time: ${r} (elapsed: ${s} since skip)`;
     return [`<skip-rewind skipped_at="${t}">`, "You chose to skip your previous turn without replying to the user.", `Reason: "${e.reason}"`, "Anything your skipped turn produced was not delivered; the user did not see it.", u, "</skip-rewind>"].join(`
 `)

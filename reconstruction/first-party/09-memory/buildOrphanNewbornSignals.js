@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function buildOrphanNewbornSignals(e, t) {
-    return e.filter(n => n.state === "NEWBORN").sort((n, r) => Ar(n.rel, r.rel)).map(n => ({
+    return e.filter(n => n.state === "NEWBORN").sort((n, r) => compareStringsAscending(n.rel, r.rel)).map(n => ({
         kind: Vn.ORPHAN_NEWBORN,
         partition: routeContractDecision(n),
         pendingFilename: `orphan-newborn-${n.slug}.md.pending`,

@@ -7,7 +7,7 @@
 async function upsertChannelSpawnDescriptor(e, t, n) {
     let r = n.channel_kind.trim().toLowerCase(),
         i = n.channel_id.trim();
-    if (!sh(i)) return {
+    if (!isValidChannelId(i)) return {
         ok: !1,
         reason: `Invalid channel_id "${i}". Must match [A-Za-z0-9_-]{1,128}.`
     };
@@ -21,13 +21,13 @@ async function upsertChannelSpawnDescriptor(e, t, n) {
         reason: `session_key "${o}" is a ${classifySessionKeyKind(o)} session key; channel.spawn creates channel sessions only.`
     };
     if (o !== void 0) {
-        let m = (await rt(e, o))?.source_channel_id;
+        let m = (await readSessionRuntimeState(e, o))?.source_channel_id;
         if (m !== void 0 && m !== i) return {
             ok: !1,
             reason: `session_key "${o}" belongs to channel "${m}", not "${i}"; channel.spawn does not move a session to another channel.`
         }
     }
-    let s = await vs(e, i);
+    let s = await readChannelDescriptor(e, i);
     if (n.runtime === void 0 && s?.runtimeRefusal) return {
         ok: !1,
         reason: `${s.runtimeRefusal} Send a runtime to replace it.`
@@ -57,8 +57,8 @@ async function upsertChannelSpawnDescriptor(e, t, n) {
         ok: !1,
         reason: `cwd_abs must be an absolute path (got "${u}").`
     };
-    let l = await dp(u).catch(() => null) ?? void 0;
-    if (l || (l = await SIe(u).catch(() => null) ?? void 0), !l) return {
+    let l = await resolveExistingDirRealpath(u).catch(() => null) ?? void 0;
+    if (l || (l = await ensureAbsoluteWorkspaceDir(u).catch(() => null) ?? void 0), !l) return {
         ok: !1,
         reason: `cwd_abs "${u}" does not exist and could not be created.`
     };
@@ -89,7 +89,7 @@ async function upsertChannelSpawnDescriptor(e, t, n) {
             display_name: d,
             kind: "channel"
         });
-        let m = await rt(e, o);
+        let m = await readSessionRuntimeState(e, o);
         await patchSessionRuntimeState(e, o, {
             session_key: o,
             cwd: m?.cwd ?? l,
@@ -97,7 +97,7 @@ async function upsertChannelSpawnDescriptor(e, t, n) {
             created_at: m?.created_at ?? new Date().toISOString()
         }, {
             create: !0
-        }), await kIe(e, t, o)
+        }), await refreshSessionIndexEntry(e, t, o)
     } catch (m) {
         let h = m instanceof Error ? m.message : String(m);
         return {

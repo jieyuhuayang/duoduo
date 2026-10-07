@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isSupportedRuntime(e) {
-    return sU(e)
+    return isModelRuntime(e)
 }

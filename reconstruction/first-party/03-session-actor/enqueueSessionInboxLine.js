@@ -7,11 +7,11 @@
 async function enqueueSessionInboxLine(e, t, n, r = new Date) {
     return assertSessionNotArchiving(t), runWithSessionMutex(t, async () => {
         let i = resolveSessionInboxDir(e, t);
-        await Ne(i);
+        await ensureDirectoryExists(i);
         let s = `${r.toISOString().replace(/[:.]/g,"-")}_${Aae()}.pending`,
             a = ea.join(i, s),
             u = `${n.trim()}
 `;
-        return await Dt(a, u), a
+        return await writeFileAtomic(a, u), a
     })
 }

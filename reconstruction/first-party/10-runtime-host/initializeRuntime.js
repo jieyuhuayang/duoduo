@@ -7,10 +7,10 @@
 async function initializeRuntime(e, t = process.env) {
     await archiveLegacyRegistrySessionsDir(e);
     let n = [e.runtimeDir, e.varDir, e.runDir, e.eventsDir, e.eventsIndexDir, e.registryDir, e.outboxDir, e.sessionsDir, e.jobsDir, e.varIngressDir, e.telemetryDir, e.usageDir, e.cadenceDir, e.runLocksDir, e.runQueueOffsetsDir, e.kernelDir, e.workDir];
-    for (let i of n) await Ne(i);
-    await or.chmod(e.runDir, 448), await migrateLegacyJobSessionKeys(e), await copyBootstrapIntoKernel(e, t), await refreshBootstrapDuoduoMdFiles(e), await Ne(e.memoryDir), await Ne(e.memoryEntitiesDir), await Ne(e.memoryTopicsDir), await Ne(e.memoryFragmentsDir), await Ne(e.memoryStateDir), await Ne(e.subconsciousDir), await Ne(e.subconsciousVarDir), await Ne(e.partitionStateDir), await Ne(sr.join(e.kernelDir, ".claude")), await fU(e.subconsciousPlaylistPath, rmt), await fU(e.memoryBroadcastPath, imt), await retireListedPartitions(e), await ensureKernelGitRepo(e.kernelDir), await generateAllPartitionCodexAgents(e);
+    for (let i of n) await ensureDirectoryExists(i);
+    await or.chmod(e.runDir, 448), await migrateLegacyJobSessionKeys(e), await copyBootstrapIntoKernel(e, t), await refreshBootstrapDuoduoMdFiles(e), await ensureDirectoryExists(e.memoryDir), await ensureDirectoryExists(e.memoryEntitiesDir), await ensureDirectoryExists(e.memoryTopicsDir), await ensureDirectoryExists(e.memoryFragmentsDir), await ensureDirectoryExists(e.memoryStateDir), await ensureDirectoryExists(e.subconsciousDir), await ensureDirectoryExists(e.subconsciousVarDir), await ensureDirectoryExists(e.partitionStateDir), await ensureDirectoryExists(sr.join(e.kernelDir, ".claude")), await fU(e.subconsciousPlaylistPath, rmt), await fU(e.memoryBroadcastPath, imt), await retireListedPartitions(e), await ensureKernelGitRepo(e.kernelDir), await generateAllPartitionCodexAgents(e);
     let r = resolveRegistryStatusPath(e);
-    return await pathExistsAsync(r) || await SU(e, wU(e)), {
+    return await pathExistsAsync(r) || await writeRegistryStatusFile(e, buildInitialRegistryStatus(e)), {
         statusPath: r
     }
 }

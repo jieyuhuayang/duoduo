@@ -6,19 +6,19 @@
 
 function runEntityLint(e, t, n) {
     let r = resolveMemoryDirs(e);
-    if (!Ug(r.entitiesDir)) return {
+    if (!isMemoryPathDirectory(r.entitiesDir)) return {
         ranked: [],
         selected: [],
         entitiesDirMissing: !0
     };
-    let i = Tn(r.boardPath) ?? "",
+    let i = readMemoryFileSyncOrNull(r.boardPath) ?? "",
         o = walkReachableMemory(i, createMemorySlugReader(r)),
         s = [];
-    for (let l of ou(r.entitiesDir)) {
-        let c = Tn(fdt.join(r.entitiesDir, `${l}.md`));
+    for (let l of listMarkdownSlugsSync(r.entitiesDir)) {
+        let c = readMemoryFileSyncOrNull(fdt.join(r.entitiesDir, `${l}.md`));
         if (c === null || pdt(c)) continue;
-        let d = OO(NO(c)),
-            f = AO(c),
+        let d = bytesToKibCeil(measureUtf8ByteLength(c)),
+            f = countNewlineChars(c),
             p = countDatedStampLines(c),
             m = d * 1e3 + p;
         s.push({

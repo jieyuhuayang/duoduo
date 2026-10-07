@@ -7,7 +7,7 @@
 function shutdownActorRuntimeAdapter(e) {
     let t = e.adapter;
     return t ? (e.adapter = null, e.adapterFacts = void 0, Promise.resolve(t.shutdown()).catch(n => {
-        Z("[session-manager] runtime adapter shutdown failed", {
+        logWarnMessage("[session-manager] runtime adapter shutdown failed", {
             sessionKey: e.sessionKey,
             runtime: e.runtime,
             error: n instanceof Error ? n.message : String(n)

@@ -14,7 +14,7 @@ async function clearModelOverrideOnRuntimeFlip(e, t, n) {
         model: null,
         model_runtime: null,
         pending_model_fork: null
-    }).catch(() => {}), ee(i ? "[runner] cleared session model override on runtime flip" : "[runner] cleared un-stamped legacy model override on incompatible runtime drain", {
+    }).catch(() => {}), logInfoMessage(i ? "[runner] cleared session model override on runtime flip" : "[runner] cleared un-stamped legacy model override on incompatible runtime drain", {
         sessionKey: t,
         overrideRuntime: i,
         activeRuntime: o,

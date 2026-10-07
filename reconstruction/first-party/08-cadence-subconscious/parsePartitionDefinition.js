@@ -17,16 +17,16 @@ async function parsePartitionDefinition(e, t, n) {
             a = validateRunnableRuntimeValue(i.data?.runtime, `Partition "${e}"`),
             u = a.ok ? a.runtime : void 0,
             l = a.ok ? void 0 : a.reason;
-        l && Z(`[playlist] ${l}`);
+        l && logWarnMessage(`[playlist] ${l}`);
         let {
             claudeTools: c
         } = parseClaudeFrontmatterBlock(i.data ?? {}), d = normalizePromptMode(i.data?.prompt_mode), f = i.data?.model, p;
-        typeof f == "string" && f.trim().length > 0 ? p = f.trim() : f !== void 0 && ke(`[playlist] partition '${e}' has invalid model frontmatter; ignoring it`, {
+        typeof f == "string" && f.trim().length > 0 ? p = f.trim() : f !== void 0 && logDebugMessage(`[playlist] partition '${e}' has invalid model frontmatter; ignoring it`, {
             rawModel: f
         });
         let m = i.data?.effort,
             h;
-        return typeof m == "string" && isEffortLevel(m) ? h = m : m !== void 0 && ke(`[playlist] partition '${e}' has invalid effort frontmatter; ignoring it`, {
+        return typeof m == "string" && isEffortLevel(m) ? h = m : m !== void 0 && logDebugMessage(`[playlist] partition '${e}' has invalid effort frontmatter; ignoring it`, {
             rawEffort: m
         }), {
             name: e,

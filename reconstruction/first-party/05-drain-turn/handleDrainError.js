@@ -16,7 +16,7 @@ ${i}
         sessionKey: u.session_key,
         record: u
     });
-    if (n.anchor.event.source?.name === "idle-compact") ee("[runner] idle-compact drain error — spine only, no channel record", {
+    if (n.anchor.event.source?.name === "idle-compact") logInfoMessage("[runner] idle-compact drain error — spine only, no channel record", {
         sessionKey: t,
         stage: n.stage
     });
@@ -31,7 +31,7 @@ ${i}
             record: l
         })
     } catch (u) {
-        ee("[runner] failed to emit drain-error outbox record", {
+        logInfoMessage("[runner] failed to emit drain-error outbox record", {
             sessionKey: t,
             stage: n.stage,
             emitError: u instanceof Error ? u.message : String(u)
@@ -53,7 +53,7 @@ ${i}
     try {
         await atomicAppendEvent(e, a)
     } catch (u) {
-        ee("[runner] failed to append agent.error to spine", {
+        logInfoMessage("[runner] failed to append agent.error to spine", {
             sessionKey: t,
             stage: n.stage,
             spineError: u instanceof Error ? u.message : String(u)

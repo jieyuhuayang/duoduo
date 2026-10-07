@@ -77,7 +77,7 @@ async function archiveLegacyRegistrySessionsDir(e) {
         };
         E.session_key = c, E.updated_at = new Date().toISOString(), delete E.status, delete E.idle_since, delete E.health;
         try {
-            await Ne(g), await or.writeFile(y, JSON.stringify(E, null, 2) + `
+            await ensureDirectoryExists(g), await or.writeFile(y, JSON.stringify(E, null, 2) + `
 `, "utf8"), r++
         } catch {
             i++
@@ -86,10 +86,10 @@ async function archiveLegacyRegistrySessionsDir(e) {
     let o = new Date().toISOString().replace(/[:.]/g, "-"),
         s = sr.join(e.varDir, `registry.legacy.${o}`),
         a = sr.join(s, "sessions");
-    await Ne(s);
+    await ensureDirectoryExists(s);
     let u = a;
     try {
         await or.access(u), u = `${a}.${process.pid}`
     } catch {}
-    return await or.rename(t, u), Z(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${u}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
+    return await or.rename(t, u), logWarnMessage(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${u}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
 }

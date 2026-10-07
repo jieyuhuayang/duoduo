@@ -7,13 +7,13 @@
 function parseJobFileFrontmatter(e, t) {
     let n = (0, nbe.default)(e, Sr),
         r = n.data ?? {},
-        i = HU(r),
+        i = parseSdkConfigFrontmatter(r),
         o = normalizePromptMode(r.prompt_mode),
         s = {
             ...r
         };
     for (let a of hut) delete s[a];
-    o && (s.prompt_mode = o), s.effort !== void 0 && !(typeof s.effort == "string" && isEffortLevel(s.effort)) && (Z("[JobManager] ignoring invalid job effort", {
+    o && (s.prompt_mode = o), s.effort !== void 0 && !(typeof s.effort == "string" && isEffortLevel(s.effort)) && (logWarnMessage("[JobManager] ignoring invalid job effort", {
         job: t ?? "(unknown job file)",
         effort: typeof s.effort == "string" ? s.effort : typeof s.effort,
         accepted: qi.join(", ")

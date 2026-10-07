@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function recordExternalSpineEvent(e, t) {
-    let n = iU(t);
-    if (n !== null) throw new tp(Dm("spine.record", n));
+    let n = describeSpineRecordProblem(t);
+    if (n !== null) throw new SpineRpcParamsError(renderParamsProblem("spine.record", n));
     let r = t,
         i = checkReservedRecordSource(r.source);
     if (i !== null) return i;

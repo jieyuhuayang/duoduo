@@ -5,6 +5,6 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readPendingOutboundAttachments(e, t) {
-    let r = (await rt(e, t))?.pending_outbound_attachments;
-    if (!(!r || r.length === 0)) return Qxe(r)
+    let r = (await readSessionRuntimeState(e, t))?.pending_outbound_attachments;
+    if (!(!r || r.length === 0)) return mergeOutboundAttachmentLists(r)
 }

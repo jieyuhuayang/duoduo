@@ -1,0 +1,278 @@
+{
+  "describeConversationProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1114,
+    "verdict": "unique"
+  },
+  "describeMemoryReadProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1118,
+    "verdict": "unique"
+  },
+  "describeSpineCatProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1132,
+    "verdict": "unique"
+  },
+  "describeSpineRecordProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1172,
+    "verdict": "unique"
+  },
+  "initProtocolEffortModule": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "effort.ts",
+    "line": null,
+    "verdict": "initialiser"
+  },
+  "initProtocolJobModule": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "job.ts",
+    "line": null,
+    "verdict": "initialiser"
+  },
+  "initProtocolSystemModule": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": null,
+    "verdict": "initialiser"
+  },
+  "isAgentRuntime": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 16,
+    "verdict": "ordered"
+  },
+  "isAttachmentArray": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 409,
+    "verdict": "unique"
+  },
+  "isChannelAckParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 205,
+    "verdict": "unique"
+  },
+  "isChannelCapabilities": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 418,
+    "verdict": "unique"
+  },
+  "isChannelCommandParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 186,
+    "verdict": "unique"
+  },
+  "isChannelDescribeParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 227,
+    "verdict": "unique"
+  },
+  "isChannelFileDownloadParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 91,
+    "verdict": "unique"
+  },
+  "isChannelFileUploadParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 78,
+    "verdict": "unique"
+  },
+  "isChannelIngressParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 56,
+    "verdict": "unique"
+  },
+  "isChannelPullParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 142,
+    "verdict": "unique"
+  },
+  "isChannelSpawnParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 325,
+    "verdict": "unique"
+  },
+  "isJobArchiveParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "job.ts",
+    "line": 87,
+    "verdict": "ordered"
+  },
+  "isJobGetParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "job.ts",
+    "line": 76,
+    "verdict": "ordered"
+  },
+  "isJobInterruptParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "job.ts",
+    "line": 100,
+    "verdict": "unique"
+  },
+  "isJobListParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "job.ts",
+    "line": 82,
+    "verdict": "ordered"
+  },
+  "isJobRescheduleParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "job.ts",
+    "line": 93,
+    "verdict": "unique"
+  },
+  "isMimePattern": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 443,
+    "verdict": "unique"
+  },
+  "isModelRuntime": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "channel.ts",
+    "line": 20,
+    "verdict": "ordered"
+  },
+  "isNonEmptyText": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1061,
+    "verdict": "unique"
+  },
+  "isOptionalString": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "rpc.ts",
+    "line": 27,
+    "verdict": "ordered"
+  },
+  "isRecord": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "rpc.ts",
+    "line": 23,
+    "verdict": "unique"
+  },
+  "isRuntimeInfoParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 55,
+    "verdict": "unique"
+  },
+  "isSessionArchiveParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 107,
+    "verdict": "unique"
+  },
+  "isSessionCompactParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 477,
+    "verdict": "unique"
+  },
+  "isSessionConfigParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 858,
+    "verdict": "unique"
+  },
+  "isSessionEffortParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 384,
+    "verdict": "unique"
+  },
+  "isSessionListKind": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 260,
+    "verdict": "unique"
+  },
+  "isSessionListParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 270,
+    "verdict": "unique"
+  },
+  "isSessionModelParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 369,
+    "verdict": "unique"
+  },
+  "isSessionNotifyParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 327,
+    "verdict": "unique"
+  },
+  "isSessionSetAliasParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 282,
+    "verdict": "unique"
+  },
+  "isSessionWakeParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 319,
+    "verdict": "unique"
+  },
+  "isSpineTailParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "dashboard.ts",
+    "line": 224,
+    "verdict": "unique"
+  },
+  "isSystemConfigParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "dashboard.ts",
+    "line": 209,
+    "verdict": "ordered"
+  },
+  "isSystemRuntimeInfo": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 33,
+    "verdict": "unique"
+  },
+  "isSystemStatusParams": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "dashboard.ts",
+    "line": 130,
+    "verdict": "ordered"
+  },
+  "renderParamsProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1100,
+    "verdict": "unique"
+  },
+  "textKeysProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1073,
+    "verdict": "unique"
+  },
+  "unknownKeyProblem": {
+    "package": "@openduo/protocol@0.8.4",
+    "file": "system.ts",
+    "line": 1065,
+    "verdict": "unique"
+  }
+}

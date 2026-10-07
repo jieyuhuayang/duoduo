@@ -20,7 +20,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         if (u.state.last_result === "failure" && u.state.last_scheduled_at) {
             let v = new Date(u.state.last_scheduled_at).getTime();
             if (o.getTime() - v < 3e5) {
-                ke("[cadence] skip due job: failure backoff", {
+                logDebugMessage("[cadence] skip due job: failure backoff", {
                     jobId: u.id,
                     lastScheduledAt: u.state.last_scheduled_at,
                     backoffMs: 3e5
@@ -28,13 +28,13 @@ async function scanAndSpawnDueJobs(e, t, n) {
                 continue
             }
         }
-        let p = Cc({
+        let p = buildJobSessionKey({
             jobId: u.id,
             cron: u.frontmatter.cron,
             cwdRel: u.frontmatter.cwd_rel
         });
         if (isSessionArchiving(p)) {
-            ke("[cadence] skip due job: session is being archived", {
+            logDebugMessage("[cadence] skip due job: session is being archived", {
                 jobId: u.id,
                 sessionKey: p
             });
@@ -42,7 +42,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         }
         let m = t.getActor(p);
         if (m && m.status !== "ended") {
-            ke("[cadence] skip due job: already running", {
+            logDebugMessage("[cadence] skip due job: already running", {
                 jobId: u.id,
                 sessionKey: p,
                 actorStatus: m.status
@@ -54,7 +54,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
                 last_scheduled_at: o.toISOString()
             })
         } catch (y) {
-            Z("[cadence] skip due job: claim state write failed, retrying next scan", {
+            logWarnMessage("[cadence] skip due job: claim state write failed, retrying next scan", {
                 jobId: u.id,
                 error: y instanceof Error ? y.message : String(y)
             });
@@ -79,13 +79,13 @@ async function scanAndSpawnDueJobs(e, t, n) {
         });
         await atomicAppendEvent(e, h);
         let g = `- [ ] @evt(${h.id}) job:${u.id}`;
-        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), ee("[cadence] spawned due job", {
+        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), logInfoMessage("[cadence] spawned due job", {
             jobId: u.id,
             sessionKey: p,
             cron: u.frontmatter.cron
         })
     }
-    return ke("[cadence] job scan complete", {
+    return logDebugMessage("[cadence] job scan complete", {
         scanned: i.length,
         spawned: s.length,
         wakesFired: a.length

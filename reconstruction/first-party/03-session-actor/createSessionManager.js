@@ -39,19 +39,19 @@ function createSessionManager(e) {
         let L = T.trim();
         if (!L) return;
         let z = createOutboxRecord({
-            channel_kind: uk(w),
+            channel_kind: channelKindFromSessionKey(w),
             session_key: w,
             payload: {
                 text: L
             }
         });
         try {
-            await Va(t, z), n.emit("session.output", {
+            await persistOutboxRecord(t, z), n.emit("session.output", {
                 sessionKey: w,
                 record: z
             })
         } catch (U) {
-            Ue("[session-manager] grok detached-turn outbox write failed", {
+            logErrorMessage("[session-manager] grok detached-turn outbox write failed", {
                 sessionKey: w,
                 error: U instanceof Error ? U.message : String(U)
             })
@@ -160,12 +160,12 @@ function createSessionManager(e) {
             let z = L.streamingAdapter !== null;
             L.streamingAdapter = null;
             let U = !1;
-            L.streamingState && !L.streamingState.closed && (L.streamingState.needsRecreation = !0, U = !0), (z || U) && ee("[session-manager] streamingAdapter torn down for session", {
+            L.streamingState && !L.streamingState.closed && (L.streamingState.needsRecreation = !0, U = !0), (z || U) && logInfoMessage("[session-manager] streamingAdapter torn down for session", {
                 sessionKey: w,
                 reason: T,
                 hadAdapter: z,
                 stateMarked: U
-            }), U && vt("warn", "[kv-cache] needsRecreation flagged", {
+            }), U && logAlwaysAtLevel("warn", "[kv-cache] needsRecreation flagged", {
                 sessionKey: w,
                 reason: "instructions-drift",
                 generation: L.streamingGeneration,
@@ -368,7 +368,7 @@ function createSessionManager(e) {
                 session_key: w,
                 display_name: re,
                 kind: Y.origin === "job" ? "job" : Y.origin === "system" ? "system" : w.startsWith("meta:") ? "meta" : "channel"
-            }).catch(() => {}), ee("[session-manager] actor start", {
+            }).catch(() => {}), logInfoMessage("[session-manager] actor start", {
                 sessionKey: w,
                 actorRunId: U,
                 sdkSessionId: Y.sdkSessionId,
@@ -380,7 +380,7 @@ function createSessionManager(e) {
                 queuedSessions: me.wakeQueue.length
             }), T?.preStart) {
             let Ee = T.preStart;
-            Y.drainPromise = Ee().catch(Oe => Ue("[session-manager] preStart failed", Oe)).then(() => G(Y))
+            Y.drainPromise = Ee().catch(Oe => logErrorMessage("[session-manager] preStart failed", Oe)).then(() => G(Y))
         } else Y.drainPromise = G(Y)
     }
     async function G(w) {
@@ -390,7 +390,7 @@ function createSessionManager(e) {
         try {
             qe = await u(T)
         } catch (Ae) {
-            Z("[session-manager] drain-start inbox snapshot read failed — empty snapshot (everything fresh)", {
+            logWarnMessage("[session-manager] drain-start inbox snapshot read failed — empty snapshot (everything fresh)", {
                 sessionKey: T,
                 error: Ae instanceof Error ? Ae.message : String(Ae)
             }), qe = new Set
@@ -403,21 +403,21 @@ function createSessionManager(e) {
         });
         try {
             if (!w.sdkSessionId && !w.pendingClear) {
-                let _t = await rt(t, T);
-                _t?.sdk_session_id && (w.sdkSessionId = _t.sdk_session_id, ee("[session-manager] loaded sdk_session_id from state.json", {
+                let _t = await readSessionRuntimeState(t, T);
+                _t?.sdk_session_id && (w.sdkSessionId = _t.sdk_session_id, logInfoMessage("[session-manager] loaded sdk_session_id from state.json", {
                     sessionKey: T,
                     sdkSessionId: _t.sdk_session_id
                 }))
             }
-            if ((await rt(t, T))?.session_key || await patchSessionRuntimeState(t, T, {
+            if ((await readSessionRuntimeState(t, T))?.session_key || await patchSessionRuntimeState(t, T, {
                     session_key: T
                 }), w.origin === "job" && !w.jobId) {
                 await a.init();
                 let Wn = (await a.listJobs()).find(Re => Re.session_key === T);
-                Wn ? (w.jobId = Wn.id, ke("[session-manager] recovered jobId from active jobs", {
+                Wn ? (w.jobId = Wn.id, logDebugMessage("[session-manager] recovered jobId from active jobs", {
                     sessionKey: T,
                     jobId: Wn.id
-                })) : Z("[session-manager] job-origin actor has no matching active job", {
+                })) : logWarnMessage("[session-manager] job-origin actor has no matching active job", {
                     sessionKey: T
                 })
             }
@@ -430,7 +430,7 @@ function createSessionManager(e) {
                         cwd: _t.execution_cwd,
                         runtimeWorkspaceDir: _t.runtime_workspace_dir,
                         context: _t.execution_context
-                    }), await Ne(_t.execution_cwd), await patchSessionRuntimeState(t, T, {
+                    }), await ensureDirectoryExists(_t.execution_cwd), await patchSessionRuntimeState(t, T, {
                         session_key: T,
                         cwd: _t.execution_cwd,
                         plane: "work",
@@ -449,14 +449,14 @@ function createSessionManager(e) {
                     let ar = Re.ok ? Re.runtime : void 0,
                         Mi = ar ?? resolveDefaultRuntime(),
                         fn = ar ? "explicit" : "default";
-                    _t.frontmatter.prompt_mode !== void 0 && Mi === "codex" && Z("[session-manager] job sets prompt_mode but resolves to the codex runtime; the setting is inert", {
+                    _t.frontmatter.prompt_mode !== void 0 && Mi === "codex" && logWarnMessage("[session-manager] job sets prompt_mode but resolves to the codex runtime; the setting is inert", {
                         sessionKey: T,
                         jobId: w.jobId,
                         promptMode: _t.frontmatter.prompt_mode,
                         runtimeSource: fn
                     }), w.runtime = Mi;
                     let gn = await v(Mi);
-                    gn && !gn.ok && (Nn = gn.reason, Z(`[session-manager] job requested ${Mi} but it is unavailable`, {
+                    gn && !gn.ok && (Nn = gn.reason, logWarnMessage(`[session-manager] job requested ${Mi} but it is unavailable`, {
                         sessionKey: T,
                         jobId: w.jobId,
                         runtime_source: fn,
@@ -464,10 +464,10 @@ function createSessionManager(e) {
                     }))
                 }
             } else if (w.origin === "channel") {
-                let Wn = (await rt(t, T))?.source_channel_id;
+                let Wn = (await readSessionRuntimeState(t, T))?.source_channel_id;
                 if (Wn) {
                     let Re = await resolveSessionChannelRuntime(t, T, Wn);
-                    Re.ok || (Us = Re.reason, Z("[session-manager] channel runtime refused", {
+                    Re.ok || (Us = Re.reason, logWarnMessage("[session-manager] channel runtime refused", {
                         sessionKey: T,
                         sourceChannelId: Wn,
                         reason: Re.reason
@@ -476,7 +476,7 @@ function createSessionManager(e) {
                         Mi = Re.ok ? Re.source : "explicit";
                     w.runtime = ar;
                     let fn = Re.ok ? await v(ar) : null;
-                    fn && !fn.ok && (Nn = fn.reason, Z(`[session-manager] channel requested ${ar} but it is unavailable`, {
+                    fn && !fn.ok && (Nn = fn.reason, logWarnMessage(`[session-manager] channel requested ${ar} but it is unavailable`, {
                         sessionKey: T,
                         sourceChannelId: Wn,
                         runtime_source: Mi,
@@ -514,7 +514,7 @@ function createSessionManager(e) {
                 let {
                     instructions: ar,
                     missionContent: Mi
-                } = await collectInstructionsInputs(t, T, w, Re), fn = await rt(t, T), gn = await runInstructionsFingerprintGuard(t, T, ar, w.runtime, {
+                } = await collectInstructionsInputs(t, T, w, Re), fn = await readSessionRuntimeState(t, T), gn = await runInstructionsFingerprintGuard(t, T, ar, w.runtime, {
                     instructions_fingerprint: fn?.instructions_fingerprint,
                     mission_fingerprint: fn?.mission_fingerprint,
                     schema_version: fn?.schema_version,
@@ -524,10 +524,10 @@ function createSessionManager(e) {
                 }, w.origin === "job" && w.jobId ? {
                     jobId: w.jobId
                 } : void 0);
-                gn.clearedSdkSessionId && (w.sdkSessionId = void 0), gn.gate2Fired && w.runtime === "claude" && (gn.boardOnlyDrift ? w.streamingState && !w.streamingState.closed ? ee("[session-manager] board-only drift — pinning streaming prefix (no teardown)", {
+                gn.clearedSdkSessionId && (w.sdkSessionId = void 0), gn.gate2Fired && w.runtime === "claude" && (gn.boardOnlyDrift ? w.streamingState && !w.streamingState.closed ? logInfoMessage("[session-manager] board-only drift — pinning streaming prefix (no teardown)", {
                     sessionKey: T,
                     board_layer_hash: gn.boardLayerHash
-                }) : ee("[session-manager] board-only drift — no live streaming prefix (nothing to pin)", {
+                }) : logInfoMessage("[session-manager] board-only drift — no live streaming prefix (nothing to pin)", {
                     sessionKey: T,
                     board_layer_hash: gn.boardLayerHash
                 }) : n.emit("session.streaming_invalidated", {
@@ -542,7 +542,7 @@ function createSessionManager(e) {
                     model: Re ? Re.frontmatter.model : sn,
                     effort: Re ? Re.frontmatter.effort : gt,
                     sdkConfig: rbe(Re?.frontmatter)
-                } : Z("[session-manager] job snapshot unavailable at drain start", {
+                } : logWarnMessage("[session-manager] job snapshot unavailable at drain start", {
                     sessionKey: T,
                     jobId: w.jobId
                 })), w.status !== "ended" && (w.status = "active"), w.idleSince = void 0;
@@ -569,7 +569,7 @@ function createSessionManager(e) {
                                         mergeWindowMs: AW,
                                         perf: xt
                                     }),
-                                    Yt = await rt(t, T),
+                                    Yt = await readSessionRuntimeState(t, T),
                                     To = buildSessionInfoFromState(t, T, Yt ?? void 0),
                                     Jn = [],
                                     Er = [];
@@ -588,7 +588,7 @@ function createSessionManager(e) {
                                         } : void 0,
                                         un = jn.events.get(Le.eventId) ?? await readEventById(t, Le.eventId, dt);
                                     if (!un) {
-                                        Z(`[session-manager] mailbox event unresolved: session_key=${T} event_id=${Le.eventId} not_after=${dt?.notAfter??"none"} item_file=${Le.file??"none"}`);
+                                        logWarnMessage(`[session-manager] mailbox event unresolved: session_key=${T} event_id=${Le.eventId} not_after=${dt?.notAfter??"none"} item_file=${Le.file??"none"}`);
                                         continue
                                     }
                                     Jn.push({
@@ -623,8 +623,8 @@ function createSessionManager(e) {
                                     if (dt && un !== void 0)
                                         if (w.adapter?.activeTurnSkipObserved?.() === !0) Hr = !0;
                                         else {
-                                            let yl = await rt(t, T).catch(() => null);
-                                            if (yl === null) Hr = !0, Z("[session-manager] seal-on-skip: session state unreadable at admission, failing closed (steer rejected → fresh turn)", {
+                                            let yl = await readSessionRuntimeState(t, T).catch(() => null);
+                                            if (yl === null) Hr = !0, logWarnMessage("[session-manager] seal-on-skip: session state unreadable at admission, failing closed (steer rejected → fresh turn)", {
                                                 sessionKey: T
                                             });
                                             else {
@@ -637,19 +637,19 @@ function createSessionManager(e) {
                                         if (await Le(Ht, dt, $n.attachments).catch(() => !1)) {
                                             await deleteMailboxPendingItemsByEventIds(t, T, Po);
                                             for (let hr of pu) w.inflightEventIds.delete(hr);
-                                            ee("[session-manager] admission callback: codex turn/steer landed", {
+                                            logInfoMessage("[session-manager] admission callback: codex turn/steer landed", {
                                                 sessionKey: T,
                                                 admittedItems: Jn.length,
                                                 batchEventIds: $n.batchEventIds
                                             })
                                         } else {
                                             for (let hr of pu) w.inflightEventIds.delete(hr);
-                                            w.pendingWake = !0, ee("[session-manager] admission callback: codex steer fell back to redrain", {
+                                            w.pendingWake = !0, logInfoMessage("[session-manager] admission callback: codex steer fell back to redrain", {
                                                 sessionKey: T,
                                                 batchEventIds: $n.batchEventIds
                                             })
                                         }
-                                    } else w.pendingWake = !0, ee("[session-manager] admission callback: codex steer not attempted, redraining", {
+                                    } else w.pendingWake = !0, logInfoMessage("[session-manager] admission callback: codex steer not attempted, redraining", {
                                         sessionKey: T,
                                         admittedItems: Jn.length,
                                         batchEventIds: $n.batchEventIds,
@@ -672,7 +672,7 @@ function createSessionManager(e) {
                                         let Ht = $n.batchEventIds.filter(dt => !w.inflightEventIds.has(dt));
                                         for (let dt of Ht) w.inflightEventIds.add(dt);
                                         Le.steerText = `${Le.steerText}
-${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines.push(...Jn.map(dt => dt.item.line)), Le.requeueEventIds.push(...Jn.map(dt => dt.item.eventId)), Le.processedEventIds.push(...Er), ee("[session-manager] admission callback: appended claude steer", {
+${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines.push(...Jn.map(dt => dt.item.line)), Le.requeueEventIds.push(...Jn.map(dt => dt.item.eventId)), Le.processedEventIds.push(...Er), logInfoMessage("[session-manager] admission callback: appended claude steer", {
                                             sessionKey: T,
                                             admittedItems: Jn.length,
                                             batchEventIds: $n.batchEventIds
@@ -694,7 +694,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                                     try {
                                                         await enqueueSessionInboxLine(t, T, pu), un.push(yl)
                                                     } catch (hr) {
-                                                        Z("[session-manager] steer fallback requeue failed", {
+                                                        logWarnMessage("[session-manager] steer fallback requeue failed", {
                                                             sessionKey: T,
                                                             eventId: yl,
                                                             error: hr instanceof Error ? hr.message : String(hr)
@@ -705,13 +705,13 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                                 if (Hr.length > 0) try {
                                                     await deleteMailboxPendingItemsByEventIds(t, T, Hr)
                                                 } catch (nr) {
-                                                    ee("[session-manager] steer fallback markDone error", {
+                                                    logInfoMessage("[session-manager] steer fallback markDone error", {
                                                         sessionKey: T,
                                                         error: String(nr)
                                                     })
                                                 }
                                                 for (let nr of dt.claimedEventIds) w.inflightEventIds.delete(nr);
-                                                w.pendingWake = !0, ee("[session-manager] steer fallback requeued to inbox (turn ended undelivered)", {
+                                                w.pendingWake = !0, logInfoMessage("[session-manager] steer fallback requeued to inbox (turn ended undelivered)", {
                                                     sessionKey: T,
                                                     eventIds: dt.eventIds,
                                                     requeued: un.length,
@@ -724,7 +724,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                             processedEventIds: [...Er],
                                             settled: !1
                                         };
-                                        w.pendingSteer = dt, ee("[session-manager] admission callback: parked claude steer", {
+                                        w.pendingSteer = dt, logInfoMessage("[session-manager] admission callback: parked claude steer", {
                                             sessionKey: T,
                                             admittedItems: Jn.length,
                                             batchEventIds: $n.batchEventIds
@@ -734,13 +734,13 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                 }
                                 w.pendingWake = !0, w.wakeResolver?.()
                             } catch (Ve) {
-                                ee("[session-manager] admission callback error", {
+                                logInfoMessage("[session-manager] admission callback error", {
                                     sessionKey: T,
                                     error: String(Ve)
                                 })
                             }
                         }, w.runtime === "codex" && !w.adapter && !_t) {
-                        let Ve = (await rt(t, T))?.cwd;
+                        let Ve = (await readSessionRuntimeState(t, T))?.cwd;
                         Ve && await ensureAgentsMdSymlink(Ve).catch(() => {}), w.adapter = f({
                             sandbox: resolveCodexSandbox(),
                             env: {
@@ -764,7 +764,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         })
                     }
                     if (w.runtime === "grok" && !w.adapter && !_t) {
-                        let Ve = await rt(t, T).catch(() => null);
+                        let Ve = await readSessionRuntimeState(t, T).catch(() => null);
                         w.adapter = h({
                             cwd: Ve?.cwd ?? t.workDir,
                             env: {
@@ -790,25 +790,25 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         })
                     }
                     if (w.runtime === "pi" && !_t) {
-                        let Ve = await rt(t, T).catch(() => null),
-                            xt = CS(),
+                        let Ve = await readSessionRuntimeState(t, T).catch(() => null),
+                            xt = resolvePiAgentDir(),
                             {
                                 settingsSeed: jn,
                                 defaultProjectTrust: Yt,
                                 unknownKeys: To,
                                 readFailed: Jn
-                            } = OS(xt);
-                        To.length > 0 && Z("[session-manager] pi settings keys not classified (SDK bump gate)", {
+                            } = readPiAgentSettings(xt);
+                        To.length > 0 && logWarnMessage("[session-manager] pi settings keys not classified (SDK bump gate)", {
                             sessionKey: T,
                             keys: To
                         });
                         let Er = !1,
-                            $n = Gt ? null : await iu(t, T).catch(() => (Er = !0, null)),
-                            Po = Gt ? await ru(t, {
+                            $n = Gt ? null : await resolveChannelConfigBySession(t, T).catch(() => (Er = !0, null)),
+                            Po = Gt ? await resolveEffectiveChannelConfig(t, {
                                 channel_kind: "job"
                             }).catch(() => (Er = !0, null)) : null,
                             ao = Gt ?? $n;
-                        ao?.piConfigIssues?.length && Z("[session-manager] invalid pi.* config values ignored (defaults apply)", {
+                        ao?.piConfigIssues?.length && logWarnMessage("[session-manager] invalid pi.* config values ignored (defaults apply)", {
                             sessionKey: T,
                             issues: ao.piConfigIssues
                         });
@@ -826,14 +826,14 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                 instructionsFingerprint: lEe(classifySessionKeyOrUnknown(T) === "channel", gn)
                             }),
                             Ht = !Jn && !Er;
-                        if (Ht || Z("[session-manager] pi construction facts unread, keeping the live worker", {
+                        if (Ht || logWarnMessage("[session-manager] pi construction facts unread, keeping the live worker", {
                                 sessionKey: T,
                                 seedReadFailed: Jn,
                                 configReadFailed: Er
                             }), w.adapter && w.adapterFacts !== Le && Ht) {
                             let dt = w.adapter;
                             w.adapter = null, w.adapterFacts = void 0, Promise.resolve(dt.shutdown()).catch(un => {
-                                Z("[session-manager] stale pi adapter shutdown failed", {
+                                logWarnMessage("[session-manager] stale pi adapter shutdown failed", {
                                     sessionKey: T,
                                     error: String(un)
                                 })
@@ -866,7 +866,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                     env: {
                                         [tl]: T,
                                         [nC]: t.daemonSocketPath,
-                                        [rC]: oC({
+                                        [rC]: issueWorkerToolContextToken({
                                             session_key: T,
                                             job_cron: ve,
                                             job_schedule_type: Ae,
@@ -875,10 +875,10 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                         [iC]: JSON.stringify(un)
                                     },
                                     onToolEnd: Hr => handlePiToolEndObservation(t, T, Hr),
-                                    logDebug: Hr => ke(Hr, {
+                                    logDebug: Hr => logDebugMessage(Hr, {
                                         sessionKey: T
                                     }),
-                                    logWarn: Hr => Z(Hr, {
+                                    logWarn: Hr => logWarnMessage(Hr, {
                                         sessionKey: T
                                     })
                                 }), w.adapterFacts = Le
@@ -938,7 +938,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                 }, {
                                     expectedClaimCursor: nt
                                 }).catch(Yt => {
-                                    Z("[session-manager] last_run_started_at stamp failed (best-effort)", {
+                                    logWarnMessage("[session-manager] last_run_started_at stamp failed (best-effort)", {
                                         sessionKey: T,
                                         jobId: jn,
                                         error: Yt instanceof Error ? Yt.message : String(Yt)
@@ -956,7 +956,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                 }, {
                                     expectedClaimCursor: nt
                                 }).catch(jn => {
-                                    Z("[session-manager] last_run_started_at rollback failed (best-effort)", {
+                                    logWarnMessage("[session-manager] last_run_started_at rollback failed (best-effort)", {
                                         sessionKey: T,
                                         jobId: xt,
                                         error: jn instanceof Error ? jn.message : String(jn)
@@ -1005,7 +1005,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         durationMs: Date.now() - ji
                     }), Ee += de.processed, Oe = de.mergeTransientFailure === !0, de.cancelled && (Xe = !0), de.processed > 0 && (w.lastTurnCompletedAt = Date.now(), await clearSessionRuntimeStateField(t, T, "last_error").catch(() => {})), de.compacted && w.runtime === "claude" && w.streamingState && !w.streamingState.closed) {
                     let X = ar.memoryBoard ? gn.boardLayerHash : void 0;
-                    w.spawnBoardHash !== X && (w.streamingState.needsRecreation = !0, vt("warn", "[kv-cache] needsRecreation flagged", {
+                    w.spawnBoardHash !== X && (w.streamingState.needsRecreation = !0, logAlwaysAtLevel("warn", "[kv-cache] needsRecreation flagged", {
                         sessionKey: T,
                         reason: "board-refresh(B4)",
                         generation: w.streamingGeneration,
@@ -1017,16 +1017,16 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     sdk_session_id: null,
                     sdk_session_runtime: null,
                     pending_fork_to: null
-                }).catch(() => {}), ee("[session-manager] applied pending clear after drain", {
+                }).catch(() => {}), logInfoMessage("[session-manager] applied pending clear after drain", {
                     sessionKey: T,
                     actorRunId: w.actorRunId
                 });
                 else {
-                    let X = await rt(t, T);
+                    let X = await readSessionRuntimeState(t, T);
                     if (X?.sdk_session_id) {
                         let bt = !w.sdkSessionId,
                             jt = w.sdkSessionId !== X.sdk_session_id;
-                        w.sdkSessionId = X.sdk_session_id, (bt || jt) && ee("[session-manager] sdk session bound", {
+                        w.sdkSessionId = X.sdk_session_id, (bt || jt) && logInfoMessage("[session-manager] sdk session bound", {
                             sessionKey: T,
                             actorRunId: w.actorRunId,
                             sdkSessionId: w.sdkSessionId,
@@ -1136,7 +1136,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                     sessionKey: T,
                                     actorRunId: w.actorRunId,
                                     attachedChannels: w.attachedChannels.size
-                                }), w.streamingState && !w.streamingState.closed && vt("warn", "[kv-cache] streaming teardown: idle-timeout", {
+                                }), w.streamingState && !w.streamingState.closed && logAlwaysAtLevel("warn", "[kv-cache] streaming teardown: idle-timeout", {
                                     sessionKey: T,
                                     generation: w.streamingGeneration,
                                     sdk_session_id: w.sdkSessionId ?? null
@@ -1153,7 +1153,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                             ut("[session-manager] idle timeout, no attachments, exiting", {
                                 sessionKey: T,
                                 actorRunId: w.actorRunId
-                            }), w.streamingState && !w.streamingState.closed && vt("warn", "[kv-cache] streaming teardown: idle-timeout", {
+                            }), w.streamingState && !w.streamingState.closed && logAlwaysAtLevel("warn", "[kv-cache] streaming teardown: idle-timeout", {
                                 sessionKey: T,
                                 generation: w.streamingGeneration,
                                 sdk_session_id: w.sdkSessionId ?? null
@@ -1182,7 +1182,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 }
             }
         } catch (Ae) {
-            Ue(`[session-manager] error in drain loop for ${T}:`, Ae), L = Ae, await patchSessionRuntimeState(t, T, {
+            logErrorMessage(`[session-manager] error in drain loop for ${T}:`, Ae), L = Ae, await patchSessionRuntimeState(t, T, {
                 last_error: {
                     message: Ae instanceof Error ? Ae.message : String(Ae),
                     at: new Date().toISOString()
@@ -1214,7 +1214,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     actorRunId: w.actorRunId
                 }), te(T, {
                     preempt: "never"
-                })) : je === "conservative" || Oe ? w.consecutiveConservativeRedrive ? Z("[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake", {
+                })) : je === "conservative" || Oe ? w.consecutiveConservativeRedrive ? logWarnMessage("[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake", {
                     sessionKey: T,
                     actorRunId: w.actorRunId
                 }) : (w.consecutiveConservativeRedrive = !0, ut("[session-manager] post-finalize wake re-check: conservative re-drive (transient read) — re-entering wake path once", {
@@ -1224,7 +1224,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     preempt: "never"
                 })) : w.consecutiveConservativeRedrive = !1
             }
-            ee("[session-manager] actor end", {
+            logInfoMessage("[session-manager] actor end", {
                 sessionKey: T,
                 actorRunId: w.actorRunId,
                 sdkSessionId: w.sdkSessionId,
@@ -1316,14 +1316,14 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     sessionKey: T
                 })
             } catch (z) {
-                Ue("[session-manager] error recording job spawn", z)
+                logErrorMessage("[session-manager] error recording job spawn", z)
             }
         })()
     }
     async function q(w, T) {
         let z = (ce.get(w) ?? Promise.resolve()).catch(() => {}).then(async () => {
             if (classifySessionKeyKind(w) !== "channel") return;
-            let U = uk(w),
+            let U = channelKindFromSessionKey(w),
                 Y = new Date().toISOString(),
                 me = createSpineEvent({
                     type: "channel.attached",
@@ -1356,7 +1356,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             L = new Promise(z => setTimeout(() => {
                 T = !0, z()
             }, 3e4));
-        await Promise.race([Promise.allSettled(w).then(() => {}), L]), T && Z("[session-manager] shutdown abandoned pending attach writes after the fallback", {
+        await Promise.race([Promise.allSettled(w).then(() => {}), L]), T && logWarnMessage("[session-manager] shutdown abandoned pending attach writes after the fallback", {
             pending: w.length
         })
     }
@@ -1364,13 +1364,13 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
         let T;
         try {
             T = fbt(Qc.join(hbt(), "aladuo-pi-catalog-"));
-            let L = CS(),
+            let L = resolvePiAgentDir(),
                 {
                     settingsSeed: z,
                     defaultProjectTrust: U
-                } = OS(L),
-                Y = await iu(t, w).catch(() => null),
-                me = await rt(t, w).catch(() => null),
+                } = readPiAgentSettings(L),
+                Y = await resolveChannelConfigBySession(t, w).catch(() => null),
+                me = await readSessionRuntimeState(t, w).catch(() => null),
                 re = await oEe({
                     cwd: me?.cwd ?? t.workDir,
                     agentDir: L,
@@ -1383,11 +1383,11 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         default_project_trust: U
                     },
                     workerCommand: resolvePiWorkerCommand(),
-                    logDebug: Ee => ke("[pi-catalog] " + Ee)
+                    logDebug: Ee => logDebugMessage("[pi-catalog] " + Ee)
                 });
             return re.length > 0 ? re : void 0
         } catch (L) {
-            Z("[session-manager] pi model catalog failed", {
+            logWarnMessage("[session-manager] pi model catalog failed", {
                 sessionKey: w,
                 error: String(L)
             });
@@ -1414,9 +1414,9 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                             });
                             continue
                         }
-                        let z = (await rt(t, T))?.cwd;
+                        let z = (await readSessionRuntimeState(t, T))?.cwd;
                         if (z && !dRe(z)) {
-                            Z("[session-manager] skip hydrating session with unavailable workspace", {
+                            logWarnMessage("[session-manager] skip hydrating session with unavailable workspace", {
                                 sessionKey: T,
                                 cwd: z
                             });
@@ -1427,9 +1427,9 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         })
                     }
                 } catch (w) {
-                    Ue("[session-manager] error hydrating sessions:", w)
+                    logErrorMessage("[session-manager] error hydrating sessions:", w)
                 }
-                ee("[session-manager] started", {
+                logInfoMessage("[session-manager] started", {
                     channelActive: $.activeCount,
                     channelQueued: $.wakeQueue.length,
                     jobActive: C.activeCount,
@@ -1447,12 +1447,12 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     z = new Promise(U => setTimeout(() => {
                         L = !0, U()
                     }, 3e4));
-                await Promise.race([Promise.all(w), z]), L && Z("[session-manager] shutdown abandoned running drains after the fallback", {
+                await Promise.race([Promise.all(w), z]), L && logWarnMessage("[session-manager] shutdown abandoned running drains after the fallback", {
                     sessions: T.map(U => U.sessionKey),
                     runtimes: T.map(U => U.runtime)
                 })
             }
-            await fe(), F.clear(), $.wakeQueue.length = 0, $.activeCount = 0, C.wakeQueue.length = 0, C.activeCount = 0, ee("[session-manager] stopped")
+            await fe(), F.clear(), $.wakeQueue.length = 0, $.activeCount = 0, C.wakeQueue.length = 0, C.activeCount = 0, logInfoMessage("[session-manager] stopped")
         },
         wakeSession: te,
         getActor(w) {
@@ -1511,7 +1511,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 channelId: T,
                 totalAttachments: L.attachedChannels.size
             }), q(w, T).catch(z => {
-                Z("[session-manager] failed to emit channel.attached event", {
+                logWarnMessage("[session-manager] failed to emit channel.attached event", {
                     sessionKey: w,
                     channelId: T,
                     error: String(z)
@@ -1542,13 +1542,13 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             return T ? !T.query && (!T.currentAbortController || T.currentAbortController.signal.aborted) ? {
                 interrupted: !1,
                 reason: "idle"
-            } : T.streamAbortController && !T.streamAbortController.signal.aborted ? (ee("[session-manager] interrupt: stopping streaming session", {
+            } : T.streamAbortController && !T.streamAbortController.signal.aborted ? (logInfoMessage("[session-manager] interrupt: stopping streaming session", {
                 sessionKey: w,
                 actorRunId: T.actorRunId
             }), await teardownStreamingSession(T, "cancel-interrupt", "user-cancel"), {
                 interrupted: !0,
                 reason: "interrupted"
-            }) : (requestBoundaryAwarePreempt(T, "immediate", void 0, "user-cancel") === "immediate" && ee("[session-manager] interrupt requested", {
+            }) : (requestBoundaryAwarePreempt(T, "immediate", void 0, "user-cancel") === "immediate" && logInfoMessage("[session-manager] interrupt requested", {
                 sessionKey: w,
                 actorRunId: T.actorRunId
             }), {
@@ -1573,14 +1573,14 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 }), (T?.runtime === "pi" || T?.runtime === "grok") && T.adapter) {
                 let z = T.adapter;
                 T.adapter = null, T.adapterFacts = void 0, await Promise.resolve(z.shutdown()).catch(U => {
-                    Z("[session-manager] runtime adapter shutdown on clear failed", {
+                    logWarnMessage("[session-manager] runtime adapter shutdown on clear failed", {
                         sessionKey: w,
                         runtime: T.runtime,
                         error: String(U)
                     })
                 })
             }
-            return ee("[session-manager] SDK session cleared", {
+            return logInfoMessage("[session-manager] SDK session cleared", {
                 sessionKey: w,
                 actorRunId: T?.actorRunId,
                 previousSessionId: L
@@ -1591,7 +1591,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
         },
         async getSessionModelView(w, T) {
             let L = F.get(w),
-                z = await rt(t, w).catch(() => null),
+                z = await readSessionRuntimeState(t, w).catch(() => null),
                 U = await _(w, L),
                 Y = await E(w);
             if (Y) return {
@@ -1604,7 +1604,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     storedModel: z?.model,
                     hasLiveQuery: !!L?.query
                 },
-                re = await R(w, T).catch(Xe => (Z("[session-manager] /model view: model profile scope unreadable", {
+                re = await R(w, T).catch(Xe => (logWarnMessage("[session-manager] /model view: model profile scope unreadable", {
                     sessionKey: w,
                     error: Xe instanceof Error ? Xe.message : String(Xe)
                 }), null)),
@@ -1662,7 +1662,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     })))
                 }
             } catch (Xe) {
-                Z("[session-manager] /model view: model profile scope unreadable", {
+                logWarnMessage("[session-manager] /model view: model profile scope unreadable", {
                     sessionKey: w,
                     error: Xe instanceof Error ? Xe.message : String(Xe)
                 })
@@ -1682,7 +1682,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 detail: U
             };
             let Y = await _(w, z);
-            if (Y === "pi") return T !== null && !bI(T) ? {
+            if (Y === "pi") return T !== null && !isProviderQualifiedModelId(T) ? {
                 ok: !1,
                 reason: "runtime_rejected",
                 detail: `pi model ids are canonical "provider/modelId" (got "${T}")`
@@ -1690,7 +1690,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 model: T ?? null,
                 model_runtime: T !== null ? "pi" : null,
                 pending_model_fork: null
-            }), ee("[session-manager] pi session model override updated", {
+            }), logInfoMessage("[session-manager] pi session model override updated", {
                 sessionKey: w,
                 model: T ?? "(reset to default)",
                 applied: "stored"
@@ -1708,7 +1708,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     })
                 } catch (je) {
                     let sn = je instanceof Error ? je.message : String(je);
-                    return Z("[session-manager] grok session/set_model failed", {
+                    return logWarnMessage("[session-manager] grok session/set_model failed", {
                         sessionKey: w,
                         model: T,
                         error: sn
@@ -1722,7 +1722,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     model: T ?? null,
                     model_runtime: T !== null ? "grok" : null,
                     pending_model_fork: null
-                }), ee("[session-manager] grok session model override updated", {
+                }), logInfoMessage("[session-manager] grok session model override updated", {
                     sessionKey: w,
                     model: T ?? "(reset to default)",
                     applied: T !== null && ve ? "live" : "stored"
@@ -1736,7 +1736,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 model: T ?? null,
                 model_runtime: T !== null ? "codex" : null,
                 pending_model_fork: !0
-            }), ee("[session-manager] codex session model override updated", {
+            }), logInfoMessage("[session-manager] codex session model override updated", {
                 sessionKey: w,
                 model: T ?? "(reset to default)",
                 pendingModelFork: !0
@@ -1751,7 +1751,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             if (T && me && typeof me.supportedModels == "function") try {
                 re = (await me.supportedModels()).some(ve => ve.value === T)
             } catch {}
-            let Ee = await P(w, z, T, L).catch(Ae => (Z("[session-manager] model context profile classification failed — applying live", {
+            let Ee = await P(w, z, T, L).catch(Ae => (logWarnMessage("[session-manager] model context profile classification failed — applying live", {
                 sessionKey: w,
                 model: T ?? "(reset to default)",
                 error: Ae instanceof Error ? Ae.message : String(Ae)
@@ -1760,7 +1760,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 requirementKind: void 0,
                 contextWindow: void 0
             }));
-            if (Ee.outcome === "blocked") return Z("[session-manager] /model refused: unresolved model context profile", {
+            if (Ee.outcome === "blocked") return logWarnMessage("[session-manager] /model refused: unresolved model context profile", {
                 sessionKey: w,
                 model: T ?? "(reset to default)",
                 detail: Ee.detail
@@ -1777,7 +1777,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             else if (!Oe && me && typeof me.setModel == "function") try {
                 await me.setModel(T ?? void 0), Xe = "live", Ze && !Ze.closed && (Ze.liveModel = T ?? void 0)
             } catch (Ae) {
-                Z("[session-manager] live setModel failed — storing the override instead", {
+                logWarnMessage("[session-manager] live setModel failed — storing the override instead", {
                     sessionKey: w,
                     model: T ?? "(reset to default)",
                     error: Ae instanceof Error ? Ae.message : String(Ae)
@@ -1791,7 +1791,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 model: nt,
                 requirementKind: Ee.requirementKind,
                 reason: "live-command"
-            }), ee("[session-manager] session model override updated", {
+            }), logInfoMessage("[session-manager] session model override updated", {
                 sessionKey: w,
                 model: T ?? "(reset to default)",
                 applied: Xe,
@@ -1810,7 +1810,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
         },
         async getSessionEffortView(w, T) {
             let L = F.get(w),
-                z = await rt(t, w).catch(() => null),
+                z = await readSessionRuntimeState(t, w).catch(() => null),
                 U = await _(w, L),
                 Y = await E(w);
             if (Y) return {
@@ -1823,7 +1823,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     storedEffort: z?.effort ?? void 0,
                     hasLiveQuery: !!L?.query
                 },
-                re = await R(w, T).catch(Oe => (Z("[session-manager] /effort view: config scope unreadable", {
+                re = await R(w, T).catch(Oe => (logWarnMessage("[session-manager] /effort view: config scope unreadable", {
                     sessionKey: w,
                     error: Oe instanceof Error ? Oe.message : String(Oe)
                 }), null)),
@@ -1847,7 +1847,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             let U = await _(w, L);
             if (U === "pi") return await patchSessionRuntimeState(t, w, {
                 effort: T ?? null
-            }), ee("[session-manager] pi session effort override updated", {
+            }), logInfoMessage("[session-manager] pi session effort override updated", {
                 sessionKey: w,
                 effort: T ?? "(reset to default)"
             }), {
@@ -1857,12 +1857,12 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             };
             if (U === "grok") {
                 let re = narrowToModelSettableAdapter(L?.adapter),
-                    Oe = (await rt(t, w).catch(() => null))?.model ?? re?.currentModelId?.(),
+                    Oe = (await readSessionRuntimeState(t, w).catch(() => null))?.model ?? re?.currentModelId?.(),
                     Xe = !!(re && (re.hasSession?.() ?? !0) && Oe);
                 if (T !== null) {
                     if (!Xe || !re || !Oe) return await patchSessionRuntimeState(t, w, {
                         effort: T
-                    }), ee("[session-manager] grok session effort override updated", {
+                    }), logInfoMessage("[session-manager] grok session effort override updated", {
                         sessionKey: w,
                         effort: T,
                         applied: "stored"
@@ -1878,7 +1878,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         })
                     } catch (nt) {
                         let Ze = nt instanceof Error ? nt.message : String(nt);
-                        return Z("[session-manager] grok session/set_model(effort) failed", {
+                        return logWarnMessage("[session-manager] grok session/set_model(effort) failed", {
                             sessionKey: w,
                             effort: T,
                             error: Ze
@@ -1890,7 +1890,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     }
                     return await patchSessionRuntimeState(t, w, {
                         effort: T
-                    }), ee("[session-manager] grok session effort override updated", {
+                    }), logInfoMessage("[session-manager] grok session effort override updated", {
                         sessionKey: w,
                         effort: T,
                         applied: "live"
@@ -1907,7 +1907,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         })
                     } catch (nt) {
                         let Ze = nt instanceof Error ? nt.message : String(nt);
-                        return Z("[session-manager] grok session/set_model(effort reset) failed", {
+                        return logWarnMessage("[session-manager] grok session/set_model(effort reset) failed", {
                             sessionKey: w,
                             error: Ze
                         }), {
@@ -1918,7 +1918,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     }
                     return await patchSessionRuntimeState(t, w, {
                         effort: null
-                    }), ee("[session-manager] grok session effort override updated", {
+                    }), logInfoMessage("[session-manager] grok session effort override updated", {
                         sessionKey: w,
                         effort: "(reset to default)",
                         applied: "live"
@@ -1930,7 +1930,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 }
                 return await patchSessionRuntimeState(t, w, {
                     effort: null
-                }), ee("[session-manager] grok session effort override updated", {
+                }), logInfoMessage("[session-manager] grok session effort override updated", {
                     sessionKey: w,
                     effort: "(reset to default)",
                     applied: "stored"
@@ -1942,7 +1942,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             }
             if (U === "codex") return await patchSessionRuntimeState(t, w, {
                 effort: T ?? null
-            }), ee("[session-manager] codex session effort override updated", {
+            }), logInfoMessage("[session-manager] codex session effort override updated", {
                 sessionKey: w,
                 effort: T ?? "(reset to default)"
             }), {
@@ -1957,7 +1957,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     effortLevel: T ?? null
                 }), me = "live", L?.streamingState && (L.streamingState.lastAppliedEffort = T ?? null)
             } catch (re) {
-                Z("[session-manager] live applyFlagSettings(effort) failed — storing the override instead", {
+                logWarnMessage("[session-manager] live applyFlagSettings(effort) failed — storing the override instead", {
                     sessionKey: w,
                     effort: T ?? "(reset to default)",
                     error: re instanceof Error ? re.message : String(re)
@@ -1965,7 +1965,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             }
             return await patchSessionRuntimeState(t, w, {
                 effort: T ?? null
-            }), ee("[session-manager] session effort override updated", {
+            }), logInfoMessage("[session-manager] session effort override updated", {
                 sessionKey: w,
                 effort: T ?? "(reset to default)",
                 applied: me

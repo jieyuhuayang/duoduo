@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function runSpineCatRpc(e, t) {
-    let n = rU(t);
-    if (n !== null) throw new tp(Dm("spine.cat", n));
+    let n = describeSpineCatProblem(t);
+    if (n !== null) throw new SpineRpcParamsError(renderParamsProblem("spine.cat", n));
     let r = t,
         i = {
             stdout: "",
@@ -18,11 +18,11 @@ async function runSpineCatRpc(e, t) {
         await mke(e, o, new Date, i, {
             overRpc: !0,
             ...s !== null ? {
-                redact: a => Npt(a, s)
+                redact: a => redactSpineEventForExternal(a, s)
             } : {}
         })
     } catch (o) {
-        throw o instanceof xS && o.isUsage ? new tp(o.message) : o
+        throw o instanceof xS && o.isUsage ? new SpineRpcParamsError(o.message) : o
     }
     return {
         text: i.stdout

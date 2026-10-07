@@ -13,7 +13,7 @@ async function pruneEventIdIndexByRetention(e, t) {
         a = 0;
     try {
         let l = gU(o);
-        for await (let c of gs(l)) {
+        for await (let c of iterateStreamLines(l)) {
             if (!c) continue;
             let d;
             try {
@@ -40,7 +40,7 @@ async function pruneEventIdIndexByRetention(e, t) {
     let u = s.length === 0 ? "" : `${s.join(`
 `)}
 `;
-    return await Dt(o, u), {
+    return await writeFileAtomic(o, u), {
         kept: s.length,
         dropped: a,
         cutoff: i

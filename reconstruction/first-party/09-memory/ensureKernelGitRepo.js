@@ -6,10 +6,10 @@
 
 async function ensureKernelGitRepo(e) {
     if (!await isKernelGitToplevel(e)) {
-        ee("[memory-git] initializing git repo", {
+        logInfoMessage("[memory-git] initializing git repo", {
             kernelDir: e
-        }), await runKernelGitCommand(e, ["init"]), await ES.writeFile(Rke.join(e, ".gitignore"), Tke, "utf8"), await runKernelGitCommand(e, ["add", "."]), await runKernelGitCommand(e, ["commit", "-m", "memory: genesis"]), ee("[memory-git] genesis commit created");
+        }), await runKernelGitCommand(e, ["init"]), await ES.writeFile(Rke.join(e, ".gitignore"), Tke, "utf8"), await runKernelGitCommand(e, ["add", "."]), await runKernelGitCommand(e, ["commit", "-m", "memory: genesis"]), logInfoMessage("[memory-git] genesis commit created");
         return
     }
-    await mergeKernelGitignoreEntries(e), ke("[memory-git] existing repo detected, .gitignore synced")
+    await mergeKernelGitignoreEntries(e), logDebugMessage("[memory-git] existing repo detected, .gitignore synced")
 }

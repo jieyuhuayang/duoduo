@@ -6,7 +6,7 @@
 
 async function runKernelGitCommand(e, t, n) {
     try {
-        return await Ike("git", $ke(e, t), {
+        return await Ike("git", buildSafeDirectoryGitArgs(e, t), {
             cwd: e,
             env: buildKernelGitEnv()
         })

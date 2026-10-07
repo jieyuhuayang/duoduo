@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseEffectivenessTrajectory(e) {
-    for (let t of Jo(e)) {
+    for (let t of splitLinesDropTrailingEmpty(e)) {
         let n = /^trajectory:\s*(.+?)\s*$/i.exec(t);
         if (!n) continue;
         let r = n[1].toUpperCase();

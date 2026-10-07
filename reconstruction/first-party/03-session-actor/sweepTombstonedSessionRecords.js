@@ -10,9 +10,9 @@ async function sweepTombstonedSessionRecords(e) {
         r = 0,
         i;
     try {
-        i = await Qb(e)
+        i = await listAllOutboxRecords(e)
     } catch (s) {
-        Z("[housekeeping] failed to list outbox records — sweep skipped", {
+        logWarnMessage("[housekeeping] failed to list outbox records — sweep skipped", {
             error: s
         }), i = []
     }
@@ -20,7 +20,7 @@ async function sweepTombstonedSessionRecords(e) {
         if (s.status !== "pending" && isSessionArchived(e, s.session_key)) try {
             await oIe.unlink(resolveOutboxRecordPath(e, s.channel_kind, s.id)), t += 1
         } catch (a) {
-            a.code !== "ENOENT" && Z("[housekeeping] failed to remove tombstoned outbox record", {
+            a.code !== "ENOENT" && logWarnMessage("[housekeeping] failed to remove tombstoned outbox record", {
                 sessionKey: s.session_key,
                 recordId: s.id,
                 error: a
@@ -30,21 +30,21 @@ async function sweepTombstonedSessionRecords(e) {
     for (let s of await Nce(e)) o.add(s), !iIe(resolveSessionDir(e, s)) && !iIe(resolveArchivedSessionDir(e, s)) && (r += 1);
     for (let s of o) {
         if (!isSessionArchived(e, s)) continue;
-        let a = ws(e, s);
+        let a = resolveOutboxReplayFilePath(e, s);
         try {
             await oIe.unlink(a), n += 1
         } catch (u) {
-            u.code !== "ENOENT" && Z("[housekeeping] failed to remove tombstoned replay log", {
+            u.code !== "ENOENT" && logWarnMessage("[housekeeping] failed to remove tombstoned replay log", {
                 sessionKey: s,
                 error: u
             })
         }
     }
-    return t > 0 || n > 0 ? ee("[housekeeping] swept tombstoned-session records", {
+    return t > 0 || n > 0 ? logInfoMessage("[housekeeping] swept tombstoned-session records", {
         outboxRemoved: t,
         replayLogsRemoved: n,
         replayLogsWithoutSessionDir: r
-    }) : ke("[housekeeping] no tombstoned-session records to sweep", {
+    }) : logDebugMessage("[housekeeping] no tombstoned-session records to sweep", {
         replayDir: resolveOutboxReplayDir(e),
         replayLogsWithoutSessionDir: r
     }), {

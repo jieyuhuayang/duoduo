@@ -14,7 +14,7 @@ async function refreshBootstrapDuoduoMdFiles(e) {
         for (let s of o) {
             let a = sr.join(r, s.name),
                 u = sr.join(i, s.name);
-            s.isDirectory() ? await n(a, u) : s.isFile() && s.name === "DUODUO.md" && (await Ne(i), await or.copyFile(a, u))
+            s.isDirectory() ? await n(a, u) : s.isFile() && s.name === "DUODUO.md" && (await ensureDirectoryExists(i), await or.copyFile(a, u))
         }
     }
     await n(t, e.varDir)

@@ -23,8 +23,8 @@ async function runManageJobTool(e, t) {
                 let s = i.runtime ?? t.callerRuntime ?? resolveDefaultRuntime(),
                     a = e.model;
                 if (a === void 0 || a.trim().length === 0) throw new Error(plt);
-                if (_I(a)) throw new Error(`Invalid model id: ${JSON.stringify(a)}. A model id must not contain whitespace.`);
-                if (s === "pi" && !bI(a)) throw new Error(`Invalid pi model id: ${JSON.stringify(a)}. Pi model ids use the canonical "provider/modelId" form. List what this host serves with a pi channel session's \`/model\`, or \`duoduo session model <pi-channel-session>\`.`);
+                if (containsWhitespaceChar(a)) throw new Error(`Invalid model id: ${JSON.stringify(a)}. A model id must not contain whitespace.`);
+                if (s === "pi" && !isProviderQualifiedModelId(a)) throw new Error(`Invalid pi model id: ${JSON.stringify(a)}. Pi model ids use the canonical "provider/modelId" form. List what this host serves with a pi channel session's \`/model\`, or \`duoduo session model <pi-channel-session>\`.`);
                 let u = e.effort;
                 if (u !== void 0 && !isEffortLevel(u)) throw new Error(`Invalid effort: ${JSON.stringify(u)}. Accepted values are ${qi.join(", ")}.`);
                 let l = e.acceptance;
@@ -81,7 +81,7 @@ ${Jut}`, t.bus?.emit("job.created", {
                     let {
                         content: l,
                         ...c
-                    } = Wf(u);
+                    } = redactJobModelProfileTokens(u);
                     return `[ARCHIVED] Job '${e.id}' is archived — it is no longer scheduled. To run it again, create a new job (same or new id) with the instruction below; it starts with fresh state and a fresh session, and the archived session is not restored.
 ` + JSON.stringify({
                         ...c,
@@ -93,7 +93,7 @@ ${Jut}`, t.bus?.emit("job.created", {
                 let {
                     content: s,
                     ...a
-                } = Wf(o.job);
+                } = redactJobModelProfileTokens(o.job);
                 return JSON.stringify({
                     ...a,
                     usage_ledger_path: drainRecordPath(t.paths, o.job.session_key),
@@ -140,6 +140,6 @@ ${Jut}`, t.bus?.emit("job.created", {
             }
         }
     } catch (r) {
-        return Ue("[ManageJob] Tool execution failed", r), `Error: ${r instanceof Error?r.message:String(r)}`
+        return logErrorMessage("[ManageJob] Tool execution failed", r), `Error: ${r instanceof Error?r.message:String(r)}`
     }
 }

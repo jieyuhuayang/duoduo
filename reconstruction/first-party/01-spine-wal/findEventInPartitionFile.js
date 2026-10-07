@@ -7,7 +7,7 @@
 async function findEventInPartitionFile(e, t) {
     try {
         let n = gU(e);
-        for await (let r of gs(n)) {
+        for await (let r of iterateStreamLines(n)) {
             if (!r) continue;
             let i = hU(r);
             if (i?.id === t) return i

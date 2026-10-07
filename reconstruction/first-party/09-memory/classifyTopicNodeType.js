@@ -6,7 +6,7 @@
 
 function classifyTopicNodeType(e) {
     let t = null;
-    for (let i of Jo(e))
+    for (let i of splitLinesDropTrailingEmpty(e))
         if (/^\*\*Type\*\*:/i.test(i)) {
             t = i.toLowerCase();
             break

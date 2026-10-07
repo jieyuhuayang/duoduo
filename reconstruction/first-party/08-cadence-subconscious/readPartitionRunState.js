@@ -6,7 +6,7 @@
 
 async function readPartitionRunState(e, t) {
     try {
-        let n = await Gct.readFile(Pwe(e, t), "utf8"),
+        let n = await Gct.readFile(resolvePartitionStatePath(e, t), "utf8"),
             r = JSON.parse(n);
         return typeof r.consecutive_failures != "number" ? {
             ...Twe

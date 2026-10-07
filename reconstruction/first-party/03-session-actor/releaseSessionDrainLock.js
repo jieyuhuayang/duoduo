@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function releaseSessionDrainLock(e, t) {
-    let n = xW(e, t);
+    let n = resolveSessionDrainLockPath(e, t);
     try {
         await oxe.unlink(n)
     } catch {}

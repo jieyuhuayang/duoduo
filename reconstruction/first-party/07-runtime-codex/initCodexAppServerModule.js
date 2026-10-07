@@ -52,8 +52,8 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
                 this.alive = !1;
                 let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
                 this.rejectAllPending(i)
-            }), this.rl = Xl(this.proc.stdout, n => this.handleLine(n)), Xl(this.proc.stderr, n => {
-                ke("[codex-stderr]", n)
+            }), this.rl = attachStreamLineReader(this.proc.stdout, n => this.handleLine(n)), attachStreamLineReader(this.proc.stderr, n => {
+                logDebugMessage("[codex-stderr]", n)
             }))
         }
         request(n, r, i) {
@@ -121,7 +121,7 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
             try {
                 i = JSON.parse(r)
             } catch {
-                Z("[codex-transport] unparseable line:", r.slice(0, 200));
+                logWarnMessage("[codex-transport] unparseable line:", r.slice(0, 200));
                 return
             }
             if (i.id != null && (i.result !== void 0 || i.error !== void 0)) {
@@ -151,7 +151,7 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
             this.onToolCallSettled = n
         }
         handleServerRequest(n) {
-            if (ke("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
+            if (logDebugMessage("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
                 let r = n.params,
                     i = r?.tool,
                     o = r?.arguments ?? {},

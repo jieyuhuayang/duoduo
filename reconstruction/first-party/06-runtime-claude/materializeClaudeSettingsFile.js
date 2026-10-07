@@ -10,7 +10,7 @@ async function materializeClaudeSettingsFile(e) {
     sct();
     let n = ict(t),
         r = hve.join(e.dir, oct(n));
-    return J6.has(r) || (await Dt(r, n, {
+    return J6.has(r) || (await writeFileAtomic(r, n, {
         mode: 384
     }), await W6.chmod(r, 384), J6.add(r)), r
 }

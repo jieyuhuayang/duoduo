@@ -5,12 +5,12 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function updateDeliveryCursorFile(e, t, n, r) {
-    let i = jbe(e, t, n);
+    let i = resolveDeliveryCursorPath(e, t, n);
     return runWithSessionMutex(t, async () => {
-        if (isSessionArchived(e, t)) return ke("[delivery-cursor] skip cursor write: session archived (tombstoned)", {
+        if (isSessionArchived(e, t)) return logDebugMessage("[delivery-cursor] skip cursor write: session archived (tombstoned)", {
             sessionKey: t
         }), !1;
         let o = r(await readDeliveryCursorFile(e, t, n));
-        return o ? (await Ne(Nbe.dirname(i)), await Bt(i, o), !0) : !1
+        return o ? (await ensureDirectoryExists(Nbe.dirname(i)), await writeJsonFileAtomic(i, o), !0) : !1
     })
 }

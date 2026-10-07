@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function writeConsumerOffsetFile(e, t, n) {
-    await Bt(resolveConsumerOffsetPath(e, t), n)
+    await writeJsonFileAtomic(resolveConsumerOffsetPath(e, t), n)
 }

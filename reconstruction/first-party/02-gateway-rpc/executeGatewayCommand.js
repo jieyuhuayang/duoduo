@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function executeGatewayCommand(e, t, n, r, i) {
-    if (t.name === "unsupported") return Z("[gateway] unsupported command", {
+    if (t.name === "unsupported") return logWarnMessage("[gateway] unsupported command", {
         command: t.raw,
         command_name: t.name
     }), {
@@ -45,7 +45,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
         }
     }
     if (t.name === "/status") {
-        let o = await Mb(e),
+        let o = await readRegistryStatusFile(e),
             s = r?.listActors?.(),
             a = r?.listPersistentSessions?.() ?? [],
             u = new Set,
@@ -182,7 +182,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
 `)
             }
         }
-        if (_I(a)) return {
+        if (containsWhitespaceChar(a)) return {
             responseText: `Invalid model id: "${a}" — a model id has no spaces. ${s}`
         };
         let c = await r.setSessionModel(n, a === "reset" ? null : a, i);
@@ -296,15 +296,15 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
         }
     }
     if (t.name === "/debug") {
-        let o = await na(e, n),
-            s = await rt(e, n),
+        let o = await readSessionMetaFile(e, n),
+            s = await readSessionRuntimeState(e, n),
             a = hashSessionKey(n);
         return {
             responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(e,n)}`, `- session_state: ${resolveSessionStatePath(e,n)}`, `- ingress_snapshots: ${mf.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${mf.join(e.jobsDir,"active")}`].join(`
 `)
         }
     }
-    return Z("[gateway] unsupported command", {
+    return logWarnMessage("[gateway] unsupported command", {
         command: t.raw,
         command_name: t.name
     }), {

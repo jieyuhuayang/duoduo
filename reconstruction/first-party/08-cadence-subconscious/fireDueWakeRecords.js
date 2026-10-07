@@ -10,7 +10,7 @@ async function fireDueWakeRecords(e, t, n, r) {
     try {
         o = await t.listWakeRecords()
     } catch (s) {
-        return Z("[cadence] wake scan failed to list records", {
+        return logWarnMessage("[cadence] wake scan failed to list records", {
             error: s instanceof Error ? s.message : String(s)
         }), i
     }
@@ -20,7 +20,7 @@ async function fireDueWakeRecords(e, t, n, r) {
         let u = Date.parse(a);
         if (!Number.isFinite(u) || n.getTime() < u) continue;
         if (!r) {
-            Z("[cadence] wake due but no bus available to deliver it", {
+            logWarnMessage("[cadence] wake due but no bus available to deliver it", {
                 wakeId: s.id,
                 owner: s.frontmatter.owner_session
             });
@@ -43,13 +43,13 @@ async function fireDueWakeRecords(e, t, n, r) {
                 due_at: c.state.run_at
             }
         }));
-        l === "delivered" && (i.push(s.id), ee("[cadence] wake delivered", {
+        l === "delivered" && (i.push(s.id), logInfoMessage("[cadence] wake delivered", {
             wakeId: s.id,
             target: s.frontmatter.owner_session,
             dueAt: a
         }))
     } catch (a) {
-        Z("[cadence] wake fire failed; record left for the next scan", {
+        logWarnMessage("[cadence] wake fire failed; record left for the next scan", {
             wakeId: s.id,
             error: a instanceof Error ? a.message : String(a)
         })

@@ -14,7 +14,7 @@ async function listSessionIndexSummaries(e, t, n, r) {
         i = null
     }
     let s = l => i === null || !l.startsWith("job:") ? !1 : !i.has(l),
-        a = e.list().filter(l => !(n.kind && classifySessionKeyKind(l.session_key) !== n.kind || n.named_only && !Zf(l) || !n.include_orphans && s(l.session_key)));
+        a = e.list().filter(l => !(n.kind && classifySessionKeyKind(l.session_key) !== n.kind || n.named_only && !hasNonEmptyDisplayName(l) || !n.include_orphans && s(l.session_key)));
     return (n.deliverable ? await filterDeliverableSessions(r, a) : a).map(l => {
         let c = Clt(l);
         return n.include_orphans && s(l.session_key) ? {

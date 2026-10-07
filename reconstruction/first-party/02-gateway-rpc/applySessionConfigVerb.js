@@ -35,7 +35,7 @@ async function applySessionConfigVerb(e, t, n) {
             errors: v.errors
         };
         for (let b of v.keys)
-            for (let _ of eh(b)) i[_] = null;
+            for (let _ of listFrontmatterKeyAliases(b)) i[_] = null;
         o = v.keys
     }
     if (n.global) {
@@ -53,7 +53,7 @@ async function applySessionConfigVerb(e, t, n) {
                 error: R.error
             }
         }
-        let b = await li(e.channelConfigDir),
+        let b = await loadGlobalRuntimeConfig(e.channelConfigDir),
             _ = OG(null, null, b),
             E = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
                 scope: "global",
@@ -123,7 +123,7 @@ async function applySessionConfigVerb(e, t, n) {
         target: s,
         session_key: u
     };
-    let c = await rt(e, u),
+    let c = await readSessionRuntimeState(e, u),
         d = c?.source_channel_id;
     if (r !== "get") {
         if (!d) return {
@@ -146,9 +146,9 @@ async function applySessionConfigVerb(e, t, n) {
             error: v.error
         }
     }
-    let f = d ? await vs(e, d) : null,
+    let f = d ? await readChannelDescriptor(e, d) : null,
         p = f?.channel_kind ? await loadChannelKindConfig(e.channelConfigDir, f.channel_kind) : null,
-        m = await li(e.channelConfigDir),
+        m = await loadGlobalRuntimeConfig(e.channelConfigDir),
         h = OG(f, p, m),
         g = dvt(c?.compact_stats, c?.last_compact_at),
         y = r === "get" ? void 0 : await appendConfigChangedEvent(e, {

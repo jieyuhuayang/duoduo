@@ -11,9 +11,9 @@ function renderTimeGapContextBlock(e) {
     if (!Number.isFinite(t) || !Number.isFinite(n)) return;
     let r = n - t;
     if (r < e.thresholdMs) return;
-    let i = qxe(r),
-        o = [`<time-context last_interaction="${Ut(e.lastEventAt)}" current_time="${Ut(e.currentEventAt)}">`, `Approximately ${i} have elapsed since your last interaction in this session.`],
-        s = hA(e.currentEventAt);
+    let i = formatElapsedDuration(r),
+        o = [`<time-context last_interaction="${escapeXmlText(e.lastEventAt)}" current_time="${escapeXmlText(e.currentEventAt)}">`, `Approximately ${i} have elapsed since your last interaction in this session.`],
+        s = formatLocalTimestampWithZone(e.currentEventAt);
     return s && o.push(`Daemon wall-clock time: ${s}.`), o.push("</time-context>"), o.join(`
 `)
 }

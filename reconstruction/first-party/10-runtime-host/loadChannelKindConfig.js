@@ -6,7 +6,7 @@
 
 async function loadChannelKindConfig(e, t) {
     let n = t.trim().toLowerCase();
-    if (!ket(n)) return Z(`[channel-config] invalid channel kind "${t}"`), null;
+    if (!ket(n)) return logWarnMessage(`[channel-config] invalid channel kind "${t}"`), null;
     let r = Zce.join(e, `${n}.md`),
         i = await Yce(r);
     if (i.status !== "ok") return null;

@@ -21,7 +21,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
         schema_version: SESSION_SCHEMA_VERSION,
         board_layer_hash: c,
         instructions_nonboard_fingerprint: d
-    }), ee(`[session-upgrade] v${u} → v${SESSION_SCHEMA_VERSION} rebuild`, {
+    }), logInfoMessage(`[session-upgrade] v${u} → v${SESSION_SCHEMA_VERSION} rebuild`, {
         sessionKey: t,
         jobId: l,
         runtime: r,
@@ -43,7 +43,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), ee("[instructions-fingerprint] codex board-only drift — fork skipped", {
+            }), logInfoMessage("[instructions-fingerprint] codex board-only drift — fork skipped", {
                 sessionKey: t,
                 jobId: l,
                 fp_old: a ?? null,
@@ -68,7 +68,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), ee("[instructions-fingerprint] codex thread fork", {
+            }), logInfoMessage("[instructions-fingerprint] codex thread fork", {
                 sessionKey: t,
                 jobId: l,
                 fp_old: a ?? null,
@@ -93,7 +93,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), ee("[instructions-fingerprint] codex thread reset (no parent to fork)", {
+            }), logInfoMessage("[instructions-fingerprint] codex thread reset (no parent to fork)", {
                 sessionKey: t,
                 jobId: l,
                 fp_old: a ?? null,
@@ -116,7 +116,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
             instructions_fingerprint: s,
             board_layer_hash: c,
             instructions_nonboard_fingerprint: d
-        }), ee(`[instructions-fingerprint] ${r} instructions updated`, {
+        }), logInfoMessage(`[instructions-fingerprint] ${r} instructions updated`, {
             sessionKey: t,
             jobId: l,
             fp_old: a ?? null,

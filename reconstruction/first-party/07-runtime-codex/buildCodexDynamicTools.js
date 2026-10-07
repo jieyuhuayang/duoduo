@@ -10,10 +10,10 @@ function buildCodexDynamicTools(e) {
         r = "codex",
         i = e.sessionContextKind === "meta" || e.sessionContextKind === "system";
     if (!i) {
-        let o = n ? KC(r) : ZC(r);
+        let o = n ? buildJobSessionInputSchema(r) : buildManageJobInputSchema(r);
         t.push({
             name: Jw,
-            description: n ? GC() : JC(),
+            description: n ? renderJobSessionToolDescription() : renderManageJobToolDescription(),
             inputSchema: buildCodexStringInputSchema(o),
             handler: async s => {
                 let a = await runManageJobTool(s, {

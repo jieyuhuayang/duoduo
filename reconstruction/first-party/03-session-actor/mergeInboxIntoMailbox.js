@@ -8,14 +8,14 @@ async function mergeInboxIntoMailbox(e, t) {
     let n = resolveSessionInboxDir(e, t),
         r;
     try {
-        r = (await $b(n)).sort()
+        r = (await listPendingInboxFiles(n)).sort()
     } catch (s) {
         throw new VR(s)
     }
-    if (r.length === 0) return await bU(e, t), {
+    if (r.length === 0) return await ensureSessionMailboxPendingDir(e, t), {
         merged: 0
     };
-    let i = await bU(e, t),
+    let i = await ensureSessionMailboxPendingDir(e, t),
         o = 0;
     for (let s of r) {
         let a = ea.join(n, s),
@@ -34,11 +34,11 @@ async function mergeInboxIntoMailbox(e, t) {
                 if (g === "ENOENT") continue;
                 throw h
             }
-            Ue(`[mailbox] unprocessable inbox item — quarantining: ${a}`, h);
+            logErrorMessage(`[mailbox] unprocessable inbox item — quarantining: ${a}`, h);
             try {
-                await Gd(a, ea.join(n, "quarantine"))
+                await moveFileIntoDirectory(a, ea.join(n, "quarantine"))
             } catch (v) {
-                Ue(`[mailbox] failed to quarantine inbox item — skipped for this merge: ${a}`, v)
+                logErrorMessage(`[mailbox] failed to quarantine inbox item — skipped for this merge: ${a}`, v)
             }
             continue
         }
@@ -56,7 +56,7 @@ async function mergeInboxIntoMailbox(e, t) {
                 reply_session_key: d,
                 created_at: aYe(s) ?? new Date().toISOString()
             };
-        await Dt(ea.join(i, p), JSON.stringify(m) + `
+        await writeFileAtomic(ea.join(i, p), JSON.stringify(m) + `
 `), await wr.unlink(a), o += 1
     }
     return {

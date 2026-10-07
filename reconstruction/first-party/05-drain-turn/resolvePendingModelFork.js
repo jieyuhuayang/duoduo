@@ -19,7 +19,7 @@ async function resolvePendingModelFork(e, t, n) {
     };
     n.runtime === "codex" && !n.statelessJob ? (!n.sessionInfo.forkFrom && n.sessionInfo.sessionId ? await r({
         pending_fork_to: n.sessionInfo.sessionId
-    }) && (n.sessionInfo.forkFrom = n.sessionInfo.sessionId) : await r(), ee("[runner] resolved pending_model_fork at codex drain start", {
+    }) && (n.sessionInfo.forkFrom = n.sessionInfo.sessionId) : await r(), logInfoMessage("[runner] resolved pending_model_fork at codex drain start", {
         sessionKey: t,
         forkFrom: n.sessionInfo.forkFrom ?? "(no fork this drain)",
         model: n.sessionInfo.model ?? "(runtime default)"

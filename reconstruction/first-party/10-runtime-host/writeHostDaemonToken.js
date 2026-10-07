@@ -12,6 +12,6 @@ async function writeHostDaemonToken(e, t = process.env) {
     } catch {
         r = ""
     }
-    let i = HSe(r, [DAEMON_TOKEN_ENV_KEY]);
-    return i.length > 0 && i[i.length - 1] !== "" && i.push(""), await ZO([...i, `${DAEMON_TOKEN_ENV_KEY}=${e}`], t), n
+    let i = removeDotEnvKeyLines(r, [DAEMON_TOKEN_ENV_KEY]);
+    return i.length > 0 && i[i.length - 1] !== "" && i.push(""), await writeHostDotEnvLines([...i, `${DAEMON_TOKEN_ENV_KEY}=${e}`], t), n
 }
