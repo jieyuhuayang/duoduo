@@ -93,8 +93,11 @@
 //                           is `1000`), which must match EXACTLY -- a constant
 //                           whose literal changed is a different constant.
 //                           Another top-level constant with the same literal is
-//                           a warning: nothing could tell which one the name is
-//                           on (name_symbol.mjs refuses to register such a one)
+//                           told apart by who reads it (TWIN, judgeTwins): the
+//                           record keeps the literals and member names of its
+//                           readers; a twin whose readers fit them better is
+//                           FATAL, one that fits exactly as well a warning
+//                           (name_symbol.mjs refuses to register such a one)
 //   3. SWAP   each body is scored against EVERY recorded shape (Jaccard over
 //             literals, member-property names, arity and kind, and a module
 //             initialiser's constants). If some other inferred name's baseline
@@ -355,6 +358,71 @@ function propsOf(node) {
   return [...out].sort();
 }
 
+// TWIN rule for literal constants. Two top-level constants with the same
+// literal cannot be told apart by the literal, and the hash is all a value's
+// record held, so such a name warned at every rebuild and PROMOTE refused it:
+// at v0.8.4 IDLE_COMPACT_FIRE_CAP_PER_SWEEP (8) gained a twin and had to be
+// dropped although its new place was certain. What differs is who reads each
+// one. So a value's record also keeps `readers`: the string literals and
+// member-property names of every top-level declaration that refers to it
+// (readerFeatures), which survive re-mangling as they do for SWAP. A twin
+// that fits the recorded readers better than the constant the name is on
+// refutes it; one that fits exactly as well leaves the old warning.
+// A local that shadows the constant's short name counts as a reader too; the
+// noise only lowers both scores alike.
+const isRef = (key, parent) => !((key === "property" || key === "key") && parent && !parent.computed);
+// short name of each top-level constant -> the top-level declarations that refer to it
+export function valueReaders(decls) {
+  const values = new Set();
+  for (const [n, d] of decls) if (d.kind === "value") values.add(n);
+  const readers = new Map();
+  for (const [n, d] of decls) {
+    if (d.kind === "value") continue;
+    const found = new Set(), seen = new Set();
+    (function walk(x, key, parent) {
+      if (!x || typeof x !== "object" || seen.has(x)) return;
+      seen.add(x);
+      if (Array.isArray(x)) { for (const y of x) walk(y, key, parent); return; }
+      if (x.type === "Identifier" && values.has(x.name) && isRef(key, parent)) found.add(x.name);
+      for (const k of Object.keys(x)) if (k !== "loc" && k !== "range" && k !== "leadingComments" && k !== "trailingComments") walk(x[k], k, x);
+    })(d.node);
+    for (const v of found) readers.set(v, [...(readers.get(v) ?? []), n]);
+  }
+  return readers;
+}
+// what the readers of one constant look like: their literals and member names
+export function readerFeatures(decls, readerNames) {
+  const out = new Set();
+  for (const r of readerNames ?? []) {
+    const d = decls.get(r);
+    if (!d || d.kind === "value") continue;
+    for (const l of literalsOf(d.node).slice(0, 24)) out.add(`lit:${l}`);
+    for (const p of propsOf(d.node).slice(0, 60)) out.add(`prop:${p}`);
+  }
+  return [...out].sort().slice(0, 160);
+}
+const jaccard = (a, b) => {
+  const A = new Set(a), B = new Set(b);
+  let i = 0;
+  for (const x of A) if (B.has(x)) i++;
+  return i / (A.size + B.size - i || 1);
+};
+// Check 2 for a name on a constant that has same-literal twins (header).
+// `old` is its record, `twins` the other holders of the literal.
+// -> { fail: string|null, warn: [string] }
+export function judgeTwins(real, mangled, old, twins, decls, readers) {
+  if (!twins.length) return { fail: null, warn: [] };
+  const list = twins.slice(0, 4).join(", ");
+  if (!Array.isArray(old.readers) || !old.readers.length)
+    return { fail: null, warn: [`${real}: ${twins.length} other top-level constant(s) have the same literal (${list}) and the record has no readers to tell them apart -- re-read by hand, then re-record`] };
+  const own = jaccard(old.readers, readerFeatures(decls, readers.get(mangled)));
+  const scored = twins.map((t) => [t, jaccard(old.readers, readerFeatures(decls, readers.get(t)))]).sort((a, b) => b[1] - a[1]);
+  const better = scored.filter(([, x]) => x > own), equal = scored.filter(([, x]) => x === own);
+  if (better.length) return { fail: `${real}: ${better[0][0]} holds the same literal and is read by code that fits the recorded readers better (${better[0][1].toFixed(2)}) than ${mangled}, the one the name is on (${own.toFixed(2)}) -- the name is on the wrong constant`, warn: [] };
+  if (equal.length) return { fail: null, warn: [`${real}: ${equal.length} other top-level constant(s) have the same literal and readers that fit its record exactly as well (${equal.slice(0, 4).map(([t]) => t).join(", ")}): nothing can tell which one this name is on -- re-read by hand`] };
+  return { fail: null, warn: [] };
+}
+
 // the baseline record for one declaration (what `record` writes per name).
 // A function's record is unchanged from before module initialisers and values
 // were accepted: same keys, same order, so the committed baseline still checks.
@@ -443,6 +511,7 @@ function main() {
   const mangledOf = {}; // real -> the short name it is on
   const fail = [], warn = [];
   const byKind = { function: 0, moduleInit: 0, value: 0 };
+  let readers = null; // valueReaders(decls), when a constant is named
   for (const [mangled, real] of Object.entries(inferred)) {
     const d = decls.get(mangled);
     if (!d) { fail.push(`${real}: ${mangled} is not a top-level declaration in ${PRETTY}`); continue; }
@@ -460,6 +529,7 @@ function main() {
       fail.push(`${real}: ${mangled} @${d.line} is a module initialiser with no string literal and no literal constant: nothing in it can tell it from any other initialiser, so this name cannot be verified (and nothing in it is citable)`);
       continue;
     }
+    if (d.kind === "value") sh.readers = readerFeatures(decls, (readers ??= valueReaders(decls)).get(mangled));
     shape[real] = sh;
     byKind[nameKind(d)]++;
   }
@@ -490,7 +560,9 @@ function main() {
       if (cur.kind === "value") {
         if (old.value !== cur.value) fail.push(`${real}: the constant's literal changed: was ${old.preview}, is ${cur.preview}. A constant whose literal changed is a different constant: re-point the name, or, if upstream really changed this constant, re-read every citation of it and re-record`);
         const others = (valueHolders.get(cur.value) ?? []).filter(n => inferred[n] !== real);
-        if (others.length) warn.push(`${real}: ${others.length} other top-level constant(s) have the same literal (${others.slice(0, 4).join(", ")}): nothing can tell which one this name is on -- re-read by hand`);
+        const j = judgeTwins(real, mangledOf[real], old, others, decls, readers ??= valueReaders(decls));
+        if (j.fail) fail.push(j.fail);
+        warn.push(...j.warn);
         continue;
       }
       if (old.params != null && cur.params != null && old.params !== cur.params) warn.push(`${real}: parameter count ${old.params} -> ${cur.params} (re-read: rewrite, or wrong function?)`);

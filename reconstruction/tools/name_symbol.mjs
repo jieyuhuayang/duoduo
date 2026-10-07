@@ -161,14 +161,22 @@
 // check-mode run's $OUT (reconstruction/.build) describes the new one and
 // maps/inferred_daemon.json already holds the carried names. Pass the bundle
 // that run beautified: .build/beautified/v<new>/daemon.pretty.js.
+// After writing, --build also brings that run's rename map and symbol index up
+// to date (build_rename.mjs, then symbol_index.mjs on the pretty bundle the
+// index records as its source), so the new names can be cited and checked
+// (check_docs.sh, the three checkers) at once. Before this every registration
+// needed a full rebuild.sh before a doc could cite it; at v0.8.4 the doc
+// agents waited on one. The rest of that $OUT (recon, first-party, the
+// report) is not regenerated: the next rebuild.sh does that.
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
 import * as t from "@babel/types";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
-import { topLevelDeclarations, isNameable, whyNotNameable, shapeOf, esmHelpers, isModuleInitCall, nameKind, spellingProblem, initialiserShapes, initialiserRivals } from "./verify_inferred.mjs";
+import { topLevelDeclarations, isNameable, whyNotNameable, shapeOf, esmHelpers, isModuleInitCall, nameKind, spellingProblem, initialiserShapes, initialiserRivals, valueReaders, readerFeatures } from "./verify_inferred.mjs";
 const traverse = _traverse.default || _traverse;
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -428,6 +436,7 @@ const valueHolders = new Map();
 for (const [n, d] of decls) if (d.kind === "value") valueHolders.set(d.canonical, [...(valueHolders.get(d.canonical) ?? []), n]);
 // every module initialiser's shape (KIND: an initialiser must not tie another)
 let initShapes = null;
+let readers = null; // valueReaders(decls), when a constant has a twin or is written
 const seenShort = new Map(), seenName = new Map();
 const problems = [], planned = [];
 for (const e of entries) {
@@ -446,8 +455,15 @@ for (const e of entries) {
     if (equal.length) { bad(`${e.short} @${d.line} has exactly the shape of ${equal.length} other module initialiser(s) (${equal.slice(0, 4).map(n => `${n} @${decls.get(n).line}`).join(", ")}): verify_inferred.mjs checks an initialiser by its shape, and could not tell which one the name is on`); continue; }
   }
   if (kind === "value") {
+    // TWIN (verify_inferred.mjs judgeTwins): a constant that shares its literal
+    // is told apart by its readers, so it is accepted only when no twin's
+    // readers look exactly like its own
     const twins = (valueHolders.get(d.canonical) ?? []).filter(n => n !== e.short);
-    if (twins.length) { bad(`${e.short} @${d.line} holds \`${d.canonical.slice(0, 40)}\`, and so do ${twins.length} other top-level constant(s) (${twins.slice(0, 4).map(n => `${n} @${decls.get(n).line}`).join(", ")}): verify_inferred.mjs checks a constant by its literal, and could not tell which one the name is on`); continue; }
+    if (twins.length) {
+      const own = readerFeatures(decls, (readers ??= valueReaders(decls)).get(e.short)).join("\n");
+      const same = twins.filter(n => readerFeatures(decls, readers.get(n)).join("\n") === own);
+      if (!own || same.length) { bad(`${e.short} @${d.line} holds \`${d.canonical.slice(0, 40)}\`, and so do ${twins.length} other top-level constant(s) (${twins.slice(0, 4).map(n => `${n} @${decls.get(n).line}`).join(", ")}), ${own ? `and ${same.length} of them are read by code with the same strings and member names` : "and nothing that reads it has a string or a member name"}: verify_inferred.mjs could not tell which one the name is on`); continue; }
+    }
     const b = programScope.getBinding(here(e.short));
     const rebound = b?.constantViolations?.[0]?.node?.loc?.start.line;
     const through = writtenThrough.get(here(e.short));
@@ -510,7 +526,11 @@ const nextAsserted = { ...asserted };
 for (const p of planned) {
   nextInferred[p.short] = p.name;
   nextSubsys[p.name] = p.subsystem;
-  if (nextShape) nextShape.shapes[p.name] = shapeOf(p.decl);
+  if (nextShape) {
+    const sh = shapeOf(p.decl);
+    if (p.decl.kind === "value") sh.readers = readerFeatures(decls, (readers ??= valueReaders(decls)).get(p.short));
+    nextShape.shapes[p.name] = sh;
+  }
   if (p.weak) nextAsserted[p.name] = p.why;
 }
 const writes = [
@@ -524,6 +544,20 @@ else {
   for (const [f, text] of writes) fs.writeFileSync(mapPath(f), text);
   console.error(`\nregistered ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
   if (!nextShape) console.error("  no shape baseline in this maps dir: run `verify_inferred.mjs record` after review");
+  if (GEN !== MAPS) {
+    // header: bring --build's rename map and index up to date
+    const run = (args) => spawnSync(process.execPath, ["--max-old-space-size=8192", ...args], { encoding: "utf8" });
+    const r1 = run([path.join(HERE, "build_rename.mjs"), path.join(GEN, "blocks_daemon.json"), mapPath("modules_daemon.json"),
+      mapPath("inferred_daemon.json"), path.join(GEN, "rename_daemon.json")]);
+    const r2 = r1.status === 0 && run([path.join(HERE, "symbol_index.mjs"), index.source, path.join(GEN, "rename_daemon.json"),
+      path.join(GEN, "symbols_daemon.json"), "--version", index.version]);
+    if (r1.status !== 0 || r2.status !== 0) {
+      console.error(`  could not update ${GEN}'s rename map and symbol index (${r1.status !== 0 ? "build_rename" : "symbol_index"} exit ${(r2 || r1).status}):\n${(r2 || r1).stderr}`);
+      console.error("  run rebuild.sh before citing the new names");
+      process.exit(1);
+    }
+    console.error(`  updated ${path.join(GEN, "rename_daemon.json")} and symbols_daemon.json: the new names can be cited and checked now (check_docs.sh)`);
+  }
   console.error("  next: rebuild.sh (PKG=...) regenerates recon/, first-party/ and the symbol index; PROMOTE=1 after review");
 }
 // the citation form, one per line on stdout
