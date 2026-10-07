@@ -251,6 +251,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `name_symbol.mjs` | 登记推断名前做完种类、拼写、孪生、撞名、子系统和归属检查，批量登记全部写入或全不写入；`--allow-unproven` 的名字记入 `inferred_daemon.asserted.json`，不作为其他条目的证据 | 故障注入见 VERIFICATION.md 8.2 节 |
 | `convert_line_citations.mjs` | 遗留行号可以机械退役：每处改写要求旧引用今天成立、新引用按今后的规则成立，改写后由三个检查器复核，新出现的失败逐行回滚 | 对当天 `docs/` 的 dry run：`AGENT_INTERNALS_ANALYSIS.md` 的遗留行号 1525 → 107，用时约 10 s |
 | `retarget_symbols` 按旧改名表核实配对的身份 | `真名 (短名)` 与 `真名/短名`（包括围栏里的斜杠对）只在旧改名表把这个真名与这个短名配成一对时改写，另一个 bundle 的配对不被改动 | 用一份让两个 daemon 符号换短名的合成新改名表处理 `ARCHITECTURE_ANALYSIS.md`（这两个短名在 v0.8.3 上恰好也是 cli 配对里的短名）：被改写的 cli 配对 3 → 0 处 |
+| 名字绑定片段逐字核对（`anchor_forms.mjs` 的 `snippetVerbatim`） | `代码片段`（`真名`）除了原有的记号、调用头、数字与 `名字 = 数值` 检查，片段本身还必须按原文出现在所绑定的声明里，空白不计；`…` 表示省略，前后各段按顺序出现即可；表格里的 `\|` 按 `|` 读；只含一个带引号字符串的片段可以是更长字符串的一部分。改写过、记错或升级后过期的片段都会被拒绝 | 2026-10-07 在 v0.8.4 上：`docs/` 的 2128 个绑定片段全部成立。在此之前只要一个记号命中片段就成立，v0.8.4 升级时有数百个引用 v0.8.3 局部变量名和短名的片段照样通过。新增两个变异用例（保留字面量但局部变量过期；保留字面量但调用一个过期的全小写短名），在旧规则下存活，在新规则下被拒绝 |
 | `check_bare_anchors` 只在需要时解析与遍历 | 输出与完整解析时逐字节相同 | 在 `docs/` 上 5 s → 约 1 s |
 | 变异测试并发执行 | 检查器进程并发运行，并发不改变结论（`JOBS=1` 串行） | 108 s → 约 10 s（16 核；`JOBS=1` 串行约 27 s） |
 | 合计 | — | 带 `PKG` 的完整证明运行约 2.5 分钟 → 约 1 分钟 |
@@ -265,7 +266,6 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 单次解析 + 共享声明表：一次带 `PKG` 的完整运行对 bundle 做 73 次 Babel 全量解析（用解析计数钩子实测：`check_bare_anchors` 26 次，大部分在变异测试里；`verify_inferred` 14 次；`ast_equiv` 与 `check_doc_anchors` 各 8 次）；十余个工具各自实现一遍顶层声明遍历（`grep -n 'program.body' tools/*.mjs`）。改由 `symbol_index` 一次输出声明表（名字、种类、行、结束行、参数个数、签名、所在初始化器），其他工具读它。 | 变异测试里每个 `check_bare_anchors` 进程不再为第三方判定解析 daemon（每次约 0.5 s、峰值约 290 MB，16 核并发时总峰值约 4 GB）；各工具对"顶层声明""声明行"只有一种约定 | 中 | 低：promote 要求产物逐字节一致，改错会被发现 |
 | 抽出共享逻辑：块到模块的分类在 `build_rename`（取最吻合的记录，歧义即失败）与 `check_bare_anchors`（任一第三方记录匹配即算）规则不同；代码 span 正则在 `retarget_docs`、`retarget_symbols` 各有一份；导出调用判定在 `export_blocks`、`exports_map` 各有一份，`bump.sh` 仍用 `exports_map` 计算导出名增删；行号二分查找有多份 | 同一规则只有一处定义 | 小 | 低 |
 | 升级全自动化：按报告的 `package` 自行获取并美化 OLD，核对它复现已提交的 `sha256.pretty`；`RE-ANCHOR` 的候选打分（`impact.md` 现在只给出按位置配对或所在 block 得到的候选，没有用 `verify_inferred` 的相似度排序）；由 `fingerprint_match` 的结果生成 `retarget_symbols --migration` 映射，让文档里的裸短名也能迁移（它的输出是 `{matched:{old:{new,hash}}}`，不是 `{old:new}`） | 升级的人工步骤减少；裸短名不再在升级后静默指向别的函数 | 中 | 低：建议仍要人工复核，`verify_inferred` 仍然把关 |
-| 收紧 `代码片段`（`真名`）的判定：现在只要片段里有一个有辨识度的记号（2 字符以上的字符串字面量，或 3 字符以上的非关键字标识符）落在该符号体内，再加上调用头、数字与 `名字 = 数值` 子句的检查，片段就算成立；片段其余部分写错不会被发现。可改为要求全部有辨识度的记号都在体内，或要求片段作为连续记号序列出现 | 引用片段与代码逐字对应，改写或记错的片段会被发现 | 小到中：现有文档里一部分片段是对代码的节选或改写，需要逐条改成原文 | 中：规则收紧后，第一次运行会让一批现有引用失败，需要人工逐条处理 |
 | pi-worker、stdio、channel-acp、feishu-gateway 的"只证明"模式（美化等价、无损拆包、语法检查、不改名的声明索引），并在引用前缀里加入 `pi-worker`（`anchor_forms.mjs` 目前只接受 daemon、cli、stdio） | 出厂的每个 bundle 都有美化等价证明；关于 pi 运行时的论断可以写成可检查的引用 | 中 | 低 |
 | 索引并改名局部函数：以"外层›内层"为键记录有名字的局部函数及其范围 | `spawnSessionActor` 这类函数可以按名字引用和改名 | 大 | 中：`ast_equiv` 要接受映射后的嵌套绑定，改名器要处理非顶层作用域 |
 | cli 的推断名，以及 cli 的子系统映射与可读树 | cli 的内部函数可以按名字引用 | 中 | 低 |
