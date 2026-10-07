@@ -78,7 +78,7 @@ GUIDE 与 INTERNALS 整篇对齐 v0.8.4；ARCHITECTURE 有一部分对齐 v0.8.4
 另外五条写法规则：
 
 - **cli bundle 的符号写 `cli:` 前缀**：`cli:真名 (短名)`，`代码片段`（`cli:真名`）。片段写法不写前缀时一律按 daemon 查找；括号写法对 cli 独有的真名不要求前缀，但两个 bundle 都有的真名不写前缀即指 daemon，统一写前缀最不容易出错。
-- **片段优先引用字符串字面量。** 字符串字面量跨版本基本不变；片段里写的 mangled 标识符在发版后通常会变，变了之后 `check_bare_anchors.mjs` 判这条片段不成立，需要手工修改。
+- **片段优先引用字符串字面量。** 字符串字面量跨版本基本不变；片段里写的 mangled 标识符在发版后通常会变，变了之后 `check_bare_anchors.mjs` 判这条片段不成立，`retarget_snippets.mjs` 能自动改对其中多数，代码结构也变了的要手工修改。
 - **`pi-worker.js` 与 `feishu-gateway.js` 不在还原流水线的范围内，没有真名。** 从中引用的字符串字面量写成普通引号文字，并注明"（pi-worker.js 字面量）"或"（feishu-gateway.js 字面量）"，不写成片段写法，也不带行号。
 - **不写裸短名。** 只写一个 `短名` 的引用不能被任何检查核对，下一版里它可能属于另一段代码。
 - **不写斜杠简写 `真名/短名`。** 正文里的 `a/b` 也表示"a 或 b"，所以真名已不在索引里时，检查器只在右半部分是已索引的短名、或含大写字母、数字或 `$` 时才把它当作引用；右半部分是未索引的全小写短词时，这处失效的引用被当作普通文字跳过，同样的内容写成 `真名 (短名)` 则会让构建失败。
@@ -113,4 +113,4 @@ node reconstruction/tools/check_bare_anchors.mjs --index $M/symbols_daemon.json,
   $B/daemon.pretty.js $M/blocks_daemon.json $M/modules_daemon.json docs/*.md
 ```
 
-上游发布新版本时，先按 [`../CLAUDE.md`](../CLAUDE.md) 与 SOURCE_RECONSTRUCTION 中"跟随上游升级"一节规定的顺序运行 `bump.sh` 迁移推断名，再运行 `rebuild.sh`。文档引用不带行号，发版后机械性的更新只有两项：`retarget_symbols.mjs` 按新旧两版的改名表一次性替换 `真名 (短名)` 里的短名；片段里写的 mangled 标识符不会被自动替换，由 `check_bare_anchors.mjs` 报为不成立，要手工改成新的短名，或改为引用字符串字面量。除此之外，真名消失或片段不再成立的引用会被检查报出，要对照新版代码重新核对它支撑的主张。检查报不出的是引用仍然成立、但代码行为已经改了的主张：`bump.sh` 写出的 `.build/bump/impact.md` 列出文档里每一处引用了改动代码的位置，按需要重读的程度分三档，仓库里保存的 workflow `upgrade-docs` 按这份清单分组更新文档（步骤见 [`../reconstruction/README.md`](../reconstruction/README.md) "跟随上游升级"一节）。文档对准的版本记在 `docs/.pretty-anchor-target`，构建检查它与 `pipeline_report.json` 的 `package` 字段一致，只在升级进行中、文档已对准新版本而 `maps/` 尚未提升时例外；`PROMOTE=1` 要求它已经写成新版本，由 `retarget_docs.mjs apply --stamp <版本>` 写入。
+上游发布新版本时，先按 [`../CLAUDE.md`](../CLAUDE.md) 与 SOURCE_RECONSTRUCTION 中"跟随上游升级"一节规定的顺序运行 `bump.sh` 迁移推断名，再运行 `rebuild.sh`。文档引用不带行号，发版后机械性的更新只有两项：`retarget_symbols.mjs` 按新旧两版的改名表一次性替换 `真名 (短名)` 里的短名；片段里写的 mangled 标识符由 `retarget_snippets.mjs` 按新版本的声明重新推出，只在唯一匹配、且改写后通过 `check_bare_anchors.mjs` 的核对时才改写；推不出的片段说明所引的代码变了，要重读后手工改，或改为引用字符串字面量。除此之外，真名消失或片段不再成立的引用会被检查报出，要对照新版代码重新核对它支撑的主张。检查报不出的是引用仍然成立、但代码行为已经改了的主张：`bump.sh` 写出的 `.build/bump/impact.md` 列出文档里每一处引用了改动代码的位置，按需要重读的程度分三档，仓库里保存的 workflow `upgrade-docs` 按这份清单分组更新文档（步骤见 [`../reconstruction/README.md`](../reconstruction/README.md) "跟随上游升级"一节）。文档对准的版本记在 `docs/.pretty-anchor-target`，构建检查它与 `pipeline_report.json` 的 `package` 字段一致，只在升级进行中、文档已对准新版本而 `maps/` 尚未提升时例外；`PROMOTE=1` 要求它已经写成新版本，由 `retarget_docs.mjs apply --stamp <版本>` 写入。

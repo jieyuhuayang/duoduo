@@ -170,7 +170,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
    ```
 
    `bump.sh` 用锁定的 js-beautify 美化两侧（也可以直接给美化目录 `OLD=`、`NEW=`；同时给了 `NEW` 与 `PKG_NEW` 时，先证明两者 AST 相同），然后依次：用 `bundle_guard.mjs` 核对 OLD 就是 `maps/` 描述的版本，不是则拒绝；逐声明做结构指纹匹配（`fingerprint_match.mjs`）；按结构签名迁移推断名，承接不了的报 `RE-ANCHOR`（`remap_inferred.mjs`）；在 NEW 上跑模块归属检查并生成 NEW 自己的改名表，列出需要补子系统的名字、`RE-ANCHOR` 待定的名字和上游已删除的名字；按顶层顺序配对变更与新增的声明（`pair_changes.mjs`）；逐声明输出可读 diff、位置归一化形式与字面量增删（`diff_decls.mjs`，见下文"可读 diff"）；列出权威导出名的增删；取出厂包里 bundle 以外的文件（bootstrap 提示词与模板等）和上游仓库两个版本标签之间（CHANGELOG、skills/ 等）的明文变化（`plaintext_delta.mjs`）；最后把这些与 `docs/*.md`、`CLAUDE.md` 的引用对照，写出 `.build/bump/impact.md` 与 `impact.json`（`impact_report.mjs`，见下文"影响清单"）。它只处理 daemon 与 cli，只写 `.build/bump/`；模块归属检查在 NEW 上失败时照常产出其余结果，最后以 exit 1 结束。
-2. 人工复核。先读 `.build/bump/impact.md`。每个 `RE-ANCHOR` 名字在那里附有按位置配对得到的候选声明；用 `locate_by_anchor.mjs` 取该函数体内独有的字符串字面量，到新包里确认候选或重新定位；它打印每个命中的种类，名字只能记到同种类的声明上。上游把字面量提升为模块级常量后，命中的是 esbuild 模块初始化器而不是函数，这时改用 `pairs_*.json` 的配对或 block 提示。在 `maps/modules_<bundle>.json` 里判定新模块（模块归属检查失败时 `bump.sh` 以 exit 1 结束，判定后重跑它，才能拿到需要补子系统的名字清单），把新的自研名字归入子系统。以上都做完，最后才把复核后的推断表复制进 `maps/`。复制之后 `maps/inferred_daemon.json` 已按新版本的短名作键，再跑 `bump.sh` 会从错误的基础再迁移一次；`bump.sh` 第 0 步用 `verify_inferred.mjs check` 对照 OLD 核对推断表，发现这种状态就拒绝运行，需要先从 `origin/main` 恢复推断表和形态基线。复制后、记录基线前，先用仓库里旧的形态基线对新 bundle 跑一次 `verify_inferred.mjs check`，逐条处理它报出的问题：下一步的 `record` 会覆盖基线，此后就查不出贴错的名字。
+2. 人工复核。先读 `.build/bump/impact.md`。每个 `RE-ANCHOR` 名字在那里附有 `anchor_candidates.mjs` 排好序的候选声明：按调用方、被调用方（经指纹匹配和改动声明的位置配对映射到新版本）与字符串字面量三项重合度打分，领先第二名不足 1 分的标为 `CLOSE`，要读函数体判断；位置配对的候选也一并列出。用 `locate_by_anchor.mjs` 取该函数体内独有的字符串字面量，到新包里确认候选或重新定位；它打印每个命中的种类，名字只能记到同种类的声明上。上游把字面量提升为模块级常量后，命中的是 esbuild 模块初始化器而不是函数，这时改用 `pairs_*.json` 的配对或 block 提示。在 `maps/modules_<bundle>.json` 里判定新模块（模块归属检查失败时 `bump.sh` 以 exit 1 结束，判定后重跑它，才能拿到需要补子系统的名字清单），把新的自研名字归入子系统。以上都做完，最后才把复核后的推断表复制进 `maps/`。复制之后 `maps/inferred_daemon.json` 已按新版本的短名作键，再跑 `bump.sh` 会从错误的基础再迁移一次；`bump.sh` 第 0 步用 `verify_inferred.mjs check` 对照 OLD 核对推断表，发现这种状态就拒绝运行，需要先从 `origin/main` 恢复推断表和形态基线。复制后、记录基线前，先用仓库里旧的形态基线对新 bundle 跑一次 `verify_inferred.mjs check`，逐条处理它报出的问题：下一步的 `record` 会覆盖基线，此后就查不出贴错的名字。
 3. 记录形态基线：`PKG_VERSION=v<新版本> node tools/verify_inferred.mjs record <NEW>/daemon.pretty.js maps/inferred_daemon.json maps/inferred_daemon.shape.json`。没有这一步，下一步的 `inferredNames` 是 `warn`。
 4. check 模式运行一次：`PKG=<新包 dist/release> bash tools/rebuild.sh`（输出在默认的 `reconstruction/.build`）。此时 `committedInSync` 为 `retarget-pending`，`citations` 与 `lineAnchors` 失败，`firstPartyTree` 也失败（check 模式用新 bundle 检查已提交的旧树），都在预期之内。这次运行产出下一步所需的符号索引、改名表和美化文件。
 5. 对这次运行的 `$OUT` 改指文档：对每个有变化的 bundle 运行 `retarget_docs.mjs collect` 与 `remap_doc_anchors.mjs`；再运行 `retarget_docs.mjs apply --stamp v<新版本>`，它只能运行一次，会写 `docs/.pretty-anchor-target`，必须在 `verify_citations.mjs --fix` 写入新行号之前；然后按 bundle 各运行一次 `retarget_symbols.mjs --bundle <daemon|cli> <旧 rename_<bundle>.json> <新 rename_<bundle>.json>`，处理它列出的单标识符 span，再运行 `verify_citations.mjs --fix --bundle …`。`bump.sh` 最后会打印这一步的完整命令。
@@ -213,6 +213,8 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `mutate_anchor_checks.mjs` | 检查器的变异测试。 |
 | `convert_line_citations.mjs` | 把遗留行号引用改写成不带行号的写法：`--index <symbols_daemon.json>[,<symbols_cli.json>] --bundle daemon=<pretty> [--bundle cli=<pretty>] [--write] [--report <o.json>] <doc.md…>`。 |
 | `remap_doc_anchors.mjs`、`retarget_docs.mjs`、`retarget_symbols.mjs` | 升级时迁移遗留行号与短名。 |
+| `retarget_snippets.mjs` | 升级时按新声明重新推出名字绑定片段里过期的标识符。 |
+| `anchor_candidates.mjs` | 给失去锚点的推断名的候选声明打分排序（`impact_report.mjs` 调用）。 |
 
 ## 覆盖范围与边界
 
@@ -258,6 +260,8 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 合计 | — | 带 `PKG` 的完整证明运行约 2.5 分钟 → 约 1 分钟 |
 | 可读 diff（`diff_decls.mjs`） | 改动声明的 diff 不再因局部变量改名而整段变化；结构指纹覆盖不到的顶层名字通过引用它们的未变声明对齐 | v0.8.2→v0.8.3：显示为变化的行 4239 → 318（daemon 4210 → 314 行 50 处，cli 29 → 4 行 2 处）；`drainSessionMailbox` 844 → 61 行 |
 | 影响清单（`impact_report.mjs`）与明文变化（`plaintext_delta.mjs`） | 文档里每一处引用了改动代码的地方都被列出并分档；`RE-ANCHOR` 名字附候选声明；出厂包与上游仓库的明文变化附文档中提到它们的位置 | v0.8.2→v0.8.3：2746 处引用中 664 处指向改动声明，分为重读 69、核对 70、略读 525，重读的 50 个不同片段都落在改动的行上；`drainSessionMailbox` 得到的候选声明就是它在 v0.8.3 的位置；明文变化 18 个文件 |
+| `RE-ANCHOR` 候选打分（`anchor_candidates.mjs`，`impact_report.mjs` 调用） | 每个失去锚点的推断名都有按调用方、被调用方、字符串三项重合度排序的候选，领先不足 1 分的标为 `CLOSE` | 重放 v0.8.3→v0.8.4 的 47 个名字：第一名与人工确认的选择一致 46 个（按位置配对只有 22 个，另有 18 个没有任何候选）；唯一不一致的是一个被拆成两个的函数，标为 `CLOSE`；同值常量 `IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 按读取它的函数区分开（2.00 对 0.00） |
+| 名字绑定片段的自动重定向（`retarget_snippets.mjs`） | 升级后片段里过期的局部变量名和短名按新声明重新推出，只在唯一匹配且通过严格核对时改写 | 重放 v0.8.3→v0.8.4：689 个不成立的片段改对 626 个，其中 622 个与 v0.8.4 文档手工改出的写法逐字相同；剩下 63 个是代码确实变了的 |
 | 文档分节与升级 workflow（`doc_sections.mjs`、`.claude/workflows/upgrade-docs.js`） | 并行的 agent 各自只改自己那几节的文件，不会互相覆盖；拼回时拒绝拆分后被改过的文档；升级的文档步骤按固定脚本运行，不必每次重写 | 拆分后立即拼回与原文逐字节相同；workflow 的控制流用模拟 agent 跑通（加载分组、分配新节、只在核验发现问题时运行修正）；还没有在真实升级上运行过 |
 
 ### 未实现
@@ -266,7 +270,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 |------|------|------|------|
 | 单次解析 + 共享声明表：一次带 `PKG` 的完整运行对 bundle 做 73 次 Babel 全量解析（用解析计数钩子实测：`check_bare_anchors` 26 次，大部分在变异测试里；`verify_inferred` 14 次；`ast_equiv` 与 `check_doc_anchors` 各 8 次）；十余个工具各自实现一遍顶层声明遍历（`grep -n 'program.body' tools/*.mjs`）。改由 `symbol_index` 一次输出声明表（名字、种类、行、结束行、参数个数、签名、所在初始化器），其他工具读它。 | 变异测试里每个 `check_bare_anchors` 进程不再为第三方判定解析 daemon（每次约 0.5 s、峰值约 290 MB，16 核并发时总峰值约 4 GB）；各工具对"顶层声明""声明行"只有一种约定 | 中 | 低：promote 要求产物逐字节一致，改错会被发现 |
 | 抽出共享逻辑：块到模块的分类在 `build_rename`（取最吻合的记录，歧义即失败）与 `check_bare_anchors`（任一第三方记录匹配即算）规则不同；代码 span 正则在 `retarget_docs`、`retarget_symbols` 各有一份；导出调用判定在 `export_blocks`、`exports_map` 各有一份，`bump.sh` 仍用 `exports_map` 计算导出名增删；行号二分查找有多份 | 同一规则只有一处定义 | 小 | 低 |
-| 升级全自动化：按报告的 `package` 自行获取并美化 OLD，核对它复现已提交的 `sha256.pretty`；`RE-ANCHOR` 的候选打分（`impact.md` 现在只给出按位置配对或所在 block 得到的候选，没有用 `verify_inferred` 的相似度排序）；由 `fingerprint_match` 的结果生成 `retarget_symbols --migration` 映射，让文档里的裸短名也能迁移（它的输出是 `{matched:{old:{new,hash}}}`，不是 `{old:new}`） | 升级的人工步骤减少；裸短名不再在升级后静默指向别的函数 | 中 | 低：建议仍要人工复核，`verify_inferred` 仍然把关 |
+| 升级全自动化：按报告的 `package` 自行获取并美化 OLD，核对它复现已提交的 `sha256.pretty`；由 `fingerprint_match` 的结果生成 `retarget_symbols --migration` 映射，让文档里的裸短名也能迁移（它的输出是 `{matched:{old:{new,hash}}}`，不是 `{old:new}`） | 升级的人工步骤减少；裸短名不再在升级后静默指向别的函数 | 中 | 低：建议仍要人工复核，`verify_inferred` 仍然把关 |
 | pi-worker、stdio、channel-acp、feishu-gateway 的"只证明"模式（美化等价、无损拆包、语法检查、不改名的声明索引），并在引用前缀里加入 `pi-worker`（`anchor_forms.mjs` 目前只接受 daemon、cli、stdio） | 出厂的每个 bundle 都有美化等价证明；关于 pi 运行时的论断可以写成可检查的引用 | 中 | 低 |
 | 索引并改名局部函数：以"外层›内层"为键记录有名字的局部函数及其范围 | `spawnSessionActor` 这类函数可以按名字引用和改名 | 大 | 中：`ast_equiv` 要接受映射后的嵌套绑定，改名器要处理非顶层作用域 |
 | cli 的推断名，以及 cli 的子系统映射与可读树 | cli 的内部函数可以按名字引用 | 中 | 低 |

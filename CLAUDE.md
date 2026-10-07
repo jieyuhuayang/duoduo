@@ -188,8 +188,11 @@ cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # after reviewin
 #  → anything bump.sh reports as RE-ANCHOR must be relocated BY HAND with
 #    locate_by_anchor.mjs (pick a string literal unique to that function body; for a
 #    module initialiser, a string literal it assigns) and confirmed against the old
-#    body before it is written back; impact.md names the declaration the positional
-#    pairing suggests for each. Every name bump.sh lists under "need a subsystem"
+#    body before it is written back; impact.md ranks the candidates for each
+#    (anchor_candidates.mjs: callers and callees mapped across the bump, strings)
+#    and marks CLOSE the ones whose top pick leads by less than 1. Replayed on
+#    v0.8.3 → v0.8.4 the top pick was the hand-confirmed one for 46 of 47 names,
+#    and the one miss (a function split in two) was marked CLOSE. Every name bump.sh lists under "need a subsystem"
 #    goes into maps/subsys_daemon.json, and a module-gate failure needs a decision in
 #    maps/modules_<bundle>.json.
 # 1. record the reviewed inferred names as the shape baseline
@@ -246,7 +249,8 @@ map); then `retarget_docs.mjs apply --stamp v<new>` (bulk lines; the stamp is wr
 to the first doc argument, so pass `docs/*.md` first, and when no bundle changed write
 `docs/.pretty-anchor-target` by hand) → `retarget_symbols.mjs --bundle daemon
 maps/rename_daemon.json .build/rename_daemon.json`, then the same with `--bundle cli` and the
-`rename_cli.json` pair (short names, order-independent) → `verify_citations.mjs --fix`
+`rename_cli.json` pair (short names, order-independent) → `retarget_snippets.mjs --write`
+(name-bound snippets; the full command is printed by `bump.sh`) → `verify_citations.mjs --fix`
 (residue). Pass `--bundle daemon=<pretty.js>` to `verify_citations.mjs`: without it every
 line check passes **vacuously** and reports zero drift on thoroughly stale anchors.
 `retarget_symbols.mjs` rewrites a `real (short)` pair only where one code span is exactly
@@ -263,8 +267,15 @@ when such spans were still rewritten, 5 of the 8 it moved were not citations (th
 subcommand `cat`, the command `ps`, a historical example) and every check passed, which is
 one more reason not to write bare short names. The tool deliberately leaves identifiers inside
 quoted code expressions alone (they are usually function-locals), so short names quoted
-mid-snippet stay stale and need a hand pass — a stale callee in an F3 or name-bound snippet
-is exactly what `check_bare_anchors.mjs` refutes. Step 9 of `rebuild.sh` checks
+mid-snippet stay stale — a stale callee in an F3 or name-bound snippet is exactly what
+`check_bare_anchors.mjs` refutes. `retarget_snippets.mjs` (next, also printed by `bump.sh`)
+re-derives a refuted name-bound snippet from its symbol's new declaration: string literals,
+properties and long names as written, migrated short names pinned, other short identifiers
+as wildcards (the same one twice must match the same name), rewritten only on a unique match
+that then passes `check_bare_anchors.mjs`' rule, and only its identifiers change. Replayed
+on the v0.8.3 docs it fixed 626 of the 689 refuted snippets, 622 of them exactly as the
+v0.8.4 docs were fixed by hand; the rest, which it lists in `snippets.json`, quote code that
+changed and need re-reading. Step 9 of `rebuild.sh` checks
 `CLAUDE.md` and `reconstruction/*.md` as well, so pass them to `retarget_symbols.mjs` and
 `verify_citations.mjs` too.
 
@@ -304,9 +315,9 @@ how v0.7.1 lost 19 symbols in silence, and `pi` cannot be a substring rule becau
 matches `pipeline` and `api`.
 
 Individual tools, run from `reconstruction/`. All take explicit paths and write only their
-named outputs, except five that change repository files by design: `name_symbol.mjs`
-(`maps/`), `convert_line_citations.mjs --write` and `verify_citations.mjs --fix` (the docs
-given), `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
+named outputs, except six that change repository files by design: `name_symbol.mjs`
+(`maps/`), `convert_line_citations.mjs --write`, `retarget_snippets.mjs --write` and
+`verify_citations.mjs --fix` (the docs given), `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
 docs given, so pass all of `../docs/*.md`), and `doc_sections.mjs join` (every doc a
 manifest under the given dir names; it refuses a doc changed since the split).
 
@@ -320,6 +331,9 @@ node tools/rename.mjs <pretty.js> <rename.json> <out.js> [report] # scope-safe, 
 node tools/ast_equiv.mjs <original.js> <renamed.js> [rename.json] # prove semantic equivalence (no map: beautify fidelity)
 node tools/symbol_index.mjs <pretty.js> <rename.json> <out.json> [--version <v>]  # name → line + structural signature
 node tools/locate_by_anchor.mjs <pretty.js> <string...>          # the top-level declaration (and its kind) holding each literal's first occurrence
+node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] <oldShort>[=<cand>,...]...  # rank where an inferred name moved
+node tools/retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] \
+     [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--write] [--report <o.json>] <doc.md...>  # re-derive stale name-bound snippets
 node tools/name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] [--allow-unproven] <daemon.pretty.js> <short> <realName> <NN-subsystem>
 node tools/name_symbol.mjs [--maps <dir>] [--build <dir>] [--dry-run] <daemon.pretty.js> --batch <list.tsv|list.json>   # register inferred names; --build <OUT> mid-bump
 node tools/verify_citations.mjs <symbols.json>[,...] [--bundle <name>=<pretty.js>]... <doc.md...> [--fix]  # real (short) and real/short pairs by symbol identity

@@ -17,7 +17,8 @@
 #   5b. the plain-text delta (package files outside the bundles, and upstream's
 #      repository between the two release tags), and impact.md / impact.json:
 #      every doc citation of changed code by priority, what no doc covers yet,
-#      a suggested declaration for each RE-ANCHOR name (impact_report.mjs)
+#      the candidates for each RE-ANCHOR name, ranked by callers, callees and
+#      strings (impact_report.mjs, anchor_candidates.mjs)
 #   6. hand off, printing the rest of the bump in the order the gates accept:
 #      record the inferred-name baseline, a check-mode rebuild.sh (with PKG, so
 #      the beautify-fidelity proof runs), retarget the docs against that run,
@@ -285,10 +286,12 @@ else
 fi
 echo "     node $HERE/retarget_symbols.mjs --bundle daemon $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/retarget_symbols.mjs --bundle cli $MAPS/rename_cli.json $R/rename_cli.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
+echo "     node $HERE/retarget_snippets.mjs --index $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fp daemon=$OUT/fp_daemon.json --fp cli=$OUT/fp_cli.json --rename daemon=$MAPS/rename_daemon.json,$R/rename_daemon.json --rename cli=$MAPS/rename_cli.json,$R/rename_cli.json --report $OUT/snippets.json --write $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     (each retarget_symbols run moves only the pairs its old map vouches for, and lists the"
-echo "     one-identifier spans it left for you to decide; a stale short name quoted mid-snippet is"
-echo "     left for check_bare_anchors)"
+echo "     one-identifier spans it left for you to decide; retarget_snippets re-derives a stale"
+echo "     name-bound snippet only on a unique match that check_bare_anchors' rule accepts, and"
+echo "     lists the rest in snippets.json: those quote code that changed, so re-read them)"
 echo "  3b. bring what the release changed in substance into the docs: impact.md's citations by"
 echo "     priority, its plain-text delta and what no doc covers yet. Split the docs into one file"
 echo "     per section, then run the upgrade-docs workflow (.claude/workflows/upgrade-docs.js), which"
