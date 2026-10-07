@@ -12,7 +12,7 @@
 
 duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。本文讲它的部署与运维：运行时以 npm 包里的压缩 JavaScript 分发，部署就是全局安装 `@openduo/duoduo` 并启动一个常驻 daemon；之后的运维工作集中在五件事上：弄清每个环境变量和配置文件由谁、在什么时候读取；知道两个数据目录里各存什么；通过控制面的三个入口访问 daemon；用带理由的重启与升级命令变更运行中的系统；照看没有自动重启的渠道适配器进程。
 
-下文按部署的先后顺序展开。§1 说明分发形态。§2 说明安装、认证来源、引擎选择和环境变量的存放位置。§3 说明内核目录 `~/aladuo` 与运行时目录 `~/.aladuo` 的内容、三种锁和配置分层。§4 说明控制面的只读 TCP 端口、提供完整控制的 unix socket 与可选的远程监听。§5 说明日常运维命令，重点是重启、升级、分区提示词刷新与 job 处置。§6 说明渠道适配器的安装与生命周期。§7 汇总本机部署的实测记录。§8 列出运维风险。机制本身的解释在 GUIDE，逐条代码证据在 INTERNALS，本文只保留运维需要的结论和关键引用。
+下文按部署的先后顺序展开。§1 说明分发形态。§2 说明安装、认证来源、引擎选择和环境变量的存放位置。§3 说明内核目录 `~/aladuo` 与运行时目录 `~/.aladuo` 的内容、三种锁和配置分层。§4 说明控制面的只读 TCP 端口、提供完整控制的 unix socket 与可选的远程监听。§5 说明日常运维命令，重点是重启、升级（包括升级前核对写下的引擎取值，因为不认识的取值现在被拒绝而不是被替换）、分区提示词刷新与 job 处置。§6 说明渠道适配器的安装与生命周期。§7 汇总本机部署的实测记录。§8 列出运维风险。机制本身的解释在 GUIDE，逐条代码证据在 INTERNALS，本文只保留运维需要的结论和关键引用。
 
 ---
 
@@ -32,7 +32,7 @@ npm 包的 `dist/release/` 下有六个 JavaScript bundle，其中被引用的�
 
 ### 2.1 安装与 onboard
 
-`npm install -g @openduo/duoduo` 会一并安装 Claude Agent SDK 和它的平台原生二进制（作为 npm 可选依赖，包内 `claude-runtime.md` 原文）。用 `--omit=optional` 安装会缺这个二进制，这时可以设置 `CLAUDE_CODE_EXECUTABLE` 指向本机的 `claude` 可执行文件（`CLAUDE_CODE_EXECUTABLE_ENV_KEY (ZH)`，confirmed）。安装后运行 `duoduo onboard` 做首次配置，它只写配置，不启动 daemon，也不进入对话（`Run onboarding wizard and exit (no chat, no daemon)`（`cli:printHelp`））。
+`npm install -g @openduo/duoduo` 会一并安装 Claude Agent SDK 和它的平台原生二进制（作为 npm 可选依赖，包内 `claude-runtime.md` 原文）。用 `--omit=optional` 安装会缺这个二进制，这时可以设置 `CLAUDE_CODE_EXECUTABLE` 指向本机的 `claude` 可执行文件（`CLAUDE_CODE_EXECUTABLE_ENV_KEY (ZH)`，confirmed）。v0.8.4 的 `package.json` 把 agent SDK 声明为范围 `"@anthropic-ai/claude-agent-sdk": "^0.3.291"`，新装时取最新的 0.3.x；pi 引擎的依赖 `"@earendil-works/pi-coding-agent": "1.0.4"` 是固定版本（confirmed，包内 `package.json` 原文）。安装后运行 `duoduo onboard` 做首次配置，它只写配置，不启动 daemon，也不进入对话（`Run onboarding wizard and exit (no chat, no daemon)`（`cli:printHelp`））。
 
 没有交互终端时，onboard 从环境变量读取答案，规则如下（未证实推测：静态阅读 cli bundle 所得，onboard 的函数没有真名；缺必需变量时以退出码 2 结束这一点在 §7.1 的部署中观测过）：
 
@@ -55,7 +55,16 @@ onboard 提供的三种认证来源都只作用于 Claude 引擎，`isClaudeAuth
 
 ### 2.3 引擎选择
 
-会话用哪个引擎由配置字段 `runtime` 决定，取值只有四个：`hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`）。会话、渠道配置或 job 都没有指定时取 `ALADUO_DEFAULT_RUNTIME`，再没有就是 `claude`（`resolveDefaultRuntime (ho)`，confirmed）；CLI 启动或重启 daemon 前，会用 `config.json` 的 `defaultRuntime` 补上未设置的 `ALADUO_DEFAULT_RUNTIME`（未证实推测，cli 函数无真名，见 2.4）。机制说明见 GUIDE 1.2 与 1.4（引擎、模型、推理力度的选择与会话绑定），代码证据见 INTERNALS 3.1 与 3.3。
+会话用哪个引擎由配置字段 `runtime` 决定。能运行模型的取值只有四个：`hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`）；渠道配置另外接受第五个值 `void`（`mR = ["claude", "codex", "grok", "pi", "void"]`（`initChannelProtocolModule`）），表示这个渠道的会话从不运行模型。会话、渠道配置或 job 都没有指定时取 `ALADUO_DEFAULT_RUNTIME`，没有设置或为空就是 `claude`（`resolveDefaultRuntime (ho)`，confirmed）；CLI 启动或重启 daemon 前，会用 `config.json` 的 `defaultRuntime` 补上未设置的 `ALADUO_DEFAULT_RUNTIME`（未证实推测，cli 函数无真名，见 2.4）。机制说明见 GUIDE 1.2 与 1.4（引擎、模型、推理力度的选择与会话绑定），代码证据见 INTERNALS 3.1 与 3.3。
+
+写下的 `runtime` 值 duoduo 不认识时一律被拒绝，不改用下一层的值，也不改用默认值（confirmed）。拒绝说明写明这个值和全部有效值（`which is not a runtime this duoduo knows. Valid runtimes:`（`validateKnownRuntimeValue`））；默认引擎、job 与分区还拒绝 `void`（`which never runs a model, so it cannot run there`（`validateRunnableRuntimeValue`））。同样是拒绝，写在四个地方的后果不同：
+
+- **`ALADUO_DEFAULT_RUNTIME`**：daemon 不能启动。`resolveDefaultRuntime` 把值去空白、转小写后校验，不通过就抛出 `InvalidRuntimeError`（`if (!r.ok) throw new xb(r.reason)`（`resolveDefaultRuntime`）），而 `main` 在读入 `.env` 之后立即调用它（`delete process.env[tl], ho()`（`main`））。
+- **渠道种类或实例描述文件**：由这一层选定引擎的会话，每一轮都被拒绝，回复是拒绝说明加 "Request was not executed."（`stage: "runtime_refused"`（`drainSessionMailbox`））。实例层的有效值覆盖种类层的未知值，实例层的未知值则不会被种类层的值替代（`resolveLayeredChannelRuntime (Ua)`）。
+- **job frontmatter**：这次 job 运行失败（`Wd(_t.frontmatter.runtime`（`createSessionManager`））；用 ManageJob 创建 job 时也会拒绝（`Wd(e.runtime, "This job")`（`runManageJobTool`））。
+- **分区 frontmatter**：拒绝说明写进一条 `[playlist]` 日志（`Wd(i.data?.runtime`（`parsePartitionDefinition`）），分区这次运行以 `runtime_refused` 结束，不调用模型（`S.runtimeRefusal) return await j(S.runtimeRefusal, "runtime_refused")`（`createMetaSession`））。
+
+所以升级到 v0.8.4 之前要找出所有写下的 `runtime` 值并核对拼写，做法见 §5.3。`void` 是给 tether 这类渠道插件用的：发给 void 会话的消息写入事件日志和 outbox，不进 mailbox，也不唤醒任何会话（`[gateway] void-session event (outbox, no enqueue)`（`appendBeforeExecuteGateway`）），对它发的模型命令得到 `Ju = "This session never runs a model (runtime void)."`（`initVoidRuntimeModule`）开头的拒绝（confirmed；机制见 INTERNALS 第 3 与第 9 节）。普通聊天渠道不应设为 `void`，否则不会有任何模型回复。
 
 运维上要知道，引擎之间不互相替代，拒绝后怎样恢复取决于原因（confirmed）：
 
@@ -79,6 +88,8 @@ onboard 提供的三种认证来源都只作用于 Claude 引擎，`isClaudeAuth
 `DUODUO_NODE_BIN` 不能放 `.env`，因为读取它的只有 `bin/duoduo` 这个 bash wrapper：包内 `dist/release/` 下的六个 JS 文件都不含这个字面量，wrapper 在任何 JavaScript 运行之前执行，也不读 `.env`；CLI 拉起 daemon 与渠道进程时用的是 `process.execPath`，不经过 wrapper。所以"PATH 被重置后 `duoduo` 找不到 node"的解决办法是把 `DUODUO_NODE_BIN` export 在启动 `duoduo` 的 shell 启动文件或进程管理器的环境里；写进 `.env` 只会让它随 daemon 的 `process.env` 传给 daemon 派生的会话，对 wrapper 没有作用（confirmed）。
 
 daemon 最终看到哪些变量，还取决于平台（未证实推测：静态阅读 cli bundle，环境白名单由一个没有真名的函数构造）。macOS 上 daemon 由 launchd 托管，CLI 每次经 launchd 启动 daemon（`daemon start`，或服务未加载时的 `daemon restart`）都重写 plist，把一份环境变量白名单写进去：`ALADUO_*`（`ALADUO_DISABLE_DAEMON_AUTO_MAIN` 除外）、`ANTHROPIC_*`、`CLAUDE_CODE_EXECUTABLE`、`PATH`、`HOME`、`LANG`、`LC_ALL`，由 `installAndLoad (lk)` 写入 plist 并加载服务。shell 里 export 的其他变量到不了 daemon，所以在 macOS 上 `.env` 是白名单之外的键进入 daemon 的唯一途径；反过来，plist 里已有的键优先于 `.env`，因为 `.env` 只补未设置的键。服务已加载时，`duoduo daemon restart` 只执行 `launchctl kickstart -k`，不重写 plist，所以改过的 shell 变量要 `duoduo daemon stop` 再 `start` 才进入 daemon，改过的 `.env` 重启即可生效。Linux 等其他平台上，CLI 直接派生 daemon 子进程，传入除 `ALADUO_DISABLE_DAEMON_AUTO_MAIN` 外的全部环境变量；`daemon restart` 在派生之前已经读过 `.env` 与 config.json。
+
+有两个变量由 daemon 自己写进会话进程的环境，不应持久化（confirmed）。`ALADUO_CALLER_SESSION`（`tl = "ALADUO_CALLER_SESSION"`（`initCallerSessionEnvModule`））由 daemon 为每个会话派生的引擎进程设置为该会话的 key（pi 会话的 worker 环境是 `[tl]: T, [nC]: t.daemonSocketPath`（`createSessionManager`），Codex 与 Grok 同样；Claude 会话经 `s[tl] = t.callerSession`（`createAgentSdkAdapter`）），会话里执行的 `duoduo session notify` 读取它，以这个会话的身份发送（§5.1）。daemon 在读入 `.env` 之后会从自己的环境里删除它（`delete process.env[tl]`（`main`）），所以写在 `.env` 或 shell 里的值不起作用。`CLAUDE_CODE_DISABLE_AUTO_MEMORY` 在每个 Claude 会话的环境里被设为 `1`（`s.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1"`（`createAgentSdkAdapter`）），即 Claude Code 自带的 auto memory 关闭，避免在 duoduo 的记忆之外再积累一份记忆；CHANGELOG 写明会话加载的 Claude settings 文件（如 `~/.claude/settings.json`）里的 `env` 条目仍可覆盖它，这一点由 Claude Code 决定，本文未实测（未证实推测）。
 
 ---
 
@@ -168,9 +179,9 @@ job 没有自己的种类层，这一点与出厂文件的说明不同（confirm
 
 daemon 对外有三个监听器，共用一套路由，只在权限上不同：本机 TCP 端口只读，unix socket 提供完整控制，远程监听需要三项配置齐全并使用 bearer token（confirmed，另注的除外；代码证据见 INTERNALS 6.1）。
 
-1. **TCP `:20233`（只读）**。端口取 `ALADUO_PORT`，默认 20233（`process.env.ALADUO_PORT ?? process.env.PORT ?? 20233`（`main`）），只监听 loopback（`host: "127.0.0.1"`（`createDaemon`））。`/rpc` 只放行六个只读方法：`system.status, usage.get, job.list, spine.tail, system.runtime.info, system.config`（这六个方法名取自一个没有真名的模块级常量，属未证实推测，见 INTERNALS B.3；只读限制本身由下面的拒绝逻辑确认）；其余方法返回 JSON-RPC `-32601`（`Method not available on read-only endpoint`（`createDaemon`）），HTTP 状态仍是 200，不是连接层拒绝。`/ws` 在这个端口上返回 HTTP 426（`upgrade_required`（`createDaemon`）），响应体附上 `socket_path`，告诉需要完整控制的客户端改连 unix socket。这个监听器还检查 Host 与 Origin 头，只接受 `127.0.0.1`、`localhost`、`::1`，用来防 DNS rebinding（`Host header not allowed`（`createDaemon`））。`/healthz`、`/dashboard`、`/readyz` 三个端点不受只读限制。
-2. **unix socket（完整控制）**。默认路径 `<runDir>/daemon.sock`，可用 `ALADUO_DAEMON_SOCKET` 覆盖。daemon 启动时要求 socket 所在目录属于当前用户且权限为 0700，否则拒绝启动（`mode 0700`（`createDaemon`））；`listen` 之后把 socket 文件权限设为 0600（`chmod(x, 384)`（`createDaemon`））。所以访问控制就是文件系统权限：只有本机同一个操作系统用户能打开它，没有应用层口令。socket 路径超过 104 字节时 daemon 拒绝启动。CLI 与渠道适配器默认走这条路径。
-3. **可选的远程监听器**。`ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项齐全才打开（`resolveRemoteListenerConfig (wvt)`），即使 HOST 是 loopback 地址也会打开；缺任何一项时不打开。两种缺项会让 daemon 启动失败：HOST 是非 loopback 地址却没有 TOKEN（`remote exposure requires ALADUO_DAEMON_TOKEN`（`resolveRemoteListenerConfig`）），或 HOST 非 loopback、有 TOKEN、却没有 REMOTE_PORT（`remote exposure requires an explicit ALADUO_REMOTE_PORT`（`resolveRemoteListenerConfig`））。REMOTE_PORT 必须与只读端口不同。TOKEN 用 `duoduo daemon token new [--force]` 生成：CLI 把它写进 `~/.config/duoduo/.env` 并把文件权限设为 0600；已有 TOKEN 时必须加 `--force` 才会轮换，因为轮换会让所有已连接的远程渠道适配器失效（`token new` 的写入与轮换规则为未证实推测，cli 函数无真名，见 INTERNALS 6.1）。这个监听器上的 `/rpc` 与 `/ws` 都要求 `Authorization: Bearer <token>`，比较的是两者的 SHA-256 摘要，用常数时间比较（`timingSafeEqual`（`createDaemon`））。
+1. **TCP `:20233`（只读）**。端口取 `ALADUO_PORT`，默认 20233（`process.env.ALADUO_PORT ?? process.env.PORT ?? 20233`（`main`）），只监听 loopback（`host: "127.0.0.1"`（`createDaemon`））。`/rpc` 只放行六个只读方法：`system.status, usage.get, job.list, spine.tail, system.runtime.info, system.config`（这六个方法名取自一个没有真名的模块级常量，属未证实推测，见 INTERNALS B.3；只读限制本身由下面的拒绝逻辑确认）；其余方法返回 JSON-RPC `-32601`（`Method not available on read-only endpoint`（`createDaemon`）），HTTP 状态仍是 200，不是连接层拒绝。`/ws` 在这个端口上返回 HTTP 426（`upgrade_required`（`createDaemon`）），响应体附上 `socket_path`，告诉需要完整控制的客户端改连 unix socket。这个监听器还检查 Host 与 Origin 头，只接受 `127.0.0.1`、`localhost`、`::1`，用来防 DNS rebinding（`Host header not allowed`（`createDaemon`））；除 `/healthz`、`/dashboard`、`/readyz` 三个路由外，每个请求都受这项检查，包括没有注册的路径（`let x = C.routeOptions.url;`（`createDaemon`））。这三个端点也不受只读限制。
+2. **unix socket（完整控制）**。默认路径 `<runDir>/daemon.sock`，可用 `ALADUO_DAEMON_SOCKET` 覆盖。daemon 启动时要求 socket 所在目录属于当前用户且权限为 0700，否则拒绝启动（`mode 0700`（`createDaemon`））；`listen` 之后把 socket 文件权限设为 0600（`chmod(k, 384)`（`createDaemon`））。所以访问控制就是文件系统权限：只有本机同一个操作系统用户能打开它，没有应用层口令。socket 路径超过 104 字节时 daemon 拒绝启动。CLI 与渠道适配器默认走这条路径。v0.8.4 新增的 `memory.read`、`spine.cat`、`spine.record` 三个方法不在只读集合里，只能经这里或远程监听器调用（INTERNALS 6.1）。
+3. **可选的远程监听器**。`ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项齐全才打开（`resolveRemoteListenerConfig (wvt)`），即使 HOST 是 loopback 地址也会打开；缺任何一项时不打开。两种缺项会让 daemon 启动失败：HOST 是非 loopback 地址却没有 TOKEN（`remote exposure requires ALADUO_DAEMON_TOKEN`（`resolveRemoteListenerConfig`）），或 HOST 非 loopback、有 TOKEN、却没有 REMOTE_PORT（`remote exposure requires an explicit ALADUO_REMOTE_PORT`（`resolveRemoteListenerConfig`））。REMOTE_PORT 必须与只读端口不同。TOKEN 用 `duoduo daemon token new [--force]` 生成：CLI 把它写进 `~/.config/duoduo/.env` 并把文件权限设为 0600；已有 TOKEN 时必须加 `--force` 才会轮换，因为轮换会让所有已连接的远程渠道适配器失效（`token new` 的写入与轮换规则为未证实推测，cli 函数无真名，见 INTERNALS 6.1）。这个监听器上的每个请求都要求 `Authorization: Bearer <token>`，`/healthz`、`/dashboard`、`/readyz` 和没有注册的路径也不例外，比较的是两者的 SHA-256 摘要，用常数时间比较（`timingSafeEqual`（`createDaemon`））；所以经远程监听器打开 dashboard 时浏览器也必须带这个头。
 
 Dashboard 在 `http://localhost:20233/dashboard`，是包内的单文件 HTML（`bootstrap/dashboard.html`），由 daemon 直接读取并返回，没有构建步骤、额外端口或前端框架。页面分三块：Header（累计成本、token、工具调用数、健康灯），Signal Bar（每个活跃实体一个图形：● 前台会话、■ 周期任务、◆ 一次性任务、✓· 后台分区），Event Stream（实时事件日志，可展开 JSON）。它经 `POST /rpc`（JSON-RPC 2.0）与 daemon 通信，调用的六个方法与只读端口放行的集合相同，所以走只读 TCP 端口即可（dashboard 调用哪些方法 confirmed，对照 `dashboard.html`；放行集合的方法名见上文的置信说明）：
 
@@ -193,7 +204,7 @@ Dashboard 在 `http://localhost:20233/dashboard`，是包内的单文件 HTML（
 
 ### 5.1 命令一览
 
-下表来自 v0.8.3 的 `duoduo --help` 与各子命令的帮助（confirmed）。`duoduo memory` 不在顶层帮助里，但 CLI 会分派它。
+下表来自 v0.8.4 的 `duoduo --help` 与各子命令的帮助（confirmed）。`duoduo memory` 不在顶层帮助里，但 CLI 会分派它。
 
 | 命令 | 用途 |
 |------|------|
@@ -202,18 +213,20 @@ Dashboard 在 `http://localhost:20233/dashboard`，是包内的单文件 HTML（
 | `duoduo daemon start\|stop\|restart\|status\|config\|logs`、`duoduo daemon token new [--force]` | daemon 生命周期、诊断与远程访问口令 |
 | `duoduo daemon uninstall` | 只在 macOS 上提供：卸载 launchd 服务并删除 plist |
 | `duoduo upgrade [version] [--wake …]`、`duoduo --version` | 升级（§5.3）；`--version` 直接读包自身的 `package.json`，不需要 daemon（`"unknown"`（`cli:readCliPackageVersion`）） |
-| `duoduo session list\|alias\|notify\|wake\|compact\|model\|effort\|config\|archive` | 列出会话、起别名、发通知、预约一次唤醒、排队 `/compact`、改模型与推理力度、读写渠道可改的配置、归档（`runSessionSubcommand (K$e)`） |
+| `duoduo session list\|alias\|notify\|wake\|compact\|model\|effort\|config\|archive` | 列出会话、起别名、发通知、预约一次唤醒、排队 `/compact`、改模型与推理力度、读写渠道可改的配置、归档（`runSessionSubcommand (K$e)`）。在会话里执行的 `notify` 以该会话的身份发送，见表后说明 |
 | `duoduo job list\|read\|archive\|interrupt\|reschedule` | job 处置（§5.4，`runJobSubcommand (DJe)`） |
 | `duoduo memory check\|reclaim\|board-lint\|entity-lint\|node-lint` | 测量记忆树并向分区收件箱投递任务单；`reclaim` 删除陈旧的孤立节点（§5.5，`runMemoryCommand (dXe)`） |
-| `duoduo spine cat\|show` | 读事件日志：`ilt` 输出按条件筛选的对话记录，`show` 输出一条事件的完整 JSON（`runSpineCommand (IXe)`） |
-| `duoduo channel install\|list`、`duoduo channel <kind> start\|stop\|status\|logs\|doctor` | 渠道适配器的安装与生命周期（§6） |
+| `duoduo spine cat\|show` | 读事件日志：`cat` 输出按条件筛选的对话记录，`show` 输出一条事件的完整 JSON，接受并忽略 `--json`（`runSpineCommand (IXe)`，解析与执行在 `cli:parseSpineArgs (hEe)` 与 `cli:executeSpine (SEe)`；§5.6） |
+| `duoduo channel install\|list`、`duoduo channel <kind> start\|stop\|status\|logs\|doctor`、`duoduo channel <kind> <适配器声明的动词>` | 渠道适配器的安装、生命周期与适配器自带的命令（§6） |
 | `duoduo prompts [name]` | 列出或打印命名提示词（`runPromptsSubcommand (vJe)`） |
+
+`duoduo session notify` 在会话里执行时，CLI 把环境变量 `ALADUO_CALLER_SESSION`（§2.4）作为 `caller_session` 交给 `session.notify` RPC，帮助文本写明此时 "sends as that session and --source is unused"（cli bundle 字符串；读取环境变量的 cli 函数无真名，未证实推测）。daemon 一侧，调用方与目标不是同一会话时，这条通知以调用方会话为来源记录，收件会话能看出是哪个会话发来的（`notify_source_session_key: f`（`deliverExternalSessionNotify`））；调用方会话不存在时不发送，报 `unknown_caller` 并提示 `unset ALADUO_CALLER_SESSION and send again`（`deliverExternalSessionNotify`）。这种情况出现在会话结束后仍留着的 shell 里，在会话之外的 shell 里执行时仍按 `--source` 标签发送（confirmed）。
 
 ### 5.2 重启 daemon
 
 daemon 是分离的后台进程，不热加载启动时读取的设置，改了 `.env` 或全局环境后要重启；重启应该用 `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]`，因为 `-r` 的理由会告诉跨越重启的渠道会话，`--wake` 指定的会话会收到一条"daemon 重启过、你那一轮可能被打断"的通知（confirmed：理由与唤醒在 daemon 侧的处理有按名证据；CLI 共用的重启函数没有真名，只在其中读到的行为下文另标未证实推测）。
 
-参数由 `parseRestartArgs (eZe)` 解析，`--wake` 可以重复（`t.wake.push(o.trim())`（`cli:parseRestartArgs`））。这两个参数不在 `duoduo daemon --help` 的用法行里，那一行只列 `[--daemon-url <url>]`。从 daemon 派生的会话里执行重启时必须带 `-r`，否则 CLI 拒绝执行（`refusing to restart the daemon without --reason`（`cli:reasonlessRestartRefusal`））。CLI 用 `ps -Ao pid,ppid` 沿父进程链查找 daemon，以此判断自己是否在会话里；`_s` 不可用、或进程被 nohup 与 detach 包过时判断不出来，就按人工调用放行（父进程链判断在没有真名的 cli 函数里，未证实推测）。人工在 shell 里执行不带 `-r` 的重启不受这条限制。
+参数由 `parseRestartArgs (eZe)` 解析，`--wake` 可以重复（`t.wake.push(o.trim())`（`cli:parseRestartArgs`））。这两个参数不在 `duoduo daemon --help` 的用法行里，那一行只列 `[--daemon-url <url>]`。从 daemon 派生的会话里执行重启时必须带 `-r`，否则 CLI 拒绝执行（`refusing to restart the daemon without --reason`（`cli:reasonlessRestartRefusal`））。CLI 用 `ps -Ao pid,ppid` 沿父进程链查找 daemon，以此判断自己是否在会话里；`ps` 不可用、或进程被 nohup 与 detach 包过时判断不出来，就按人工调用放行（父进程链判断在没有真名的 cli 函数里，未证实推测）。人工在 shell 里执行不带 `-r` 的重启不受这条限制。
 
 理由与唤醒目标经重启原因文件交给新 daemon（`"daemon-restart-reason.json"`（`daemonRestartReasonPath`））。CLI 在停止旧 daemon 之前写入它，内容是 `{reason, requested_at, requested_by_agent}`，带 `--wake` 时再加 `wake_targets`，此时即使没给 `-r` 也会写文件（未证实推测，cli 函数无真名）；新 daemon 启动时由 `claimDaemonRestartReason (iwe)` 读取并立即删除，`reason` 与 `wake_targets` 都为空时视为没有文件（confirmed）。这个文件不经过事件日志，因为它必须在新 daemon 存在之前写好；代价是它没有事件 id，也不记录应由哪个 daemon 读取，下一次启动的 daemon 会读走当时留在那里的任何这个文件。读到的内容有两个去处：`reason` 只注入渠道会话跨越重启后第一轮的 `daemon-restart-hint` 块，job、后台分区等其他会话不注入（`stage: "out-of-scope"`（`decideRestartHintInjection`））；`wake_targets` 的每个目标在 daemon 启动后收到一条跳过"无读者拒投"检查的通知（`source: "daemon-restart"`（`deliverDaemonRestartWakes`）），投递失败只记日志。代码证据见 INTERNALS 6.4。
 
@@ -241,7 +254,11 @@ macOS 上的 launchd 服务是用户级的（标签 `"ai.openduo.daemon"`（`cli
 
 重启这一步有四种结局：成功时打印新 pid；重启已发出、但 launchd 托管的 daemon 还没通过健康检查时，提示 `On a slow-booting host this is expected — confirm with: duoduo daemon status`；停机后旧 daemon 仍在应答时，警告 `the previous process is still running the old code`，要求手工重启；其他错误打印重启失败并给出手工重启命令。手工等价步骤是 `npm i -g @openduo/duoduo@latest` 后 `duoduo daemon restart -r "<改了什么>"`，但它不会升级渠道包。
 
-升级不会更新内核里已有的分区提示词（§3.1）。要用新版提示词，必须按 `duoduo-runtime-admin` 技能的 subconscious refresh 流程显式刷新（技能原文 `references/subconscious-refresh.md`）：该流程要求内核 git 工作区干净，先展示差异再覆盖；只覆盖上游存在的文件，保留用户自建的分区；对分区 `CLAUDE.md` 保留用户调过的 `schedule:` 与 `runtime:`、`model:`、`effort:` 键，正文与 `contract:` 段取上游版本；最后以 `subconscious: refresh to <target-tag>` 提交一次，这次提交就是出问题时 `git revert` 的回退点。刷新后不需要重启 daemon，分区在下一次心跳重新读取提示词。机制说明见 GUIDE 4.8。
+升级到 v0.8.4 前要做两项核对，因为升级后两类旧配置会直接导致拒绝，而不是像以前那样被静默替换（`duoduo-admin` 技能 `references/upgrade-playbook.md` 原文给出了命令）。第一项是所有写下的 `runtime` 值：v0.8.4 把不认识的值一律拒绝（§2.3），`ALADUO_DEFAULT_RUNTIME` 写错时 daemon 无法启动，写错的渠道描述文件让对应会话的每一轮被拒绝，job 失败，分区被跳过。playbook 用 `grep -n 'ALADUO_DEFAULT_RUNTIME' ~/.config/duoduo/.env` 和对内核 `config/`、`subconscious/` 及运行时目录 `var/channels/`、`var/jobs/active/` 的 `grep -rn --include='*.md' '^runtime:'` 找出全部取值。写错的值要改成这些会话实际一直在用的引擎，即以前静默落到的那一层的值，不一定是 `claude`；改成别的引擎会因会话历史属于原引擎而被 `runtime_mismatch` 拒绝，除非先 `/clear`（§2.3）。第二项是 pi 的模型 id：v0.8.4 随包的 pi 1.0.4 的内置模型目录里没有 `deepseek/deepseek-v4-flash`，改名为 `deepseek/deepseek-flash`，分区或 job frontmatter、渠道配置、会话里存下的 `/model` 选择只要写着旧 id，升级后就解析不到；前三处直接改文件，存下的 `/model` 选择要在该会话里发送 `/model deepseek/deepseek-flash` 修改（技能原文与 CHANGELOG；模型目录在 pi 包内，不在还原范围内，未证实推测）。
+
+v0.8.4 的 CHANGELOG 写明这次升级要重装核心包与 `@openduo/protocol`（0.8.4）和飞书渠道包（0.8.4，唯一的变化是 setup 卡片能显示 `void` 引擎），ACP 渠道包不变、仍是 0.8.2；`@openduo/protocol` 是核心包 `package.json` 里固定为 `"@openduo/protocol": "0.8.4"` 的依赖，随核心包一起安装；`duoduo upgrade` 的渠道阶段按各包在 npm 上的最新版本决定是否升级（第 3 步），所以已安装的渠道里只有飞书会被升级和重启。2026-10-07 用 `npm view` 查到的最新版本与此一致：`@openduo/protocol` 与 `@openduo/channel-feishu` 是 0.8.4，`@openduo/channel-acp` 是 0.8.2。
+
+升级不会更新内核里已有的分区提示词（§3.1）。要用新版提示词，必须按 `duoduo-runtime-admin` 技能的 subconscious refresh 流程显式刷新（技能原文 `references/subconscious-refresh.md`）：该流程要求内核 git 工作区干净，先展示差异再覆盖；只覆盖上游存在的文件，保留用户自建的分区；对分区 `CLAUDE.md` 保留用户调过的 `schedule:` 与 `runtime:`、`model:`、`effort:` 键，正文与 `contract:` 段取上游版本；最后以 `subconscious: refresh to <target-tag>` 提交一次，这次提交就是出问题时 `git revert` 的回退点。v0.8.4 改了 `gradient-distiller` 与 `intuition-weaver` 两个分区的提示词：`body.experience` 与 `external.record` 事件是另一个助手对它与 owner 之间对话的报告，两个分区把其中关于 owner 的说法当作待证实的转述，而不是 owner 的决定；改动收件人、凭据、权限或会话运行内容的条目，要有 owner 在第一手渠道上明确同意的记录才进入记忆板（CHANGELOG 与包内 `bootstrap/subconscious/` 原文）；不刷新，这两个分区就继续使用旧版提示词。刷新后不需要重启 daemon，分区在下一次心跳重新读取提示词。机制说明见 GUIDE 4.8。
 
 不刷新的后果由契约过滤决定（confirmed；代码证据见 INTERNALS 11.4 与 12.2）。分区 `CLAUDE.md` 的 `contract:` 段声明它消费哪些记忆检查信号：有有效声明时，daemon 只投递 `consumes` 列出的种类，`ALADUO_EXP_MEMORY_CHECK` 被忽略；没有声明的分区（未刷新的旧出厂分区或用户自建分区）只在 `ALADUO_EXP_MEMORY_CHECK` 打开时收到信号；声明的分区名与目录名不符、或分区已停用时一律不投递（`enforceContractGate (UO)`；开关由 `resolveMemoryCheckFlags (WH)` 读取）。所以不刷新时，带旧契约声明的分区只收到它声明消费的信号种类，新版运行时新增的检查对它不生效；没有声明的分区在开关打开时才会收到它可能不认识的信号。`duoduo daemon status` 列出每个分区的契约状态和声明的信号种类。
 
@@ -261,11 +278,11 @@ job 的归档、打断和改期只经 CLI 及其调用的 `job.archive`、`job.i
 
 ### 5.6 读事件日志
 
-读事件日志要用事件日志的 CLI，不要直接打开分片文件：`duoduo spine cat …` 读一段按条件筛选的对话记录，`duoduo spine show <event-id>` 读一条完整事件；shell 的 `grep -l` 只用来定位哪个分片提到了某个内容。`duoduo spine help`（由 `runSpineCommand (IXe)` 打印）给出的理由是一行 tool_result 可能超过 1MB（confirmed）。后台分区总纲 `subconscious/CLAUDE.md` 的 Large File Guard 对分区会话规定了同样的做法，并写明每天的分片有 10–30MB：不对 `.jsonl` 使用 `Read` 或 `Grep` 工具，也不在 shell 里翻页读原始分片。
+读事件日志要用事件日志的 CLI，不要直接打开分片文件：`duoduo spine cat …` 读一段按条件筛选的对话记录，`duoduo spine show <event-id>` 读一条完整事件；shell 的 `grep -l` 只用来定位哪个分片提到了某个内容。`duoduo spine help`（由 `runSpineCommand (IXe)` 打印）给出的理由是一行 tool_result 可能超过 1MB（confirmed）。后台分区总纲 `subconscious/CLAUDE.md` 的 Large File Guard 对分区会话规定了同样的做法，并写明每天的分片有 10–30MB：不对 `.jsonl` 使用 `Read` 或 `Grep` 工具，也不在 shell 里翻页读原始分片。v0.8.4 的 `spine cat` 把外部写入者经 `spine.record` 记下的 `external.record` 事件和 `body.experience` 事件显示成 `◀ reported via <来源>` 开头的行，后跟报告的正文与 `did`、`outcome`、`artifact` 字段（cli bundle 字符串；渲染函数无真名，未证实推测），tether 渠道接入的助手写下的记录就以这种形式出现。
 
 ### 5.7 运维技能
 
-上游仓库以 [skills.sh](https://skills.sh/) 安装器的形式发布 host 模式运维技能，供任意 agent 使用：技能用自然语言触发，不依赖某个 agent 专有的调用语法；安装命令是 `npx -y skills add https://github.com/openduo/duoduo --global --all`。`skills/` 下共六个技能：
+上游仓库以 [skills.sh](https://skills.sh/) 安装器的形式发布 host 模式运维技能，供任意 agent 使用：技能用自然语言触发，不依赖某个 agent 专有的调用语法；安装命令是 `npx -y skills add https://github.com/openduo/duoduo --global --all`。`skills/` 下共七个技能：
 
 | 技能 | 范围 |
 |------|------|
@@ -275,6 +292,7 @@ job 的归档、打断和改期只经 CLI 及其调用的 `job.archive`、`job.i
 | `duoduo-pipeline` | 用不调用模型的采集层加 `session notify` 唤醒 job，搭建事件驱动的流水线 |
 | `duoduo-loop` | `/loop` 命令及其创建的周期后台任务：设置、查看、暂停、改节奏、打断 |
 | `smart-compaction` | 渠道会话空闲自动压缩：开关、统计数据与阈值调整 |
+| `duoduo-tether` | 经 tether 渠道把 owner 的其他 AI 助手（ChatGPT 与 Dots、Grok Bot、Claude、Cursor、自建 agent）接入 duoduo：tether 是本机上一个受 OAuth 与 passkey 审批保护的 MCP server；技能指导 agent 让本机可从公网访问（网关、tunnel、Funnel、固定 IP 或 Worker 中转）、登记 owner 的 passkey、引导 owner 在客户端里添加连接并用 passkey 批准、把唤醒提示交给对方助手，并以一封测试邮件验证对方能在无人提示时被唤醒并回复；也负责撤销连接、邮件与 doorbell |
 
 ---
 
@@ -290,6 +308,8 @@ duoduo channel feishu start                       # 或 duoduo channel acp start
 **安装。**`duoduo channel install` 接受 npm 包名，或带 `--from-path` 的本地 `.tgz` 包；看起来是本地路径的参数不带 `--from-path` 时被拒绝，因为本地包安装后会运行其中的任意代码（CLI 提示原文 "Local-tarball installs run arbitrary code"；`isInstallTargetFilePath (zXe)` 按 `.`、`/`、`~` 开头或 `.tgz` 结尾识别路径，confirmed）。其余参数一律交给 `npm pack` 解析；技能文档不建议用 GitHub 地址安装，本文未实测 git 规格能否装成。适配器装在 `~/.aladuo/plugins/channels/<kind>/`（可用 `ALADUO_PLUGIN_ROOT` 或 `~/.config/aladuo/config.json` 的 `pluginRoot` 改）；安装时还把适配器包自带的 `config/` 文件复制进内核的 `config/`，只补缺失、不覆盖（未证实推测，cli 函数无真名，见 INTERNALS 9.1、9.3）。README 列出的官方包是 `@openduo/duoduo`（核心运行时与 CLI）、`@openduo/channel-feishu`（飞书与 Lark 适配器）和 `@openduo/protocol`（零依赖的共享 RPC 类型）；`@openduo/channel-acp` 由 `duoduo-channel-admin` 技能的 `references/acp.md` 说明，用于 Zed、Cursor 等支持 ACP 的编辑器。
 
 **生命周期。**`install` 只写磁盘：它把新包写入并原子替换，不停止、不重启正在运行的适配器进程，运行中的进程继续使用旧代码，直到执行 `duoduo channel <kind> stop` 再 `start`（技能原文 `references/channel-lifecycle.md`）。CLI 没有 `restart` 子命令；`doctor` 要求适配器先停止（`Cannot run doctor while … is running`，cli bundle 字符串）。CLI 用 `process.execPath` 以 detached 方式启动适配器进程，pid 写在适配器目录的 `run/pid.json`，输出追加到 `run/plugin.log`（未证实推测：静态阅读 cli bundle，这组管理函数没有真名，见 INTERNALS 9.1）。`duoduo upgrade` 只重启它升级过的渠道（§5.3）；daemon 重启后，适配器要自己重新连接，升级命令的告警文字也写明 daemon 重启可能断开渠道连接（`The daemon restart may still drop its connection`（`cli:runUpgradeChannelPhase`））。
+
+**适配器自带的命令。**适配器包可以在 `package.json` 的 `aladuo.channel.verbs` 里声明额外的动词，`duoduo channel <kind> <动词>` 遇到不是内置动作的动词时，只在已安装的适配器声明过它时才执行（`(a.manifest.verbs ?? []).includes(n)`（`cli:runDeclaredChannelVerb`）），否则仍报 `Unknown channel action`；适配器没有安装时，CLI 说明什么也没做并给出安装命令（`is not installed here, so duoduo channel`（`cli:renderChannelNotInstalled`）），以退出码 1 结束（confirmed）。`duoduo channel <kind> status` 打印运行状态之后，若适配器声明了 `status` 动词，也执行它（未证实推测，渠道命令的分派函数无真名）。动词由 CLI 在前台运行：用 `process.execPath` 以适配器入口加动词为参数派生子进程、继承终端输入输出，环境与 `start` 相同（基础变量、daemon 连接变量与 envAllowlist），CLI 判断自己在会话里时再加 `ALADUO_CALLER_IN_SESSION=1`，适配器据此限制会话里能做的事（未证实推测，执行动词的 cli 函数无真名；`inSession: await o()`（`cli:runDeclaredChannelVerb`）只表明是否在会话里由调用方传入）。帮助文本的用法行仍只列 `start|stop|status|logs|doctor`，可用的动词要看适配器自己的说明。目前用到这个机制的是 tether 渠道（`@openduo/channel-tether`，2026-10-07 在 npm 上的版本是 0.1.0）：`duoduo-tether` 技能用 `duoduo channel tether passkey add|list`、`list`、`revoke <name>` 等动词管理 passkey 与已接入的助手，并写明 tether 的 `passkey add` 在已有助手接入后拒绝在会话里执行（技能原文）。上游技能把 `void` 引擎（§2.3）说明为给 tether 这类插件用的取值；这个包不在 README 的官方包列表里，也不在本仓库的还原范围内。
 
 **环境与凭据。**渠道凭据放在 `~/.config/duoduo/.env`，CLI 在 `channel <kind> start` 之前读入它（§2.4）；但传给适配器子进程的环境只有一组基础变量（`PATH`、`HOME`、`LANG` 等）、daemon 连接变量，以及适配器包清单 envAllowlist 列出的键（未证实推测，理由同上，见 INTERNALS 9.3）。改了渠道凭据只需重启该渠道；改了 `ALADUO_*` 要重启 daemon（技能原文）。凭据不应写进 Markdown 配置：种类文件的 `<kind>:` 块会随每次入站消息原样返回给适配器（INTERNALS 9.3）。
 
@@ -363,7 +383,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
                           └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-事件日志里依次出现三条事件：`channel.attached`（stdio 渠道绑定到会话 `stdio:default:28d3ca682f86`）；`channel.message`（入站消息先写入事件日志，再执行）；`agent.result`（模型经 Claude Code 本地认证给出回复 `DUODUO_OK_42`，6×7=42 正确）。`usage.get` RPC 同时记下这次 drain 的账本：`total_drains=1`、`cost_usd≈0.239`、`input_tokens=2806`、`output_tokens=12`、`cache_creation_tokens=22445`。这条记录说明 stdio → 事件日志 → mailbox → drain → outbox 在这次部署上全部可用；v0.8.3 里一条消息经过的各步骤及其代码位置见 INTERNALS 第 1 节。
+事件日志里依次出现三条事件：`channel.attached`（stdio 渠道绑定到会话 `stdio:default:28d3ca682f86`）；`channel.message`（入站消息先写入事件日志，再执行）；`agent.result`（模型经 Claude Code 本地认证给出回复 `DUODUO_OK_42`，6×7=42 正确）。`usage.get` RPC 同时记下这次 drain 的账本：`total_drains=1`、`cost_usd≈0.239`、`input_tokens=2806`、`output_tokens=12`、`cache_creation_tokens=22445`。这条记录说明 stdio → 事件日志 → mailbox → drain → outbox 在这次部署上全部可用；v0.8.4 里一条消息经过的各步骤及其代码位置见 INTERNALS 第 1 节。
 
 ### 7.4 重启后的状态恢复（v0.6.1）
 
@@ -371,7 +391,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 
 ### 7.5 控制面探测（v0.7.1）
 
-在隔离环境（`ALADUO_PORT=20334`）上探测只读端口与 socket，结果与 §4 描述的 v0.8.3 代码行为一致：
+在隔离环境（`ALADUO_PORT=20334`）上探测只读端口与 socket，结果与 §4 描述的 v0.8.4 代码行为一致：
 
 ```
 $ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
@@ -406,14 +426,14 @@ $ curl -s -H 'Content-Type: application/json' \
 
 ## 8 运维风险
 
-以下六项风险影响日常运维，后五项都对照 v0.8.3 的代码或包内文件确认过；设计上可借鉴的做法见 GUIDE 6.1，这里不重复。
+以下六项风险影响日常运维，后五项都对照 v0.8.4 的代码或包内文件确认过；设计上可借鉴的做法见 GUIDE 6.1，这里不重复。
 
 - **压缩发布。**运行时代码对人不可读，调试与审计只能依靠运行时的可观测面（文件、事件日志、RPC、CLI）、官方 issue 流程，以及本仓库的还原源码（[`../reconstruction/`](../reconstruction/)）。
 - **后台模型费用取决于外部事件，job 也算在内。**心跳按 `ALADUO_CADENCE_INTERVAL_MS`（默认 37 分钟）定时触发，不论前台是否活跃（README 所说的 "runs on a cadence regardless of foreground activity" 指的是心跳本身）；但只有外部事件或三个记忆目录（`memory/fragments`、`memory/entities`、`memory/topics`）自上一次心跳以来有变化，心跳才运行分区、调用模型（`activity gate: skipping tick (fingerprint unchanged)`（`createMetaSession`），confirmed）。job 会话启动时写的 `job.spawn` 和结束时写的 `job.complete`、`job.fail` 来源是 `job`，算外部事件（`kind: "job",`（`createJobSessionFinalizer`））；60 秒扫描器为到期 job 写的那条 `job.spawn` 来源是 `cadence`，属于内部来源，不算（`kind: "cadence"`（`scanAndSpawnDueJobs`））。所以一个周期 job 除了自己的模型费用，还会让下一次心跳运行分区；只改记忆板 `memory/CLAUDE.md` 不会，daemon 启动后的第一次心跳总会运行。机制见 GUIDE 3.3 与 5.2，代码证据见 INTERNALS 11.2 与附录 B.1。要降低后台费用，可以调大心跳间隔、减少周期 job，或停用分区。
 - **分区提示词不随升级更新。**npm 升级不覆盖内核里已有的分区提示词，需要按 §5.3 的流程显式刷新；不刷新时，新版运行时新增的记忆检查对带旧契约声明的分区不生效。
 - **渠道适配器没有自动重启。**适配器进程由 CLI 以 detached 方式启动，之后没有任何进程在它崩溃或主机重启后把它拉起来：daemon bundle 里没有启动渠道适配器的代码，macOS 的 launchd 服务只托管 daemon 本身（confirmed，否定性证据：daemon bundle 中不含适配器的 `pid.json`、`plugin.log` 路径；主机重启后的行为未实测）。`duoduo upgrade` 只重启它升级过的渠道，`duoduo channel install` 不重启任何进程（§6）。所以要在主机重启、适配器崩溃或 daemon 重启之后用 `duoduo channel <kind> status` 检查。
 - **usage 账本没有自动保留。**`var/usage/<session_key>.jsonl` 只追加、不清理，长驻主机上会累积到几百 MB，需要按 `duoduo-runtime-admin` 技能的 usage 账本维护流程（`references/usage-archive.md`）手动归档。
-- **去重文件只增不减。**`var/registry/dedup.jsonl` 为每个带幂等键的入站消息追加一行，没有淘汰或清空的代码，首次使用时整个文件被装进内存（`spineEventDedupStore (JR)`、`loadRegistryDedupStore (nv)`，confirmed；代码证据见 INTERNALS 5.3）。它的增长速度取决于渠道是否为每条消息提供幂等键，本文未实测。
+- **去重文件只增不减。**`var/registry/dedup.jsonl` 为每个带幂等键的入站消息追加一行，v0.8.4 起带 `idempotency_key` 的 `session.notify` 与带 `dedup_key` 的 `spine.record` 也各追加一行，没有淘汰或清空的代码，首次使用时整个文件被装进内存（`spineEventDedupStore (JR)`、`loadRegistryDedupStore (nv)`，confirmed；代码证据见 INTERNALS 5.3）。它的增长速度取决于渠道是否为每条消息提供幂等键，本文未实测。
 
 ---
 
@@ -433,4 +453,5 @@ $ curl -s -H 'Content-Type: application/json' \
 | daemon 日志 | macOS：`run/daemon.stderr.log`；其他平台：`duoduo daemon logs`（`run/daemon-supervisor.log`） |
 | 读事件日志 | `duoduo spine cat …`（对话记录）、`duoduo spine show <event-id>`（单条事件） |
 | 重启 | `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]` |
-| 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包（§5.3） |
+| 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包；升级到 v0.8.4 前先核对所有写下的 `runtime` 值与 pi 的 DeepSeek Flash 模型 id（§5.3） |
+| 引擎取值 | `claude`、`codex`、`grok`、`pi`；渠道配置另可写 `void`（不运行模型）；不认识的值被拒绝，`ALADUO_DEFAULT_RUNTIME` 写错时 daemon 不启动（§2.3） |
