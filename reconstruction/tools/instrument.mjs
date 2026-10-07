@@ -36,6 +36,7 @@
 //            and exit of those factories.
 import { parse } from "@babel/parser";
 import fs from "node:fs";
+import { nestedFunctions, keyName } from "./closure_names.mjs";
 
 const argv = process.argv.slice(2);
 const ALL = argv.includes("--all");
@@ -88,34 +89,9 @@ function wrapClass(cls, name) {
   }
 }
 // --inner: every function nested in `root` (not root itself), named by what it
-// is assigned to. The traversal is a plain recursive walk over node children.
-const isFn = n => n && (n.type === "FunctionExpression" || n.type === "ArrowFunctionExpression" || n.type === "FunctionDeclaration" || n.type === "ObjectMethod" || n.type === "ClassMethod" || n.type === "ClassPrivateMethod");
-function keyName(k) { return !k ? null : k.type === "Identifier" ? k.name : k.type === "StringLiteral" ? k.value : k.type === "PrivateName" ? "#" + k.id.name : null; }
+// is assigned to (closure_names.mjs, the same names xref.mjs records)
 function wrapInner(root, outer) {
-  const walk = (node, parent, key) => {
-    if (!node || typeof node.type !== "string") return;
-    if (node !== root && isFn(node)) {
-      let name = null;
-      if (node.type === "FunctionDeclaration" && node.id) name = node.id.name;
-      else if (node.type === "FunctionExpression" && node.id) name = node.id.name;
-      else if (node.type === "ObjectMethod" || node.type === "ClassMethod" || node.type === "ClassPrivateMethod") name = keyName(node.key);
-      else if (parent) {
-        if (parent.type === "VariableDeclarator" && parent.id.type === "Identifier") name = parent.id.name;
-        else if (parent.type === "ObjectProperty" && parent.value === node) name = keyName(parent.key);
-        else if (parent.type === "AssignmentExpression" && parent.right === node) name = parent.left.type === "Identifier" ? parent.left.name : parent.left.type === "MemberExpression" && !parent.left.computed ? keyName(parent.left.property) : null;
-        else if (parent.type === "ClassProperty" && parent.value === node) name = keyName(parent.key);
-      }
-      if (!name) name = `anon@${node.loc.start.line}`;
-      if (node.body) wrapBody(node, `${outer}>${name}`);
-    }
-    for (const k of Object.keys(node)) {
-      if (k === "loc" || k === "range" || k === "leadingComments" || k === "trailingComments" || k === "innerComments") continue;
-      const v = node[k];
-      if (Array.isArray(v)) for (const x of v) walk(x, node, k);
-      else if (v && typeof v.type === "string") walk(v, node, k);
-    }
-  };
-  walk(root, null, null);
+  for (const f of nestedFunctions(root, outer)) if (f.node.body) wrapBody(f.node, f.name);
 }
 
 function wrapInnerOfClass(cls, name) {

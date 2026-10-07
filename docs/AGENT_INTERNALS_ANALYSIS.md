@@ -38,7 +38,7 @@
 
 1. **还原源码。** 运行时以压缩 JavaScript 发布。[`reconstruction/`](../reconstruction/) 把 daemon bundle 还原成可读源码 `reconstruction/recon/daemon.recon.js`，它与发布的 bundle 在改名映射下 AST 全等，证明方法见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名；短名是美化后的 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，文中代码片段按这个拼写写；cli bundle 里的符号写作 `cli:真名`。`pi-worker.js` 与 `feishu-gateway.js` 不在流水线覆盖范围内，没有真名，它们的字符串字面量以普通引号写出，并注明"pi-worker.js 字面量"或"feishu-gateway.js 字面量"。npm 依赖 `@openduo/protocol` 以 TypeScript 源码发布，引用时写出源文件名。
 2. **提示词原文。** 包内 `bootstrap/` 下的身份提示、种类配置与出厂分区，仓库里的 `subconscious/`、`skills/`，以及上游 `CHANGELOG.md`。CHANGELOG 与代码不一致时以代码为准。
-3. **运行中 daemon 的观测。** 只在注明之处使用。例如在隔离的 `HOME` 下分别启动发布的 daemon 与还原源码，只读 TCP 端口对 `system.status` 返回结果、对 `session.list` 返回 `-32601`，两者输出相同。另有一批 `confirmed` 主张的依据是运行本版本的还原 daemon：[`reconstruction/scenarios/`](../reconstruction/scenarios/) 下的场景脚本在隔离的 `HOME` 里启动插桩后的还原 daemon，插桩把每个具名函数的进入与退出写进调用记录，运行中不调用模型；脚本经两个监听器驱动一个场景，再比对 RPC 响应、数据目录与调用记录。正文把这类主张写成"在本版本的还原 daemon 上实测"，注明场景名，并引用调用记录里出现的函数。
+3. **运行中 daemon 的观测。** 只在注明之处使用。例如在隔离的 `HOME` 下分别启动发布的 daemon 与还原源码，只读 TCP 端口对 `system.status` 返回结果、对 `session.list` 返回 `-32601`，两者输出相同。另有一批 `confirmed` 主张的依据是运行本版本的还原 daemon：[`reconstruction/scenarios/`](../reconstruction/scenarios/) 下的场景脚本在隔离的 `HOME` 里启动插桩后的还原 daemon，插桩把每个具名函数的进入与退出写进调用记录；多数场景运行中不调用模型，场景 10-restart-hint 与 11-skip-rewind 经 Agent SDK 调用真实的 Claude 模型；脚本经两个监听器驱动一个场景，再比对 RPC 响应、数据目录与调用记录。正文把这类主张写成"在本版本的还原 daemon 上实测"，注明场景名，并引用调用记录里出现的函数。
 
 **置信标注。**
 
@@ -162,7 +162,7 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 | 顺序 | tag | 内容 | 注入条件 | 详见 |
 |---|---|---|---|---|
-| 1 | `daemon-restart-hint` | 当前运行在一个新的 daemon 进程里（附启动时间），有重启原因时附上原因 | 渠道会话，且上次见到的 daemon 启动时间与当前不同 | 6.4 |
+| 1 | `daemon-restart-hint` | 当前运行在一个新的 daemon 进程里（附启动时间），有重启原因时附上原因 | 渠道会话，且上次见到的 daemon 启动时间与当前不同；不要求这一批包含用户消息 | 6.4 |
 | 2 | `smart-compact-notice` | 最近一次上下文压缩的时间与结果（上下文 token 数与历史 token 数的前后变化），有记录时附压缩前完整 transcript 的保存路径；空闲压缩和 turn 中由 SDK 触发的压缩都会留下记录 | effective config 配置了空闲自动压缩（`auto_compact_idle_minutes` > 0），会话状态中的压缩统计属于最近一次压缩，且压缩之后还没有处理过新事件 | 8.4 |
 | 3 | `gateway-notice` | 包在 `<system-reminder>` 里的说明：某个网关命令已在模型之外执行，视为已生效，不要重复；末尾注明与当前任务无关时不必回应 | 有待送达的网关命令结果 | 6.2 |
 | 4 | `time-context` | 上次交互时间、当前时间，以及两者相隔约多久 | 渠道会话的用户消息，距上次事件不短于阈值，且这次 drain 中还没有注入过 | 本节 |
@@ -175,7 +175,7 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 表中各块的顺序、tag 与注入条件都由 `buildTransientUserBlocks (Vxe)` 和 drain 代码确认（confirmed）。其中 `smart-compact-notice`、`time-context`、`job-tick`、`board-updated` 四类块的正文分别由 `renderSmartCompactNoticeBlock (Mmt)`、`renderTimeGapContextBlock (jmt)`、`renderJobTickBlock (Fmt)`、`renderBoardUpdatedHint (bxe)` 生成，表中"内容"一列与这四个函数输出的字段一致（confirmed）。`smart-compact-notice` 注入条件的后两项由 `resolvePendingCompactNotice (Dmt)` 判断：会话状态中的 `last_event_at` 晚于 `last_compact_at`，或压缩统计的测量时间不等于 `last_compact_at` 时，它不返回提示（confirmed）。
 
-时间块的阈值来自 effective config 的 `time_gap_minutes`，缺省 60 分钟，设为 0 或负数时关闭；`computeTimeGapContext (Bxe)` 只在渠道会话、这一批里有用户消息、会话有上次事件时间、且这次 drain 中还没有注入过时间块时构造时间差对象，并把阈值一并交给 `renderTimeGapContextBlock (jmt)`；后者在时间差小于阈值时不输出文本（confirmed）。重启提示的判定由 `decideRestartHintInjection (awe)` 完成，非渠道会话直接判为不适用，所以 job、分区、system 会话收不到这个块（confirmed）。`job-tick` 只由 `drainSessionMailbox (zxe)` 的逐条处理路径传入，合并窗口路径 `prepareDrainTurnContext (NW)` 不传这一项（confirmed）；同一条路径在构造了 `job-tick` 时把用户原文换成上表中的固定句（confirmed）。
+时间块的阈值来自 effective config 的 `time_gap_minutes`，缺省 60 分钟，设为 0 或负数时关闭；`computeTimeGapContext (Bxe)` 只在渠道会话、这一批里有用户消息、会话有上次事件时间、且这次 drain 中还没有注入过时间块时构造时间差对象，并把阈值一并交给 `renderTimeGapContextBlock (jmt)`；后者在时间差小于阈值时不输出文本（confirmed）。重启提示的判定由 `decideRestartHintInjection (awe)` 完成，非渠道会话直接判为不适用，所以 job、分区、system 会话收不到这个块（confirmed）。重启提示不检查 `isUserMessage`，所以跨越重启的第一轮可以是唤醒通知触发的 turn：在本版本的还原 daemon 上实测（场景 10-restart-hint），提示块是这一轮用户消息的第一个文本块，排在唤醒通知之前（confirmed，详见 6.4）。`job-tick` 只由 `drainSessionMailbox (zxe)` 的逐条处理路径传入，合并窗口路径 `prepareDrainTurnContext (NW)` 不传这一项（confirmed）；同一条路径在构造了 `job-tick` 时把用户原文换成上表中的固定句（confirmed）。
 
 用户输入去掉前导空白后以 `/` 开头时，`buildTransientUserBlocks (Vxe)` 跳过全部注入，只发原文；这时所有 `…Injected` 标志都为假，待送达的内容留到下一轮（confirmed）。
 
@@ -628,7 +628,7 @@ Skip 与 QueueOutboundAttachment 只注册给渠道会话，两者处理的都�
 
 工具说明写明 `In a turn you decide to skip, make Skip your FIRST action.`（`initSkipToolModule`），并提醒在 Skip 之前流出的文字仍可能到达用户（confirmed）。已经渲染出去的内容能否撤回，取决于渠道适配器是否处理 `stream_end` 的 `skipped` 原因（见本节后文）。
 
-Claude 的 hook 注册在两处：常驻流式会话的 hooks 对象（`createClaudeStreamingSessionFactory (KRe)`）和一次性调用的 SDK 选项，matcher 都是 Skip 的完整工具名 `mcp__aladuo__Skip`（confirmed）。hook 对每次 Skip 调用都返回 `stopReason: "The agent intentionally ended this turn silently by calling Skip."`（`createClaudeStreamingSessionFactory`）；只有主代理的调用（hook 输入不带 `agent_id`）才把当前 turn 标记为 `skipCalled`，所以子代理调用 Skip 不会让父 turn 的输出被丢弃。被标记的 turn 不再接收插话：PostToolUse hook 对它直接返回空结果，对子代理的工具调用（hook 输入带 `agent_id`）也直接返回空结果（`if (se?.agent_id !== void 0) return {};`（`createClaudeStreamingSessionFactory`）），所以排队的消息不会被子代理的工具调用取走；插话回调也不把新消息暂存到它上面，新消息改为下一个 turn 处理（7.4）。SDK 在 hook 返回 `continue: false` 之后是否还执行 Skip 的工具体，由 SDK 决定；如果不执行，Claude 会话就不会写入 Skip 记录，下一轮也就没有 `<skip-rewind>` 块（未证实推测，见第 14 节）。
+Claude 的 hook 注册在两处：常驻流式会话的 hooks 对象（`createClaudeStreamingSessionFactory (KRe)`）和一次性调用的 SDK 选项，matcher 都是 Skip 的完整工具名 `mcp__aladuo__Skip`（confirmed）。hook 对每次 Skip 调用都返回 `stopReason: "The agent intentionally ended this turn silently by calling Skip."`（`createClaudeStreamingSessionFactory`）；只有主代理的调用（hook 输入不带 `agent_id`）才把当前 turn 标记为 `skipCalled`，所以子代理调用 Skip 不会让父 turn 的输出被丢弃。被标记的 turn 不再接收插话：PostToolUse hook 对它直接返回空结果，对子代理的工具调用（hook 输入带 `agent_id`）也直接返回空结果（`if (se?.agent_id !== void 0) return {};`（`createClaudeStreamingSessionFactory`）），所以排队的消息不会被子代理的工具调用取走；插话回调也不把新消息暂存到它上面，新消息改为下一个 turn 处理（7.4）。hook 返回 `continue: false` 之后，Agent SDK 仍然执行这次 Skip 调用，`continue: false` 结束的是这次调用之后的这一轮。在本版本的还原 daemon 上实测（场景 11-skip-rewind，Claude 引擎，另有场景 10-restart-hint 中模型自行调用 Skip 的一次），调用顺序是 matcher 为 `*` 与 matcher 为 Skip 的两个 PreToolUse hook，然后 `createAladuoMcpServer (by)` 注册的处理函数调用 `runSkipTool (B$)` 写入 `pending_skip_rewind`，工具结果进入 transcript，PostToolUse hook 照常运行，之后这一轮结束，模型不再产出文字。所以 Claude 会话同样留下 Skip 记录，下一个用户消息 turn 收到 `<skip-rewind>` 块，块发出之后记录被清除（confirmed）。
 
 一次性调用的适配器用三个标记记录 Skip，规则与常驻流式会话不同（confirmed，静态阅读）。主代理调用 Skip 时，适配器同时记下"本次运行调用过 Skip"和"当前 turn 已跳过"；后者在每个 `result` 消息处清除（`q.type === "result" && (p = !1, f = q)`（`createAgentSdkAdapter`）），标记存在期间这个 turn 的流式输出和 result 文字都不收集；另有一个标记记下"有 turn 产出了 result 文字"。运行结束时，只有调用过 Skip、且没有任何一个 turn 产出 result 文字，整次运行才报告为跳过（`skipped: B \|\| void 0`（`createAgentSdkAdapter`）），所以同一次运行里后面的 turn（例如后台子代理完成之后的那一轮）照常送达。按当前的装配，Skip 只注册给渠道会话，而 Claude 渠道会话总是使用常驻流式会话，这段一次性调用的逻辑没有注册了 Skip 的调用方。
 
@@ -642,7 +642,7 @@ drain 收到引擎结果后，由 `markTurnSkippedFromSkipRecord (Pxe)` 按三�
 
 pi 上 daemon 写的 Skip 记录不参与这项判定，只供下一轮的 skip-rewind 块使用（confirmed，静态阅读）。Codex 与 Grok 在 Skip 之后仍可能继续产出文字，Codex 的描述因此改成"之后的产出不会送达"；Grok 用的是 Claude 原版描述，而它的适配器并不中断这一轮，这句描述在 Grok 上与实际行为不一致（confirmed，静态阅读）。插话回调在适配器报告当前 turn 已观察到 Skip、或 Skip 记录晚于这一轮开始时，不向这个 turn 插话，改为重新 drain（7.4）。
 
-这一轮被标记为跳过之后，处理结果对四个引擎相同（confirmed）。drain 不写出站记录，这一轮涉及的事件照常标记为已处理；会话发给订阅者的 `session.stream_end` 带 `reason: "skipped"`，按协议的类型注释，渠道适配器据此撤回已经流式渲染的部分内容。没有在 `accept_stream_end_reasons` 里声明 `skipped` 的适配器收到的是 `interrupted`（`let b = m === "interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`createSessionSubscriptionRegistry`），见 6.3）。下一轮是用户消息时，每轮瞬时块里加入 `<skip-rewind>` 块，写明跳过的时间、理由、距今多久，以及"上一轮的产出没有送达"（`renderSkipRewindBlock (Amt)`，块的注入与清除见 2.3）。
+这一轮被标记为跳过之后，处理结果对四个引擎相同（confirmed）。drain 不写出站记录，这一轮涉及的事件照常标记为已处理；会话发给订阅者的 `session.stream_end` 带 `reason: "skipped"`，按协议的类型注释，渠道适配器据此撤回已经流式渲染的部分内容。没有在 `accept_stream_end_reasons` 里声明 `skipped` 的适配器收到的是 `interrupted`（`let b = m === "interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`createSessionSubscriptionRegistry`），见 6.3）。下一轮是用户消息时，每轮瞬时块里加入 `<skip-rewind>` 块，写明跳过的时间、理由、距今多久，以及"上一轮的产出没有送达"（`renderSkipRewindBlock (Amt)`，块的注入与清除见 2.3）。场景 11-skip-rewind 在 Claude 引擎上实测了这条路径：`markTurnSkippedFromSkipRecord (Pxe)` 直接沿用 hook 的标记，drain 记日志 `[runner] Skip called — suppressing outbox`，不写出站记录，事件日志里这一轮只有 `agent.tool_use` 与 `agent.tool_result`，没有 `agent.result`，`createSessionSubscriptionRegistry (uH)` 发出的 stream_end 带 `reason: "skipped"`（confirmed）。
 
 QueueOutboundAttachment 把一个文件排进本会话的待发附件，在这一轮结束时随输出一起发给渠道（confirmed）。工具接受 `path`、可选的 `mime` 和可选的 `session_key`：`path` 可以是绝对路径或相对于会话工作目录的路径，必须指向一个普通文件；`mime` 省略时按扩展名从一张固定表推断，表里没有的扩展名记为 `application/octet-stream`；`session_key` 省略时为当前会话。工具按渠道适配器声明的出站能力检查文件：适配器在 `channel.pull` 时声明 `accept_mime` 与 `max_bytes`，由 `recordChannelCapabilityDeclaration (Ybt)` 按渠道种类和消费者记进会话状态（6.3）；没有声明任何 MIME、MIME 不匹配或文件超过大小上限时返回错误，描述要求模型把渠道的限制告诉用户并提供替代办法（例如直接贴出文本内容）。通过检查的文件追加进 `state.json` 的 `pending_outbound_attachments`，同一路径与 MIME 的旧项被替换。drain 在引擎调用结束后由 `runDrainQueryAndCollectOutboundAttachments (Dxe)` 读出这些待发项，与引擎结果自带的附件合并，然后清空字段；引擎调用抛错时同样清空（confirmed）。`session_key` 指向另一个会话时，文件进入那个会话的待发列表，在那个会话下一次 turn 结束时发出（confirmed，静态阅读；送达时机未实测）。
 
@@ -974,9 +974,9 @@ daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake
 
 读取方是新 daemon 的 `main (kvt)`（confirmed）。`claimDaemonRestartReason (iwe)` 读取文件后，在解析 JSON 之前就删除它，所以格式错误的文件被静默销毁；解析后原因去掉首尾空白、唤醒目标去掉空串，两者都为空时视同没有文件。认领结果存入模块级变量，只在原因非空时对外提供。它不比较文件里的 `requested_at`、pid 或 boot id，也不看文件时间（confirmed）。在本版本的还原 daemon 上实测（场景 08-restart-reason），`requested_at` 与文件 mtime 都是 2020 年的文件同样被认领，其中的唤醒目标同样被投递；截断的 JSON 与原因、目标都是空白的文件被删除，daemon 不写任何日志；原因为空、只有唤醒目标的文件（CLI 的 `--wake` 不带 `-r` 时写的就是这种）也被认领，唤醒正文省略原因那一句。
 
-认领到的原因首先进入渠道会话跨越重启后的第一轮（confirmed）。`decideRestartHintInjection (awe)` 只在判定为 `cross-restart` 时注入 `daemon-restart-hint` 每轮瞬时块：非渠道会话判为 `out-of-scope`，从未处理过事件的会话判为 `new-session`，没有记录过 daemon 启动时刻的会话判为 `grandfather`，同一个 daemon 内判为 `same-daemon`。块的正文说明会话已在新的 daemon 进程下运行，有原因时追加原因和请求时刻（第 2.3 节）。因此 job、后台分区等非渠道会话收不到这个块。
+认领到的原因首先进入渠道会话跨越重启后的第一轮（confirmed）。`decideRestartHintInjection (awe)` 只在判定为 `cross-restart` 时注入 `daemon-restart-hint` 每轮瞬时块：非渠道会话判为 `out-of-scope`，从未处理过事件的会话判为 `new-session`，没有记录过 daemon 启动时刻的会话判为 `grandfather`，同一个 daemon 内判为 `same-daemon`。块的正文说明会话已在新的 daemon 进程下运行，有原因时追加原因和请求时刻（第 2.3 节）。因此 job、后台分区等非渠道会话收不到这个块。在本版本的还原 daemon 上实测（场景 10-restart-hint，Claude 引擎），渠道会话的第一轮判为 `new-session`，只写入 `last_seen_daemon_started_at`；重启之后的第一轮判为 `cross-restart`，`buildTransientUserBlocks (Vxe)` 经 `getPendingRestartReason (swe)` 与 `renderDaemonRestartHint (uwe)` 生成提示块，作为这一轮用户消息的第一个文本块送给模型，正文为 `[system] You're running under a new daemon process (started <启动时刻>). Restart reason, given by the caller: <原因> (requested <请求时刻>).`；再下一轮判为 `same-daemon`，没有提示块（confirmed）。
 
-唤醒目标另外收到一条强制通知（confirmed）。`main (kvt)` 在监听器和会话管理器启动之后，由 `deliverDaemonRestartWakes (avt)` 对每个唤醒目标投递一条来源为 `daemon-restart`、正文含原因的 `external.notify` 会话间投递，以 `force` 跳过"无读者拒投"检查（第 4.3 节）；目标只能是渠道会话或 job 会话，其余种类以 `forbidden_kind` 拒绝；结果只写日志。CLI 拒绝无原因重启时的提示说原因会到达重启后被唤醒的每个会话，而 daemon 代码只把它交给跨越重启的渠道会话和 `--wake` 指定的目标。在本版本的还原 daemon 上实测（场景 08-restart-reason），`deliverDaemonRestartWakes (avt)` 在会话管理器启动之后、job 调度器启动之前运行，经 `deliverExternalSessionNotify (EIe)` 投递：不存在的目标记一条 `restart wake refused` 日志，原因为 `not_found`；void 渠道会话的目标由 `writeVoidSessionOutboxRecord (wI)` 写成出站记录，不写邮箱指针、不唤醒；`route.deliver` 的来源为 `{kind: "route", name: "daemon-restart"}`，正文由 `renderRestartWakeMessage (lwe)` 生成，原因的首尾空白已去掉（confirmed）。重启提示块（`decideRestartHintInjection (awe)`）要等渠道会话真正 drain 一轮才会注入，这需要模型，场景没有覆盖。
+唤醒目标另外收到一条强制通知（confirmed）。`main (kvt)` 在监听器和会话管理器启动之后，由 `deliverDaemonRestartWakes (avt)` 对每个唤醒目标投递一条来源为 `daemon-restart`、正文含原因的 `external.notify` 会话间投递，以 `force` 跳过"无读者拒投"检查（第 4.3 节）；目标只能是渠道会话或 job 会话，其余种类以 `forbidden_kind` 拒绝；结果只写日志。CLI 拒绝无原因重启时的提示说原因会到达重启后被唤醒的每个会话，而 daemon 代码只把它交给跨越重启的渠道会话和 `--wake` 指定的目标。在本版本的还原 daemon 上实测（场景 08-restart-reason），`deliverDaemonRestartWakes (avt)` 在会话管理器启动之后、job 调度器启动之前运行，经 `deliverExternalSessionNotify (EIe)` 投递：不存在的目标记一条 `restart wake refused` 日志，原因为 `not_found`；void 渠道会话的目标由 `writeVoidSessionOutboxRecord (wI)` 写成出站记录，不写邮箱指针、不唤醒；`route.deliver` 的来源为 `{kind: "route", name: "daemon-restart"}`，正文由 `renderRestartWakeMessage (lwe)` 生成，原因的首尾空白已去掉（confirmed）。唤醒目标是渠道会话时，这条通知本身让会话 drain 一轮，而重启提示不要求这一批包含用户消息，所以这一轮就是跨越重启的第一轮，提示块在这一轮被消费。在本版本的还原 daemon 上实测（场景 10-restart-hint），提示块排在 `<session-notify … source_label="daemon-restart">` 之前，通知正文也含原因，模型在同一条用户消息里看到两次原因；之后的用户消息不再带提示块（confirmed）。通知的包装文字要求模型对被动提醒（"a passive heads-up"）调用 Skip。实测中被唤醒的会话上一轮已经正常结束，模型判断重启通知是被动提醒而调用了 Skip，这一轮没有输出送到渠道，下一轮用户消息带 `<skip-rewind>` 块（4.5）。因此 `--wake` 不保证用户在渠道里看到回复（confirmed，实测一次；模型是否调用 Skip 取决于模型判断）。
 
 ### 证据表
 
@@ -2157,12 +2157,11 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 这一类的共同点是 duoduo 把请求交给了引擎，引擎怎样处理不在 bundle 里，只能在装有对应引擎的实例上试验。
 
-1. **Skip 之后 Agent SDK 是否仍执行工具体（4.5）。** PreToolUse hook 返回 `continue: false` 之后，SDK 若不再执行 Skip 的工具体，Claude 会话就不会写入 Skip 记录，下一轮也没有 `<skip-rewind>` 块。验证方法：在 Claude 渠道会话里让模型调用 Skip，检查会话 `state.json` 是否出现 `pending_skip_rewind`。
-2. **Claude Code 对三项设置的处理。** job 配置了记忆目录以外的 `additionalDirectories` 时，附加目录 `CLAUDE.md` 的自动加载被重新打开，记忆板是否因此在系统提示第 4 层之外再加载一次（2.2、3.5）；自操作工具带的 `"anthropic/alwaysLoad"` 标记起什么作用（4.1）；排查建议里的 `DISABLE_THINKING` 等四个环境变量是否被 Claude Code 读取（7.7）。
-3. **后台分区总纲如何进入分区会话（11.3）。** Claude 分区以分区目录为工作目录、启用 project 设置来源，`subconscious/CLAUDE.md` 是否经 Claude Code 的上级目录加载进入会话，分区自己的 `CLAUDE.md` 是否因此加载两次；Codex、Grok、pi 分区是否读到总纲。
-4. **Codex app-server 的行为。** dynamic tools 把参数都声明为字符串时，ManageJob 的布尔参数 `stateless` 与数组参数 `allowedTools` 能否按原类型到达工具体，缺少 `action` 的调用是否在调用前被必填列表拦下（4.1、4.2）；握手时退订推理增量通知之后，Codex 是否不再发送推理文本（3.7）；`thread/resume` 是否保留建线程时的 `baseInstructions`，`thread/fork` 是否继承父线程的对话历史（13.2）；Codex 是否按约定读取工作目录的 `AGENTS.md`（2.4）。
-5. **Grok CLI 续接会话时是否保留 `rules`（2.4）。** `append` 模式的系统提示只随 `session/new` 发送，续接后是否仍然生效取决于 Grok CLI。
-6. **pi SDK 的两项行为。** 是否在执行工具前按 zod 转换出的 JSON schema 校验参数，这决定 ManageJob 工具体里的动作检查在 pi 上能否走到（4.1、4.2）；pi-worker 创建会话时传入的 "noContextFiles" 的确切含义（2.4）。
+1. **Claude Code 对三项设置的处理。** job 配置了记忆目录以外的 `additionalDirectories` 时，附加目录 `CLAUDE.md` 的自动加载被重新打开，记忆板是否因此在系统提示第 4 层之外再加载一次（2.2、3.5）；自操作工具带的 `"anthropic/alwaysLoad"` 标记起什么作用（4.1）；排查建议里的 `DISABLE_THINKING` 等四个环境变量是否被 Claude Code 读取（7.7）。
+2. **后台分区总纲如何进入分区会话（11.3）。** Claude 分区以分区目录为工作目录、启用 project 设置来源，`subconscious/CLAUDE.md` 是否经 Claude Code 的上级目录加载进入会话，分区自己的 `CLAUDE.md` 是否因此加载两次；Codex、Grok、pi 分区是否读到总纲。
+3. **Codex app-server 的行为。** dynamic tools 把参数都声明为字符串时，ManageJob 的布尔参数 `stateless` 与数组参数 `allowedTools` 能否按原类型到达工具体，缺少 `action` 的调用是否在调用前被必填列表拦下（4.1、4.2）；握手时退订推理增量通知之后，Codex 是否不再发送推理文本（3.7）；`thread/resume` 是否保留建线程时的 `baseInstructions`，`thread/fork` 是否继承父线程的对话历史（13.2）；Codex 是否按约定读取工作目录的 `AGENTS.md`（2.4）。
+4. **Grok CLI 续接会话时是否保留 `rules`（2.4）。** `append` 模式的系统提示只随 `session/new` 发送，续接后是否仍然生效取决于 Grok CLI。
+5. **pi SDK 的两项行为。** 是否在执行工具前按 zod 转换出的 JSON schema 校验参数，这决定 ManageJob 工具体里的动作检查在 pi 上能否走到（4.1、4.2）；pi-worker 创建会话时传入的 "noContextFiles" 的确切含义（2.4）。
 
 ### 14.2 需要在运行中的实例上观测的项
 

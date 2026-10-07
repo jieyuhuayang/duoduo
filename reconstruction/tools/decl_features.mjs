@@ -15,9 +15,10 @@
 import { parse } from "@babel/parser";
 import fs from "node:fs";
 
-const [PRETTY, OUT] = process.argv.slice(2);
-if (!PRETTY || !OUT) { console.error("usage: node decl_features.mjs <pretty.js> <out.json>"); process.exit(2); }
-const src = fs.readFileSync(PRETTY, "utf8");
+import { fileURLToPath } from "node:url";
+
+// features of every top-level declaration of a bundle source text
+export function declFeatures(src) {
 const ast = parse(src, { sourceType: "module", ranges: true });
 
 const top = new Set();
@@ -72,7 +73,15 @@ function featuresOf(node) {
   return { arity, p: [...p].sort(), s: [...s].sort(), n: [...n].sort((a, b) => a - b), g: [...g].sort() };
 }
 
-const out = { source: PRETTY, order: decls.map(d => d[0]), decls: {} };
+const out = { order: decls.map(d => d[0]), decls: {} };
 decls.forEach(([name, node, kind], i) => { out.decls[name] = { i, kind, ...featuresOf(node) }; });
-fs.writeFileSync(OUT, JSON.stringify(out) + "\n");
-console.log(`features: ${decls.length} declarations -> ${OUT}`);
+return out;
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const [PRETTY, OUT] = process.argv.slice(2);
+  if (!PRETTY || !OUT) { console.error("usage: node decl_features.mjs <pretty.js> <out.json>"); process.exit(2); }
+  const out = { source: PRETTY, ...declFeatures(fs.readFileSync(PRETTY, "utf8")) };
+  fs.writeFileSync(OUT, JSON.stringify(out) + "\n");
+  console.log(`features: ${out.order.length} declarations -> ${OUT}`);
+}

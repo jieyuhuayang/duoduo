@@ -16,6 +16,8 @@
    "mangled": "TB",
    "line": 67257,
    "kind": "var",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -35,6 +37,8 @@
    "mangled": "$b",
    "line": 20863,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -54,6 +58,8 @@
    "mangled": "YT",
    "line": 67186,
    "kind": "var (uninitialised)",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -72,6 +78,8 @@
    "mangled": "m8",
    "line": 67809,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [
     "resolveRestartReasonFilePath"
    ],
@@ -92,6 +100,8 @@
    "mangled": "OJ",
    "line": 68243,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "generateDaemonTokenHex",
     "readDaemonTokenFromEnvFile",
@@ -114,6 +124,8 @@
    "mangled": "FEe",
    "line": 74703,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -135,6 +147,8 @@
    "mangled": "SEe",
    "line": 66752,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "GXe",
@@ -156,6 +170,8 @@
    "mangled": "Y2e",
    "line": 68240,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -174,6 +190,8 @@
    "mangled": "yJ",
    "line": 20781,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [
     "PLIST_LABEL"
    ],
@@ -208,6 +226,8 @@
    "mangled": "Op",
    "line": 20822,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getUid"
    ],
@@ -237,6 +257,8 @@
    "mangled": "b_",
    "line": 20762,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "vp"
@@ -262,6 +284,8 @@
    "mangled": "JXe",
    "line": 74712,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -281,6 +305,8 @@
    "mangled": "lk",
    "line": 20837,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "generatePlist",
     "getUid",
@@ -310,6 +336,8 @@
    "mangled": "sk",
    "line": 20755,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -326,6 +354,8 @@
    "mangled": "rZe",
    "line": 74933,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "UEe"
@@ -344,6 +374,8 @@
    "mangled": "zXe",
    "line": 74651,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -362,6 +394,8 @@
    "mangled": "D_",
    "line": 20814,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getUid"
    ],
@@ -390,6 +424,8 @@
    "mangled": "lU",
    "line": 63723,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -422,6 +458,8 @@
    "mangled": "ck",
    "line": 20848,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getUid"
    ],
@@ -447,6 +485,8 @@
    "mangled": "dZe",
    "line": 75520,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 5,
    "refs": [
     "parseRootCli",
     "printHelp",
@@ -496,6 +536,8 @@
    "mangled": "BJ",
    "line": 68294,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "$H",
@@ -523,6 +565,8 @@
    "mangled": "$Xe",
    "line": 74707,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "defaultExistingDaemonChoice"
    ],
@@ -546,6 +590,8 @@
    "mangled": "npe",
    "line": 63728,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -590,6 +636,14 @@
    "mangled": "eZe",
    "line": 74878,
    "kind": "function",
+   "inner": [
+    {
+     "name": "i",
+     "line": 74884,
+     "endLine": 74890
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -616,6 +670,8 @@
    "mangled": "KXe",
    "line": 74655,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -650,6 +706,8 @@
    "mangled": "hEe",
    "line": 66743,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "$r",
@@ -676,6 +734,8 @@
    "mangled": "sZe",
    "line": 75131,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "UJ"
@@ -703,6 +763,8 @@
    "mangled": "ak",
    "line": 20759,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "PLIST_LABEL"
    ],
@@ -727,6 +789,8 @@
    "mangled": "PEe",
    "line": 74756,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -766,6 +830,8 @@
    "mangled": "jXe",
    "line": 74752,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -786,6 +852,8 @@
    "mangled": "r8",
    "line": 67365,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "CLI_DAEMON_TOKEN_ENV_KEY",
     "resolveHostEnvFilePath"
@@ -810,6 +878,8 @@
    "mangled": "tv",
    "line": 74721,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -829,6 +899,8 @@
    "mangled": "tZe",
    "line": 74910,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -847,6 +919,8 @@
    "mangled": "uZe",
    "line": 75508,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -868,6 +942,8 @@
    "mangled": "Xge",
    "line": 63210,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Ch",
@@ -912,6 +988,8 @@
    "mangled": "Zge",
    "line": 63582,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 6,
    "refs": [],
    "refsUnnamed": [
     "CJe",
@@ -974,6 +1052,8 @@
    "mangled": "ope",
    "line": 63854,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1004,6 +1084,8 @@
    "mangled": "rpe",
    "line": 63825,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "RJe"
@@ -1031,6 +1113,8 @@
    "mangled": "ipe",
    "line": 63834,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "bJe"
@@ -1069,6 +1153,8 @@
    "mangled": "spe",
    "line": 63865,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -1088,6 +1174,8 @@
    "mangled": "jge",
    "line": 62760,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Ch",
@@ -1114,6 +1202,8 @@
    "mangled": "BA",
    "line": 67259,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1143,6 +1233,8 @@
    "mangled": "p8",
    "line": 67803,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
@@ -1162,6 +1254,14 @@
    "mangled": "pk",
    "line": 68254,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "E",
+     "line": 68270,
+     "endLine": 68272
+    }
+   ],
+   "innerAnonymous": 3,
    "refs": [
     "clearOwnRestartReasonFile",
     "getLaunchdPid",
@@ -1195,6 +1295,8 @@
    "mangled": "nZe",
    "line": 74916,
    "kind": "function",
+   "inner": [],
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -1221,6 +1323,8 @@
    "mangled": "cZe",
    "line": 75340,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
    "refs": [
     "isInstallTargetFilePath",
     "readOption",
@@ -1289,6 +1393,8 @@
    "mangled": "MEe",
    "line": 75511,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "renderChannelNotInstalled"
    ],
@@ -1307,6 +1413,8 @@
    "mangled": "DJe",
    "line": 63877,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "jobHelp",
     "parseJobCli",
@@ -1352,6 +1460,8 @@
    "mangled": "dXe",
    "line": 66090,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "AXe",
@@ -1384,6 +1494,8 @@
    "mangled": "vJe",
    "line": 64092,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
     "Ape",
@@ -1415,6 +1527,8 @@
    "mangled": "rJe",
    "line": 62971,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "$d",
@@ -1447,6 +1561,8 @@
    "mangled": "K$e",
    "line": 62659,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "runSessionNotifyCommand"
    ],
@@ -1486,6 +1602,8 @@
    "mangled": "IXe",
    "line": 66714,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "SpineCommandError",
     "executeSpine",
@@ -1512,6 +1630,14 @@
    "mangled": "aZe",
    "line": 75157,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 75158,
+     "endLine": 75158
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
     "GJ"
@@ -1556,6 +1682,49 @@
    "mangled": "lZe",
    "line": 75224,
    "kind": "async function",
+   "inner": [
+    {
+     "name": "h",
+     "line": 75268,
+     "endLine": 75299
+    },
+    {
+     "name": "listInstalled",
+     "line": 75307,
+     "endLine": 75307
+    },
+    {
+     "name": "fetchLatestVersion",
+     "line": 75308,
+     "endLine": 75315
+    },
+    {
+     "name": "stopChannel",
+     "line": 75316,
+     "endLine": 75318
+    },
+    {
+     "name": "installChannel",
+     "line": 75319,
+     "endLine": 75321
+    },
+    {
+     "name": "startChannel",
+     "line": 75322,
+     "endLine": 75329
+    },
+    {
+     "name": "log",
+     "line": 75330,
+     "endLine": 75330
+    },
+    {
+     "name": "warn",
+     "line": 75331,
+     "endLine": 75331
+    }
+   ],
+   "innerAnonymous": 1,
    "refs": [
     "isDetachedUpgradeWorker",
     "notifyRestartWakeTargets",
@@ -1631,6 +1800,19 @@
    "mangled": "bXe",
    "line": 66760,
    "kind": "function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 66762,
+     "endLine": 66764
+    },
+    {
+     "name": "r",
+     "line": 66765,
+     "endLine": 66767
+    }
+   ],
+   "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
    "refBy": [],
@@ -1660,6 +1842,8 @@
    "mangled": "uk",
    "line": 20858,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "plistPath",
     "unload"
@@ -1679,6 +1863,8 @@
    "mangled": "I1",
    "line": 20852,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "getUid"
    ],
@@ -1706,6 +1892,8 @@
    "mangled": "i8",
    "line": 67377,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "CLI_DAEMON_TOKEN_ENV_KEY",
     "resolveHostEnvFilePath"
@@ -1730,6 +1918,8 @@
    "mangled": "E8",
    "line": 67806,
    "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
    "refs": [
     "resolveRestartReasonFilePath"
    ],

@@ -23,6 +23,12 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash scenarios/run
 PKG=… bash scenarios/run.sh 01-boot 05-dedup                                                   # some
 ```
 
+Two scenarios (10 and 11, marked `# needs-model` in their header) call a real
+model through the machine's Claude Code login: a few one-word turns each. `run.sh`
+without arguments skips them; name them, or set `MODEL=1`, to run them. They copy
+the login's access token (not the refresh token) into the isolated HOME for the
+run and delete it with that HOME.
+
 `run.sh` instruments `recon/daemon.recon.js` into `$PKG/daemon.traced.js`
 (the file must sit in `dist/release`: the daemon resolves its dependencies and
 its package root from its own location), then runs each script. The scripts

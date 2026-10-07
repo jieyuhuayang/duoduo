@@ -25,6 +25,12 @@
 // strings of 3+ characters carried by at most 25 symbols: a string every
 // module uses ("string", "object") is not a locator.
 //
+// Each symbol also carries `inner`: the functions nested inside its
+// declaration that have a name of their own (closure_names.mjs: the property
+// key, variable or method they are assigned to, written `outer>name`), with
+// their lines -- the outline of a factory such as createDaemon, under the same
+// names instrument.mjs traces them. Anonymous closures are counted, not listed.
+//
 // Unnamed top-level code is listed under `unnamed` only when a first-party
 // symbol refers to it, with how many do: that list, ordered by use, is the
 // queue for name_symbol.mjs. Vendored code that nothing first-party touches is
@@ -34,6 +40,7 @@
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
 import fs from "node:fs";
+import { nestedFunctions } from "./closure_names.mjs";
 
 const traverse = _traverse.default || _traverse;
 const argv = process.argv.slice(2);
@@ -50,17 +57,17 @@ const src = fs.readFileSync(PRETTY, "utf8");
 const rename = JSON.parse(fs.readFileSync(RENAME, "utf8")); // mangled -> real
 const ast = parse(src, { sourceType: "module", ranges: true });
 
-// top-level declarations, in program order: mangled -> { line, kind, stmt index }
+// top-level declarations, in program order: mangled -> { line, kind, stmt index, node }
 const decl = new Map();
 const order = [];
-function put(name, node, kind, stmt) {
+function put(name, node, kind, stmt, valueNode) {
   if (decl.has(name)) return;
-  decl.set(name, { line: node.loc.start.line, kind, stmt });
+  decl.set(name, { line: node.loc.start.line, kind, stmt, node: valueNode });
   order.push(name);
 }
 ast.program.body.forEach((stmt, i) => {
-  if (stmt.type === "FunctionDeclaration" && stmt.id) put(stmt.id.name, stmt.id, stmt.async ? "async function" : "function", i);
-  else if (stmt.type === "ClassDeclaration" && stmt.id) put(stmt.id.name, stmt.id, "class", i);
+  if (stmt.type === "FunctionDeclaration" && stmt.id) put(stmt.id.name, stmt.id, stmt.async ? "async function" : "function", i, stmt);
+  else if (stmt.type === "ClassDeclaration" && stmt.id) put(stmt.id.name, stmt.id, "class", i, stmt);
   else if (stmt.type === "VariableDeclaration") {
     for (const d of stmt.declarations) {
       if (d.id.type !== "Identifier") continue;
@@ -72,7 +79,7 @@ ast.program.body.forEach((stmt, i) => {
         else if (init.type === "CallExpression" && init.callee.type === "Identifier" && init.callee.name === "__esm") kind = "module-init";
         else kind = "var";
       } else kind = "var (uninitialised)";
-      put(d.id.name, d.id, kind, i);
+      put(d.id.name, d.id, kind, i, init ?? d);
     }
   }
 });
@@ -170,7 +177,9 @@ const named = order.filter(m => rename[m]);
 const symbols = {};
 const refByReal = new Map(), refByUnnamed = new Map();
 const unnamedUse = new Map(); // mangled -> Set(real)
-const byEnv = {}, byLogPrefix = {}, byDotted = {}, byPath = {}, byString = {};
+// null-prototype objects: a string literal spelled "constructor" or "toString"
+// must index like any other, not find Object.prototype's member
+const byEnv = Object.create(null), byLogPrefix = Object.create(null), byDotted = Object.create(null), byPath = Object.create(null), byString = Object.create(null);
 const add = (idx, k, real) => { (idx[k] ??= []).push(real); };
 
 const isLogPrefix = s => /^\[[a-z][a-z0-9-]*\]/.test(s);
@@ -198,8 +207,11 @@ for (const m of named) {
     else other.push(clip(s));
   }
   const env = [...rec.env].sort();
+  const nested = d.node ? nestedFunctions(d.node, real) : [];
   symbols[real] = {
     mangled: m, line: d.line, kind: d.kind,
+    inner: nested.filter(f => f.named).map(f => ({ name: f.name.slice(real.length + 1), line: f.line, endLine: f.endLine })),
+    innerAnonymous: nested.filter(f => !f.named).length,
     refs: refs.sort(), refsUnnamed: refsUnnamed.sort(),
     refBy: [], refByUnnamed: [],
     env, logPrefixes, dotted, paths, strings: other,
@@ -221,7 +233,7 @@ for (const [real, s] of refByReal) symbols[real].refBy = [...s].sort();
 for (const [real, s] of refByUnnamed) symbols[real].refByUnnamed = [...s].sort();
 for (const k of Object.keys(byString)) if (byString[k].length > 25) delete byString[k];
 
-const unnamed = {};
+const unnamed = Object.create(null);
 for (const [m, users] of [...unnamedUse].sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0]))) {
   const d = decl.get(m);
   unnamed[m] = { line: d.line, kind: d.kind, usedBy: [...users].sort() };

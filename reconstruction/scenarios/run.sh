@@ -16,7 +16,15 @@ T="$PKG/daemon.traced.js"
 if [ ! -f "$T" ] || [ "$RECON/recon/daemon.recon.js" -nt "$T" ] || [ "$RECON/maps/symbols_daemon.json" -nt "$T" ] || [ "$RECON/tools/instrument.mjs" -nt "$T" ]; then
   node "$RECON/tools/instrument.mjs" "$RECON/recon/daemon.recon.js" "$RECON/maps/symbols_daemon.json" "$T.tmp" --inner && mv "$T.tmp" "$T"
 fi
-if [ $# -gt 0 ]; then list=("$@"); else list=($(cd "$HERE" && ls [0-9]*-*.sh | sed 's/\.sh$//')); fi
+# Without arguments: every scenario that does not call a model. A script whose
+# header has a line `# needs-model` spends real model turns (the machine's
+# Claude login) and runs only when named, or when MODEL=1 is set.
+if [ $# -gt 0 ]; then list=("$@"); else
+  list=()
+  for f in "$HERE"/[0-9]*-*.sh; do
+    if [ "${MODEL:-0}" = 1 ] || ! grep -q '^# needs-model' "$f"; then list+=("$(basename "$f" .sh)"); fi
+  done
+fi
 rc=0
 for s in "${list[@]}"; do
   OUT="$OUT" PKG="$PKG" bash "$HERE/$s.sh" || { echo "!! $s failed"; rc=1; }
