@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAgentSdkAdapter  (minified: Ef, daemon.pretty.js:55213)
+// symbol: createAgentSdkAdapter  (minified: Lf, daemon.pretty.js:55529)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ function createAgentSdkAdapter() {
         let r = {},
             i = !!process.env.ALADUO_SDK_DEBUG;
         i && (r.debug = !0, r.stderr = u => {
-            _t("debug", "[claude-sdk stderr]", u)
+            vt("debug", "[claude-sdk stderr]", u)
         }), t.sessionId && (r.resume = t.sessionId), t.abortController && (r.abortController = t.abortController), t.cwd && (r.cwd = t.cwd), t.settingSources && (r.settingSources = t.settingSources), t.persistSession !== void 0 && (r.persistSession = t.persistSession), "outputFormat" in t && t.outputFormat && (r.outputFormat = t.outputFormat), "model" in t && t.model && (r.model = t.model), "effort" in t && t.effort && (r.effort = t.effort);
         let o = t.permissionMode ?? process.env.ALADUO_PERMISSION_MODE ?? "bypassPermissions";
         if (o && (r.permissionMode = o), t.systemPrompt !== void 0) r.systemPrompt = t.systemPrompt;
@@ -29,7 +29,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
         }
         if (r.systemPrompt !== void 0 && (r.systemPrompt = disableSystemPromptSnapshot(r.systemPrompt)), t.allowedTools !== void 0 && (r.allowedTools = t.allowedTools), t.tools !== void 0) {
             let u = [...new Set(t.tools)];
-            if (r.tools = u, _t("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
+            if (r.tools = u, vt("info", `[claude-sdk] built-in tool surface (${u.length}): ${u.join(",")}`), t.allowedTools?.length) {
                 let l = findDeadAllowedToolEntries(t.allowedTools, u);
                 l.length > 0 && Z(`[claude-sdk] allowedTools no longer adds built-in tools to the surface (allowlist-only via claude.tools); not on this session's surface: ${l.join(",")} — move them to the descriptor's claude: { tools: [...] } if you meant to enable them`)
             }
@@ -45,7 +45,7 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
         let s = {
             ...process.env
         };
-        delete s.CLAUDECODE, (t.additionalDirectories?.length ?? 0) > 0 && t.autoloadAdditionalDirectoryClaudeMd !== !1 ? s.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1" : t.autoloadAdditionalDirectoryClaudeMd === !1 && delete s.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD, r.env = s, "claudeSettingsPath" in t && t.claudeSettingsPath && (r.settings = t.claudeSettingsPath);
+        delete s.CLAUDECODE, (t.additionalDirectories?.length ?? 0) > 0 && t.autoloadAdditionalDirectoryClaudeMd !== !1 ? s.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1" : t.autoloadAdditionalDirectoryClaudeMd === !1 && delete s.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD, s.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", t.callerSession ? s[tl] = t.callerSession : delete s[tl], r.env = s, "claudeSettingsPath" in t && t.claudeSettingsPath && (r.settings = t.claudeSettingsPath);
         let a = process.env.CLAUDE_CODE_EXECUTABLE;
         if (a && a.trim().length > 0 && (r.pathToClaudeCodeExecutable = a), "hooks" in t && t.hooks && (r.hooks = t.hooks), n?.includePartialMessages && (r.includePartialMessages = !0), i) {
             let u = {
@@ -58,246 +58,248 @@ ${f}` : u ? r.systemPrompt = u : f && (r.systemPrompt = {
                 tools: r.tools,
                 includePartialMessages: r.includePartialMessages
             };
-            _t("debug", "[claude-sdk debug] execPath:", process.execPath), _t("debug", "[claude-sdk debug] PATH:", process.env.PATH), _t("debug", "[claude-sdk debug] options:", JSON.stringify(u))
+            vt("debug", "[claude-sdk debug] execPath:", process.execPath), vt("debug", "[claude-sdk debug] PATH:", process.env.PATH), vt("debug", "[claude-sdk debug] options:", JSON.stringify(u))
         }
         return r
     };
     return {
         async run(t) {
-            Ehe();
+            Wge();
             let n = t.sessionId,
                 r, i, o = "",
                 s = "",
                 a = Date.now(),
                 u = !1,
-                l, c, d = !1,
-                f = !1,
-                p = !1,
-                m = !!process.env.ALADUO_SDK_DEBUG,
-                h = e(t, {
+                l, c, d = resolveClaudeCostBaseline(t.sessionId, t.costBaseline),
+                f, p = !1,
+                m = !1,
+                h = !1,
+                g = !!process.env.ALADUO_SDK_DEBUG,
+                y = e(t, {
                     includePartialMessages: !!t.onStream
                 });
             {
-                let M = h.hooks ?? {},
-                    z = M.PreToolUse ?? [];
-                z.push({
-                    matcher: cc,
-                    hooks: [async U => (U?.agent_id !== void 0 || (f = !0, d = !0, te("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
+                let H = y.hooks ?? {},
+                    q = H.PreToolUse ?? [];
+                q.push({
+                    matcher: wc,
+                    hooks: [async pe => (pe?.agent_id !== void 0 || (m = !0, p = !0, ee("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
                         continue: !1,
                         stopReason: "The agent intentionally ended this turn silently by calling Skip."
                     })]
-                }), M.PreToolUse = z, h.hooks = M
+                }), H.PreToolUse = q, y.hooks = H
             }
-            let g = (M, z, U = !1) => {
-                    if (!(!t.onStream || !M) && !d) {
-                        if (u || (u = !0, l = Date.now() - a, po("sdk_first_token", t.sessionId ?? "new", {
+            let v = (H, q, pe = !1) => {
+                    if (!(!t.onStream || !H) && !p) {
+                        if (u || (u = !0, l = Date.now() - a, go("sdk_first_token", t.sessionId ?? "new", {
                                 ttftMs: l
-                            })), U) {
-                            t.onStream(M, !0);
+                            })), pe) {
+                            t.onStream(H, !0);
                             return
                         }
-                        if (z) {
-                            o += M, s += M, t.onStream(M, !1);
+                        if (q) {
+                            o += H, s += H, t.onStream(H, !1);
                             return
                         }
-                        if (s && M.startsWith(s)) {
-                            let X = M.slice(s.length);
-                            X && (o += X, s = M, t.onStream(X, !1));
+                        if (s && H.startsWith(s)) {
+                            let fe = H.slice(s.length);
+                            fe && (o += fe, s = H, t.onStream(fe, !1));
                             return
                         }
-                        if (M.startsWith(o)) {
-                            let X = M.slice(o.length);
-                            X && (o = M, s += X, t.onStream(X, !1));
+                        if (H.startsWith(o)) {
+                            let fe = H.slice(o.length);
+                            fe && (o = H, s += fe, t.onStream(fe, !1));
                             return
                         }
-                        o += M, s += M, t.onStream(M, !1)
+                        o += H, s += H, t.onStream(H, !1)
                     }
                 },
-                y = new Map,
-                v = new Map,
-                b = M => {
+                b = new Map,
+                _ = new Map,
+                E = H => {
                     if (t.onExecutionEvent) try {
-                        t.onExecutionEvent(M)
+                        t.onExecutionEvent(H)
                     } catch {}
                 },
-                _ = M => {
-                    let z = M.message?.content;
-                    if (Array.isArray(z))
-                        for (let U of z) {
-                            if (!U || typeof U != "object") continue;
-                            if (U.type === "tool_use") {
-                                let Ee = U.id,
-                                    be = U.name,
-                                    w = U.input;
-                                Ee && be && (y.set(Ee, be), b({
+                R = H => {
+                    let q = H.message?.content;
+                    if (Array.isArray(q))
+                        for (let pe of q) {
+                            if (!pe || typeof pe != "object") continue;
+                            if (pe.type === "tool_use") {
+                                let Se = pe.id,
+                                    w = pe.name,
+                                    T = pe.input;
+                                Se && w && (b.set(Se, w), E({
                                     type: "tool_use",
-                                    toolUseId: Ee,
-                                    toolName: be,
-                                    input: w
+                                    toolUseId: Se,
+                                    toolName: w,
+                                    input: T
                                 }))
                             }
                         }
                 },
-                I = parsePositiveMsEnv(process.env.ALADUO_ABORT_CLOSE_TIMEOUT_MS, 1e4),
-                E = null,
-                R = !1,
-                x = t.holdInputOpenForBackgroundAgents === !0,
-                S = new Set,
-                D = !1,
-                $ = !x,
-                C = () => {},
-                A = x ? new Promise(M => {
-                    C = M
-                }) : Promise.resolve(),
-                F = parsePositiveMsEnv(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5),
+                P = parsePositiveMsEnv(process.env.ALADUO_ABORT_CLOSE_TIMEOUT_MS, 1e4),
                 k = null,
-                N = () => {
-                    k && (clearTimeout(k), k = null)
-                },
-                V = () => {
-                    $ || D && S.size === 0 && ($ = !0, N(), C())
-                },
-                W = () => {
-                    $ || ($ = !0, N(), C())
+                S = !1,
+                D = t.holdInputOpenForBackgroundAgents === !0,
+                A = new Set,
+                $ = !1,
+                C = !D,
+                N = () => {},
+                x = D ? new Promise(H => {
+                    N = H
+                }) : Promise.resolve(),
+                M = parsePositiveMsEnv(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5),
+                F = null,
+                J = () => {
+                    F && (clearTimeout(F), F = null)
                 },
                 ce = () => {
-                    !x || $ || (N(), D && (k = setTimeout(() => {
-                        $ || (_t("warn", "[claude-sdk] hold-input idle watchdog fired — SDK went silent with background Agent task(s) still tracked; force-releasing stdin to avoid an unbounded hang. If this was a legitimate long-running task, its continuation's in-process MCP call may fail; investigate.", JSON.stringify({
-                            idleTimeoutMs: F,
-                            inFlightAgentTaskIds: Array.from(S)
-                        })), W())
-                    }, F), typeof k == "object" && k?.unref && k.unref()))
+                    C || $ && A.size === 0 && (C = !0, J(), N())
+                },
+                ie = () => {
+                    C || (C = !0, J(), N())
+                },
+                Ce = () => {
+                    !D || C || (J(), $ && (F = setTimeout(() => {
+                        C || (vt("warn", "[claude-sdk] hold-input idle watchdog fired — SDK went silent with background Agent task(s) still tracked; force-releasing stdin to avoid an unbounded hang. If this was a legitimate long-running task, its continuation's in-process MCP call may fail; investigate.", JSON.stringify({
+                            idleTimeoutMs: M,
+                            inFlightAgentTaskIds: Array.from(A)
+                        })), ie())
+                    }, M), typeof F == "object" && F?.unref && F.unref()))
                 };
-            async function* J() {
-                let M = typeof t.prompt == "string" ? stringToMessageGenerator(t.prompt) : t.prompt;
-                for await (let z of M) yield z;
-                await A
+            async function* se() {
+                let H = typeof t.prompt == "string" ? stringToMessageGenerator(t.prompt) : t.prompt;
+                for await (let q of H) yield q;
+                await x
             }
-            let ne = khe({
-                    prompt: x ? J() : t.prompt,
-                    options: h
+            let j = Vge({
+                    prompt: D ? se() : t.prompt,
+                    options: y
                 }),
-                fe = () => {
-                    E = setTimeout(() => {
-                        R = !0, Re("[claude-sdk] abort close timeout reached, closing query"), ne.close()
-                    }, I)
+                ne = () => {
+                    k = setTimeout(() => {
+                        S = !0, ke("[claude-sdk] abort close timeout reached, closing query"), j.close()
+                    }, P)
                 };
-            t.abortController?.signal.aborted ? fe() : t.abortController?.signal.addEventListener("abort", fe, {
+            t.abortController?.signal.aborted ? ne() : t.abortController?.signal.addEventListener("abort", ne, {
                 once: !0
             });
-            let j = !1,
-                ue = () => {
-                    if (!j) {
-                        j = !0;
+            let K = !1,
+                te = () => {
+                    if (!K) {
+                        K = !0;
                         try {
                             t.onTurnAcknowledged?.()
                         } catch {}
                     }
                 };
             try {
-                for await (let M of ne) {
-                    let z = M;
-                    if (z.type === "system" && z.subtype === "init" || ue(), z.type === "system") {
-                        if (z.subtype === "init" && (n = z.session_id ?? n), x && z.subtype === "task_started") {
-                            let U = z,
-                                X = typeof U.task_type == "string" ? U.task_type : void 0,
-                                be = U.subagent_type !== void 0 && U.subagent_type !== null || X !== void 0 && X !== "local_bash";
-                            typeof U.task_id == "string" && U.task_id.length > 0 && be && S.add(U.task_id)
+                for await (let H of j) {
+                    let q = H;
+                    if (q.type === "system" && q.subtype === "init" || te(), q.type === "system") {
+                        if (q.subtype === "init" && (n = q.session_id ?? n), D && q.subtype === "task_started") {
+                            let pe = q,
+                                fe = typeof pe.task_type == "string" ? pe.task_type : void 0,
+                                w = pe.subagent_type !== void 0 && pe.subagent_type !== null || fe !== void 0 && fe !== "local_bash";
+                            typeof pe.task_id == "string" && pe.task_id.length > 0 && w && A.add(pe.task_id)
                         }
-                        if (x && z.subtype === "task_notification") {
-                            let U = z;
-                            typeof U.task_id == "string" && S.delete(U.task_id)
+                        if (D && q.subtype === "task_notification") {
+                            let pe = q;
+                            typeof pe.task_id == "string" && A.delete(pe.task_id)
                         }
-                        b({
+                        E({
                             type: "system",
-                            subtype: z.subtype ?? "unknown",
-                            data: z.subtype === "init" ? {
-                                session_id: z.session_id
+                            subtype: q.subtype ?? "unknown",
+                            data: q.subtype === "init" ? {
+                                session_id: q.session_id
                             } : void 0
                         })
                     }
-                    if (z.type === "stream_event") {
-                        let U = kf(z),
-                            X = fC(z.event);
-                        for (let P of X) g(P.text, P.isDelta, U);
-                        let Ee = pC(z.event);
-                        for (let P of Ee) b({
+                    if (q.type === "stream_event") {
+                        let pe = Mf(q),
+                            fe = W$(q.event);
+                        for (let L of fe) v(L.text, L.isDelta, pe);
+                        let Se = J$(q.event);
+                        for (let L of Se) E({
                             type: "thought_chunk",
-                            text: P
+                            text: L
                         });
-                        let be = mC(z.event);
-                        be && (v.set(be.index, {
-                            toolUseId: be.toolUseId,
-                            toolName: be.toolName
-                        }), y.set(be.toolUseId, be.toolName), b({
+                        let w = G$(q.event);
+                        w && (_.set(w.index, {
+                            toolUseId: w.toolUseId,
+                            toolName: w.toolName
+                        }), b.set(w.toolUseId, w.toolName), E({
                             type: "tool_use",
-                            toolUseId: be.toolUseId,
-                            toolName: be.toolName,
+                            toolUseId: w.toolUseId,
+                            toolName: w.toolName,
                             input: void 0,
                             ephemeral: !0
                         }));
-                        let w = hC(z.event);
-                        if (w) {
-                            let P = v.get(w.index);
-                            P && b({
+                        let T = Z$(q.event);
+                        if (T) {
+                            let L = _.get(T.index);
+                            L && E({
                                 type: "tool_input_delta",
-                                toolUseId: P.toolUseId,
-                                toolName: P.toolName,
-                                partialJson: w.partialJson
+                                toolUseId: L.toolUseId,
+                                toolName: L.toolName,
+                                partialJson: T.partialJson
                             })
                         }
                     }
-                    if (typeof z.type == "string" && z.type.includes("assistant")) {
-                        let U = kf(z),
-                            X = dC(z);
-                        for (let Ee of X) g(Ee.text, Ee.isDelta, U);
-                        _(z)
+                    if (typeof q.type == "string" && q.type.includes("assistant")) {
+                        let pe = Mf(q),
+                            fe = H$(q);
+                        for (let Se of fe) v(Se.text, Se.isDelta, pe);
+                        R(q)
                     }
-                    if (z.type === "user") {
-                        let U = z.message?.content;
-                        if (Array.isArray(U))
-                            for (let X of U) {
-                                if (!X || typeof X != "object") continue;
-                                if (X.type === "tool_result") {
-                                    let be = X.tool_use_id,
-                                        w = X.is_error ?? !1,
-                                        P = X.content;
-                                    be && (b({
+                    if (q.type === "user") {
+                        let pe = q.message?.content;
+                        if (Array.isArray(pe))
+                            for (let fe of pe) {
+                                if (!fe || typeof fe != "object") continue;
+                                if (fe.type === "tool_result") {
+                                    let w = fe.tool_use_id,
+                                        T = fe.is_error ?? !1,
+                                        L = fe.content;
+                                    w && (E({
                                         type: "tool_result",
-                                        toolUseId: be,
-                                        toolName: y.get(be),
-                                        isError: w,
-                                        summary: gC(P)
+                                        toolUseId: w,
+                                        toolName: b.get(w),
+                                        isError: T,
+                                        summary: K$(L)
                                     }), s = "")
                                 }
                             }
                     }
-                    if (z.type === "result" && z.subtype === "success")
-                        if (d) c = mapClaudeResultToDrainUsage(z);
+                    if (q.type === "result" && q.subtype === "success")
+                        if (p) c = mapClaudeResultToDrainUsage(q, d);
                         else {
-                            let U = typeof z.result == "string" ? z.result : "";
-                            U.length > 0 && (r = U, p = !0), z.structured_output !== void 0 && (i = z.structured_output, p = !0), c = mapClaudeResultToDrainUsage(z)
-                        } z.type === "result" && (d = !1), x && z.type === "result" && (D = !0, V()), x && !$ && ce()
+                            let pe = typeof q.result == "string" ? q.result : "";
+                            pe.length > 0 && (r = pe, h = !0), q.structured_output !== void 0 && (i = q.structured_output, h = !0), c = mapClaudeResultToDrainUsage(q, d)
+                        } q.type === "result" && (p = !1, f = q), D && q.type === "result" && ($ = !0, ce()), D && !C && Ce()
                 }
-                if (R) throw Bh("SDK run force-closed after abort timeout", new Error("abort close timeout"))
-            } catch (M) {
-                throw m && _t("error", "[claude-sdk error]", M instanceof Error ? M.stack ?? M.message : String(M)), t.abortController?.signal.aborted && !isAbortLikeError(M) ? Bh("SDK run aborted", M) : M
+                if (S) throw fg("SDK run force-closed after abort timeout", new Error("abort close timeout"))
+            } catch (H) {
+                throw g && vt("error", "[claude-sdk error]", H instanceof Error ? H.stack ?? H.message : String(H)), t.abortController?.signal.aborted && !isAbortLikeError(H) ? fg("SDK run aborted", H) : H
             } finally {
-                E && clearTimeout(E), t.abortController?.signal.removeEventListener("abort", fe), W()
+                k && clearTimeout(k), t.abortController?.signal.removeEventListener("abort", ne), ie()
             }
-            let Ie = f && !p;
+            let B = m && !h;
             return {
                 sessionId: n,
-                text: Ie ? void 0 : r ?? (o || void 0),
-                structured: Ie ? void 0 : i,
+                text: B ? void 0 : r ?? (o || void 0),
+                structured: B ? void 0 : i,
                 usage: c,
+                costBaseline: buildClaudeCostBaseline(n, f?.total_cost_usd, f?.modelUsage),
                 firstTokenLatencyMs: l,
-                skipped: Ie || void 0
+                skipped: B || void 0
             }
         },
         createStreamingQuery(t) {
-            return Ehe(), {
-                query: khe({
+            return Wge(), {
+                query: Vge({
                     prompt: t.prompt,
                     options: e(t, {
                         includePartialMessages: !0

@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: applySessionConfigVerb  (minified: Tyt, daemon.pretty.js:89879)
+// symbol: applySessionConfigVerb  (minified: fvt, daemon.pretty.js:91407)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function applySessionConfigVerb(e, t, n) {
     let r = n.verb;
-    if (r === "profile_get" || r === "profile_set" || r === "profile_unset" || r === "profile_alias_set" || r === "profile_alias_unset") return Oyt(e, t, n);
+    if (r === "profile_get" || r === "profile_set" || r === "profile_unset" || r === "profile_alias_set" || r === "profile_alias_unset") return gvt(e, t, n);
     let i = {},
         o = [];
     if (r === "set") {
@@ -15,7 +15,7 @@ async function applySessionConfigVerb(e, t, n) {
             reason: "invalid",
             errors: ["set requires at least one key=value"]
         };
-        let v = mbe(n.set);
+        let v = Ove(n.set);
         if (!v.ok) return {
             ok: !1,
             reason: "invalid",
@@ -28,34 +28,34 @@ async function applySessionConfigVerb(e, t, n) {
             reason: "invalid",
             errors: ["unset requires at least one key"]
         };
-        let v = hbe(n.unset);
+        let v = Ave(n.unset);
         if (!v.ok) return {
             ok: !1,
             reason: "invalid",
             errors: v.errors
         };
         for (let b of v.keys)
-            for (let _ of Mm(b)) i[_] = null;
+            for (let _ of eh(b)) i[_] = null;
         o = v.keys
     }
     if (n.global) {
-        let v = o.filter(E => zw(E) === null);
+        let v = o.filter(R => fS(R) === null);
         if (v.length > 0) return {
             ok: !1,
             reason: "invalid",
-            errors: v.map(E => `--global does not support "${E}" (${Jr}.md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)`)
+            errors: v.map(R => `--global does not support "${R}" (${Yr}.md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)`)
         };
         if (r !== "get") {
-            let E = await Sbe(e, i);
-            if (!E.ok) return {
+            let R = await zve(e, i);
+            if (!R.ok) return {
                 ok: !1,
                 reason: "write_failed",
-                error: E.error
+                error: R.error
             }
         }
-        let b = await si(e.channelConfigDir),
-            _ = vJ(null, null, b),
-            I = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
+        let b = await li(e.channelConfigDir),
+            _ = OG(null, null, b),
+            E = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
                 scope: "global",
                 changed: o
             });
@@ -65,22 +65,22 @@ async function applySessionConfigVerb(e, t, n) {
             scope: "global",
             config: _,
             changed: o,
-            event_id: I
+            event_id: E
         }
     }
     if (n.kind) {
         let v = n.kind.trim().toLowerCase();
         if (r !== "get") {
-            let E = await wbe(e, v, i);
-            if (!E.ok) return {
+            let R = await Fve(e, v, i);
+            if (!R.ok) return {
                 ok: !1,
                 reason: "write_failed",
-                error: E.error
+                error: R.error
             }
         }
         let b = await loadChannelKindConfig(e.channelConfigDir, v),
-            _ = vJ(null, b),
-            I = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
+            _ = OG(null, b),
+            E = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
                 scope: "kind",
                 kind: v,
                 changed: o
@@ -91,9 +91,9 @@ async function applySessionConfigVerb(e, t, n) {
             scope: "kind",
             kind: v,
             config: _,
-            claude_tools: R0e(b?.runtime, b?.claudeTools, void 0),
+            claude_tools: yIe(resolveLayeredChannelRuntime(null, b), b?.claudeTools, void 0),
             changed: o,
-            event_id: I
+            event_id: E
         }
     }
     let s = (n.target ?? "").trim(),
@@ -123,7 +123,7 @@ async function applySessionConfigVerb(e, t, n) {
         target: s,
         session_key: u
     };
-    let c = await ct(e, u),
+    let c = await rt(e, u),
         d = c?.source_channel_id;
     if (r !== "get") {
         if (!d) return {
@@ -139,18 +139,18 @@ async function applySessionConfigVerb(e, t, n) {
                 errors: [b]
             }
         }
-        let v = await bbe(e, d, i);
+        let v = await jve(e, d, i);
         if (!v.ok) return {
             ok: !1,
             reason: "write_failed",
             error: v.error
         }
     }
-    let f = d ? await ho(e, d) : null,
+    let f = d ? await vs(e, d) : null,
         p = f?.channel_kind ? await loadChannelKindConfig(e.channelConfigDir, f.channel_kind) : null,
-        m = await si(e.channelConfigDir),
-        h = vJ(f, p, m),
-        g = Iyt(c?.compact_stats, c?.last_compact_at),
+        m = await li(e.channelConfigDir),
+        h = OG(f, p, m),
+        g = dvt(c?.compact_stats, c?.last_compact_at),
         y = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
             scope: "instance",
             sessionKey: u,
@@ -164,7 +164,7 @@ async function applySessionConfigVerb(e, t, n) {
         session_key: u,
         display_name: a.display_name ?? null,
         config: h,
-        claude_tools: R0e(f?.runtime ?? p?.runtime, p?.claudeTools, f?.claudeTools),
+        claude_tools: yIe(resolveLayeredChannelRuntime(f, p), p?.claudeTools, f?.claudeTools),
         stats: g,
         changed: o,
         event_id: y

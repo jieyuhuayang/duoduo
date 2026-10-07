@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: executeGatewayCommand  (minified: BXe, daemon.pretty.js:87485)
+// symbol: executeGatewayCommand  (minified: Fet, daemon.pretty.js:87857)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
         command: t.raw,
         command_name: t.name
     }), {
-        responseText: [`Unsupported command: ${t.raw}`, Ble].join(`
+        responseText: [`Unsupported command: ${t.raw}`, cde].join(`
 `)
     };
     if (t.name === "injection-usage") return {
@@ -45,7 +45,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
         }
     }
     if (t.name === "/status") {
-        let o = await db(e),
+        let o = await Mb(e),
             s = r?.listActors?.(),
             a = r?.listPersistentSessions?.() ?? [],
             u = new Set,
@@ -65,7 +65,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
     if (t.name === "/stats") {
         let {
             readAllSessionSummaries: o
-        } = await Promise.resolve().then(() => (Lu(), cU)), s = new Date(Date.now() - 1440 * 60 * 1e3), a = await o(e, s), u = 0, l = 0, c = 0, d = 0, f = 0;
+        } = await Promise.resolve().then(() => (Zu(), pq)), s = new Date(Date.now() - 1440 * 60 * 1e3), a = await o(e, s), u = 0, l = 0, c = 0, d = 0, f = 0;
         for (let m of Object.values(a)) u += m.total_drains, l += m.total_input_tokens, c += m.total_output_tokens, d += m.total_cost_usd, f += m.total_sdk_duration_ms / 1e3;
         return {
             responseText: ["ALADUO Usage Statistics (Last 24h)", `- Drains (Tasks): ${u}`, `- Tokens: Input (${l.toLocaleString()}) | Output (${c.toLocaleString()})`, `- Cost (USD): $${d.toFixed(4)}`, `- SDK Duration: ${f.toFixed(1)}s`].join(`
@@ -75,7 +75,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
     if (t.name === "/task") {
         let {
             readRecentDrainRecords: o
-        } = await Promise.resolve().then(() => (Lu(), cU)), s = r?.listActors?.(), a = r?.listPersistentSessions?.() ?? [], u = new Map(a.map(h => [h.session_key, h])), l = [];
+        } = await Promise.resolve().then(() => (Zu(), pq)), s = r?.listActors?.(), a = r?.listPersistentSessions?.() ?? [], u = new Map(a.map(h => [h.session_key, h])), l = [];
         if (s)
             for (let h of s.values()) {
                 if (h.status !== "active" || h.sessionKey === n) continue;
@@ -160,11 +160,14 @@ async function executeGatewayCommand(e, t, n, r, i) {
             l = m => m.lastServedModel ? [`Last served model: ${m.lastServedModel}`] : [];
         if (!a) {
             let m = await r.getSessionModel(n, i);
+            if (m.refusal) return {
+                responseText: m.refusal
+            };
             if (m.runtime === "pi") return {
-                responseText: [m.storedModel ? `Session model: ${m.storedModel}` : m.configModel ? `Session model: (${m.configModel.model}, from the ${m.configModel.source} config)` : "Session model: (none set — a pi session cannot run a turn until one is set)", ...l(m), ...UXe(m.piProviders), "", "Pi session — a switch is stored and the worker rebuilds with it on the next turn.", "", "Switch: `/model <provider>/<modelId>` · Reset: `/model reset`"].join(`
+                responseText: [m.storedModel ? `Session model: ${m.storedModel}` : m.configModel ? `Session model: (${m.configModel.model}, from the ${m.configModel.source} config)` : "Session model: (none set — a pi session cannot run a turn until one is set)", ...l(m), ...jet(m.piProviders), "", "Pi session — a switch is stored and the worker rebuilds with it on the next turn.", "", "Switch: `/model <provider>/<modelId>` · Reset: `/model reset`"].join(`
 `)
             };
-            let h = qXe(m);
+            let h = Let(m);
             if (m.runtime === "grok") return {
                 responseText: [u(m), ...l(m), "", "Grok session — a switch applies to the live session.", "", s].join(`
 `)
@@ -179,7 +182,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
 `)
             }
         }
-        if (zR(a)) return {
+        if (_I(a)) return {
             responseText: `Invalid model id: "${a}" — a model id has no spaces. ${s}`
         };
         let c = await r.setSessionModel(n, a === "reset" ? null : a, i);
@@ -206,13 +209,13 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             } : c.applied === "stored" && m?.runtime === "grok" ? {
                 responseText: "Session model override cleared. The live grok session keeps its current model until the session is recreated (`/clear`)."
             } : g ? {
-                responseText: c.applied === "live" ? `Session model reset to ${g}, applied to the live session.` : `Session model override cleared. ${Hle(g)} applies from the next turn.`
+                responseText: c.applied === "live" ? `Session model reset to ${g}, applied to the live session.` : `Session model override cleared. ${fde(g)} applies from the next turn.`
             } : {
                 responseText: c.applied === "live" ? "Session model reset to the runtime default (applied to the live session)." : "Session model override cleared. The runtime default applies from the next turn."
             }
         }
         let f = c.listed === !1 ? "\n\nNote: this id is not in the session's known-models list (run /model to see it). If it is invalid, the next turn will say so — `/model reset` recovers." : "",
-            p = c.contextWindow ? ` ${zXe(c.contextWindow)}` : c.contextProfile === "unprofiled" ? " No context profile is known; using the host/Claude CLI default." : "";
+            p = c.contextWindow ? ` ${Met(c.contextWindow)}` : c.contextProfile === "unprofiled" ? " No context profile is known; using the host/Claude CLI default." : "";
         return c.applied === "stored_pending_rebuild" ? {
             responseText: `Session model set to ${c.model}. ${d}${p}${f}`
         } : {
@@ -233,6 +236,9 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             };
         if (!a) {
             let d = await r.getSessionEffort(n, i);
+            if (d.refusal) return {
+                responseText: d.refusal
+            };
             if (d.runtime === "pi") return {
                 responseText: [u(d), "", "Levels:", ...s, "", "Pi session — a switch is stored and the worker rebuilds with it on the next turn.", "", o].join(`
 `)
@@ -264,7 +270,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             if (p) {
                 let m = `the ${p.source} config default (${p.effort})`;
                 return {
-                    responseText: d.applied === "live" ? `Session effort reset to ${m}, applied to the live session.` : `Session effort override cleared. ${Hle(m)} applies from the next message.`
+                    responseText: d.applied === "live" ? `Session effort reset to ${m}, applied to the live session.` : `Session effort override cleared. ${fde(m)} applies from the next message.`
                 }
             }
             return {
@@ -290,11 +296,11 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
         }
     }
     if (t.name === "/debug") {
-        let o = await Qs(e, n),
-            s = await ct(e, n),
+        let o = await na(e, n),
+            s = await rt(e, n),
             a = hashSessionKey(n);
         return {
-            responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(e,n)}`, `- session_state: ${resolveSessionStatePath(e,n)}`, `- ingress_snapshots: ${ef.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${ef.join(e.jobsDir,"active")}`].join(`
+            responseText: ["ALADUO Session Debug", `- session_key: ${n}`, `- current_cwd: ${s?.cwd??e.workDir}`, `- workspace_rel: ${o?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${s?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${s?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(e,n)}`, `- session_state: ${resolveSessionStatePath(e,n)}`, `- ingress_snapshots: ${mf.join(e.varIngressDir,a)}`, `- work_root: ${e.workDir}`, `- jobs_active: ${mf.join(e.jobsDir,"active")}`].join(`
 `)
         }
     }
@@ -302,7 +308,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
         command: t.raw,
         command_name: t.name
     }), {
-        responseText: [`Unsupported command: ${t.raw}`, Ble].join(`
+        responseText: [`Unsupported command: ${t.raw}`, cde].join(`
 `)
     }
 }

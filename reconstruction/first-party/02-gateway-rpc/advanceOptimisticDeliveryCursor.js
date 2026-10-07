@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: advanceOptimisticDeliveryCursor  (minified: zV, daemon.pretty.js:64571)
+// symbol: advanceOptimisticDeliveryCursor  (minified: j6, daemon.pretty.js:64474)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function advanceOptimisticDeliveryCursor(e, t, n, r) {
-    let i = await w_e(e, r.id),
+    let i = await Mbe(e, r.id),
         o = Date.now();
-    await updateDeliveryCursorFile(e, t, n, a => a && !k$(a.optimistic_last_outbox_created_at, a.optimistic_last_outbox_id, r) ? null : {
+    await updateDeliveryCursorFile(e, t, n, a => a && !YC(a.optimistic_last_outbox_created_at, a.optimistic_last_outbox_id, r) ? null : {
         session_key: t,
         consumer_id: n,
         optimistic_last_outbox_id: r.id,

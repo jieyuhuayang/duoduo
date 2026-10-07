@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: batchDrainItems  (minified: EH, daemon.pretty.js:71807)
+// symbol: batchDrainItems  (minified: jW, daemon.pretty.js:72109)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -13,11 +13,11 @@ async function batchDrainItems(e, t, n) {
         i = [],
         o = null,
         s = !0,
-        a = bH,
-        u = () => fft(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
+        a = CW,
+        u = () => Zmt(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize;
     for (let l of t) {
         if (i.length >= u()) break;
-        let c = await tke(e, l, r, n.perf);
+        let c = await Hxe(e, l, r, n.perf);
         if (c && extractJobCompletionJobId(c) !== null) continue;
         if (i.length === 0) {
             a = classifyDrainBatchClass(c), i.push(l), o = c ? parseEventTimestampMs(c.ts) : null, o === null && (s = !1);

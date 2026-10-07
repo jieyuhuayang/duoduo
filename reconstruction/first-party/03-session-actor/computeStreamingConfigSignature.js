@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: computeStreamingConfigSignature  (minified: fJ, daemon.pretty.js:82601)
+// symbol: computeStreamingConfigSignature  (minified: xG, daemon.pretty.js:82903)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -17,7 +17,7 @@ function computeStreamingConfigSignature(e, t) {
         tools: e.tools ?? [],
         additionalDirectories: e.additionalDirectories ?? [],
         autoloadAdditionalDirectoryClaudeMd: e.autoloadAdditionalDirectoryClaudeMd,
-        [CA]: t,
-        [KEe]: r
+        [SN]: t,
+        [zRe]: r
     })
 }

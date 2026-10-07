@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: initMemorySignalDeliveryModule  (minified: O6, daemon.pretty.js:67429)
+// symbol: initMemorySignalDeliveryModule  (minified: OH, daemon.pretty.js:67720)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var C6, Dlt, Mlt, initMemorySignalDeliveryModule = O(() => {
+var $H, $dt, Cdt, initMemorySignalDeliveryModule = O(() => {
     "use strict";
-    yg();
-    tO();
+    Yf();
+    LO();
     initMemorySignalKindsModule();
-    C6 = ["pattern-tracker", "gradient-distiller", "intuition-weaver", "memory-weaver"], Dlt = ".memory-signals.json", Mlt = "scan-gap.md.pending"
+    $H = ["pattern-tracker", "gradient-distiller", "intuition-weaver", "memory-weaver"], $dt = ".memory-signals.json", Cdt = "scan-gap.md.pending"
 });

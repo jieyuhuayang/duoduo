@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: isClaudeAuthSource  (minified: Xct, daemon.pretty.js:89053)
+// symbol: isClaudeAuthSource  (minified: Jft, daemon.pretty.js:89434)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

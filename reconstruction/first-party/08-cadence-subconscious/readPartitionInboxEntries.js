@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: readPartitionInboxEntries  (minified: uve, daemon.pretty.js:66354)
+// symbol: readPartitionInboxEntries  (minified: Iwe, daemon.pretty.js:66626)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,7 +8,7 @@ async function readPartitionInboxEntries(e, t) {
     let n = partitionInboxDir(e, t),
         r;
     try {
-        r = await Gu.readdir(n, {
+        r = await al.readdir(n, {
             withFileTypes: !0
         })
     } catch {
@@ -19,7 +19,7 @@ async function readPartitionInboxEntries(e, t) {
     let i = r.filter(u => u.isFile() && !u.name.startsWith(".") && (u.name.endsWith(".pending") || u.name.endsWith(".json"))).map(u => u.name),
         s = (await Promise.all(i.map(async u => {
             try {
-                let l = await Gu.stat(V$.join(n, u));
+                let l = await al.stat(RO.join(n, u));
                 return {
                     name: u,
                     mtimeMs: l.mtimeMs
@@ -33,13 +33,13 @@ async function readPartitionInboxEntries(e, t) {
     };
     let a = [];
     for (let u of s) try {
-        let l = await Gu.readFile(V$.join(n, u), "utf8");
+        let l = await al.readFile(RO.join(n, u), "utf8");
         a.push({
             file: u,
             message: l.trim()
         })
     } catch {}
-    return Re("[playlist] read partition inbox", {
+    return ke("[playlist] read partition inbox", {
         partition: t,
         files: s.length,
         entriesEmitted: a.length

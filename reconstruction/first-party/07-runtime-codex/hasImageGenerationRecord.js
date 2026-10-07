@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: hasImageGenerationRecord  (minified: Hye, daemon.pretty.js:62460)
+// symbol: hasImageGenerationRecord  (minified: fbe, daemon.pretty.js:62779)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,11 +9,11 @@ function hasImageGenerationRecord(e) {
         n = new Set;
     for (; t.length > 0;) {
         let r = t.pop();
-        if (!(!gw(r) || n.has(r))) {
-            if (n.add(r), Vye(r)) return !0;
+        if (!(!qw(r) || n.has(r))) {
+            if (n.add(r), dbe(r)) return !0;
             for (let i of ["payload", "event", "msg", "item"]) {
                 let o = r[i];
-                gw(o) && t.push(o)
+                qw(o) && t.push(o)
             }
         }
     }

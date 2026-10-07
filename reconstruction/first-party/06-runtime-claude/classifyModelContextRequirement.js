@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: classifyModelContextRequirement  (minified: lH, daemon.pretty.js:69700)
+// symbol: classifyModelContextRequirement  (minified: wW, daemon.pretty.js:69991)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,19 +9,19 @@ function classifyModelContextRequirement({
     mergedCatalog: t,
     hostMaxContextTokens: n
 }) {
-    if (!e) return uSe(null, n);
-    if (e.startsWith(zz)) return {
+    if (!e) return Xke(null, n);
+    if (e.startsWith(UU)) return {
         kind: "native-claude",
         model: e,
         requiredMaxContextTokens: void 0
     };
-    if (e.endsWith(Dm)) {
-        let r = uH(e);
+    if (e.endsWith(Qm)) {
+        let r = vW(e);
         return Object.hasOwn(t, r) ? buildProfiledExternalRequirement(e, t[r]) : {
             kind: "explicit-1m",
             model: e,
             requiredMaxContextTokens: void 0
         }
     }
-    return Object.hasOwn(t, e) ? buildProfiledExternalRequirement(e, t[e]) : uSe(e, n)
+    return Object.hasOwn(t, e) ? buildProfiledExternalRequirement(e, t[e]) : Xke(e, n)
 }

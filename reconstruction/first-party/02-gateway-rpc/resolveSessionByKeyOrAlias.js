@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveSessionByKeyOrAlias  (minified: Kf, daemon.pretty.js:89512)
+// symbol: resolveSessionByKeyOrAlias  (minified: fp, daemon.pretty.js:90948)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,11 +9,11 @@ function resolveSessionByKeyOrAlias(e, t) {
     if (n) return {
         ok: !0,
         session_key: n.session_key,
-        display_name: fg(n) ? n.display_name ?? null : null
+        display_name: Zf(n) ? n.display_name ?? null : null
     };
     let r = e.list().filter(i => i.display_name === t).map(i => ({
         session_key: i.session_key,
-        display_name: fg(i) ? i.display_name ?? null : null
+        display_name: Zf(i) ? i.display_name ?? null : null
     }));
     return r.length === 1 ? {
         ok: !0,

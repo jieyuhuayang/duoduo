@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: archiveLegacyRegistrySessionsDir  (minified: iSe, daemon.pretty.js:69371)
+// symbol: archiveLegacyRegistrySessionsDir  (minified: Gke, daemon.pretty.js:69662)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,13 +8,13 @@ async function archiveLegacyRegistrySessionsDir(e) {
     let t = e.registrySessionsDir,
         n;
     try {
-        n = await tr.readdir(t)
+        n = await or.readdir(t)
     } catch {
         return !1
     }
     if (n.length === 0) {
         try {
-            await tr.rmdir(t)
+            await or.rmdir(t)
         } catch {}
         return !1
     }
@@ -28,10 +28,10 @@ async function archiveLegacyRegistrySessionsDir(e) {
         } catch {
             continue
         }
-        let d = nr.join(t, l),
+        let d = sr.join(t, l),
             f;
         try {
-            f = await tr.readFile(d, "utf8")
+            f = await or.readFile(d, "utf8")
         } catch {
             continue
         }
@@ -44,19 +44,19 @@ async function archiveLegacyRegistrySessionsDir(e) {
         let m = {
             session_key: c
         };
-        for (let E of ["cwd", "plane", "permission_profile", "created_at", "last_event_id", "last_event_at"]) {
-            let R = p[E];
-            typeof R == "string" && R.length > 0 && (m[E] = R)
+        for (let R of ["cwd", "plane", "permission_profile", "created_at", "last_event_id", "last_event_at"]) {
+            let P = p[R];
+            typeof P == "string" && P.length > 0 && (m[R] = P)
         }
-        let h = bdt.createHash("sha256").update(c).digest("hex"),
-            g = nr.join(e.sessionsDir, h),
-            y = nr.join(g, "state.json"),
-            v = nr.join(e.varDir, "sessions-archive"),
+        let h = nmt.createHash("sha256").update(c).digest("hex"),
+            g = sr.join(e.sessionsDir, h),
+            y = sr.join(g, "state.json"),
+            v = sr.join(e.varDir, "sessions-archive"),
             b = !1;
         try {
-            let E = await tr.readdir(v);
-            for (let R of E)
-                if (R === h || R.startsWith(`${h}.`)) {
+            let R = await or.readdir(v);
+            for (let P of R)
+                if (P === h || P.startsWith(`${h}.`)) {
                     b = !0;
                     break
                 }
@@ -67,29 +67,29 @@ async function archiveLegacyRegistrySessionsDir(e) {
         }
         let _ = null;
         try {
-            _ = JSON.parse(await tr.readFile(y, "utf8"))
+            _ = JSON.parse(await or.readFile(y, "utf8"))
         } catch {
             _ = null
         }
-        let I = {
+        let E = {
             ...m,
             ..._ ?? {}
         };
-        I.session_key = c, I.updated_at = new Date().toISOString(), delete I.status, delete I.idle_since, delete I.health;
+        E.session_key = c, E.updated_at = new Date().toISOString(), delete E.status, delete E.idle_since, delete E.health;
         try {
-            await $e(g), await tr.writeFile(y, JSON.stringify(I, null, 2) + `
+            await Ne(g), await or.writeFile(y, JSON.stringify(E, null, 2) + `
 `, "utf8"), r++
         } catch {
             i++
         }
     }
     let o = new Date().toISOString().replace(/[:.]/g, "-"),
-        s = nr.join(e.varDir, `registry.legacy.${o}`),
-        a = nr.join(s, "sessions");
-    await $e(s);
+        s = sr.join(e.varDir, `registry.legacy.${o}`),
+        a = sr.join(s, "sessions");
+    await Ne(s);
     let u = a;
     try {
-        await tr.access(u), u = `${a}.${process.pid}`
+        await or.access(u), u = `${a}.${process.pid}`
     } catch {}
-    return await tr.rename(t, u), Z(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${u}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
+    return await or.rename(t, u), Z(`[init] archived legacy var/registry/sessions/ (${n.length} entries, backfilled=${r}, skipped=${i}) → ${u}. Phase 3 of session-state-refactor: session metadata now lives in var/sessions/<hash>/state.json only.`), !0
 }

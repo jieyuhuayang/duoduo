@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: collectBoardIncludePaths  (minified: wgt, daemon.pretty.js:82295)
+// symbol: collectBoardIncludePaths  (minified: ibt, daemon.pretty.js:82597)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -7,12 +7,12 @@
 function collectBoardIncludePaths(e, t) {
     let n = new Set,
         r = o => {
-            UEe.lastIndex = 0;
+            CRe.lastIndex = 0;
             let s;
             for (;
-                (s = UEe.exec(o)) !== null;) {
+                (s = CRe.exec(o)) !== null;) {
                 let a = normalizeBoardIncludeToken(s[1]);
-                !a || !isBoardIncludePathCandidate(a) || n.add(resolveBoardIncludePath(a, ha.dirname(t)))
+                !a || !isBoardIncludePathCandidate(a) || n.add(resolveBoardIncludePath(a, ba.dirname(t)))
             }
         },
         i = o => {
@@ -22,7 +22,7 @@ function collectBoardIncludePaths(e, t) {
                         let a = s.raw ?? "",
                             u = a.trimStart();
                         if (u.startsWith("<!--") && u.includes("-->")) {
-                            let l = a.replace(HEe, "");
+                            let l = a.replace(DRe, "");
                             l.trim() && r(l)
                         }
                         continue

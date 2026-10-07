@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: archiveSessionIfQuiescent  (minified: byt, daemon.pretty.js:89418)
+// symbol: archiveSessionIfQuiescent  (minified: nvt, daemon.pretty.js:90842)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -33,7 +33,7 @@ async function archiveSessionIfQuiescent(e, t, n, r) {
             archived_paths: [],
             hint: "Session has queued work waiting for a concurrency slot. Let that work finish and the actor end before retrying."
         };
-        let a = await sb(e, i);
+        let a = await Cb(e, i);
         if (a !== "clear") return {
             archived: !1,
             reason: "active",
@@ -51,7 +51,7 @@ async function archiveSessionIfQuiescent(e, t, n, r) {
             reason: "active",
             archived_paths: [],
             hint: "Session received work while the archive was in flight. Nothing was archived; let the runtime drain it before retrying."
-        } : (o = u.archived, u.archived ? (te("[session.archive] session archived", {
+        } : (o = u.archived, u.archived ? (ee("[session.archive] session archived", {
             session_key: i,
             archived_paths: u.archivedPaths
         }), {
@@ -66,7 +66,7 @@ async function archiveSessionIfQuiescent(e, t, n, r) {
         }))
     } finally {
         if (clearSessionArchiving(i), !o) try {
-            await sb(e, i) !== "clear" && t?.wakeSession(i, {
+            await Cb(e, i) !== "clear" && t?.wakeSession(i, {
                 preempt: "never"
             })
         } catch (s) {

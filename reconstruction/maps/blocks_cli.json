@@ -1,18 +1,18 @@
 {
   "bundle": "cli",
-  "source": "/tmp/pretty082/cli.pretty.js",
+  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
   "helper": "mm",
   "helperCandidates": {
     "mm": 6
   },
   "blockCount": 6,
-  "namesInBlocks": 25,
-  "distinctNamesInBlocks": 25,
-  "entryExportCount": 15,
+  "namesInBlocks": 29,
+  "distinctNamesInBlocks": 29,
+  "entryExportCount": 17,
   "blocks": [
     {
       "index": 0,
-      "line": 20710,
+      "line": 20730,
       "count": 11,
       "marker": [
         "PLIST_LABEL",
@@ -33,22 +33,22 @@
         "unload"
       ],
       "mangled": [
-        "qb",
-        "_J",
-        "vp",
+        "$b",
+        "yJ",
+        "Op",
         "b_",
-        "rk",
-        "tk",
+        "lk",
+        "sk",
         "D_",
-        "ik",
-        "nk",
-        "ok",
-        "y1"
+        "ck",
+        "ak",
+        "uk",
+        "I1"
       ]
     },
     {
       "index": 1,
-      "line": 62561,
+      "line": 62647,
       "count": 4,
       "marker": [
         "renderCompactResult",
@@ -62,15 +62,15 @@
         "runSessionSubcommand"
       ],
       "mangled": [
-        "Vge",
-        "qge",
-        "Yge",
-        "y$e"
+        "Xge",
+        "Zge",
+        "jge",
+        "K$e"
       ]
     },
     {
       "index": 2,
-      "line": 63614,
+      "line": 63707,
       "count": 7,
       "marker": [
         "jobHelp",
@@ -87,18 +87,18 @@
         "runJobSubcommand"
       ],
       "mangled": [
-        "nU",
-        "Kge",
-        "jge",
-        "$ge",
-        "Jge",
-        "Xge",
-        "nJe"
+        "lU",
+        "npe",
+        "ope",
+        "rpe",
+        "ipe",
+        "spe",
+        "DJe"
       ]
     },
     {
       "index": 3,
-      "line": 63996,
+      "line": 64089,
       "count": 1,
       "marker": [
         "runPromptsSubcommand"
@@ -107,12 +107,12 @@
         "runPromptsSubcommand"
       ],
       "mangled": [
-        "iJe"
+        "vJe"
       ]
     },
     {
       "index": 4,
-      "line": 65994,
+      "line": 66087,
       "count": 1,
       "marker": [
         "runMemoryCommand"
@@ -121,39 +121,51 @@
         "runMemoryCommand"
       ],
       "mangled": [
-        "Uje"
+        "dXe"
       ]
     },
     {
       "index": 5,
-      "line": 66612,
-      "count": 1,
+      "line": 66705,
+      "count": 5,
       "marker": [
-        "runSpineCommand"
+        "SpineCommandError",
+        "executeSpine",
+        "parseSpineArgs"
       ],
       "names": [
-        "runSpineCommand"
+        "SpineCommandError",
+        "executeSpine",
+        "parseSpineArgs",
+        "runSpineCommand",
+        "spineParamsToArgs"
       ],
       "mangled": [
-        "Zje"
+        "YT",
+        "SEe",
+        "hEe",
+        "IXe",
+        "bXe"
       ]
     }
   ],
   "entryExports": {
-    "defaultExistingDaemonChoice": "REe",
-    "inferOnboardConfigFromProbe": "TXe",
-    "isDetachedUpgradeWorker": "vXe",
-    "isInstallTargetFilePath": "hXe",
-    "main": "QXe",
-    "parseExistingDaemonChoice": "SXe",
-    "parseRestartArgs": "bXe",
-    "parseRootCli": "CXe",
-    "parseUpgradeArgs": "wXe",
-    "printHelp": "bEe",
-    "readCliPackageVersion": "yXe",
+    "defaultExistingDaemonChoice": "FEe",
+    "inferOnboardConfigFromProbe": "JXe",
+    "isDetachedUpgradeWorker": "rZe",
+    "isInstallTargetFilePath": "zXe",
+    "main": "dZe",
+    "parseExistingDaemonChoice": "$Xe",
+    "parseRestartArgs": "eZe",
+    "parseRootCli": "KXe",
+    "parseUpgradeArgs": "sZe",
+    "printHelp": "PEe",
+    "readCliPackageVersion": "jXe",
     "readOption": "tv",
-    "reasonlessRestartRefusal": "DXe",
-    "restartWakeReport": "NXe",
-    "runUpgradeChannelPhase": "xXe"
+    "reasonlessRestartRefusal": "tZe",
+    "renderChannelNotInstalled": "uZe",
+    "restartWakeReport": "nZe",
+    "runDeclaredChannelVerb": "MEe",
+    "runUpgradeChannelPhase": "aZe"
   }
 }

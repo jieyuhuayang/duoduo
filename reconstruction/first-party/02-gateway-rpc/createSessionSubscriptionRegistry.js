@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: createSessionSubscriptionRegistry  (minified: l6, daemon.pretty.js:88639)
+// symbol: createSessionSubscriptionRegistry  (minified: uH, daemon.pretty.js:89020)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

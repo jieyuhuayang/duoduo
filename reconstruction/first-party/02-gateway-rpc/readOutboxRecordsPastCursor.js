@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: readOutboxRecordsPastCursor  (minified: Pw, daemon.pretty.js:64671)
+// symbol: readOutboxRecordsPastCursor  (minified: Yw, daemon.pretty.js:64574)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -19,14 +19,14 @@ async function readOutboxRecordsPastCursor(e) {
         c = !1,
         d = !1;
     try {
-        let f = await Iw(n, r, i),
-            p = Tw(f);
-        c = p.replay_offset !== void 0, await Sle(n, r);
+        let f = await Zw(n, r, i),
+            p = Kw(f);
+        c = p.replay_offset !== void 0, await Lce(n, r);
         let m;
         if (s) {
             let y = await lookupOutboxByIdIndexEntry(n, s);
             if (y || (await backfillOutboxByIdIndexFromReplay(n, r), y = await lookupOutboxByIdIndexEntry(n, s)), !y || y.session_key !== r) {
-                let v = await E$(e);
+                let v = await QC(e);
                 return u = v.strategy, v.records
             }
             m = y.replay_offset + y.replay_byte_length
@@ -35,19 +35,19 @@ async function readOutboxRecordsPastCursor(e) {
             let y = await lookupOutboxByIdIndexEntry(n, p.last_outbox_id);
             if (y && y.session_key === r) m = y.replay_offset + y.replay_byte_length, u = "bootstrapped";
             else {
-                let v = await E$(e);
+                let v = await QC(e);
                 return u = v.strategy, v.records
             }
         }
         m === void 0 && (m = 0);
-        let h = await xle(n, r, m, a);
+        let h = await zce(n, r, m, a);
         if (l = h.entries.length, d = h.resynced, h.resynced && (u = "repair"), h.damaged) {
-            let y = await E$(e);
+            let y = await QC(e);
             return u = y.strategy, l = y.records.length, y.records
         }
-        return await zat(n, h.entries)
+        return await xlt(n, h.entries)
     } catch {
-        let f = await E$(e);
+        let f = await QC(e);
         return u = f.strategy, f.records
     } finally {
         await recordTelemetryMetric(n, "replay_scan_ms", Date.now() - t, {

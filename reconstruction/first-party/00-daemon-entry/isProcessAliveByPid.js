@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: isProcessAliveByPid  (minified: qut, daemon.pretty.js:88835)
+// symbol: isProcessAliveByPid  (minified: jct, daemon.pretty.js:89216)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

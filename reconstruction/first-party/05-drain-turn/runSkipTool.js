@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: runSkipTool  (minified: cC, daemon.pretty.js:54687)
+// symbol: runSkipTool  (minified: B$, daemon.pretty.js:54982)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -20,11 +20,11 @@ async function runSkipTool(e, t) {
                 reason: o,
                 skipped_at: new Date().toISOString()
             }
-        }), te("[Skip] skip rewind saved", {
+        }), ee("[Skip] skip rewind saved", {
             sessionKey: i,
             reason: o
         }), "Skipped. End your turn now — no further text, no further tool calls."
     } catch (n) {
-        return Le("[Skip] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
+        return Ue("[Skip] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
     }
 }

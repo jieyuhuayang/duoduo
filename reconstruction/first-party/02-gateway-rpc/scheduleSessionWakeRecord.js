@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: scheduleSessionWakeRecord  (minified: Syt, daemon.pretty.js:89541)
+// symbol: scheduleSessionWakeRecord  (minified: ovt, daemon.pretty.js:90977)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -21,6 +21,12 @@ async function scheduleSessionWakeRecord(e, t, n) {
         kind: o,
         error: `Only channel and job sessions can be woken — ${i.session_key} is a ${o} session, and the ${o} plane is isolated.`
     };
+    if (await isVoidRuntimeSession(e, i.session_key)) return {
+        ok: !1,
+        reason: "void_session",
+        session_key: i.session_key,
+        error: `${Ju} A wake would start no turn; nothing was scheduled.`
+    };
     let s = new Date;
     try {
         parseJobRearmTime(n.when, s)
@@ -33,7 +39,7 @@ async function scheduleSessionWakeRecord(e, t, n) {
         }
     }
     try {
-        let a = new Ur(e),
+        let a = new Br(e),
             {
                 id: u,
                 runAt: l

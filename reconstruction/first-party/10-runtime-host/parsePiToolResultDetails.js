@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: parsePiToolResultDetails  (minified: xke, daemon.pretty.js:73349)
+// symbol: parsePiToolResultDetails  (minified: mEe, daemon.pretty.js:73651)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

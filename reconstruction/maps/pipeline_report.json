@@ -1,10 +1,10 @@
 {
   "generatedBy": "reconstruction/tools/rebuild.sh",
-  "package": "v0.8.3",
+  "package": "v0.8.4",
   "note": "Generated. Do not hand-edit, and do not restate these numbers in prose — cite this file.",
   "bundles": {
     "daemon": {
-      "prettyLines": 91665,
+      "prettyLines": 93233,
       "exportBlocks": 24,
       "firstPartyBlocks": 15,
       "vendorBlocks": 9,
@@ -12,57 +12,57 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 489,
-      "renameEntries": 601,
-      "renamesApplied": 601,
-      "referencesRewritten": 2183,
+      "inferredNames": 512,
+      "renameEntries": 624,
+      "renamesApplied": 624,
+      "referencesRewritten": 2286,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 601
+      "indexedSymbols": 624
     },
     "cli": {
-      "prettyLines": 75391,
+      "prettyLines": 75611,
       "exportBlocks": 6,
       "firstPartyBlocks": 6,
       "vendorBlocks": 0,
-      "namesInBlocks": 25,
-      "distinctNamesInBlocks": 25,
-      "firstPartyNamesFromBlocks": 25,
-      "namesFromEntryExports": 15,
+      "namesInBlocks": 29,
+      "distinctNamesInBlocks": 29,
+      "firstPartyNamesFromBlocks": 29,
+      "namesFromEntryExports": 17,
       "inferredNames": 0,
-      "renameEntries": 40,
-      "renamesApplied": 40,
-      "referencesRewritten": 138,
+      "renameEntries": 46,
+      "renamesApplied": 46,
+      "referencesRewritten": 158,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 40
+      "indexedSymbols": 46
     }
   },
   "sha256": {
     "daemon": {
-      "shipped": "accfe7934f472e2ed562350961cab2ed6d810aec827d00a41509a2339f813c84",
-      "pretty": "335cf323cb527e839e7394ecfdc1375dae85009e5f7339ac022e4b0f01989b46"
+      "shipped": "57c582f97c1ffa02748e40a05fe9d435e752f8f0e97a820a2fb365b800a4d317",
+      "pretty": "fbc15b2082f1f43c4de7132f51d7555d3bcbe0a78485d86565be7fd2d1ca2b1b"
     },
     "cli": {
-      "shipped": "0bb91833764d2d1a045bbc0790a0dfa927ca0b8dcd10b8901cc4e065086f473f",
-      "pretty": "77739c75d658b94e7b8b42f998b557712e43fd02fb4be4d578a01c8eb97eaa40"
+      "shipped": "d151e3aa163df1c9c74051add8c08373e1833f56c413679edb8cfa2f69d9c170",
+      "pretty": "13ed4d6975a5b1fd7cb4b1b2f56729271f4bbb5f45c24b52fe3a66543bbe08c1"
     }
   },
   "firstPartyTree": {
-    "files": 601,
+    "files": 624,
     "subsystems": 12,
     "bySubsystem": {
-      "00-daemon-entry": 17,
-      "01-spine-wal": 31,
-      "02-gateway-rpc": 63,
-      "03-session-actor": 88,
+      "00-daemon-entry": 18,
+      "01-spine-wal": 33,
+      "02-gateway-rpc": 71,
+      "03-session-actor": 91,
       "04-cognition-prompt": 33,
       "05-drain-turn": 54,
-      "06-runtime-claude": 38,
+      "06-runtime-claude": 40,
       "07-runtime-codex": 26,
       "08-cadence-subconscious": 76,
       "09-memory": 98,
-      "10-runtime-host": 58,
+      "10-runtime-host": 65,
       "11-runtime-grok": 19
     }
   },
@@ -84,13 +84,13 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.23.3",
+    "node": "v22.22.0",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 641
+    "firstPartySymbols": 670
   }
 }

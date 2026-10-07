@@ -1,19 +1,19 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: resolveBoardIncludes  (minified: JEe, daemon.pretty.js:82212)
+// symbol: resolveBoardIncludes  (minified: jRe, daemon.pretty.js:82514)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function resolveBoardIncludes(e, t, n = 0, r) {
-    if (n >= fgt) return [];
-    let i = ha.resolve(e),
+    if (n >= Z_t) return [];
+    let i = ba.resolve(e),
         o = normalizeIncludePathKey(i);
     if (t.has(o)) return [];
-    let s = ha.extname(i).toLowerCase();
-    if (s && !pgt.has(s)) return [];
+    let s = ba.extname(i).toLowerCase();
+    if (s && !K_t.has(s)) return [];
     let a = await realpathOrSelf(i);
     t.add(o), t.add(normalizeIncludePathKey(a));
-    let u = await ggt(i);
+    let u = await Q_t(i);
     if (u === void 0) return [];
     let {
         content: l,

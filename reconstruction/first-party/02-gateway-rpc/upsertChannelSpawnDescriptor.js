@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: upsertChannelSpawnDescriptor  (minified: Ayt, daemon.pretty.js:90345)
+// symbol: upsertChannelSpawnDescriptor  (minified: yvt, daemon.pretty.js:91873)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -7,64 +7,102 @@
 async function upsertChannelSpawnDescriptor(e, t, n) {
     let r = n.channel_kind.trim().toLowerCase(),
         i = n.channel_id.trim();
-    if (!zm(i)) return {
+    if (!sh(i)) return {
         ok: !1,
         reason: `Invalid channel_id "${i}". Must match [A-Za-z0-9_-]{1,128}.`
     };
-    if (r.toLowerCase() === Jr) return {
+    if (r.toLowerCase() === Yr) return {
         ok: !1,
-        reason: `"${Jr}" is a reserved name for the global config file (kernel/config/${Jr}.md), not a channel kind. Pick a different channel_kind.`
+        reason: `"${Yr}" is a reserved name for the global config file (kernel/config/${Yr}.md), not a channel kind. Pick a different channel_kind.`
     };
-    let o = await ho(e, i),
-        s = n.runtime ?? o?.runtime;
-    if (!s) return {
+    let o = n.session_key?.trim();
+    if (o !== void 0 && classifySessionKeyKind(o) !== "channel") return {
+        ok: !1,
+        reason: `session_key "${o}" is a ${classifySessionKeyKind(o)} session key; channel.spawn creates channel sessions only.`
+    };
+    if (o !== void 0) {
+        let m = (await rt(e, o))?.source_channel_id;
+        if (m !== void 0 && m !== i) return {
+            ok: !1,
+            reason: `session_key "${o}" belongs to channel "${m}", not "${i}"; channel.spawn does not move a session to another channel.`
+        }
+    }
+    let s = await vs(e, i);
+    if (n.runtime === void 0 && s?.runtimeRefusal) return {
+        ok: !1,
+        reason: `${s.runtimeRefusal} Send a runtime to replace it.`
+    };
+    let a = n.runtime ?? s?.runtime;
+    if (!a) return {
         ok: !1,
         reason: "runtime is required on first-time channel.spawn (no prior descriptor to inherit from)."
     };
-    if (!E0e.includes(s)) return {
+    if (!gIe.includes(a)) return {
         ok: !1,
-        reason: `Unsupported runtime "${s}". Must be one of: ${E0e.join(", ")}.`
+        reason: `Unsupported runtime "${a}". Must be one of: ${gIe.join(", ")}.`
     };
-    if (o && s !== o.runtime) {
-        let p = await checkChannelRuntimeRebindConflict(e, t, i, s);
-        if (p) return {
+    if (s && a !== s.runtime) {
+        let m = await checkChannelRuntimeRebindConflict(e, t, i, a);
+        if (m) return {
             ok: !1,
-            reason: p
+            reason: m
         }
     }
-    let a = n.cwd_abs ?? o?.new_session_workspace;
-    if (!a) return {
+    let u = n.cwd_abs ?? s?.new_session_workspace;
+    if (!u) return {
         ok: !1,
         reason: "cwd_abs is required on first-time channel.spawn (no prior descriptor to inherit from)."
     };
-    if (!oo.isAbsolute(a)) return {
+    if (!so.isAbsolute(u)) return {
         ok: !1,
-        reason: `cwd_abs must be an absolute path (got "${a}").`
+        reason: `cwd_abs must be an absolute path (got "${u}").`
     };
-    let u = await Gf(a).catch(() => null) ?? void 0;
-    if (u || (u = await $0e(a).catch(() => null) ?? void 0), !u) return {
+    let l = await dp(u).catch(() => null) ?? void 0;
+    if (l || (l = await SIe(u).catch(() => null) ?? void 0), !l) return {
         ok: !1,
-        reason: `cwd_abs "${a}" does not exist and could not be created.`
+        reason: `cwd_abs "${u}" does not exist and could not be created.`
     };
-    let l = n.require_mention !== void 0 ? n.require_mention : o?.require_mention,
-        c = n.display_name ?? o?.display_name,
-        d = n.bound_by?.trim() || o?.bound_by,
-        f = new Date().toISOString();
+    let c = n.require_mention !== void 0 ? n.require_mention : s?.require_mention,
+        d = n.display_name ?? s?.display_name,
+        f = n.bound_by?.trim() || s?.bound_by,
+        p = new Date().toISOString();
     try {
-        await ule(e, {
+        await xce(e, {
             channel_id: i,
             channel_kind: r,
-            display_name: c,
-            new_session_workspace: u,
-            runtime: s,
-            bound_by: d,
-            bound_at: f,
-            require_mention: l
+            display_name: d,
+            new_session_workspace: l,
+            runtime: a,
+            bound_by: f,
+            bound_at: p,
+            require_mention: c
         })
-    } catch (p) {
+    } catch (m) {
         return {
             ok: !1,
-            reason: `Failed to write descriptor: ${p instanceof Error?p.message:String(p)}`
+            reason: `Failed to write descriptor: ${m instanceof Error?m.message:String(m)}`
+        }
+    }
+    if (o !== void 0) try {
+        await ensureSessionDescriptorAndStateFiles(e, {
+            session_key: o,
+            display_name: d,
+            kind: "channel"
+        });
+        let m = await rt(e, o);
+        await patchSessionRuntimeState(e, o, {
+            session_key: o,
+            cwd: m?.cwd ?? l,
+            source_channel_id: i,
+            created_at: m?.created_at ?? new Date().toISOString()
+        }, {
+            create: !0
+        }), await kIe(e, t, o)
+    } catch (m) {
+        let h = m instanceof Error ? m.message : String(m);
+        return {
+            ok: !1,
+            reason: `Failed to create session ${o}: ${h}`
         }
     }
     return {

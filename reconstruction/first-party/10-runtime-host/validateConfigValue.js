@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: validateConfigValue  (minified: kut, daemon.pretty.js:87961)
+// symbol: validateConfigValue  (minified: _ct, daemon.pretty.js:88340)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -19,12 +19,12 @@ function validateConfigValue(e, t) {
                 error: `${e}: expected "append" or "override", got "${t}"`
             };
         case "runtime":
-            return isSupportedRuntime(t) ? {
+            return isKnownRuntimeValue(t) ? {
                 ok: !0,
                 value: t
             } : {
                 ok: !1,
-                error: `${e}: expected ${Nd.map(r=>JSON.stringify(r)).join(", ")}, got "${t}"`
+                error: `${e}: expected ${Lm.map(r=>JSON.stringify(r)).join(", ")}, got "${t}"`
             };
         case "boolean":
             return t === "true" ? {

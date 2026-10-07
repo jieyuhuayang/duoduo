@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: handleDrainError  (minified: Xw, daemon.pretty.js:72237)
+// symbol: handleDrainError  (minified: TS, daemon.pretty.js:72539)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -16,7 +16,7 @@ ${i}
         sessionKey: u.session_key,
         record: u
     });
-    if (n.anchor.event.source?.name === "idle-compact") te("[runner] idle-compact drain error — spine only, no channel record", {
+    if (n.anchor.event.source?.name === "idle-compact") ee("[runner] idle-compact drain error — spine only, no channel record", {
         sessionKey: t,
         stage: n.stage
     });
@@ -31,7 +31,7 @@ ${i}
             record: l
         })
     } catch (u) {
-        te("[runner] failed to emit drain-error outbox record", {
+        ee("[runner] failed to emit drain-error outbox record", {
             sessionKey: t,
             stage: n.stage,
             emitError: u instanceof Error ? u.message : String(u)
@@ -53,7 +53,7 @@ ${i}
     try {
         await atomicAppendEvent(e, a)
     } catch (u) {
-        te("[runner] failed to append agent.error to spine", {
+        ee("[runner] failed to append agent.error to spine", {
             sessionKey: t,
             stage: n.stage,
             spineError: u instanceof Error ? u.message : String(u)

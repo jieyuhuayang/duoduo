@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: pruneEventIdIndexByRetention  (minified: sse, daemon.pretty.js:32179)
+// symbol: pruneEventIdIndexByRetention  (minified: kae, daemon.pretty.js:32282)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -12,8 +12,8 @@ async function pruneEventIdIndexByRetention(e, t) {
         s = [],
         a = 0;
     try {
-        let l = hz(o);
-        for await (let c of ds(l)) {
+        let l = gU(o);
+        for await (let c of gs(l)) {
             if (!c) continue;
             let d;
             try {

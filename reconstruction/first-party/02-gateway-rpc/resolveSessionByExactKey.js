@@ -1,0 +1,17 @@
+// duoduo reconstruction — subsystem: 02-gateway-rpc
+// symbol: resolveSessionByExactKey  (minified: ivt, daemon.pretty.js:90936)
+// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// NOTE: readable extract from daemon.recon.js; references other top-level
+// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
+
+function resolveSessionByExactKey(e, t) {
+    let n = e.get(t);
+    return n ? {
+        ok: !0,
+        session_key: n.session_key,
+        display_name: Zf(n) ? n.display_name ?? null : null
+    } : {
+        ok: !1,
+        reason: "not_found"
+    }
+}

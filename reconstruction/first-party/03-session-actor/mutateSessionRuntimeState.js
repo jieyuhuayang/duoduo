@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: mutateSessionRuntimeState  (minified: Kd, daemon.pretty.js:35601)
+// symbol: mutateSessionRuntimeState  (minified: uf, daemon.pretty.js:35727)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,7 +8,7 @@ async function mutateSessionRuntimeState(e, t, n) {
     let r = !1;
     await runWithSessionMutex(t, async () => {
         if (assertSessionNotArchiving(t), isSessionArchived(e, t)) {
-            Re("[session] skipping runtime-state mutate for tombstoned session", {
+            ke("[session] skipping runtime-state mutate for tombstoned session", {
                 sessionKey: t
             });
             return
@@ -18,7 +18,7 @@ async function mutateSessionRuntimeState(e, t, n) {
                 updated_at: new Date().toISOString()
             };
         try {
-            let c = await ja.readFile(i, "utf8");
+            let c = await qa.readFile(i, "utf8");
             o = JSON.parse(c)
         } catch {}
         let s = n(o),
@@ -33,10 +33,10 @@ async function mutateSessionRuntimeState(e, t, n) {
                 a[c] = d
             } let l = {
             ...o,
-            ...Gd(a),
+            ...af(a),
             updated_at: new Date().toISOString()
         };
         for (let c of u) delete l[c];
         await Bt(i, l), r = !0
-    }), r && jm(t, "state")
+    }), r && th(t, "state")
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: deleteMailboxPendingItemsByEventIds  (minified: Ao, daemon.pretty.js:32639)
+// symbol: deleteMailboxPendingItemsByEventIds  (minified: Mo, daemon.pretty.js:32742)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ async function deleteMailboxPendingItemsByEventIds(e, t, n) {
     let r = resolveSessionMailboxPendingDir(e, t),
         i;
     try {
-        i = await yr.readdir(r)
+        i = await wr.readdir(r)
     } catch {
         return
     }
@@ -20,14 +20,14 @@ async function deleteMailboxPendingItemsByEventIds(e, t, n) {
         if (!a.endsWith(".item.json")) continue;
         let u;
         try {
-            let l = await yr.readFile(Ys.join(r, a), "utf8");
+            let l = await wr.readFile(ea.join(r, a), "utf8");
             u = JSON.parse(l).event_id ?? void 0
         } catch {
             continue
         }
         if (u !== void 0 && o.has(u)) {
             try {
-                await yr.unlink(Ys.join(r, a))
+                await wr.unlink(ea.join(r, a))
             } catch {}
             s -= 1
         }

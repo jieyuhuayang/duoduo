@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: createPiWorkerAdapter  (minified: TO, daemon.pretty.js:72768)
+// symbol: createPiWorkerAdapter  (minified: vA, daemon.pretty.js:73070)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -13,116 +13,116 @@ function createPiWorkerAdapter(e) {
         s, a, u, l, c = 0,
         d = new Set,
         f = null,
-        p = $ => {
-            let C;
+        p = A => {
+            let $;
             return {
-                promise: new Promise((F, k) => {
-                    C = {
-                        match: $,
-                        resolve: F,
-                        reject: k
-                    }, d.add(C)
+                promise: new Promise((N, x) => {
+                    $ = {
+                        match: A,
+                        resolve: N,
+                        reject: x
+                    }, d.add($)
                 }),
-                cancel: () => C && d.delete(C)
+                cancel: () => $ && d.delete($)
             }
         },
-        m = $ => {
-            let C = r;
-            if (C) {
-                if (C.stdin.writableEnded || C.stdin.destroyed) {
-                    t(`pi adapter: frame dropped, worker stdin closed: ${$.type}`);
+        m = A => {
+            let $ = r;
+            if ($) {
+                if ($.stdin.writableEnded || $.stdin.destroyed) {
+                    t(`pi adapter: frame dropped, worker stdin closed: ${A.type}`);
                     return
                 }
-                C.stdin.write(encodePiWorkerFrame($))
+                $.stdin.write(encodePiWorkerFrame(A))
             }
         },
-        h = $ => {
-            for (let C of d)
-                if (C.match($)) {
-                    d.delete(C), C.resolve($);
+        h = A => {
+            for (let $ of d)
+                if ($.match(A)) {
+                    d.delete($), $.resolve(A);
                     return
                 }
         },
         g = () => {
             f = null
         },
-        y = $ => {
-            let C = f;
-            if (!C || C.turnId !== $.turn_id) return;
-            let A = $.event,
-                F = null;
-            if (A.kind === "tool_start") {
-                let k = A.args_json === "" ? void 0 : A.args_json;
+        y = A => {
+            let $ = f;
+            if (!$ || $.turnId !== A.turn_id) return;
+            let C = A.event,
+                N = null;
+            if (C.kind === "tool_start") {
+                let x = C.args_json === "" ? void 0 : C.args_json;
                 try {
-                    A.args_json !== "" && (k = JSON.parse(A.args_json))
+                    C.args_json !== "" && (x = JSON.parse(C.args_json))
                 } catch {}
-                F = {
+                N = {
                     type: "tool_use",
-                    toolUseId: A.tool_call_id,
-                    toolName: A.tool_name,
-                    input: k
+                    toolUseId: C.tool_call_id,
+                    toolName: C.tool_name,
+                    input: x
                 }
-            } else A.kind === "tool_delta" ? F = {
+            } else C.kind === "tool_delta" ? N = {
                 type: "tool_input_delta",
-                toolUseId: A.tool_call_id,
-                toolName: A.tool_name,
-                partialJson: A.delta
-            } : (A.tool_name === "Skip" && (C.skipObserved = !0), e.onToolEnd && C.pendingToolEndEffects.push(Promise.resolve(e.onToolEnd({
-                tool_name: A.tool_name,
-                result_json: A.result_json,
-                is_error: A.is_error
-            })).catch(k => {
-                t(`pi adapter: tool-end effect failed: ${String(k)}`)
-            })), F = {
+                toolUseId: C.tool_call_id,
+                toolName: C.tool_name,
+                partialJson: C.delta
+            } : (C.tool_name === "Skip" && ($.skipObserved = !0), e.onToolEnd && $.pendingToolEndEffects.push(Promise.resolve(e.onToolEnd({
+                tool_name: C.tool_name,
+                result_json: C.result_json,
+                is_error: C.is_error
+            })).catch(x => {
+                t(`pi adapter: tool-end effect failed: ${String(x)}`)
+            })), N = {
                 type: "tool_result",
-                toolUseId: A.tool_call_id,
-                toolName: A.tool_name,
-                isError: A.is_error,
-                summary: A.result_json
+                toolUseId: C.tool_call_id,
+                toolName: C.tool_name,
+                isError: C.is_error,
+                summary: C.result_json
             });
-            C.onExecutionEvent?.(F)
+            $.onExecutionEvent?.(N)
         },
-        v = $ => {
-            switch ($.type) {
+        v = A => {
+            switch (A.type) {
                 case "stream":
-                    f && f.turnId === $.turn_id && f.onStream?.($.delta);
+                    f && f.turnId === A.turn_id && f.onStream?.(A.delta);
                     return;
                 case "thought":
-                    f && f.turnId === $.turn_id && f.onExecutionEvent?.({
+                    f && f.turnId === A.turn_id && f.onExecutionEvent?.({
                         type: "thought_chunk",
-                        text: $.delta
+                        text: A.delta
                     });
                     return;
                 case "exec":
-                    y($);
+                    y(A);
                     return;
                 case "notify":
-                    e.onNotify?.($.text);
+                    e.onNotify?.(A.text);
                     return;
                 case "run_ack":
-                    $.accepted && f && f.turnId === $.turn_id && (f.acceptedAt = Date.now()), h($);
+                    A.accepted && f && f.turnId === A.turn_id && (f.acceptedAt = Date.now()), h(A);
                     return;
                 case "orphan_run":
-                    t(`pi adapter: orphan_run ${$.phase}`);
+                    t(`pi adapter: orphan_run ${A.phase}`);
                     return;
                 default: {
-                    if (!Hft.has($.type)) {
-                        t(`pi adapter: unknown frame type ignored: ${String($.type)}`);
+                    if (!Tht.has(A.type)) {
+                        t(`pi adapter: unknown frame type ignored: ${String(A.type)}`);
                         return
                     }
-                    h($)
+                    h(A)
                 }
             }
         },
-        b = $ => {
+        b = A => {
             r = null, o || (i = null);
-            for (let C of [...d]) d.delete(C), C.reject($);
+            for (let $ of [...d]) d.delete($), $.reject(A);
             g()
         },
-        _ = async $ => {
-            let C = o;
-            if (C && (await C, !$())) throw new Error("pi adapter: connect cancelled by shutdown");
-            let A = mke(e.workerCommand.command, e.workerCommand.args, {
+        _ = async A => {
+            let $ = o;
+            if ($ && (await $, !A())) throw new Error("pi adapter: connect cancelled by shutdown");
+            let C = iEe(e.workerCommand.command, e.workerCommand.args, {
                 cwd: e.cwd,
                 env: {
                     ...process.env,
@@ -130,25 +130,25 @@ function createPiWorkerAdapter(e) {
                 },
                 stdio: ["pipe", "pipe", "pipe"]
             });
-            r = A, A.on("error", k => {
-                r === A && b(k)
-            }), A.on("exit", k => {
-                r === A && b(new Error(`pi worker exited (code ${String(k)})`))
-            }), Ll(A.stdout, k => {
-                if (r !== A) return;
-                let N = RH(k);
-                if (!N) {
-                    k.trim() && t("pi adapter: non-frame stdout line skipped");
+            r = C, C.on("error", x => {
+                r === C && b(x)
+            }), C.on("exit", x => {
+                r === C && b(new Error(`pi worker exited (code ${String(x)})`))
+            }), Xl(C.stdout, x => {
+                if (r !== C) return;
+                let M = LW(x);
+                if (!M) {
+                    x.trim() && t("pi adapter: non-frame stdout line skipped");
                     return
                 }
-                v(N)
-            }), A.stderr.on("data", k => {
-                for (let N of k.toString().split(`
-`)) N.trim() && t(`pi worker: ${N}`)
-            }), A.stdin.on("error", k => {
-                t(`pi adapter: worker stdin error: ${String(k)}`)
+                v(M)
+            }), C.stderr.on("data", x => {
+                for (let M of x.toString().split(`
+`)) M.trim() && t(`pi worker: ${M}`)
+            }), C.stdin.on("error", x => {
+                t(`pi adapter: worker stdin error: ${String(x)}`)
             });
-            let F = p(k => k.type === "ready" || k.type === "init_error");
+            let N = p(x => x.type === "ready" || x.type === "init_error");
             m({
                 type: "init",
                 cwd: e.cwd,
@@ -169,183 +169,183 @@ function createPiWorkerAdapter(e) {
                 system_prompt: l
             });
             try {
-                let k = await F.promise;
-                if (k.type === "init_error") throw new Error(`pi worker init failed: ${k.reason}`);
-                if (k.type !== "ready") throw new Error("pi worker: unexpected frame before ready");
-                return s = k.session_id, u = a, t(`pi adapter: ready session=${s}`), s
+                let x = await N.promise;
+                if (x.type === "init_error") throw new Error(`pi worker init failed: ${x.reason}`);
+                if (x.type !== "ready") throw new Error("pi worker: unexpected frame before ready");
+                return s = x.session_id, u = a, t(`pi adapter: ready session=${s}`), s
             } finally {
-                F.cancel()
+                N.cancel()
             }
-        }, I = () => {
+        }, E = () => {
             if (!i) {
-                let $ = _(() => i === $).catch(C => {
-                    throw i === $ && (i = null), C
+                let A = _(() => i === A).catch($ => {
+                    throw i === A && (i = null), $
                 });
-                i = $
+                i = A
             }
             return i
-        }, E = async $ => {
-            if (typeof $.prompt != "string") throw new Error("pi adapter: prompt must be a string (streaming generators are claude-only)");
+        }, R = async A => {
+            if (typeof A.prompt != "string") throw new Error("pi adapter: prompt must be a string (streaming generators are claude-only)");
             if (f) throw new Error("pi adapter: a run is already in flight (single-inflight violation)");
-            if ($.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
-            $.tools && n("pi adapter: RunInput.tools carries the claude builtin surface — ignored on pi (§3 no-op table)");
-            let C = `pi-turn-${++c}-${Date.now()}`;
+            if (A.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
+            A.tools && n("pi adapter: RunInput.tools carries the claude builtin surface — ignored on pi (§3 no-op table)");
+            let $ = `pi-turn-${++c}-${Date.now()}`;
             f = {
-                turnId: C,
+                turnId: $,
                 acceptedAt: void 0,
                 skipObserved: !1,
                 pendingToolEndEffects: [],
-                onStream: $.onStream,
-                onExecutionEvent: $.onExecutionEvent
+                onStream: A.onStream,
+                onExecutionEvent: A.onExecutionEvent
             };
-            let A = f,
-                F = () => m({
+            let C = f,
+                N = () => m({
                     type: "abort",
-                    turn_id: C,
-                    reason: normalizeTurnAbortReason($.abortController?.signal.reason)
+                    turn_id: $,
+                    reason: normalizeTurnAbortReason(A.abortController?.signal.reason)
                 });
-            $.abortController?.signal.addEventListener("abort", F, {
+            A.abortController?.signal.addEventListener("abort", N, {
                 once: !0
             });
             try {
-                let k = Bft($.disallowedTools);
-                !r && !i ? (a = k, l = buildPiSystemPromptSpec($.systemPrompt)) : Vft(u ?? a, k) || t("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
-                let N = $.abortController?.signal;
-                if (N) {
-                    let fe, j = new Promise((ue, Ie) => {
-                        let ae = () => Ie(new AgentSdkPromptNotAcceptedAbortError);
-                        N.addEventListener("abort", ae, {
+                let x = Rht(A.disallowedTools);
+                !r && !i ? (a = x, l = buildPiSystemPromptSpec(A.systemPrompt)) : Iht(u ?? a, x) || t("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
+                let M = A.abortController?.signal;
+                if (M) {
+                    let se, j = new Promise((ne, K) => {
+                        let te = () => K(new AgentSdkPromptNotAcceptedAbortError);
+                        M.addEventListener("abort", te, {
                             once: !0
-                        }), fe = () => N.removeEventListener("abort", ae)
+                        }), se = () => M.removeEventListener("abort", te)
                     });
                     j.catch(() => {});
                     try {
-                        await Promise.race([I(), j])
-                    } catch (ue) {
-                        throw ue instanceof AgentSdkPromptNotAcceptedAbortError && D(), ue
+                        await Promise.race([E(), j])
+                    } catch (ne) {
+                        throw ne instanceof AgentSdkPromptNotAcceptedAbortError && D(), ne
                     } finally {
-                        fe?.()
+                        se?.()
                     }
-                } else await I();
-                if ($.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
-                let V = pke($.attachments),
-                    W = p(fe => fe.type === "run_ack" && fe.turn_id === C),
-                    ce = p(fe => fe.type === "settled" && fe.turn_id === C);
+                } else await E();
+                if (A.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
+                let F = rEe(A.attachments),
+                    J = p(se => se.type === "run_ack" && se.turn_id === $),
+                    ce = p(se => se.type === "settled" && se.turn_id === $);
                 ce.promise.catch(() => {}), m({
                     type: "run",
-                    turn_id: C,
-                    prompt: $.prompt,
-                    images: V.length > 0 ? V : void 0
+                    turn_id: $,
+                    prompt: A.prompt,
+                    images: F.length > 0 ? F : void 0
                 });
-                let J = await W.promise;
-                if (!J.accepted) throw ce.cancel(), $.onTurnRejected?.(), new Error(`pi worker rejected run: ${J.reason??"unknown"}`);
-                $.onTurnAcknowledged?.();
-                let ne = await ce.promise;
-                if (ne.aborted) {
-                    if (A.skipObserved) return {
+                let ie = await J.promise;
+                if (!ie.accepted) throw ce.cancel(), A.onTurnRejected?.(), new Error(`pi worker rejected run: ${ie.reason??"unknown"}`);
+                A.onTurnAcknowledged?.();
+                let Ce = await ce.promise;
+                if (Ce.aborted) {
+                    if (C.skipObserved) return {
                         sessionId: s,
-                        text: ne.text,
+                        text: Ce.text,
                         structured: void 0,
-                        usage: fke(ne.usage, e.model),
-                        firstTokenLatencyMs: ne.first_token_latency_ms,
+                        usage: nEe(Ce.usage, e.model),
+                        firstTokenLatencyMs: Ce.first_token_latency_ms,
                         skipped: !0
                     };
                     throw new AgentSdkTurnInterruptedError
                 }
-                if (ne.error) throw new Error(`pi run failed: ${ne.error}`);
+                if (Ce.error) throw new Error(`pi run failed: ${Ce.error}`);
                 return {
                     sessionId: s,
-                    text: ne.text,
+                    text: Ce.text,
                     structured: void 0,
-                    usage: fke(ne.usage, e.model),
-                    firstTokenLatencyMs: ne.first_token_latency_ms,
-                    skipped: A.skipObserved
+                    usage: nEe(Ce.usage, e.model),
+                    firstTokenLatencyMs: Ce.first_token_latency_ms,
+                    skipped: C.skipObserved
                 }
             } finally {
-                $.abortController?.signal.removeEventListener("abort", F), A.pendingToolEndEffects.length > 0 && await Promise.all(A.pendingToolEndEffects), f === A && g()
+                A.abortController?.signal.removeEventListener("abort", N), C.pendingToolEndEffects.length > 0 && await Promise.all(C.pendingToolEndEffects), f === C && g()
             }
-        }, R = async ($, C, A) => {
-            if (!r || !f?.acceptedAt || f.turnId !== C) return !1;
-            let F = pke(A),
-                k = p(V => V.type === "steer_result" && V.turn_id === C);
+        }, P = async (A, $, C) => {
+            if (!r || !f?.acceptedAt || f.turnId !== $) return !1;
+            let N = rEe(C),
+                x = p(F => F.type === "steer_result" && F.turn_id === $);
             return m({
                 type: "steer",
-                turn_id: C,
-                text: $,
-                images: F.length > 0 ? F : void 0
-            }), (await k.promise).landed
-        }, x = async $ => {
-            let C = new Date().toISOString(),
-                A = () => m({
+                turn_id: $,
+                text: A,
+                images: N.length > 0 ? N : void 0
+            }), (await x.promise).landed
+        }, k = async A => {
+            let $ = new Date().toISOString(),
+                C = () => m({
                     type: "abort",
                     turn_id: "compact"
                 }),
-                F = !r && !i;
+                N = !r && !i;
             try {
-                await I(), $.abortController?.signal.addEventListener("abort", A, {
+                await E(), A.abortController?.signal.addEventListener("abort", C, {
                     once: !0
                 });
-                let k = p(W => W.type === "compact_result");
+                let x = p(J => J.type === "compact_result");
                 m({
                     type: "compact"
                 });
-                let V = (await k.promise).outcome;
-                return V.kind === "succeeded" ? {
+                let F = (await x.promise).outcome;
+                return F.kind === "succeeded" ? {
                     kind: "succeeded",
-                    runtime: IO,
-                    pre_input_tokens: V.pre_input_tokens,
-                    summary_excerpt: V.summary_excerpt,
-                    triggered_at: C
-                } : V.kind === "noop" ? {
+                    runtime: bA,
+                    pre_input_tokens: F.pre_input_tokens,
+                    summary_excerpt: F.summary_excerpt,
+                    triggered_at: $
+                } : F.kind === "noop" ? {
                     kind: "noop",
-                    runtime: IO,
-                    reason: V.reason,
-                    triggered_at: C
+                    runtime: bA,
+                    reason: F.reason,
+                    triggered_at: $
                 } : {
                     kind: "failed",
-                    runtime: IO,
-                    error: V.error,
-                    triggered_at: C
+                    runtime: bA,
+                    error: F.error,
+                    triggered_at: $
                 }
-            } catch (k) {
+            } catch (x) {
                 return {
                     kind: "failed",
-                    runtime: IO,
-                    error: String(k.message ?? k),
-                    triggered_at: C
+                    runtime: bA,
+                    error: String(x.message ?? x),
+                    triggered_at: $
                 }
             } finally {
-                $.abortController?.signal.removeEventListener("abort", A), F && await D()
+                A.abortController?.signal.removeEventListener("abort", C), N && await D()
             }
-        }, S = async $ => {
-            if ($.exitCode !== null || $.signalCode !== null) return;
-            let C = new Promise(F => {
-                    $.once("exit", () => F())
+        }, S = async A => {
+            if (A.exitCode !== null || A.signalCode !== null) return;
+            let $ = new Promise(N => {
+                    A.once("exit", () => N())
                 }),
-                A = F => new Promise(k => {
-                    let N = setTimeout(() => k(!1), F);
-                    C.then(() => {
-                        clearTimeout(N), k(!0)
+                C = N => new Promise(x => {
+                    let M = setTimeout(() => x(!1), N);
+                    $.then(() => {
+                        clearTimeout(M), x(!0)
                     })
                 });
-            $.stdin.end(), !await A(dke) && ($.kill("SIGTERM"), !await A(dke) && ($.kill("SIGKILL"), await C))
+            A.stdin.end(), !await C(tEe) && (A.kill("SIGTERM"), !await C(tEe) && (A.kill("SIGKILL"), await $))
         }, D = () => {
             if (i = null, o) return o;
-            let $ = r;
-            if (!$) return Promise.resolve();
-            let C = S($).finally(() => {
-                r === $ && (r = null), o = null
+            let A = r;
+            if (!A) return Promise.resolve();
+            let $ = S(A).finally(() => {
+                r === A && (r = null), o = null
             });
-            return o = C, C
+            return o = $, $
         };
     return {
-        run: E,
-        compact: x,
-        steerActiveTurn: R,
+        run: R,
+        compact: k,
+        steerActiveTurn: P,
         activeTurnId: () => f?.acceptedAt !== void 0 ? f.turnId : void 0,
         activeTurnStartedAt: () => f?.acceptedAt,
         activeTurnSkipObserved: () => f?.skipObserved === !0,
         shutdown: D,
-        connect: I
+        connect: E
     }
 }

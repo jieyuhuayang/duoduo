@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: renderNotifyToolDescription  (minified: A$, daemon.pretty.js:64989)
+// symbol: renderNotifyToolDescription  (minified: hO, daemon.pretty.js:65247)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,16 +9,16 @@ function renderNotifyToolDescription(e) {
         sessionKey: t,
         sessionContextKind: n
     } = e;
-    switch (n ?? (J_e(t) ? "job" : "foreground")) {
+    switch (n ?? (dve(t) ? "job" : "foreground")) {
         case "job":
-            return Zat();
+            return qlt();
         case "meta":
-            return Gat();
+            return Blt();
         case "foreground":
-            return D_e();
+            return Qbe();
         case "system":
-            return Kat();
+            return Vlt();
         default:
-            return D_e()
+            return Qbe()
     }
 }

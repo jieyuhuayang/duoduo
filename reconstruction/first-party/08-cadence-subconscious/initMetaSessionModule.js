@@ -1,31 +1,31 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: initMetaSessionModule  (minified: p0e, daemon.pretty.js:86368)
+// symbol: initMetaSessionModule  (minified: rIe, daemon.pretty.js:86721)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Fgt, initMetaSessionModule = O(() => {
+var Sbt, initMetaSessionModule = O(() => {
     "use strict";
     initAgentSdkAdapterModule();
     initCodexAppServerModule();
     initGrokAcpRuntimeModule();
-    PH();
-    $H();
-    xC();
-    Cu();
-    Em();
+    UW();
+    BW();
+    sC();
+    initRuntimeValidationModule();
+    Bm();
     initSpineEventLogModule();
     initGapSpanModule();
-    JW();
-    ZW();
-    pH();
+    oG();
+    sG();
+    EW();
     initChannelConfigLoaderModule();
+    sl();
+    pt();
+    ZR();
     Zu();
-    dt();
-    hR();
-    Lu();
     initSubconsciousPlaylistModule();
-    yg();
+    Yf();
     initPartitionRunStateModule();
-    Fgt = new Set(["gradient-distiller", "intuition-weaver"])
+    Sbt = new Set(["gradient-distiller", "intuition-weaver"])
 });

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: evaluateNotifyConsumerRefusal  (minified: P$, daemon.pretty.js:64867)
+// symbol: evaluateNotifyConsumerRefusal  (minified: Ng, daemon.pretty.js:64770)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,7 +8,7 @@ async function evaluateNotifyConsumerRefusal(e, t) {
     if (classifySessionKeyKind(t) !== "channel") return {
         refused: !1
     };
-    let n = await O_e(e, t),
+    let n = await Jbe(e, t),
         r = Date.now(),
         i = resolveNotifyUnconsumedHours(),
         o = classifyConsumerStaleness(n, i, r),

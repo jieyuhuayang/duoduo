@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createOutboxDeliveryManager  (minified: Qgt, daemon.pretty.js:86726)
+// symbol: createOutboxDeliveryManager  (minified: Mbt, daemon.pretty.js:87079)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -40,7 +40,7 @@ function createOutboxDeliveryManager(e) {
         s.add(h.id);
         try {
             if (h = await readOutboxRecord(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await recordOutboxSentId(t, h.id), !0;
-            if (await yle(t, h.id)) return await recordOutboxDeliveryAttempt(t, h, {
+            if (await Ace(t, h.id)) return await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             }), !0;
             if (isJobOrMetaOutboxRecord(h)) {
@@ -57,7 +57,7 @@ function createOutboxDeliveryManager(e) {
             let b = await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             });
-            return await recordOutboxSentId(t, b.id), po("delivered", b.id, {
+            return await recordOutboxSentId(t, b.id), go("delivered", b.id, {
                 outboxId: b.id,
                 sessionKey: b.session_key
             }), !0

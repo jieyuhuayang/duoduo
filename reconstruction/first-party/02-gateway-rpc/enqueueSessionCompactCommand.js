@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: enqueueSessionCompactCommand  (minified: Ryt, daemon.pretty.js:89767)
+// symbol: enqueueSessionCompactCommand  (minified: cvt, daemon.pretty.js:91287)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -24,6 +24,13 @@ async function enqueueSessionCompactCommand(e, t, n, r, i) {
         target: o,
         session_key: s.session_key,
         kind: a
+    };
+    if (await isVoidRuntimeSession(e, s.session_key)) return {
+        ok: !1,
+        reason: "void_session",
+        target: o,
+        session_key: s.session_key,
+        error: `${Ju} It has no context to compact; nothing was queued.`
     };
     if (isSessionArchiving(s.session_key)) return {
         ok: !1,

@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: buildTurnSdkRunConfig  (minified: GSe, daemon.pretty.js:70336)
+// symbol: buildTurnSdkRunConfig  (minified: Fxe, daemon.pretty.js:70627)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function buildTurnSdkRunConfig(e, t) {
-    let n = (l, c) => c !== void 0 ? Bdt(l, c) : JSe(l),
+    let n = (l, c) => c !== void 0 ? Rmt(l, c) : jxe(l),
         r = n(e.allowedTools, t?.allowedTools),
         i = n(e.disallowedTools, t?.disallowedTools),
         o = new Set(r ?? []),

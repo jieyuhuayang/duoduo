@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: lookupEventIdIndexEntry  (minified: nb, daemon.pretty.js:32095)
+// symbol: lookupEventIdIndexEntry  (minified: Ib, daemon.pretty.js:32198)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function lookupEventIdIndexEntry(e, t, n) {
     if (n?.load === !1) {
-        let i = iR.get(resolveEventIdIndexPath(e));
-        return !i || !await Ou(i) ? null : i.map.get(t) ?? null
+        let i = jR.get(resolveEventIdIndexPath(e));
+        return !i || !await Uu(i) ? null : i.map.get(t) ?? null
     }
     let r;
     try {

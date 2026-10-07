@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderJobAcceptanceBlock  (minified: xrt, daemon.pretty.js:55080)
+// symbol: renderJobAcceptanceBlock  (minified: _ot, daemon.pretty.js:55396)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

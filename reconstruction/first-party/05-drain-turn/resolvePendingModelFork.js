@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: resolvePendingModelFork  (minified: Ift, daemon.pretty.js:72310)
+// symbol: resolvePendingModelFork  (minified: cht, daemon.pretty.js:72612)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -19,7 +19,7 @@ async function resolvePendingModelFork(e, t, n) {
     };
     n.runtime === "codex" && !n.statelessJob ? (!n.sessionInfo.forkFrom && n.sessionInfo.sessionId ? await r({
         pending_fork_to: n.sessionInfo.sessionId
-    }) && (n.sessionInfo.forkFrom = n.sessionInfo.sessionId) : await r(), te("[runner] resolved pending_model_fork at codex drain start", {
+    }) && (n.sessionInfo.forkFrom = n.sessionInfo.sessionId) : await r(), ee("[runner] resolved pending_model_fork at codex drain start", {
         sessionKey: t,
         forkFrom: n.sessionInfo.forkFrom ?? "(no fork this drain)",
         model: n.sessionInfo.model ?? "(runtime default)"

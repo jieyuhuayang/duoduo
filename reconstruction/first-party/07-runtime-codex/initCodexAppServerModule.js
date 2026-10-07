@@ -1,17 +1,17 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: initCodexAppServerModule  (minified: Df, daemon.pretty.js:62719)
+// symbol: initCodexAppServerModule  (minified: Gf, daemon.pretty.js:63038)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule = O(() => {
+var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule = O(() => {
     "use strict";
-    Fl();
-    dt();
+    Ql();
+    pt();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    ALADUO_TOOL_NAMESPACE = "aladuo", Pst = "features.code_mode.direct_only_tool_namespaces";
-    Ast = {
+    ALADUO_TOOL_NAMESPACE = "aladuo", kut = "features.code_mode.direct_only_tool_namespaces";
+    Iut = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -20,7 +20,7 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, a$ = class extends Tst {
+    }, BC = class extends Sut {
         constructor(n, r, i) {
             super();
             this.binary = n;
@@ -36,7 +36,7 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = Est(this.binary, ["app-server"], {
+            this.alive || (this.proc = but(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -52,8 +52,8 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
                 this.alive = !1;
                 let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
                 this.rejectAllPending(i)
-            }), this.rl = Ll(this.proc.stdout, n => this.handleLine(n)), Ll(this.proc.stderr, n => {
-                Re("[codex-stderr]", n)
+            }), this.rl = Xl(this.proc.stdout, n => this.handleLine(n)), Xl(this.proc.stderr, n => {
+                ke("[codex-stderr]", n)
             }))
         }
         request(n, r, i) {
@@ -151,7 +151,7 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
             this.onToolCallSettled = n
         }
         handleServerRequest(n) {
-            if (Re("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
+            if (ke("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
                 let r = n.params,
                     i = r?.tool,
                     o = r?.arguments ?? {},
@@ -213,5 +213,5 @@ var ALADUO_TOOL_NAMESPACE, Pst, EV, RV, Ast, a$, Lye, initCodexAppServerModule =
             for (let [r, i] of this.pending) i.reject(n), this.pending.delete(r)
         }
     };
-    Lye = new Set
+    obe = new Set
 });

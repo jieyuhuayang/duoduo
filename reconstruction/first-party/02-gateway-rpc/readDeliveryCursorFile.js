@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: readDeliveryCursorFile  (minified: k_e, daemon.pretty.js:64528)
+// symbol: readDeliveryCursorFile  (minified: Lbe, daemon.pretty.js:64431)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readDeliveryCursorFile(e, t, n) {
-    let r = S_e(e, t, n);
+    let r = jbe(e, t, n);
     try {
-        let i = await Mat.readFile(r, "utf8"),
+        let i = await vlt.readFile(r, "utf8"),
             o = JSON.parse(i);
         if (o.session_key !== t) return null;
         let s = typeof o.optimistic_last_outbox_id == "string" ? o.optimistic_last_outbox_id : typeof o.last_outbox_id == "string" ? o.last_outbox_id : void 0,

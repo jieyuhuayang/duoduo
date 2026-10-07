@@ -1,14 +1,14 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: buildBoardLintTarget  (minified: glt, daemon.pretty.js:66801)
+// symbol: buildBoardLintTarget  (minified: cdt, daemon.pretty.js:67073)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function buildBoardLintTarget(e, t, n, r) {
-    let i = fve(t, e),
-        o = Rn(r) ?? "",
-        s = S6.join(n.effectivenessDir, `${e}.md`),
-        a = Rn(s),
+    let i = Cwe(t, e),
+        o = Tn(r) ?? "",
+        s = wH.join(n.effectivenessDir, `${e}.md`),
+        a = Tn(s),
         u = "NO-EFF",
         l = 0,
         c = 0,
@@ -31,6 +31,6 @@ function buildBoardLintTarget(e, t, n, r) {
         verdict: f,
         fmt: classifyTopicNodeFormat(o),
         cls: classifyTopicNodeType(o),
-        dual: Ic(S6.join(n.entitiesDir, `${e}.md`))
+        dual: jc(wH.join(n.entitiesDir, `${e}.md`))
     }
 }
