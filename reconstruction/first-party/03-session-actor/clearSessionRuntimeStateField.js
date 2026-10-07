@@ -8,7 +8,7 @@ async function clearSessionRuntimeStateField(e, t, n) {
     let r = !1;
     await runWithSessionMutex(t, async () => {
         if (assertSessionNotArchiving(t), isSessionArchived(e, t)) {
-            ke("[session] skipping runtime-state field clear for tombstoned session", {
+            logDebugMessage("[session] skipping runtime-state field clear for tombstoned session", {
                 sessionKey: t
             });
             return
@@ -24,9 +24,9 @@ async function clearSessionRuntimeStateField(e, t, n) {
         let {
             [n]: s, ...a
         } = o;
-        await Bt(i, {
+        await writeJsonFileAtomic(i, {
             ...a,
             updated_at: new Date().toISOString()
         }), r = !0
-    }), r && th(t, "state")
+    }), r && notifySessionFileChanged(t, "state")
 }

@@ -19,6 +19,6 @@ async function renderSessionMailboxFile(e, t, n) {
     } catch {}
     r.push("");
     let o = resolveSessionMailboxMarkdownPath(e, t);
-    await Dt(o, r.join(`
+    await writeFileAtomic(o, r.join(`
 `))
 }

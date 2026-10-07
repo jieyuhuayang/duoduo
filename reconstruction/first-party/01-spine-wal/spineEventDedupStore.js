@@ -12,13 +12,13 @@ var spineEventDedupStore = class {
         this.filePath = t
     }
     async ensureLoaded() {
-        await zu(this.cache, () => this.load(), () => this.entries.clear())
+        await memoizeIndexLoad(this.cache, () => this.load(), () => this.entries.clear())
     }
     async load() {
         let t = 0;
         try {
             let n = vYe(this.filePath);
-            for await (let r of gs(n)) {
+            for await (let r of iterateStreamLines(n)) {
                 if (!r.trim()) continue;
                 let i;
                 try {
@@ -37,7 +37,7 @@ var spineEventDedupStore = class {
             if (n.code === "ENOENT") return;
             throw n
         }
-        t > 0 && Z(`[spine] dedup store ${this.filePath}: skipped ${t} unreadable line(s)`)
+        t > 0 && logWarnMessage(`[spine] dedup store ${this.filePath}: skipped ${t} unreadable line(s)`)
     }
     has(t) {
         return this.entries.has(t)
@@ -46,7 +46,7 @@ var spineEventDedupStore = class {
         return this.entries.get(t)
     }
     async record(t) {
-        this.entries.set(t.key, t), await Ne(SYe.dirname(this.filePath));
+        this.entries.set(t.key, t), await ensureDirectoryExists(SYe.dirname(this.filePath));
         let n = `${JSON.stringify(t)}
 `;
         await wYe.appendFile(this.filePath, n)

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function classifyTopicNodeFormat(e) {
-    for (let t of Jo(e)) {
+    for (let t of splitLinesDropTrailingEmpty(e)) {
         let n = /^# (Pattern|Lesson|Groove):/.exec(t);
         if (n) return n[1] === "Pattern" ? "legacy" : n[1] === "Lesson" ? "lesson" : "groove"
     }

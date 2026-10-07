@@ -46,7 +46,7 @@ Content-Length: 0\r
         }
         runWithSessionMutex(S, async () => {
             if (!isSessionArchiving(S)) try {
-                let [A, $] = await Promise.all([rt(u, S), na(u, S)]);
+                let [A, $] = await Promise.all([readSessionRuntimeState(u, S), readSessionMetaFile(u, S)]);
                 lq(d, S, A, $)
             } catch {}
         }).catch(() => {})
@@ -70,7 +70,7 @@ Content-Length: 0\r
         _ = new Map,
         E = new Set(["spine.tail", "system.status", "usage.get", "job.list"]);
     async function R(S, D) {
-        (E.has(S.method) ? _ae : ke)("[daemon] rpc request", {
+        (E.has(S.method) ? _ae : logDebugMessage)("[daemon] rpc request", {
             id: S.id ?? null,
             method: S.method,
             session_key: typeof S.params == "object" && S.params !== null ? S.params.session_key : void 0,
@@ -86,13 +86,13 @@ Content-Length: 0\r
                 worker_token: x,
                 ...M
             } = S.params;
-            if (C = iye(x), !C) return Z("[daemon] rejected pi worker RPC: unknown token", {
+            if (C = iye(x), !C) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
                 method: S.method
             }), $.error = {
                 code: -32001,
                 message: "invalid pi worker token"
             }, $;
-            if (!rye.has(S.method)) return Z("[daemon] rejected pi worker RPC: method not whitelisted", {
+            if (!rye.has(S.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
                 method: S.method,
                 session_key: C.session_key
             }), $.error = {
@@ -159,12 +159,12 @@ Content-Length: 0\r
                 ok: !0
             }, $.__triggerShutdown = !0;
             else if (S.method === "system.runtime.info") {
-                if (!rR(S.params)) throw new Tt("Invalid params");
-                if (!isDaemonRuntimeInfo(m)) throw new Error("invalid runtime info");
+                if (!isRuntimeInfoParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                if (!isSystemRuntimeInfo(m)) throw new Error("invalid runtime info");
                 let x = S.params ?? {};
                 if (x.source_kind) {
                     let F = {
-                        new_session_workspace: (await ru(u, {
+                        new_session_workspace: (await resolveEffectiveChannelConfig(u, {
                             channel_kind: x.source_kind
                         }))?.new_session_workspace
                     };
@@ -174,34 +174,34 @@ Content-Length: 0\r
                     }
                 } else $.result = m
             } else if (S.method === "channel.describe") {
-                if (!SR(S.params)) throw new Tt("Invalid params");
+                if (!isChannelDescribeParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await describeChannelInstance(u, d, x)
             } else if (S.method === "session.archive") {
-                if (!iR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionArchiveParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await archiveSessionIfQuiescent(u, e.sessionManager, d, x)
             } else if (S.method === "session.list") {
-                if (!oR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionListParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params ?? {};
                 $.result = await listSessionIndexSummaries(d, c, x, u)
             } else if (S.method === "session.set_alias") {
-                if (!sR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionSetAliasParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await setSessionAliasAndReindex(u, d, x)
             } else if (S.method === "session.notify") {
-                if (!uR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionNotifyParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await deliverExternalSessionNotify(u, l, d, x)
             } else if (S.method === "session.wake") {
-                if (!aR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionWakeParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 $.result = await scheduleSessionWakeRecord(u, d, S.params)
             } else if (S.method === "job.manage" || S.method === "session.manage" || S.method === "notify.send" || S.method === "wake.set") {
                 if (!C) return $.error = {
                     code: -32001,
                     message: `${S.method} requires a pi worker token`
                 }, $;
-                if (typeof S.params != "object" || S.params === null) throw new Tt("Invalid params");
+                if (typeof S.params != "object" || S.params === null) throw new JsonRpcInvalidParamsError("Invalid params");
                 if (S.method === "job.manage") {
                     let x = await runManageJobTool(S.params, {
                         paths: u,
@@ -244,27 +244,27 @@ Content-Length: 0\r
                     }
                 }
             } else if (S.method === "session.model") {
-                if (!lR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionModelParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await readOrSetSessionModel(d, N, x)
             } else if (S.method === "session.effort") {
-                if (!cR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionEffortParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await readOrSetSessionEffort(d, N, x)
             } else if (S.method === "session.compact") {
-                if (!dR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionCompactParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await enqueueSessionCompactCommand(u, l, d, N, x)
             } else if (S.method === "session.config") {
-                if (!fR(S.params)) throw new Tt("Invalid params");
+                if (!isSessionConfigParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await applySessionConfigVerb(u, d, x)
             } else if (S.method === "channel.spawn") {
-                if (!kR(S.params)) throw new Tt("Invalid params");
+                if (!isChannelSpawnParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 $.result = await upsertChannelSpawnDescriptor(u, d, x)
             } else if (S.method === "channel.ingress") {
-                if (!yR(S.params)) throw new Tt("Invalid params");
+                if (!isChannelIngressParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 if (assertWsChannelIdentityParams("channel.ingress", x, D), isSessionArchiving(x.session_key)) return $.error = {
                     code: -32011,
@@ -300,14 +300,14 @@ Content-Length: 0\r
                     bus: l,
                     gatewayCommands: N
                 });
-                go("ingress_received", J.event.id, {
+                logLatencyStageTelemetry("ingress_received", J.event.id, {
                     sessionKey: x.session_key
                 }), J.routing.enqueued && l.emit("session.wake", {
                     sessionKey: x.session_key,
                     displayName: x.display_name,
                     preempt: resolvePreemptFromCommandText(x.text)
                 });
-                let ce = cS(M) ? F.effectiveConfig?.kind_config : void 0,
+                let ce = isBusinessSourceKind(M) ? F.effectiveConfig?.kind_config : void 0,
                     ie = {
                         event_id: J.event.id,
                         gateway_response: J.gatewayResponse,
@@ -318,7 +318,7 @@ Content-Length: 0\r
                     };
                 $.result = ie
             } else if (S.method === "channel.command") {
-                if (!vR(S.params)) throw new Tt("Invalid params");
+                if (!isChannelCommandParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 if (assertWsChannelIdentityParams("channel.command", x, D), isSessionArchiving(x.session_key)) return $.error = {
                     code: -32011,
@@ -362,7 +362,7 @@ Content-Length: 0\r
                     outbox_id: J.gatewayOutboxId
                 }
             } else if (S.method === "channel.file.upload") {
-                if (!_R(S.params)) throw new Tt("Invalid params");
+                if (!isChannelFileUploadParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
                     M = await bve(u, x.session_key, x.name, x.mime, x.content_base64, {
                         receivedVia: D?.wsSubscriberId ? "ws" : "rpc",
@@ -370,14 +370,14 @@ Content-Length: 0\r
                     });
                 $.result = M
             } else if (S.method === "channel.file.download") {
-                if (!bR(S.params)) throw new Tt("Invalid params");
+                if (!isChannelFileDownloadParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
                     M = await vve(x.path);
                 $.result = {
                     content_base64: M
                 }
             } else if (S.method === "channel.pull") {
-                if (!Mm(S.params)) throw new Tt("Invalid params");
+                if (!isChannelPullParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
                     M = x.consumer_id.trim(),
                     F = normalizeReturnMask(x.return_mask),
@@ -410,7 +410,7 @@ Content-Length: 0\r
                     idle: ce.length === 0
                 }
             } else if (S.method === "channel.ack") {
-                if (!wR(S.params)) throw new Tt("Invalid params");
+                if (!isChannelAckParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 if (isSessionArchiving(x.session_key)) return $.error = {
                     code: -32002,
@@ -444,7 +444,7 @@ Content-Length: 0\r
                     committed: !0
                 }
             } else if (S.method === "job.create") {
-                if (!isJobCreateParams(S.params)) throw new Tt("Invalid params");
+                if (!isJobCreateParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 await c.init(), await c.createJob(x.id, {
                     cron: x.cron,
@@ -468,7 +468,7 @@ Content-Length: 0\r
                     cron: x.cron
                 }
             } else if (S.method === "job.get") {
-                if (!ER(S.params)) throw new Tt("Invalid params");
+                if (!isJobGetParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 await c.init();
                 let M = await c.getWakeRecord(x.id).catch(() => null);
@@ -483,7 +483,7 @@ Content-Length: 0\r
                 }, $;
                 let F = await c.classifyActiveJob(x.id);
                 if (F.kind === "active") $.result = {
-                    ...Wf(F.job),
+                    ...redactJobModelProfileTokens(F.job),
                     kind: "active"
                 };
                 else if (F.kind === "invalid") $.error = {
@@ -493,7 +493,7 @@ Content-Length: 0\r
                 else {
                     let J = await c.getArchivedJob(x.id);
                     J ? $.result = {
-                        ...Wf(J),
+                        ...redactJobModelProfileTokens(J),
                         kind: "archived",
                         archived: !0
                     } : $.error = {
@@ -502,7 +502,7 @@ Content-Length: 0\r
                     }
                 }
             } else if (S.method === "job.list") {
-                if (!RR(S.params)) throw new Tt("Invalid params");
+                if (!isJobListParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 await c.init();
                 let x = ibe(await c.listJobs()).map(J => ({
                         type: "job",
@@ -526,27 +526,27 @@ Content-Length: 0\r
                     jobs: [...x, ...M]
                 }
             } else if (S.method === "job.archive") {
-                if (!IR(S.params)) throw new Tt("Invalid params");
+                if (!isJobArchiveParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params;
                 await c.init();
                 let M = await c.getJob(x.id),
                     F = await c.archiveJob(x.id),
-                    J = M?.session_key ?? Cc({
+                    J = M?.session_key ?? buildJobSessionKey({
                         jobId: x.id,
                         cron: M?.frontmatter.cron,
                         cwdRel: M?.frontmatter.cwd_rel
                     });
-                await Ob(u, J), $.result = {
+                await moveSessionDirToArchive(u, J), $.result = {
                     id: x.id,
                     archived: !0,
                     session_key: J,
                     sidecar_orphan_path: F.sidecarOrphanPath ?? null
                 }
             } else if (S.method === "job.reschedule") {
-                if (!TR(S.params)) throw new Tt("Invalid params");
+                if (!isJobRescheduleParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
                     M = x.when.trim();
-                if (!M) throw new Tt("job.reschedule requires a non-empty 'when': '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone.");
+                if (!M) throw new JsonRpcInvalidParamsError("job.reschedule requires a non-empty 'when': '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone.");
                 await c.init();
                 let F = await c.getJob(x.id),
                     J = await c.rescheduleJob(x.id, M);
@@ -556,10 +556,10 @@ Content-Length: 0\r
                     cron: F?.frontmatter.cron ?? null
                 }
             } else if (S.method === "job.interrupt") {
-                if (!PR(S.params)) throw new Tt("Invalid params");
+                if (!isJobInterruptParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
                     M = x.reason.trim();
-                if (!M) throw new Tt("job.interrupt requires a non-empty 'reason' — it is what the interrupted session is told.");
+                if (!M) throw new JsonRpcInvalidParamsError("job.interrupt requires a non-empty 'reason' — it is what the interrupted session is told.");
                 await c.init();
                 let F = await c.getJob(x.id) ?? await c.getArchivedJob(x.id);
                 if (!F) $.error = {
@@ -621,8 +621,8 @@ Content-Length: 0\r
                     }
                 }
             } else if (S.method === "system.status") {
-                if (!$R(S.params)) throw new Tt("Invalid params");
-                let [x, M] = await Promise.all([Mb(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
+                if (!isSystemStatusParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let [x, M] = await Promise.all([readRegistryStatusFile(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
                     let K = ne?.last_served_model ?? null,
                         te = ne?.model ?? null;
                     return {
@@ -630,7 +630,7 @@ Content-Length: 0\r
                         pending: te !== null && te !== K ? te : null
                     }
                 }, se = async ne => classifySessionKeyKind(ne) !== "channel" ? {} : {
-                    last_cursor_advance_at: await tO(u, ne),
+                    last_cursor_advance_at: await readLatestDeliveryCursorUpdate(u, ne),
                     final_subscriber_count: h.finalSubscriberCount(ne)
                 };
                 if (J)
@@ -689,10 +689,10 @@ Content-Length: 0\r
                 };
                 $.result = j
             } else if (S.method === "system.config") {
-                if (!CR(S.params)) throw new Tt("Invalid params");
+                if (!isSystemConfigParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 $.result = await buildSystemConfigReport(u)
             } else if (S.method === "spine.tail") {
-                if (!OR(S.params)) throw new Tt("Invalid params");
+                if (!isSpineTailParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params ?? {},
                     M = await readSpineTail(u, {
                         limit: x.limit,
@@ -704,10 +704,10 @@ Content-Length: 0\r
                 message: "Method not found"
             }
         } catch (x) {
-            x instanceof Tt ? $.error = {
+            x instanceof JsonRpcInvalidParamsError ? $.error = {
                 code: x.code,
                 message: x.message
-            } : x instanceof Uc || x instanceof tp ? $.error = {
+            } : x instanceof MemoryReadRpcError || x instanceof SpineRpcParamsError ? $.error = {
                 code: -32602,
                 message: x.message
             } : x instanceof xb ? $.error = {
@@ -732,10 +732,10 @@ Content-Length: 0\r
             S.addHook("onRequest", async (x, M) => {
                 let F = x.headers.authorization,
                     J = typeof F == "string" && F.startsWith("Bearer ") ? F.slice(7).trim() : "";
-                if (!J) return Z("[daemon] rejected request: missing/invalid bearer", {
+                if (!J) return logWarnMessage("[daemon] rejected request: missing/invalid bearer", {
                     url: x.url
                 }), a(x, M);
-                if (!AN.timingSafeEqual(C(J), N)) return Z("[daemon] rejected request: bearer mismatch", {
+                if (!AN.timingSafeEqual(C(J), N)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
                     url: x.url
                 }), a(x, M)
             })
@@ -746,19 +746,19 @@ Content-Length: 0\r
             let M = C.url ?? "",
                 F = C.headers.host,
                 J = F ? _vt(F) : null;
-            if (!J || !i.has(J)) return Z("[daemon] rejected request: Host header not allowed", {
+            if (!J || !i.has(J)) return logWarnMessage("[daemon] rejected request: Host header not allowed", {
                 url: M,
                 host: F ?? null
             }), s(C, N, "Host header not allowed");
             let ce = C.headers.origin;
             if (ce !== void 0) {
                 let ie = bvt(ce);
-                if (!ie || !i.has(ie)) return Z("[daemon] rejected request: Origin not allowed", {
+                if (!ie || !i.has(ie)) return logWarnMessage("[daemon] rejected request: Origin not allowed", {
                     url: M,
                     origin: ce
                 }), s(C, N, "Origin not allowed")
             }
-        }), A ? S.get("/ws", async (C, N) => (Z("[daemon] pre-hardening client dialed /ws on the read-only port", {
+        }), A ? S.get("/ws", async (C, N) => (logWarnMessage("[daemon] pre-hardening client dialed /ws on the read-only port", {
             remote_address: C.ip,
             user_agent: C.headers["user-agent"] ?? null
         }), N.code(426).header("connection", "close").send({
@@ -779,10 +779,10 @@ Content-Length: 0\r
             status: "not_ready"
         })), S.post("/rpc", async (C, N) => {
             let x = C.body;
-            if (!isJsonRpcRequest(x)) return Z("[daemon] invalid JSON-RPC request"), N.code(400).send({
+            if (!isJsonRpcRequest(x)) return logWarnMessage("[daemon] invalid JSON-RPC request"), N.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
-            if (A && !zbt.has(x.method)) return Z("[daemon] rejected write method on read-only port", {
+            if (A && !zbt.has(x.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
                 method: x.method,
                 id: x.id ?? null
             }), N.code(200).send({
@@ -805,7 +805,7 @@ Content-Length: 0\r
                     F = "",
                     J = !1,
                     ce = null;
-                ee("[daemon] ws connected", {
+                logInfoMessage("[daemon] ws connected", {
                     subscriberId: x
                 });
                 let ie = (j, ne = !0) => {
@@ -824,7 +824,7 @@ Content-Length: 0\r
                                 if (!F) return;
                                 let G = F,
                                     q = (b.get(x) ?? Promise.resolve()).then(() => advanceOptimisticDeliveryCursor(u, te, G, B).catch(pe => {
-                                        Z("[daemon] failed to advance delivery cursor", {
+                                        logWarnMessage("[daemon] failed to advance delivery cursor", {
                                             subscriberId: x,
                                             sessionKey: te,
                                             consumerId: G,
@@ -869,12 +869,12 @@ Content-Length: 0\r
                             te = null,
                             B = "",
                             G;
-                        if (ne.method === "channel.pull" && K.result && !K.error && Mm(ne.params)) {
+                        if (ne.method === "channel.pull" && K.result && !K.error && isChannelPullParams(ne.params)) {
                             let q = ne.params,
                                 pe = q.session_key,
                                 fe = q.consumer_id.trim(),
                                 Se = normalizeReturnMask(q.return_mask);
-                            M && h.unsubscribe(x), M = pe, F = fe, J = q.advance === "ack", te = pe, B = fe, G = q.cursor, ee("[daemon] ws pull stream opened", {
+                            M && h.unsubscribe(x), M = pe, F = fe, J = q.advance === "ack", te = pe, B = fe, G = q.cursor, logInfoMessage("[daemon] ws pull stream opened", {
                                 subscriberId: x,
                                 sessionKey: pe,
                                 consumerId: fe
@@ -892,7 +892,7 @@ Content-Length: 0\r
                             })
                         }
                         if (te) {
-                            let q = Mm(ne.params) ? ne.params : void 0;
+                            let q = isChannelPullParams(ne.params) ? ne.params : void 0;
                             if (!normalizeReturnMask(q?.return_mask).includes("final")) {
                                 ce = null, N.send(JSON.stringify(K));
                                 return
@@ -917,14 +917,14 @@ Content-Length: 0\r
                                         }), await recordOutboxSentId(u, U.id)
                                     }
                                 });
-                                z > 0 && ke("[daemon] replayed outbox backlog", {
+                                z > 0 && logDebugMessage("[daemon] replayed outbox backlog", {
                                     subscriberId: x,
                                     sessionKey: Se,
                                     consumerId: B,
                                     replayed: z
                                 })
                             } catch (z) {
-                                Z("[daemon] backlog replay failed", {
+                                logWarnMessage("[daemon] backlog replay failed", {
                                     subscriberId: x,
                                     sessionKey: Se,
                                     consumerId: B,
@@ -938,7 +938,7 @@ Content-Length: 0\r
                     };
                 N.on("message", j => {
                     let ne = Ce(j).catch(B => {
-                            Z("[daemon] ws message handler failed", {
+                            logWarnMessage("[daemon] ws message handler failed", {
                                 subscriberId: x,
                                 error: String(B)
                             })
@@ -953,12 +953,12 @@ Content-Length: 0\r
                     M && h.unsubscribe(x)
                 };
                 N.on("close", () => {
-                    se(), ee("[daemon] ws closed", {
+                    se(), logInfoMessage("[daemon] ws closed", {
                         subscriberId: x,
                         sessionKey: M
                     })
                 }), N.on("error", () => {
-                    se(), Z("[daemon] ws error", {
+                    se(), logWarnMessage("[daemon] ws error", {
                         subscriberId: x,
                         sessionKey: M
                     })
@@ -1026,9 +1026,9 @@ Content-Length: 0\r
                 }), await r.listen({
                     port: D.port,
                     host: D.host
-                }), vt("info", `[daemon] remote full-access listener on ${D.host}:${D.port} (bearer-gated)`))
+                }), logAlwaysAtLevel("info", `[daemon] remote full-access listener on ${D.host}:${D.port} (bearer-gated)`))
             } catch (C) {
-                throw await t.close().catch(() => {}), await n.close().catch(() => {}), r && (await r.close().catch(() => {}), r = null), A && await zs.unlink(k).catch(() => {}), y && (await EO(u), y = !1), C
+                throw await t.close().catch(() => {}), await n.close().catch(() => {}), r && (await r.close().catch(() => {}), r = null), A && await zs.unlink(k).catch(() => {}), y && (await releaseRuntimeWriterLock(u), y = !1), C
             }
             let $ = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
             v = setInterval(() => {
@@ -1038,7 +1038,7 @@ Content-Length: 0\r
         async stop() {
             h.stop();
             let S = [t.close(), n.close()];
-            r && S.push(r.close()), await Promise.all(S), r = null, await Promise.allSettled(_.values()), await Promise.allSettled(b.values()), await zs.unlink(k).catch(() => {}), v && (clearInterval(v), v = null), y && (await EO(u), y = !1)
+            r && S.push(r.close()), await Promise.all(S), r = null, await Promise.allSettled(_.values()), await Promise.allSettled(b.values()), await zs.unlink(k).catch(() => {}), v && (clearInterval(v), v = null), y && (await releaseRuntimeWriterLock(u), y = !1)
         }
     }
 }

@@ -17,7 +17,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
     v6();
     zw();
     $r();
-    hut = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...eh("allowedTools"), ...eh("disallowedTools"), ...eh("additionalDirectories")];
+    hut = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
     UC = new Map;
     S6 = "gone", k6 = "stale", Br = class {
         constructor(t) {
@@ -43,7 +43,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             return Hf.join(this.archiveDir, `${Ig(t)}.state.json`)
         }
         async init() {
-            await Ne(this.activeDir), await Ne(this.archiveDir)
+            await ensureDirectoryExists(this.activeDir), await ensureDirectoryExists(this.archiveDir)
         }
         async createJob(t, n, r) {
             if (await this.init(), Ig(t), !n.cron || !n.cron.trim()) throw new Error(`Job ${t} has invalid cron schedule`);
@@ -68,18 +68,18 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             return await Oc(t, async () => {
                 if (await this.exists(t)) throw new Error(`Job ${t} already exists`);
                 if (await this.pathExists(this.getStatePath(t))) {
-                    let c = await Gd(this.getStatePath(t), this.archiveDir, ".orphan");
-                    l = c, Ue(`[JobManager] stale pre-existing sidecar quarantined at create for job ${t}: ${c}`)
+                    let c = await moveFileIntoDirectory(this.getStatePath(t), this.archiveDir, ".orphan");
+                    l = c, logErrorMessage(`[JobManager] stale pre-existing sidecar quarantined at create for job ${t}: ${c}`)
                 }
-                await Dt(this.getJobPath(t), u, lce(s.claudeModelProfiles) ? {
+                await writeFileAtomic(this.getJobPath(t), u, lce(s.claudeModelProfiles) ? {
                     mode: rc
-                } : {}), await Bt(this.getStatePath(t), qC())
+                } : {}), await writeJsonFileAtomic(this.getStatePath(t), qC())
             }), await ensureSessionDescriptorAndStateFiles(this.paths, {
                 session_key: a,
                 display_name: t,
                 kind: "job",
                 owner_session: s.owner_session
-            }), ee(`[JobManager] Created job ${t}`, {
+            }), logInfoMessage(`[JobManager] Created job ${t}`, {
                 cron: n.cron
             }), {
                 staleSidecarQuarantined: l
@@ -91,10 +91,10 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 if (!await this.exists(t)) throw await this.pathExists(this.getArchiveJobPath(t)) ? new Error(`Job ${t} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${t} not found`);
                 let o = this.getStatePath(t),
                     s = await this.readStateStrict(o);
-                return await Bt(o, {
+                return await writeJsonFileAtomic(o, {
                     ...s,
                     run_at: i
-                }), ee(`[JobManager] Rescheduled job ${t}`, {
+                }), logInfoMessage(`[JobManager] Rescheduled job ${t}`, {
                     run_at: i
                 }), i
             })
@@ -115,17 +115,17 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 if (s.code !== "ENOENT") {
                     try {
                         let u = await this.pathExists(o) ? ".orphan" : "",
-                            l = await Gd(r, this.archiveDir, u);
-                        return Ue(`[JobManager] sidecar archive rename failed for job ${t}; sidecar moved to ${l} on immediate retry`, s), ee(`[JobManager] Archived job ${t}`), {}
+                            l = await moveFileIntoDirectory(r, this.archiveDir, u);
+                        return logErrorMessage(`[JobManager] sidecar archive rename failed for job ${t}; sidecar moved to ${l} on immediate retry`, s), logInfoMessage(`[JobManager] Archived job ${t}`), {}
                     } catch (u) {
-                        Ue(`[JobManager] sidecar archive retry also failed for job ${t} — .md archived anyway (degraded cancel), orphan sidecar left at ${r}`, u)
+                        logErrorMessage(`[JobManager] sidecar archive retry also failed for job ${t} — .md archived anyway (degraded cancel), orphan sidecar left at ${r}`, u)
                     }
                     return {
                         sidecarOrphanPath: r
                     }
                 }
             }
-            return ee(`[JobManager] Archived job ${t}`), {}
+            return logInfoMessage(`[JobManager] Archived job ${t}`), {}
         }
         async renameSidecarOrRollback(t, n, r, i, o) {
             try {
@@ -135,7 +135,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 try {
                     await Wo.rename(i, o)
                 } catch (u) {
-                    Ue(`[JobManager] sidecar-rename rollback failed for job ${t}`, u)
+                    logErrorMessage(`[JobManager] sidecar-rename rollback failed for job ${t}`, u)
                 }
                 throw s
             }
@@ -147,7 +147,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 return typeof n.run_at == "string" && n.run_at.length > 0 ? {
                     archived: !1,
                     runAt: n.run_at
-                } : (await Wo.rename(this.getJobPath(t), this.getArchiveJobPath(t)), await this.renameSidecarOrRollback(t, this.getStatePath(t), this.getArchiveStatePath(t), this.getArchiveJobPath(t), this.getJobPath(t)), ee(`[JobManager] Archived job ${t} (finalize auto-archive, not re-armed)`), {
+                } : (await Wo.rename(this.getJobPath(t), this.getArchiveJobPath(t)), await this.renameSidecarOrRollback(t, this.getStatePath(t), this.getArchiveStatePath(t), this.getArchiveJobPath(t), this.getJobPath(t)), logInfoMessage(`[JobManager] Archived job ${t} (finalize auto-archive, not re-armed)`), {
                     archived: !0,
                     runAt: null
                 })
@@ -169,10 +169,10 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
 `);
             for (let u = 0;; u++) {
                 let l = u === 0 ? o : `${o}-${u}`;
-                if (Ig(l), await Oc(l, async () => await this.exists(l) ? !1 : (await Dt(this.getJobPath(l), a), await Bt(this.getStatePath(l), {
+                if (Ig(l), await Oc(l, async () => await this.exists(l) ? !1 : (await writeFileAtomic(this.getJobPath(l), a), await writeJsonFileAtomic(this.getStatePath(l), {
                         ...qC(),
                         run_at: r
-                    }), !0))) return ee(`[JobManager] Created wake record ${l}`, {
+                    }), !0))) return logInfoMessage(`[JobManager] Created wake record ${l}`, {
                     owner: i,
                     run_at: r
                 }), {
@@ -216,7 +216,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             try {
                 t = (await Wo.readdir(this.activeDir)).filter(r => r.endsWith(".md"))
             } catch (r) {
-                return Ue("[JobManager] Failed to list wake records", r), []
+                return logErrorMessage("[JobManager] Failed to list wake records", r), []
             }
             let n = [];
             for (let r of t) {
@@ -225,9 +225,9 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                     let o = await this.getWakeRecord(i);
                     o && n.push(o)
                 } catch (o) {
-                    Ue(`[JobManager] Skipping unreadable record ${i} while listing wakes`, {
+                    logErrorMessage(`[JobManager] Skipping unreadable record ${i} while listing wakes`, {
                         jobId: i,
-                        error: Wi(o)
+                        error: formatYamlErrorMessage(o)
                     })
                 }
             }
@@ -275,7 +275,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             } catch (i) {
                 return {
                     kind: "invalid",
-                    reason: `frontmatter does not parse: ${Wi(i)}`
+                    reason: `frontmatter does not parse: ${formatYamlErrorMessage(i)}`
                 }
             }
             return r ? {
@@ -292,7 +292,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 return await this.buildJobDefinition(t, n, r, i)
             } catch (i) {
                 if (i.code === "ENOENT") return null;
-                throw new Error(Wi(i))
+                throw new Error(formatYamlErrorMessage(i))
             }
         }
         async buildJobDefinition(t, n, r, i) {
@@ -301,7 +301,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 content: s
             } = parseJobFileFrontmatter(i, n);
             if (o.type === "wake") return null;
-            if (!o.type || o.type !== "job") return Ue(`[JobManager] Invalid job file ${t}: missing type=job`), null;
+            if (!o.type || o.type !== "job") return logErrorMessage(`[JobManager] Invalid job file ${t}: missing type=job`), null;
             let u;
             try {
                 let d = await Wo.readFile(r, "utf8");
@@ -335,7 +335,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             try {
                 t = (await Wo.readdir(this.activeDir)).filter(o => o.endsWith(".md"))
             } catch (i) {
-                return Ue("[JobManager] Failed to list jobs", i), []
+                return logErrorMessage("[JobManager] Failed to list jobs", i), []
             }
             let n = [],
                 r = [];
@@ -345,13 +345,13 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                     let s = await this.getJob(o);
                     s && n.push(s)
                 } catch (s) {
-                    r.push(o), Ue(`[JobManager] Skipping unreadable job file ${o} — the other jobs still load`, {
+                    r.push(o), logErrorMessage(`[JobManager] Skipping unreadable job file ${o} — the other jobs still load`, {
                         jobId: o,
-                        error: Wi(s)
+                        error: formatYamlErrorMessage(s)
                     })
                 }
             }
-            return r.length > 0 && Ue(`[JobManager] ${r.length} job file(s) failed to parse and are NOT scheduled: ${r.join(", ")}`), n
+            return r.length > 0 && logErrorMessage(`[JobManager] ${r.length} job file(s) failed to parse and are NOT scheduled: ${r.join(", ")}`), n
         }
         async updateState(t, n, r) {
             await Oc(t, async () => {
@@ -363,7 +363,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                         a = r.expectedClaimCursor ?? null;
                     if (s !== a) return
                 }
-                await Bt(i, {
+                await writeJsonFileAtomic(i, {
                     ...o,
                     ...n
                 })
@@ -388,7 +388,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                         u = s.last_scheduled_at ? new Date(s.last_scheduled_at).getTime() : Number.NaN;
                     Number.isFinite(a) && Number.isFinite(u) && a <= u && (s.run_at = null)
                 }
-                return await Bt(i, s), {
+                return await writeJsonFileAtomic(i, s), {
                     run_at: s.run_at ?? null
                 }
             })
@@ -396,10 +396,10 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
         async quarantineOrphanSidecarIfPresent(t) {
             let n = this.getStatePath(t);
             if (await this.pathExists(n)) try {
-                let r = await Gd(n, this.archiveDir, ".orphan");
-                Ue(`[JobManager] orphan sidecar quarantined for job ${t} (no active .md): ${r}`)
+                let r = await moveFileIntoDirectory(n, this.archiveDir, ".orphan");
+                logErrorMessage(`[JobManager] orphan sidecar quarantined for job ${t} (no active .md): ${r}`)
             } catch (r) {
-                Ue(`[JobManager] failed to quarantine orphan sidecar for job ${t}`, r)
+                logErrorMessage(`[JobManager] failed to quarantine orphan sidecar for job ${t}`, r)
             }
         }
         async readStateStrict(t) {
@@ -414,10 +414,10 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 return JSON.parse(n)
             } catch (r) {
                 try {
-                    let i = await Gd(t, Hf.dirname(t), `.corrupt-${Date.now()}`);
-                    Ue(`[JobManager] corrupt state sidecar quarantined: ${t} → ${i}`, r)
+                    let i = await moveFileIntoDirectory(t, Hf.dirname(t), `.corrupt-${Date.now()}`);
+                    logErrorMessage(`[JobManager] corrupt state sidecar quarantined: ${t} → ${i}`, r)
                 } catch (i) {
-                    Ue(`[JobManager] failed to quarantine corrupt sidecar: ${t}`, i)
+                    logErrorMessage(`[JobManager] failed to quarantine corrupt sidecar: ${t}`, i)
                 }
                 return qC()
             }
@@ -434,7 +434,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             return this.pathExists(this.getJobPath(t))
         }
         buildSessionKey(t, n) {
-            return Cc({
+            return buildJobSessionKey({
                 jobId: t,
                 cron: n.cron,
                 cwdRel: n.cwd_rel

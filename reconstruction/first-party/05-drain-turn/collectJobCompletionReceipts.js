@@ -9,7 +9,7 @@ async function collectJobCompletionReceipts(e, t, n, r, i) {
         s = [];
     for (let u of n) {
         if (!u.eventId) continue;
-        let l = await Hxe(e, u, r, i);
+        let l = await loadDrainItemEventCached(e, u, r, i);
         if (!l) continue;
         let c = extractJobCompletionJobId(l);
         if (!c) continue;

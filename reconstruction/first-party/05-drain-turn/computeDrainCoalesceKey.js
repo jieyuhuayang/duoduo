@@ -8,6 +8,6 @@ function computeDrainCoalesceKey(e, t, n) {
     let {
         primaryTargetSessionKey: r,
         fanoutTargets: i
-    } = Xxe(e, t, n);
+    } = resolveReplyTargetSessionKeys(e, t, n);
     return `${r}|${i.join(",")}|${resolveEventSourceChannelId(t)}`
 }

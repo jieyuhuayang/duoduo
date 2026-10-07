@@ -5,6 +5,6 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendTelemetryRecord(e, t) {
-    await Ne(e.telemetryDir), await pYe.appendFile(gYe(e, t.ts), `${JSON.stringify(t)}
+    await ensureDirectoryExists(e.telemetryDir), await pYe.appendFile(gYe(e, t.ts), `${JSON.stringify(t)}
 `, "utf8")
 }

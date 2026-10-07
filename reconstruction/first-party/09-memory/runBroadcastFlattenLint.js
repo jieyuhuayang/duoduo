@@ -6,7 +6,7 @@
 
 function runBroadcastFlattenLint(e) {
     let t = resolveMemoryDirs(e),
-        n = Tn(t.boardPath);
+        n = readMemoryFileSyncOrNull(t.boardPath);
     if (n === null) return {
         selected: [],
         headings: []

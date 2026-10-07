@@ -28,7 +28,7 @@ async function migrateLegacyJobSessionKeys(e) {
                     l = await Hpt(e, s, u, n);
                 l === "migrated" ? t.migrated++ : l === "collision" ? t.collisions++ : t.skipped++
             } catch (a) {
-                t.errors++, Z("[job-key-migration] failed to migrate job session key", {
+                t.errors++, logWarnMessage("[job-key-migration] failed to migrate job session key", {
                     jobId: s,
                     scope: n,
                     error: a instanceof Error ? a.message : String(a)
@@ -36,5 +36,5 @@ async function migrateLegacyJobSessionKeys(e) {
             }
         }
     }
-    return (t.migrated > 0 || t.collisions > 0 || t.errors > 0) && ee("[job-key-migration] job session keys migrated off owner_session", t), t
+    return (t.migrated > 0 || t.collisions > 0 || t.errors > 0) && logInfoMessage("[job-key-migration] job session keys migrated off owner_session", t), t
 }

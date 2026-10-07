@@ -12,7 +12,7 @@ async function runQueueOutboundAttachmentTool(e, t) {
             i = Kg.isAbsolute(e.path) ? Kg.resolve(e.path) : Kg.resolve(r, e.path),
             o = await Nht.stat(i);
         if (!o.isFile()) throw new Error(`path is not a file: ${i}`);
-        let s = await rt(t.paths, n),
+        let s = await readSessionRuntimeState(t.paths, n),
             a = jht(n),
             {
                 acceptMime: u,
@@ -32,6 +32,6 @@ async function runQueueOutboundAttachmentTool(e, t) {
         })), ["Outbound attachment queued.", `- session_key: ${n}`, `- path: ${i}`, `- mime: ${c}`, `- size_bytes: ${o.size}`, `- accept_mime: ${u.join(", ")}`].join(`
 `)
     } catch (n) {
-        return Ue("[QueueOutboundAttachment] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
+        return logErrorMessage("[QueueOutboundAttachment] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
     }
 }

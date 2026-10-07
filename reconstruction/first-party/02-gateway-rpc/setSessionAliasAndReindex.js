@@ -12,11 +12,11 @@ async function setSessionAliasAndReindex(e, t, n) {
         reason: "not_found",
         session_key: r
     };
-    await kIe(e, t, r);
+    await refreshSessionIndexEntry(e, t, r);
     let o = t.get(r);
     return {
         ok: !0,
         session_key: r,
-        display_name: Zf(o ?? i) ? o?.display_name ?? i.display_name ?? null : null
+        display_name: hasNonEmptyDisplayName(o ?? i) ? o?.display_name ?? i.display_name ?? null : null
     }
 }

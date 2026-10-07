@@ -27,12 +27,12 @@ async function describeChannelInstance(e, t, n) {
         },
         p = !1;
     if (o && o.length > 0) {
-        let b = await rt(e, o);
+        let b = await readSessionRuntimeState(e, o);
         p = !!(b?.cwd?.trim() || b?.session_key || t.get(o) !== void 0)
     }
     let m = resolveLayeredChannelRuntime(null, d);
-    if (!sh(i)) {
-        if (!m.ok) throw new Tt(m.reason);
+    if (!isValidChannelId(i)) {
+        if (!m.ok) throw new JsonRpcInvalidParamsError(m.reason);
         return {
             configured: !1,
             session_exists: p,
@@ -40,9 +40,9 @@ async function describeChannelInstance(e, t, n) {
             kind_defaults: f
         }
     }
-    let h = await vs(e, i);
+    let h = await readChannelDescriptor(e, i);
     if (!h) {
-        if (!m.ok) throw new Tt(m.reason);
+        if (!m.ok) throw new JsonRpcInvalidParamsError(m.reason);
         return {
             configured: !1,
             session_exists: p,
@@ -51,10 +51,10 @@ async function describeChannelInstance(e, t, n) {
         }
     }
     let g = resolveLayeredChannelRuntime(h, d);
-    if (!g.ok) throw new Tt(g.reason);
+    if (!g.ok) throw new JsonRpcInvalidParamsError(g.reason);
     let y = h.new_session_workspace ?? d?.new_session_workspace,
         v;
-    return y && (v = await dp(y).catch(() => null) ?? so.resolve(y)), {
+    return y && (v = await resolveExistingDirRealpath(y).catch(() => null) ?? so.resolve(y)), {
         configured: !0,
         session_exists: p,
         descriptor: {

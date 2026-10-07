@@ -9,14 +9,14 @@ async function runDrainQueryAndCollectOutboundAttachments(e, t, n, r) {
         let i = await runDrainTurnWithResumeFallback(e, t, n, r),
             o = await readPendingOutboundAttachments(e, t),
             s = await bht(e, t, i.attachments),
-            a = Qxe(s, o);
-        return await gA(e, t), {
+            a = mergeOutboundAttachmentLists(s, o);
+        return await clearPendingOutboundAttachments(e, t), {
             sdkResult: i,
             outboundAttachments: a
         }
     } catch (i) {
         try {
-            await gA(e, t)
+            await clearPendingOutboundAttachments(e, t)
         } catch {}
         throw i
     }

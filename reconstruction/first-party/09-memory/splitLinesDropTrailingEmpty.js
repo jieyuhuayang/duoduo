@@ -1,0 +1,11 @@
+// duoduo reconstruction — subsystem: 09-memory
+// symbol: splitLinesDropTrailingEmpty  (minified: Jo, daemon.pretty.js:66814)
+// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// NOTE: readable extract from daemon.recon.js; references other top-level
+// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
+
+function splitLinesDropTrailingEmpty(e) {
+    let t = e.split(`
+`);
+    return t.length > 0 && t[t.length - 1] === "" && t.pop(), t
+}

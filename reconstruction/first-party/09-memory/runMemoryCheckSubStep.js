@@ -8,6 +8,6 @@ function runMemoryCheckSubStep(e, t) {
     try {
         return t(), !0
     } catch (n) {
-        return Ue(`[memory] check tick sub-step failed: ${e}`, n), !1
+        return logErrorMessage(`[memory] check tick sub-step failed: ${e}`, n), !1
     }
 }

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendBeforeExecuteGateway(e, t, n) {
-    t.sourceChannelId !== void 0 && ah(t.sourceChannelId);
+    t.sourceChannelId !== void 0 && assertValidChannelId(t.sourceChannelId);
     let r = createSpineEvent({
             type: t.eventType,
             source: {
@@ -96,7 +96,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         l, c, d = readRoutingTarget(r);
     if (d === "gateway") {
         let f = await replyToGatewayCommandEvent(e, r, n?.bus, n?.gatewayCommands);
-        l = f.responseText, c = f.outboxId, ke("[gateway] gateway-targeted event (no enqueue)", {
+        l = f.responseText, c = f.outboxId, logDebugMessage("[gateway] gateway-targeted event (no enqueue)", {
             id: r.id,
             type: r.type,
             intent: r.routing_hint?.intent,
@@ -106,9 +106,9 @@ async function appendBeforeExecuteGateway(e, t, n) {
     } else if (d === "meta") {
         let f = "meta:subconscious",
             p = `- [ ] @evt(${r.id})`;
-        a = await enqueueSessionInboxLine(e, f, p), u = !0, go("mailbox_enqueued", r.id, {
+        a = await enqueueSessionInboxLine(e, f, p), u = !0, logLatencyStageTelemetry("mailbox_enqueued", r.id, {
             sessionKey: f
-        }), ke("[gateway] meta-targeted event", {
+        }), logDebugMessage("[gateway] meta-targeted event", {
             id: r.id,
             type: r.type,
             raw_path: s,
@@ -116,7 +116,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         })
     } else if (await isVoidRuntimeSession(e, t.sessionKey, t.sourceChannelId)) {
         let f = typeof r.payload?.raw_command == "string" ? r.payload.raw_command : typeof r.payload?.command == "string" ? r.payload.command : t.text,
-            p = parseInjectionPromptCommand(f) !== void 0 || tv(f) !== void 0,
+            p = parseInjectionPromptCommand(f) !== void 0 || parseGatewayCommandText(f) !== void 0,
             m = await writeVoidSessionOutboxRecord(e, n?.bus, {
                 sessionKey: t.sessionKey,
                 text: p ? `${Ju} ${f} was not run.` : t.text,
@@ -126,7 +126,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
                     event_ts: r.ts
                 }
             });
-        p && (l = m.payload.text, c = m.id), ke("[gateway] void-session event (outbox, no enqueue)", {
+        p && (l = m.payload.text, c = m.id), logDebugMessage("[gateway] void-session event (outbox, no enqueue)", {
             id: r.id,
             type: r.type,
             session_key: t.sessionKey,
@@ -134,9 +134,9 @@ async function appendBeforeExecuteGateway(e, t, n) {
         })
     } else {
         let f = `- [ ] @evt(${r.id})`;
-        a = await enqueueSessionInboxLine(e, t.sessionKey, f), u = !0, go("mailbox_enqueued", r.id, {
+        a = await enqueueSessionInboxLine(e, t.sessionKey, f), u = !0, logLatencyStageTelemetry("mailbox_enqueued", r.id, {
             sessionKey: t.sessionKey
-        }), ke("[gateway] session-targeted event", {
+        }), logDebugMessage("[gateway] session-targeted event", {
             id: r.id,
             type: r.type,
             session_key: t.sessionKey,

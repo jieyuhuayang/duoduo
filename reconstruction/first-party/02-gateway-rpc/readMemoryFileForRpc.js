@@ -5,11 +5,11 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readMemoryFileForRpc(e, t) {
-    let n = nU(t);
-    if (n !== null) throw new Uc(Dm("memory.read", n));
+    let n = describeMemoryReadProblem(t);
+    if (n !== null) throw new MemoryReadRpcError(renderParamsProblem("memory.read", n));
     let r = t.path,
-        i = new Uc(`"${r}" is outside duoduo's memory`),
-        o = new Uc(`No file memory/${r}`),
+        i = new MemoryReadRpcError(`"${r}" is outside duoduo's memory`),
+        o = new MemoryReadRpcError(`No file memory/${r}`),
         s = YO.resolve(e.memoryDir, r);
     if (!XSe(e.memoryDir, s)) throw i;
     let a, u;
@@ -20,7 +20,7 @@ async function readMemoryFileForRpc(e, t) {
         throw c === "ENOENT" || c === "ENOTDIR" ? o : l
     }
     if (!XSe(a, u)) throw i;
-    if ((await KO.stat(u)).isDirectory()) throw new Uc(`memory/${r} is a directory`);
+    if ((await KO.stat(u)).isDirectory()) throw new MemoryReadRpcError(`memory/${r} is a directory`);
     return {
         path: r,
         text: await KO.readFile(u, "utf8")

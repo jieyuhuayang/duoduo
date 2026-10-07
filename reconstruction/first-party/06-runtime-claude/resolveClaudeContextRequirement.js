@@ -21,5 +21,5 @@ async function resolveClaudeContextRequirement(e) {
     return r.kind === "profiled-external" ? {
         ...r,
         modelOrigin: n.origin
-    } : Wg(r, e.issues).some(o => o.model !== void 0) ? r : t
+    } : selectProfileIssuesForModel(r, e.issues).some(o => o.model !== void 0) ? r : t
 }

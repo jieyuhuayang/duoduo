@@ -62,6 +62,8 @@
 
 新名字通过 `name_symbol.mjs` 登记，它在写入前完成上面所有规则以及以下检查，一批名字中任何一条不通过就什么都不写：bundle 正是 `maps/` 描述的那个版本（`bundle_guard.mjs`）；目标是可命名的三种代码之一，而且模块初始化器不能与另一个初始化器同形，常量与另一个常量同值时，两者的读取方必须能区分开，也不能在任何地方被重新赋值或经由属性写入（经由函数调用的写入，例如 `Object.assign`，它看不到）；目标还没有名字；目标是 first-party；名字按种类拼写、足够长（引用检查据此把它识别为真名），不作为变量名或全局名出现在 bundle 里，也不与任何 bundle 已有的真名重复；子系统是已有目录之一。通过后它把名字追加进 `inferred_daemon.json`，归入 `subsys_daemon.json`，只为新名字补一条 shape 基线（重新记录整个基线会把其他名字的漂移一并认可），并打印引用写法 `真名 (短名)`。
 
+**第四类证据是上游公开的同作者源码包。** `@openduo/duoduo` 只发布压缩 bundle，但同作者、同版本号的 `@openduo/protocol` 包直接发布 TypeScript 源码（`main` 指向 `src/index.ts`），内容是 daemon 与渠道适配器之间的 RPC 参数类型、参数校验函数、错误描述函数和常量。daemon 把这些函数和常量内联进 bundle，多数不保留名字。`match_published_source.mjs` 把该包每个顶层声明与 bundle 的顶层声明配对：不能用结构签名，因为 esbuild 的 `--minify-syntax` 会改写控制流（`if (…) return false; return true` 变成 `return !(…)`），所以只比较压缩器改不了的内容：字符串与数字字面量、非计算的属性名与对象键、全局名，加上函数的参数个数，按加权 Jaccard 打分；常量则按 `canonicalLiteral` 的规范形式，在赋值它们的模块初始化器里查找（esbuild 把模块的 `const X = <字面量>` 提升为 `var X` 加初始化器里的赋值，所以常量的名字落在初始化器上）。两条附加规则解决特征不够的情况：同一个源文件的声明在 bundle 里保持源码顺序，并夹在两个模块边界（`__esm` 初始化器或 `__commonJS` 包装）之间，所以唯一配对之间的空隙按顺序填补，前提是空隙里的函数数量与源码一致、参数个数相同，这解决了函数体完全相同的孪生体（`isJobGetParams` 与 `isJobArchiveParams`）和只含一次 `isRecord` 调用的薄函数；候选落在该文件的 bundle 区间之外时被排除（6000 行外的另一份 `isRecord` 是别的模块的副本）。`name_symbol.mjs --published <报告>` 把这类配对当作归属证据：登记的名字必须与报告里配对的上游名字相同，vendor 证据仍然优先拒绝；登记后写入 `maps/published_daemon.json`（真名 → 包、文件、行、配对方式），`RENAME_TABLE.md` 与可读树文件头据此标注 *published source*，读者因此能区分上游的拼写与本仓库的推断。在 v0.8.4 上，该包 73 个顶层声明里 34 个唯一配对、7 个按顺序配对、15 个常量落在 4 个初始化器里，另有两个已登记的推断名（`isRuntimeKind`、`isDaemonRuntimeInfo`）被改成上游的拼写（`isAgentRuntime`、`isSystemRuntimeInfo`）；其余的要么没有被 daemon 内联（渠道绑定相关的校验函数），要么被 esbuild 内联到调用点。
+
 first-party 的判定依据一条不对称关系：vendored 库不会按名字引用应用自身的代码。所以被 vendor 导出块导出、或直接间接被 vendor 代码引用的代码判为 vendor，这类证据在任何情况下都不能被覆盖；反过来，直接间接引用上游命名的 first-party 符号的代码判为 first-party，只经由已有推断名得到的证据会单独标出。判定以 esbuild 模块为单位，两个 `__esm` 初始化器之间的语句属于同一个模块、共享一个结论；同时带两种证据的模块被拒绝。代码在 bundle 里的位置只作参考、不作依据，因为它在两个方向上都会误判：vendored 库可以没有自己的导出块而位于 first-party 导出块之后，自研辅助函数也可以紧跟在 vendor 导出块之后。没有任何引用证据的条目，只有在人读过代码之后显式标注 allow-unproven 才能登记；这类断言记录在 `maps/inferred_daemon.asserted.json`（第一次断言时创建），并且不作为其他代码的证据，只经由人工断言的名字才连到 first-party 代码的条目，同样需要自己的 allow-unproven。
 
 ### 只处理 daemon 与 cli
@@ -169,7 +171,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | **符号的位置与结构签名** | `reconstruction/maps/symbols_<bundle>.json` |
 | **恢复出的导出名** | `maps/blocks_<bundle>.json`（按模块分组）、`maps/<bundle>.exports.json`（压平视图） |
 | **自研与第三方的判定** | `maps/modules_<bundle>.json`（逐 `__export` 块，即逐源模块） |
-| **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建） |
+| **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/published_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建） |
 | **遗留行号的上限** | `maps/bare_anchor_baseline.json` |
 | **本次产物的计数、检查结论与出厂字节哈希** | `maps/pipeline_report.json` |
 | **一键复现** | `reconstruction/tools/rebuild.sh` |
@@ -185,7 +187,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | 单版本还原 | `split.mjs` → `reassemble.mjs`；`export_blocks.mjs` → `build_rename.mjs` → `rename.mjs` → `ast_equiv.mjs` → `symbol_index.mjs`；由 `rebuild.sh` 串起，含美化步骤 |
 | 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs`、`exports_map.mjs` |
 | 产物检查与写入 | `build_rename.mjs` 的模块归属检查、`verify_inferred.mjs`、`verify_first_party.mjs`、`pipeline_report.mjs`、`promote.mjs` |
-| 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs` |
+| 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs`、`match_published_source.mjs` |
 | 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`plaintext_delta.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
 | 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs` |
 

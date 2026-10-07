@@ -85,7 +85,7 @@ function createCodexAppServerAdapter(e, t) {
                 g = buildBaseInstructions(t ?? {}, h),
                 y = buildDeveloperInstructions(t ?? {}, n.dynamicTools?.map(L => L.name)),
                 v = resolveCodexSandboxForPermissionMode(f.permissionMode, n.sandbox);
-            f.disallowedTools?.length && ke("[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled", {
+            f.disallowedTools?.length && logDebugMessage("[codex-adapter] disallowedTools ignored — Codex built-in tools cannot be disabled", {
                 disallowedTools: f.disallowedTools
             });
             let b = f.persistSession !== void 0 ? !f.persistSession : n.ephemeral,
@@ -142,7 +142,7 @@ function createCodexAppServerAdapter(e, t) {
                     return await r.request(S, D, f.abortController?.signal)
                 } catch (L) {
                     let z = L instanceof Error && L.name === "AbortError" || f.abortController?.signal.aborted === !0;
-                    if (S === "thread/fork" && !z) return ee("[codex-adapter] thread/fork failed, falling back to thread/start", {
+                    if (S === "thread/fork" && !z) return logInfoMessage("[codex-adapter] thread/fork failed, falling back to thread/start", {
                         cwd: m,
                         forkFrom: D.threadId,
                         error: L instanceof Error ? L.message : String(L)
@@ -153,7 +153,7 @@ function createCodexAppServerAdapter(e, t) {
             if (S === "thread/resume" && _ !== void 0 && _ !== null) {
                 let L = $.model,
                     z = $.thread.id;
-                L !== _ && (ee("[codex-adapter] resumed thread runs a different model; forking", {
+                L !== _ && (logInfoMessage("[codex-adapter] resumed thread runs a different model; forking", {
                     cwd: m,
                     resumedThreadId: z,
                     resumedModel: L,
@@ -178,7 +178,7 @@ function createCodexAppServerAdapter(e, t) {
                     if (!ne) return;
                     let z = extractCodexGeneratedImageAttachment(L);
                     if (!z) {
-                        !B && hasImageGenerationRecord(L) && (B = !0, Z("[codex] image-generation record present but no attachment extracted", {
+                        !B && hasImageGenerationRecord(L) && (B = !0, logWarnMessage("[codex] image-generation record present but no attachment extracted", {
                             threadId: x,
                             turnId: ne,
                             hint: "codex image-event schema may have changed (saved_path/result/type/wrapper-key)"
@@ -250,7 +250,7 @@ function createCodexAppServerAdapter(e, t) {
                                 case "error": {
                                     let qe = Ee.error?.message ?? "";
                                     if (/^(Reconnecting|Connecting)\b/.test(qe)) {
-                                        ee("[codex-transport] transient reconnect notice", {
+                                        logInfoMessage("[codex-transport] transient reconnect notice", {
                                             message: qe,
                                             threadId: x,
                                             turnId: ne
@@ -453,7 +453,7 @@ function createCodexAppServerAdapter(e, t) {
                     input: buildCodexTurnInput(f, m)
                 }, h.abortSignal), !0
             } catch (g) {
-                return ee("[codex] turn/steer failed — falling back to new turn", {
+                return logInfoMessage("[codex] turn/steer failed — falling back to new turn", {
                     threadId: h.threadId,
                     expectedTurnId: p,
                     error: g instanceof Error ? g.message : String(g)

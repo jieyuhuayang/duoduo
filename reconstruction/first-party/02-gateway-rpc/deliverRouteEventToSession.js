@@ -19,7 +19,7 @@ async function deliverRouteEventToSession(e, t, n) {
         walOnly: p,
         enqueueWithoutWake: m
     } = n;
-    if (isSessionArchiving(u)) return Z("[route] delivery refused: session is being archived", {
+    if (isSessionArchiving(u)) return logWarnMessage("[route] delivery refused: session is being archived", {
         traceId: r,
         routeId: i,
         sourceSessionKey: l,
@@ -31,7 +31,7 @@ async function deliverRouteEventToSession(e, t, n) {
         success: !1,
         error: "session_archiving"
     };
-    if (isSessionArchived(e, u)) return Z("[route] delivery refused: session archived", {
+    if (isSessionArchived(e, u)) return logWarnMessage("[route] delivery refused: session archived", {
         traceId: r,
         routeId: i,
         sourceSessionKey: l,
@@ -59,14 +59,14 @@ async function deliverRouteEventToSession(e, t, n) {
                 payload: d
             }
         });
-        if (await atomicAppendEvent(e, h), ke("[route] route event appended", {
+        if (await atomicAppendEvent(e, h), logDebugMessage("[route] route event appended", {
                 traceId: r,
                 routeId: i,
                 sourceSessionKey: l,
                 targetSessionKey: u,
                 sourceEventType: c,
                 eventId: h.id
-            }), p) return ke("[route] wal-only route event (no mailbox, no wake)", {
+            }), p) return logDebugMessage("[route] wal-only route event (no mailbox, no wake)", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,
@@ -92,7 +92,7 @@ async function deliverRouteEventToSession(e, t, n) {
                         source_session_key: l
                     }
                 });
-            return ke("[route] delivered to void session outbox (no mailbox, no wake)", {
+            return logDebugMessage("[route] delivered to void session outbox (no mailbox, no wake)", {
                 traceId: r,
                 routeId: i,
                 sourceSessionKey: l,
@@ -108,13 +108,13 @@ async function deliverRouteEventToSession(e, t, n) {
             }
         }
         let g = await enqueueSessionInboxLine(e, u, `- [ ] @evt(${h.id})`);
-        if (ke("[route] mailbox enqueued", {
+        if (logDebugMessage("[route] mailbox enqueued", {
                 traceId: r,
                 routeId: i,
                 targetSessionKey: u,
                 eventId: h.id,
                 mailboxPath: g
-            }), m) return ke("[route] enqueued without wake (waits for the owner's next turn)", {
+            }), m) return logDebugMessage("[route] enqueued without wake (waits for the owner's next turn)", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,
@@ -134,7 +134,7 @@ async function deliverRouteEventToSession(e, t, n) {
         return t.emit("session.wake", {
             sessionKey: u,
             preempt: y
-        }), ke("[route] delivered to target inbox", {
+        }), logDebugMessage("[route] delivered to target inbox", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,
@@ -151,7 +151,7 @@ async function deliverRouteEventToSession(e, t, n) {
             mailboxPath: g
         }
     } catch (h) {
-        throw Z("[route] failed to enqueue to target inbox", {
+        throw logWarnMessage("[route] failed to enqueue to target inbox", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,

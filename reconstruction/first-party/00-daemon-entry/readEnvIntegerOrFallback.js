@@ -8,7 +8,7 @@ function readEnvIntegerOrFallback(e, t, n) {
     let r = process.env[e];
     if (!r || r.trim() === "") return t;
     let i = Number(r);
-    return !Number.isFinite(i) || !Number.isInteger(i) || i < n ? (Z("[pid0] invalid env integer, using fallback", {
+    return !Number.isFinite(i) || !Number.isInteger(i) || i < n ? (logWarnMessage("[pid0] invalid env integer, using fallback", {
         name: e,
         value: r,
         fallback: t,

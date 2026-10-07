@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function updateRegistryStatus(e, t, n = new Date) {
-    let r = await Mb(e) ?? wU(e, n),
+    let r = await readRegistryStatusFile(e) ?? buildInitialRegistryStatus(e, n),
         i = t(r);
-    return i.generated_at = n.toISOString(), await SU(e, i), i
+    return i.generated_at = n.toISOString(), await writeRegistryStatusFile(e, i), i
 }

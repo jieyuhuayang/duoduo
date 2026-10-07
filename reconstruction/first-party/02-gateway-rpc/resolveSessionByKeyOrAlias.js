@@ -9,11 +9,11 @@ function resolveSessionByKeyOrAlias(e, t) {
     if (n) return {
         ok: !0,
         session_key: n.session_key,
-        display_name: Zf(n) ? n.display_name ?? null : null
+        display_name: hasNonEmptyDisplayName(n) ? n.display_name ?? null : null
     };
     let r = e.list().filter(i => i.display_name === t).map(i => ({
         session_key: i.session_key,
-        display_name: Zf(i) ? i.display_name ?? null : null
+        display_name: hasNonEmptyDisplayName(i) ? i.display_name ?? null : null
     }));
     return r.length === 1 ? {
         ok: !0,

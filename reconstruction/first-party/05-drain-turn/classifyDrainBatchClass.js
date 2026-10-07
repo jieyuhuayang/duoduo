@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function classifyDrainBatchClass(e) {
-    return e ? isWorkerTaskNotifyDelivery(e) ? "worker-notify" : yA(e) ? Wmt : CW : CW
+    return e ? isWorkerTaskNotifyDelivery(e) ? "worker-notify" : isChannelMessageEvent(e) ? Wmt : CW : CW
 }

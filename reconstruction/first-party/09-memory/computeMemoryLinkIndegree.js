@@ -7,8 +7,8 @@
 function computeMemoryLinkIndegree(e) {
     let t = new Map;
     for (let n of [e.entitiesDir, e.topicsDir])
-        for (let r of ou(n)) {
-            let i = Tn(wS.join(n, `${r}.md`));
+        for (let r of listMarkdownSlugsSync(n)) {
+            let i = readMemoryFileSyncOrNull(wS.join(n, `${r}.md`));
             if (i !== null)
                 for (let o of scanWikiLinkOccurrences(i)) o.slug !== r && t.set(o.slug, (t.get(o.slug) ?? 0) + 1)
         }

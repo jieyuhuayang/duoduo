@@ -12,6 +12,6 @@ async function clearHostModelEnvConfig(e = process.env) {
     } catch {
         n = ""
     }
-    let r = VSe(n);
-    await ZO(r, e)
+    let r = removeHostModelEnvLines(n);
+    await writeHostDotEnvLines(r, e)
 }

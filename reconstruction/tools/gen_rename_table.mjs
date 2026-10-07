@@ -4,6 +4,7 @@
 // `-` for a bundle that has no inferred names or no subsystem map (cli).
 import { parse } from "@babel/parser";
 import fs from "node:fs";
+import path from "node:path";
 
 const [, , PRETTY, RENAME, INFERRED, SUBSYS, OUT] = process.argv;
 // The table states which release it describes, so that string must never come
@@ -20,6 +21,10 @@ const inferred = INFERRED === "-" ? {} : JSON.parse(fs.readFileSync(INFERRED, "u
 const subsys = SUBSYS === "-" ? {} : JSON.parse(fs.readFileSync(SUBSYS, "utf8"));       // real -> subsystem
 const BUNDLE = PRETTY.split("/").pop().replace(/\.pretty\.js$/, "");
 const inferredSet = new Set(Object.keys(inferred));
+// names upstream spelled, confirmed against a published sibling package
+// (name_symbol.mjs --published): maps/published_<bundle>.json next to the inferred map
+const PUBLISHED = INFERRED === "-" ? null : path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "published_"));
+const published = PUBLISHED && fs.existsSync(PUBLISHED) ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : {}; // real -> {package, file, ...}
 
 const ast = parse(src, { sourceType: "module", ranges: true });
 const declLine = new Map(); // mangled -> line
@@ -54,13 +59,13 @@ const groups = new Map();
 for (const [mangled, real] of Object.entries(rename)) {
   const sub = SUBSYS === "-" ? "all" : subsys[real];
   if (!groups.has(sub)) groups.set(sub, []);
-  groups.get(sub).push({ mangled, real, source: inferredSet.has(mangled) ? "inferred" : "__export", line: declLine.get(mangled) ?? "—" });
+  groups.get(sub).push({ mangled, real, source: inferredSet.has(mangled) ? (Object.hasOwn(published, real) ? `inferred, published source (${published[real].package} ${published[real].file})` : "inferred") : "__export", line: declLine.get(mangled) ?? "—" });
 }
 const subs = [...groups.keys()].sort();
 const total = Object.keys(rename).length;
 
 let md = `# duoduo 首字符还原：符号名映射表（${BUNDLE}）\n\n`;
-md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*）。“原行号”指反混淆后的 \`${BUNDLE}.pretty.js\`。\n\n`;
+md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 \`maps/published_${BUNDLE}.json\` 记录）。“原行号”指反混淆后的 \`${BUNDLE}.pretty.js\`。\n\n`;
 md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` ${PKG_VERSION}。\n`;
 for (const sub of subs) {
   const rows = groups.get(sub).sort((a, b) => (a.line === "—" ? 1e9 : a.line) - (b.line === "—" ? 1e9 : b.line));

@@ -16,7 +16,7 @@ async function writeVoidSessionOutboxRecord(e, t, n) {
             data: n.data
         }
     });
-    return await Va(e, r), t?.emit("session.output", {
+    return await persistOutboxRecord(e, r), t?.emit("session.output", {
         sessionKey: n.sessionKey,
         record: r
     }), r

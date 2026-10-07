@@ -9,8 +9,8 @@ function extractCodexGeneratedImageAttachment(e) {
         n = new Set;
     for (; t.length > 0;) {
         let r = t.pop();
-        if (!(!qw(r) || n.has(r))) {
-            if (n.add(r), dbe(r)) {
+        if (!(!isCodexPlainObject(r) || n.has(r))) {
+            if (n.add(r), isImageGenerationItemType(r)) {
                 let i = r.saved_path ?? r.savedPath;
                 if (typeof i == "string" && i.trim().length > 0) return {
                     path: i,
@@ -25,7 +25,7 @@ function extractCodexGeneratedImageAttachment(e) {
             }
             for (let i of ["payload", "event", "msg", "item"]) {
                 let o = r[i];
-                qw(o) && t.push(o)
+                isCodexPlainObject(o) && t.push(o)
             }
         }
     }

@@ -6,10 +6,10 @@
 
 async function ingestChannelMessage(e, t, n) {
     let r = parseInjectionPromptCommand(t.text),
-        i = r ? void 0 : tv(t.text),
+        i = r ? void 0 : parseGatewayCommandText(t.text),
         o = t.routingHint?.intent ?? classifyGatewayCommandIntent(i),
         s = resolveRoutingTarget(t, i, r),
-        a = s === "session" ? hde(r, t.text) : void 0;
+        a = s === "session" ? expandInjectionPromptCommand(r, t.text) : void 0;
     return appendBeforeExecuteGateway(e, {
         eventType: "channel.message",
         sessionKey: t.sessionKey,

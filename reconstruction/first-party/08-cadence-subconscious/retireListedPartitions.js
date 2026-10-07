@@ -9,7 +9,7 @@ async function retireListedPartitions(e) {
     for (let n of Jpt) try {
         t.push(await retirePartitionOnce(e, n))
     } catch (r) {
-        Z(`[init] retiring partition '${n.name}' failed: ${Wi(r)}`), t.push({
+        logWarnMessage(`[init] retiring partition '${n.name}' failed: ${formatYamlErrorMessage(r)}`), t.push({
             partition: n.name,
             action: "skipped",
             reason: "failed"

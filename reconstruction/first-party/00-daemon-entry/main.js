@@ -26,12 +26,12 @@ async function main() {
         loadHostDotEnv: l
     } = await Promise.resolve().then(() => (XH(), YSe));
     process.on("unhandledRejection", j => {
-        Ue("[pid0] unhandled promise rejection (contained, daemon survives)", j)
+        logErrorMessage("[pid0] unhandled promise rejection (contained, daemon survives)", j)
     }), process.on("uncaughtException", j => {
-        Ue("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", j), process.exit(1)
+        logErrorMessage("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", j), process.exit(1)
     });
     let c = await l();
-    c > 0 && ee(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && u(process.env), delete process.env[tl], resolveDefaultRuntime();
+    c > 0 && logInfoMessage(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && u(process.env), delete process.env[tl], resolveDefaultRuntime();
     let d = e(),
         f = await acquireRuntimeWriterLock(d);
     if (!f.acquired) throw new Error(`Runtime lock already held by pid=${f.lock?.pid??"unknown"} at ${f.lockPath}`);
@@ -40,14 +40,14 @@ async function main() {
         let j = await pruneEventIdIndexByRetention(d, {
             retentionDays: readSpineIndexRetentionDays()
         });
-        ee(`[pid0] spine by-id index retention: kept=${j.kept} dropped=${j.dropped} cutoff=${j.cutoff}`)
+        logInfoMessage(`[pid0] spine by-id index retention: kept=${j.kept} dropped=${j.dropped} cutoff=${j.cutoff}`)
     } catch (j) {
-        throw await EO(d), j
+        throw await releaseRuntimeWriterLock(d), j
     }
-    let p = await dh(d);
-    ee(`[pid0] session index populated: ${p.size()} entries`), await gve(_O(d));
+    let p = await buildSessionIndexFromDisk(d);
+    logInfoMessage(`[pid0] session index populated: ${p.size()} entries`), await gve(_O(d));
     let m = await claimDaemonRestartReason(d);
-    setPendingRestartReason(m), m && ee("[pid0] restart reason claimed", {
+    setPendingRestartReason(m), m && logInfoMessage("[pid0] restart reason claimed", {
         requested_at: m.requested_at,
         requested_by_agent: m.requested_by_agent,
         wake_targets: m.wake_targets
@@ -69,7 +69,7 @@ async function main() {
         P = v(),
         k = _(),
         S = R.ok ? n() : void 0;
-    ee("[pid0] available runtimes at boot", {
+    logInfoMessage("[pid0] available runtimes at boot", {
         claude: R.ok,
         codex: P,
         grok: k,
@@ -97,10 +97,10 @@ async function main() {
             runtimeLockAlreadyHeld: !0
         }),
         C = Number(process.env.ALADUO_PORT ?? process.env.PORT ?? 20233);
-    await $.start(C, "127.0.0.1"), vt("info", `[pid0] aladuo daemon started on :${C}, pid=${process.pid}`), await A.start(), m?.wake_targets?.length && await deliverDaemonRestartWakes(d, h, p, m).catch(j => {
-        Ue("[pid0] restart wake delivery error", j)
+    await $.start(C, "127.0.0.1"), logAlwaysAtLevel("info", `[pid0] aladuo daemon started on :${C}, pid=${process.pid}`), await A.start(), m?.wake_targets?.length && await deliverDaemonRestartWakes(d, h, p, m).catch(j => {
+        logErrorMessage("[pid0] restart wake delivery error", j)
     }), D.setAttachmentCallbacks(createVoidAwareAttachmentCallbacks(d, A, j => {
-        Ue("[pid0] channel attachment tracking error", j)
+        logErrorMessage("[pid0] channel attachment tracking error", j)
     }));
     let N = a({
         paths: d,
@@ -108,7 +108,7 @@ async function main() {
         subscriptions: D
     });
     N.start(), N.flushPending().catch(j => {
-        Ue("[pid0] outbox initial flush error", j)
+        logErrorMessage("[pid0] outbox initial flush error", j)
     });
     let x = s({
         paths: d,
@@ -124,28 +124,28 @@ async function main() {
     });
     M.start();
     let F = readEnvIntegerOrFallback("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
-    ee("[pid0] cadence rhythm", {
+    logInfoMessage("[pid0] cadence rhythm", {
         cadenceIntervalMs: F
     });
     let J = !1,
         ce = setInterval(() => {
             if (h.emit("cadence.tick"), J) {
-                ke("[pid0] cadence tick skipped: still processing previous tick");
+                logDebugMessage("[pid0] cadence tick skipped: still processing previous tick");
                 return
             }
             J = !0;
             let j = Date.now();
             o(d).then(() => {
-                ke("[pid0] cadence tick complete", {
+                logDebugMessage("[pid0] cadence tick complete", {
                     durationMs: Date.now() - j
                 })
             }).catch(ne => {
-                Ue("[pid0] cadence tick error", ne)
+                logErrorMessage("[pid0] cadence tick error", ne)
             }).finally(() => {
                 J = !1
             })
         }, F);
-    vt("info", `[pid0] cadence timer started, interval=${F}ms`);
+    logAlwaysAtLevel("info", `[pid0] cadence timer started, interval=${F}ms`);
     let ie = i({
         paths: d,
         bus: h,
@@ -156,7 +156,7 @@ async function main() {
     ie.start();
     let Ce = !1,
         se = async j => {
-            Ce || (Ce = !0, vt("info", `[pid0] received ${j}, shutting down...`), await x.stop(), await M.stop(), clearInterval(ce), h.emit("shutdown"), await ie.stop(), await A.stop(), await N.stop(), await $.stop(), h.removeAllListeners(), vt("info", "[pid0] shutdown complete"), process.exit(0))
+            Ce || (Ce = !0, logAlwaysAtLevel("info", `[pid0] received ${j}, shutting down...`), await x.stop(), await M.stop(), clearInterval(ce), h.emit("shutdown"), await ie.stop(), await A.stop(), await N.stop(), await $.stop(), h.removeAllListeners(), logAlwaysAtLevel("info", "[pid0] shutdown complete"), process.exit(0))
         };
     process.on("SIGTERM", () => se("SIGTERM")), process.on("SIGINT", () => se("SIGINT"))
 }

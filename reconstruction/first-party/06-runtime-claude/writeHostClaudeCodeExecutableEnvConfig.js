@@ -14,6 +14,6 @@ async function writeHostClaudeCodeExecutableEnvConfig(e, t = process.env) {
     } catch {
         i = ""
     }
-    let o = HSe(i, [CLAUDE_CODE_EXECUTABLE_ENV_KEY]);
-    o.length > 0 && o[o.length - 1] !== "" && o.push(""), await ZO([...o, `${CLAUDE_CODE_EXECUTABLE_ENV_KEY}=${n}`], t), t.CLAUDE_CODE_EXECUTABLE = n
+    let o = removeDotEnvKeyLines(i, [CLAUDE_CODE_EXECUTABLE_ENV_KEY]);
+    o.length > 0 && o[o.length - 1] !== "" && o.push(""), await writeHostDotEnvLines([...o, `${CLAUDE_CODE_EXECUTABLE_ENV_KEY}=${n}`], t), t.CLAUDE_CODE_EXECUTABLE = n
 }

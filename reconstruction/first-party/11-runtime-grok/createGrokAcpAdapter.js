@@ -39,14 +39,14 @@ function createGrokAcpAdapter(e) {
             _.length = 0, z && Promise.resolve(e.onDetachedTurn?.({
                 text: z
             })).catch(U => {
-                Z("grok detached-turn sink failed", {
+                logWarnMessage("grok detached-turn sink failed", {
                     error: U instanceof Error ? U.message : String(U)
                 })
             })
         }, ce = z => {
             if (!s || v) return;
-            let U = Oi(z.params),
-                Y = Oi(U.update),
+            let U = coerceToPlainObject(z.params),
+                Y = coerceToPlainObject(U.update),
                 me = String(Y.sessionUpdate ?? "");
             if (me === "agent_message_chunk") {
                 let re = WC(Y.content);
@@ -255,7 +255,7 @@ function createGrokAcpAdapter(e) {
                 }
                 if (typeof Y.method == "string" && Y.id !== void 0) {
                     if (jut(Y.method)) {
-                        ke(`grok ACP ${Y.method}`), H(Y.id, Y.params);
+                        logDebugMessage(`grok ACP ${Y.method}`), H(Y.id, Y.params);
                         return
                     }
                     B({
@@ -269,9 +269,9 @@ function createGrokAcpAdapter(e) {
                     return
                 }
                 if (typeof Y.method == "string") {
-                    let me = Oi(Y.params),
+                    let me = coerceToPlainObject(Y.params),
                         re = Hut(me.update);
-                    re && (re.modelId && (A = re.modelId), $ = re.reasoningEffort), But(Y.method) && ce(Y), e.onNotification?.(Y.method), ke(`grok ACP notification ${Y.method}`);
+                    re && (re.modelId && (A = re.modelId), $ = re.reasoningEffort), But(Y.method) && ce(Y), e.onNotification?.(Y.method), logDebugMessage(`grok ACP notification ${Y.method}`);
                     return
                 }
                 if (typeof Y.id == "number") {
@@ -294,7 +294,7 @@ function createGrokAcpAdapter(e) {
             });
             s = U, U.stderr.resume(), U.on("error", Y => {
                 fe(Y)
-            }), ke(`grok ACP spawn pid=${U.pid??"unknown"}`), Xl(U.stdout, q, {
+            }), logDebugMessage(`grok ACP spawn pid=${U.pid??"unknown"}`), attachStreamLineReader(U.stdout, q, {
                 onEof: () => {
                     !c && s === U && U.kill("SIGKILL")
                 }
@@ -474,7 +474,7 @@ function createGrokAcpAdapter(e) {
                     Oe = z.effort;
                 if (Ee || Oe) {
                     let ve = Ee ?? A;
-                    if (Oe && !ve) Z("grok effort re-apply skipped — no current model id", {
+                    if (Oe && !ve) logWarnMessage("grok effort re-apply skipped — no current model id", {
                         effort: Oe
                     });
                     else if (ve && (!!(Ee && Ee !== A) || !!(Oe && Oe !== C))) try {
@@ -484,7 +484,7 @@ function createGrokAcpAdapter(e) {
                         })
                     } catch (gt) {
                         let Gt = gt instanceof Error ? gt.message : String(gt);
-                        if (typeof Oe == "string" && Gt.includes("reasoningEffort")) Z("grok effort re-apply was not confirmed — continuing the turn", {
+                        if (typeof Oe == "string" && Gt.includes("reasoningEffort")) logWarnMessage("grok effort re-apply was not confirmed — continuing the turn", {
                             modelId: ve,
                             effort: Oe,
                             error: Gt

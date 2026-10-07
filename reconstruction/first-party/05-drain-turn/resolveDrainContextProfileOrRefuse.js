@@ -6,7 +6,7 @@
 
 async function resolveDrainContextProfileOrRefuse(e, t, n, r) {
     try {
-        return await fA(e, n)
+        return await prepareClaudeContextProfile(e, n)
     } catch (i) {
         let o = i instanceof Error ? i.message : String(i);
         throw await handleDrainError(e, t, {

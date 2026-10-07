@@ -9,7 +9,7 @@ async function ensureAgentsMdSymlink(e) {
         existsSync: t,
         promises: n
     } = await import("node:fs"), r = await import("node:path"), i = r.join(e, "CLAUDE.md"), o = r.join(e, "AGENTS.md");
-    t(i) && (t(o) || (await n.symlink("CLAUDE.md", o), ke("[codex] created AGENTS.md symlink", {
+    t(i) && (t(o) || (await n.symlink("CLAUDE.md", o), logDebugMessage("[codex] created AGENTS.md symlink", {
         dir: e
     })))
 }

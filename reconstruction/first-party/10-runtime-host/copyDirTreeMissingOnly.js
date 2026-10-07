@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function copyDirTreeMissingOnly(e, t) {
-    await Ne(t);
+    await ensureDirectoryExists(t);
     let n = await or.readdir(e, {
         withFileTypes: !0
     });

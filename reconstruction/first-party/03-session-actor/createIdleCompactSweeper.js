@@ -35,10 +35,10 @@ function createIdleCompactSweeper(e) {
     }
     async function h(y, v, b) {
         let _ = y.session_key;
-        if (isSessionArchiving(_)) return ke("[idle-compact] skip: archiving", {
+        if (isSessionArchiving(_)) return logDebugMessage("[idle-compact] skip: archiving", {
             sessionKey: _
         }), !1;
-        let E = await iu(t, _).catch(() => null);
+        let E = await resolveChannelConfigBySession(t, _).catch(() => null);
         if (!E || E.runtime === "codex" || E.runtimeRefusal || E.runtime === "void") return !1;
         let R = E.auto_compact_idle_minutes,
             P = E.auto_compact_min_context_tokens;
@@ -49,11 +49,11 @@ function createIdleCompactSweeper(e) {
         if (typeof S == "number" && P <= S) {
             b.add(_);
             let C = `${y.compact_measured_at??""}:${P}`;
-            return d.get(_) !== C ? (d.set(_, C), vt("info", "[idle-compact] fuse: threshold ≤ measured floor, skipping", {
+            return d.get(_) !== C ? (d.set(_, C), logAlwaysAtLevel("info", "[idle-compact] fuse: threshold ≤ measured floor, skipping", {
                 sessionKey: _,
                 threshold: P,
                 measured_floor: S
-            })) : ke("[idle-compact] fuse: threshold ≤ measured floor, skipping (repeat)", {
+            })) : logDebugMessage("[idle-compact] fuse: threshold ≤ measured floor, skipping (repeat)", {
                 sessionKey: _,
                 threshold: P,
                 measured_floor: S
@@ -66,7 +66,7 @@ function createIdleCompactSweeper(e) {
                 last_compact_at: new Date().toISOString()
             })
         } catch (C) {
-            if (C instanceof qm) return ke("[idle-compact] skip: archiving (marker write)", {
+            if (C instanceof qm) return logDebugMessage("[idle-compact] skip: archiving (marker write)", {
                 sessionKey: _
             }), !1;
             throw C
@@ -84,17 +84,17 @@ function createIdleCompactSweeper(e) {
         })).routing.enqueued ? (i.emit("session.wake", {
             sessionKey: _,
             preempt: "never"
-        }), ee("[idle-compact] fired", {
+        }), logInfoMessage("[idle-compact] fired", {
             sessionKey: _,
             channel_kind: D,
             idle_ms: v,
             context_used_tokens: k
-        }), !0) : (Z("[idle-compact] /compact not enqueued", {
+        }), !0) : (logWarnMessage("[idle-compact] /compact not enqueued", {
             sessionKey: _
         }), !1)
     }
     async function g() {
-        if (u || c) return u && ke("[idle-compact] sweep skipped: previous sweep still running"), 0;
+        if (u || c) return u && logDebugMessage("[idle-compact] sweep skipped: previous sweep still running"), 0;
         u = !0;
         let y = Date.now(),
             v = 0,
@@ -104,7 +104,7 @@ function createIdleCompactSweeper(e) {
             for (let E of r.listByKind("channel")) {
                 if (c) break;
                 if (v >= s) {
-                    ke("[idle-compact] per-sweep fire cap reached", {
+                    logDebugMessage("[idle-compact] per-sweep fire cap reached", {
                         cap: s
                     });
                     break
@@ -117,19 +117,19 @@ function createIdleCompactSweeper(e) {
                     await h(E, P, b) && (v += 1)
                 } catch (R) {
                     if (R instanceof qm) continue;
-                    Ue("[idle-compact] per-session sweep error", {
+                    logErrorMessage("[idle-compact] per-session sweep error", {
                         sessionKey: E.session_key,
                         error: R instanceof Error ? R.message : String(R)
                     })
                 }
             }
             for (let E of d.keys()) b.has(E) || d.delete(E);
-            ke("[idle-compact] sweep complete", {
+            logDebugMessage("[idle-compact] sweep complete", {
                 fired: v,
                 durationMs: Date.now() - y
             })
         } catch (_) {
-            Ue("[idle-compact] sweep error", _)
+            logErrorMessage("[idle-compact] sweep error", _)
         } finally {
             u = !1
         }
@@ -139,7 +139,7 @@ function createIdleCompactSweeper(e) {
         start() {
             a || c || (a = setInterval(() => {
                 l = g()
-            }, o), ee("[idle-compact] started", {
+            }, o), logInfoMessage("[idle-compact] started", {
                 intervalMs: o,
                 fireCapPerSweep: s
             }))
@@ -151,7 +151,7 @@ function createIdleCompactSweeper(e) {
                 } catch {}
                 l = null
             }
-            ee("[idle-compact] stopped")
+            logInfoMessage("[idle-compact] stopped")
         },
         isSweeping() {
             return u

@@ -7,6 +7,6 @@
 function extractJobCompletionJobId(e) {
     let t = extractJobCompletePayload(e);
     if (!t) return null;
-    let n = on(t, "job_id");
+    let n = readStringProperty(t, "job_id");
     return n && n.length > 0 ? n : null
 }

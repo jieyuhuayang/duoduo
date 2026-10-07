@@ -7,16 +7,16 @@
 function listMemorySlugReferrers(e, t) {
     let n = `[[${e}]]`,
         r = [],
-        i = Tn(t.boardPath);
+        i = readMemoryFileSyncOrNull(t.boardPath);
     i !== null && i.includes(n) && r.push("CLAUDE.md");
     for (let [o, s] of [
             [t.entitiesDir, "entities"],
             [t.topicsDir, "topics"]
         ])
-        for (let a of ou(o)) {
+        for (let a of listMarkdownSlugsSync(o)) {
             if (a === e) continue;
-            let u = Tn(wS.join(o, `${a}.md`));
+            let u = readMemoryFileSyncOrNull(wS.join(o, `${a}.md`));
             u !== null && u.includes(n) && r.push(`${s}/${a}.md`)
         }
-    return r.sort(Ar), r
+    return r.sort(compareStringsAscending), r
 }

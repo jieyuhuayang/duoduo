@@ -5,11 +5,11 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendEventIdIndexEntry(e, t) {
-    await Ne(e.eventsIndexDir);
+    await ensureDirectoryExists(e.eventsIndexDir);
     let n = `${stringifyJsonlRecord(t)}
 `,
         r = resolveEventIdIndexPath(e);
     await LR.appendFile(r, n);
     let i = jR.get(r);
-    i && await Uu(i) && i.map.set(t.event_id, t)
+    i && await isIndexLoadStillCurrent(i) && i.map.set(t.event_id, t)
 }

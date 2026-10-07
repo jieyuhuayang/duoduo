@@ -34,14 +34,14 @@ function createClaudeStreamingSessionFactory(e) {
                     completion_owner: "claude-cli"
                 }
             });
-            ke("[session-manager] task_notification recorded WAL-only", {
+            logDebugMessage("[session-manager] task_notification recorded WAL-only", {
                 sessionKey: u,
                 taskId: d,
                 status: f,
                 success: h.success
             })
         } catch (h) {
-            Ue("[session-manager] task_notification WAL record failed", {
+            logErrorMessage("[session-manager] task_notification WAL record failed", {
                 sessionKey: u,
                 taskId: d,
                 status: f,
@@ -58,7 +58,7 @@ function createClaudeStreamingSessionFactory(e) {
                 effortLevel: d
             }), l.lastAppliedEffort = d
         } catch (p) {
-            Z("[session-manager] failed to apply drain effort to the live session", {
+            logWarnMessage("[session-manager] failed to apply drain effort to the live session", {
                 sessionKey: u.sessionKey,
                 effort: d ?? "(runtime default)",
                 error: p instanceof Error ? p.message : String(p)
@@ -67,13 +67,13 @@ function createClaudeStreamingSessionFactory(e) {
     }
     async function a(u, l) {
         if (!r.createStreamingQuery) throw new Error("Streaming query support unavailable");
-        let c = EN(u),
-            d = np({
+        let c = readLiveStreamContextToken(u),
+            d = resolveContextCapToken({
                 requirement: l.claudeContextRequirement,
                 hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
                 liveGenerationToken: c
             }),
-            f = sS({
+            f = computeContextProfileSignature({
                 capToken: d,
                 requirement: l.claudeContextRequirement,
                 aliases: l.claudeModelAliases
@@ -86,29 +86,29 @@ function createClaudeStreamingSessionFactory(e) {
         if (h && !h.closed)
             if (h.configSignature !== p) {
                 let se = diffStreamingConfigSignature(h.configSignature, p);
-                vt("warn", "[kv-cache] respawn: signature-mismatch", {
+                logAlwaysAtLevel("warn", "[kv-cache] respawn: signature-mismatch", {
                     sessionKey: u.sessionKey,
                     generation: u.streamingGeneration,
                     sdk_session_id: u.sdkSessionId ?? null,
                     diff: se
                 }), se.some(j => j.startsWith(`${SN}:`)) && (g = "model-context-profile-change")
-            } else h.needsRecreation ? ke("[kv-cache] respawn: recreation-requested (already audited at source)", {
+            } else h.needsRecreation ? logDebugMessage("[kv-cache] respawn: recreation-requested (already audited at source)", {
                 sessionKey: u.sessionKey,
                 generation: u.streamingGeneration,
                 sdk_session_id: u.sdkSessionId ?? null
-            }) : vt("warn", "[kv-cache] respawn: resume-sessionid-change", {
+            }) : logAlwaysAtLevel("warn", "[kv-cache] respawn: resume-sessionid-change", {
                 sessionKey: u.sessionKey,
                 generation: u.streamingGeneration,
                 sdk_session_id: u.sdkSessionId ?? null,
                 requested_session_id: m ?? null
             });
         await teardownStreamingSession(u, g);
-        let y = np({
+        let y = resolveContextCapToken({
                 requirement: l.claudeContextRequirement,
                 hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
                 liveGenerationToken: void 0
             }),
-            v = y === d ? f : sS({
+            v = y === d ? f : computeContextProfileSignature({
                 capToken: y,
                 requirement: l.claudeContextRequirement,
                 aliases: l.claudeModelAliases
@@ -152,7 +152,7 @@ function createClaudeStreamingSessionFactory(e) {
                 }
                 let j = k.currentTurn;
                 if (j !== null && j !== se) {
-                    Z("[session-manager] drain turn dequeued while the slot is occupied — rejected", {
+                    logWarnMessage("[session-manager] drain turn dequeued while the slot is occupied — rejected", {
                         sessionKey: u.sessionKey,
                         occupantAccepted: j.accepted
                     }), se.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming slot occupied — prompt not yielded; retry after the occupant settles"));
@@ -219,13 +219,13 @@ function createClaudeStreamingSessionFactory(e) {
                                 try {
                                     await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, ne.eventIds)
                                 } catch (K) {
-                                    ee("[session-manager] steer hook markDone error", {
+                                    logInfoMessage("[session-manager] steer hook markDone error", {
                                         sessionKey: u.sessionKey,
                                         error: String(K)
                                     })
                                 }
                                 for (let K of ne.claimedEventIds) u.inflightEventIds.delete(K);
-                                ee("[session-manager] steer hook: injected interjection mid-turn", {
+                                logInfoMessage("[session-manager] steer hook: injected interjection mid-turn", {
                                     sessionKey: u.sessionKey,
                                     eventIds: ne.eventIds
                                 }), j.push(ne.steerText)
@@ -248,7 +248,7 @@ function createClaudeStreamingSessionFactory(e) {
             x = typeof $.setModel == "function",
             M = typeof $.applyFlagSettings == "function";
         if (x || M) {
-            let se = await rt(t, u.sessionKey).catch(() => null);
+            let se = await readSessionRuntimeState(t, u.sessionKey).catch(() => null);
             if (x) {
                 let j = se ? se.model ?? null : void 0,
                     K = l.claudeContextRequirement?.modelOrigin !== void 0 ? null : l.model ?? null;
@@ -259,13 +259,13 @@ function createClaudeStreamingSessionFactory(e) {
                         let G = await i(u.sessionKey, u, j);
                         te = G.outcome, G.outcome !== "blocked" && (B = G.requirementKind)
                     } catch (G) {
-                        Z("[session-manager] spawn-time model reconcile failed to read config", {
+                        logWarnMessage("[session-manager] spawn-time model reconcile failed to read config", {
                             sessionKey: u.sessionKey,
                             model: j ?? "(reset to default)",
                             error: G instanceof Error ? G.message : String(G)
                         }), te = "config-unreadable"
                     }
-                    if (te !== "compatible") Z("[session-manager] deferring spawn-time model re-apply — context profile differs from this generation", {
+                    if (te !== "compatible") logWarnMessage("[session-manager] deferring spawn-time model re-apply — context profile differs from this generation", {
                         sessionKey: u.sessionKey,
                         generation: C,
                         deferred_model: j ?? "(reset to default)",
@@ -275,7 +275,7 @@ function createClaudeStreamingSessionFactory(e) {
                     else try {
                         await $.setModel(j ?? void 0), N = j ?? void 0, k.liveModel = j ?? void 0
                     } catch (G) {
-                        Z("[session-manager] failed to re-apply session model override — keeping it for the next spawn", {
+                        logWarnMessage("[session-manager] failed to re-apply session model override — keeping it for the next spawn", {
                             sessionKey: u.sessionKey,
                             model: j ?? "(reset to default)",
                             running_model: l.model ?? "(runtime default)",
@@ -296,7 +296,7 @@ function createClaudeStreamingSessionFactory(e) {
                         effortLevel: j
                     }), u.streamingState && (u.streamingState.lastAppliedEffort = j)
                 } catch (K) {
-                    Z("[session-manager] failed to re-apply session effort override at spawn", {
+                    logWarnMessage("[session-manager] failed to re-apply session effort override at spawn", {
                         sessionKey: u.sessionKey,
                         effort: j ?? "(reset to default)",
                         error: K instanceof Error ? K.message : String(K)
@@ -304,14 +304,14 @@ function createClaudeStreamingSessionFactory(e) {
                 }
             }
         }
-        vt("info", "[kv-cache] streaming subprocess spawned", {
+        logAlwaysAtLevel("info", "[kv-cache] streaming subprocess spawned", {
             sessionKey: u.sessionKey,
             generation: C,
             model: N ?? "default",
-            context_profile_source: aA(l.claudeContextRequirement),
+            context_profile_source: describeContextProfileSource(l.claudeContextRequirement),
             max_context_token: y,
-            ...uA(l.claudeContextRequirement),
-            alias_tiers: lA(l.claudeModelAliases),
+            ...extractProfiledEndpointFields(l.claudeContextRequirement),
+            alias_tiers: listSortedAliasKeys(l.claudeModelAliases),
             board_hash: l.boardHash ? l.boardHash.slice(0, 12) : null
         });
         let F = (se, j, ne, K = !1) => {
@@ -349,7 +349,7 @@ function createClaudeStreamingSessionFactory(e) {
                             try {
                                 await enqueueSessionInboxLine(t, u.sessionKey, te), j.push(B)
                             } catch (G) {
-                                Z("[session-manager] steer fallback closed-stream requeue failed", {
+                                logWarnMessage("[session-manager] steer fallback closed-stream requeue failed", {
                                     sessionKey: u.sessionKey,
                                     eventId: B,
                                     error: G instanceof Error ? G.message : String(G)
@@ -360,13 +360,13 @@ function createClaudeStreamingSessionFactory(e) {
                         if (ne.length > 0) try {
                             await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, ne)
                         } catch (K) {
-                            ee("[session-manager] steer fallback closed markDone error", {
+                            logInfoMessage("[session-manager] steer fallback closed markDone error", {
                                 sessionKey: u.sessionKey,
                                 error: String(K)
                             })
                         }
                         for (let K of se.claimedEventIds) u.inflightEventIds.delete(K);
-                        u.pendingWake = !0, ee("[session-manager] steer fallback requeued to inbox (stream closed)", {
+                        u.pendingWake = !0, logInfoMessage("[session-manager] steer fallback requeued to inbox (stream closed)", {
                             sessionKey: u.sessionKey,
                             eventIds: se.eventIds,
                             requeued: j.length,
@@ -378,7 +378,7 @@ function createClaudeStreamingSessionFactory(e) {
                     try {
                         await se.enqueueAsNewTurn()
                     } catch (j) {
-                        ee("[session-manager] steer fallback enqueue error", {
+                        logInfoMessage("[session-manager] steer fallback enqueue error", {
                             sessionKey: u.sessionKey,
                             error: String(j)
                         })
@@ -406,7 +406,7 @@ function createClaudeStreamingSessionFactory(e) {
                         usage: j
                     })
                 } catch (H) {
-                    Ue("[completion-owner] CLI turn ledger write failed", {
+                    logErrorMessage("[completion-owner] CLI turn ledger write failed", {
                         sessionKey: u.sessionKey,
                         generation: u.streamingGeneration,
                         error: H instanceof Error ? H.message : String(H)
@@ -448,7 +448,7 @@ function createClaudeStreamingSessionFactory(e) {
                             let U = H === Se,
                                 Y = fe?.compromised === !0,
                                 me = Se.accepted;
-                            k.currentTurn = null, Se.accepted = !1, await J(), Se.reject(new AgentSdkPromptNotAcceptedAbortError("Task-completion turn folded with mailbox drain; retrying the drain")), u.pendingWake = !0, u.wakeResolver?.(), await Ce(K, T, 0, pe), vt("warn", "[completion-owner] voided folded drain", {
+                            k.currentTurn = null, Se.accepted = !1, await J(), Se.reject(new AgentSdkPromptNotAcceptedAbortError("Task-completion turn folded with mailbox drain; retrying the drain")), u.pendingWake = !0, u.wakeResolver?.(), await Ce(K, T, 0, pe), logAlwaysAtLevel("warn", "[completion-owner] voided folded drain", {
                                 sessionKey: u.sessionKey,
                                 generation: u.streamingGeneration,
                                 acceptedByForeignInit: U,
@@ -462,7 +462,7 @@ function createClaudeStreamingSessionFactory(e) {
                         if (z !== void 0) {
                             let U = await readPendingOutboundAttachments(t, u.sessionKey).catch(() => {}),
                                 Y = createOutboxRecord({
-                                    channel_kind: uk(u.sessionKey),
+                                    channel_kind: channelKindFromSessionKey(u.sessionKey),
                                     session_key: u.sessionKey,
                                     payload: {
                                         text: z,
@@ -470,24 +470,24 @@ function createClaudeStreamingSessionFactory(e) {
                                     }
                                 });
                             try {
-                                await Va(t, Y), L = z.length, n.emit("session.output", {
+                                await persistOutboxRecord(t, Y), L = z.length, n.emit("session.output", {
                                     sessionKey: u.sessionKey,
                                     record: Y
                                 })
                             } catch (me) {
-                                Ue("[completion-owner] proactive outbox write failed", {
+                                logErrorMessage("[completion-owner] proactive outbox write failed", {
                                     sessionKey: u.sessionKey,
                                     generation: u.streamingGeneration,
                                     error: me instanceof Error ? me.message : String(me)
                                 })
                             }
-                            L > 0 && U && await gA(t, u.sessionKey).catch(me => Ue("[completion-owner] pending attachment clear failed", {
+                            L > 0 && U && await clearPendingOutboundAttachments(t, u.sessionKey).catch(me => logErrorMessage("[completion-owner] pending attachment clear failed", {
                                 sessionKey: u.sessionKey,
                                 generation: u.streamingGeneration,
                                 error: me instanceof Error ? me.message : String(me)
                             }))
                         }
-                        await Ce(K, T, L, pe), u.pendingWake = !0, u.wakeResolver?.(), ee("[completion-owner] settled CLI completion turn", {
+                        await Ce(K, T, L, pe), u.pendingWake = !0, u.wakeResolver?.(), logInfoMessage("[completion-owner] settled CLI completion turn", {
                             sessionKey: u.sessionKey,
                             generation: u.streamingGeneration,
                             subtype: K.subtype,
@@ -516,7 +516,7 @@ function createClaudeStreamingSessionFactory(e) {
                         }
                         if (K.type === "result") {
                             let pe = k.cliTurnTentative !== null;
-                            k.cliTurnTentative = null, ee("[session-manager] orphan result received", {
+                            k.cliTurnTentative = null, logInfoMessage("[session-manager] orphan result received", {
                                 sessionKey: u.sessionKey,
                                 subtype: K.subtype,
                                 hadTentative: pe
@@ -540,7 +540,7 @@ function createClaudeStreamingSessionFactory(e) {
                             try {
                                 q.input.onTurnAcknowledged?.()
                             } catch {}
-                            q.sessionId = K.session_id ?? q.sessionId, u.sdkSessionId = K.session_id ?? u.sdkSessionId, u.sdkSessionIdVerified = !0, A && K.session_id && A !== K.session_id && Z("[session-manager] SDK session ID mismatch — context lost", {
+                            q.sessionId = K.session_id ?? q.sessionId, u.sdkSessionId = K.session_id ?? u.sdkSessionId, u.sdkSessionIdVerified = !0, A && K.session_id && A !== K.session_id && logWarnMessage("[session-manager] SDK session ID mismatch — context lost", {
                                 sessionKey: u.sessionKey,
                                 requestedSessionId: A,
                                 actualSessionId: K.session_id
@@ -564,13 +564,13 @@ function createClaudeStreamingSessionFactory(e) {
                         continue
                     }
                     if (K.type === "stream_event") {
-                        let pe = Mf(K);
-                        for (let w of W$(K.event)) F(q, w.text, w.isDelta, pe);
-                        for (let w of J$(K.event)) q.input.onExecutionEvent?.({
+                        let pe = hasParentToolUseId(K);
+                        for (let w of extractStreamTextDeltas(K.event)) F(q, w.text, w.isDelta, pe);
+                        for (let w of extractStreamThinkingText(K.event)) q.input.onExecutionEvent?.({
                             type: "thought_chunk",
                             text: w
                         });
-                        let fe = G$(K.event);
+                        let fe = parseToolUseBlockStart(K.event);
                         fe && (q.toolBlockIndexMap.set(fe.index, {
                             toolUseId: fe.toolUseId,
                             toolName: fe.toolName
@@ -582,7 +582,7 @@ function createClaudeStreamingSessionFactory(e) {
                             ephemeral: !0,
                             isSidechain: pe
                         }));
-                        let Se = Z$(K.event);
+                        let Se = parseInputJsonDelta(K.event);
                         if (Se) {
                             let w = q.toolBlockIndexMap.get(Se.index);
                             w && q.input.onExecutionEvent?.({
@@ -595,8 +595,8 @@ function createClaudeStreamingSessionFactory(e) {
                         continue
                     }
                     if (typeof K.type == "string" && K.type.includes("assistant")) {
-                        let pe = Mf(K);
-                        for (let Se of H$(K)) F(q, Se.text, Se.isDelta, pe);
+                        let pe = hasParentToolUseId(K);
+                        for (let Se of extractSdkMessageTextChunks(K)) F(q, Se.text, Se.isDelta, pe);
                         let fe = K.message?.content;
                         if (Array.isArray(fe))
                             for (let Se of fe) {
@@ -614,7 +614,7 @@ function createClaudeStreamingSessionFactory(e) {
                         continue
                     }
                     if (K.type === "user") {
-                        let pe = Mf(K),
+                        let pe = hasParentToolUseId(K),
                             fe = K.message?.content;
                         if (Array.isArray(fe))
                             for (let Se of fe) {
@@ -625,7 +625,7 @@ function createClaudeStreamingSessionFactory(e) {
                                     toolUseId: w,
                                     toolName: q.toolUseMap.get(w),
                                     isError: Se.is_error ?? !1,
-                                    summary: K$(Se.content),
+                                    summary: stringifyToolResultContent(Se.content),
                                     isSidechain: pe
                                 }), q.turnStreamedText = "")
                             }
@@ -674,7 +674,7 @@ function createClaudeStreamingSessionFactory(e) {
                             sdk_session_id: null,
                             sdk_session_runtime: null,
                             pending_fork_to: null
-                        }).catch(() => {}), Z("[session-manager] cleared stale sdk_session_id after resume failure", {
+                        }).catch(() => {}), logWarnMessage("[session-manager] cleared stale sdk_session_id after resume failure", {
                             sessionKey: u.sessionKey,
                             staleSessionId: A
                         })), q.reject(new AgentSdkPromptNotAcceptedAbortError)) : q.reject(new Error(`Unexpected streaming SDK result subtype: ${K.subtype??"unknown"}`))
@@ -682,15 +682,15 @@ function createClaudeStreamingSessionFactory(e) {
                 }
             } catch (ne) {
                 let K = k.currentTurn;
-                k.currentTurn = null, K && (E.signal.aborted && !K.accepted ? (k.needsRecreation = !0, u.pendingClear ? K.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : K.reject(new AgentSdkPromptNotAcceptedAbortError)) : E.signal.aborted ? K.reject(fg("Streaming SDK run aborted", ne)) : (K.accepted || (k.needsRecreation = !0), K.reject(ne))), S(() => new AgentSdkPromptNotAcceptedAbortError)
+                k.currentTurn = null, K && (E.signal.aborted && !K.accepted ? (k.needsRecreation = !0, u.pendingClear ? K.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : K.reject(new AgentSdkPromptNotAcceptedAbortError)) : E.signal.aborted ? K.reject(createAbortErrorWithCause("Streaming SDK run aborted", ne)) : (K.accepted || (k.needsRecreation = !0), K.reject(ne))), S(() => new AgentSdkPromptNotAcceptedAbortError)
             } finally {
-                k.closed = !0, k.needsRecreation = !0, E.signal.aborted || vt("warn", "[kv-cache] streaming loop exited unexpectedly (closed)", {
+                k.closed = !0, k.needsRecreation = !0, E.signal.aborted || logAlwaysAtLevel("warn", "[kv-cache] streaming loop exited unexpectedly (closed)", {
                     sessionKey: u.sessionKey,
                     generation: u.streamingGeneration,
                     sdk_session_id: u.sdkSessionId ?? null
                 });
                 let ne = k.currentTurn;
-                k.currentTurn = null, ne && (E.signal.aborted && !ne.accepted ? u.pendingClear ? ne.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : ne.reject(new AgentSdkPromptNotAcceptedAbortError) : E.signal.aborted ? ne.reject(fg("Streaming SDK run aborted")) : ne.accepted ? ne.reject(new AgentSdkTurnInterruptedError("Streaming SDK query ended during execution")) : ne.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"))), S(() => new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted")), j && (u.lastCliTurnSettledAt === void 0 || j.observedAt > u.lastCliTurnSettledAt) && vt("warn", "[completion-owner] unspoken-completion", {
+                k.currentTurn = null, ne && (E.signal.aborted && !ne.accepted ? u.pendingClear ? ne.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : ne.reject(new AgentSdkPromptNotAcceptedAbortError) : E.signal.aborted ? ne.reject(createAbortErrorWithCause("Streaming SDK run aborted")) : ne.accepted ? ne.reject(new AgentSdkTurnInterruptedError("Streaming SDK query ended during execution")) : ne.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"))), S(() => new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted")), j && (u.lastCliTurnSettledAt === void 0 || j.observedAt > u.lastCliTurnSettledAt) && logAlwaysAtLevel("warn", "[completion-owner] unspoken-completion", {
                     sessionKey: u.sessionKey,
                     taskId: j.taskId,
                     status: j.status,

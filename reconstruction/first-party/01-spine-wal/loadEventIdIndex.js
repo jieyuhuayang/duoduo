@@ -6,11 +6,11 @@
 
 async function loadEventIdIndex(e) {
     let t = getOrCreateEventIdIndexCache(e);
-    return await zu(t, async () => {
+    return await memoizeIndexLoad(t, async () => {
         let n = resolveEventIdIndexPath(e);
         try {
             let r = gU(n);
-            for await (let i of gs(r)) if (i) try {
+            for await (let i of iterateStreamLines(r)) if (i) try {
                 let o = JSON.parse(i);
                 isUsableEventIndexEntry(o) && t.map.set(o.event_id, o)
             } catch {

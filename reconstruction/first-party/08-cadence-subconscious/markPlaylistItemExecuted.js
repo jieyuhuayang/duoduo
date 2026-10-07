@@ -18,7 +18,7 @@ async function markPlaylistItemExecuted(e, t, n = new Date) {
     if (!o) return;
     let s = `- ${n.toISOString()} executed=${t}`,
         a = i.findIndex(u => u.trim() === "## History");
-    a !== -1 ? i.splice(a + 1, 0, s) : i.push("", "## History", s), await Dt(e.subconsciousPlaylistPath, `${i.join(`
+    a !== -1 ? i.splice(a + 1, 0, s) : i.push("", "## History", s), await writeFileAtomic(e.subconsciousPlaylistPath, `${i.join(`
 `).replace(/\s+$/,"")}
 `)
 }

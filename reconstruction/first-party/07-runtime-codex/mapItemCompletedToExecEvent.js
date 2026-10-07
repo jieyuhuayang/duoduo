@@ -37,7 +37,7 @@ function mapItemCompletedToExecEvent(e) {
             return {
                 type: "tool_result",
                 toolUseId: n,
-                toolName: `CollabAgent${mbe(r)}`,
+                toolName: `CollabAgent${capitalizeFirstChar(r)}`,
                 isError: e.status === "failed",
                 summary: `status=${e.status} receivers=${JSON.stringify(e.receiverThreadIds??[])}`
             }
@@ -74,6 +74,6 @@ function mapItemCompletedToExecEvent(e) {
         case "functionCallOutput":
             return null;
         default:
-            return hbe("completed", t), null
+            return warnUnmappedCodexItemOnce("completed", t), null
     }
 }

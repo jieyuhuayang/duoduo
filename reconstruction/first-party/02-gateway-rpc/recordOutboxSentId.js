@@ -6,6 +6,6 @@
 
 async function recordOutboxSentId(e, t) {
     let n = await Oce(e);
-    n.has(t) || (await Ne(e.outboxDir), await Rn.appendFile(resolveOutboxSentIdsPath(e), `${t}
+    n.has(t) || (await ensureDirectoryExists(e.outboxDir), await Rn.appendFile(resolveOutboxSentIdsPath(e), `${t}
 `), n.add(t))
 }

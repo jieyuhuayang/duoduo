@@ -12,7 +12,7 @@ function readGapLintDayEvents(e) {
     } catch (r) {
         return {
             events: t,
-            readFault: VO(r)
+            readFault: recordUnreadableUnlessMissing(r)
         }
     }
     for (let r of n.split(`

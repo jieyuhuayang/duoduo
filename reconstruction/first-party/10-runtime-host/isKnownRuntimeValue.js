@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isKnownRuntimeValue(e) {
-    return isRuntimeKind(e)
+    return isAgentRuntime(e)
 }

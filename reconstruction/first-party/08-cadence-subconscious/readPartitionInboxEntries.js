@@ -39,7 +39,7 @@ async function readPartitionInboxEntries(e, t) {
             message: l.trim()
         })
     } catch {}
-    return ke("[playlist] read partition inbox", {
+    return logDebugMessage("[playlist] read partition inbox", {
         partition: t,
         files: s.length,
         entriesEmitted: a.length

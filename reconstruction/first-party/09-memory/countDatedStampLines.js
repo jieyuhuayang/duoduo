@@ -7,6 +7,6 @@
 function countDatedStampLines(e) {
     let t = /2026-\d{2}-\d{2}|20260\d{3}/,
         n = 0;
-    for (let r of Jo(e)) t.test(r) && n++;
+    for (let r of splitLinesDropTrailingEmpty(e)) t.test(r) && n++;
     return n
 }

@@ -26,6 +26,6 @@ async function runRemindDuoduoTool(e, t) {
         return ["RemindDuoduo scheduled.", `- id: ${a}`, `- fires at: ${u}`, `- target: ${o} (this session)`, "", "It fires once, and it does not interrupt a turn already in progress.", `ManageJob(list) shows it; \`duoduo job archive ${a}\` cancels it before it fires.`].join(`
 `)
     } catch (n) {
-        return Ue("[Wake] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
+        return logErrorMessage("[Wake] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
     }
 }

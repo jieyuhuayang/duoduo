@@ -6,7 +6,7 @@
 
 async function resolveNotifyTargetSessionKey(e, t) {
     let n = t?.trim(),
-        r = await rh(e),
+        r = await readAllSessionStateFiles(e),
         i = Object.keys(r);
     if (!n) {
         let l = await tve(e, i),

@@ -15,7 +15,7 @@ async function runCadenceTick(e) {
         } = await Promise.resolve().then(() => (aIe(), sIe));
         await r(e)
     } catch (r) {
-        Z("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {
+        logWarnMessage("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {
             error: r
         })
     }

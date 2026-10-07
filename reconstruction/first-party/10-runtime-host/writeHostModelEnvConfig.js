@@ -12,7 +12,7 @@ async function writeHostModelEnvConfig(e, t = process.env) {
     } catch {
         r = ""
     }
-    let i = VSe(r),
+    let i = removeHostModelEnvLines(r),
         o = Bft(e);
-    i.length > 0 && o.length > 0 && i[i.length - 1] !== "" && i.push(""), await ZO([...i, ...o], t)
+    i.length > 0 && o.length > 0 && i[i.length - 1] !== "" && i.push(""), await writeHostDotEnvLines([...i, ...o], t)
 }

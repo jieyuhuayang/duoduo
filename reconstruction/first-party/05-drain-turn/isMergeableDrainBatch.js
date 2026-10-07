@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isMergeableDrainBatch(e, t) {
-    return e.length < 2 ? !1 : e.every(i => yA(i.event)) ? isMergeableChannelMessageBatch(e, t) : e.every(i => isWorkerTaskNotifyDelivery(i.event)) ? hasUniformDrainCoalesceKey(e, t) : !1
+    return e.length < 2 ? !1 : e.every(i => isChannelMessageEvent(i.event)) ? isMergeableChannelMessageBatch(e, t) : e.every(i => isWorkerTaskNotifyDelivery(i.event)) ? hasUniformDrainCoalesceKey(e, t) : !1
 }

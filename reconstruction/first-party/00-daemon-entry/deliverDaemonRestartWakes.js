@@ -13,17 +13,17 @@ async function deliverDaemonRestartWakes(e, t, n, r) {
             force: !0,
             source: "daemon-restart"
         });
-        s.ok ? ee("[pid0] restart wake delivered", {
+        s.ok ? logInfoMessage("[pid0] restart wake delivered", {
             target: o,
             session_key: s.session_key
-        }) : Z("[pid0] restart wake refused", {
+        }) : logWarnMessage("[pid0] restart wake refused", {
             target: o,
             reason: s.reason,
             session_key: "session_key" in s ? s.session_key : void 0,
             candidates: "candidates" in s ? s.candidates.map(a => a.session_key) : void 0
         })
     } catch (s) {
-        Z("[pid0] restart wake failed", {
+        logWarnMessage("[pid0] restart wake failed", {
             target: o,
             error: String(s)
         })

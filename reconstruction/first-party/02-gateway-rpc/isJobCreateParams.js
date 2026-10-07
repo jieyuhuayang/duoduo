@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isJobCreateParams(e) {
-    return !(!at(e) || typeof e.id != "string" || typeof e.cron != "string" || typeof e.instruction != "string" || e.owner_session !== void 0 && typeof e.owner_session != "string" || e.cwd_rel !== void 0 && typeof e.cwd_rel != "string")
+    return !(!isRecord(e) || typeof e.id != "string" || typeof e.cron != "string" || typeof e.instruction != "string" || e.owner_session !== void 0 && typeof e.owner_session != "string" || e.cwd_rel !== void 0 && typeof e.cwd_rel != "string")
 }

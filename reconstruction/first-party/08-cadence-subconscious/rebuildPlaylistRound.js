@@ -9,7 +9,7 @@ async function rebuildPlaylistRound(e) {
         n = t.filter(s => s.schedule.enabled);
     if (n.length === 0 && t.length > 0) {
         let s = t.map(a => a.name);
-        Z("[playlist] all partitions are disabled, meta-session will idle", {
+        logWarnMessage("[playlist] all partitions are disabled, meta-session will idle", {
             totalPartitions: t.length,
             disabledPartitions: s,
             recoveryHint: "Edit partition CLAUDE.md files to set 'enabled: true' in frontmatter, or add new partitions"
@@ -41,9 +41,9 @@ async function rebuildPlaylistRound(e) {
             } let a = n.map(u => `- [ ] ${u.name}`);
         i.splice(o + 1, s - o - 1, ...a, "")
     }
-    return await Dt(e.subconsciousPlaylistPath, `${i.join(`
+    return await writeFileAtomic(e.subconsciousPlaylistPath, `${i.join(`
 `).replace(/\s+$/,"")}
-`), ke("[playlist] rebuilt round", {
+`), logDebugMessage("[playlist] rebuilt round", {
         count: n.length,
         names: n.map(s => s.name)
     }), n.length

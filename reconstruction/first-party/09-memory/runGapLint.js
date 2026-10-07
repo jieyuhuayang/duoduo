@@ -6,14 +6,14 @@
 
 function runGapLint(e, t, n, r) {
     let i = Ddt(e);
-    if (i.readFault) return BO(null);
+    if (i.readFault) return buildGapReadFaultResult(null);
     let o = new Date(n).toISOString().slice(0, 10),
         s = Date.parse(`${o}T00:00:00.000Z`),
         a = tSe(t, o),
         u = jdt(a);
     if (u < da && i.dates.includes(o)) {
         let d = readGapLintDayEvents(zc.join(e, `${o}.jsonl`));
-        if (d.readFault) return BO(null);
+        if (d.readFault) return buildGapReadFaultResult(null);
         let f = -1;
         for (let p of d.events) p.interaction && p.msOfDay > u && p.msOfDay > f && (f = p.msOfDay);
         if (f >= 0 && n - (s + f) >= r) {
@@ -37,5 +37,5 @@ function runGapLint(e, t, n, r) {
     }
     if (l === null) return AH(null, []);
     let c = readGapLintDayEvents(zc.join(e, `${l.date}.jsonl`));
-    return c.readFault ? BO(l) : AH(l, mergeContiguousHourRanges(iSe(c.events, l)))
+    return c.readFault ? buildGapReadFaultResult(l) : AH(l, mergeContiguousHourRanges(iSe(c.events, l)))
 }

@@ -9,7 +9,7 @@ async function runMemoryCheckTick(e, t) {
         check: n,
         forget: r
     } = resolveMemoryCheckFlags();
-    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && Ue("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
+    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && logErrorMessage("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
     let o = {
             checkEnabled: n,
             forgetEnabled: r,
@@ -33,7 +33,7 @@ async function runMemoryCheckTick(e, t) {
             l.push(...y);
             let v = postMemorySignalsToInboxes(y, s);
             c.push(...v.posted), o.posted.push(...v.posted), o.withheld.push(...v.withheld);
-            for (let b of v.errors) Ue(`[memory] pending delivery failed: ${b}`)
+            for (let b of v.errors) logErrorMessage(`[memory] pending delivery failed: ${b}`)
         },
         f = null,
         p = runReadAuditedMemoryCheckStep("orphan-states", () => {
@@ -57,7 +57,7 @@ async function runMemoryCheckTick(e, t) {
                 cadenceIntervalMs: resolveCadenceIntervalMs()
             });
             o.posted.push(...E.delivery.posted), o.withheld.push(...E.delivery.withheld);
-            for (let R of E.delivery.errors) Ue(`[memory] pending delivery failed: ${R}`)
+            for (let R of E.delivery.errors) logErrorMessage(`[memory] pending delivery failed: ${R}`)
         }) && m, m = runReadAuditedMemoryCheckStep("fold-lint", () => {
             d(runFoldGapLint(u, y).selected)
         }) && m, m = runReadAuditedMemoryCheckStep("broadcast-budget", () => {
@@ -80,7 +80,7 @@ async function runMemoryCheckTick(e, t) {
         }) && m, m && runMemoryCheckSubStep("inbox-sync", () => {
             let E = reconcileMemorySignalInboxes(l, c, s);
             o.swept.push(...E.removed);
-            for (let R of E.errors) Ue(`[memory] inbox sync failed: ${R}`)
+            for (let R of E.errors) logErrorMessage(`[memory] inbox sync failed: ${R}`)
         })
     }
     let g = h;
@@ -111,7 +111,7 @@ async function runMemoryCheckTick(e, t) {
         o.forgotten.push(...forgetMemoryEntry(y, e.kernelDir, {
             dryRun: !1
         }))
-    }), (o.posted.length > 0 || o.swept.length > 0 || o.forgotten.length > 0 || o.withheld.length > 0 || o.sparedUnwarnable.length > 0) && ee("[memory] check tick", {
+    }), (o.posted.length > 0 || o.swept.length > 0 || o.forgotten.length > 0 || o.withheld.length > 0 || o.sparedUnwarnable.length > 0) && logInfoMessage("[memory] check tick", {
         posted: o.posted.map(y => LSe.basename(y)),
         swept: o.swept.map(y => LSe.basename(y)),
         withheld: o.withheld,

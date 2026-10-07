@@ -10,7 +10,7 @@ async function archiveSessionDirUnlessAlreadyArchiving(e, t) {
         reason: "archive_in_flight"
     };
     try {
-        return await runWithSessionMutex(t, async () => Ob(e, t)) ? {
+        return await runWithSessionMutex(t, async () => moveSessionDirToArchive(e, t)) ? {
             archived: !0
         } : {
             archived: !1,

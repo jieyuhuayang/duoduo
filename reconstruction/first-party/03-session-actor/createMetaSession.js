@@ -23,11 +23,11 @@ function createMetaSession(e) {
         model: D,
         thinkingLevel: A
     }) => {
-        let $ = CS(),
+        let $ = resolvePiAgentDir(),
             {
                 settingsSeed: C,
                 defaultProjectTrust: N
-            } = OS($),
+            } = readPiAgentSettings($),
             x = _bt(Sy.join(vbt(), "aladuo-pi-partition-")),
             M = {
                 session_context_kind: "system"
@@ -52,13 +52,13 @@ function createMetaSession(e) {
                 workerCommand: resolvePiWorkerCommand(),
                 env: {
                     [nC]: t.daemonSocketPath,
-                    [rC]: oC({
+                    [rC]: issueWorkerToolContextToken({
                         session_key: o,
                         ...M
                     }),
                     [iC]: JSON.stringify(M)
                 },
-                logDebug: J => ke(J, {
+                logDebug: J => logDebugMessage(J, {
                     sessionKey: o
                 })
             });
@@ -92,13 +92,13 @@ function createMetaSession(e) {
                 let ie = N.items.filter(j => !j.done).length;
                 await markPlaylistItemExecuted(t, x.name);
                 let se = (await readPlaylistRound(t)).items.filter(j => !j.done).length;
-                if (se >= ie) return Z("[meta-session] stale playlist item did not advance", {
+                if (se >= ie) return logWarnMessage("[meta-session] stale playlist item did not advance", {
                     name: x.name,
                     reason: M ? "disabled" : "removed",
                     beforeUnchecked: ie,
                     afterUnchecked: se
                 }), null;
-                ke("[meta-session] skipping unavailable partition, will retry next", {
+                logDebugMessage("[meta-session] skipping unavailable partition, will retry next", {
                     name: x.name,
                     reason: M ? "disabled" : "removed"
                 });
@@ -118,7 +118,7 @@ function createMetaSession(e) {
             M = 0,
             F = S.runtime,
             J = F ?? resolveDefaultRuntime();
-        ee("[v12-observe] partition runtime selected", {
+        logInfoMessage("[v12-observe] partition runtime selected", {
             partition: S.name,
             runtime: J,
             requestedRuntime: F ?? null,
@@ -142,7 +142,7 @@ function createMetaSession(e) {
                         error: je === "runtime_refused" ? ve : `runtime '${J}' is unavailable: ${ve}`
                     }
                 });
-            await atomicAppendEvent(t, gt), await advanceConsumerWatermark(t, "meta_session", gt.id, new Date(gt.ts)), Z("[meta-session] partition skipped: requested runtime unavailable", {
+            await atomicAppendEvent(t, gt), await advanceConsumerWatermark(t, "meta_session", gt.id, new Date(gt.ts)), logWarnMessage("[meta-session] partition skipped: requested runtime unavailable", {
                 partition: S.name,
                 runtime: J,
                 requestedFrom: F ? "frontmatter" : "default",
@@ -167,18 +167,18 @@ function createMetaSession(e) {
         if (S.runtimeRefusal) return await j(S.runtimeRefusal, "runtime_refused");
         let ne = claudeUnavailableReason();
         if (J === "claude" && !i && ne) return await j(ne);
-        let K = nu(await li(t.channelConfigDir)),
+        let K = mergeGlobalModelConfigLayers(await loadGlobalRuntimeConfig(t.channelConfigDir)),
             te = S.model ?? K.runtimeModels?.[J]?.model,
             B = S.effort ?? K.runtimeEfforts?.[J]?.effort;
         if (i && J === "claude") ce = i;
         else if (J === "codex") {
             let ve = await s();
-            if (ee("[v12-observe] codex probe result", {
+            if (logInfoMessage("[v12-observe] codex probe result", {
                     partition: S.name,
                     probeOk: ve.ok,
                     probeReason: ve.ok ? null : ve.reason
                 }), !ve.ok) return await j(ve.reason);
-            ee("[v12-observe] codex adapter spawn", {
+            logInfoMessage("[v12-observe] codex adapter spawn", {
                 partition: S.name,
                 sandbox: resolveCodexSandbox()
             });
@@ -186,12 +186,12 @@ function createMetaSession(e) {
             ce = je, ie = () => je.shutdown()
         } else if (J === "grok") {
             let ve = await u();
-            if (ee("[v12-observe] grok probe result", {
+            if (logInfoMessage("[v12-observe] grok probe result", {
                     partition: S.name,
                     probeOk: ve.ok,
                     probeReason: ve.ok ? null : ve.reason
                 }), !ve.ok) return await j(ve.reason);
-            ee("[v12-observe] grok adapter spawn", {
+            logInfoMessage("[v12-observe] grok adapter spawn", {
                 partition: S.name
             });
             let je = l ? l() : createGrokAcpAdapter({
@@ -206,7 +206,7 @@ function createMetaSession(e) {
             ce = je, Ce = () => je.shutdown()
         } else if (J === "pi") {
             if (!te) return await j("pi partition has no model: set `model: provider/modelId` in the partition CLAUDE.md frontmatter, or `pi.model` in the global runtime config");
-            ee("[v12-observe] pi adapter spawn", {
+            logInfoMessage("[v12-observe] pi adapter spawn", {
                 partition: S.name
             });
             let ve = c({
@@ -244,7 +244,7 @@ ${D}`,
             }),
             L = [...new Set([...PARTITION_CORE_TOOLS, ...S.claudeTools ?? []])],
             z = new AbortController;
-        ee("[meta-session] executing partition", {
+        logInfoMessage("[meta-session] executing partition", {
             partition: S.name
         });
         let U = J === "grok" ? buildSystemPromptForChannelConfig({
@@ -255,7 +255,7 @@ ${D}`,
             me, re = new Error(`partition timeout: ${S.name} exceeded ${Y}ms`),
             Ee;
         try {
-            let ve = await fA(t, {
+            let ve = await prepareClaudeContextProfile(t, {
                     runtime: J,
                     model: te,
                     cwd: S.dir,
@@ -289,7 +289,7 @@ ${D}`,
                     },
                     onExecutionEvent: gt => {
                         H || (gt.type === "tool_use" ? x += 1 : gt.type === "tool_result" && gt.isError && (M += 1), G.push(appendPartitionToolEvent(t, o, S.name, gt).catch(Gt => {
-                            Z("[meta-session] failed to persist execution event", {
+                            logWarnMessage("[meta-session] failed to persist execution event", {
                                 partition: S.name,
                                 eventType: gt.type,
                                 error: Gt instanceof Error ? Gt.message : String(Gt)
@@ -300,7 +300,7 @@ ${D}`,
                 sn = new Promise((gt, Gt) => {
                     Ee = setTimeout(() => {
                         je.catch(Nn => {
-                            Z("[meta-session] late sdk completion after timeout", {
+                            logWarnMessage("[meta-session] late sdk completion after timeout", {
                                 partition: S.name,
                                 error: Nn instanceof Error ? Nn.message : String(Nn)
                             })
@@ -319,7 +319,7 @@ ${D}`,
         }
         let Oe = Date.now() - $;
         if (ie) {
-            ee("[v12-observe] codex adapter shutdown", {
+            logInfoMessage("[v12-observe] codex adapter shutdown", {
                 partition: S.name,
                 outcome: C,
                 durationMs: Oe
@@ -327,14 +327,14 @@ ${D}`,
             try {
                 await ie()
             } catch (ve) {
-                Z("[meta-session] codex adapter shutdown threw", {
+                logWarnMessage("[meta-session] codex adapter shutdown threw", {
                     partition: S.name,
                     error: ve instanceof Error ? ve.message : String(ve)
                 })
             }
         }
         if (Ce) {
-            ee("[v12-observe] grok adapter shutdown", {
+            logInfoMessage("[v12-observe] grok adapter shutdown", {
                 partition: S.name,
                 outcome: C,
                 durationMs: Oe
@@ -342,14 +342,14 @@ ${D}`,
             try {
                 await Ce()
             } catch (ve) {
-                Z("[meta-session] grok adapter shutdown threw", {
+                logWarnMessage("[meta-session] grok adapter shutdown threw", {
                     partition: S.name,
                     error: ve instanceof Error ? ve.message : String(ve)
                 })
             }
         }
         if (se) {
-            ee("[v12-observe] pi adapter shutdown", {
+            logInfoMessage("[v12-observe] pi adapter shutdown", {
                 partition: S.name,
                 outcome: C,
                 durationMs: Oe
@@ -357,7 +357,7 @@ ${D}`,
             try {
                 await se()
             } catch (ve) {
-                Z("[meta-session] pi adapter shutdown threw", {
+                logWarnMessage("[meta-session] pi adapter shutdown threw", {
                     partition: S.name,
                     error: ve instanceof Error ? ve.message : String(ve)
                 })
@@ -395,7 +395,7 @@ ${D}`,
                         runtime_source: F ? "explicit" : "default"
                     }
                 });
-            await atomicAppendEvent(t, je), await advanceConsumerWatermark(t, "meta_session", je.id, new Date(je.ts)), ee("[meta-session] partition completed", {
+            await atomicAppendEvent(t, je), await advanceConsumerWatermark(t, "meta_session", je.id, new Date(je.ts)), logInfoMessage("[meta-session] partition completed", {
                 partition: S.name,
                 runtime: J,
                 eventId: je.id
@@ -419,7 +419,7 @@ ${D}`,
                         runtime_source: F ? "explicit" : "default"
                     }
                 });
-            await atomicAppendEvent(t, je), await advanceConsumerWatermark(t, "meta_session", je.id, new Date(je.ts)), Z("[meta-session] partition settled with non-success outcome", {
+            await atomicAppendEvent(t, je), await advanceConsumerWatermark(t, "meta_session", je.id, new Date(je.ts)), logWarnMessage("[meta-session] partition settled with non-success outcome", {
                 partition: S.name,
                 runtime: J,
                 outcome: C,
@@ -460,18 +460,18 @@ ${D}`,
     }
     let P = async () => {
         if (p || m) {
-            ke("[meta-session] skipping tick", {
+            logDebugMessage("[meta-session] skipping tick", {
                 processing: p,
                 stopRequested: m
             });
             return
         }
-        p = !0, ee("[meta-session] starting tick");
+        p = !0, logInfoMessage("[meta-session] starting tick");
         try {
             v += 1;
             let [S, D, A, $] = await Promise.all([readNewestMtimeRecursive(t.memoryFragmentsDir), readNewestMtimeRecursive(t.memoryEntitiesDir), readNewestMtimeRecursive(t.memoryTopicsDir), readLatestExternalEventId(t)]), C = [S, D, A, $].join(":"), N = hashActivityFingerprint(C);
             if (y !== null && N === y) {
-                ke("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
+                logDebugMessage("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
                 return
             }
             y = N, await updateRegistryStatus(t, J => ({
@@ -492,14 +492,14 @@ ${D}`,
                     ...J.health,
                     meta_session: "ok"
                 }
-            })), ee("[meta-session] tick completed", {
+            })), logInfoMessage("[meta-session] tick completed", {
                 executed: F?.name ?? null,
                 outcome: F?.outcome ?? null,
                 durationMs: F?.durationMs ?? null,
                 backedOff: F?.backedOff ?? []
             })
         } catch (S) {
-            Ue("[meta-session] tick error:", S), y = null, await updateRegistryStatus(t, A => ({
+            logErrorMessage("[meta-session] tick error:", S), y = null, await updateRegistryStatus(t, A => ({
                 ...A,
                 health: {
                     ...A.health,
@@ -542,13 +542,13 @@ ${D}`,
                     ...S.health,
                     meta_session: "starting"
                 }
-            })), vt("info", "[meta-session] started, listening for cadence ticks"))
+            })), logAlwaysAtLevel("info", "[meta-session] started, listening for cadence ticks"))
         },
         async stop() {
             if (m = !0, g && (n.off("cadence.tick", k), g = !1), h) try {
                 await h
             } catch {}
-            vt("info", "[meta-session] stopped")
+            logAlwaysAtLevel("info", "[meta-session] stopped")
         },
         isProcessing() {
             return p

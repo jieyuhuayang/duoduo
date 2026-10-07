@@ -6,7 +6,7 @@
 
 function buildSdkConfigReport() {
     let e = {
-            permission_mode: Hn("ALADUO_PERMISSION_MODE", "default")
+            permission_mode: resolveEnvConfigEntry("ALADUO_PERMISSION_MODE", "default")
         },
         t = readClaudeAuthSourceEnv(process.env) ?? null;
     if (e.claude_auth_source = t === null ? {
@@ -17,7 +17,7 @@ function buildSdkConfigReport() {
             source: "env"
         }, t === "claude_code_local") return e;
     for (let n of Vbt) {
-        let r = Hn(n, null);
+        let r = resolveEnvConfigEntry(n, null);
         r.source !== "unset" && (e[Hbt(n)] = r)
     }
     return e

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function appendSessionMailboxNote(e, t, n, r = new Date) {
-    await bU(e, t);
+    await ensureSessionMailboxPendingDir(e, t);
     let i = resolveSessionMailboxNotesPath(e, t),
         o = {
             ts: r.toISOString(),

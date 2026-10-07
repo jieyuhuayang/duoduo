@@ -7,7 +7,7 @@
 async function teardownStreamingSession(e, t, n) {
     let r = e.streamingState;
     if (!r) return;
-    t && vt("warn", `[kv-cache] streaming teardown: ${t}`, {
+    t && logAlwaysAtLevel("warn", `[kv-cache] streaming teardown: ${t}`, {
         sessionKey: e.sessionKey,
         generation: e.streamingGeneration,
         sdk_session_id: e.sdkSessionId ?? null

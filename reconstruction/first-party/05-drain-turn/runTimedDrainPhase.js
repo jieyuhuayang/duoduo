@@ -9,6 +9,6 @@ async function runTimedDrainPhase(e, t, n) {
     try {
         return await n()
     } finally {
-        PW(e, t, Date.now() - r)
+        addToNumericField(e, t, Date.now() - r)
     }
 }

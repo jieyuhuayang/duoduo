@@ -5,8 +5,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function mapGrokUsageToDrainUsage(e) {
-    let t = Oi(e._meta),
-        n = Oi(t.usage),
+    let t = coerceToPlainObject(e._meta),
+        n = coerceToPlainObject(t.usage),
         r = Cg(n.inputTokens),
         i = Cg(n.outputTokens),
         o = Cg(t.totalTokens),

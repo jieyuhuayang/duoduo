@@ -19,7 +19,7 @@ async function mergeKernelGitignoreEntries(e) {
 `) + i.join(`
 `) + `
 `;
-    await ES.writeFile(t, n + o, "utf8"), ke("[memory-git] merged .gitignore entries", {
+    await ES.writeFile(t, n + o, "utf8"), logDebugMessage("[memory-git] merged .gitignore entries", {
         added: i
     })
 }

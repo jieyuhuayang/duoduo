@@ -8,7 +8,7 @@ async function checkChannelRuntimeRebindConflict(e, t, n, r) {
     let i = [];
     for (let o of t.list()) {
         if (o.source_channel_id !== n) continue;
-        let s = await rt(e, o.session_key).catch(() => null);
+        let s = await readSessionRuntimeState(e, o.session_key).catch(() => null);
         s?.sdk_session_id && s.sdk_session_runtime && s.sdk_session_runtime !== r && i.push(`${o.session_key} (bound to '${s.sdk_session_runtime}', sdk_session_id ${s.sdk_session_id})`)
     }
     return i.length === 0 ? null : `runtime not changed to '${r}': ${i.length} session(s) of channel ${n} hold history that only their current runtime can resume: ${i.join("; ")}. Send /clear in each of those sessions first (recover anything worth keeping from its history before that), then set the runtime again.`

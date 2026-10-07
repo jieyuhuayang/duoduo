@@ -16,17 +16,17 @@ async function runDrainTurnWithResumeFallback(e, t, n, r) {
         usesStreamingAdapter: d,
         ...f
     } = r;
-    isClaudeRuntimeOrDefault(c) && !d && vt("info", "[claude-context-profile] non-streaming subprocess spawned", {
+    isClaudeRuntimeOrDefault(c) && !d && logAlwaysAtLevel("info", "[claude-context-profile] non-streaming subprocess spawned", {
         sessionKey: t,
         model: f.model ?? "default",
-        context_profile_source: aA(f.claudeContextRequirement),
-        max_context_token: np({
+        context_profile_source: describeContextProfileSource(f.claudeContextRequirement),
+        max_context_token: resolveContextCapToken({
             requirement: f.claudeContextRequirement,
             hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
             liveGenerationToken: void 0
         }),
-        ...uA(f.claudeContextRequirement),
-        alias_tiers: lA(f.claudeModelAliases)
+        ...extractProfiledEndpointFields(f.claudeContextRequirement),
+        alias_tiers: listSortedAliasKeys(f.claudeModelAliases)
     });
     let p = f.onStream,
         m = f.onExecutionEvent,
@@ -120,7 +120,7 @@ async function runDrainTurnWithResumeFallback(e, t, n, r) {
                 }
                 y.push(x)
             }), c === "codex") {
-            let M = (await rt(e, t).catch(() => null))?.pending_skip_rewind?.skipped_at;
+            let M = (await readSessionRuntimeState(e, t).catch(() => null))?.pending_skip_rewind?.skipped_at;
             if (M) {
                 let F = Date.parse(M);
                 Number.isFinite(F) && F >= D && await clearSessionRuntimeStateField(e, t, "pending_skip_rewind").catch(() => {})

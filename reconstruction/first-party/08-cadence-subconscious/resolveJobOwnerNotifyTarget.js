@@ -9,7 +9,7 @@ async function resolveJobOwnerNotifyTarget(e, t) {
     if (!n) throw new Error(`Current session (${t}) is a job session, but no active job definition matched this session_key.`);
     let r = n.frontmatter.owner_session?.trim();
     if (!r) throw new Error(`Job '${n.id}' has no owner_session recorded, so there is no default Notify target. Pass an explicit target_session_key, or add owner_session to the job file.`);
-    let i = fO(r);
+    let i = normalizeNotifyChannelTarget(r);
     if (!i) throw new Error(`Job '${n.id}' has an owner_session that is not a valid route target (${r}). Expected <session-key> only (no 'session:' prefix).`);
     return [i]
 }

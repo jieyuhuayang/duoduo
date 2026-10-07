@@ -6,15 +6,15 @@
 
 function walkReachableMemory(e, t) {
     let n = new Set,
-        r = resolveMemoryLinkTargets(e).filter(kH);
+        r = resolveMemoryLinkTargets(e).filter(isSafeMemorySlug);
     for (let i of r) n.add(i);
     for (; r.length > 0;) {
         let i = new Set,
-            o = [...r].sort(Ar);
+            o = [...r].sort(compareStringsAscending);
         for (let s of o) {
             let a = t(s);
             if (a !== null)
-                for (let u of resolveMemoryLinkTargets(a)) kH(u) && !n.has(u) && i.add(u)
+                for (let u of resolveMemoryLinkTargets(a)) isSafeMemorySlug(u) && !n.has(u) && i.add(u)
         }
         r = [...i];
         for (let s of r) n.add(s)

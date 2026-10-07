@@ -5,6 +5,6 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function collectGrokToolCallNames(e) {
-    let t = Oi(e._meta);
-    return [Oi(t["x.ai/tool"]).name, e.name, e.toolName, e.title, e.kind].filter(i => typeof i == "string" && i.length > 0)
+    let t = coerceToPlainObject(e._meta);
+    return [coerceToPlainObject(t["x.ai/tool"]).name, e.name, e.toolName, e.title, e.kind].filter(i => typeof i == "string" && i.length > 0)
 }

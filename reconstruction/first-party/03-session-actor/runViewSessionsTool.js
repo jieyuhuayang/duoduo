@@ -13,6 +13,6 @@ async function runViewSessionsTool(e, t) {
         let i = e && typeof e.session_key == "string" ? e.session_key.trim() : "";
         return i.length === 0 ? await Dlt(n, r) : await Mlt(n, i, t.getSessionStatus)
     } catch (i) {
-        return Ue("[ViewSessions] Tool execution failed", i), `Error: ${i instanceof Error?i.message:String(i)}`
+        return logErrorMessage("[ViewSessions] Tool execution failed", i), `Error: ${i instanceof Error?i.message:String(i)}`
     }
 }

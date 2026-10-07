@@ -6,7 +6,7 @@
 
 function computeOrphanTopicNodes(e, t = {}) {
     let n = resolveMemoryDirs(e);
-    if (!Ug(n.memoryDir) || !jc(n.boardPath)) return {
+    if (!isMemoryPathDirectory(n.memoryDir) || !isMemoryPathFile(n.boardPath)) return {
         missing: !0,
         seeds: 0,
         reached: 0,
@@ -14,20 +14,20 @@ function computeOrphanTopicNodes(e, t = {}) {
         keep: [],
         orphans: []
     };
-    let r = Tn(n.boardPath) ?? "",
+    let r = readMemoryFileSyncOrNull(n.boardPath) ?? "",
         i = resolveMemoryLinkTargets(r),
         o = walkReachableMemory(r, t.resolve ?? createMemorySlugReader(n)),
         s = computeMemoryLinkIndegree(n),
         a = [],
         u = [];
-    for (let l of ou(n.topicsDir)) {
+    for (let l of listMarkdownSlugsSync(n.topicsDir)) {
         if (t.filter && !l.startsWith(t.filter)) continue;
         if (o.has(l)) {
             a.push(l);
             continue
         }
         let c = wS.join(n.topicsDir, `${l}.md`),
-            d = Tn(c) ?? "",
+            d = readMemoryFileSyncOrNull(c) ?? "",
             f = 0;
         try {
             f = $Se.statSync(c).mtimeMs
@@ -37,7 +37,7 @@ function computeOrphanTopicNodes(e, t = {}) {
         u.push({
             slug: l,
             rel: `topics/${l}.md`,
-            kb: OO(NO(d)),
+            kb: bytesToKibCeil(measureUtf8ByteLength(d)),
             mtimeMs: f,
             indeg: s.get(l) ?? 0,
             referencedBy: listMemorySlugReferrers(l, n)

@@ -6,6 +6,6 @@
 
 function extractJobCompletePayload(e) {
     if (e.type !== "route.deliver") return null;
-    let t = to(e.payload) ? e.payload : void 0;
-    return !t || on(t, "source_event_type") !== "job.complete" ? null : to(t.payload) ? t.payload : null
+    let t = isNonNullObject(e.payload) ? e.payload : void 0;
+    return !t || readStringProperty(t, "source_event_type") !== "job.complete" ? null : isNonNullObject(t.payload) ? t.payload : null
 }

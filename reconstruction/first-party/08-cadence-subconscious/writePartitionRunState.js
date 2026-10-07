@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function writePartitionRunState(e, t, n) {
-    await Ne(e.partitionStateDir), await Bt(Pwe(e, t), n)
+    await ensureDirectoryExists(e.partitionStateDir), await writeJsonFileAtomic(resolvePartitionStatePath(e, t), n)
 }

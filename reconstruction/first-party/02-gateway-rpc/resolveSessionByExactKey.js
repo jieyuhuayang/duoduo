@@ -9,7 +9,7 @@ function resolveSessionByExactKey(e, t) {
     return n ? {
         ok: !0,
         session_key: n.session_key,
-        display_name: Zf(n) ? n.display_name ?? null : null
+        display_name: hasNonEmptyDisplayName(n) ? n.display_name ?? null : null
     } : {
         ok: !1,
         reason: "not_found"

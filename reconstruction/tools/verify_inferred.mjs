@@ -311,8 +311,12 @@ export const NAME_SPELLING = {
 };
 const KIND_WORDS = { function: "function-like", moduleInit: "a module initialiser", value: "a literal constant" };
 // -> null, or why `name` is misspelled for the kind of `decl`
+const PASCAL = /^[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+$/; // a class: SpineRpcParamsError
 export function spellingProblem(decl, name) {
   const kind = nameKind(decl);
+  // a class may be PascalCase, as upstream spells its own (AgentSdkTurnInterruptedError);
+  // camelCase stays accepted for the class names registered before this
+  if (/^class(-expr)?$/.test(decl.kind) && PASCAL.test(name)) return null;
   if (!NAME_SPELLING[kind][0].test(name)) {
     const hint = kind === "moduleInit" && CAMEL.test(name)
       ? ". A function's name on a module initialiser is the runGapLint failure (v0.8.0): the function's anchor literal was hoisted into its module's constants, and the relocation landed on the initialiser that assigns them. Relocate on a literal still inside the function body; if the module itself is meant, name it init<Name>Module"

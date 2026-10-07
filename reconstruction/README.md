@@ -32,6 +32,7 @@
 | `maps/inferred_daemon.json` | 没有被导出的 daemon 符号的推断名（短名 → 真名）。可以落在三种代码上：函数、esbuild 模块初始化器（命名为 `init<Name>Module`）、字面量常量（命名为 `UPPER_SNAKE`）。 | `name_symbol.mjs` 登记；升级时由 `remap_inferred.mjs` 承接，再人工复核 | `verify_inferred.mjs check`，每次运行（verdict `daemon.inferredNames`） |
 | `maps/inferred_daemon.shape.json` | 推断名在最近一次人工复核时的形态基线：种类、参数个数、字面量集合、成员属性名集合；模块初始化器另记它所赋字面量常量的哈希，常量记规范化字面量的哈希。 | 复核后运行 `verify_inferred.mjs record`（设置了 `PKG_VERSION` 时写入版本）；`name_symbol.mjs` 只追加新名字的条目 | `verify_inferred.mjs check` 与它比较 |
 | `maps/inferred_daemon.asserted.json` | 以 `--allow-unproven` 登记的推断名，及登记时的归属判定。 | `name_symbol.mjs`（第一次有这样的登记时创建） | `name_symbol.mjs` 的归属判定不把这些名字当作"是自研代码"的证据 |
+| `maps/published_daemon.json` | 上游自己拼写的推断名：按同作者公开源码包（`@openduo/protocol`，直接发布 TypeScript 源码）配对确认的名字，记录包、文件、行与配对方式。 | `name_symbol.mjs --published <match_published_source.mjs 的报告>` | `gen_rename_table.mjs` 与 `extract_functions.mjs` 据此标注 *published source*；每个名字仍受 `verify_inferred.mjs` 的形态检查 |
 | `maps/subsys_daemon.json` | 每个 daemon 改名符号所属的子系统目录（`NN-name`）。 | `name_symbol.mjs` 或人工 | `extract_functions.mjs`、`gen_rename_table.mjs` 要求它与改名表一一对应，否则在写任何文件前失败；`verify_first_party.mjs` 核对每个文件所在的目录 |
 | `maps/bare_anchor_baseline.json` | `docs/` 下每份文档的行号总数上限（`lineNumbers`）与裸行号数上限（`unbound`，为 0），按文件名作键。 | `check_bare_anchors.mjs --write-baseline`，只能调低（`--allow-raise` 只用于新文档） | `check_bare_anchors.mjs`：任一文档超过上限即失败 |
 
@@ -200,7 +201,8 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `gen_rename_table.mjs`、`extract_functions.mjs` | 生成 `RENAME_TABLE*.md`；生成 `first-party/` 树。 |
 | `verify_first_party.mjs` | 可读树的六项检查。 |
 | `verify_inferred.mjs` | 推断名检查（`check`）与记录形态基线（`record`）。 |
-| `name_symbol.mjs` | 登记新推断名：`<bundle.js> <短名> <真名> <子系统>`，或 `--batch <list.tsv\|list.json>`；可加 `--dry-run`、`--maps <目录>`、`--allow-unproven`。 |
+| `name_symbol.mjs` | 登记新推断名：`<bundle.js> <短名> <真名> <子系统>`，或 `--batch <list.tsv\|list.json>`；可加 `--dry-run`、`--maps <目录>`、`--allow-unproven`、`--published <报告>`（以公开源码的配对作归属证据）。 |
+| `match_published_source.mjs` | 把同作者公开源码包的顶层声明与 bundle 配对：`--src <ts 目录> --package <name@version> [--rename r.json] [--inferred i.json] [--report o.json] <pretty.js>`；按字面量、属性名、全局名与参数个数打分，常量在模块初始化器里查找，同文件声明按顺序填补空隙；`--pick <短名>=<名字>` 人工裁定歧义。 |
 | `locate_by_anchor.mjs` | 找出包含某个字符串字面量的顶层声明，并打印它的种类。 |
 | `fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs` | 升级时的结构指纹匹配、推断名承接、变更声明配对。 |
 | `diff_decls.mjs` | 逐个改动声明输出可读 diff（`.diff`）、位置归一化形式（`.norm`）和字面量增删（`.delta.json`）：`<旧 pretty> <新 pretty> <pairs.json> <输出目录> [旧改名表] [新改名表] [--fp <fp.json>] [--old-label v] [--new-label v]`。 |

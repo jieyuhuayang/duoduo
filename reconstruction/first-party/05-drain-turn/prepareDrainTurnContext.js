@@ -10,11 +10,11 @@ async function prepareDrainTurnContext(e, t, n, r, i, o, s, a) {
         c = n.resume === !1 || n.runtime !== "codex" || l ? void 0 : i.forkFrom,
         d = n.resume === !1 || c || l ? void 0 : i.sessionId,
         f = a(createDrainExecutionEventRecorder(e, t, u.event.session_key ?? t, n.onExecutionEvent, u.event.id)),
-        p = DW(u.event.payload),
+        p = extractPayloadMediaRefs(u.event.payload),
         m = r.map(D => D.event.id),
         h = applyJobSdkConfigOverride(await runTimedDrainPhase(s, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(e, u.event)), n.jobContext?.sdkConfig),
         g = classifySessionKeyOrUnknown(t) === "channel",
-        y = r.some(D => yA(D.event)),
+        y = r.some(D => isChannelMessageEvent(D.event)),
         v = computeTimeGapContext({
             consumed: o.timeGapConsumed,
             timeGapMinutes: h?.time_gap_minutes,

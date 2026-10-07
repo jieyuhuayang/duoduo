@@ -6,11 +6,11 @@
 
 async function listSessionsWithRecentConsumer(e, t, n = Date.now(), r = resolveNotifyUnconsumedHours()) {
     let i = r * nO,
-        o = await dh(e),
+        o = await buildSessionIndexFromDisk(e),
         s = [];
     for (let a of o.listByKind("channel")) {
         if (a.session_key === t) continue;
-        let u = await tO(e, a.session_key);
+        let u = await readLatestDeliveryCursorUpdate(e, a.session_key);
         if (u === void 0) continue;
         let l = Date.parse(u);
         if (!Number.isFinite(l)) continue;

@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function backfillOutboxByIdIndexFromReplay(e, t) {
-    let n = ws(e, t),
+    let n = resolveOutboxReplayFilePath(e, t),
         r;
     try {
         r = await Rn.readFile(n, "utf8")

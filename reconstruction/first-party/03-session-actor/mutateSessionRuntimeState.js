@@ -8,7 +8,7 @@ async function mutateSessionRuntimeState(e, t, n) {
     let r = !1;
     await runWithSessionMutex(t, async () => {
         if (assertSessionNotArchiving(t), isSessionArchived(e, t)) {
-            ke("[session] skipping runtime-state mutate for tombstoned session", {
+            logDebugMessage("[session] skipping runtime-state mutate for tombstoned session", {
                 sessionKey: t
             });
             return
@@ -33,10 +33,10 @@ async function mutateSessionRuntimeState(e, t, n) {
                 a[c] = d
             } let l = {
             ...o,
-            ...af(a),
+            ...stripUndefinedFieldsDeep(a),
             updated_at: new Date().toISOString()
         };
         for (let c of u) delete l[c];
-        await Bt(i, l), r = !0
-    }), r && th(t, "state")
+        await writeJsonFileAtomic(i, l), r = !0
+    }), r && notifySessionFileChanged(t, "state")
 }

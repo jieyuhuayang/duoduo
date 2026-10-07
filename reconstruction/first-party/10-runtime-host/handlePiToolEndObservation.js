@@ -29,7 +29,7 @@ async function handlePiToolEndObservation(e, t, n) {
                 paths: e,
                 sessionKey: t
             });
-            o.startsWith("Error:") && Z("[pi] QueueOutboundAttachment refused at the daemon observation point", {
+            o.startsWith("Error:") && logWarnMessage("[pi] QueueOutboundAttachment refused at the daemon observation point", {
                 sessionKey: t,
                 output: o
             })

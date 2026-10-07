@@ -9,7 +9,7 @@ function renderNotifyToolDescription(e) {
         sessionKey: t,
         sessionContextKind: n
     } = e;
-    switch (n ?? (dve(t) ? "job" : "foreground")) {
+    switch (n ?? (isJobSessionKeyKind(t) ? "job" : "foreground")) {
         case "job":
             return qlt();
         case "meta":

@@ -18,7 +18,7 @@ function runActivationLint(e, t, n) {
         f = 0;
     if (d !== null)
         for (let k of s) u.has(k.rel) || k.birthtimeMs > 0 && k.birthtimeMs < d && (f += 1);
-    let p = Tn(r.boardPath),
+    let p = readMemoryFileSyncOrNull(r.boardPath),
         m = p === null ? new Set : walkReachableMemory(p, createMemorySlugReader(r)),
         h = [];
     if (p !== null) {
@@ -29,13 +29,13 @@ function runActivationLint(e, t, n) {
                 touches: S
             })
         }
-        h.sort((k, S) => k.touches !== S.touches ? S.touches - k.touches : Ar(k.rel, S.rel))
+        h.sort((k, S) => k.touches !== S.touches ? S.touches - k.touches : compareStringsAscending(k.rel, S.rel))
     }
     let g = h.slice(0, _Se),
-        y = NH(),
+        y = readMemoryMaxLinesLimit(),
         v = [];
     if (p !== null) {
-        let k = Jo(p);
+        let k = splitLinesDropTrailingEmpty(p);
         for (let S = 0; S < k.length; S += 1)
             for (let D of scanWikiLinkOccurrences(k[S])) {
                 let A = [];

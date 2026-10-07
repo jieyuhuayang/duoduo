@@ -8,7 +8,7 @@ async function emitDrainOutputRecords(e, t, n) {
     let r = [],
         {
             targetSessionKeys: i
-        } = Xxe(n.item, n.event, t),
+        } = resolveReplyTargetSessionKeys(n.item, n.event, t),
         o = i.length,
         s, a = n.item.replySessionKey?.trim();
     for (let [u, l] of i.entries()) {
@@ -34,7 +34,7 @@ async function emitDrainOutputRecords(e, t, n) {
                     } : void 0
                 }
             });
-        await Va(e, f), r.push(f);
+        await persistOutboxRecord(e, f), r.push(f);
         let p = {
             outbox_id: f.id,
             text: f.payload.text,

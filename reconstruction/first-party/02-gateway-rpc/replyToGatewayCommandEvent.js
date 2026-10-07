@@ -36,7 +36,7 @@ async function replyToGatewayCommandEvent(e, t, n, r) {
                 }
             }
         });
-    await Va(e, u);
+    await persistOutboxRecord(e, u);
     let l = createSpineEvent({
         type: "agent.result",
         source: {

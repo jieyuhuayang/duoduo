@@ -14,7 +14,7 @@ function createOutboxDeliveryManager(e) {
 
     function u(h) {
         let g = h.session_key,
-            v = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(b => (Z("[outbox-delivery] live delivery failed", {
+            v = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(b => (logWarnMessage("[outbox-delivery] live delivery failed", {
                 outboxId: h.id,
                 sessionKey: h.session_key,
                 error: b instanceof Error ? b.message : String(b)
@@ -30,7 +30,7 @@ function createOutboxDeliveryManager(e) {
         },
         c = () => {
             p().catch(h => {
-                Z("[outbox-delivery] pending flush failed", {
+                logWarnMessage("[outbox-delivery] pending flush failed", {
                     error: h instanceof Error ? h.message : String(h)
                 })
             })
@@ -57,7 +57,7 @@ function createOutboxDeliveryManager(e) {
             let b = await recordOutboxDeliveryAttempt(t, h, {
                 status: "sent"
             });
-            return await recordOutboxSentId(t, b.id), go("delivered", b.id, {
+            return await recordOutboxSentId(t, b.id), logLatencyStageTelemetry("delivered", b.id, {
                 outboxId: b.id,
                 sessionKey: b.session_key
             }), !0

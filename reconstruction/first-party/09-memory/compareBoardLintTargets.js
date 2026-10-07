@@ -10,5 +10,5 @@ function compareBoardLintTargets(e, t) {
     if (n !== r) return r - n;
     let i = e.s + e.n + e.w,
         o = t.s + t.n + t.w;
-    return i !== o ? o - i : Ar(e.slug, t.slug)
+    return i !== o ? o - i : compareStringsAscending(e.slug, t.slug)
 }

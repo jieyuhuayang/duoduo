@@ -23,22 +23,22 @@ function createModelCommandResolvers(e) {
         return u.ok ? u.runtime === "void" ? `${Ju} It has no model or effort to show or set.` : void 0 : u.reason
     }
     async function o(a, u) {
-        let l = await iu(t, a);
+        let l = await resolveChannelConfigBySession(t, a);
         if (l) return l;
-        if (cS(u?.sourceKind)) {
-            let c = await ru(t, {
+        if (isBusinessSourceKind(u?.sourceKind)) {
+            let c = await resolveEffectiveChannelConfig(t, {
                 channel_kind: u?.sourceKind,
                 channel_id: u?.sourceChannelId
             });
             if (c) return c
         }
-        return nu(await li(t.channelConfigDir))
+        return mergeGlobalModelConfigLayers(await loadGlobalRuntimeConfig(t.channelConfigDir))
     }
     async function s(a, u, l, c) {
-        let d = u ? EN(u) : void 0,
+        let d = u ? readLiveStreamContextToken(u) : void 0,
             f = u ? BRe(u) : void 0,
             p = await o(a, c),
-            m = l ? void 0 : buildSessionInfoFromState(t, a, await rt(t, a).catch(() => null) ?? void 0).cwd,
+            m = l ? void 0 : buildSessionInfoFromState(t, a, await readSessionRuntimeState(t, a).catch(() => null) ?? void 0).cwd,
             h = await resolveClaudeContextRequirement({
                 model: l,
                 cwd: m,
@@ -47,7 +47,7 @@ function createModelCommandResolvers(e) {
                 hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
                 issues: p.claudeModelProfileIssues
             }),
-            g = Wg(h, p.claudeModelProfileIssues);
+            g = selectProfileIssuesForModel(h, p.claudeModelProfileIssues);
         if (g.length > 0) return {
             outcome: "blocked",
             detail: cA(g)
@@ -58,8 +58,8 @@ function createModelCommandResolvers(e) {
             requirementKind: h.kind,
             contextWindow: y
         } : {
-            outcome: sS({
-                capToken: np({
+            outcome: computeContextProfileSignature({
+                capToken: resolveContextCapToken({
                     requirement: h,
                     hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
                     liveGenerationToken: d

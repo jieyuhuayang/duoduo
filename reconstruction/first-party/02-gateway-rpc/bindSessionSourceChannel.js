@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function bindSessionSourceChannel(e, t, n) {
-    n && (ah(n), await patchSessionRuntimeState(e, t, {
+    n && (assertValidChannelId(n), await patchSessionRuntimeState(e, t, {
         source_channel_id: n
     }))
 }

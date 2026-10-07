@@ -134,7 +134,7 @@ function createPiWorkerAdapter(e) {
                 r === C && b(x)
             }), C.on("exit", x => {
                 r === C && b(new Error(`pi worker exited (code ${String(x)})`))
-            }), Xl(C.stdout, x => {
+            }), attachStreamLineReader(C.stdout, x => {
                 if (r !== C) return;
                 let M = LW(x);
                 if (!M) {

@@ -8,7 +8,7 @@ function buildNotifyInputSchema(e) {
     let {
         sessionKey: t,
         sessionContextKind: n
-    } = e, r = n ?? (dve(t) ? "job" : "foreground"), i = {
+    } = e, r = n ?? (isJobSessionKeyKind(t) ? "job" : "foreground"), i = {
         notify_content: mt.string().describe(Ult())
     };
     return r === "job" ? i.target_session_key = mt.string().optional().describe(["Optional: override this job's default Notify target.", "If omitted, the target is the job's owner — the session that created it.", "If provided, delivers to this specific session instead.", "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery, unless that session runs no model."].join(`

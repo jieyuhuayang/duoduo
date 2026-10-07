@@ -6,22 +6,22 @@
 
 function runNodeLint(e, t = 1, n) {
     let r = resolveMemoryDirs(e);
-    if (!Ug(r.topicsDir)) return {
+    if (!isMemoryPathDirectory(r.topicsDir)) return {
         ranked: [],
         selected: [],
         topicsDirMissing: !0
     };
-    let i = Tn(r.boardPath) ?? "",
+    let i = readMemoryFileSyncOrNull(r.boardPath) ?? "",
         o = walkReachableMemory(i, createMemorySlugReader(r)),
         s = [];
-    for (let l of ou(r.topicsDir)) {
+    for (let l of listMarkdownSlugsSync(r.topicsDir)) {
         let c = bdt(l);
         if (c === null) continue;
         let d = l.slice(`${c}-`.length),
-            f = Tn(hdt.join(r.topicsDir, `${l}.md`));
+            f = readMemoryFileSyncOrNull(hdt.join(r.topicsDir, `${l}.md`));
         if (f === null) continue;
         let p = ydt(f, c),
-            m = AO(f);
+            m = countNewlineChars(f);
         if (p.length === 0 && m <= xH) continue;
         let h = o.has(l);
         s.push({
@@ -39,7 +39,7 @@ function runNodeLint(e, t = 1, n) {
         row: l,
         kind: Vn.NODE_CONVERGE,
         partition: "pattern-tracker",
-        pendingFilename: `${DO(l)}.md.pending`,
+        pendingFilename: `${buildNodeSignalKey(l)}.md.pending`,
         pendingBody: renderNodeConvergeSignalBody(l)
     }));
     return {

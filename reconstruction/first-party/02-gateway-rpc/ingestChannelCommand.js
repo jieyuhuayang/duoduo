@@ -6,12 +6,12 @@
 
 async function ingestChannelCommand(e, t, n) {
     let r = parseInjectionPromptCommand(t.command),
-        i = r ? void 0 : tv(t.command),
+        i = r ? void 0 : parseGatewayCommandText(t.command),
         o = t.routingHint?.intent ?? classifyGatewayCommandIntent(i),
         s = !!r?.args,
         a = o === "history-control" || s ? "session" : "gateway",
         u = t.routingHint?.target ?? a,
-        l = u === "session" ? hde(r, t.command) : void 0;
+        l = u === "session" ? expandInjectionPromptCommand(r, t.command) : void 0;
     return appendBeforeExecuteGateway(e, {
         eventType: "channel.command",
         sessionKey: t.sessionKey,

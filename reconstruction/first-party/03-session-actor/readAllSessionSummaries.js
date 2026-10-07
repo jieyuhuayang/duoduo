@@ -5,7 +5,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readAllSessionSummaries(e, t) {
-    await Ne(e.usageDir);
+    await ensureDirectoryExists(e.usageDir);
     let n;
     try {
         n = await SI.readdir(e.usageDir)
@@ -16,7 +16,7 @@ async function readAllSessionSummaries(e, t) {
     for (let i of n) {
         if (!i.endsWith(".jsonl")) continue;
         let o = i.slice(0, -6),
-            s = await sde(e, o, t).catch(kI);
+            s = await aggregateSessionDrainSummary(e, o, t).catch(createEmptyUsageSummary);
         s.total_drains > 0 && (r[o] = s)
     }
     return r

@@ -22,7 +22,7 @@ async function acquireRuntimeWriterLock(e, t = {}) {
     let a = `${n}.${o}-${Nct.randomUUID()}`,
         u = !1;
     try {
-        await Bt(a, s);
+        await writeJsonFileAtomic(a, s);
         try {
             await pS.link(a, n), u = !0
         } catch (c) {
@@ -45,7 +45,7 @@ async function acquireRuntimeWriterLock(e, t = {}) {
         stale: !1,
         lock: l,
         lockPath: n
-    } : (await Bt(n, s), {
+    } : (await writeJsonFileAtomic(n, s), {
         acquired: !0,
         stale: !!l,
         lock: s,

@@ -25,6 +25,6 @@ async function updateSessionDisplayName(e, t, n) {
                 kind: a.kind,
                 display_name: u.length > 0 ? u : void 0
             };
-        await Dt(i, Gb.default.stringify(s.content, af(l))), r = af(l)
-    }), r && th(t, "meta"), r
+        await writeFileAtomic(i, Gb.default.stringify(s.content, stripUndefinedFieldsDeep(l))), r = stripUndefinedFieldsDeep(l)
+    }), r && notifySessionFileChanged(t, "meta"), r
 }

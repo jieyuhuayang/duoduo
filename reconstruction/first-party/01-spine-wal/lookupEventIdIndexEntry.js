@@ -7,13 +7,13 @@
 async function lookupEventIdIndexEntry(e, t, n) {
     if (n?.load === !1) {
         let i = jR.get(resolveEventIdIndexPath(e));
-        return !i || !await Uu(i) ? null : i.map.get(t) ?? null
+        return !i || !await isIndexLoadStillCurrent(i) ? null : i.map.get(t) ?? null
     }
     let r;
     try {
         r = await loadEventIdIndex(e)
     } catch (i) {
-        return Z(`[spine] by-id index load failed; treating ${t} as an index miss`, i), null
+        return logWarnMessage(`[spine] by-id index load failed; treating ${t} as an index miss`, i), null
     }
     return r.get(t) ?? null
 }

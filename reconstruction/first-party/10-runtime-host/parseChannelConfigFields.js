@@ -19,6 +19,6 @@ function parseChannelConfigFields(e) {
         stream: i,
         ...parseChannelRuntimeField(e.runtime),
         require_mention: o,
-        ...HU(e)
+        ...parseSdkConfigFrontmatter(e)
     }
 }

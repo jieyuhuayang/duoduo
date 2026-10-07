@@ -14,7 +14,7 @@ async function recordOutboxDeliveryAttempt(e, t, n) {
             last_error: n.error ?? null
         },
         o = resolveOutboxRecordPath(e, t.channel_kind, t.id);
-    await Ne(Lr.dirname(o)), await Bt(o, i);
+    await ensureDirectoryExists(Lr.dirname(o)), await writeJsonFileAtomic(o, i);
     try {
         n.status === "sent" ? await get(e, t.id) : n.status === "failed" && await yet(e, {
             record_id: t.id,

@@ -8,5 +8,5 @@ function runReadAuditedMemoryCheckStep(e, t) {
     Awe();
     let n = runMemoryCheckSubStep(e, t),
         r = Owe();
-    return r > 0 && Ue(`[memory] check tick sub-step read ${r} unreadable path(s): ${e} — results are degraded, inbox sweep suppressed this tick`), n && r === 0
+    return r > 0 && logErrorMessage(`[memory] check tick sub-step read ${r} unreadable path(s): ${e} — results are degraded, inbox sweep suppressed this tick`), n && r === 0
 }

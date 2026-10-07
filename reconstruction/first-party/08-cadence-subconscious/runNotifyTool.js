@@ -103,6 +103,6 @@ async function runNotifyTool(e, t) {
         if (y.filter(b => !b.success).length > 0) throw new Error(renderNotifyDeliveryReport(i, u, d, y));
         return renderNotifyDeliveryReport(i, u, d, y)
     } catch (n) {
-        return Ue("[Notify] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
+        return logErrorMessage("[Notify] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
     }
 }
