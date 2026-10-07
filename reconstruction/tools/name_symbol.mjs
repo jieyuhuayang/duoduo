@@ -161,8 +161,16 @@
 // check-mode run's $OUT (reconstruction/.build) describes the new one and
 // maps/inferred_daemon.json already holds the carried names. Pass the bundle
 // that run beautified: .build/beautified/v<new>/daemon.pretty.js.
+// After writing, --build also brings that run's rename map and symbol index up
+// to date (build_rename.mjs, then symbol_index.mjs on the pretty bundle the
+// index records as its source), so the new names can be cited and checked
+// (check_docs.sh, the three checkers) at once. Before this every registration
+// needed a full rebuild.sh before a doc could cite it; at v0.8.4 the doc
+// agents waited on one. The rest of that $OUT (recon, first-party, the
+// report) is not regenerated: the next rebuild.sh does that.
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
@@ -536,6 +544,20 @@ else {
   for (const [f, text] of writes) fs.writeFileSync(mapPath(f), text);
   console.error(`\nregistered ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
   if (!nextShape) console.error("  no shape baseline in this maps dir: run `verify_inferred.mjs record` after review");
+  if (GEN !== MAPS) {
+    // header: bring --build's rename map and index up to date
+    const run = (args) => spawnSync(process.execPath, ["--max-old-space-size=8192", ...args], { encoding: "utf8" });
+    const r1 = run([path.join(HERE, "build_rename.mjs"), path.join(GEN, "blocks_daemon.json"), mapPath("modules_daemon.json"),
+      mapPath("inferred_daemon.json"), path.join(GEN, "rename_daemon.json")]);
+    const r2 = r1.status === 0 && run([path.join(HERE, "symbol_index.mjs"), index.source, path.join(GEN, "rename_daemon.json"),
+      path.join(GEN, "symbols_daemon.json"), "--version", index.version]);
+    if (r1.status !== 0 || r2.status !== 0) {
+      console.error(`  could not update ${GEN}'s rename map and symbol index (${r1.status !== 0 ? "build_rename" : "symbol_index"} exit ${(r2 || r1).status}):\n${(r2 || r1).stderr}`);
+      console.error("  run rebuild.sh before citing the new names");
+      process.exit(1);
+    }
+    console.error(`  updated ${path.join(GEN, "rename_daemon.json")} and symbols_daemon.json: the new names can be cited and checked now (check_docs.sh)`);
+  }
   console.error("  next: rebuild.sh (PKG=...) regenerates recon/, first-party/ and the symbol index; PROMOTE=1 after review");
 }
 // the citation form, one per line on stdout

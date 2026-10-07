@@ -264,6 +264,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `RE-ANCHOR` 候选打分（`anchor_candidates.mjs`，`impact_report.mjs` 调用） | 每个失去锚点的推断名都有按调用方、被调用方、字符串三项重合度排序的候选，领先不足 1 分的标为 `CLOSE` | 重放 v0.8.3→v0.8.4 的 47 个名字：第一名与人工确认的选择一致 46 个（按位置配对只有 22 个，另有 18 个没有任何候选）；唯一不一致的是一个被拆成两个的函数，标为 `CLOSE`；同值常量 `IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 按读取它的函数区分开（2.00 对 0.00） |
 | 同值常量按读取方区分（`verify_inferred` 的 `judgeTwins`，`name_symbol` 同一规则） | 常量的基线另记读取它的顶层声明的字符串与成员属性名；同值常量不再只能永久告警 | 重放 v0.8.3→v0.8.4：`IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 放在 `Oct` 上通过（原来是永久 `warn`，名字只能删掉），挪到同值的 `kS` 上判失败（0.97 对 0.00）；变异测试新增"同值常量上的名字通过、挪到孪生常量上被推翻"两例 |
 | 只查文档的快速检查（`check_docs.sh`） | 用上一次 `rebuild.sh` 留在 `$OUT` 里的索引和美化文件，只跑 `rebuild.sh` 第 9、10 步的引用与行号检查，不写任何东西；`rebuild.sh` 仍是唯一的关卡 | 全部文档约 3 s（带 `PKG` 的完整运行约 2 分钟） |
+| 登记名字后增量更新索引（`name_symbol.mjs --build`） | 登记写入 `maps/` 之后，用 `build_rename.mjs` 与 `symbol_index.mjs` 更新那次运行的改名表和符号索引，新名字马上可以引用和检查 | 一次登记约 7 s，之前要再跑一次完整的 `rebuild.sh`；已有条目逐个不变，只多出新名字 |
 | 名字绑定片段的自动重定向（`retarget_snippets.mjs`） | 升级后片段里过期的局部变量名和短名按新声明重新推出，只在唯一匹配且通过严格核对时改写 | 重放 v0.8.3→v0.8.4：689 个不成立的片段改对 626 个，其中 622 个与 v0.8.4 文档手工改出的写法逐字相同；剩下 63 个是代码确实变了的 |
 | 文档分节与升级 workflow（`doc_sections.mjs`、`.claude/workflows/upgrade-docs.js`） | 并行的 agent 各自只改自己那几节的文件，不会互相覆盖；拼回时拒绝拆分后被改过的文档；升级的文档步骤按固定脚本运行，不必每次重写 | 拆分后立即拼回与原文逐字节相同；workflow 的控制流用模拟 agent 跑通（加载分组、分配新节、只在核验发现问题时运行修正）；还没有在真实升级上运行过 |
 
