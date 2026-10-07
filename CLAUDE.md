@@ -218,7 +218,9 @@ docs**, and step 3 only makes the citations point at the right code again. What 
 adds for step 3b: `diff_decls.mjs` writes a readable `.diff` per changed declaration
 (aligned with every local as `_` and top-level names in one vocabulary, so esbuild's local
 renaming is not shown as change; at v0.8.2 → v0.8.3 the positional `.norm` form showed
-4239 changed lines, the readable diffs 318); `plaintext_delta.mjs` collects the package's
+4239 changed lines, the readable diffs 318; declarations with no old counterpart get one diff
+per run of them that sits together in the bundle, ending at a module initialiser, each headed
+by the existing declarations that use it, changed ones first); `plaintext_delta.mjs` collects the package's
 non-bundle files and upstream's repository between the release tags; `impact_report.mjs`
 lists every doc citation of a changed declaration in three tiers (1 re-read: a name-bound
 snippet on a changed line or gone from the new code; 2 check: a whole-declaration citation

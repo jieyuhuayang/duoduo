@@ -266,6 +266,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 只查文档的快速检查（`check_docs.sh`） | 用上一次 `rebuild.sh` 留在 `$OUT` 里的索引和美化文件，只跑 `rebuild.sh` 第 9、10 步的引用与行号检查，不写任何东西；`rebuild.sh` 仍是唯一的关卡 | 全部文档约 3 s（带 `PKG` 的完整运行约 2 分钟） |
 | 登记名字后增量更新索引（`name_symbol.mjs --build`） | 登记写入 `maps/` 之后，用 `build_rename.mjs` 与 `symbol_index.mjs` 更新那次运行的改名表和符号索引，新名字马上可以引用和检查 | 一次登记约 7 s，之前要再跑一次完整的 `rebuild.sh`；已有条目逐个不变，只多出新名字 |
 | 影响清单区分"只需改写法"（`impact_report.mjs` 的 `respelled`） | 引用的代码在两版里都在、只是名字变了的片段不再计入第 1、2 档 | 重放 v0.8.3→v0.8.4：第 1、2 档合计 215 → 109；被移出的 106 条里，`retarget_snippets` 改对 57 条、43 条本来就成立、6 条歧义，没有一条是"无匹配"；代码确实变了的片段仍在第 1、2 档 |
+| 新声明按 bundle 里的位置分组（`diff_decls.mjs` 的 `pureNew<k>`） | 没有旧对应的声明不再合成一个 diff：每段在 bundle 里相邻的新声明一个 diff（模块初始化器处断开），头部列出用到它们的已有声明，改动过的在前 | v0.8.3→v0.8.4：1 个 1123 行的 diff → 8 个（64、17、11、48、1004、12、10、18 行）；1004 行那段是一个整块新增的模块（spine 的查询与渲染），用到它的改动声明是 `deliverExternalSessionNotify` 与 `createDaemon` |
 | 名字绑定片段的自动重定向（`retarget_snippets.mjs`） | 升级后片段里过期的局部变量名和短名按新声明重新推出，只在唯一匹配且通过严格核对时改写 | 重放 v0.8.3→v0.8.4：689 个不成立的片段改对 626 个，其中 622 个与 v0.8.4 文档手工改出的写法逐字相同；剩下 63 个是代码确实变了的 |
 | 文档分节与升级 workflow（`doc_sections.mjs`、`.claude/workflows/upgrade-docs.js`） | 并行的 agent 各自只改自己那几节的文件，不会互相覆盖；拼回时拒绝拆分后被改过的文档；升级的文档步骤按固定脚本运行，不必每次重写 | 拆分后立即拼回与原文逐字节相同；workflow 的控制流用模拟 agent 跑通（加载分组、分配新节、只在核验发现问题时运行修正）；还没有在真实升级上运行过 |
 
