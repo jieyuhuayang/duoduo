@@ -70,7 +70,7 @@ GUIDE 与 INTERNALS 整篇对齐 v0.8.3；ARCHITECTURE 与 COMPARISON 各有一�
 
 | 写法 | 表示什么 | 检查工具 | 构建失败的条件 |
 |---|---|---|---|
-| `` `真名 (短名)` ``，例如 `atomicAppendEvent (on)` | 指向一个符号。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名，跨版本不变；短名是美化后 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，保留它是为了方便在 bundle 里搜索 | `verify_citations.mjs` | 真名不在任何符号索引里（被上游删除或改名，或者只在正文里起了名、没有登记）；短名不是该符号当前的短名 |
+| `` `真名 (短名)` ``，例如 `atomicAppendEvent (tn)` | 指向一个符号。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名，跨版本不变；短名是美化后 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，保留它是为了方便在 bundle 里搜索 | `verify_citations.mjs` | 真名不在任何符号索引里（被上游删除或改名，或者只在正文里起了名、没有登记）；短名不是该符号当前的短名 |
 | `` `代码片段`（`真名`） ``，例如 `stage: "runtime_mismatch"`（`drainSessionMailbox`） | 这句代码就是证据。片段里的标识符按美化后 bundle 的拼写写，即写短名 | `check_bare_anchors.mjs` | 真名不在符号索引里；片段中没有任何有辨识度的 token（至少 2 个字符的字符串字面量，或至少 3 个字符的非关键字标识符）落在该符号当前的声明范围内；片段调用的某个短名、写出的某个数字不在这个范围内 |
 
 `verify_citations.mjs` 对第一种写法的检查不依赖它出现在哪里：正文、表格和围栏里的图都会被读到，带不带行号都一样。真名在所有符号索引里都找不到时，只要它的拼写像真名（至少 8 个字符，lowerCamelCase、UPPER_SNAKE 或多段 PascalCase），括号里又是短名形状的标识符，构建就失败；这两个条件是为了让正文里普通的"词 (词)"不被误报。
@@ -89,7 +89,7 @@ esbuild 只为模块导出的符号留下原名，很多函数、模块初始化
 
 `name_symbol.mjs` 在写入任何文件之前做完全部检查，一批名字要么全部写入、要么全部拒绝。它确认：给它的 bundle 正是 `reconstruction/maps/` 描述的版本；短名是可以命名的顶层声明（函数、esbuild 的 `__esm` 模块初始化器，或只由字面量组成的常量）；这个短名还没有名字；它属于 duoduo 自己的代码，而不是随包的第三方库；名字的拼写与种类相符（函数用 lowerCamelCase，模块初始化器用 `init<名字>Module`，常量用带下划线的 UPPER_SNAKE，都至少 8 个字符，并且不与 bundle 里的任何变量名、也不与任何 bundle 的已有真名重复）；所属子系统是 `first-party/` 已有的目录之一。通过后它写入 `inferred_daemon.json`、`subsys_daemon.json`，并只为新名字在 `inferred_daemon.shape.json` 里加基线条目；归属没有代码证据、由人读过函数体后用 `--allow-unproven` 断言的名字，另记入 `inferred_daemon.asserted.json`。名字在下一次运行 `rebuild.sh` 时进入还原源码、`first-party/` 和符号索引，复核后用 `PROMOTE=1` 写入仓库；引用检查按符号索引核对，所以新名字要在这之后才能被引用。
 
-运行时的默认值常量通常在 esbuild 的模块初始化器里赋值。这时给初始化器命名，再用片段写法引用赋值语句，例如 Notify 拒投阈值的环境变量名与默认值：`BV = "ALADUO_NOTIFY_UNCONSUMED_HOURS", R$ = 1`（`initNotifyConsumerStalenessModule`）。
+运行时的默认值常量通常在 esbuild 的模块初始化器里赋值。这时给初始化器命名，再用片段写法引用赋值语句，例如 Notify 拒投阈值的环境变量名与默认值：`z6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", eO = 1`（`initNotifyConsumerStalenessModule`）。
 
 两种情况给不了代码引用。cli bundle 没有推断名映射，`name_symbol.mjs` 只处理 daemon，所以 cli 里没有真名的函数只引用它打印的字符串，不给代码引用。一个无法命名的短名，如果包含它的已命名函数里有一句代码能证明主张，就用那句代码作片段引用；连这样的函数也没有时，不给代码引用，把主张降为 `未证实推测` 或删去。
 
