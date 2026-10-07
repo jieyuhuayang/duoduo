@@ -1,7 +1,7 @@
 # duoduo 部署与运维架构分析
 
-> 对齐版本：`@openduo/duoduo` **v0.8.3**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
-> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.3 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.3 的行为，以代码为准；§7 汇总实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1），这些记录没有在 v0.8.3 上重测。
+> 对齐版本：`@openduo/duoduo` **v0.8.4**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
+> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.4 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.4 的行为，以代码为准；§7 汇总实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1），这些记录没有在 v0.8.4 上重测。
 > 引用写法与置信标注都与 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 相同：`真名 (短名)` 或 `代码片段`（`真名`），不写行号；cli bundle 里的符号写作 `cli:真名`。机制主张标 `confirmed`（主张的核心由可检查的引用、包内文件原文或否定性证据支撑）或 `未证实推测`（写明缺什么证据）。cli bundle 里有一批函数还没有真名，只在这些函数里读到的 CLI 行为，本文照样写出运维结论，但标 `未证实推测` 并注明"cli 函数无真名"，这类项在 INTERNALS 14.4 汇总；这些函数打印的字符串可以直接引用。
 >
 > **姊妹篇**：本文是部署与运维层面的分析。入门与设计思路见 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（下称 GUIDE）；逐机制的代码证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（下称 INTERNALS）；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
@@ -171,6 +171,8 @@ daemon 从三层 Markdown 配置读取会话的运行方式，但三层并不对
 | `kernel/config/<kind>.md` | 种类配置层：按渠道种类的行为键、模型选择类键与种类提示词，`<kind>` 取自触发这次运行的事件的 `source.kind` | 下一次 drain 重新读取 |
 | `var/channels/<id>/descriptor.md` | 实例配置层：单个渠道实例的覆盖与实例提示词 | 下一次 drain 重新读取；只有凭据或进程环境变化才需要重启渠道 |
 
+写在配置里的 `runtime` 值必须是 duoduo 认识的值，写错时被拒绝，不会悄悄换成下一层或默认引擎（confirmed；代码证据见 INTERNALS 9.3、10.1、11.3）。合法取值是 `claude`、`codex`、`grok`、`pi` 与 `void`，`void` 只给会话从不运行模型的渠道插件用，job、分区和全局默认引擎都不接受它（`validateRunnableRuntimeValue (Wd)`）。四个位置的后果不同：环境变量 `ALADUO_DEFAULT_RUNTIME` 写错时 daemon 拒绝启动，未设置或为空时仍是 `claude`（`if (!r.ok) throw new xb(r.reason)`（`resolveDefaultRuntime`）；`main` 在读完 `.env` 后立即调用它：`delete process.env[tl], ho();`（`main`））；种类或实例配置写错时，取到这一层的渠道会话每个 turn 都以 `runtime_refused` 拒绝执行并回复理由，实例层的有效值仍覆盖种类层的错误值（`resolveLayeredChannelRuntime (Ua)`）；job frontmatter 写错时这个 job 每次运行都失败；分区 frontmatter 写错时这个分区轮到时不运行，记为报错并退避。升级到这一行为之后，应当把写过 runtime 的地方逐一核对，写错的值改成这些会话此前实际运行的引擎；上游 `duoduo-admin` 技能的升级手册给出了查找命令。
+
 job 没有自己的种类层，这一点与出厂文件的说明不同（confirmed；代码证据见 INTERNALS 3.5）。drain 按锚点事件的来源种类选种类文件：按调度规则触发的运行，锚点是 60 秒扫描器写入的 `job.spawn` 事件，来源种类是 cadence（`kind: "cadence"`（`scanAndSpawnDueJobs`）），读的是包内不存在的 `config/cadence.md`；由 Notify 等投递唤醒的运行，来源是 route。`config/job.md` 只在 pi 引擎的 job 会话里被读取，而且只取 `pi.model` 与 `pi.effort`（`channel_kind: "job"`（`createSessionManager`））；对 Claude、Codex、Grok 的 job，`job.md` 的其余键和正文都不生效。job 自己的设置写在 job 文件的 frontmatter 里。
 
 ---
@@ -239,7 +241,7 @@ daemon 是分离的后台进程，不热加载启动时读取的设置，改了 
 
 macOS 上的 launchd 服务是用户级的（标签 `"ai.openduo.daemon"`（`cli:PLIST_LABEL`）），plist 设了 `<key>KeepAlive</key>`（`cli:generatePlist`）并限定图形登录会话；CLI 发现自己在 SSH 会话里（`isAquaSession (sk)` 检查 `SSH_CLIENT`、`SSH_TTY`）就拒绝启动 daemon。由于服务标签对每个用户固定，在 macOS 上用改过的 `HOME` 运行 `duoduo daemon start|stop|restart` 仍会操作本机真实的 daemon。
 
-`duoduo daemon logs [--lines N | --all]` 默认显示 `run/daemon-supervisor.log` 的最后 200 行。这个文件只在 CLI 直接派生 daemon 的平台上写入；macOS 上 launchd 把 daemon 的输出写进 `run/daemon.stdout.log` 与 `run/daemon.stderr.log`（plist 的 `<key>StandardErrorPath</key>`（`cli:generatePlist`）；路径见 `vt.join(l, "daemon.stderr.log")`（`resolveRuntimePaths`）），daemon 的日志都写在 stderr，所以在 macOS 上应直接读 `run/daemon.stderr.log`（launchd 的输出路径 confirmed；`daemon logs` 读哪个文件、默认多少行在没有真名的 cli 函数里读到，未证实推测，也未实测）。
+`duoduo daemon logs [--lines N | --all]` 默认显示 `run/daemon-supervisor.log` 的最后 200 行。这个文件只在 CLI 直接派生 daemon 的平台上写入；macOS 上 launchd 把 daemon 的输出写进 `run/daemon.stdout.log` 与 `run/daemon.stderr.log`（plist 的 `<key>StandardErrorPath</key>`（`cli:generatePlist`）；路径见 `St.join(l, "daemon.stderr.log")`（`resolveRuntimePaths`）），daemon 的日志都写在 stderr，所以在 macOS 上应直接读 `run/daemon.stderr.log`（launchd 的输出路径 confirmed；`daemon logs` 读哪个文件、默认多少行在没有真名的 cli 函数里读到，未证实推测，也未实测）。
 
 ### 5.3 升级与刷新分区提示词
 
