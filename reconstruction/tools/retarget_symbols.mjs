@@ -13,12 +13,13 @@
 //  * LOCALS. The docs quote minified code — `[i,s,o,u,a,c]`, `t.permissionMode ??
 //    …`, `e.readableName`. Those identifiers are function-local and have nothing
 //    to do with the top-level migration; rewriting them would be pure corruption.
-//    So substitution happens ONLY in unambiguous symbol-reference positions: a
-//    code span that is exactly an identifier, or the `realName (mangled)` form.
-//    Quoted expressions are never touched.
-//  * ENGLISH. Short names like `am`, `nn`, `dc` — and `the`, which really is a
-//    symbol in this bundle — collide with ordinary words. The identifier-only
-//    rule handles this too: prose is never a bare identifier span.
+//    So substitution happens ONLY in symbol-reference positions: the
+//    `realName (mangled)` form and the slash pair below. Quoted expressions
+//    are never touched.
+//  * ENGLISH. Short names like `am`, `nn`, `dc`, `cat`, `ps`, `no` -- and
+//    `the`, which really is a symbol in this bundle -- collide with ordinary
+//    words, shell commands and subcommand names, and those are routinely
+//    quoted as a code span of their own. See BARE below.
 //
 // One more position is rewritten: the slash pair `real/short` (anchor_forms.mjs
 // slashPair), a shorthand diagrams in the docs use, in and out of code spans
@@ -39,13 +40,27 @@
 // division. It needs real names, i.e. the two-rename-map form: --migration
 // carries only short names and leaves both pair forms alone.
 //
-// A code span that is exactly one identifier has no real name to check, so it
-// is rewritten by whichever migration is given. That is why the docs are told
-// not to write bare short names.
+// So the docs are retargeted by running the tool once per bundle, daemon maps
+// then cli maps: each run moves only the pairs its old map vouches for. A
+// pair written with a bundle prefix (`cli:main (dZe)`, needed for a real name
+// both bundles have) is moved only by a run given that bundle with --bundle;
+// without --bundle prefixed pairs are left alone.
+//
+// BARE. A code span that is exactly one identifier has no real name to check.
+// Until v0.8.4 such spans were rewritten by whichever migration was given, and
+// at v0.8.3 -> v0.8.4 that turned the spine subcommand `cat` into `ilt`, the
+// command `ps` into `_s` and a historical example (`v0.8.3 reused \`AXe\``)
+// into a different name: 5 of the 8 bare spans it moved were not citations at
+// all, and every check passed, because nothing can check a bare span. So by
+// default a bare span is never rewritten; each one whose identifier the
+// migration moves is listed with its file and line, and a person decides
+// (write the `真名 (短名)` pair if it is a citation, leave it if it is a
+// word). --bare restores the old rewrite, for a --migration run over text
+// known to hold only short names.
 //
 // Usage:
-//   node retarget_symbols.mjs [--dry-run] --migration <old2new.json> <doc.md...>
-//   node retarget_symbols.mjs [--dry-run] <old_rename.json> <new_rename.json> <doc.md...>
+//   node retarget_symbols.mjs [--dry-run] [--bare] --migration <old2new.json> <doc.md...>
+//   node retarget_symbols.mjs [--dry-run] [--bare] [--bundle daemon|cli] <old_rename.json> <new_rename.json> <doc.md...>
 // The --migration form takes a plain {oldMangled: newMangled} map, e.g. built
 // from fingerprint_match.mjs (covers every declaration, not just first-party).
 // The two-rename-map form derives the migration from stable real names only.
@@ -53,8 +68,14 @@ import fs from "node:fs";
 import { slashPair } from "./anchor_forms.mjs";
 
 let args = process.argv.slice(2);
-const DRY = args[0] === "--dry-run" || args[0] === "-n";
-if (DRY) args = args.slice(1);
+let DRY = false, BARE = false, BUNDLE = null;
+for (;;) {
+  if (args[0] === "--dry-run" || args[0] === "-n") DRY = true;
+  else if (args[0] === "--bare") BARE = true;
+  else if (args[0] === "--bundle" && /^(daemon|cli)$/.test(args[1] ?? "")) { BUNDLE = args[1]; args = args.slice(1); }
+  else break;
+  args = args.slice(1);
+}
 
 let migration = {}, dropped = [];
 let oldMap = null; // old short name -> real name; two-rename-map form only
@@ -65,8 +86,8 @@ if (args[0] === "--migration") {
 } else {
   const [OLDMAP, NEWMAP, ...rest] = args;
   if (!OLDMAP || !NEWMAP || !rest.length) {
-    console.error("usage: node retarget_symbols.mjs [--dry-run] --migration <old2new.json> <doc.md...>\n" +
-                  "       node retarget_symbols.mjs [--dry-run] <old_rename.json> <new_rename.json> <doc.md...>");
+    console.error("usage: node retarget_symbols.mjs [--dry-run] [--bare] --migration <old2new.json> <doc.md...>\n" +
+                  "       node retarget_symbols.mjs [--dry-run] [--bare] [--bundle daemon|cli] <old_rename.json> <new_rename.json> <doc.md...>");
     process.exit(2);
   }
   files = rest;
@@ -84,8 +105,8 @@ if (!files.length) { console.error("no input files"); process.exit(2); }
 if (!Object.keys(migration).length) { console.error("no symbol drift"); process.exit(0); }
 
 const IDENT = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
-// `realName (mangled)` — the docs' citation convention
-const NAMED = /^([A-Za-z_$][A-Za-z0-9_$]*)\s+\(([A-Za-z_$][A-Za-z0-9_$]*)\)$/;
+// `realName (mangled)` — the docs' citation convention, optionally `cli:`/`daemon:`-prefixed
+const NAMED = /^(?:(daemon|cli):)?([A-Za-z_$][A-Za-z0-9_$]*)\s+\(([A-Za-z_$][A-Za-z0-9_$]*)\)$/;
 // inline code spans (single or double backtick) and fenced blocks
 const CODE = /```[\s\S]*?```|``[^`\n]*(?:`[^`\n]*)*?``|`[^`\n]+`/g;
 
@@ -93,6 +114,7 @@ const counts = new Map();
 let spansSeen = 0, spansEligible = 0;
 
 let slashSeen = 0, slashRewritten = 0, pairsForeign = 0;
+const bareLeft = []; // BARE: spans a person has to decide, never rewritten by default
 
 // The BUNDLES identity: does the old map pair this real name with this short
 // name? Own-property lookup, so a short name like `constructor` is not found
@@ -104,7 +126,7 @@ const moveTo = (short) => own(migration, short) ? migration[short] : null;
 // Every substitution is decided on the ORIGINAL text and then applied at once
 // (the CHAINS hazard): code-span edits and slash-pair edits never overlap -- a
 // span that is exactly an identifier or `real (short)` holds no slash.
-function rewrite(text) {
+function rewrite(text, file) {
   const sub = (name) => {
     const to = moveTo(name);
     if (!to) return name;
@@ -121,14 +143,24 @@ function rewrite(text) {
     const trimmed = inner.trim();
 
     let replaced = null;
-    if (IDENT.test(trimmed)) replaced = sub(trimmed);              // `ple`
-    else {
+    if (IDENT.test(trimmed)) {                                      // `ple`
+      if (!BARE) {
+        const to = moveTo(trimmed);
+        if (to) bareLeft.push({ file, line: text.slice(0, m.index).split("\n").length, from: trimmed, to,
+                                real: oldMap && own(oldMap, trimmed) ? oldMap[trimmed] : null });
+        continue;
+      }
+      replaced = sub(trimmed);
+    } else {
       const n = NAMED.exec(trimmed);                                // `drainSessionMailbox (Vde)`
       if (n) {
+        const [, prefix, real, short] = n;
+        // a prefixed pair belongs to the bundle it names: only that bundle's run moves it
+        if (prefix && prefix !== BUNDLE) continue;
         // BUNDLES: only a pair the old map vouches for; any other pair,
         // e.g. a cli one under the daemon maps, stays exactly as written
-        if (!pairedInOld(n[1], n[2])) { if (moveTo(n[2])) pairsForeign++; continue; }
-        replaced = `${n[1]} (${sub(n[2])})`;
+        if (!pairedInOld(real, short)) { if (moveTo(short)) pairsForeign++; continue; }
+        replaced = `${prefix ? prefix + ":" : ""}${real} (${sub(short)})`;
       }
     }
     if (replaced == null) continue;                // quoted expression — locals live here
@@ -155,7 +187,7 @@ function rewrite(text) {
 
 for (const f of files) {
   const before = fs.readFileSync(f, "utf8");
-  const after = rewrite(before);
+  const after = rewrite(before, f);
   if (after === before) { console.error(`unchanged ${f}`); continue; }
   if (!DRY) fs.writeFileSync(f, after);
   console.error(`${DRY ? "would rewrite" : "rewrote"} ${f}`);
@@ -171,3 +203,10 @@ if (pairsForeign) console.error(`${pairsForeign} \`real (short)\` span(s) with a
   "; verify_citations.mjs reports any that are wrong");
 for (const [k, n] of [...counts].sort((a, b) => b[1] - a[1])) console.error(`  ${k} -> ${migration[k]}  (${n}x)`);
 if (dropped.length) console.error(`not present in the new build (left alone): ${dropped.join(", ")}`);
+if (bareLeft.length) {
+  console.error(`\n${bareLeft.length} code span(s) that are exactly one migrated identifier, left as written` +
+                " (no real name to check; a word, a command or a citation alike). Rewrite a citation as" +
+                " `真名 (新短名)`; leave the rest:");
+  for (const b of bareLeft)
+    console.error(`  ${b.file}:${b.line}  \`${b.from}\`${b.real ? ` (old map: ${b.real})` : ""} -> ${b.to}`);
+}
