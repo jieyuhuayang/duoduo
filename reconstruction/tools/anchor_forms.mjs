@@ -376,6 +376,14 @@ function containsSequence(have, want) {
 // so convert_line_citations.mjs carried a verbatim copy "mirroring it exactly"
 // to pick its candidates -- two copies of the rule that decides whether a
 // citation holds, kept equal by a comment.
+//
+// Strict mode adds one more rule over all of the above: the snippet must be IN
+// the span as written (snippetVerbatim). The token rules let a snippet hold on
+// one matching token while the rest of it was stale: at the v0.8.4 bump about
+// four hundred name-bound snippets still quoted v0.8.3 locals and short names
+// (`C.result = await lyt(u)` in createDaemon, which now reads
+// `$.result = await Jbt(u)`) and passed, because `result` matched and an
+// all-lowercase callee is not the shape snippetCallHeads looks for.
 export function snippetHolds(code, lines, a, b, strict = false) {
   const toks = snippetTokens(code);
   const lone = code.trim();
@@ -401,8 +409,33 @@ export function snippetHolds(code, lines, a, b, strict = false) {
     numbers = want.filter(t => isNumberToken(t) && !spanNumbers.has(t));
     assignments = numericAssignments(want).filter(c => !containsSequence(have, c)).map(c => c.join(" "));
   }
+  const verbatim = !strict || snippetVerbatim(code, span.join("\n"));
   return {
-    checkable: true, ok: hit && !heads.length && !numbers.length && !assignments.length, heads,
+    checkable: true, ok: hit && !heads.length && !numbers.length && !assignments.length && verbatim, heads,
     ...(numbers.length ? { numbers } : {}), ...(assignments.length ? { assignments } : {}),
+    ...(verbatim ? {} : { verbatim: false }),
   };
+}
+
+// Is a snippet in a span as written? Whitespace is ignored (the formatter's
+// line breaks and indentation are not the code), and `\|` is read as `|`
+// (Markdown tables need the escape, so `\|\| void 0` in a table cell is the
+// code `|| void 0`). Two ways to quote less than a whole run of code:
+//   - `…` marks a gap: the pieces around it must be in the span in that order
+//     (`if (!r.force) {…}`).
+//   - a snippet that is one quoted string, `"FRESH context"`, may be part of a
+//     longer string, template literals included; its text must be in the span
+//     with its spacing.
+export function snippetVerbatim(code, spanText) {
+  const c = code.replace(/\\\|/g, "|").trim();
+  const lone = c.match(/^"((?:[^"\\]|\\.)*)"$|^'((?:[^'\\]|\\.)*)'$/);
+  if (lone) return spanText.includes(lone[1] ?? lone[2]);
+  const hay = spanText.replace(/\s+/g, "");
+  let from = 0;
+  for (const piece of c.split("…").map(p => p.replace(/\s+/g, "")).filter(Boolean)) {
+    const at = hay.indexOf(piece, from);
+    if (at < 0) return false;
+    from = at + piece.length;
+  }
+  return true;
 }

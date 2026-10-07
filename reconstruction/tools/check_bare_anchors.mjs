@@ -17,7 +17,10 @@
 //                               the span assigns 5 to another constant), and a
 //                               snippet of short names and numbers only
 //                               (`vH = 5, wH = 180 * 1e3`) as a whole token
-//                               sequence (anchor_forms.mjs snippetHolds);
+//                               sequence (anchor_forms.mjs snippetHolds); and
+//                               the snippet itself must be in the span as
+//                               written, whitespace aside, `…` marking a gap
+//                               (snippetVerbatim);
 //                               `cli:realName` for a cli symbol
 //
 // Every other backticked line number is UNBOUND, and so is one written where
@@ -212,7 +215,7 @@ for (const f of docs) {
     const r = bundle ? snippetHolds(code, bundle.lines, sym.e.line, sym.e.endLine, true) : { checkable: false };
     if (r.checkable && r.ok) { named.ok++; continue; }
     named.bad++;
-    const why = !r.checkable ? "has no checkable token" : `not inside ${name} (${sym.e.mangled})${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}${r.numbers ? ` (number ${r.numbers.join(",")} is not there)` : ""}${r.assignments ? ` (assignment ${r.assignments.join("; ")} is not there)` : ""}`;
+    const why = !r.checkable ? "has no checkable token" : `not inside ${name} (${sym.e.mangled})${r.heads.length ? ` (callee ${r.heads.join(",")} is not there)` : ""}${r.numbers ? ` (number ${r.numbers.join(",")} is not there)` : ""}${r.assignments ? ` (assignment ${r.assignments.join("; ")} is not there)` : ""}${r.verbatim === false ? " (not there as written)" : ""}`;
     refuted.push(`${where}: \`${code.slice(0, 50)}\` ${why}`);
     list(() => ({ doc: docName, docLine: docLineOf(m.index), snippet: code, symbol: name, span: `${sym.e.line}-${sym.e.endLine}`, status: `refuted: ${why}` }));
   }

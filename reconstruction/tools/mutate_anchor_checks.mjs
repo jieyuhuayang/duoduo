@@ -123,6 +123,28 @@ function constantIn(minLen, maxLen) {
 }
 const K3 = constantIn(3, 4), K2 = constantIn(1, 2);
 
+// A whole line of code from a function's span, for the rule that a name-bound
+// snippet must be in the span as written (anchor_forms.mjs snippetVerbatim):
+// a line with a string literal (so the token rules alone hold for it) and a
+// local of one or two characters. Renaming that local gives a snippet whose
+// literal still matches and whose stale local only the verbatim rule refutes,
+// which is what a bump does to every quoted local.
+const VL = (() => {
+  for (const [real, e] of fnSyms(idxD)) {
+    const span = dLines.slice(e.line - 1, e.endLine).join("\n");
+    for (let ln = e.line + 1; ln < e.endLine; ln++) {
+      const code = (dLines[ln - 1] || "").trim();
+      if (code.length > 90 || /[`|…]/.test(code) || !/"[A-Za-z][^"\\]{5,40}"/.test(code)) continue;
+      const loc = code.replace(/"(?:[^"\\]|\\.)*"/g, " ").match(/(?<![A-Za-z0-9_$.])[a-z]{1,2}(?![A-Za-z0-9_$(:])/);
+      if (!loc) continue;
+      const stale = code.replace(new RegExp(`(?<![A-Za-z0-9_$.])${loc[0]}(?![A-Za-z0-9_$])`), "zqx");
+      if (stale === code || span.replace(/\s+/g, "").includes(stale.replace(/\s+/g, ""))) continue;
+      return { real, code, stale };
+    }
+  }
+  return null;
+})();
+
 const clean = [
   `F1 \`${A.real} (${A.e.mangled})\`（\`${A.e.line}\`）`,
   `F2 \`${A.e.mangled}\`（\`${A.e.line}\`）`,
@@ -145,6 +167,8 @@ const clean = [
   // N for a constant: the number is the claim
   ...(K3 ? [`Nk3 \`${K3.code}\`（\`${K3.real}\`）`] : []),
   ...(K2 ? [`Nk2 \`${K2.code}\`（\`${K2.real}\`）`] : []),
+  // N quoting a whole line of code: it must be there as written
+  ...(VL ? [`Nv \`${VL.code}\`（\`${VL.real}\`）`] : []),
   // numbers that are not line citations must stay invisible: a count in prose
   // (qualified or not), a port inside code, a date/error code/size/expression
   // in a fence
@@ -215,6 +239,10 @@ const mutants = [
   ...(K3?.wrongInSpan ? [["N constant cites another number of the same span", "check_bare_anchors", clean.replace(`Nk3 \`${K3.code}\``, `Nk3 \`${K3.wrongInSpan}\``)]] : []),
   // no distinctive token at all: used to be uncheckable, now a token sequence
   ...(K2 ? [["N short-name constant cites a wrong number", "check_bare_anchors", clean.replace(`Nk2 \`${K2.code}\``, `Nk2 \`${K2.wrong}\``)]] : []),
+  // both passed the token rules: the literal still matched, a local is not a
+  // distinctive token, and an all-lowercase callee is not the shape of a short name
+  ...(VL ? [["N snippet keeps its literal but quotes a stale local", "check_bare_anchors", clean.replace(`Nv \`${VL.code}\``, `Nv \`${VL.stale}\``)]] : []),
+  ["N snippet keeps its literal but calls a stale all-lowercase name", "check_bare_anchors", clean.replace(`\`${A.code}\`（\`${A.real}\`）`, `\`${lowerNowhere}(${A.code})\`（\`${A.real}\`）`)],
   // line numbers are legacy: even a correct, well-formed one may not be added
   ["a new, correct F1 line number beyond the ratchet", "check_bare_anchors", clean + `\nagain \`${A.real} (${A.e.mangled})\`（\`${A.e.line}\`）\n`],
 ];
@@ -395,6 +423,7 @@ if (!shared) console.log("skip  no real name is in both bundles this release: th
 if (!K3) console.log("skip  no `name = <number>` with a 3-4 character name inside an indexed symbol: the N number mutant did not run");
 if (!K2) console.log("skip  no `name = <number>` with a 1-2 character name inside an indexed symbol: the N token-sequence mutant did not run");
 if (K3 && !K3.wrongInSpan) console.log("skip  the constant's span holds no other number: the N same-span wrong-number mutant did not run");
+if (!VL) console.log("skip  no function line with a literal and a one- or two-letter local: the N stale-local mutant did not run");
 // the clean doc's counts become the ceilings every mutant is measured against;
 // this one run has to finish before any other starts
 const recorded = spawnSync(process.execPath, [...bareArgs(docAt(clean), DAEMON), "--write-baseline"], { encoding: "utf8" });
