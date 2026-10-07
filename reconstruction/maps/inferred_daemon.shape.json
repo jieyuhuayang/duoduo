@@ -8943,6 +8943,309 @@
         "unset",
         "verb"
       ]
+    },
+    "validateKnownRuntimeValue": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " sets runtime ",
+        ", which is not a runtime this duoduo knows. Valid runtimes: "
+      ],
+      "props": [
+        "stringify"
+      ]
+    },
+    "validateRunnableRuntimeValue": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " sets runtime \"void\", which never runs a model, so it cannot run there. Use one of "
+      ],
+      "props": [
+        "ok",
+        "runtime"
+      ]
+    },
+    "isKnownRuntimeValue": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "initRuntimeValidationModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "InvalidRuntimeError"
+      ],
+      "props": [
+        "join",
+        "map",
+        "name"
+      ],
+      "values": []
+    },
+    "parseChannelRuntimeField": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "This channel's config"
+      ],
+      "props": [
+        "ok",
+        "reason",
+        "runtime"
+      ]
+    },
+    "resolveLayeredChannelRuntime": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "default",
+        "explicit",
+        "inherited"
+      ],
+      "props": [
+        "runtime",
+        "runtimeRefusal"
+      ]
+    },
+    "buildEffectiveRuntimeFields": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "ok",
+        "reason",
+        "runtime"
+      ]
+    },
+    "resolveSessionChannelRuntime": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "catch",
+        "channelConfigDir",
+        "channel_kind",
+        "source_channel_id"
+      ]
+    },
+    "isVoidRuntimeSession": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "void"
+      ],
+      "props": [
+        "ok",
+        "runtime"
+      ]
+    },
+    "createVoidAwareAttachmentCallbacks": {
+      "kind": "function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "attachChannel",
+        "catch",
+        "detachChannel",
+        "resolve",
+        "then"
+      ]
+    },
+    "listVoidChannelSessions": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "channel"
+      ],
+      "props": [
+        "add",
+        "entries",
+        "get",
+        "set",
+        "source_channel_id"
+      ]
+    },
+    "writeVoidSessionOutboxRecord": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "session.output"
+      ],
+      "props": [
+        "attachments",
+        "data",
+        "emit",
+        "length",
+        "sessionKey",
+        "split",
+        "text"
+      ]
+    },
+    "initVoidRuntimeModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "This session never runs a model (runtime void)."
+      ],
+      "props": [],
+      "values": [
+        "0d29c4dd33c76ae6"
+      ]
+    },
+    "readMemoryFileForRpc": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        " is a directory",
+        "\" is outside duoduo's memory",
+        "ENOENT",
+        "ENOTDIR",
+        "No file memory/",
+        "memory.read",
+        "memory/",
+        "utf8"
+      ],
+      "props": [
+        "code",
+        "isDirectory",
+        "memoryDir",
+        "path",
+        "readFile",
+        "realpath",
+        "resolve",
+        "stat"
+      ]
+    },
+    "runSpineCatRpc": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "external",
+        "spine.cat"
+      ],
+      "props": [
+        "isUsage",
+        "message",
+        "redact",
+        "stdout"
+      ]
+    },
+    "recordExternalSpineEvent": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "spine.record"
+      ],
+      "props": [
+        "checkAndRecordDetailed",
+        "conversation",
+        "dedup_key",
+        "duplicate",
+        "event_id",
+        "existing",
+        "id",
+        "payload",
+        "source",
+        "ts"
+      ]
+    },
+    "checkReservedRecordSource": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "\" is one of duoduo's internal sources (",
+        "\" is reserved on duoduo (",
+        "), which duoduo never learns from. Nothing was recorded. Record under your own name.",
+        "): it begins duoduo's session keys. Nothing was recorded. Record under your own name.",
+        "reserved_source"
+      ],
+      "props": [
+        "includes",
+        "join"
+      ]
+    },
+    "bindSessionSourceChannel": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": []
+    },
+    "resolveSessionByExactKey": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "not_found"
+      ],
+      "props": [
+        "display_name",
+        "get",
+        "session_key"
+      ]
+    },
+    "filterDeliverableSessions": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "push",
+        "refused",
+        "session_key"
+      ]
+    },
+    "initCallerSessionEnvModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "ALADUO_CALLER_SESSION"
+      ],
+      "props": [],
+      "values": [
+        "6a31555d53552eac"
+      ]
+    },
+    "replayIdempotentSessionNotify": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "idempotency_conflict",
+        "no_consumer",
+        "string"
+      ],
+      "props": [
+        "id",
+        "idempotencyKey",
+        "message",
+        "notify_content",
+        "notify_refused_reason",
+        "payload",
+        "route_id",
+        "sessionKey",
+        "session_key",
+        "target",
+        "ts"
+      ]
+    },
+    "resolveClaudeCostBaseline": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "model_usage",
+        "sdk_session_id",
+        "total_cost_usd"
+      ]
+    },
+    "buildClaudeCostBaseline": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "number",
+        "object"
+      ],
+      "props": []
     }
   }
 }
