@@ -41,48 +41,9 @@
 // .build); --fp is bump.sh's fingerprint match; --rename the old maps/ and new
 // .build rename maps. Without --write it changes nothing.
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import { nameBound, snippetHolds } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
-
-const argv = process.argv.slice(2);
-const multi = (name) => { const out = []; for (let i; (i = argv.indexOf(name)) >= 0;) { out.push(argv[i + 1]); argv.splice(i, 2); } return out; };
-const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return false; argv.splice(i, 1); return true; };
-const INDEX = multi("--index").join(",");
-const BUNDLES = Object.fromEntries(multi("--bundle").map((s) => s.split(/=(.*)/s).slice(0, 2)));
-const FPS = multi("--fp").map((s) => s.split(/=(.*)/s).slice(0, 2));
-const RENAMES = multi("--rename").map((s) => s.split(/=(.*)/s).slice(0, 2));
-const REPORT = multi("--report")[0];
-const WRITE = flag("--write");
-const DOCS = argv;
-if (!INDEX || !BUNDLES.daemon || !DOCS.length) {
-  console.error("usage: node retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>]\n" +
-                "         [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--write] [--report <o.json>] <doc.md...>");
-  process.exit(2);
-}
-
-const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-const readJSON = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
-
-// per bundle: index, lines, migration (old short -> new short)
-const B = {};
-for (const p of INDEX.split(",").filter(Boolean)) {
-  const ix = loadIndex(p);
-  if (!BUNDLES[ix.bundle]) continue;
-  const lines = fs.readFileSync(BUNDLES[ix.bundle], "utf8").split("\n");
-  assertBundleMatchesIndex(lines, ix, BUNDLES[ix.bundle]);
-  B[ix.bundle] = { ix, lines, migration: new Map() };
-}
-// bump.sh writes no fp_<bundle>.json for a bundle that did not change; nothing moved there
-for (const [b, p] of FPS) {
-  if (!B[b] || !fs.existsSync(p)) continue;
-  for (const [o, m] of Object.entries(readJSON(p).matched)) if (m.unique && typeof m.new === "string") B[b].migration.set(o, m.new);
-}
-for (const [b, pair] of RENAMES) {
-  if (!B[b]) continue;
-  const [oldP, newP] = pair.split(",");
-  const newByReal = new Map(Object.entries(readJSON(newP)).map(([s, r]) => [r, s]));
-  for (const [o, r] of Object.entries(readJSON(oldP))) if (newByReal.has(r)) B[b].migration.set(o, newByReal.get(r));
-}
 
 const KEYWORDS = new Set(("async await break case catch class const continue default delete do else export extends " +
   "false finally for function if import in instanceof let new null of return super switch this throw true try typeof " +
@@ -94,7 +55,7 @@ const isIdent = (t) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(t);
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // -> [{ text, at, role }] with role "lit" | "gap" | "var"
-function tokenize(code) {
+export function tokenize(code) {
   const toks = [...code.matchAll(TOKEN)].map((m) => ({ text: m[0], at: m.index }));
   return toks.map((t, i) => {
     if (t.text === "…") return { ...t, role: "gap" };
@@ -130,7 +91,7 @@ function attempt(code, toks, migration, { pins, keysLiteral }) {
   return { re, groups, pinned };
 }
 
-function rederive(code, span, migration) {
+export function rederive(code, span, migration) {
   const toks = tokenize(code);
   if (!toks.some((t) => t.role === "var")) return { status: "nothing to re-derive" };
   const counts = [];
@@ -157,48 +118,102 @@ function rederive(code, span, migration) {
   return { status: counts.some((c) => c > 1) ? "ambiguous" : "no match" };
 }
 
-const report = [];
-const tally = new Map();
-for (const doc of DOCS) {
-  const text = fs.readFileSync(doc, "utf8");
-  const edits = [];
-  for (const m of text.matchAll(nameBound())) {
-    const [whole, raw, qual, name] = m;
-    const bundle = qual || "daemon";
-    const b = B[bundle];
-    const e = b && own(b.ix.symbols, name) ? b.ix.symbols[name] : null;
-    if (!e) continue;  // check_bare_anchors.mjs reports unknown symbols
-    if (/^(?:(?:daemon|cli|stdio)(?:\.pretty)?(?:\.js)?:)?\d{4,6}/.test(raw)) continue;
-    const r0 = snippetHolds(raw, b.lines, e.line, e.endLine, true);
-    if (r0.checkable && r0.ok) continue;
-    const escaped = raw.includes("\\|");
-    const code = escaped ? raw.replace(/\\\|/g, "|") : raw;
-    const span = b.lines.slice(e.line - 1, e.endLine).join("\n");
-    let r = rederive(code, span, b.migration);
-    if (r.status === "rewritten") {
-      const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
-      const ok = to !== raw && !to.includes("`") && snippetHolds(to, b.lines, e.line, e.endLine, true);
-      if (!ok?.ok) r = { status: to === raw ? "no change" : "rewrite still refuted" };
-      else {
-        r.to = to;
-        const at = m.index + 1;  // the snippet starts after the opening backtick
-        edits.push({ start: at, end: at + raw.length, text: to });
-      }
-    }
-    const line = text.slice(0, m.index).split("\n").length;
-    tally.set(r.status, (tally.get(r.status) || 0) + 1);
-    report.push({ doc, line, symbol: (qual ? qual + ":" : "") + name, from: raw, ...(r.to ? { to: r.to } : {}), status: r.status });
-    if (r.status !== "rewritten") console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）`);
-    else console.log(`  rewritten              ${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 50)}\``);
-  }
-  if (WRITE && edits.length) {
-    let out = text;
-    for (const x of edits.sort((a, c) => c.start - a.start)) out = out.slice(0, x.start) + x.text + out.slice(x.end);
-    fs.writeFileSync(doc, out);
-  }
+
+// Is the snippet's code in a span, whatever its identifiers of 1-4 characters
+// are called? (every such identifier a wildcard, the same one twice the same
+// name; literals, properties and long names as written). impact_report.mjs asks
+// this of both releases: when the quoted code is in both, only names changed.
+export function skeletonIn(code, span) {
+  const toks = tokenize(code.replace(/\\\|/g, "|"));
+  const { re } = attempt(code, toks, new Map(), { pins: false, keysLiteral: true });
+  try { return new RegExp(re).test(span); } catch { return false; }
 }
-if (REPORT) fs.writeFileSync(REPORT, JSON.stringify(report, null, 2) + "\n");
-const total = report.length;
-console.error(`\n${total} refuted name-bound snippet(s): ` + [...tally].map(([k, v]) => `${v} ${k}`).join(", ") +
-  (WRITE ? "" : "  (dry run: --write applies the rewrites)"));
-if (total - (tally.get("rewritten") || 0)) console.error("the rest need a person: re-read the declaration and quote what proves the claim now (prefer string literals)");
+
+function main() {
+  const argv = process.argv.slice(2);
+  const multi = (name) => { const out = []; for (let i; (i = argv.indexOf(name)) >= 0;) { out.push(argv[i + 1]); argv.splice(i, 2); } return out; };
+  const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return false; argv.splice(i, 1); return true; };
+  const INDEX = multi("--index").join(",");
+  const BUNDLES = Object.fromEntries(multi("--bundle").map((s) => s.split(/=(.*)/s).slice(0, 2)));
+  const FPS = multi("--fp").map((s) => s.split(/=(.*)/s).slice(0, 2));
+  const RENAMES = multi("--rename").map((s) => s.split(/=(.*)/s).slice(0, 2));
+  const REPORT = multi("--report")[0];
+  const WRITE = flag("--write");
+  const DOCS = argv;
+  if (!INDEX || !BUNDLES.daemon || !DOCS.length) {
+    console.error("usage: node retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>]\n" +
+                  "         [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--write] [--report <o.json>] <doc.md...>");
+    process.exit(2);
+  }
+
+  const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+  const readJSON = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
+
+  // per bundle: index, lines, migration (old short -> new short)
+  const B = {};
+  for (const p of INDEX.split(",").filter(Boolean)) {
+    const ix = loadIndex(p);
+    if (!BUNDLES[ix.bundle]) continue;
+    const lines = fs.readFileSync(BUNDLES[ix.bundle], "utf8").split("\n");
+    assertBundleMatchesIndex(lines, ix, BUNDLES[ix.bundle]);
+    B[ix.bundle] = { ix, lines, migration: new Map() };
+  }
+  // bump.sh writes no fp_<bundle>.json for a bundle that did not change; nothing moved there
+  for (const [b, p] of FPS) {
+    if (!B[b] || !fs.existsSync(p)) continue;
+    for (const [o, m] of Object.entries(readJSON(p).matched)) if (m.unique && typeof m.new === "string") B[b].migration.set(o, m.new);
+  }
+  for (const [b, pair] of RENAMES) {
+    if (!B[b]) continue;
+    const [oldP, newP] = pair.split(",");
+    const newByReal = new Map(Object.entries(readJSON(newP)).map(([s, r]) => [r, s]));
+    for (const [o, r] of Object.entries(readJSON(oldP))) if (newByReal.has(r)) B[b].migration.set(o, newByReal.get(r));
+  }
+
+  const report = [];
+  const tally = new Map();
+  for (const doc of DOCS) {
+    const text = fs.readFileSync(doc, "utf8");
+    const edits = [];
+    for (const m of text.matchAll(nameBound())) {
+      const [whole, raw, qual, name] = m;
+      const bundle = qual || "daemon";
+      const b = B[bundle];
+      const e = b && own(b.ix.symbols, name) ? b.ix.symbols[name] : null;
+      if (!e) continue;  // check_bare_anchors.mjs reports unknown symbols
+      if (/^(?:(?:daemon|cli|stdio)(?:\.pretty)?(?:\.js)?:)?\d{4,6}/.test(raw)) continue;
+      const r0 = snippetHolds(raw, b.lines, e.line, e.endLine, true);
+      if (r0.checkable && r0.ok) continue;
+      const escaped = raw.includes("\\|");
+      const code = escaped ? raw.replace(/\\\|/g, "|") : raw;
+      const span = b.lines.slice(e.line - 1, e.endLine).join("\n");
+      let r = rederive(code, span, b.migration);
+      if (r.status === "rewritten") {
+        const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
+        const ok = to !== raw && !to.includes("`") && snippetHolds(to, b.lines, e.line, e.endLine, true);
+        if (!ok?.ok) r = { status: to === raw ? "no change" : "rewrite still refuted" };
+        else {
+          r.to = to;
+          const at = m.index + 1;  // the snippet starts after the opening backtick
+          edits.push({ start: at, end: at + raw.length, text: to });
+        }
+      }
+      const line = text.slice(0, m.index).split("\n").length;
+      tally.set(r.status, (tally.get(r.status) || 0) + 1);
+      report.push({ doc, line, symbol: (qual ? qual + ":" : "") + name, from: raw, ...(r.to ? { to: r.to } : {}), status: r.status });
+      if (r.status !== "rewritten") console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）`);
+      else console.log(`  rewritten              ${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 50)}\``);
+    }
+    if (WRITE && edits.length) {
+      let out = text;
+      for (const x of edits.sort((a, c) => c.start - a.start)) out = out.slice(0, x.start) + x.text + out.slice(x.end);
+      fs.writeFileSync(doc, out);
+    }
+  }
+  if (REPORT) fs.writeFileSync(REPORT, JSON.stringify(report, null, 2) + "\n");
+  const total = report.length;
+  console.error(`\n${total} refuted name-bound snippet(s): ` + [...tally].map(([k, v]) => `${v} ${k}`).join(", ") +
+    (WRITE ? "" : "  (dry run: --write applies the rewrites)"));
+  if (total - (tally.get("rewritten") || 0)) console.error("the rest need a person: re-read the declaration and quote what proves the claim now (prefer string literals)");
+}
+if (process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url))) main();

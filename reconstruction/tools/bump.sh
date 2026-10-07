@@ -267,6 +267,7 @@ echo "into maps/, file new first-party names under a subsystem, then, in this or
 echo "  1. record the reviewed inferred names as the shape baseline (an unrecorded one is"
 echo "     inferredNames=warn, which promote.mjs refuses):"
 echo "     PKG_VERSION=$V node $HERE/verify_inferred.mjs record $NEW/daemon.pretty.js $MAPS/inferred_daemon.json $MAPS/inferred_daemon.shape.json"
+[ -f "$MAPS/inferred_cli.json" ] && echo "     PKG_VERSION=$V node $HERE/verify_inferred.mjs record $NEW/cli.pretty.js $MAPS/inferred_cli.json $MAPS/inferred_cli.shape.json"
 echo "  2. a check-mode run; committedInSync=retarget-pending and failing citations/line anchors"
 echo "     are expected here -- it produces the index step 3 retargets the docs against:"
 echo "     OUT=$R PKG=$P bash $HERE/rebuild.sh"

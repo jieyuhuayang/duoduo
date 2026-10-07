@@ -222,7 +222,7 @@ Dashboard 在 `http://localhost:20233/dashboard`，是包内的单文件 HTML（
 | `duoduo channel install\|list`、`duoduo channel <kind> start\|stop\|status\|logs\|doctor`、`duoduo channel <kind> <适配器声明的动词>` | 渠道适配器的安装、生命周期与适配器自带的命令（§6） |
 | `duoduo prompts [name]` | 列出或打印命名提示词（`runPromptsSubcommand (vJe)`） |
 
-`duoduo session notify` 在会话里执行时，CLI 把环境变量 `ALADUO_CALLER_SESSION`（§2.4）作为 `caller_session` 交给 `session.notify` RPC，帮助文本写明此时 "sends as that session and --source is unused"（cli bundle 字符串；读取环境变量的 cli 函数无真名，未证实推测）。daemon 一侧，调用方与目标不是同一会话时，这条通知以调用方会话为来源记录，收件会话能看出是哪个会话发来的（`notify_source_session_key: f`（`deliverExternalSessionNotify`））；调用方会话不存在时不发送，报 `unknown_caller` 并提示 `unset ALADUO_CALLER_SESSION and send again`（`deliverExternalSessionNotify`）。这种情况出现在会话结束后仍留着的 shell 里，在会话之外的 shell 里执行时仍按 `--source` 标签发送（confirmed）。
+`duoduo session notify` 在会话里执行时，CLI 把环境变量 `ALADUO_CALLER_SESSION`（§2.4）作为 `caller_session` 交给 `session.notify` RPC，帮助文本写明此时 "sends as that session and --source is unused"（confirmed：`let r = process.env[Oge]?.trim();`（`cli:runSessionNotifyCommand`）、`r && (n.caller_session = r)`（`cli:runSessionNotifyCommand`）；帮助文本是 cli bundle 里的字符串）。daemon 一侧，调用方与目标不是同一会话时，这条通知以调用方会话为来源记录，收件会话能看出是哪个会话发来的（`notify_source_session_key: f`（`deliverExternalSessionNotify`））；调用方会话不存在时不发送，报 `unknown_caller` 并提示 `unset ALADUO_CALLER_SESSION and send again`（`deliverExternalSessionNotify`）。这种情况出现在会话结束后仍留着的 shell 里，在会话之外的 shell 里执行时仍按 `--source` 标签发送（confirmed）。
 
 ### 5.2 重启 daemon
 

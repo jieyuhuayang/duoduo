@@ -877,7 +877,7 @@ daemon 的控制面是 JSON-RPC 2.0，三个监听器共用一套路由：本机
 
 远程监听的开启条件由 `resolveRemoteListenerConfig (wvt)` 决定：三项环境变量都设置时才开启，主机是否为回环地址不影响这一点；主机设为非回环地址却没给口令时 daemon 拒绝启动；非回环主机给了口令却没给端口时同样拒绝启动；端口必须是 1 到 65535 的整数且不能与只读端口相同（confirmed）。两个检查都是 fastify 的 `onRequest` hook，覆盖范围不同（confirmed）。口令 hook 没有路径条件，远程监听上的每个请求都要带口令，`/healthz`、`/dashboard`、`/readyz` 也不例外，所以浏览器无法直接经远程监听打开 dashboard。Host 与 Origin hook 只挂在本机 TCP 实例上，按请求匹配到的路由模板（`routeOptions.url`）跳过 `/healthz`、`/readyz`、`/dashboard` 三个路由，其余请求都检查；没有匹配到任何路由的请求，路由模板为空，也不跳过检查。运行目录 `run/` 由 `initializeRuntime (lmt)` 设为 0700，默认 socket 路径因此满足目录检查（confirmed）。
 
-口令由 `duoduo daemon token new` 生成，daemon 缺口令时的报错文字也指向这个命令（confirmed）。这个命令生成 32 字节随机数的十六进制串，把 `ALADUO_DAEMON_TOKEN=<口令>` 写进 `~/.config/duoduo/.env`；已有口令时它拒绝轮换，除非加 `--force`，因为已连接的远程网关仍持有旧口令（未证实推测：静态阅读 CLI 代码所得，实现它的 CLI 函数没有真名）。daemon 启动时只把 `.env` 中进程环境尚未设置的键装进环境（`for (let [o, s] of Object.entries(r))(e[o] === void 0 || e[o] === "") && (e[o] = s, i++)`（`loadHostDotEnv`）），随后从进程环境读取口令，所以 `.env` 里的新口令要在 daemon 重启后才生效（confirmed）。
+口令由 `duoduo daemon token new` 生成，daemon 缺口令时的报错文字也指向这个命令（confirmed）。这个命令生成 32 字节随机数的十六进制串，把 `ALADUO_DAEMON_TOKEN=<口令>` 写进 `~/.config/duoduo/.env`；已有口令时它拒绝轮换，除非加 `--force`，因为已连接的远程网关仍持有旧口令（confirmed）。`createDaemonToken (OJ)` 在已有口令且没有 `--force` 时抛出 `"a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate."`（`cli:createDaemonToken`）；口令是 `randomBytes(32).toString("hex")`（`cli:generateDaemonTokenHex`）；`writeDaemonTokenToEnvFile (i8)` 先去掉文件里键名相同的行，再把新的一行追加到 `".config", "duoduo", ".env"`（`cli:resolveHostEnvFilePath`）这个文件，键名是 `TB = "ALADUO_DAEMON_TOKEN"`（`cli:CLI_DAEMON_TOKEN_ENV_KEY`）。daemon 启动时只把 `.env` 中进程环境尚未设置的键装进环境（`for (let [o, s] of Object.entries(r))(e[o] === void 0 || e[o] === "") && (e[o] = s, i++)`（`loadHostDotEnv`）），随后从进程环境读取口令，所以 `.env` 里的新口令要在 daemon 重启后才生效（confirmed）。
 
 三个端点不经过分发函数，所有监听器都注册：`/healthz` 固定返回 `{status: "ok"}`；`/readyz` 调用 `probeEventsAppendable (_de)` 以追加模式打开当日事件分区再关闭，失败时返回 503 `not_ready`，所以它检查的是事件日志能否写入，而不是进程是否存活；`/dashboard` 返回 bootstrap 目录下的 `dashboard.html`（confirmed）。
 
@@ -959,12 +959,12 @@ daemon 内的推送由 `createOutboxDeliveryManager (Mbt)` 负责：它监听 `s
 
 daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake_targets}`：`reason` 为字符串，`requested_by_agent` 只有值为 `true` 时才算真，`wake_targets` 是会话键或别名的列表（confirmed）。
 
-写入方是两个 CLI 命令，都经同一个重启函数写文件。下面的描述是静态阅读 CLI 代码所得；除注明 confirmed 的参数解析与提示文字外，共用的重启函数、写入与清理文件的函数、升级命令本身和升级后的唤醒投递函数都没有真名，没有可由构建检查的引用（未证实推测）。
+写入方是两个 CLI 命令，都经同一个重启函数 `restartDaemonWithReason (pk)` 写文件，文件位置由 `resolveRestartReasonFilePath (p8)` 给出（`"daemon-restart-reason.json"`（`cli:resolveRestartReasonFilePath`）），写入与清理分别是 `writeRestartReasonFile (E8)` 与 `clearOwnRestartReasonFile (m8)`（confirmed）。
 
-- `duoduo daemon restart -r "<原因>" [--wake <会话或别名>]`。`cli:parseRestartArgs (eZe)` 解析 `-r`/`--reason` 和可重复的 `--wake`；从 daemon 派生的 agent 会话内部调用而不给原因时，`cli:reasonlessRestartRefusal (tZe)` 拒绝执行（confirmed）。CLI 在停止旧 daemon 之前写文件，内容是 `{reason, requested_at, requested_by_agent}`，给了 `--wake` 时再加 `wake_targets`，此时即使没给 `-r` 也会写文件（`reason` 为空串）。CLI 按三种结果提示用户：已重启时说明唤醒会在 daemon 启动后投递，没有重启时说明 `--wake` 被丢弃，健康检查超时时说明 `--wake` 仍会在 daemon 启动完成后投递（confirmed）。
-- `duoduo upgrade [版本] [--wake <会话或别名>]`。`cli:parseUpgradeArgs (sZe)` 解析版本与可重复的 `--wake`，版本缺省为 `latest`（confirmed）。安装新版本后，只有 daemon 在运行（macOS 上 launchd 服务已加载，或健康检查通过）时，CLI 才经同一个重启函数重启并写原因文件，原因固定为 `upgraded @openduo/duoduo to <实际安装的版本>`，不带 `wake_targets`；daemon 没在运行时不重启、也不写文件。这次重启夹在渠道适配器升级的中间：CLI 先安装有新版本的渠道适配器并停下其中正在运行的，再重启 daemon，最后重新启动这些适配器（渠道部分 confirmed，见 `cli:runUpgradeChannelPhase (aZe)`）。`--wake` 不经过这个文件：升级流程结束后，无论 daemon 是否重启，CLI 都直接经 `session.notify` RPC 逐个投递，带 `force` 与 `daemon-restart` 来源，正文写的是命令行请求的版本（例如 `latest`），不是实际安装的版本号。
+- `duoduo daemon restart -r "<原因>" [--wake <会话或别名>]`。`cli:parseRestartArgs (eZe)` 解析 `-r`/`--reason` 和可重复的 `--wake`；从 daemon 派生的 agent 会话内部调用而不给原因时，`cli:reasonlessRestartRefusal (tZe)` 拒绝执行（confirmed）。CLI 在停止旧 daemon 之前写文件（`a && g && await E8(a, g);…await m8(a, g.requested_at)…await Xb(t, e);`（`cli:restartDaemonWithReason`）：先写文件，再定义清理函数，最后停止旧 daemon），内容是 `{reason, requested_at, requested_by_agent}`，给了 `--wake` 时再加 `wake_targets`（`wake_targets: u`（`cli:restartDaemonWithReason`）），此时即使没给 `-r` 也会写文件，`reason` 为空串（`reason: ""`（`cli:restartDaemonWithReason`））（confirmed）。CLI 按三种结果提示用户：已重启时说明唤醒会在 daemon 启动后投递，没有重启时说明 `--wake` 被丢弃，健康检查超时时说明 `--wake` 仍会在 daemon 启动完成后投递（confirmed）。
+- `duoduo upgrade [版本] [--wake <会话或别名>]`。`cli:parseUpgradeArgs (sZe)` 解析版本与可重复的 `--wake`，版本缺省为 `latest`（confirmed）。安装新版本后，只有 daemon 在运行（macOS 上 launchd 服务已加载，或健康检查通过）时，CLI 才经同一个重启函数重启并写原因文件（`isServiceLoaded()) && !(await ol(w)).healthy) return;`（`cli:runUpgradeCommand`）），原因固定为 `upgraded @openduo/duoduo to <实际安装的版本>`，不带 `wake_targets`（`reason: J`（`cli:runUpgradeCommand`））；daemon 没在运行时不重启、也不写文件（confirmed）。这次重启夹在渠道适配器升级的中间：CLI 先安装有新版本的渠道适配器并停下其中正在运行的，再重启 daemon，最后重新启动这些适配器（渠道部分 confirmed，见 `cli:runUpgradeChannelPhase (aZe)`）。`--wake` 不经过这个文件：升级流程结束后，无论 daemon 是否重启，CLI 都直接经 `session.notify` RPC 逐个投递（`await BJ(b, i.wake,`（`cli:runUpgradeCommand`）），带 `force` 与 `daemon-restart` 来源（`source: "daemon-restart"`（`cli:notifyRestartWakeTargets`）），正文写的是命令行请求的版本（例如 `latest`），不是实际安装的版本号（confirmed）。
 
-文件的清理只发生在 CLI 自己拉起 daemon 的路径上（未证实推测，理由同上）。重启没有发生（停止之后健康检查仍然通过，说明旧 daemon 还在运行）或启动失败时，CLI 在文件的 `requested_at` 仍是自己写入的值时删除它，下一次启动因此不会认领这条原因；macOS 上由 launchd 托管时，CLI 只触发重启并轮询健康检查，超时也不删除文件，新 daemon 启动完成后照常认领。`cli:restartWakeReport (nZe)` 的提示与这一行为一致：没有重启时说 `--wake` 被丢弃，健康检查超时时说 `--wake` 仍会投递（confirmed）。
+文件的清理只发生在 CLI 自己拉起 daemon 的路径上（confirmed）。重启没有发生（停止之后健康检查仍然通过，说明旧 daemon 还在运行）或启动失败时，CLI 在文件的 `requested_at` 仍是自己写入的值时删除它（`return h.started || await E(), h`（`cli:restartDaemonWithReason`）；`if (JSON.parse(r).requested_at !== t) return`（`cli:clearOwnRestartReasonFile`）），下一次启动因此不会认领这条原因；macOS 上由 launchd 托管时，CLI 只触发重启并轮询健康检查，超时也不删除文件（`"daemon restart timed out waiting for health checks at"`（`cli:restartDaemonWithReason`）在这条路径上直接抛出），新 daemon 启动完成后照常认领。`cli:restartWakeReport (nZe)` 的提示与这一行为一致：没有重启时说 `--wake` 被丢弃，健康检查超时时说 `--wake` 仍会投递（confirmed）。
 
 读取方是新 daemon 的 `main (kvt)`（confirmed）。`claimDaemonRestartReason (iwe)` 读取文件后，在解析 JSON 之前就删除它，所以格式错误的文件被静默销毁；解析后原因去掉首尾空白、唤醒目标去掉空串，两者都为空时视同没有文件。认领结果存入模块级变量，只在原因非空时对外提供。
 
@@ -987,7 +987,7 @@ daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake
 | 远程监听需三项环境变量齐全，非回环主机缺口令或缺端口时拒绝启动 | `enabled: !1`（`resolveRemoteListenerConfig`）；`remote exposure requires an explicit ALADUO_REMOTE_PORT`（`resolveRemoteListenerConfig`）；`must differ from the read-only port`（`resolveRemoteListenerConfig`）；`u = o && !vvt(n)`（`resolveRemoteListenerConfig`） | confirmed |
 | 远程口令以 SHA-256 加 timingSafeEqual 比较，检查每个请求，失败返回 401 | `createHash("sha256")`（`createDaemon`）；`if (!AN.timingSafeEqual(C(J), N))`（`createDaemon`）；`url: x.url`（`createDaemon`）；`"[daemon] rejected request: missing/invalid bearer"`（`createDaemon`）；`401, "Unauthorized"`（`createDaemon`） | confirmed |
 | 口令由 duoduo daemon token new 生成 | `Generate a remote-access bearer token`（`cli:printHelp`）；`remote exposure requires ALADUO_DAEMON_TOKEN; run`（`resolveRemoteListenerConfig`） | confirmed |
-| token new 把口令写进 .env，已有口令时须 --force 才轮换 | — | 未证实推测：静态阅读所得，生成口令与写 `.env` 的 CLI 函数没有真名 |
+| token new 把口令写进 .env，已有口令时须 --force 才轮换 | `"a daemon token already exists"`（`cli:createDaemonToken`）；`randomBytes(32).toString("hex")`（`cli:generateDaemonTokenHex`）；`TB = "ALADUO_DAEMON_TOKEN"`（`cli:CLI_DAEMON_TOKEN_ENV_KEY`）；`writeDaemonTokenToEnvFile (i8)` | confirmed |
 | daemon 启动时只补装 .env 中未设置的键，再从进程环境读口令 | `env var(s) from ~/.config/duoduo/.env`（`main`）；`let D = wvt(process.env, S)`（`createDaemon`） | confirmed |
 | 三个不经分发函数的端点；/readyz 检查事件分区能否追加 | `S.get("/healthz", async () => bde())`（`createDaemon`）；`"dashboard.html"`（`createDaemon`）；`status: "not_ready"`（`createDaemon`）；`r = mf.join(e.eventsDir, n)`（`probeEventsAppendable`） | confirmed |
 | 请求格式与方法错误的返回形式 | `error: "Invalid JSON-RPC request"`（`createDaemon`）；`message: "Parse error"`（`createDaemon`）；`message: "Invalid Request"`（`createDaemon`）；`code: -32603`（`createDaemon`）；`t.jsonrpc === "2.0" && typeof t.method == "string"`（`isJsonRpcRequest`）；`x instanceof Uc \|\| x instanceof tp ? $.error = {`（`createDaemon`）；`x instanceof xb ? $.error = {`（`createDaemon`）；`message: "Internal error"`（`createDaemon`） | confirmed |
@@ -1027,7 +1027,7 @@ daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake
 | CLI 按三种结果提示唤醒去向 | `delivered by the daemon once it is up`（`cli:restartWakeReport`）；`so --wake was dropped`（`cli:restartWakeReport`）；`but --wake is durable`（`cli:restartWakeReport`） | confirmed |
 | upgrade 的版本缺省为 latest，--wake 可重复 | `version: "latest"`（`cli:parseUpgradeArgs`）；`try: duoduo upgrade --wake my_journal`（`cli:parseUpgradeArgs`） | confirmed |
 | upgrade 在渠道适配器停下之后、重新启动之前调用 daemon 重启 | `stopped for upgrade`（`cli:runUpgradeChannelPhase`）；`left stopped (was not running before the upgrade)`（`cli:runUpgradeChannelPhase`） | confirmed（渠道部分）；传入的重启闭包在没有真名的升级命令函数里 |
-| CLI 写文件、清理文件、upgrade 只在 daemon 运行时重启并写固定原因、--wake 经 session.notify 投递 | — | 未证实推测：静态阅读所得，共用的重启函数、写入与清理文件的函数、升级命令函数和升级后的唤醒投递函数都没有真名 |
+| CLI 写文件、清理文件、upgrade 只在 daemon 运行时重启并写固定原因、--wake 经 session.notify 投递 | `a && g && await E8(a, g);…await m8(a, g.requested_at)…await Xb(t, e);`（`cli:restartDaemonWithReason`）；`return h.started \|\| await E(), h`（`cli:restartDaemonWithReason`）；`if (JSON.parse(r).requested_at !== t) return`（`cli:clearOwnRestartReasonFile`）；`isServiceLoaded()) && !(await ol(w)).healthy) return;`（`cli:runUpgradeCommand`）；`source: "daemon-restart"`（`cli:notifyRestartWakeTargets`） | confirmed |
 | session.notify RPC 把调用方给的 force 与 source 原样交给投递函数 | `$.result = await EIe(u, l, d, x)`（`createDaemon`） | confirmed |
 | daemon 启动时认领一次：先删除再解析，空内容视同无文件 | `await rwe.rm(t, {`（`claimDaemonRestartReason`）；`return i.length === 0 && o.length === 0 ? null : {`（`claimDaemonRestartReason`）；`let m = await iwe(d)`（`main`）；`"[pid0] restart reason claimed"`（`main`） | confirmed |
 | 认领结果存入模块级变量，只有非空原因才对外提供 | `owe(m), m && ee("[pid0] restart reason claimed", {`（`main`）；`return xO && xO.reason.length > 0 ? xO : void 0`（`getPendingRestartReason`） | confirmed |
@@ -2183,12 +2183,12 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 ### 14.4 只因函数没有真名而标为未证实推测的项
 
-正文里还有一批未证实推测，代码已在 pretty bundle 读到，缺的只是一个构建检查能核对的引用。多数在 cli bundle 里：cli bundle 只有 `__export` 表给出的真名，还没有推断名映射，这些 CLI 函数因此没有真名。其余几项在 daemon bundle 顶层，不在任何已命名的函数或模块初始化器里：只读 TCP 端口放行的方法集合，以及 v0.8.4 新增的 `spine.cat` 脱敏函数、`channel_id` 格式检查函数和 `spine.record` 的两组保留来源名单。给这些代码登记推断名之后，对应主张可以改成按名引用并标 confirmed。按节列出如下：
+正文里还有一批未证实推测，代码已在 pretty bundle 读到，缺的只是一个构建检查能核对的引用。多数在 cli bundle 里：cli bundle 的真名主要来自 `__export` 表，推断名映射登记的还只有少数函数，这些 CLI 函数因此没有真名。其余几项在 daemon bundle 顶层，不在任何已命名的函数或模块初始化器里：只读 TCP 端口放行的方法集合，以及 v0.8.4 新增的 `spine.cat` 脱敏函数、`channel_id` 格式检查函数和 `spine.record` 的两组保留来源名单。给这些代码登记推断名之后，对应主张可以改成按名引用并标 confirmed。按节列出如下：
 
 | 节 | 只因函数没有真名而未证实的主张 |
 |---|---|
 | 5 | `duoduo spine` 的本地读取（5.4） |
-| 6 | 只读端口放行的六个方法名、`duoduo daemon token new` 的写入与轮换规则、`spine.cat` 的 `redact: "external"` 脱敏规则、`spine.record` 的保留来源名单（6.1）；`channel_id` 的格式规则（6.2）；CLI 写入与清理重启原因文件、`duoduo upgrade` 的重启与 `--wake` 投递（6.4） |
+| 6 | 只读端口放行的六个方法名、`spine.cat` 的 `redact: "external"` 脱敏规则、`spine.record` 的保留来源名单（6.1）；`channel_id` 的格式规则（6.2） |
 | 8 | stdio 会话键的构造（8.1） |
 | 9 | CLI 对渠道适配器的安装、启动、环境变量传递与停止（9.1、9.3） |
 | 12 | `duoduo memory reclaim` 的处理与删除函数（12.3） |

@@ -16,7 +16,10 @@
 //              on a changed line), or of a declaration short enough to re-read
 //              whole (<= SHORT lines)
 //   3 skim     a citation of a long declaration whose paragraph shares nothing
-//              distinctive with the change, or a snippet in an unchanged part
+//              distinctive with the change, or a snippet in an unchanged part,
+//              or a snippet whose quoted code is in both versions with only its
+//              short identifiers spelled differently (respelled: its line
+//              changed elsewhere, or it matches several places)
 //
 // Nothing is dropped: every citation of a changed declaration is listed, and
 // the tier only orders the reading. What no tier can see: a claim about an
@@ -44,6 +47,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { namePair, nameBound, codeSpans, fencedRanges, snippetTokens, identRe, looksMangled } from "./anchor_forms.mjs";
 import { rankAnchors, describeRanking } from "./anchor_candidates.mjs";
+import { skeletonIn } from "./retarget_snippets.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
@@ -220,6 +224,19 @@ for (const ct of citations) {
     else if (onChanged(precise)) [ct.tier, ct.why] = [1, "snippet on a changed line"];
     else if (onChanged(best)) [ct.tier, ct.why] = [2, `snippet matches ${Math.min(...best.map((f) => f.loc.lines.length))} places, one of them on a changed line`];
     else [ct.tier, ct.why] = [3, "snippet in an unchanged part"];
+    // RESPELLED: the quoted code is in the declaration in both releases, with
+    // only its short identifiers (locals, re-mangled names) spelled
+    // differently. Its line changed elsewhere, or it matches several places;
+    // either way the code it quotes did not change, and retarget_snippets.mjs
+    // rewrites the spelling. At v0.8.4 such snippets were counted with the
+    // real changes in tiers 1 and 2, which a routine's stop rule reads.
+    if (ct.tier < 3) {
+      const span = (side) => { const h = ct.hits.find((x) => x.side === side); const ls = linesOf(side, change.bundle);
+        return h?.range && ls ? ls.slice(h.range[0] - 1, h.range[1]).join("\n") : null; };
+      const o = span("old"), n = span("new");
+      if (o && n && skeletonIn(ct.code, o) && skeletonIn(ct.code, n))
+        [ct.tier, ct.why, ct.respelled] = [3, `quoted code is in both versions, only names in it may differ (was tier ${ct.tier}: ${ct.why})`, true];
+    }
   } else {
     const own = new Set(change.names);
     const words = new Set([...(para.match(WORD) || []), ...[...para.matchAll(/"([^"\n]{2,})"/g)].map((m) => m[1])]);
@@ -322,7 +339,8 @@ const report = {
     changedDeclarations: changes.length,
     changedLines: changes.reduce((s, c) => s + (c.diff?.changedLines || 0), 0),
     hunks: changes.reduce((s, c) => s + (c.diff?.hunks?.length || 0), 0),
-    citations: { total: citations.length, reread: tierCount(1), check: tierCount(2), skim: tierCount(3) },
+    citations: { total: citations.length, reread: tierCount(1), check: tierCount(2), skim: tierCount(3),
+      respelled: citations.filter((c) => c.respelled).length },
     uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length, plaintextFiles: plaintext.length,
   },
   changes: changes.map((c) => ({ id: c.id, bundle: c.bundle, real: c.names, oldNames: c.oldNames, newNames: c.newNames, diff: c.diffPath,
@@ -343,7 +361,8 @@ if (MD) {
   const s = report.summary;
   L.push(`# Upgrade impact ${OLD_LABEL} -> ${NEW_LABEL}`, "");
   L.push(`${s.changedDeclarations} declaration diffs (a changed declaration, or a block of them), ${s.changedLines} changed lines in ${s.hunks} hunks (readable diffs, local-name churn removed). ` +
-    `${s.citations.total} doc citations name changed code: ${s.citations.reread} to re-read, ${s.citations.check} to check, ${s.citations.skim} to skim. ` +
+    `${s.citations.total} doc citations name changed code: ${s.citations.reread} to re-read, ${s.citations.check} to check, ${s.citations.skim} to skim ` +
+    `(${s.citations.respelled} of them snippets whose quoted code is in both versions, only renamed: retarget_snippets.mjs rewrites those). ` +
     `${plaintext.length} plain-text files changed.`, "");
   if (plaintext.length) {
     L.push("## Plain text (read first: it states intent)", "", "| source | file | change | mentioned in |", "|---|---|---|---|");
@@ -382,6 +401,6 @@ if (MD) {
 }
 const s = report.summary;
 console.error(`impact: ${s.changedDeclarations} declaration diffs (${s.changedLines} lines in ${s.hunks} hunks); ` +
-  `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim}; ` +
+  `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim} (${s.citations.respelled} only renamed); ` +
   `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor, ${plaintext.length} plain-text files; ` +
   `${report.groups.length} work groups` + (OUT ? ` -> ${OUT}` : ""));

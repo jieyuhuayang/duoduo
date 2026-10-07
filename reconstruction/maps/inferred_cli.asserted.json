@@ -1,0 +1,12 @@
+{
+  "CLI_DAEMON_TOKEN_ENV_KEY": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "clearOwnRestartReasonFile": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "createDaemonToken": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "generateDaemonTokenHex": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "notifyRestartWakeTargets": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "readDaemonTokenFromEnvFile": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "resolveHostEnvFilePath": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "resolveRestartReasonFilePath": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "writeDaemonTokenToEnvFile": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "writeRestartReasonFile": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)"
+}

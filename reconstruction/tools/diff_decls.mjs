@@ -44,6 +44,7 @@ import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
 import * as t from "@babel/types";
 import { snippetTokens } from "./anchor_forms.mjs";
+import { topLevelDeclarations } from "./verify_inferred.mjs";
 const traverse = _traverse.default || _traverse;
 
 const pos = [], flags = {};
@@ -255,7 +256,7 @@ function slice(names, D, src) {
   return { code: parts.join("\n\n"), lines };
 }
 
-function readable(base, o, n, oldNames, newNames) {
+function readable(base, o, n, oldNames, newNames, notes = []) {
   const ro = o.code ? render(o.code, "old") : { show: [], norm: [] };
   const rn = n.code ? render(n.code, "new") : { show: [], norm: [] };
   if (!ro || !rn) return { file: null, error: `${!ro ? "old" : "new"} side does not parse on its own` };
@@ -276,6 +277,7 @@ function readable(base, o, n, oldNames, newNames) {
     `# top-level names: the real name where known, else the ${NEW_LABEL} short name of the same declaration;`,
     `# old:X is a ${OLD_LABEL} short name with no ${NEW_LABEL} counterpart. Lines that differ only in`,
     `# local-variable names are shown as unchanged context (from ${NEW_LABEL}).`,
+    ...notes.map((x) => `# ${x}`),
     `--- ${OLD_LABEL} ${label(oldNames, oldMap, "old")}  pretty:${range(oldNames, O)}`,
     `+++ ${NEW_LABEL} ${label(newNames, newMap, "new")}  pretty:${range(newNames, N)}`,
   ];
@@ -365,7 +367,7 @@ function literals(code) {
 const index = [];
 const added = (a, b) => [...b].filter((x) => !a.has(x));
 
-function emit(base, oldNames, newNames) {
+function emit(base, oldNames, newNames, notes = []) {
   const o = slice(oldNames, O, oldSrc), n = slice(newNames, N, newSrc);
   const oc = o.code, nc = n.code;
   fs.writeFileSync(path.join(OUTDIR, base + ".old.js"), oc);
@@ -379,7 +381,7 @@ function emit(base, oldNames, newNames) {
   const ranges = (names, D) => Object.fromEntries(names.filter((x) => D.map.has(x)).map((x) => [x, [D.map.get(x).line, D.map.get(x).endLine]]));
   const first = (names, D) => (names.length ? D.map.get(names[0]) : null);
   const last = (names, D) => (names.length ? D.map.get(names[names.length - 1]) : null);
-  const diff = readable(base, o, n, oldNames, newNames);
+  const diff = readable(base, o, n, oldNames, newNames, notes);
   const normIdentical = !!(on && nn && on === nn);
   const rep = {
     base, oldNames, newNames,
@@ -407,7 +409,47 @@ function emit(base, oldNames, newNames) {
 for (const [o, n] of Object.entries(P.pairs || {})) emit(`${o}__${n}`, [o], [n]);
 (P.blocks || []).forEach((b, i) =>
   emit(`block${i}__${b.oldNames.join("-")}__${b.newNames.join("-")}`.slice(0, 80), b.oldNames, b.newNames));
-if ((P.pureNew || []).length) emit("pureNew", [], P.pureNew);
+// Declarations with no old counterpart, one diff per run of them that sits
+// together in the bundle (esbuild emits a module's declarations in one run), each
+// headed by the existing declarations that use it. At v0.8.4 they were one
+// 1123-line diff of 120 declarations from ~37k to ~91k, three new features
+// (void, spine.record, the caller-session env) interleaved in reading order.
+// A run also ends after a module initialiser (`var X = __esm(() => {...})`),
+// which esbuild emits last in its module.
+function pureNewRuns(names) {
+  const pos = new Map([...N.map.keys()].map((x, i) => [x, i]));
+  const kinds = topLevelDeclarations(N.ast);
+  const sorted = names.filter((x) => pos.has(x)).sort((a, b) => pos.get(a) - pos.get(b));
+  const runs = [];
+  for (const x of sorted) {
+    const r = runs[runs.length - 1];
+    const prev = r?.[r.length - 1];
+    if (r && pos.get(x) - pos.get(prev) === 1 && kinds.get(prev)?.kind !== "moduleInit") r.push(x); else runs.push([x]);
+  }
+  return runs;
+}
+function usersOf(run, changedNew) {
+  const inRun = new Set(run);
+  const re = new RegExp(`(?<![\\w$.])(?:${run.map((x) => x.replace(/\$/g, "\\$")).join("|")})(?![\\w$])`);
+  const tops = [...N.map].sort((a, b) => a[1].start - b[1].start);
+  const users = new Set();
+  for (const [name, d] of tops) {
+    if (inRun.has(name)) continue;
+    if (re.test(newSrc.slice(d.start, d.end))) users.add(name);
+  }
+  // changed declarations first, then named ones: those are where a reader starts
+  const rank = (x) => (changedNew.has(x) ? 0 : newMap[x] ? 1 : 2);
+  return [...users].sort((a, b) => rank(a) - rank(b))
+    .map((x) => `${newMap[x] ? `${newMap[x]} (${x})` : x}${changedNew.has(x) ? " [changed]" : ""}`);
+}
+if ((P.pureNew || []).length) {
+  const changedNew = new Set([...Object.values(P.pairs || {}), ...(P.blocks || []).flatMap((b) => b.newNames)]);
+  for (const [k, run] of pureNewRuns(P.pureNew).entries()) {
+    const users = usersOf(run, changedNew);
+    emit(`pureNew${String(k).padStart(2, "0")}__${run[0]}`.slice(0, 80), [], run,
+      [`used by: ${users.length ? users.slice(0, 12).join(", ") + (users.length > 12 ? `, and ${users.length - 12} more` : "") : "(nothing outside this run)"}`]);
+  }
+}
 
 fs.writeFileSync(path.join(OUTDIR, "_index.json"), JSON.stringify(index, null, 1));
 const noop = index.filter((r) => r.normIdentical).length;

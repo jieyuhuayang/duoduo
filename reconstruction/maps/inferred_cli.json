@@ -1,0 +1,16 @@
+{
+  "rJe": "runSessionNotifyCommand",
+  "p8": "resolveRestartReasonFilePath",
+  "E8": "writeRestartReasonFile",
+  "m8": "clearOwnRestartReasonFile",
+  "pk": "restartDaemonWithReason",
+  "BJ": "notifyRestartWakeTargets",
+  "lZe": "runUpgradeCommand",
+  "OJ": "createDaemonToken",
+  "Y2e": "generateDaemonTokenHex",
+  "i8": "writeDaemonTokenToEnvFile",
+  "r8": "readDaemonTokenFromEnvFile",
+  "cZe": "runChannelCommand",
+  "BA": "resolveHostEnvFilePath",
+  "TB": "CLI_DAEMON_TOKEN_ENV_KEY"
+}
