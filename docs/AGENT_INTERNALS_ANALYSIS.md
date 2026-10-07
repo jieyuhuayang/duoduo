@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | 端到端路径 | 把一条外部消息依次封装成事件、追加进事件日志、写邮箱指针、唤醒会话、装配上下文、调用引擎，并把执行过程记回日志 | 这一轮的推理、工具调用与回复 | 1 | 0.2、2.1、2.5 |
 | 系统提示装配 | 按固定顺序拼接六层文本，展开记忆板的 `@include`，每轮生成瞬时块；四个引擎拿到同一段文本 | 读这些文本并据此行动；记忆板的正文由后台分区里的模型写 | 2 | 1.3、2.4、4.2 |
-| 引擎 | 四值枚举与默认值；先绑定引擎再探测，不可用或与历史所属引擎不符时拒绝执行；同名命令按引擎实现；权限、工具白名单与认证 | 工具执行循环本身（读写文件、运行命令）由引擎内的模型驱动 | 3 | 1.2、1.4、1.5、1.7、5.1、5.2、5.3 |
+| 引擎 | 五个 runtime 取值（四个引擎加不运行模型的 `void`）、取值校验与默认值，未知取值一律拒绝；先绑定引擎再探测，取值被拒、不可用或与历史所属引擎不符时拒绝执行；同名命令按引擎实现；权限、工具白名单与认证 | 工具执行循环本身（读写文件、运行命令）由引擎内的模型驱动 | 3 | 1.2、1.4、1.5、1.7、5.1、5.2、5.3 |
 | 自操作工具 | 注册六个工具，按会话来源分配，校验参数，执行投递、拒投与 Skip 的收尾 | 何时创建 job、通知谁、给自己预约哪一轮、是否跳过这一轮 | 4 | 1.6、3.1、5.1、5.2 |
 | 事件日志 | 追加 WAL 行与 by_id 索引，按幂等键去重，按 id 读回，重启后按邮箱指针恢复待处理的会话 | 无 | 5 | 2.1、2.5、5.4 |
 | 网关与控制面 | 三个监听器的访问控制，入站分流与网关命令，出站拉取、订阅与能力协商，重启原因文件 | 路由到会话的消息如何回复 | 6 | 2.1、2.5、5.1、5.4 |
@@ -259,22 +259,30 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 ## 3 引擎
 
-引擎（配置字段 `runtime`）有 `claude`、`codex`、`grok`、`pi` 四个取值；会话先按配置把引擎绑定到 actor 上，再探测它是否可用，引擎不可用、或与会话历史所属的引擎不一致时，这一 turn 直接拒绝执行，没有任何路径会改用另一个引擎。四个引擎读同一段系统提示（2.4），拿到同一组自操作工具（各引擎的注册差异见 4.1），但进程形态、可用性探测、同名命令的实现、权限与思考输出各不相同，代码在这些地方按 `runtime` 分支处理。3.1 到 3.3 讲引擎如何被选中和拒绝，3.4 与 3.5 讲选中之后模型、推理力度和 SDK 配置如何确定，3.6 与 3.7 讲四个引擎在命令、权限和认证上的差异。本节对应 GUIDE 1.2、1.4、1.5、1.7。
+配置字段 `runtime` 有五个合法取值：`claude`、`codex`、`grok`、`pi` 四个引擎，加上 `void`；`void` 表示这个渠道会话从不运行模型，消息只进事件日志和出站队列（3.1）。任何位置写了这五个之外的值都被拒绝，不会改用默认值；`ALADUO_DEFAULT_RUNTIME` 不合法时 daemon 拒绝启动。会话先按配置把引擎绑定到 actor 上，再探测它是否可用；配置的取值被拒绝、引擎不可用、或与会话历史所属的引擎不一致时，这一 turn 直接拒绝执行，没有任何路径会改用另一个引擎。四个引擎读同一段系统提示（2.4），拿到同一组自操作工具（各引擎的注册差异见 4.1），但进程形态、可用性探测、同名命令的实现、权限与思考输出各不相同，代码在这些地方按 `runtime` 分支处理。3.1 到 3.3 讲引擎如何被选中和拒绝（含 `void`），3.4 与 3.5 讲选中之后模型、推理力度和 SDK 配置如何确定，3.6 与 3.7 讲四个引擎在命令、权限和认证上的差异。本节对应 GUIDE 1.2、1.4、1.5、1.7。
 
-### 3.1 四值枚举与默认值
+### 3.1 runtime 取值、校验与默认值
 
-引擎的合法取值只在一处定义：`hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`），配置键校验、分区 frontmatter 解析和 `channel.spawn` 都经两个成员判定函数引用这个数组（confirmed）。宿主默认值由 `resolveDefaultRuntime (ho)` 计算：读取 `ALADUO_DEFAULT_RUNTIME`，去掉首尾空白并转成小写，属于枚举才采用，否则一律回到 `"claude"`（confirmed）。
+合法取值在一处定义为两个数组：`mR = ["claude", "codex", "grok", "pi", "void"], hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`），前者是 duoduo 认识的全部取值，后者是会运行模型的四个引擎；成员判定相应分成两个，`isRuntimeKind (gR)` 查五值数组，`isSupportedRuntime (Eb)` 查四引擎数组（confirmed）。校验函数也分两级，结果都是"接受"或"一段拒绝说明"，没有改用默认值的分支（confirmed）：`validateKnownRuntimeValue (uU)` 把未给出的值当作未设置，接受五个已知取值，其余值的说明写明 `which is not a runtime this duoduo knows. Valid runtimes:` 并列出五个值；`validateRunnableRuntimeValue (Wd)` 在它之上再拒绝 `void`，说明写明 `void` 从不运行模型、不能用在这个位置。
+
+每个入口用哪一级校验，取决于这个入口能不能接受 `void`（confirmed）。渠道种类与渠道实例配置文件里的 `runtime` 由 `parseChannelRuntimeField (WQe)` 经 `uU` 解析，配置写入时的键值校验 `validateConfigValue (_ct)` 对 runtime 类型用 `isKnownRuntimeValue (NR)`，`channel.spawn` 也只要求取值在五值数组里，这三处都接受 `void`。job frontmatter、ManageJob 的 `runtime` 参数、后台分区 `CLAUDE.md` frontmatter 和 `ALADUO_DEFAULT_RUNTIME` 都经 `Wd`，只接受四个引擎。渠道配置文件里的非法值不会让解析失败：解析结果记下 `runtimeRefusal`（拒绝说明）而不是 `runtime`，等这个配置真正被用来决定引擎时才拒绝（3.3）。
+
+宿主默认值由 `resolveDefaultRuntime (ho)` 计算（confirmed）：读取 `ALADUO_DEFAULT_RUNTIME`，未设置或去掉首尾空白后为空时取 `"claude"`；否则转成小写交给 `Wd`，被拒时抛出 `InvalidRuntimeError`（`initRuntimeValidationModule (Fu)` 定义的错误类）。`main (kvt)` 在加载 `~/.config/duoduo/.env` 之后、取进程写锁之前调用一次 `ho()`，所以环境或 `.env` 里写了未知值或 `void` 时 daemon 以 `[pid0] fatal startup error` 退出，不会以 claude 启动。
 
 每类会话按自己的顺序取值，取到的值写在 actor 的 `runtime` 字段上（confirmed）。下表的来源标签只写进 actor 启动时的告警日志（探测失败时，以及 job 在 codex 上设置了 `prompt_mode` 时）。drain 拒绝执行时写进 `agent.error` 负载的 `runtime_source` 另有算法：它只看 actor 的 `runtime` 是否有值，而会话 actor 的 `runtime` 总有值，所以这个字段在会话 actor 上恒为 `explicit`（confirmed，静态阅读）。
 
-| 会话 | 取值顺序 | 来源标签 |
-|---|---|---|
-| 渠道会话（状态里记有来源渠道） | 渠道实例描述符的 `runtime` → 渠道种类配置的 `runtime` → 宿主默认值 | `explicit`、`inherited`、`default` |
-| job 会话 | job 文件 frontmatter 的 `runtime` → 宿主默认值 | `explicit`、`default` |
-| 后台分区会话 | 分区 `CLAUDE.md` frontmatter 的 `runtime`（不在枚举内时告警并忽略）→ 宿主默认值 | `explicit`、`default` |
-| 其他会话（system 来源、没有来源渠道的渠道会话） | 创建 actor 时传入的值，缺省为 `"claude"` | 无 |
+| 会话 | 取值顺序 | 取值被拒时 | 来源标签 |
+|---|---|---|---|
+| 渠道会话（状态里记有来源渠道） | 渠道实例描述符的 `runtime` → 渠道种类配置的 `runtime` → 宿主默认值 | 实例层的拒绝直接生效；种类层的拒绝只在实例层没有合法取值时生效 | `explicit`、`inherited`、`default` |
+| job 会话 | job 文件 frontmatter 的 `runtime` → 宿主默认值 | 记下拒绝原因，job 不运行（3.3） | `explicit`、`default` |
+| 后台分区会话 | 分区 `CLAUDE.md` frontmatter 的 `runtime` → 宿主默认值 | 分区记下拒绝原因并写一条 `[playlist]` 日志，轮到它时跳过（3.3） | `explicit`、`default` |
+| 其他会话（system 来源、没有来源渠道的渠道会话） | 创建 actor 时传入的值，缺省为 `"claude"` | 不适用 | 无 |
 
-job 的引擎在创建时就写进文件。ManageJob 的 create 动作按"参数 → 调用方会话的引擎 → 宿主默认值"解析出一个值写进 frontmatter（4.2），JSON-RPC `job.create` 直接写入宿主默认值（10.1）；因此之后修改 `ALADUO_DEFAULT_RUNTIME` 不影响已有 job（confirmed）。
+渠道会话的分层由 `resolveLayeredChannelRuntime (Ua)` 完成，`resolveSessionChannelRuntime (fh)` 按会话状态里的来源渠道读出实例描述符与种类配置后调用它；三层都没有取值时它返回空值，由调用方补上宿主默认值（confirmed）。会话管理器、`/model` 与 `/effort` 的引擎解析、`channel.describe` 以及渠道有效配置的组装（`buildEffectiveRuntimeFields (fct)`，由 `buildEffectiveChannelConfig (Tve)` 调用）都经过这一个分层函数，所以同一个渠道在这些地方得到的取值和拒绝说明一致；`channel.describe` 遇到拒绝时以 JSON-RPC 错误返回这段说明（confirmed）。
+
+`void` 只能经渠道配置生效，`isVoidRuntimeSession (Gu)` 判定一个会话的渠道 runtime 是否解析为 `void`（confirmed）。对这样的会话，运行时从不调用模型（confirmed，各处判定见本节证据表）：网关把入站消息追加进事件日志之后不写邮箱指针、不唤醒，而是由 `writeVoidSessionOutboxRecord (wI)` 把原文作为一条出站记录写进出站队列并在总线上发出 `session.output`，交给会话执行的斜杠命令和注入提示不执行，回复 `This session never runs a model (runtime void).` 加上"命令未运行"；Notify 等会话间投递同样只写出站队列、不写邮箱、不唤醒；`session.wake` 与 `session.compact` 以 `void_session` 拒绝；`/model`、`/effort` 回复这个会话没有模型或推理力度可以显示或设置；渠道挂接回调 `createVoidAwareAttachmentCallbacks (tde)` 不挂接 void 会话；空闲压缩扫描跳过它。这样的会话只在出站队列里积累记录，由拉取或订阅它的出站记录的渠道读走（6.3）。消息与命令在网关与路由上的分流见 6.2。
+
+job 的引擎在创建时就写进文件。ManageJob 的 create 动作先用 `Wd` 校验参数（被拒就报错），再按"参数 → 调用方会话的引擎 → 宿主默认值"解析出一个值写进 frontmatter（4.2），JSON-RPC `job.create` 直接写入宿主默认值（10.1）；因此之后修改 `ALADUO_DEFAULT_RUNTIME` 不影响已有 job（confirmed）。
 
 ### 3.2 进程模型与可用性探测
 
@@ -295,28 +303,29 @@ Claude 一栏里 daemon 自己不启动 Claude 进程。启动探测只校验原
 
 pi 没有探测函数。`resolvePiWorkerCommand ($S)` 在 daemon bundle 同目录找到 `pi-worker.js` 就用 `process.execPath` 运行它，找不到时退回开发环境的 tsx 加 `pi/worker.ts`（confirmed）。daemon 在 init 帧里把 pi agent 目录下的 `auth.json`、`models.json` 路径和模型 id 交给 worker；worker 要求模型 id 形如 `provider/modelId`（pi-worker.js 字面量 "model must be provider/modelId"），在 pi 自己的模型目录里解析不到就以 init_error 结束（pi-worker.js 字面量 "model not resolvable"）。凭据和可用模型因此完全由 pi agent 目录决定，与其余三个引擎的登录状态无关（confirmed）。
 
-### 3.3 先绑定再探测：runtime_unavailable 与 runtime_mismatch
+### 3.3 先绑定再探测：runtime_refused、runtime_unavailable 与 runtime_mismatch
 
-会话 actor 在 drain 循环开始前按 3.1 的顺序把引擎写到 actor 上，然后才探测；探测失败只记下原因，`runtime` 保持不变。到 drain 处理邮箱时，有原因就以 `runtime_unavailable` 拒绝；会话历史所属的引擎与当前引擎不同，就以 `runtime_mismatch` 拒绝。两种拒绝都结束 actor，下一条消息重新绑定、重新探测（confirmed）。
+会话 actor 在 drain 循环开始前按 3.1 的顺序解析 runtime：配置的取值被拒绝时记下拒绝说明，否则把引擎写到 actor 上，然后才探测；探测失败只记下原因，`runtime` 保持不变。到 drain 处理邮箱时，有拒绝说明就以 `runtime_refused` 拒绝，有探测失败原因就以 `runtime_unavailable` 拒绝，会话历史所属的引擎与当前引擎不同就以 `runtime_mismatch` 拒绝。后两种拒绝结束 actor，下一条消息重新绑定、重新探测；渠道会话上的 `runtime_refused` 不结束 actor（confirmed）。
 
-绑定在 `createSessionManager (gbt)` 的 actor 启动段里完成（confirmed）。job 分支和渠道分支都先把 3.1 解析出的引擎写到 actor 的 `runtime` 字段，然后才调用探测函数；探测函数只对 codex 与 grok 运行 CLI 探测，claude 与 pi 在这里不探测。探测失败时，原因存进一个局部变量，日志写一条"job 或渠道请求了某引擎但它不可用"的告警（`but it is unavailable`（`createSessionManager`）），actor 的 `runtime` 不改。pi 的对应检查发生在构造 worker 之前：会话既没有存下的 pi 模型、job frontmatter 和配置层也没有给出模型时，原因被设为 "pi binds its model when the worker is built, and this session has none."。这一段代码里没有改用 claude 的分支；选中 codex、grok 或 pi 却没有构造出适配器的 actor，一旦被调用就直接报错，错误文字写明拒绝回落到 Claude（证据见本节证据表）。
+绑定在 `createSessionManager (gbt)` 的 actor 启动段里完成（confirmed）。job 分支用 `Wd` 校验 frontmatter 的 `runtime`，渠道分支调用 `resolveSessionChannelRuntime (fh)`；取值被拒时，拒绝说明存进一个局部变量，job 的 actor 改用宿主默认值，渠道的 actor 保留创建时的值，渠道分支另写一条 `"[session-manager] channel runtime refused"`（`createSessionManager`）日志。渠道 runtime 解析为 `void` 时同样记下拒绝说明（`A message queued before it became void was not run.`（`createSessionManager`）），它只作用于渠道变成 `void` 之前已经进了邮箱的消息，之后的消息不再进邮箱（3.1）。两个分支随后把解析出的引擎写到 actor 的 `runtime` 字段，然后才调用探测函数（渠道分支在取值被拒时不探测）；探测函数只对 codex 与 grok 运行 CLI 探测，claude 与 pi 在这里不探测。探测失败时，原因存进一个局部变量，日志写一条"job 或渠道请求了某引擎但它不可用"的告警（`but it is unavailable`（`createSessionManager`）），actor 的 `runtime` 不改。pi 的对应检查发生在构造 worker 之前：会话既没有存下的 pi 模型、job frontmatter 和配置层也没有给出模型时，原因被设为 "pi binds its model when the worker is built, and this session has none."。这一段代码里没有改用 claude 的分支；选中 codex、grok 或 pi 却没有构造出适配器的 actor，一旦被调用就直接报错，错误文字写明拒绝回落到 Claude（证据见本节证据表）。
 
-拒绝发生在 `drainSessionMailbox (zxe)` 的第五步（7.1），两项检查只在本次确有待处理事件时进行（confirmed）：
+拒绝发生在 `drainSessionMailbox (zxe)` 的第五步（7.1），工作目录检查之后依次做三项检查，都只在本次确有待处理事件时进行（confirmed）：
 
-1. **引擎不可用。** 原因取 actor 传来的值；引擎是 claude 时取启动探测的结果。有原因就以 `stage: "runtime_unavailable"`（`drainSessionMailbox`）拒绝，提示由 `renderRuntimeUnavailableGuidance (pht)` 按引擎生成：codex、grok 要求安装 CLI 并登录后重发消息；pi 说明模型 id 的写法，并写明 "Nothing to install: the pi runtime ships inside duoduo."；claude 要求重装 Agent SDK 的原生二进制后重启 daemon。
-2. **历史所属引擎不符。** 引擎每次返回会话 id 时（stateless job 除外），drain 都把当时的引擎与会话 id 一起写进 `state.json`（字段 `sdk_session_runtime` 与 `sdk_session_id`），`/clear` 把两者一起清空。之后每次 drain，若会话有引擎侧会话 id、记录的引擎与当前引擎不同、且不是 stateless job，就以 `stage: "runtime_mismatch"`（`drainSessionMailbox`）拒绝。提示由 `renderRuntimeMismatchGuidance (mht)` 生成，写明 "Session histories cannot move between runtimes, so choose one:"。每个会话都得到"把引擎改回原来的值后重发消息"这一选项；"换到新引擎"这一选项按会话类型不同，渠道会话被告知先 `/clear` 再重发，job 会话被告知由 job 的 owner 决定是否让 job 在新引擎上开一个新会话。提示还要求换引擎之前先让一个子代理找到仍留在磁盘上的旧会话历史并做摘要。stateless job 每次运行都从新会话开始，所以不做这项检查。
+1. **取值被拒。** actor 传来拒绝说明时，以 `stage: "runtime_refused"`（`drainSessionMailbox`）拒绝，回复是拒绝说明加上 `Request was not executed.`。说明本身已写明哪一层配置写了什么值、合法值有哪些。
+2. **引擎不可用。** 原因取 actor 传来的值；引擎是 claude 时取启动探测的结果。有原因就以 `stage: "runtime_unavailable"`（`drainSessionMailbox`）拒绝，提示由 `renderRuntimeUnavailableGuidance (pht)` 按引擎生成：codex、grok 要求安装 CLI 并登录后重发消息；pi 说明模型 id 的写法，并写明 "Nothing to install: the pi runtime ships inside duoduo."；claude 要求重装 Agent SDK 的原生二进制后重启 daemon。
+3. **历史所属引擎不符。** 引擎每次返回会话 id 时（stateless job 除外），drain 都把当时的引擎与会话 id 一起写进 `state.json`（字段 `sdk_session_runtime` 与 `sdk_session_id`），`/clear` 把两者一起清空。之后每次 drain，若会话有引擎侧会话 id、记录的引擎与当前引擎不同、且不是 stateless job，就以 `stage: "runtime_mismatch"`（`drainSessionMailbox`）拒绝。提示由 `renderRuntimeMismatchGuidance (mht)` 生成，写明 "Session histories cannot move between runtimes, so choose one:"。每个会话都得到"把引擎改回原来的值后重发消息"这一选项；"换到新引擎"这一选项按会话类型不同，渠道会话被告知先 `/clear` 再重发，job 会话被告知由 job 的 owner 决定是否让 job 在新引擎上开一个新会话。提示还要求换引擎之前先让一个子代理找到仍留在磁盘上的旧会话历史并做摘要。stateless job 每次运行都从新会话开始，所以不做这项检查。
 
-拒绝的说明如何送达取决于会话类型（confirmed）。渠道会话把说明作为普通回复写给每个待处理事件，并把这些邮箱项标记完成，drain 返回拒绝阶段；会话管理器的循环据此打印 `"[session-manager] runtime refusal, ending actor"`（`createSessionManager`）并结束 actor，用户需要在修复后重发消息。
+拒绝的说明如何送达取决于会话类型（confirmed）。渠道会话把说明作为普通回复写给每个待处理事件，并把这些邮箱项标记完成，drain 返回拒绝阶段；拒绝阶段是 `runtime_unavailable` 或 `runtime_mismatch` 时，会话管理器的循环打印 `"[session-manager] runtime refusal, ending actor"`（`createSessionManager`）并结束 actor，用户需要在修复后重发消息。拒绝阶段是 `runtime_refused` 时循环不结束 actor（`de.refusedStage === "runtime_unavailable" || de.refusedStage === "runtime_mismatch"`（`createSessionManager`）只列出另两种），这次 drain 处理了事件，循环照常进入下一次迭代，没有新事件就转入空闲（confirmed）。拒绝说明只在 actor 启动时解析一次，所以修正渠道配置之后，同一个 actor 收到的消息仍按原说明拒绝，直到 actor 结束；渠道仍挂接时空闲超时不结束 actor（8.4），这种情况下修正要等 actor 因其他原因结束（例如 daemon 重启）才生效（未证实推测，由静态阅读推出，未实测）。
 
-其他会话（job 与 system 来源）把说明交给 `handleDrainError (TS)`，生成 `agent.error` 事件（7.7），随后 drain 抛出错误；这个错误落到会话管理器循环外层的 catch，日志写 `error in drain loop for`（`createSessionManager`），会话状态记下 `last_error`，actor 同样在这里结束，job 按"引擎未开始"的失败结算（10.3）（confirmed）。
+其他会话（job 与 system 来源）在三种拒绝下都把说明交给 `handleDrainError (TS)`，生成 `agent.error` 事件（7.7），随后 drain 抛出错误；这个错误落到会话管理器循环外层的 catch，日志写 `error in drain loop for`（`createSessionManager`），会话状态记下 `last_error`，actor 同样在这里结束，job 按"引擎未开始"的失败结算（10.3）（confirmed）。
 
-两类会话都在下一条消息到达时创建新 actor，重新走一遍绑定和探测：Codex 与 Grok 的失败结果没有被保留，装好 CLI 并登录后下一条消息即可运行；Claude 的探测结果在启动时固定，需要重启 daemon（confirmed）。
+actor 结束之后，下一条消息到达时创建新 actor，重新走一遍解析、绑定和探测：Codex 与 Grok 的失败结果没有被保留，装好 CLI 并登录后下一条消息即可运行；Claude 的探测结果在启动时固定，需要重启 daemon（confirmed）。
 
-改引擎的配置入口也检查历史归属。`channel.spawn` 更新渠道实例描述符时若 `runtime` 变了，`upsertChannelSpawnDescriptor (yvt)` 先调用 `checkChannelRuntimeRebindConflict (RIe)`，检查这个渠道下是否有会话持有另一个引擎的历史，有就拒绝修改并列出这些会话，要求逐个 `/clear` 之后再改；`session.config` 的处理函数 `applySessionConfigVerb (fvt)` 设置 `runtime` 时调用同一个检查（confirmed）。
+改引擎的配置入口也检查历史归属。`channel.spawn` 更新渠道实例描述符时若 `runtime` 变了，`upsertChannelSpawnDescriptor (yvt)` 先调用 `checkChannelRuntimeRebindConflict (RIe)`，检查这个渠道下是否有会话持有另一个引擎的历史，有就拒绝修改并列出这些会话，要求逐个 `/clear` 之后再改；`session.config` 的处理函数 `applySessionConfigVerb (fvt)` 设置 `runtime` 时调用同一个检查（confirmed）。渠道描述符里的 `runtime` 已是被拒绝的值、而这次 `channel.spawn` 没有给出新值时，它拒绝更新并要求给出一个 runtime（`Send a runtime to replace it.`（`upsertChannelSpawnDescriptor`））（confirmed）。
 
-后台分区不经过 actor，但遵守同一条规则：`createMetaSession (Pbt)` 在执行分区前探测 codex 与 grok（claude 读启动时的缓存结果），不可用就追加一条 `outcome: "runtime_unavailable"` 的 `agent.error` 事件，跳过本次执行并按失败计入退避（11.2），同样不改用其他引擎（confirmed）。pi 分区没有配置模型时走同一个分支，错误文字要求在分区 frontmatter 写 `model: provider/modelId` 或设置全局的 `pi.model`（confirmed）。
+后台分区不经过 actor，但遵守同一条规则（confirmed）：`createMetaSession (Pbt)` 在执行分区前先看分区定义是否记有拒绝说明（frontmatter 的 `runtime` 未知或为 `void`，由 `parsePartitionDefinition (Wct)` 经 `Wd` 记下），有就追加一条 `outcome` 为 `runtime_refused`、`error` 为拒绝说明的 `agent.error` 事件；否则探测 codex 与 grok（claude 读启动时的缓存结果），不可用就追加一条 `outcome: "runtime_unavailable"` 的 `agent.error` 事件。两种情况都跳过本次执行并按失败计入退避（11.2），同样不改用其他引擎。pi 分区没有配置模型时走同一个分支，错误文字要求在分区 frontmatter 写 `model: provider/modelId` 或设置全局的 `pi.model`（confirmed）。
 
-`/model` 与 `/effort` 需要知道会话用哪个引擎，它们用 `createModelCommandResolvers (VRe)` 返回的解析函数，不做探测（confirmed）：有 actor 且其引擎为 codex、grok 或 pi 时取它（`if (a?.runtime === "codex") return "codex";`（`createModelCommandResolvers`））；其余情况，包括绑定为 claude 的 actor，按来源渠道的实例描述符、渠道种类配置、宿主默认值推出。因此一个仍绑定 claude 的 actor，在渠道配置改成别的引擎之后，`/model` 按新配置的引擎解释（confirmed，静态阅读）。这个结果只决定命令按哪个引擎的语义执行（3.6），不改变 actor 的绑定。
+`/model` 与 `/effort` 需要知道会话用哪个引擎，它们用 `createModelCommandResolvers (VRe)` 返回的解析函数，不做探测（confirmed）：有 actor 且其引擎为 codex、grok 或 pi 时取它（`if (u?.runtime === "codex") return "codex";`（`createModelCommandResolvers`））；其余情况，包括绑定为 claude 的 actor，按来源渠道的实例描述符、渠道种类配置、宿主默认值推出。因此一个仍绑定 claude 的 actor，在渠道配置改成别的引擎之后，`/model` 按新配置的引擎解释（confirmed，静态阅读）。这个结果只决定命令按哪个引擎的语义执行（3.6），不改变 actor 的绑定。在解析引擎之前，同一组函数里的 `runtimeCommandRefusal` 先按渠道配置检查一次：渠道 runtime 被拒时返回拒绝说明，解析为 `void` 时返回“这个会话没有模型或推理力度可以显示或设置”；会话管理器的 `/model`、`/effort` 读取与设置四个方法遇到这段说明都直接返回，设置方法的原因为 `runtime_rejected`，不写入任何状态（confirmed）。
 
 ### 3.4 模型与推理力度的分层默认值
 
@@ -330,13 +339,13 @@ pi 没有探测函数。`resolvePiWorkerCommand ($S)` 在 daemon bundle 同目�
 
 上游技能文档 `skills/duoduo-runtime-admin/references/model-defaults.md` 把会话自己的 `/model` 列为模型的最高优先级，代码中模型是 job frontmatter 优先，以代码为准。这个差异在实践中很少出现：`/model`、`/effort` 命令与 `session.model`、`session.effort` RPC 都只接受渠道会话，两个 RPC 的处理函数 `readOrSetSessionModel (uvt)` 与 `readOrSetSessionEffort (lvt)` 对其他会话都返回 `forbidden_kind`，job 会话通常没有会话级的值（confirmed）。pi 另有一条取值路径：它在构造 worker 时自行确定模型，顺序是会话存下的 pi 模型、job frontmatter、配置层，job 会话的配置层按种类 `job` 读取（3.5）（confirmed）。
 
-请求的模型与实际服务的模型分开记录。drain 记录里的 `modelOrigin`、`effortOrigin` 记下配置取自哪一层；`extractServedModelFromUsage (Rxe)` 从用量数据里取出实际服务这一轮的模型，写进 `state.json` 的 `last_served_model`（`mt.last_served_model = Xe`（`drainSessionMailbox`））。两者可以不同，例如 Codex 线程在 fork 之前保持它启动时的模型（3.6），或者兼容网关换了模型（confirmed）。
+请求的模型与实际服务的模型分开记录。drain 记录里的 `modelOrigin`、`effortOrigin` 记下配置取自哪一层；`extractServedModelFromUsage (Rxe)` 从用量数据里取出实际服务这一轮的模型，写进 `state.json` 的 `last_served_model`（`Le.last_served_model = Ht`（`drainSessionMailbox`））。两者可以不同，例如 Codex 线程在 fork 之前保持它启动时的模型（3.6），或者兼容网关换了模型（confirmed）。
 
 `claude.model_profiles`（合并后的字段名 `claudeModelProfiles`）给单个模型 id 指定它自己的上下文窗口上限，并可以另外指定它自己的端点和认证令牌；下文把一个模型 id 的这组设置称为它的上下文 profile（confirmed）。profile 只作用于 claude 引擎，与模型配置键一样在全局、种类、实例三层逐键合并，同一个模型 id 以更具体的层为准，job frontmatter 还能再覆盖一次（3.5）。每次运行前，`classifyModelContextRequirement (wW)` 把请求的模型 id 与合并后的目录比对：以 `claude-` 开头的 id 按 Claude 原生模型处理，不查目录；目录里有这个 id（带 `[1m]` 后缀的先去掉后缀再查）时得到 `profiled-external` 类别，带上窗口上限、端点和认证信息；都不命中时按未登记模型处理，窗口上限取宿主环境变量 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`（设置了的话）。`profiled-external` 的要求由 `buildClaudeSettingsEnvOverrides (rct)` 转成 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`、`ANTHROPIC_BASE_URL` 与认证令牌变量，连同 `claude.model_aliases` 给子代理 tier 别名（opus、sonnet、haiku、fable）指定的模型，由 `materializeClaudeSettingsFile (yve)` 写进一个交给 SDK 的 settings 文件，文件权限为 0600（confirmed）。
 
 `/model` 在 claude 会话上要先确定新模型的上下文 profile（confirmed）。profile 无法解析（例如配置里的条目写错）时拒绝切换并返回 `reason: "profile_error"`（`createSessionManager`），回复要求修正对应层的 `claude.model_profiles` 条目；新模型需要换用另一套上下文 profile 时，模型先存下，常驻的流式会话在下一 turn 之前重建（3.6）。
 
-后台分区和 job 创建各有自己的规则。分区的模型取 frontmatter 的 `model`，没有时只读全局层（`ae = S.model ?? Ie.runtimeModels?.[W]?.model`（`createMetaSession`）），不经过种类层和实例层（confirmed）。ManageJob 创建 job 时要求显式给出模型，不从宿主默认值继承（4.2）。推理力度设为 `max` 而 Claude 模型不支持时，SDK 按 `high` 执行，`/effort max` 的回复会写明这一点（confirmed）。
+后台分区和 job 创建各有自己的规则。分区的模型取 frontmatter 的 `model`，没有时只读全局层（`te = S.model ?? K.runtimeModels?.[J]?.model`（`createMetaSession`）），不经过种类层和实例层（confirmed）。ManageJob 创建 job 时要求显式给出模型，不从宿主默认值继承（4.2）。推理力度设为 `max` 而 Claude 模型不支持时，SDK 按 `high` 执行，`/effort max` 的回复会写明这一点（confirmed）。
 
 ### 3.5 job 的 SDK 配置叠加
 
@@ -355,7 +364,7 @@ job 每一轮的 SDK 配置分三步得到：先按锚点事件解析出渠道�
 
 种类层取决于锚点事件的来源，而不是会话是 job。`prepareDrainTurnContext (NW)` 用锚点事件解析有效配置后再叠加 job 的键；按调度规则触发的运行，锚点是 job 扫描器（10.2）写入的 `job.spawn` 事件，来源的种类为 `cadence`，因此种类层读的是 `kernel/config/cadence.md`（包内不带这个文件）；由 Notify 等投递唤醒的运行，来源是 `route`（confirmed）。`bootstrap/config/job.md` 的注释写着 "This is the KIND layer for every job session on this host"，ManageJob 对 `extra_tools` 的说明也写着与 `kernel/config/job.md` 取并集，但代码里只有构造 pi worker 时用 `channel_kind: "job"`（`createSessionManager`）读取种类 `job` 的配置，而且只取 `pi.model` 与 `pi.effort`。`job.md` 里的 `allowedTools`、`claude.tools`、`prompt_mode` 和正文对 Claude、Codex、Grok 的 job 都不生效（confirmed，静态阅读，未实测）。
 
-job 文件在每次 drain 迭代时重新读取（第一次用启动时读到的快照，之后 `vr ? Ht = await a.getJob(w.jobId)`（`createSessionManager`）），所以修改一个正在运行的 job 文件，下一轮即生效（confirmed）。
+job 文件在每次 drain 迭代时重新读取（第一次用启动时读到的快照，之后 `xr ? Re = await a.getJob(w.jobId)`（`createSessionManager`）），所以修改一个正在运行的 job 文件，下一轮即生效（confirmed）。
 
 这一层还有四个不报错的边界（confirmed，第四条的后果为未证实推测）：
 
@@ -376,7 +385,7 @@ JSON-RPC `job.create` 不接受这些键，SDK 配置只能经 ManageJob 或手�
 | `/effort <level>` | 即时应用或下一条消息生效；`max` 在不支持的模型上按 `high` 执行 | 下一条消息生效 | 应用到当前 ACP 会话 | 存下，下一 turn 重建 worker 时生效 |
 | `/compact` | 渠道会话：作为输入交给 SDK 的原生压缩命令，会调用模型；非渠道会话：回复 `/compact is only available in interactive sessions.` | `thread/compact/start` | ACP 扩展方法 `_x.ai/compact_conversation`；会话尚未开始时返回提示 | worker 的 compact 帧 |
 
-这些分支分布在三处（confirmed）。`/model` 的写入在会话管理器的 `setSessionModel` 方法里，四个分支各自把 `model_runtime` 写成对应的引擎名；回复文字在 `executeGatewayCommand (Fet)` 里按引擎给出，例如 Codex 会话回复 "Codex session — a switch takes effect from the next message."。`/compact` 在 drain 里分流：`if (ou === "/compact" && (n.runtime === "claude" || n.runtime === void 0))`（`drainSessionMailbox`）只拦下 Claude，渠道会话放行给 SDK，非渠道会话回复不可用；其余引擎进入 history-control 命令的处理函数（见下文），调用适配器的 `compact()`，成功时回复 `History compacted (runtime: …)`。
+这些分支分布在三处（confirmed）。`/model` 的写入在会话管理器的 `setSessionModel` 方法里，四个分支各自把 `model_runtime` 写成对应的引擎名；回复文字在 `executeGatewayCommand (Fet)` 里按引擎给出，例如 Codex 会话回复 "Codex session — a switch takes effect from the next message."。`/compact` 在 drain 里分流：`if (mu === "/compact" && (n.runtime === "claude" \|\| n.runtime === void 0))`（`drainSessionMailbox`）只拦下 Claude，渠道会话放行给 SDK，非渠道会话回复不可用；其余引擎进入 history-control 命令的处理函数（见下文），调用适配器的 `compact()`，成功时回复 `History compacted (runtime: …)`。
 
 Codex 的延迟生效靠两个状态字段完成（confirmed）。每次 drain 开始，`clearModelOverrideOnRuntimeFlip (lht)` 先检查存下的模型是不是为另一个引擎设的，是就清掉，避免把一个引擎的模型 id 交给另一个引擎；接着对非 stateless 的 Codex 会话，`resolvePendingModelFork (cht)` 把 `pending_fork_to` 设为当前线程 id。Codex 适配器据此在 `thread/fork`、`thread/resume`、`thread/start` 三种请求中选一种，fork 失败时退回 `thread/start`。
 
@@ -419,14 +428,24 @@ pi 的内置工具由 pi SDK 提供。worker 创建 pi 会话时以 init 帧里�
 
 | 机制主张 | 代码证据 | 置信 |
 |---|---|---|
-| 引擎取值只在一处定义，成员判定引用它 | `hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`）；`isRuntimeKind (gR)`；`isSupportedRuntime (Eb)` | confirmed |
-| 宿主默认值来自 `ALADUO_DEFAULT_RUNTIME`，不合法回到 claude | `return n.length === 0 ? "claude" : Aa(n) ? n : "claude"`（`resolveDefaultRuntime`） | confirmed |
-| 渠道会话按实例、种类、默认取值并记来源标签 | `"inherited" : "default"`（`createSessionManager`） | confirmed |
+| runtime 取值在一处定义为五值与四引擎两个数组，成员判定各查一个 | `mR = ["claude", "codex", "grok", "pi", "void"], hR = ["claude", "codex", "grok", "pi"]`（`initChannelProtocolModule`）；`return typeof e == "string" && mR.includes(e)`（`isRuntimeKind`）；`isSupportedRuntime (Eb)`；`isKnownRuntimeValue (NR)` | confirmed（`Eb` 调用的四引擎判定函数没有真名） |
+| 两级校验返回拒绝说明，不改用默认值；第二级拒绝 void | `which is not a runtime this duoduo knows. Valid runtimes:`（`validateKnownRuntimeValue`）；`which never runs a model, so it cannot run there.`（`validateRunnableRuntimeValue`） | confirmed |
+| 渠道配置、配置键与 channel.spawn 接受五值；渠道配置的非法值记为拒绝说明 | `let t = uU(e, "This channel's config");`（`parseChannelRuntimeField`）；`runtimeRefusal: t.reason`（`parseChannelRuntimeField`）；`...WQe(e.runtime),`（`parseChannelConfigFields`）；`case "runtime": return NR(t) ? {`（`validateConfigValue`）；`if (!gIe.includes(a)) return {`（`upsertChannelSpawnDescriptor`） | confirmed |
+| job、ManageJob、分区与默认值只接受四个引擎 | `let i = Wd(e.runtime, "This job");`（`runManageJobTool`）；`Wd(_t.frontmatter.runtime,`（`createSessionManager`）；`a = Wd(i.data?.runtime,`（`parsePartitionDefinition`）；`let r = Wd(n, "ALADUO_DEFAULT_RUNTIME");`（`resolveDefaultRuntime`） | confirmed |
+| 宿主默认值来自 `ALADUO_DEFAULT_RUNTIME`，未设置或为空时取 claude，不合法时抛错 | `if (n.length === 0) return "claude";`（`resolveDefaultRuntime`）；`if (!r.ok) throw new xb(r.reason);`（`resolveDefaultRuntime`）；`this.name = "InvalidRuntimeError"`（`initRuntimeValidationModule`） | confirmed |
+| daemon 启动时校验默认值，不合法即退出 | `u(process.env), delete process.env[tl], ho();`（`main`） | confirmed（`ho()` 在加载 `.env` 之后、取写锁之前；抛出的错误由入口的 `[pid0] fatal startup error` 处理并以退出码 1 结束，静态阅读） |
+| 渠道会话按实例、种类、默认取值并记来源标签；实例层的拒绝优先，种类层的拒绝只在实例层无合法取值时生效 | `source: "inherited"`（`resolveLayeredChannelRuntime`）；`return e?.runtimeRefusal ? {`（`resolveLayeredChannelRuntime`）；`(await rt(e, t).catch(() => null))?.source_channel_id`（`resolveSessionChannelRuntime`） | confirmed |
+| 分层函数被会话管理器之外的各处共用 | `return (l.ok ? l.runtime : void 0) ?? ho()`（`createModelCommandResolvers`）；`runtime: g.runtime ?? ho(),`（`describeChannelInstance`）；`if (!g.ok) throw new Tt(g.reason);`（`describeChannelInstance`）；`runtimeRefusal: n.reason`（`buildEffectiveRuntimeFields`）；`...fct(o, i),`（`buildEffectiveChannelConfig`） | confirmed |
 | job 会话按 frontmatter、默认取值 | `? "explicit" : "default"`（`createSessionManager`） | confirmed |
 | 来源标签只进告警日志；拒绝负载里的 runtime_source 另算，在 actor 上恒为 explicit | `but it is unavailable`（`createSessionManager`）；`runtime_source: n.runtime ? "explicit" : "default"`（`drainSessionMailbox`） | confirmed（静态阅读） |
-| 分区 frontmatter 的 runtime 按四值校验，非法值回到默认 | `has invalid runtime frontmatter; falling back to global default`（`parsePartitionDefinition`） | confirmed |
-| 其他会话缺省为 claude | `runtime: P?.runtime ?? K?.runtime ?? "claude"`（`createSessionManager`） | confirmed |
-| ManageJob 建 job 时解析并写入 runtime | `let s = i.runtime ?? t.callerRuntime ?? ho()`（`runManageJobTool`） | confirmed |
+| 分区 frontmatter 的 runtime 被拒时记下拒绝说明并写日志，不回到默认 | `runtimeRefusal: l,`（`parsePartitionDefinition`）；`[playlist] ${l}`（`parsePartitionDefinition`） | confirmed |
+| void 会话的判定与各处处理：入站只写出站队列，命令不执行，投递不进邮箱，wake 与 compact 拒绝，/model 与 /effort 拒绝，不挂接，空闲压缩跳过 | `return r.ok && r.runtime === "void"`（`isVoidRuntimeSession`）；`Ju = "This session never runs a model (runtime void)."`（`initVoidRuntimeModule`）；`"[gateway] void-session event (outbox, no enqueue)"`（`appendBeforeExecuteGateway`）；`return await Va(e, r), t?.emit("session.output", {`（`writeVoidSessionOutboxRecord`）；`"[route] delivered to void session outbox (no mailbox, no wake)"`（`deliverRouteEventToSession`）；`reason: "void_session",`（`scheduleSessionWakeRecord`）；`reason: "void_session",`（`enqueueSessionCompactCommand`）；`It has no model or effort to show or set.`（`createModelCommandResolvers`）；`await Gu(e, o) \|\| t.attachChannel(o, s)`（`createVoidAwareAttachmentCallbacks`）；`E.runtimeRefusal \|\| E.runtime === "void"`（`createIdleCompactSweeper`） | confirmed |
+| 渠道会话取值被拒或解析为 void 时 actor 记下拒绝说明，取值被拒时不探测 | `"[session-manager] channel runtime refused"`（`createSessionManager`）；`A message queued before it became void was not run.`（`createSessionManager`）；`let fn = Re.ok ? await v(ar) : null; fn && !fn.ok && (Nn = fn.reason`（`createSessionManager`）；`runtimeRefusal: Us,`（`createSessionManager`） | confirmed |
+| drain 先于不可用检查以 runtime_refused 拒绝 | `stage: "runtime_refused",`（`drainSessionMailbox`）；`${n.runtimeRefusal} Request was not executed.`（`drainSessionMailbox`） | confirmed |
+| 渠道会话只在 runtime_unavailable 与 runtime_mismatch 时结束 actor | `de.refusedStage === "runtime_unavailable" \|\| de.refusedStage === "runtime_mismatch"`（`createSessionManager`） | confirmed（runtime_refused 之后 actor 继续存在，静态阅读） |
+| channel.spawn 不沿用描述符里被拒的 runtime | `${s.runtimeRefusal} Send a runtime to replace it.`（`upsertChannelSpawnDescriptor`） | confirmed |
+| 其他会话缺省为 claude | `runtime: T?.runtime ?? L?.runtime ?? "claude"`（`createSessionManager`） | confirmed |
+| ManageJob 建 job 时先校验参数，再解析并写入 runtime | `if (!i.ok) throw new Error(i.reason);`（`runManageJobTool`）；`let s = i.runtime ?? t.callerRuntime ?? ho()`（`runManageJobTool`） | confirmed |
 | Claude 由 daemon 进程内调用 SDK，校验原生二进制；设了可执行文件路径就跳过校验 | `query: Vge({`（`createAgentSdkAdapter`）；`[agent-sdk] native Claude Code binary for`（`verifyClaudeCodeRuntimeAvailable`）；`if (vw(process.env.CLAUDE_CODE_EXECUTABLE)) return;`（`verifyClaudeCodeRuntimeAvailable`）；`r.pathToClaudeCodeExecutable = a`（`createAgentSdkAdapter`） | confirmed（SDK 内部的进程启动未证实） |
 | Claude 探测 5 秒超时，结果缓存到退出，执行时读缓存 | `Jge = 5e3`（`initAgentSdkAdapterModule`）；`probeClaudeAvailability (Xge)`；`Sc?.ok === !1 ? Sc.reason : void 0`（`claudeUnavailableReason`）；`then restart the daemon.`（`renderRuntimeUnavailableGuidance`） | confirmed |
 | Codex 是常驻 app-server 子进程，探测两步 | `this.proc = but(this.binary, ["app-server"]`（`initCodexAppServerModule`）；`"logged in"`（`checkCodexAvailability`） | confirmed |
@@ -441,31 +460,32 @@ pi 的内置工具由 pi SDK 提供。worker 创建 pi 会话时以 init 帧里�
 | pi 没有模型时记为不可用原因 | `pi binds its model when the worker is built, and this session has none.`（`createSessionManager`） | confirmed |
 | drain 以 runtime_unavailable 拒绝，claude 读启动探测结果 | `stage: "runtime_unavailable"`（`drainSessionMailbox`）；`n.runtime === "claude" ? kw() : void 0`（`drainSessionMailbox`） | confirmed |
 | 不可用提示按引擎生成 | `"- Nothing to install: the pi runtime ships inside duoduo."`（`renderRuntimeUnavailableGuidance`） | confirmed |
-| 每次拿到会话 id 都记下所属引擎，/clear 清空，不符即以 runtime_mismatch 拒绝 | `mt.sdk_session_runtime = Ht`（`drainSessionMailbox`）；`sdk_session_runtime: null`（`createSessionManager`）；`stage: "runtime_mismatch"`（`drainSessionMailbox`） | confirmed |
+| 每次拿到会话 id 都记下所属引擎，/clear 清空，不符即以 runtime_mismatch 拒绝 | `Le.sdk_session_runtime = Wn`（`drainSessionMailbox`）；`sdk_session_runtime: null`（`createSessionManager`）；`stage: "runtime_mismatch"`（`drainSessionMailbox`） | confirmed |
 | 不符提示对所有会话给出"改回去"，换引擎的做法按会话类型不同，并要求先摘要旧历史 | `"Session histories cannot move between runtimes, so choose one:"`（`renderRuntimeMismatchGuidance`）；`- Keep this session: set the runtime back to`（`renderRuntimeMismatchGuidance`）；`this job's owner decides whether the job starts a new session on`（`renderRuntimeMismatchGuidance`）；`If you switch, recover the prior work first`（`renderRuntimeMismatchGuidance`） | confirmed |
-| 渠道会话把拒绝说明写成回复并返回拒绝阶段，其他会话走 handleDrainError 后抛错 | `if (to(t) === "channel") {`（`drainSessionMailbox`）；`refusedStage: Y`（`drainSessionMailbox`）；`handleDrainError (TS)` | confirmed |
+| 渠道会话把拒绝说明写成回复并返回拒绝阶段，其他会话走 handleDrainError 后抛错 | `if (no(t) === "channel") {`（`drainSessionMailbox`）；`refusedStage: X`（`drainSessionMailbox`）；`handleDrainError (TS)` | confirmed |
 | 渠道会话的拒绝阶段结束 actor；其他会话的错误在外层 catch 结束 actor | `"[session-manager] runtime refusal, ending actor"`（`createSessionManager`）；`error in drain loop for`（`createSessionManager`） | confirmed |
-| channel.spawn 与 session.config 改 runtime 前检查历史归属 | `checkChannelRuntimeRebindConflict (RIe)`；`Send /clear in each of those sessions first`（`checkChannelRuntimeRebindConflict`）；`if (o && s !== o.runtime) {`（`upsertChannelSpawnDescriptor`）；`let b = await RIe(e, t, d, i.runtime);`（`applySessionConfigVerb`） | confirmed |
-| 分区所用的引擎不可用、或 pi 分区没有配置模型时写 agent.error 并跳过 | `outcome: "runtime_unavailable"`（`createMetaSession`）；`pi partition has no model: set`（`createMetaSession`） | confirmed |
-| `/model` 的引擎解析不探测，只沿用 codex、grok、pi 的 actor 绑定 | `if (a?.runtime === "codex") return "codex";`（`createModelCommandResolvers`）；`if (a?.runtime === "pi") return "pi"`（`createModelCommandResolvers`） | confirmed |
+| channel.spawn 与 session.config 改 runtime 前检查历史归属 | `checkChannelRuntimeRebindConflict (RIe)`；`Send /clear in each of those sessions first`（`checkChannelRuntimeRebindConflict`）；`if (s && a !== s.runtime) {`（`upsertChannelSpawnDescriptor`）；`let b = await RIe(e, t, d, i.runtime);`（`applySessionConfigVerb`） | confirmed |
+| 分区的 runtime 被拒、所用的引擎不可用、或 pi 分区没有配置模型时写 agent.error 并跳过 | `if (S.runtimeRefusal) return await j(S.runtimeRefusal, "runtime_refused");`（`createMetaSession`）；`j = async (ve, je = "runtime_unavailable") => {`（`createMetaSession`）；`pi partition has no model: set`（`createMetaSession`） | confirmed |
+| `/model` 的引擎解析不探测，只沿用 codex、grok、pi 的 actor 绑定 | `if (u?.runtime === "codex") return "codex";`（`createModelCommandResolvers`）；`if (u?.runtime === "pi") return "pi"`（`createModelCommandResolvers`） | confirmed |
+| `/model`、`/effort` 先检查渠道 runtime 是否被拒或为 void | `return u.ok ? u.runtime === "void" ?`（`createModelCommandResolvers`）；`runtimeCommandRefusal: E,`（`createSessionManager`）；`reason: "runtime_rejected",`（`createSessionManager`） | confirmed |
 | 模型与力度按引擎分键，校验一宽一严 | `"claude.effort": "effort_level"`（`CHANNEL_CONFIG_KEY_TYPES`）；`!/\s/.test(r)`（`validateConfigValue`）；`qi.includes(e)`（`isEffortLevel`） | confirmed（五个取值定义在尚无真名的模块初始化器里） |
 | 三层逐键合并，后层胜出，读取时带层名 | `source: "kind"`（`buildEffectiveChannelConfig`）；`mergeRuntimeModelLayers (xve)`；`mergeRuntimeEffortLayers (Eve)`；`foldConfigLayersByKey (SO)`；`readRuntimeModelSetting (uS)`；`readRuntimeEffortSetting (lS)` | confirmed |
 | 模型 job 优先，力度会话优先 | `let t = e.jobModel ?? e.sessionModel`（`resolveTurnModelWithLayer`）；`let t = e.sessionEffort ?? e.jobEffort`（`resolveTurnEffortWithLayer`） | confirmed |
 | 会话级模型与推理力度只能在渠道会话上设置 | `reason: "forbidden_kind"`（`readOrSetSessionModel`）；`reason: "forbidden_kind"`（`readOrSetSessionEffort`） | confirmed |
 | pi worker 的模型取值顺序 | `Ve?.model_runtime === "pi" ? Ve.model : void 0`（`createSessionManager`） | confirmed |
-| 记录请求来源与实际服务的模型 | `modelOrigin: cr.configLayer`（`drainSessionMailbox`）；`mt.last_served_model = Xe`（`drainSessionMailbox`）；`extractServedModelFromUsage (Rxe)` | confirmed |
+| 记录请求来源与实际服务的模型 | `modelOrigin: Jn.configLayer`（`drainSessionMailbox`）；`Le.last_served_model = Ht`（`drainSessionMailbox`）；`extractServedModelFromUsage (Rxe)` | confirmed |
 | 上下文 profile 三层逐键合并 | `profiles: o?.claudeModelProfiles`（`buildEffectiveChannelConfig`） | confirmed |
 | 模型 id 按原生、已登记、未登记分类 | `kind: "native-claude"`（`classifyModelContextRequirement`）；`kind: "profiled-external"`（`buildProfiledExternalRequirement`） | confirmed |
-| 已登记模型的窗口、端点、令牌与 tier 别名写进 SDK settings | `n?.kind === "profiled-external" && (t[ect] = String(n.requiredMaxContextTokens)`（`buildClaudeSettingsEnvOverrides`）；`ect = "CLAUDE_CODE_MAX_CONTEXT_TOKENS", tct = "ANTHROPIC_BASE_URL"`（`initMaterializedClaudeSettingsModule`）；`anthropic_auth_token: "ANTHROPIC_AUTH_TOKEN"`（`initMaterializedClaudeSettingsModule`）；`opus: "ANTHROPIC_DEFAULT_OPUS_MODEL"`（`initMaterializedClaudeSettingsModule`）；`let t = rct(e);`（`materializeClaudeSettingsFile`）；`await JV.chmod(r, 384)`（`materializeClaudeSettingsFile`） | confirmed |
+| 已登记模型的窗口、端点、令牌与 tier 别名写进 SDK settings | `n?.kind === "profiled-external" && (t[ect] = String(n.requiredMaxContextTokens)`（`buildClaudeSettingsEnvOverrides`）；`ect = "CLAUDE_CODE_MAX_CONTEXT_TOKENS", tct = "ANTHROPIC_BASE_URL"`（`initMaterializedClaudeSettingsModule`）；`anthropic_auth_token: "ANTHROPIC_AUTH_TOKEN"`（`initMaterializedClaudeSettingsModule`）；`opus: "ANTHROPIC_DEFAULT_OPUS_MODEL"`（`initMaterializedClaudeSettingsModule`）；`let t = rct(e);`（`materializeClaudeSettingsFile`）；`await W6.chmod(r, 384)`（`materializeClaudeSettingsFile`） | confirmed |
 | profile 无法解析时 /model 被拒 | `reason: "profile_error"`（`createSessionManager`）；`Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md`（`executeGatewayCommand`） | confirmed |
-| 分区模型只读 frontmatter 与全局层 | `ae = S.model ?? Ie.runtimeModels?.[W]?.model`（`createMetaSession`） | confirmed |
+| 分区模型只读 frontmatter 与全局层 | `te = S.model ?? K.runtimeModels?.[J]?.model`（`createMetaSession`） | confirmed |
 | Claude 不支持 max 时按 high 执行 | `On a model without max support the Claude SDK runs it as high.`（`executeGatewayCommand`） | confirmed |
 | job 叠加的四种合并方式 | `prompt_mode: t.prompt_mode ?? e.prompt_mode`（`applyJobSdkConfigOverride`）；`claudeTools: wve(e.claudeTools, t.claudeTools)`（`applyJobSdkConfigOverride`）；`source: "instance"`（`applyJobSdkConfigOverride`）；`piConfigIssues: Ive(e.piConfigIssues, t.piConfigIssues)`（`applyJobSdkConfigOverride`） | confirmed |
 | 与基线取并集，同时出现在两表的工具算允许 | `s = i?.filter(l => !o.has(l))`（`buildTurnSdkRunConfig`） | confirmed |
 | 叠加以锚点事件的有效配置为底 | `h = Z6(await Io(s, "effective_config_ms", async () => K6(e, u.event)), n.jobContext?.sdkConfig)`（`prepareDrainTurnContext`）；`resolveEffectiveChannelConfigForEvent (K6)` | confirmed |
 | 定时运行的锚点事件来源为 cadence | `kind: "cadence"`（`scanAndSpawnDueJobs`） | confirmed |
 | 只有 pi 读种类 job 的配置 | `channel_kind: "job"`（`createSessionManager`） | confirmed（静态阅读，未实测） |
-| job 文件每次迭代重读 | `vr ? Ht = await a.getJob(w.jobId)`（`createSessionManager`） | confirmed |
+| job 文件每次迭代重读 | `xr ? Re = await a.getJob(w.jobId)`（`createSessionManager`） | confirmed |
 | 不合法的 prompt_mode 与 effort 被忽略 | `o && (s.prompt_mode = o)`（`parseJobFileFrontmatter`）；`"[JobManager] ignoring invalid job effort"`（`parseJobFileFrontmatter`） | confirmed |
 | codex 上的 prompt_mode 只告警 | `"[session-manager] job sets prompt_mode but resolves to the codex runtime; the setting is inert"`（`createSessionManager`） | confirmed |
 | 附加目录会重新打开 CLAUDE.md 自动加载 | `return n.some(s => wxe(s) !== i) ? void 0 : !1`（`resolveAdditionalDirClaudeMdAutoload`）；`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1"`（`createAgentSdkAdapter`） | confirmed（记忆板是否被重复加载未实测） |
@@ -485,7 +505,7 @@ pi 的内置工具由 pi SDK 提供。worker 创建 pi 会话时以 init 帧里�
 | Claude 认证来源三值，claude_code_local 启动时清除 ANTHROPIC 变量 | `let t = e.ALADUO_CLAUDE_AUTH_SOURCE ?? e.ALADUO_AUTH_SOURCE`（`readClaudeAuthSourceEnv`）；`isClaudeAuthSource (Jft)`；`QH(process.env) === "claude_code_local" && u(process.env)`（`main`）；`"ANTHROPIC_BASE_URL"`（`HOST_MODEL_ENV_KEYS`） | confirmed |
 | 凭据写入宿主 .env，兼容端点使用 ANTHROPIC_BASE_URL | `o = Bft(e)`（`writeHostModelEnvConfig`）；`t.baseUrl && (e.ANTHROPIC_BASE_URL = t.baseUrl)`（`applyHostModelEnvVars`） | confirmed |
 | Codex 与 Grok 依赖各自 CLI 的登录 | `"Codex CLI is installed but not authenticated. Run 'codex login' to sign in."`（`checkCodexAvailability`）；`Install it and run 'grok login'.`（`checkGrokAvailability`） | confirmed |
-| pi 使用 pi agent 目录的凭据文件 | `authPath: Uc.join(pn, "auth.json")`（`createSessionManager`） | confirmed |
+| pi 使用 pi agent 目录的凭据文件 | `authPath: Qc.join(xt, "auth.json")`（`createSessionManager`） | confirmed |
 
 ## 4 自操作工具
 
@@ -1016,7 +1036,7 @@ drain 分成两层：循环是 `createSessionManager (gbt)` 内一个没有导�
 2. 应用挂起的 `/clear`，读取 job 快照（第 10 节），做指令指纹检查（第 13 节）。
 3. 把 actor 置为 active，生成本次可用的工具列表（第 4 节）和插话回调（7.4），按需构造 Codex、Grok、pi 的 adapter（第 3 节）。
 4. 调用一次 `drainSessionMailbox (zxe)`。
-5. 处理返回值：把出站记录发到总线；引擎被拒绝（`runtime_unavailable` 或 `runtime_mismatch`，见 3.3）时结束 actor；本次没有处理任何事件时，job 与 system 会话结束，渠道会话转入空闲（8.4）；处理了事件就立即进入下一次迭代。
+5. 处理返回值：把出站记录发到总线；引擎被拒绝（`runtime_unavailable` 或 `runtime_mismatch`，见 3.3）时结束 actor，`runtime_refused` 不在其列，按处理了事件对待；本次没有处理任何事件时，job 与 system 会话结束，渠道会话转入空闲（8.4）；处理了事件就立即进入下一次迭代。
 
 单批处理器的一次执行分七步（confirmed），每一步的耗时由 `runTimedDrainPhase (Io)` 记入 drain 记录的 `perf` 字段（见"关键数据结构"）：
 
@@ -1024,7 +1044,7 @@ drain 分成两层：循环是 `createSessionManager (gbt)` 内一个没有导�
 2. 把 inbox 目录合并进邮箱（`mergeInboxIntoMailbox (HR)`），列出待处理项，清理没有事件 id 的孤项，再重写 `mailbox.md`。
 3. 用 `batchDrainItems (jW)` 切出窗口（7.2），同时收集 job 完成回执（10.3）。
 4. 逐项解析窗口：循环传入的排除集合里的事件（7.4）记为跳过；出站队列里已经有针对该事件的回复时，直接记为已处理、不再调用模型（`findOutboxRecordByEventId (lh)`）；按 id 读不到正文的事件记为跳过。
-5. 检查工作目录、引擎可用性和历史所属引擎（3.3）。
+5. 依次检查工作目录、runtime 取值是否被拒、引擎可用性和历史所属引擎（3.3）。
 6. 调用引擎：可合并时，上下文准备（`prepareDrainTurnContext (NW)`）与引擎调用（`runDrainQueryAndCollectOutboundAttachments (Dxe)`）各执行一次；否则逐个事件各执行一次。
 7. 写回复、更新 `state.json`、把处理过的邮箱项标记为完成、追加一条 drain 记录（`appendDrainRecord (pf)`），最后释放租约。
 
@@ -1038,7 +1058,7 @@ drain 分成两层：循环是 `createSessionManager (gbt)` 内一个没有导�
 
 窗口切好之后，只有两类窗口能进入合并键比较（confirmed）：一类是全部为用户消息、且没有空消息或以 `/` 开头的消息（由 `isMergeableChannelMessageBatch (Gmt)` 检查，因此斜杠命令总是单独处理），另一类是全部为后台任务通知；少于两个事件或类别混合的窗口一律不合并。进入比较后，窗口内每个事件的合并键必须相同。合并键由 `computeDrainCoalesceKey (Kmt)` 拼成三段：回复的主目标会话、回复的扇出目标列表、来源渠道标识；来源渠道标识对 route 事件取 `payload.channel_descriptor_id`，否则取 `source.channel_id`，rpc 或 ws 来源缺少 channel_id 时记为 `<legacy>`，其他来源缺少时取来源类型名。所以同一个目标会话只是合并的必要条件：扇出目标或来源渠道不同的事件仍然逐条调用。
 
-合并成立时，`prepareDrainTurnContext (NW)` 把窗口里的所有事件拼成一段 prompt，每轮瞬时块只生成一次，系统提示与 SDK 配置取自窗口最后一个事件（称为锚点事件）所在渠道的配置；回复只写一次，挂在锚点事件上，窗口里其余事件关联到同一条回复记录（confirmed）。拼接文本由 `renderCoalescedDrainPrompt (eht)` 生成：开头说明这 N 个时间相近的事件作为一次连续更新处理、按从旧到新排列、只回复一次，然后逐个列出每个事件的 `@evt(id)`、类型、时间和正文，正文为空时写 `(empty)`（confirmed）。遥测事件 `sdk_start` 用 `coalesced: pt.length > 1`（`drainSessionMailbox`）标出这是否是一次合并调用。合并不成立时，每个事件各自生成瞬时块、各自解析渠道配置、各自调用一次引擎；`/compact` 这类 history-control 命令也在这条逐条路径上处理（3.6）。
+合并成立时，`prepareDrainTurnContext (NW)` 把窗口里的所有事件拼成一段 prompt，每轮瞬时块只生成一次，系统提示与 SDK 配置取自窗口最后一个事件（称为锚点事件）所在渠道的配置；回复只写一次，挂在锚点事件上，窗口里其余事件关联到同一条回复记录（confirmed）。拼接文本由 `renderCoalescedDrainPrompt (eht)` 生成：开头说明这 N 个时间相近的事件作为一次连续更新处理、按从旧到新排列、只回复一次，然后逐个列出每个事件的 `@evt(id)`、类型、时间和正文，正文为空时写 `(empty)`（confirmed）。遥测事件 `sdk_start` 用 `coalesced: gt.length > 1`（`drainSessionMailbox`）标出这是否是一次合并调用。合并不成立时，每个事件各自生成瞬时块、各自解析渠道配置、各自调用一次引擎；`/compact` 这类 history-control 命令也在这条逐条路径上处理（3.6）。
 
 ### 7.3 SDK 适配层
 
@@ -1048,7 +1068,7 @@ drain 分成两层：循环是 `createSessionManager (gbt)` 内一个没有导�
 
 Claude adapter 内部有一个把运行配置转换成 SDK options 的构建函数，一次性调用与常驻调用共用它，两种调用最终都调用从 `@anthropic-ai/claude-agent-sdk` 导入的 `query` 函数；差别只在常驻调用总是打开 `includePartialMessages`，一次性调用只在需要流式输出文本时打开（confirmed，`includePartialMessages: !0`（`createAgentSdkAdapter`））。options 的完整字段列在本节末尾的"关键数据结构"里；其中 `systemPrompt` 的取值规则见第 2 节，`permissionMode`、`tools`、`disallowedTools` 见 3.7，`model` 与 `effort` 见 3.4。
 
-构建函数还决定引擎子进程的环境：它复制 daemon 自身的全部环境变量，只删去 `CLAUDECODE`，按是否自动加载附加目录的 `CLAUDE.md` 设置或删除 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`，并在设置了 `CLAUDE_CODE_EXECUTABLE` 时把它作为 Claude Code 可执行文件的路径（confirmed，`delete s.CLAUDECODE`（`createAgentSdkAdapter`））。一次性 `run()` 在 abort 信号触发后等待 `ALADUO_ABORT_CLOSE_TIMEOUT_MS`（默认 10 秒）再强制关闭 query，它另外注册一个 Skip 的 PreToolUse hook（4.5）。
+构建函数还决定引擎子进程的环境：它复制 daemon 自身的全部环境变量，只删去 `CLAUDECODE`，按是否自动加载附加目录的 `CLAUDE.md` 设置或删除 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`，无条件设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`，把 drain 传入的会话键写进 `ALADUO_CALLER_SESSION`（没有传入时删去这个变量），并在设置了 `CLAUDE_CODE_EXECUTABLE` 时把它作为 Claude Code 可执行文件的路径（confirmed，`delete s.CLAUDECODE`（`createAgentSdkAdapter`）、`s.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", t.callerSession ? s[tl] = t.callerSession : delete s[tl]`（`createAgentSdkAdapter`））。第一个变量让 Claude Code 不启用它自己的 auto memory，duoduo 的记忆只走记忆目录（第 12 节）；变量在 Claude Code 内部的效果不在本 bundle 内（未证实推测）。`ALADUO_CALLER_SESSION` 在其余三个引擎上同样设置：会话管理器构造 Codex、Grok 与 pi 的适配器时都把会话键放进它们的 `env` 参数（confirmed，`sandbox: $g(), env: { [tl]: T },`（`createSessionManager`）），常量本身由 `initCallerSessionEnvModule (V$)` 定义；`main (kvt)` 启动时从 daemon 自己的环境里删去这个变量，避免 daemon 从某个会话的 shell 里启动时把那个会话键传给所有引擎进程（删除动作 confirmed，`delete process.env[tl]`（`main`）；动机为未证实推测）。引擎内运行的命令据此知道自己是从哪个会话发出的，例如 `duoduo session notify` 把它作为 `session.notify` 的 `caller_session` 参数发出（附录 B）。一次性 `run()` 在 abort 信号触发后等待 `ALADUO_ABORT_CLOSE_TIMEOUT_MS`（默认 10 秒）再强制关闭 query，它另外注册一个 Skip 的 PreToolUse hook（4.5）。
 
 adapter 之外还有一层调用包装 `runDrainTurnWithResumeFallback (vht)`，由 `runDrainQueryAndCollectOutboundAttachments (Dxe)` 调用：带 resume 的调用失败时，包装层重新生成 prompt、去掉 resume 再调用一次，并在结果上标记 `usedFallback` 与 `resumeError`；abort、turn 中断、prompt 未被接纳这三类错误不重试，直接抛出（confirmed）。drain 收到带这个标记的结果时只追加一条 `agent.error`（7.7，confirmed）。
 
@@ -1066,8 +1086,8 @@ adapter 之外还有一层调用包装 `runDrainTurnWithResumeFallback (vht)`，
 
 1. **唤醒。**actor 没有停在等待上（没有 `wakeResolver`；停在等待上时唤醒只结束等待，见 8.4），唤醒的抢占档位为 `allow`，actor 上有已被接纳的 Claude turn（或非 Claude 引擎报告有活动 turn），插话回调存在且没有正在执行时，唤醒函数不打断 turn：它先设置 `pendingWake` 与 `admissionInProgress`，再运行插话回调，回调结束后调用 `wakeResolver`（`"[session-manager] wake: admitting to live streaming session"`（`createSessionManager`））。
 2. **切窗口。**插话回调自己合并 inbox、列出待处理项，用 7.2 的同一对常量切一个窗口；窗口里已在 actor 的 `inflightEventIds` 集合中的事件（正在运行的 drain 已经取走）和已有回复的事件不再认领，其余事件由 `prepareDrainTurnContext (NW)` 生成合并后的文本。
-3. **暂存。**对 Claude 会话，只有六个条件同时成立时才暂存：当前 turn 已被接纳；当前 turn 没有调用过 Skip；新消息不带附件；这批事件里至少有一条用户消息；当前 turn 不是只由没有用户消息的事件启动的；文本非空。已有同一 turn 下未结算的 `pendingSteer` 时，把文本和事件 id 追加进去；actor 上还没有 `pendingSteer` 时新建一个；两种情况都把认领的事件 id 加入 `inflightEventIds`。条件不成立，或者已有的 `pendingSteer` 已结算、属于另一个 turn 时，回调不暂存，这批消息由下一次 drain 作为新 turn 处理：唤醒函数在运行回调之前已经设置了 `pendingWake`，回调自己也会调用 `wakeResolver`。常驻连接已经关闭时，回调直接返回（`if (!Mi || Mi.closed) return;`（`createSessionManager`））。
-4. **注入。**常驻 query 的 PostToolUse hook（matcher 为 `*`）在每次工具调用完成后检查 `pendingSteer`：当前 turn 已调用 Skip，或者 CLI 自己发起的 turn 已调用 Skip 时，直接返回空结果；否则取走 `pendingSteer`、标记已结算、把对应邮箱项标记完成、释放认领的 id，并以 `hookSpecificOutput.additionalContext` 返回暂存的文本（`"[session-manager] steer hook: injected interjection mid-turn"`（`createClaudeStreamingSessionFactory`））。
+3. **暂存。**对 Claude 会话，只有六个条件同时成立时才暂存：当前 turn 已被接纳；当前 turn 没有调用过 Skip；新消息不带附件；这批事件里至少有一条用户消息；当前 turn 不是只由没有用户消息的事件启动的；文本非空。已有同一 turn 下未结算的 `pendingSteer` 时，把文本和事件 id 追加进去；actor 上还没有 `pendingSteer` 时新建一个；两种情况都把认领的事件 id 加入 `inflightEventIds`。条件不成立，或者已有的 `pendingSteer` 已结算、属于另一个 turn 时，回调不暂存，这批消息由下一次 drain 作为新 turn 处理：唤醒函数在运行回调之前已经设置了 `pendingWake`，回调自己也会调用 `wakeResolver`。常驻连接已经关闭时，回调直接返回（`if (!ao \|\| ao.closed) return;`（`createSessionManager`））。
+4. **注入。**常驻 query 的 PostToolUse hook（matcher 为 `*`）在每次工具调用完成后检查 `pendingSteer`：完成的是子代理的工具调用（hook 输入带 `agent_id`）时直接返回空结果，暂存的消息继续等主代理的下一次工具调用或 turn 结束，不会被注入子代理的上下文；当前 turn 已调用 Skip，或者 CLI 自己发起的 turn 已调用 Skip 时，同样返回空结果；否则取走 `pendingSteer`、标记已结算、把对应邮箱项标记完成、释放认领的 id，并以 `hookSpecificOutput.additionalContext` 返回暂存的文本（`"[session-manager] steer hook: injected interjection mid-turn"`（`createClaudeStreamingSessionFactory`））。
 
 `inflightEventIds` 在插话与 drain 之间双向使用（confirmed）。drain 切出窗口后，通过 `onBatchContext` 回调把窗口的事件 id 加入这个集合，插话回调因此不会认领正在处理的事件（上面第 2 步）。反过来，循环每次调用单批处理器时把集合当时的快照作为排除集合传入（`excludeEventIds: ZRe(w)`（`createSessionManager`）），单批处理器跳过其中的事件；这个快照在调用开始时只取一次，所以已经在运行的 drain 看不到之后才被插话认领的事件。每次 drain 结束时，循环清空这个集合，只有插话回调仍在执行时保留（`w.admissionInProgress || w.inflightEventIds.clear()`（`createSessionManager`）），因此下一次 drain 实际排除的是 drain 结束时仍在进行的插话所认领的事件。
 
@@ -1109,7 +1129,7 @@ Codex、Grok 与 pi 不走 `pendingSteer`，插话回调直接调用 adapter 的
 
 duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道会话的一次性 `run()` 收到结果后继续保持输入流，直到它跟踪的后台任务全部结束；渠道会话的常驻连接本来不关闭，后台任务完成时由 Claude CLI 自己发起一个 turn，duoduo 把这个 turn 的结果直接写进出站队列（confirmed）。需要这样处理，是因为子代理可能在主 turn 返回结果之后才结束，而它结束后的续写仍要经过同一个 Claude CLI 进程。
 
-非渠道会话由 drain 传入的开关控制，只对 Claude 引擎、非渠道来源的会话打开（`holdInputOpenForBackgroundAgents: w.runtime === "claude" && w.origin !== "channel"`（`createSessionManager`））（confirmed）。开关打开时，Claude adapter 把 prompt 换成一个 generator，它输出 prompt 之后等待一个释放信号。adapter 从 SDK 的 `task_started` 消息里登记后台任务 id，只登记子代理任务和非 `local_bash` 类型的任务，收到对应的 `task_notification` 时移除。释放需要两个条件同时成立：已经收到 result，且登记的任务集合为空（`D && S.size === 0`（`createAgentSdkAdapter`））。为防止无限等待，收到 result 之后如果 SDK 持续没有新消息超过 `ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS`（默认 600000 毫秒，即 10 分钟），看门狗强制释放并写一条警告；警告文字说明，这时仍在运行的后台任务续写时发起的进程内 MCP 调用可能失败。
+非渠道会话由 drain 传入的开关控制，只对 Claude 引擎、非渠道来源的会话打开（`holdInputOpenForBackgroundAgents: w.runtime === "claude" && w.origin !== "channel"`（`createSessionManager`））（confirmed）。开关打开时，Claude adapter 把 prompt 换成一个 generator，它输出 prompt 之后等待一个释放信号。adapter 从 SDK 的 `task_started` 消息里登记后台任务 id，只登记子代理任务和非 `local_bash` 类型的任务，收到对应的 `task_notification` 时移除。释放需要两个条件同时成立：已经收到 result，且登记的任务集合为空（`$ && A.size === 0`（`createAgentSdkAdapter`））。为防止无限等待，收到 result 之后如果 SDK 持续没有新消息超过 `ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS`（默认 600000 毫秒，即 10 分钟），看门狗强制释放并写一条警告；警告文字说明，这时仍在运行的后台任务续写时发起的进程内 MCP 调用可能失败。
 
 渠道会话的处理分三部分（confirmed）。第一，SDK 的 `task_notification` 系统消息以 `completion_owner: "claude-cli"` 写入事件日志，并且只写日志、不进邮箱、不唤醒会话（`"[route] wal-only route event (no mailbox, no wake)"`（`deliverRouteEventToSession`））。第二，CLI 在没有 drain turn 的情况下自己开始一个 turn 时，流式循环把它记为 `cliTurnTentative`；这个 turn 的 result 带有 task-notification 来源时，duoduo 把结果文本连同待发附件直接写入出站队列，追加一条 `origin: "cli-turn"` 的 drain 记录，并唤醒会话（`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`））。如果某个 drain turn 恰好被并入了这个 CLI turn，这个 drain turn 以"prompt 未被接纳"错误作废（7.7 表第二行），它的事件留在邮箱重新 drain。第三，Grok 引擎也有对应的处理：Grok 在 drain 之外产生的 turn 由 adapter 回调写入出站队列（失败日志见证据表）。
 
@@ -1128,7 +1148,7 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 
 `handleDrainError (TS)` 在调用方没有提供回复文本时，以"[duoduo:drain-error] agent turn failed at <阶段名>"开头，接着是错误信息（超过 4000 字符时截断）和 `renderDrainErrorRuntimeHint (uht)` 生成的排查建议；回复挂在锚点事件上，来源为空闲压缩的事件例外，只写事件日志（confirmed）。随后它追加一条 `agent.error` 事件，载荷含阶段与错误信息；这两次写入各自失败时只记日志。
 
-除 `sdk_turn` 外，交给它的阶段还有非渠道会话的 `workspace_unavailable`、`runtime_unavailable`、`runtime_mismatch`，这三种由调用方提供各自的说明文字作为回复（confirmed）。渠道会话遇到这三种情况时不经过它：说明文字作为普通回复写出，事件标记为已处理，drain 返回拒绝阶段（3.3）；其中来源为空闲压缩的事件仍交给它，只写事件日志（`refusedStage: Y`（`drainSessionMailbox`））。另一个阶段是 `context_profile`：drain 在调用引擎之前，先由 `resolveDrainContextProfileOrRefuse (Ixe)` 解析 Claude 的模型上下文配置，即配置层里的 `claude.model_profiles` 条目（3.4），解析结果作为调用参数传给引擎（confirmed）。解析失败时，它以阶段 `context_profile` 调用 `handleDrainError (TS)`，随后重新抛出原错误，turn 不会开始；它提供的回复文字说明 turn 在开始前被拒绝，附上原错误信息（其中写明出错的配置层），并列出三个配置层对应的文件：global 为 `kernel/config/runtime.md`，kind 为 `kernel/config/<kind>.md`，instance 为渠道描述文件或 job 文件（confirmed，`stage: "context_profile"`（`resolveDrainContextProfileOrRefuse`））。
+除 `sdk_turn` 外，交给它的阶段还有非渠道会话的 `workspace_unavailable`、`runtime_refused`、`runtime_unavailable`、`runtime_mismatch`，这四种由调用方提供各自的说明文字作为回复（confirmed）。渠道会话遇到这四种情况时不经过它：说明文字作为普通回复写出，事件标记为已处理，drain 返回拒绝阶段（3.3）；其中来源为空闲压缩的事件仍交给它，只写事件日志（`refusedStage: X`（`drainSessionMailbox`））。另一个阶段是 `context_profile`：drain 在调用引擎之前，先由 `resolveDrainContextProfileOrRefuse (Ixe)` 解析 Claude 的模型上下文配置，即配置层里的 `claude.model_profiles` 条目（3.4），解析结果作为调用参数传给引擎（confirmed）。解析失败时，它以阶段 `context_profile` 调用 `handleDrainError (TS)`，随后重新抛出原错误，turn 不会开始；它提供的回复文字说明 turn 在开始前被拒绝，附上原错误信息（其中写明出错的配置层），并列出三个配置层对应的文件：global 为 `kernel/config/runtime.md`，kind 为 `kernel/config/<kind>.md`，instance 为渠道描述文件或 job 文件（confirmed，`stage: "context_profile"`（`resolveDrainContextProfileOrRefuse`））。
 
 错误抛回 drain 循环后，循环把 `last_error`（含 `message` 与 `at`）写入 `state.json` 并结束 actor；之后任何一次成功处理了事件的 drain 会清除这个字段（confirmed，`last_error: {`（`createSessionManager`））。去掉 resume 重试（7.3）成功时，drain 不给用户写回复，只追加一条阶段为 `stage: "resume"`（`drainSessionMailbox`）的 `agent.error` 事件（confirmed）。
 
@@ -1138,96 +1158,97 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 
 | 机制主张 | 代码证据 | 置信 |
 |---|---|---|
-| drain 循环是 `createSessionManager` 内的局部函数，actor 启动时开始，actor 结束或管理器停止时退出 | `G.drainPromise = M(G)`（`createSessionManager`）；`for (; w.status !== "ended" && ce;)`（`createSessionManager`） | confirmed |
+| drain 循环是 `createSessionManager` 内的局部函数，actor 启动时开始，actor 结束或管理器停止时退出 | `Y.drainPromise = G(Y)`（`createSessionManager`）；`for (; w.status !== "ended" && ie;)`（`createSessionManager`） | confirmed |
 | 每次迭代调用一次单批处理器 | `de = await zxe(t, T, {`（`createSessionManager`）；`drainSessionMailbox (zxe)` | confirmed |
 | Codex 以外的引擎在 CLI 忙或插话进行中时暂停 drain | `"[session-manager] drain parked: CLI busy gate"`（`createSessionManager`）；`waitForWakeOrIdleTimeout (IG)` | confirmed |
 | 引擎拒绝时 actor 结束；无事可做时 job/system 会话结束 | `"[session-manager] runtime refusal, ending actor"`（`createSessionManager`）；`"[session-manager] job/system session drain complete, exiting"`（`createSessionManager`） | confirmed |
 | 单批处理器依次合并 inbox、解析、清理孤项、重写邮箱文件，再切窗口 | `mergeInboxIntoMailbox (HR)`；`listMailboxPendingItems (Nb)`；`orphan_cleanup=`（`drainSessionMailbox`）；`renderSessionMailboxFile (WR)`；`batchDrainItems (jW)` | confirmed |
-| 排除集合里的事件跳过；已有回复的事件直接记为已处理，不再调用模型 | `if (n.excludeEventIds?.has(me)) {`（`drainSessionMailbox`）；`"outbox_lookup_ms"`（`drainSessionMailbox`）；`findOutboxRecordByEventId (lh)` | confirmed |
+| 排除集合里的事件跳过；已有回复的事件直接记为已处理，不再调用模型 | `if (n.excludeEventIds?.has(de)) {`（`drainSessionMailbox`）；`"outbox_lookup_ms"`（`drainSessionMailbox`）；`findOutboxRecordByEventId (lh)` | confirmed |
 | 各阶段耗时记入 perf | `runTimedDrainPhase (Io)`；`"mailbox_merge_ms"`（`drainSessionMailbox`） | confirmed |
 | 窗口默认 5 条、相邻间隔 180 秒，调用方不传时生效 | `OW = 5, AW = 180 * 1e3`（`initMailboxDrainRunnerModule`）；`n.batchSize ?? OW`（`drainSessionMailbox`）；`n.mergeWindowMs ?? AW`（`drainSessionMailbox`） | confirmed |
 | 窗口停止条件：条数、类别变化、相邻时间差；后台任务通知窗口不限条数；job 回执不进窗口；时间戳缺失后不再做时间检查 | `u = () => Zmt(a) ? Number.POSITIVE_INFINITY : n.fallbackBatchSize`（`batchDrainItems`）；`if (Cxe(c) !== a) break;`（`batchDrainItems`）；`if (Math.abs(f - o) > n.mergeWindowMs) break;`（`batchDrainItems`）；`if (c && Zxe(c) !== null) continue;`（`batchDrainItems`）；`s = !1, i.push(l);`（`batchDrainItems`） | confirmed |
 | 三个窗口类别 | `return e ? Jxe(e) ? "worker-notify" : yA(e) ? Wmt : CW : CW`（`classifyDrainBatchClass`）；`Wmt = "regular:human", CW = "regular:system"`（`initMailboxDrainRunnerModule`）；`isWorkerTaskNotifyDelivery (Jxe)` | confirmed |
 | 只有全为用户消息或全为后台任务通知的窗口进入合并键比较；用户消息不得为空或以斜杠开头；合并键全同 | `e.length < 2 ? !1`（`isMergeableDrainBatch`）；`e.every(i => Jxe(i.event)) ? Wxe(e, t) : !1`（`isMergeableDrainBatch`）；`r.startsWith("/")`（`isMergeableChannelMessageBatch`）；`return n.size === 1`（`hasUniformDrainCoalesceKey`） | confirmed |
 | 合并键含主目标、扇出目标与来源渠道 | `primaryTargetSessionKey: r`（`computeDrainCoalesceKey`）；`payload?.channel_descriptor_id`（`resolveEventSourceChannelId`）；`"<legacy>"`（`resolveEventSourceChannelId`） | confirmed |
-| 合并时一次上下文准备、一次调用；锚点是窗口最后一个事件，其余事件关联到同一条回复 | `if (Jmt(gt, t)) {`（`drainSessionMailbox`）；`let u = r[r.length - 1]`（`prepareDrainTurnContext`）；`pt.slice(0, -1)`（`drainSessionMailbox`）；`coalesced: pt.length > 1`（`drainSessionMailbox`） | confirmed |
+| 合并时一次上下文准备、一次调用；锚点是窗口最后一个事件，其余事件关联到同一条回复 | `if (Jmt(gt, t)) {`（`drainSessionMailbox`）；`let u = r[r.length - 1]`（`prepareDrainTurnContext`）；`gt.slice(0, -1)`（`drainSessionMailbox`）；`coalesced: gt.length > 1`（`drainSessionMailbox`） | confirmed |
 | 合并 prompt 的文字格式（事件数、从旧到新、"只回复一次"、逐条 `@evt`、空正文写 `(empty)`） | `renderCoalescedDrainPrompt (eht)`；`b = eht(r)`（`prepareDrainTurnContext`）；`"Events are ordered from oldest to newest. Reply once."`（`renderCoalescedDrainPrompt`）；`t.push(r.prompt || "(empty)")`（`renderCoalescedDrainPrompt`） | confirmed |
 | 非 Claude 引擎的 adapter 缺失时抛错，不改用 Claude | `refusing to fall through to Claude`（`createSessionManager`） | confirmed |
-| Claude adapter 两种调用方式都调用 SDK 的 query，常驻方式总是打开部分消息流 | `query: khe({`（`createAgentSdkAdapter`）；`includePartialMessages: !0`（`createAgentSdkAdapter`） | confirmed |
+| Claude adapter 两种调用方式都调用 SDK 的 query，常驻方式总是打开部分消息流 | `query: Vge({`（`createAgentSdkAdapter`）；`includePartialMessages: !0`（`createAgentSdkAdapter`） | confirmed |
 | 引擎子进程继承 daemon 的环境变量，可执行文件路径可由环境变量指定 | `delete s.CLAUDECODE`（`createAgentSdkAdapter`）；`r.pathToClaudeCodeExecutable = a`（`createAgentSdkAdapter`） | confirmed |
 | 一次性调用在 abort 后等待默认 10 秒再强制关闭 | `hV(process.env.ALADUO_ABORT_CLOSE_TIMEOUT_MS, 1e4)`（`createAgentSdkAdapter`）；`parsePositiveMsEnv (hV)` | confirmed |
 | 引擎调用经过一层包装函数 | `runDrainTurnWithResumeFallback (vht)`；`let i = await vht(e, t, n, r)`（`runDrainQueryAndCollectOutboundAttachments`） | confirmed |
-| 包装函数在 resume 调用失败时重新生成 prompt、去掉 resume 重试一次，abort、中断、未接纳三类错误除外，结果带 usedFallback 与 resumeError | `if (hg(A) || ww(A) || Sw(A)) throw A; if (y && (y.flush()`（`runDrainTurnWithResumeFallback`）；`F = await n.run(S(C));`（`runDrainTurnWithResumeFallback`）；`resumeError: $ instanceof Error ? $.message : String($)`（`runDrainTurnWithResumeFallback`） | confirmed |
-| drain 对 usedFallback 结果只追加 agent.error | `if (Nn.usedFallback && Nn.resumeError) {`（`drainSessionMailbox`）；`stage: "resume"`（`drainSessionMailbox`） | confirmed |
+| 包装函数在 resume 调用失败时重新生成 prompt、去掉 resume 重试一次，abort、中断、未接纳三类错误除外，结果带 usedFallback 与 resumeError | `if (hg(A) || ww(A) || Sw(A)) throw A; if (y && (y.flush()`（`runDrainTurnWithResumeFallback`）；`N = await n.run(S($));`（`runDrainTurnWithResumeFallback`）；`resumeError: A instanceof Error ? A.message : String(A)`（`runDrainTurnWithResumeFallback`） | confirmed |
+| drain 对 usedFallback 结果只追加 agent.error | `if (an.usedFallback && an.resumeError) {`（`drainSessionMailbox`）；`stage: "resume"`（`drainSessionMailbox`） | confirmed |
 | 常驻连接按配置签名复用，签名含九个字段与两个计算键 | `u.streamingState.configSignature === p`（`createClaudeStreamingSessionFactory`）；`u.streamingState.initialSessionId === m`（`createClaudeStreamingSessionFactory`）；`computeStreamingConfigSignature (xG)`；`[zRe]: r`（`computeStreamingConfigSignature`）；`SN = "claudeDelivery", zRe = "impliedModel"`（`initInstructionsFingerprintModule`） | confirmed |
 | 连接被标记重建的五个来源 | `reason: "instructions-drift"`（`createSessionManager`）；`reason: "board-refresh(B4)"`（`createSessionManager`）；`flagStreamRecreationOnModelReject (RN)`；`reason: "model-apply-rejected"`（`flagStreamRecreationOnModelReject`）；`reason: "live-command"`（`createSessionManager`）；`reason: "spawn-reconcile"`（`createClaudeStreamingSessionFactory`）；`new Ur("SDK turn cancelled before prompt acceptance")`（`createClaudeStreamingSessionFactory`）；`"[kv-cache] streaming loop exited unexpectedly (closed)"`（`createClaudeStreamingSessionFactory`） | confirmed |
 | 推理力度不在签名里，复用连接时直接应用到现有连接 | `effortLevel: d`（`createClaudeStreamingSessionFactory`）；`"[session-manager] failed to apply drain effort to the live session"`（`createClaudeStreamingSessionFactory`） | confirmed |
 | 不能复用时写审计日志并重建连接 | `"[kv-cache] respawn: signature-mismatch"`（`createClaudeStreamingSessionFactory`）；`"[kv-cache] respawn: resume-sessionid-change"`（`createClaudeStreamingSessionFactory`）；`diffStreamingConfigSignature (kN)`；`teardownStreamingSession (cp)` | confirmed |
-| 槽位被占时拒绝新 turn；accepted 在 init 时置真 | `se.reject(new Cr("Streaming slot occupied — prompt not yielded; retry after the occupant settles"))`（`createClaudeStreamingSessionFactory`）；`R.hasAcceptedTurn = !0, M.accepted = !0`（`createClaudeStreamingSessionFactory`）；`AgentSdkPromptNotAcceptedAbortError (Cr)` | confirmed |
-| actor 停在等待上时唤醒只结束等待；否则 `allow` 唤醒在有活动 turn 时先设置 pendingWake，再运行插话回调，结束后调用 wakeResolver | `"[session-manager] wake delivered to idle actor"`（`createSessionManager`）；`L.pendingWake = !0, L.admissionInProgress = !0;`（`createSessionManager`）；`"[session-manager] wake: admitting to live streaming session"`（`createSessionManager`）；`w.admissionCallback = async () => {`（`createSessionManager`） | confirmed |
-| 插话回调用同一对常量切窗口，跳过在途与已有回复的事件 | `fallbackBatchSize: OW`（`createSessionManager`）；`if (w.inflightEventIds.has(yt.eventId)) {`（`createSessionManager`） | confirmed |
-| Claude 插话的六个前提与暂存、追加；只向同一 turn 下未结算的 pendingSteer 追加 | `!!ji && ji.accepted && !ji.skipCalled && !js && !vn.isNotifyOnly && !w.liveTurnNotifyOnly && Zo.length > 0`（`createSessionManager`）；`isNotifyOnly: g && !y`（`prepareDrainTurnContext`）；`if (yt && !yt.settled && yt.spawningTurn === ji) {`（`createSessionManager`）；`"[session-manager] admission callback: parked claude steer"`（`createSessionManager`）；`"[session-manager] admission callback: appended claude steer"`（`createSessionManager`） | confirmed |
+| 槽位被占时拒绝新 turn；accepted 在 init 时置真 | `se.reject(new Cr("Streaming slot occupied — prompt not yielded; retry after the occupant settles"))`（`createClaudeStreamingSessionFactory`）；`k.hasAcceptedTurn = !0, q.accepted = !0`（`createClaudeStreamingSessionFactory`）；`AgentSdkPromptNotAcceptedAbortError (Cr)` | confirmed |
+| actor 停在等待上时唤醒只结束等待；否则 `allow` 唤醒在有活动 turn 时先设置 pendingWake，再运行插话回调，结束后调用 wakeResolver | `"[session-manager] wake delivered to idle actor"`（`createSessionManager`）；`U.pendingWake = !0, U.admissionInProgress = !0;`（`createSessionManager`）；`"[session-manager] wake: admitting to live streaming session"`（`createSessionManager`）；`w.admissionCallback = async () => {`（`createSessionManager`） | confirmed |
+| 插话回调用同一对常量切窗口，跳过在途与已有回复的事件 | `fallbackBatchSize: OW`（`createSessionManager`）；`if (w.inflightEventIds.has(Le.eventId)) {`（`createSessionManager`） | confirmed |
+| Claude 插话的六个前提与暂存、追加；只向同一 turn 下未结算的 pendingSteer 追加 | `!!gi && gi.accepted && !gi.skipCalled && !va && !$n.isNotifyOnly && !w.liveTurnNotifyOnly && an.length > 0`（`createSessionManager`）；`isNotifyOnly: g && !y`（`prepareDrainTurnContext`）；`if (Le && !Le.settled && Le.spawningTurn === gi) {`（`createSessionManager`）；`"[session-manager] admission callback: parked claude steer"`（`createSessionManager`）；`"[session-manager] admission callback: appended claude steer"`（`createSessionManager`） | confirmed |
 | 不暂存时回调调用 wakeResolver | `w.pendingWake = !0, w.wakeResolver?.()`（`createSessionManager`） | confirmed |
-| inflightEventIds 双向排除：drain 窗口加入集合，快照作为排除集合，drain 结束时清空（插话进行中除外） | `excludeEventIds: ZRe(w)`（`createSessionManager`）；`for (let pn of Ve.eventIds) w.inflightEventIds.add(pn)`（`createSessionManager`）；`w.inflightEventIds.clear()`（`createSessionManager`）；`snapshotInflightEventIds (ZRe)` | confirmed |
-| 插话在 PostToolUse hook 注入；当前 turn 或 CLI 自发 turn 已 Skip 时不注入 | `"[session-manager] steer hook: injected interjection mid-turn"`（`createClaudeStreamingSessionFactory`）；`additionalContext: J.join`（`createClaudeStreamingSessionFactory`）；`if (R.currentTurn?.skipCalled === !0) return {};`（`createClaudeStreamingSessionFactory`）；`if (R.cliTurnTentative?.skipObserved === !0) return {};`（`createClaudeStreamingSessionFactory`） | confirmed |
-| 没能注入的插话退回 inbox：turn 结束走 enqueueAsNewTurn，流结束在收尾代码里直接写回 | `"[session-manager] steer fallback requeued to inbox (turn ended undelivered)"`（`createSessionManager`）；`R.closed = !0, R.needsRecreation = !0`（`createClaudeStreamingSessionFactory`）；`u.pendingSteer && (await V(), u.wakeResolver?.())`（`createClaudeStreamingSessionFactory`）；`"[session-manager] steer fallback requeued to inbox (stream closed)"`（`createClaudeStreamingSessionFactory`） | confirmed |
-| 非 Claude 引擎经各自原生接口插话，失败时改为新 turn | `let yt = w.adapter?.steerActiveTurn`（`createSessionManager`）；`r.request("turn/steer"`（`createCodexAppServerAdapter`）；`Hw("interject")`（`createGrokAcpAdapter`）；`"[session-manager] admission callback: codex steer fell back to redrain"`（`createSessionManager`） | confirmed（pi 的 "steer" 与 "steer_result" 依据 pi-worker.js 字面量） |
-| 非 Claude 插话的前提：未 Skip、有用户消息、turn 不是只由通知启动、文本非空 | `"[session-manager] admission callback: codex steer not attempted, redraining"`（`createSessionManager`）；`notifyOnlyBatch: vn.isNotifyOnly`（`createSessionManager`）；`emptyText: mt.length === 0`（`createSessionManager`）；`"[session-manager] seal-on-skip: session state unreadable at admission, failing closed (steer rejected → fresh turn)"`（`createSessionManager`） | confirmed |
+| inflightEventIds 双向排除：drain 窗口加入集合，快照作为排除集合，drain 结束时清空（插话进行中除外） | `excludeEventIds: ZRe(w)`（`createSessionManager`）；`for (let xt of Ve.eventIds) w.inflightEventIds.add(xt)`（`createSessionManager`）；`w.inflightEventIds.clear()`（`createSessionManager`）；`snapshotInflightEventIds (ZRe)` | confirmed |
+| 插话在 PostToolUse hook 注入；子代理的工具调用不注入；当前 turn 或 CLI 自发 turn 已 Skip 时不注入 | `"[session-manager] steer hook: injected interjection mid-turn"`（`createClaudeStreamingSessionFactory`）；`additionalContext: j.join`（`createClaudeStreamingSessionFactory`）；`if (se?.agent_id !== void 0) return {};`（`createClaudeStreamingSessionFactory`）；`if (k.currentTurn?.skipCalled === !0) return {};`（`createClaudeStreamingSessionFactory`）；`if (k.cliTurnTentative?.skipObserved === !0) return {};`（`createClaudeStreamingSessionFactory`） | confirmed |
+| 没能注入的插话退回 inbox：turn 结束走 enqueueAsNewTurn，流结束在收尾代码里直接写回 | `"[session-manager] steer fallback requeued to inbox (turn ended undelivered)"`（`createSessionManager`）；`k.closed = !0, k.needsRecreation = !0`（`createClaudeStreamingSessionFactory`）；`u.pendingSteer && (await J(), u.wakeResolver?.())`（`createClaudeStreamingSessionFactory`）；`"[session-manager] steer fallback requeued to inbox (stream closed)"`（`createClaudeStreamingSessionFactory`） | confirmed |
+| 非 Claude 引擎经各自原生接口插话，失败时改为新 turn | `let Le = w.adapter?.steerActiveTurn`（`createSessionManager`）；`r.request("turn/steer"`（`createCodexAppServerAdapter`）；`Hw("interject")`（`createGrokAcpAdapter`）；`"[session-manager] admission callback: codex steer fell back to redrain"`（`createSessionManager`） | confirmed（pi 的 "steer" 与 "steer_result" 依据 pi-worker.js 字面量） |
+| 非 Claude 插话的前提：未 Skip、有用户消息、turn 不是只由通知启动、文本非空 | `"[session-manager] admission callback: codex steer not attempted, redraining"`（`createSessionManager`）；`notifyOnlyBatch: $n.isNotifyOnly`（`createSessionManager`）；`emptyText: Ht.length === 0`（`createSessionManager`）；`"[session-manager] seal-on-skip: session state unreadable at admission, failing closed (steer rejected → fresh turn)"`（`createSessionManager`） | confirmed |
 | 抢占档位由消息文本决定，入站时随唤醒发出 | `"/cancel" ? "force" : "never"`（`resolvePreemptFromCommandText`）；`preempt: DG(x.text)`（`createDaemon`）；`preempt: DG(x.command)`（`createDaemon`） | confirmed |
 | 唤醒按档位选择软抢占、立即抢占或只排队 | `gk(U, "soft", z, "preempt")`（`createSessionManager`）；`gk(U, "immediate", z, "preempt")`（`createSessionManager`）；`"[session-manager] wake: preempt disabled, queueing only"`（`createSessionManager`） | confirmed |
 | 抢占判断表 | `requestBoundaryAwarePreempt (gk)`；`"defer_accept"`（`requestBoundaryAwarePreempt`）；`"noop"`（`requestBoundaryAwarePreempt`）；`t === "soft" && e.isStreaming`（`requestBoundaryAwarePreempt`） | confirmed |
 | 路由事件的默认抢占档位 | `"job.fail" ? "never" : "allow"`（`deliverRouteEventToSession`） | confirmed |
-| 唤醒函数转发 preemptBoundary，但没有发送方携带它 | `H = P?.preemptBoundary`（`createSessionManager`） | confirmed（bundle 中发出 `session.wake` 的五处调用都不含 `preemptBoundary` 字段） |
+| 唤醒函数转发 preemptBoundary，但没有发送方携带它 | `z = T?.preemptBoundary`（`createSessionManager`） | confirmed（bundle 中发出 `session.wake` 的五处调用都不含 `preemptBoundary` 字段） |
 | 推迟的抢占在 tool_use、tool_result 清空、init 三处执行 | `w.pendingPreemptBoundary === "tool_result" && w.activeToolCalls.size === 0`（`createSessionManager`）；`u.pendingPreemptBoundary === "accept"`（`createClaudeStreamingSessionFactory`）；`triggerDeferredPreempt (RG)` | confirmed |
 | 执行时有 query 就 interrupt，否则中止控制器 | `e.query?.interrupt()`（`interruptActorQuery`）；`e.currentAbortController?.abort(t)`（`triggerDeferredPreempt`） | confirmed |
 | `/cancel`：有常驻连接时拆除整条连接，否则以 immediate 抢占 | `await cp(T, "cancel-interrupt", "user-cancel")`（`createSessionManager`）；`gk(T, "immediate", void 0, "user-cancel")`（`createSessionManager`）；`"[session-manager] interrupt: stopping streaming session"`（`createSessionManager`） | confirmed |
-| 拆除连接时只在传入中止原因时记下中断说明，只有 `/cancel` 传入原因；`/clear` 清除已记下的说明 | `recordPendingInterruptMarker (ubt)`；`ubt(e, n)`（`teardownStreamingSession`）；`await cp(T, "cancel-interrupt", "user-cancel")`（`createSessionManager`）；`P.pendingInterruptMarker = null`（`createSessionManager`） | confirmed（bundle 中调用 `cp` 的五处只有 `/cancel` 一处带第三个参数） |
+| 拆除连接时只在传入中止原因时记下中断说明，只有 `/cancel` 传入原因；`/clear` 清除已记下的说明 | `recordPendingInterruptMarker (ubt)`；`ubt(e, n)`（`teardownStreamingSession`）；`await cp(T, "cancel-interrupt", "user-cancel")`（`createSessionManager`）；`T.pendingInterruptMarker = null`（`createSessionManager`） | confirmed（bundle 中调用 `cp` 的五处只有 `/cancel` 一处带第三个参数） |
 | 常驻连接的 run() 在 turn 入队前把说明加在第一条消息前，然后清除 | `z = GRe(w, T)`（`createSessionManager`）；`prependPendingInterruptMarker (GRe)`；`e.pendingInterruptMarker = null, yield lbt(a, r)`（`prependPendingInterruptMarker`） | confirmed |
 | 说明文字按原因与有无在途工具调用选择；工具调用未完成的文字不出现在 Claude 会话里，由 Codex、Grok 适配器与 pi worker 使用 | `selectInterruptMarkerText (Tg)`；`return e === "user-cancel" ? yut : t ? _ut : null`（`selectInterruptMarkerText`）；`yut = "[Request interrupted by user]"`（`initInterruptMarkerTextModule`）；`Tg(f.reason, f.toolInFlight)`（`createCodexAppServerAdapter`）；`Tg(z.reason, z.toolInFlight)`（`createGrokAcpAdapter`）；`reason: Pg(A.abortController?.signal.reason)`（`createPiWorkerAdapter`） | confirmed（pi worker 的选择逻辑与两段文字依据 pi-worker.js 字面量 "[Request interrupted by user]"、"[Tool call did not complete: "、"aladuo.interrupt"，静态阅读） |
-| 非渠道 Claude 会话保持输入流，直到收到结果且登记的后台任务清空 | `holdInputOpenForBackgroundAgents: w.runtime === "claude" && w.origin !== "channel"`（`createSessionManager`）；`prompt: x ? J() : t.prompt`（`createAgentSdkAdapter`）；`D && S.size === 0`（`createAgentSdkAdapter`） | confirmed |
-| 不登记 local_bash 后台任务；静默 10 分钟强制释放 | `X !== "local_bash"`（`createAgentSdkAdapter`）；`hV(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5)`（`createAgentSdkAdapter`）；`hold-input idle watchdog fired`（`createAgentSdkAdapter`） | confirmed |
+| 非渠道 Claude 会话保持输入流，直到收到结果且登记的后台任务清空 | `holdInputOpenForBackgroundAgents: w.runtime === "claude" && w.origin !== "channel"`（`createSessionManager`）；`prompt: D ? se() : t.prompt`（`createAgentSdkAdapter`）；`$ && A.size === 0`（`createAgentSdkAdapter`） | confirmed |
+| 不登记 local_bash 后台任务；静默 10 分钟强制释放 | `fe !== "local_bash"`（`createAgentSdkAdapter`）；`hV(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5)`（`createAgentSdkAdapter`）；`hold-input idle watchdog fired`（`createAgentSdkAdapter`） | confirmed |
 | 渠道会话的后台任务通知只写日志 | `completion_owner: "claude-cli"`（`createClaudeStreamingSessionFactory`）；`"[session-manager] task_notification recorded WAL-only"`（`createClaudeStreamingSessionFactory`）；`"[route] wal-only route event (no mailbox, no wake)"`（`deliverRouteEventToSession`） | confirmed |
-| CLI 自发 turn 的结果直接写出站队列；被并入的 drain turn 作废重试 | `J.origin?.kind === "task-notification"`（`createClaudeStreamingSessionFactory`）；`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`）；`origin: "cli-turn"`（`createClaudeStreamingSessionFactory`）；`"Task-completion turn folded with mailbox drain; retrying the drain"`（`createClaudeStreamingSessionFactory`） | confirmed |
+| CLI 自发 turn 的结果直接写出站队列；被并入的 drain turn 作废重试 | `se.origin?.kind === "task-notification"`（`createClaudeStreamingSessionFactory`）；`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`）；`origin: "cli-turn"`（`createClaudeStreamingSessionFactory`）；`"Task-completion turn folded with mailbox drain; retrying the drain"`（`createClaudeStreamingSessionFactory`） | confirmed |
 | Grok 在 drain 之外产生的 turn 写入出站队列 | `"[session-manager] grok detached-turn outbox write failed"`（`createSessionManager`） | confirmed |
 | Fr 的三个来源：已接纳后中断、接纳前中止且有挂起的 /clear、执行中流式 query 结束 | `q.accepted ? q.reject(new Ur)`（`createClaudeStreamingSessionFactory`）；`new Ur("SDK turn cancelled before prompt acceptance")`（`createClaudeStreamingSessionFactory`）；`new Ur("Streaming SDK query ended during execution")`（`createClaudeStreamingSessionFactory`） | confirmed |
-| 三类中断错误的邮箱处理 | `isAgentSdkTurnInterruptedError (ww)`；`isAgentSdkPromptNotAcceptedAbortError (Sw)`；`isAbortLikeError (hg)`；`Xf.consumed = !1, qe = !0`（`drainSessionMailbox`） | confirmed |
+| 三类中断错误的邮箱处理 | `isAgentSdkTurnInterruptedError (ww)`；`isAgentSdkPromptNotAcceptedAbortError (Sw)`；`isAbortLikeError (hg)`；`pp.consumed = !1, sn = !0`（`drainSessionMailbox`） | confirmed |
 | 被打断的 prompt 去重后保存，供下一个 turn 注入；有待处理的 Skip 回退时不保存 | `!(await rt(e, t))?.pending_skip_rewind`（`drainSessionMailbox`）；`await qmt(e, t, zmt(Ie, de ? fe : void 0))`（`drainSessionMailbox`）；`<interrupted-entry-sep />`（`initMailboxDrainRunnerModule`） | confirmed |
 | 其余错误转成用户回复与 agent.error 事件，随后单批处理器重新抛出原错误，由循环捕获 | `stage: "sdk_turn"`（`drainSessionMailbox`）；`[session-manager] error in drain loop for`（`createSessionManager`）；`[duoduo:drain-error] agent turn failed at ${n.stage}`（`handleDrainError`）；`type: "agent.error"`（`handleDrainError`）；`r.length > 4e3 ? r.slice(0, 4e3)`（`handleDrainError`） | confirmed（`handleDrainError` 函数体内没有 throw；抛出的是单批处理器在它返回后重新抛出的原错误） |
-| 错误回复只挂在锚点事件上，窗口里其他事件没有回复记录 | `item: n.anchor.item`（`handleDrainError`）；`anchor: me`（`drainSessionMailbox`） | confirmed |
+| 错误回复只挂在锚点事件上，窗口里其他事件没有回复记录 | `item: n.anchor.item`（`handleDrainError`）；`anchor: de`（`drainSessionMailbox`） | confirmed |
 | actor 结束后的收尾再校验只比较 inbox | `if (!p.has(h)) return "fresh";`（`createJobSessionFinalizer`） | confirmed |
-| 调用方可以提供自己的回复文本；渠道会话的拒绝阶段写普通回复并返回拒绝阶段，空闲压缩来源除外 | `o = n.userText ??`（`handleDrainError`）；`refusedStage: Y`（`drainSessionMailbox`）；`fn.event.source?.name === "idle-compact"`（`drainSessionMailbox`） | confirmed |
+| 调用方可以提供自己的回复文本；渠道会话的拒绝阶段写普通回复并返回拒绝阶段，空闲压缩来源除外 | `o = n.userText ??`（`handleDrainError`）；`refusedStage: X`（`drainSessionMailbox`）；`Lt.event.source?.name === "idle-compact"`（`drainSessionMailbox`） | confirmed |
 | 空闲压缩触发的错误只写日志 | `"[runner] idle-compact drain error — spine only, no channel record"`（`handleDrainError`） | confirmed |
 | drain 在调用引擎之前解析模型上下文配置，结果作为调用参数 | `resolveDrainContextProfileOrRefuse (Ixe)`；`$n = await Ixe(e, t, {`（`drainSessionMailbox`）；`claudeContextRequirement: $n.requirement`（`drainSessionMailbox`） | confirmed |
 | 解析失败以 context_profile 阶段交给 handleDrainError 并重新抛出，turn 不开始；回复文字列出三个配置层对应的文件 | `throw await TS(e, t, { anchor: r.anchor`（`resolveDrainContextProfileOrRefuse`）；`stage: "context_profile"`（`resolveDrainContextProfileOrRefuse`）；`kernel/config/<kind>.md`（`resolveDrainContextProfileOrRefuse`） | confirmed |
 | 错误抛回循环后写 last_error 并结束 actor；成功处理事件后清除 | `last_error: {`（`createSessionManager`）；`await ra(t, T, "last_error")`（`createSessionManager`） | confirmed |
-| 排查建议分进程退出与端点错误两组，按引擎分支 | `n.includes("process exited with code")`（`renderDrainErrorRuntimeHint`）；`The DISABLE_THINKING/DISABLE_ADAPTIVE knobs`（`renderDrainErrorRuntimeHint`）；`"For third-party compatible endpoints"`（`renderDrainErrorRuntimeHint`）；`puts the session back on the runtime default`（`renderDrainErrorRuntimeHint`） | confirmed |
+| 排查建议分进程退出与端点错误两组，按引擎分支 | `n.includes("process exited with code")`（`renderDrainErrorRuntimeHint`）；`The DISABLE_THINKING/DISABLE_ADAPTIVE knobs`（`renderDrainErrorRuntimeHint`）；`For third-party compatible endpoints`（`renderDrainErrorRuntimeHint`）；`puts the session back on the runtime default`（`renderDrainErrorRuntimeHint`） | confirmed |
 | 思考相关环境变量只出现在提示文字里，Claude Code 是否使用它们 | `renderDrainErrorRuntimeHint (uht)`；`delete s.CLAUDECODE`（`createAgentSdkAdapter`） | 未证实推测（daemon 内没有读取这些变量的代码；Claude Code 的行为不在 bundle 内） |
-| actor 字面量 | `activeToolCalls: new Map`（`createSessionManager`）；`consecutiveConservativeRedrive: K?.consecutiveConservativeRedrive ?? !1`（`createSessionManager`） | confirmed |
-| drain 记录的路径与字段 | `CXe.join(e.usageDir`（`drainRecordPath`）；`suspected_in_process_break: R ? !0 : void 0`（`drainSessionMailbox`）；`rde = .5`（`IN_PROCESS_BREAK_HIT_RATIO_FLOOR`）；`detectInProcessBreak (cq)` | confirmed |
-| 工具计数来自包装执行事件的回调 | `me.type === "tool_use" ? l += 1`（`drainSessionMailbox`） | confirmed |
+| actor 字面量 | `activeToolCalls: new Map`（`createSessionManager`）；`consecutiveConservativeRedrive: L?.consecutiveConservativeRedrive ?? !1`（`createSessionManager`） | confirmed |
+| drain 记录的路径与字段 | `Iet.join(e.usageDir`（`drainRecordPath`）；`suspected_in_process_break: P ? !0 : void 0`（`drainSessionMailbox`）；`rde = .5`（`IN_PROCESS_BREAK_HIT_RATIO_FLOOR`）；`detectInProcessBreak (cq)` | confirmed |
+| 工具计数来自包装执行事件的回调 | `de.type === "tool_use" ? l += 1`（`drainSessionMailbox`） | confirmed |
 | usage.get 汇总 | `e.total_drains += 1`（`accumulateDrainRecordIntoSummary`） | confirmed |
-| Claude 的 usage 只在结果带写入缓存字段时标 anthropic；流式会话按上一轮的累计值取差，模型取这一轮输入最多的一个，上下文占用读 SDK | `mapClaudeResultToDrainUsage (pg)`；`protocol: s ? "anthropic" : void 0`（`mapClaudeResultToDrainUsage`）；`selectDominantModelByInputTokens (cot)`；`prevTotalCostUsd: Ie`（`createClaudeStreamingSessionFactory`）；`(await $.getContextUsage())?.totalTokens`（`createClaudeStreamingSessionFactory`） | confirmed |
+| Claude 的 usage 只在结果带写入缓存字段时标 anthropic；按基线的累计值取差，模型取这一轮输入最多的一个，上下文占用读 SDK | `mapClaudeResultToDrainUsage (pg)`；`protocol: s ? "anthropic" : void 0`（`mapClaudeResultToDrainUsage`）；`selectDominantModelByInputTokens (cot)`；`prevTotalCostUsd: B`（`createClaudeStreamingSessionFactory`）；`(await $.getContextUsage())?.totalTokens`（`createClaudeStreamingSessionFactory`） | confirmed |
+| 成本基线随会话 id 存进 state.json，resume 时只采用同一会话 id 的基线，否则这一轮成本与模型不填 | `return t?.sdk_session_id === e ? {`（`resolveClaudeCostBaseline`）；`baselineUnknown: !0`（`resolveClaudeCostBaseline`）；`if (i === void 0 \|\| t?.baselineUnknown) o = void 0;`（`mapClaudeResultToDrainUsage`）；`costBaseline: X$(n, f?.total_cost_usd, f?.modelUsage),`（`createAgentSdkAdapter`）；`d = Y$(t.sessionId, t.costBaseline)`（`createAgentSdkAdapter`）；`P = Y$(m, l.costBaseline),`（`createClaudeStreamingSessionFactory`）；`Le.claude_cost_baseline = an.costBaseline`（`drainSessionMailbox`）；`z = G?.claude_cost_baseline`（`drainSessionMailbox`） | confirmed |
 | Codex 以线程累计值减基线得这一轮的值，命中缓存取 cachedInputTokens，不填写入缓存与成本 | `computeCodexTurnUsage (abe)`；`cache_read_input_tokens: t.cachedInputTokens - r.cached`（`computeCodexTurnUsage`）；`protocol: "codex"`（`computeCodexTurnUsage`） | confirmed（否定性证据：返回的 usage 对象里没有 `cache_creation_input_tokens` 与 `total_cost_usd`） |
 | Grok 从 `_meta.usage` 取分项，上下文占用取 `_meta.totalTokens`（大于 0 才填），成本为 costUsdTicks 除以 1e10 | `mapGrokUsageToDrainUsage (qut)`；`o = Cg(t.totalTokens)`（`mapGrokUsageToDrainUsage`）；`context_used_tokens: s`（`mapGrokUsageToDrainUsage`）；`a = Cg(n.costUsdTicks)`（`mapGrokUsageToDrainUsage`） | confirmed（除以 1e10 的那一句紧接在 costUsdTicks 的读取之后，静态阅读） |
 | pi 的 usage 由适配器在运行结束时映射，模型取适配器绑定的模型 id | `usage: nEe(Ce.usage, e.model)`（`createPiWorkerAdapter`） | confirmed（映射函数没有真名，字段对应在 pretty bundle 中读到） |
 | turn_meta 按 protocol 计算总输入与命中率：codex、grok 的输入即总输入，anthropic、pi 的总输入为三项之和 | `normalizeInputTokenTotals (pxe)`；`e.protocol === "codex" \|\| e.protocol === "grok" ? {`（`normalizeInputTokenTotals`）；`totalInput: t + n + r`（`normalizeInputTokenTotals`）；`cache_hit_rate: mxe(S)`（`drainSessionMailbox`） | confirmed |
 | usage.get 的缓存统计按 protocol 分桶，无可识别 protocol 的带缓存记录计入 unsupported_drains | `accumulateDrainRecordIntoSummary (ode)`；`e.cache.codex.cached_tokens += t.usage.cache_read_input_tokens ?? 0`（`accumulateDrainRecordIntoSummary`）；`e.cache.pi.fresh_input_tokens += t.usage.input_tokens ?? 0`（`accumulateDrainRecordIntoSummary`）；`(n \|\| r) && (e.cache.unsupported_drains += 1)`（`accumulateDrainRecordIntoSummary`） | confirmed（引擎自身的计数口径为未证实推测） |
-| Skip hook 在当前 turn 或 CLI 自发 turn 上记下 Skip | `R.cliTurnTentative.skipObserved = !0`（`createClaudeStreamingSessionFactory`） | confirmed |
+| Skip hook 在当前 turn 或 CLI 自发 turn 上记下 Skip | `k.cliTurnTentative.skipObserved = !0`（`createClaudeStreamingSessionFactory`） | confirmed |
 
 ### 关键数据结构
 
 以下字段名均已对照代码逐项核对（confirmed）。
 
 - **session actor**（`createSessionManager (gbt)` 创建 actor 时的对象字面量）。标识与生命周期：`sessionKey`、`actorRunId`、`status`（`active`/`idle`/`ended`）、`origin`（`channel`/`job`/`system`）、`jobId`、`jobStateless`、`runtime`、`holdsPoolSlot`、`attachedChannels`（Set）、`idleSince`、`spawnedAt`、`lastActivityAt`、`lastTurnCompletedAt`、`lastCliTurnSettledAt`、`consecutiveConservativeRedrive`（布尔）。引擎连接：`sdkSessionId`、`sdkSessionIdVerified`、`query`、`streamAbortController`、`streamingState`、`streamingAdapter`、`streamingGeneration`、`adapter`（Codex、Grok、pi 共用）、`adapterFacts`。drain 与唤醒：`drainPromise`、`wakeResolver`、`pendingWake`、`currentAbortController`、`pendingClear`、`inflightEventIds`（Set）、`admissionInProgress`、`admissionCallback`、`pendingSteer`、`liveTurnNotifyOnly`、`agentNotifiedThisDrain`。抢占：`isStreaming`、`activeToolCalls`（Map，值为 `{toolName, startedAtMs}`）、`pendingPreempt`、`pendingPreemptBoundary`（`accept`/`tool_use`/`tool_result`）、`pendingPreemptReason`。运行中另会写入 `spawnBoardHash`、`lastTranscriptPath`、`pendingInterruptMarker`。
-- **streamingState**（`createClaudeStreamingSessionFactory (KRe)`）：`queue`、`abortController`、`configSignature`、`initialSessionId`、`hasAcceptedTurn`、`needsRecreation`、`closed`、`currentTurn`、`loopPromise`、`cliTurnTentative`（`{skipObserved, compromised}` 或 null）、`spawnMaxContextToken`、`spawnDeliveryToken`、`liveModel`、`lastAppliedEffort`；收到 result 后另记 `lastModelUsage`、`lastTotalCostUsd`。
+- **streamingState**（`createClaudeStreamingSessionFactory (KRe)`）：`queue`、`abortController`、`configSignature`、`initialSessionId`、`hasAcceptedTurn`、`needsRecreation`、`closed`、`currentTurn`、`loopPromise`、`cliTurnTentative`（`{skipObserved, compromised}` 或 null）、`spawnMaxContextToken`、`spawnDeliveryToken`、`liveModel`、`lastAppliedEffort`；`lastModelUsage`、`lastTotalCostUsd` 在 resume 的会话 id 与存下的成本基线相符时以基线初始化，此后每收到一个 result 更新一次。
 - **常驻连接的 turn 项**（`streamingAdapter.run()` 入队的对象）：`input`、`resolve`、`reject`、`accepted`、`sessionId`、`text`、`structured`、`usage`、`streamedText`、`turnStreamedText`、`toolUseMap`、`toolBlockIndexMap`、`skipCalled`。
 - **pendingSteer**（插话回调创建）：`steerText`、`eventIds`、`claimedEventIds`、`enqueueAsNewTurn`、`spawningTurn`、`requeueLines`、`requeueEventIds`、`processedEventIds`、`settled`。
 - **drain 记录**（`appendDrainRecord (pf)` 追加到 `var/usage/<会话键>.jsonl`，文件名中的 `/` 与 `\` 换成 `_`）：`id`、`session_key`、`sdk_session_id`、`drain_started_at`、`drain_duration_ms`、`sdk_duration_ms`、`events_processed`、`events_skipped`、`tool_calls`、`tool_errors`、`output_chars`、`cancelled`、`usage`（`input_tokens`、`output_tokens`、`cache_creation_input_tokens`、`cache_read_input_tokens`、`total_cost_usd`、`protocol`、`model`、`context_used_tokens`）、`perf`（各阶段的 `*_ms`，以及 `sdk_ttft_ms_total`、`sdk_ttft_samples`）、`compact`、`suspected_in_process_break`。`suspected_in_process_break` 在本次 drain 期间常驻连接没有重建、而缓存读取占缓存输入的比例低于 0.5 时为真（阈值常量为 `IN_PROCESS_BREAK_HIT_RATIO_FLOOR (rde)`，判定函数见证据表）。常驻连接上 CLI 自发的 turn 另记一条 `origin: "cli-turn"`、事件数为零的记录。`usage.get` 的汇总逐条累加这些记录（证据见证据表）。
-- **usage 的填写与读取**。drain 记录的 `usage` 由各引擎的适配器按引擎自己的计数填写，并带 `protocol` 标签（confirmed）。Claude 由 `mapClaudeResultToDrainUsage (pg)` 从 SDK 的 result 消息映射，只有结果带 `cache_creation_input_tokens` 时才标为 `anthropic`（`protocol: s ? "anthropic" : void 0`（`mapClaudeResultToDrainUsage`））；常驻流式会话上，适配器把上一轮的成本与各模型用量传入，映射时取差值作为这一轮的值，模型取这一轮输入 token 最多的那一个（并列时不填），上下文占用另从 SDK 的 `getContextUsage()` 读取。Codex 由 `computeCodexTurnUsage (abe)` 用线程累计值减去基线得到这一轮的值，命中缓存取 Codex 的 `cachedInputTokens`，不填写入缓存，也不填成本。Grok 由 `mapGrokUsageToDrainUsage (qut)` 从 ACP `session/prompt` 响应的 `_meta.usage` 取分项，上下文占用取同级的 `_meta.totalTokens`（大于 0 才填），成本等于 `costUsdTicks` 除以 1e10。pi 由 `createPiWorkerAdapter (vA)` 在运行结束时把 worker 报告的 input、output、cache_read、cache_write、cost_usd、context_used_tokens 逐项映射，模型取适配器绑定的模型 id；做映射的函数没有真名，证据表引用的是调用点。
+- **usage 的填写与读取**。drain 记录的 `usage` 由各引擎的适配器按引擎自己的计数填写，并带 `protocol` 标签（confirmed）。Claude 由 `mapClaudeResultToDrainUsage (pg)` 从 SDK 的 result 消息映射，只有结果带 `cache_creation_input_tokens` 时才标为 `anthropic`（`protocol: s ? "anthropic" : void 0`（`mapClaudeResultToDrainUsage`））；SDK 报告的成本与各模型用量是这个 SDK 会话的累计值，适配器传入一个基线，映射时取差值作为这一轮的值，模型取这一轮输入 token 最多的那一个（并列时不填），上下文占用另从 SDK 的 `getContextUsage()` 读取。常驻流式会话的基线是同一连接上一轮的累计值；跨连接、跨 daemon 重启 resume 时，基线来自 `state.json` 的 `claude_cost_baseline`（字段 `sdk_session_id`、`total_cost_usd`、`model_usage`）：每次 Claude 调用结束，适配器用 `buildClaudeCostBaseline (X$)` 把累计值连同 SDK 会话 id 交回，drain 在写会话 id 的同一处把它存下；下一次调用开始时 `resolveClaudeCostBaseline (Y$)` 只在存下的会话 id 与这次 resume 的会话 id 相同时采用它，不同（或没有存下）时标记基线未知，这一轮的成本与模型都不填，而不是把整个会话的累计值记成一轮。新开的会话没有 resume 的会话 id，不需要基线，直接记 SDK 报告的值。一次性 `run()` 与常驻连接走同一套基线（confirmed）。Codex 由 `computeCodexTurnUsage (abe)` 用线程累计值减去基线得到这一轮的值，命中缓存取 Codex 的 `cachedInputTokens`，不填写入缓存，也不填成本。Grok 由 `mapGrokUsageToDrainUsage (qut)` 从 ACP `session/prompt` 响应的 `_meta.usage` 取分项，上下文占用取同级的 `_meta.totalTokens`（大于 0 才填），成本等于 `costUsdTicks` 除以 1e10。pi 由 `createPiWorkerAdapter (vA)` 在运行结束时把 worker 报告的 input、output、cache_read、cache_write、cost_usd、context_used_tokens 逐项映射，模型取适配器绑定的模型 id；做映射的函数没有真名，证据表引用的是调用点。
 
   读取这些字段的两处都按 `protocol` 解释输入 token（confirmed）。`normalizeInputTokenTotals (pxe)` 为 `turn_meta` 计算总输入与缓存命中率：`codex` 与 `grok` 的 `input_tokens` 被当作已包含命中缓存的总输入，`anthropic` 与 `pi` 的总输入是 `input_tokens`、命中缓存、写入缓存三项之和，没有可识别的 `protocol` 时不给命中率。`usage.get` 的汇总由 `accumulateDrainRecordIntoSummary (ode)` 逐条累加，其中缓存统计按 `protocol` 分桶：`cache.anthropic` 与 `cache.pi` 记 `cache_read_tokens`、`cache_create_tokens`、`fresh_input_tokens`，`cache.codex` 记 `input_tokens` 与 `cached_tokens`，`cache.grok` 在这两项之外另记 `cache_create_tokens`；带缓存字段却没有可识别 `protocol` 的记录只计入 `cache.unsupported_drains`。Codex 与 Grok 报告的输入数是否真的已包含命中缓存，Anthropic 与 pi 的三项是否真的互不重叠，取决于引擎自身的计数口径，本包内看不到（未证实推测）。
 - **SDK options**（Claude adapter 的内部构建函数）：`resume`、`abortController`、`cwd`、`settingSources`、`persistSession`、`outputFormat`、`model`、`effort`、`permissionMode`、`systemPrompt`、`allowedTools`、`tools`、`disallowedTools`、`mcpServers`、`additionalDirectories`、`env`、`settings`、`pathToClaudeCodeExecutable`、`hooks`、`includePartialMessages`；设置 `ALADUO_SDK_DEBUG` 时另加 `debug` 与 `stderr`。
-- **常驻 query 注册的 hooks**（同一个对象字面量，位于 `createClaudeStreamingSessionFactory (KRe)`）：PreToolUse、matcher 为 `*`，只对主代理把 `transcript_path` 写入 `state.json`；PreToolUse、matcher 为 Skip 工具名，结束当前 turn，并在当前 turn 或 CLI 自发的 turn 上记下 Skip（4.5）；PostToolUse、matcher 为 `*`，注入 `pendingSteer`（7.4），当前 turn 或 CLI 自发的 turn 已调用 Skip 时不注入。一次性 `run()` 只注册 Skip 的 PreToolUse hook。
+- **常驻 query 注册的 hooks**（同一个对象字面量，位于 `createClaudeStreamingSessionFactory (KRe)`）：PreToolUse、matcher 为 `*`，只对主代理把 `transcript_path` 写入 `state.json`；PreToolUse、matcher 为 Skip 工具名，结束当前 turn，并在当前 turn 或 CLI 自发的 turn 上记下 Skip（4.5）；PostToolUse、matcher 为 `*`，注入 `pendingSteer`（7.4），子代理的工具调用之后、或当前 turn 与 CLI 自发的 turn 已调用 Skip 时不注入。一次性 `run()` 只注册 Skip 的 PreToolUse hook。
 
 ## 8 会话 actor、锁与并发池
 
@@ -2149,14 +2170,14 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 ### B.1 落库事件
 
-经 `createSpineEvent (en)` 封装、再经 `atomicAppendEvent (tn)` 写入事件日志的类型一共 13 种；bundle 中这两个函数的调用点一一对应，没有绕过封装直接追加的写入。各类型的写入方与写入时机见 5.2；下表补充每种事件的 `source.kind`，第 11.2 节的活动指纹与 gap-lint 按它区分内部与外部事件（`cadence`、`meta`、`system`、`runner`、`route`、`gateway` 为内部来源）。
+经 `createSpineEvent (en)` 封装、再经 `atomicAppendEvent (tn)` 写入事件日志的类型一共 14 种；bundle 中这两个函数的调用点一一对应，没有绕过封装直接追加的写入。各类型的写入方与写入时机见 5.2；下表补充每种事件的 `source.kind`，第 11.2 节的活动指纹与 gap-lint 按它区分内部与外部事件（`cadence`、`meta`、`system`、`runner`、`route`、`gateway` 为内部来源）。
 
 | 类型 | `source.kind` | 写邮箱指针 | 正文 |
 |---|---|---|---|
-| `channel.message` | 渠道给出的 `source_kind`；经 HTTP 调用且未给时为 `rpc` | 路由目标为 session 时写 | 5.1、6.2 |
+| `channel.message` | 渠道给出的 `source_kind`；经 HTTP 调用且未给时为 `rpc` | 路由目标为 session 且不是 `void` 会话时写；`void` 会话改写一条出站记录（3.1） | 5.1、6.2 |
 | `channel.command` | 同上；`session.compact` RPC 发出的为 `rpc`，空闲压缩扫描器发出的为会话索引里记录的渠道种类 | 只有 `/compact` 与带参数的注入提示写 | 6.2、8.4 |
 | `channel.attached` | 由会话键推出的渠道种类 | 否 | 5.2 |
-| `route.deliver` | `route` | 默认写；`walOnly` 时不写 | 4.3、5.1、10.3 |
+| `route.deliver` | `route` | 默认写；`walOnly` 时、目标为 `void` 会话时不写（后者改写一条出站记录） | 4.3、5.1、10.3 |
 | `agent.result` | drain 为 `runner`，网关命令回复为 `gateway`，后台分区为 `meta` | 否 | 5.2、6.2、11.3 |
 | `agent.error` | drain 与 `handleDrainError (TS)` 为 `runner`，后台分区为 `meta` | 否 | 7.7、11.3 |
 | `agent.tool_use`、`agent.tool_result` | drain 为 `runner`，后台分区为 `meta` | 否 | 5.2、11.3 |
@@ -2164,12 +2185,13 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | `job.complete`、`job.fail` | `job` | 否（结果另经 `route.deliver` 投递给 owner） | 10.3 |
 | `system.cadence_tick` | `system` | 否 | 11.1 |
 | `config.changed` | `rpc` | 否 | 5.2 |
+| `external.record` | 调用方在 `spine.record` 里给出的 `source`，不能是上面六个内部来源名，也不能是 duoduo 会话键的前缀；`session_key` 为 `<source>:<conversation>` | 否 | B.2 |
 
-按这张表与 11.2 的判定可以直接推出：job 的生命周期事件、渠道挂接、配置变更，以及 `session.compact` 与空闲压缩发出的 `/compact`，都算外部活动，都会改变 11.2 的活动指纹。
+按这张表与 11.2 的判定可以直接推出：job 的生命周期事件、渠道挂接、配置变更，以及 `session.compact` 与空闲压缩发出的 `/compact`，都算外部活动，都会改变 11.2 的活动指纹；`external.record` 的来源不可能是内部来源名，所以也总算外部活动（静态阅读推出）。
 
 ### B.2 控制面 RPC 方法
 
-`createDaemon (Svt)` 的分发函数按方法名逐个比较，识别下面 33 个方法，其余方法返回 `-32601`；三个监听器共用这一个分发函数（6.1）。表中按用途分组，"处理"一栏给出处理函数的真名；处理逻辑直接写在分发函数里的方法标"内联"。
+`createDaemon (Svt)` 的分发函数按方法名逐个比较，识别下面 36 个方法，其余方法返回 `-32601`；三个监听器共用这一个分发函数（6.1）。处理函数抛出的参数错误返回 `-32602`，runtime 取值不合法抛出的 `InvalidRuntimeError`（3.1）返回 `-32603` 并带原说明。表中按用途分组，"处理"一栏给出处理函数的真名；处理逻辑直接写在分发函数里的方法标"内联"。
 
 | 分组 | 方法 | 处理 | 正文 |
 |---|---|---|---|
@@ -2177,21 +2199,21 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | system | `system.runtime.info` | 内联：返回实例身份；带 `source_kind` 时附该种类的 `new_session_workspace` | 3.2、9.1 |
 | system | `system.status` | 内联：健康状态、心跳、会话、轮转表与记忆检查状态 | 11.1、12.2 |
 | system | `system.config` | `buildSystemConfigReport (Jbt)` | 3.7、4.3、8.3 |
-| channel | `channel.describe` | `describeChannelInstance (tvt)` | 9.1 |
-| channel | `channel.spawn` | `upsertChannelSpawnDescriptor (yvt)` | 3.3、9.1 |
-| channel | `channel.ingress` | `ingestChannelMessage (gde)` | 6.2 |
-| channel | `channel.command` | `ingestChannelCommand (rv)` | 6.2 |
+| channel | `channel.describe` | `describeChannelInstance (tvt)`；渠道 runtime 被拒时以错误返回拒绝说明 | 3.1、9.1 |
+| channel | `channel.spawn` | `upsertChannelSpawnDescriptor (yvt)`；可带 `session_key`，只接受渠道会话键，键已属于另一个渠道时拒绝，否则建好会话描述与状态并绑定到这个渠道 | 3.3、9.1 |
+| channel | `channel.ingress` | `ingestChannelMessage (gde)`；带 `channel_id` 时先校验它，再由 `bindSessionSourceChannel (pIe)` 写进会话状态的 `source_channel_id` | 6.2 |
+| channel | `channel.command` | `ingestChannelCommand (rv)`；`channel_id` 的处理同上 | 6.2 |
 | channel | `channel.file.upload`、`channel.file.download` | 内联 | 9.1 |
-| channel | `channel.pull` | 内联；能力声明由 `recordChannelCapabilityDeclaration (Ybt)` 记录，积压由 `readOutboxRecordsPastCursor (Yw)` 读取 | 6.3 |
+| channel | `channel.pull` | 内联；能力声明由 `recordChannelCapabilityDeclaration (Ybt)` 记录，积压由 `readOutboxRecordsPastCursor (Yw)` 读取；WebSocket 订阅带 `advance: "ack"` 时推送不移动游标，只有 `channel.ack` 移动 | 6.3 |
 | channel | `channel.ack` | 内联；by_id 索引缺失时由 `backfillOutboxByIdIndexFromReplay (hI)` 补建 | 6.3 |
-| session | `session.list` | `listSessionIndexSummaries (oO)` | 8.1 |
+| session | `session.list` | `listSessionIndexSummaries (oO)`；`deliverable: true` 时由 `filterDeliverableSessions (Olt)` 去掉 Notify 会拒投的会话 | 4.3、8.1 |
 | session | `session.archive` | `archiveSessionIfQuiescent (nvt)`，移动文件的是 `archiveSessionAndArtifacts (hwe)` | 8.2 |
 | session | `session.set_alias` | `setSessionAliasAndReindex (rvt)`，写显示名的是 `updateSessionDisplayName (wce)` | 8.1 |
-| session | `session.notify` | `deliverExternalSessionNotify (EIe)` | 4.3、8.5 |
-| session | `session.wake` | `scheduleSessionWakeRecord (ovt)` | 4.4、8.5 |
+| session | `session.notify` | `deliverExternalSessionNotify (EIe)`；参数 `target`、`message`、`source`、`force`，以及 `idempotency_key`（重放时由 `replayIdempotentSessionNotify (svt)` 返回首次结果）、`exact_key`（目标按完整会话键匹配，由 `resolveSessionByExactKey (ivt)` 解析，不解析别名）、`in_reply_to`、`caller_session`（另一个存在的会话时以该会话的身份投递，不存在时返回 `unknown_caller`） | 4.3、8.5 |
+| session | `session.wake` | `scheduleSessionWakeRecord (ovt)`；目标为 `void` 会话时以 `void_session` 拒绝 | 4.4、8.5 |
 | session | `session.model` | `readOrSetSessionModel (uvt)` | 3.4、8.5 |
 | session | `session.effort` | `readOrSetSessionEffort (lvt)` | 3.4、8.5 |
-| session | `session.compact` | `enqueueSessionCompactCommand (cvt)` | 6.2、8.5 |
+| session | `session.compact` | `enqueueSessionCompactCommand (cvt)`；目标为 `void` 会话时以 `void_session` 拒绝 | 6.2、8.5 |
 | session | `session.config` | `applySessionConfigVerb (fvt)`，改配置后由 `appendConfigChangedEvent (ky)` 追加 `config.changed` | 3.3、5.2 |
 | job | `job.create` | 内联，参数由 `isJobCreateParams (xR)` 校验 | 10.1 |
 | job | `job.get`、`job.list`、`job.archive`、`job.reschedule`、`job.interrupt` | 内联 | 10.4 |
@@ -2199,6 +2221,9 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | pi worker 回调 | `session.manage`、`notify.send`、`wake.set` | ViewSessions、Notify、RemindDuoduo 的工具体：`runViewSessionsTool (Dg)`、`runNotifyTool (Lg)`、`runRemindDuoduoTool (Mg)` | 4.1、6.1 |
 | 其他 | `usage.get` | 内联；读取 `readDrainRecords (ph)`、`readGlobalUsageTotals (fq)`、`readAllSessionSummaries (dq)` | 7（关键数据结构）、11.3 |
 | 其他 | `spine.tail` | `readSpineTail (wwe)` | 5.4 |
+| 其他 | `spine.cat` | `runSpineCatRpc (xke)`：接受 `duoduo spine cat`/`show` 的过滤参数，读事件日志并返回渲染后的文本；`redact: "external"` 时丢弃非渠道会话的事件，渠道会话里只有 `channel.message`、`agent.result`、`external.record` 等少数类型、外部 notify 的投递和发往 `void` 会话的投递保留正文，工具事件只留工具名与是否出错，其余事件只留事件头 | 5.4 |
+| 其他 | `spine.record` | `recordExternalSpineEvent (Eke)`：追加一条 `external.record` 事件，不写邮箱指针、不唤醒任何会话；`source` 是内部来源名或会话键前缀时由 `checkReservedRecordSource (Dpt)` 以 `reserved_source` 拒绝；带 `dedup_key` 时经去重表判重，重复时返回首次的事件 id 与 `duplicate: true` | B.1 |
+| 其他 | `memory.read` | `readMemoryFileForRpc (QSe)`：读取记忆目录下的一个文件，路径先按字面、再按 realpath 检查必须在记忆目录内，越界、不存在与目录都以 `-32602` 拒绝 | 12 |
 
 四个 pi worker 回调方法只接受带有效 worker 口令的调用，带口令的调用也只能使用这四个方法（6.1）。其余方法在 unix socket 与远程监听上都可用，本机 TCP 端口只放行 B.3 的六个。
 
@@ -2210,14 +2235,23 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 | 机制主张 | 代码证据 | 置信 |
 |---|---|---|
-| 落库事件的 13 种类型与写入方 | `createSpineEvent (en)`；`atomicAppendEvent (tn)`；逐类引用见 5.2 的证据表 | confirmed（bundle 中 `createSpineEvent` 的 23 处调用与 `atomicAppendEvent` 的 23 处调用一一对应） |
-| 渠道消息与命令的来源种类取自调用方 | `kind: t.sourceKind,`（`appendBeforeExecuteGateway`）；`N = k.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc")`（`createDaemon`） | confirmed |
-| 渠道挂接的来源种类是会话键推出的渠道种类 | `name: "session-manager"`（`createSessionManager`）；`channel_kind: L,`（`createSessionManager`） | confirmed |
+| 落库事件的 14 种类型与写入方 | `createSpineEvent (en)`；`atomicAppendEvent (tn)`；逐类引用见 5.2 的证据表；`external.record` 见下一行 | confirmed（bundle 中 `createSpineEvent` 的 24 处调用与 `atomicAppendEvent` 的 24 处调用一一对应） |
+| `external.record` 由 spine.record 写入，来源为调用方给出的名字，内部来源名与会话键前缀被拒，不写邮箱指针 | `type: tA, source: { kind: r.source },`（`recordExternalSpineEvent`）；`${r.source}:${r.conversation}`（`recordExternalSpineEvent`）；`i = Dpt(r.source);`（`recordExternalSpineEvent`）；`reason: "reserved_source",`（`checkReservedRecordSource`）；`duplicate: !0`（`recordExternalSpineEvent`） | confirmed（函数体内只有 `en` 与 `tn` 两次写入，没有邮箱写入；`tA` 是取值为 `"external.record"` 的模块级常量，尚无真名） |
+| void 会话不写邮箱指针，改写出站记录 | `"[gateway] void-session event (outbox, no enqueue)"`（`appendBeforeExecuteGateway`）；`"[route] delivered to void session outbox (no mailbox, no wake)"`（`deliverRouteEventToSession`） | confirmed |
+| 渠道消息与命令的来源种类取自调用方 | `kind: t.sourceKind,`（`appendBeforeExecuteGateway`）；`M = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc")`（`createDaemon`） | confirmed |
+| 渠道挂接的来源种类是会话键推出的渠道种类 | `name: "session-manager"`（`createSessionManager`）；`channel_kind: U,`（`createSessionManager`） | confirmed |
 | 会话间投递的来源种类缺省为 route，调用方都不另给 | `kind: s ?? "route"`（`deliverRouteEventToSession`）；`sourceKind: "route",`（`deliverExternalSessionNotify`）；`sourceKind: "route",`（`runNotifyTool`） | confirmed（其余调用方不传 `sourceKind`） |
 | drain、网关与后台分区的来源种类 | `kind: "runner",`（`handleDrainError`）；`kind: "runner",`（`drainSessionMailbox`）；`kind: "gateway",`（`replyToGatewayCommandEvent`）；`kind: "meta",`（`createMetaSession`）；`kind: "runner",`（`createDrainExecutionEventRecorder`）；`kind: "runner",`（`emitDrainOutputRecords`） | confirmed（drain 路径上 `agent.tool_use` 与 `agent.tool_result` 由 `createDrainExecutionEventRecorder (Yxe)` 写，`agent.result` 由 `emitDrainOutputRecords (Bc)` 写） |
 | job、心跳与配置变更的来源种类 | `kind: "job",`（`createJobSessionFinalizer`）；`name: "job-scanner"`（`scanAndSpawnDueJobs`）；`name: "cadence"`（`runCadenceTick`）；`name: "session.config"`（`appendConfigChangedEvent`） | confirmed |
-| 两条 `/compact` 路径的来源种类 | `sourceKind: "rpc",`（`enqueueSessionCompactCommand`）；`let D = I.channel_kind,`（`createIdleCompactSweeper`） | confirmed |
-| 分发函数识别 33 个方法，未匹配的返回 -32601 | `S.method === "system.shutdown"`（`createDaemon`）；`S.method === "spine.tail"`（`createDaemon`）；`message: "Method not found"`（`createDaemon`） | confirmed（`createDaemon` 中 `S.method === "…"` 的比较共 33 个互不相同的方法名） |
+| 两条 `/compact` 路径的来源种类 | `sourceKind: "rpc",`（`enqueueSessionCompactCommand`）；`let D = E.channel_kind,`（`createIdleCompactSweeper`） | confirmed |
+| 分发函数识别 36 个方法，未匹配的返回 -32601；InvalidRuntimeError 返回 -32603 | `S.method === "system.shutdown"`（`createDaemon`）；`S.method === "spine.tail"`（`createDaemon`）；`message: "Method not found"`（`createDaemon`）；`x instanceof xb ? $.error = {`（`createDaemon`） | confirmed（`createDaemon` 中 `S.method === "…"` 的比较共 36 个互不相同的方法名） |
+| 三个新方法的处理函数 | `S.method === "memory.read" ? $.result = await QSe(u, S.params)`（`createDaemon`）；`S.method === "spine.cat" ? $.result = await xke(u, S.params)`（`createDaemon`）；`S.method === "spine.record" ? $.result = await Eke(u, S.params)`（`createDaemon`） | confirmed |
+| memory.read 的路径检查 | `is outside duoduo's memory`（`readMemoryFileForRpc`）；`a = await KO.realpath(e.memoryDir), u = await KO.realpath(s)`（`readMemoryFileForRpc`）；`x instanceof Uc \|\| x instanceof tp ? $.error = {`（`createDaemon`） | confirmed |
+| spine.cat 的 redact | `s = r.redact === "external" ? await nde(e) : null;`（`runSpineCatRpc`）；`listVoidChannelSessions (nde)` | confirmed（各类型保留与删减的规则在一个没有真名的函数里，静态阅读） |
+| channel.spawn 的 session_key、channel.ingress 与 channel.command 的渠道绑定 | `channel.spawn creates channel sessions only.`（`upsertChannelSpawnDescriptor`）；`channel.spawn does not move a session to another channel.`（`upsertChannelSpawnDescriptor`）；`await pIe(u, x.session_key, x.channel_id);`（`createDaemon`）；`source_channel_id: n`（`bindSessionSourceChannel`） | confirmed |
+| channel.pull 的 advance: "ack" | `J = q.advance === "ack"`（`createDaemon`）；`ne && !J && j.method === "session.output"`（`createDaemon`）；`onDelivered: async U => { w \|\| await j6(u, Se, B, U);`（`createDaemon`） | confirmed |
+| session.list 的 deliverable | `return (n.deliverable ? await Olt(r, a) : a).map(l => {`（`listSessionIndexSummaries`）；`(await Ng(e, r.session_key)).refused \|\| n.push(r);`（`filterDeliverableSessions`） | confirmed |
+| session.notify 的新参数 | `session.notify:${JSON.stringify(a)}`（`deliverExternalSessionNotify`）；`o = r.exact_key ? ivt(n, i) : fp(n, i);`（`deliverExternalSessionNotify`）；`notify_in_reply_to: r.in_reply_to.trim()`（`deliverExternalSessionNotify`）；`reason: "unknown_caller",`（`deliverExternalSessionNotify`）；`notify_source_session_key: f`（`deliverExternalSessionNotify`）；`replayIdempotentSessionNotify (svt)` | confirmed |
 | 有真名的处理函数 | `$.result = await EIe(u, l, d, x)`（`createDaemon`）；`$.result = await uvt(d, N, x)`（`createDaemon`）；`$.result = await yvt(u, d, x)`（`createDaemon`）；`$.result = await Jbt(u)`（`createDaemon`） | confirmed |
 | 会话管理类方法的处理函数及其调用的具名函数 | `$.result = await oO(d, c, x, u)`（`createDaemon`）；`$.result = await nvt(u, e.sessionManager, d, x)`（`createDaemon`）；`$.result = await rvt(u, d, x)`（`createDaemon`）；`$.result = await fvt(u, d, x)`（`createDaemon`）；`let u = await hwe(e, i)`（`archiveSessionIfQuiescent`）；`i = await wce(e, r, n.display_name)`（`setSessionAliasAndReindex`）；`r === "get" ? void 0 : await ky(e, {`（`applySessionConfigVerb`） | confirmed |
 | pi worker 回调方法交给对应的工具体 | `let x = await Ag(S.params, {`（`createDaemon`）；`let x = await Lg(S.params, {`（`createDaemon`）；`let x = await Mg(S.params, {`（`createDaemon`）；`let x = await Dg(S.params, {`（`createDaemon`） | confirmed |
