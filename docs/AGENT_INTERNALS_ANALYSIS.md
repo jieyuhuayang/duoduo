@@ -57,7 +57,7 @@
 
 ## 1 端到端路径
 
-一条外部消息先封装成事件、追加进事件日志、写邮箱指针、唤醒会话；会话按指针读正文、装配上下文、调用引擎，把工具调用和结果写回日志；心跳触发的后台分区再把经验写回记忆板，下一次装配时读入。这条路径可以分成五段，每段由几节展开：入站与分流（第 6、9 节）、落库（第 5 节）、会话执行（第 2、3、4、7、8、13 节）、出站（第 6.3、9 节）、后台加工（第 11、12 节）；job 的定时触发（第 10 节）是另一个入口，它写入的事件走同样的落库与会话执行。本节只给出全貌和每一步的代码位置，机制细节以对应各节为准。
+一条外部消息依次经过五段处理：入站与分流（第 6、9 节）、写入事件日志（第 5 节）、会话执行（第 2、3、4、7、8、13 节）、出站（第 6.3、9 节）和后台分区（第 11、12 节）。网关把消息封装成事件，追加进事件日志，再写邮箱指针并唤醒会话。会话按指针读回事件正文，装配上下文，调用引擎，并把工具调用和结果写回日志。心跳触发的后台分区把经验写回记忆板，会话下一次装配时读入。job 的定时触发（第 10 节）是另一个入口，它写入的事件经过同样的写入事件日志与会话执行两段。本节只给出整条路径和每一步的代码位置，机制细节以对应各节为准。
 
 ### 1.1 路径图
 
@@ -69,7 +69,8 @@
   ① 检查：WebSocket 调用是否带来源种类与渠道 id、会话是否在归档、工作目录是否存在；
      通过后把渠道 id 记为会话的来源渠道
   ② 识别斜杠命令与注入提示，决定路由目标：gateway 或 session
-  ③ 封装事件（补 id 与时间戳）；带幂等键时查去重表，重复则返回原事件已有的出站文字，不再往下走
+  ③ 封装事件（补 id 与时间戳）；带幂等键时查去重表，重复则返回原事件的 id，
+     原事件有网关回复时一并返回回复文字，不再往下走
   ④ 写入站快照 → 追加事件日志（WAL 行，再 by_id 索引行）→ 推进 gateway 消费进度 → 更新 status.json
   ⑤ 按路由目标分支
        gateway ─▶ 网关直接执行命令：写出站记录、追加 agent.result，不唤醒会话
@@ -109,15 +110,25 @@
 | 后台：心跳与维护 | `main (kvt)`；`runCadenceTick (Cbt)` | `h.emit("cadence.tick")`（`main`）；`type: "system.cadence_tick"`（`runCadenceTick`） |
 | 后台：分区会话与记忆板 | `createMetaSession (Pbt)`；`transcludeBroadcastBoard (MRe)`；`collectInstructionsInputs (qRe)` | `n.on("cadence.tick", k)`（`createMetaSession`）；`(await MRe(e.memoryBroadcastPath)).rendered.trim()`（`collectInstructionsInputs`） |
 
-四点需要单独说明。第一，唤醒会话的是入站处理函数在指针写入之后发出的 `session.wake`，`appendBeforeExecuteGateway (yde)` 发出的 `spine.event` 总线事件在 bundle 中没有订阅者（confirmed，第 6.2 节）。第二，第 ⑨ 步的三类执行记录由 drain 路径上的两个辅助函数写入：`createDrainExecutionEventRecorder (Yxe)` 在引擎每报告一次工具调用或工具结果时追加一条 `agent.tool_use` 或 `agent.tool_result`，并跳过标为 ephemeral 的工具调用，判断条件是 `o.type === "tool_use" && !o.ephemeral`（`createDrainExecutionEventRecorder`）；`emitDrainOutputRecords (Bc)` 对这一轮的每个投递目标会话先写一条出站记录，再追加一条 `agent.result`（confirmed；各事件类型的写入方见第 5.2 节）。第三，后台分区改写记忆板由分区提示词规定，代码只负责按心跳调度分区会话和在前台装配时读入记忆板：`subconscious/intuition-weaver/CLAUDE.md` 写明它是 `memory/CLAUDE.md` 的唯一写入者（confirmed，提示词原文；分区调度见第 11 节，记忆板的分工见第 12.4 节）。第四，渠道 runtime 为 `void` 的会话（供会话从不运行模型的渠道插件使用，runtime 取值见第 3 节，渠道侧见第 9.1 节）在第 ⑤ 步之后就结束：`appendBeforeExecuteGateway (yde)` 先照常追加事件日志，再经 `isVoidRuntimeSession (Gu)` 判断，是 void 会话时由 `writeVoidSessionOutboxRecord (wI)` 把原文与附件写成一条出站记录并在总线上发出 `session.output`，不写邮箱指针，返回的 `enqueued` 为假，所以第 ⑥ 步不发 `session.wake`，第 ⑦ 步以后都不发生（confirmed）。消息文字是注入提示或一条可识别的斜杠命令时，出站记录的文字换成拒绝说明，并作为网关回复返回给调用方，说明的前半句是 `Ju = "This session never runs a model (runtime void)."`（`initVoidRuntimeModule`），后接 `${Ju} ${f} was not run.`（`appendBeforeExecuteGateway`）（confirmed）。由网关直接执行的命令在这个判断之前已经分流，仍由网关执行（confirmed，`if (d === "gateway") {`（`appendBeforeExecuteGateway`）分支在 void 判断之前）。
+下面四段分别说明唤醒、执行记录、记忆板写入和 void 会话。
+
+唤醒会话的是入站处理函数在指针写入之后发出的 `session.wake`，`appendBeforeExecuteGateway (yde)` 发出的 `spine.event` 总线事件在 bundle 中没有订阅者（confirmed，第 6.2 节）。
+
+第 ⑨ 步的三类执行记录由 drain 路径上的两个辅助函数写入（confirmed；各事件类型的写入方见第 5.2 节）。`createDrainExecutionEventRecorder (Yxe)` 在引擎每报告一次工具调用或工具结果时追加一条 `agent.tool_use` 或 `agent.tool_result`，并跳过标为 ephemeral 的工具调用，判断条件是 `o.type === "tool_use" && !o.ephemeral`（`createDrainExecutionEventRecorder`）。`emitDrainOutputRecords (Bc)` 对这一轮的每个投递目标会话先写一条出站记录，再追加一条 `agent.result`。
+
+后台分区改写记忆板由分区提示词规定。代码只负责按心跳调度分区会话，以及在前台装配时读入记忆板。`subconscious/intuition-weaver/CLAUDE.md` 写明它是 `memory/CLAUDE.md` 的唯一写入者（confirmed，提示词原文；分区调度见第 11 节，记忆板的分工见第 12.4 节）。
+
+渠道 runtime 为 `void` 的会话在第 ⑤ 步之后就结束。这类会话供会话从不运行模型的渠道插件使用（runtime 取值见第 3 节，渠道侧见第 9.1 节）。`appendBeforeExecuteGateway (yde)` 先照常追加事件日志，再经 `isVoidRuntimeSession (Gu)` 判断，是 void 会话时由 `writeVoidSessionOutboxRecord (wI)` 把原文与附件写成一条出站记录并在总线上发出 `session.output`，不写邮箱指针，返回的 `enqueued` 为假，所以第 ⑥ 步不发 `session.wake`，第 ⑦ 步以后都不发生（confirmed）。在本版本的还原 daemon 上实测（场景 03-void-session），整个场景里 `enqueueSessionInboxLine (ta)` 与 `drainSessionMailbox (zxe)` 一次都没有被调用（confirmed）。
+
+消息文字是注入提示或一条可识别的斜杠命令时，出站记录的文字换成拒绝说明，并作为网关回复返回给调用方，说明的前半句是 `Ju = "This session never runs a model (runtime void)."`（`initVoidRuntimeModule`），后接 `${Ju} ${f} was not run.`（`appendBeforeExecuteGateway`）（confirmed）。由网关直接执行的命令在这个判断之前已经分流，仍由网关执行（confirmed，`if (d === "gateway") {`（`appendBeforeExecuteGateway`）分支在 void 判断之前）。在本版本的还原 daemon 上实测（场景 03-void-session），`/compact` 与 `/loop <文字>` 得到这句拒绝说明；`/model` 走网关分支，由 `executeGatewayCommand (Fet)` 回复这个会话没有模型或推理力度可以显示或设置；`/status` 照常执行（confirmed）。
 
 ## 2 系统提示装配
 
-`renderPromptLayers (tye)` 每一轮按固定顺序把六层文本拼成一段，`buildSystemPromptForChannelConfig (gg)` 只决定这段文本是否包成 Claude Code 预设；Claude、Codex、Grok、pi 四个引擎拿到的是同一段文本，区别只在传入格式、`prompt_mode` 是否起作用和文本何时送达引擎；每轮变化的信息不进系统提示，主要由 `buildTransientUserBlocks (Vxe)` 作为文本块排在用户原文之前。六层里没有任何随时间变化的内容，所以只要身份、渠道提示、记忆板和任务书不变，同一会话连续几轮的系统提示逐字相同，这是引擎侧 prompt cache 命中同一前缀的前提。本节对应 GUIDE 1.3 与 2.4；这段文本变化后在各引擎上何时生效，由第 13 节的指令指纹决定。
+`renderPromptLayers (tye)` 每一轮按固定顺序把六层文本拼成一段，`buildSystemPromptForChannelConfig (gg)` 只决定这段文本是否包成 Claude Code 预设。Claude、Codex、Grok、pi 四个引擎拿到的是同一段文本，区别只在传入格式、`prompt_mode` 是否起作用和文本何时送达引擎。每轮变化的信息不进系统提示，主要由 `buildTransientUserBlocks (Vxe)` 作为文本块排在用户原文之前。六层里没有任何随时间变化的内容，所以只要身份、渠道提示、记忆板和任务书不变，同一会话连续几轮的系统提示逐字相同，这是引擎侧 prompt cache 命中同一前缀的前提。本节对应 GUIDE 1.3 与 2.4；这段文本变化后在各引擎上何时生效，由第 13 节的指令指纹决定。
 
 ### 2.1 六层拼接与 prompt_mode
 
-`renderPromptLayers (tye)` 按身份、种类、实例、记忆板、运行上下文、任务书的顺序拼接非空层，层与层之间用一个空行连接，`prompt_mode` 只决定是否把结果包成 Claude Code 预设；这段文本在每一轮 turn 开始前重算（confirmed）。`drainSessionMailbox (zxe)` 处理合并窗口时经 `prepareDrainTurnContext (NW)` 调用 `buildSystemPromptForChannelConfig (gg)`，逐条处理时在 `drainSessionMailbox (zxe)` 内直接调用它，两处传入的参数相同（effective config、会话键、job 上下文、记忆板、引擎名）。会话管理器的插话路径（7.4）也调用 `prepareDrainTurnContext (NW)`，但只取用其中合并后的用户文本、附件、批次事件 id 和"这一批是否只含通知"的标志，算出的系统提示与瞬时块都不使用（confirmed）。
+`renderPromptLayers (tye)` 按身份、种类、实例、记忆板、运行上下文、任务书的顺序拼接非空层，层与层之间用一个空行连接；这段文本在每一轮 turn 开始前重算（confirmed）。`prompt_mode` 只决定是否把结果包成 Claude Code 预设（见本小节末尾）。`drainSessionMailbox (zxe)` 处理合并窗口时经 `prepareDrainTurnContext (NW)` 调用 `buildSystemPromptForChannelConfig (gg)`，逐条处理时在 `drainSessionMailbox (zxe)` 内直接调用它，两处传入的参数相同（effective config、会话键、job 上下文、记忆板、引擎名）。会话管理器的插话路径（7.4）也调用 `prepareDrainTurnContext (NW)`，但只取用其中合并后的用户文本、附件、批次事件 id 和"这一批是否只含通知"的标志，算出的系统提示与瞬时块都不使用（confirmed）。
 
 | 顺序 | 层 | 内容 | 出现条件 |
 |---|---|---|---|
@@ -179,7 +190,9 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 用户输入去掉前导空白后以 `/` 开头时，`buildTransientUserBlocks (Vxe)` 跳过全部注入，只发原文；这时所有 `…Injected` 标志都为假，待送达的内容留到下一轮（confirmed）。
 
-表中各块之外，还有一句中断标记会进入引擎的上下文：上一轮因用户取消或抢占而中止时记下的说明。它不经过 `buildTransientUserBlocks (Vxe)`，按引擎由三处加入（confirmed）。Claude 渠道会话的常驻连接因 `/cancel` 被拆除时，`teardownStreamingSession (cp)` 经 `recordPendingInterruptMarker (ubt)` 记下标记，会话管理器经 `prependPendingInterruptMarker (GRe)` 把它加在下一个 turn 的第一条消息前（7.5）。Codex 与 Grok 的适配器在一次调用中止时记下标记，下一次调用时把它作为第一个文本块放在 prompt 前。pi 的标记不放进下一次 prompt：`createPiWorkerAdapter (vA)` 在中止时向 worker 发送带中止原因的 "abort" 帧，worker 在这次运行结束后把标记作为一条不显示、不触发新 turn 的自定义消息（customType 为 "aladuo.interrupt"）追加进 pi 会话，追加失败时记 "[pi-worker] interrupt marker append failed:"（pi-worker.js 字面量，confirmed，静态阅读）。标记文字在 daemon 侧由 `selectInterruptMarkerText (Tg)` 选定，pi-worker.js 里有一份相同的选择逻辑和相同的两段文字（confirmed）：用户取消时是 `[Request interrupted by user]`；抢占时只在有工具调用尚未返回时才加标记，文字说明这次工具调用是为了送达后面的消息而被结束的，并非被拒绝，需要时重新执行。
+表中各块之外，还有一句中断标记会进入引擎的上下文。中断标记是上一轮因用户取消或抢占而中止时记下的说明。它不经过 `buildTransientUserBlocks (Vxe)`，按引擎由三处加入（confirmed）。Claude 渠道会话的常驻连接因 `/cancel` 被拆除时，`teardownStreamingSession (cp)` 经 `recordPendingInterruptMarker (ubt)` 记下标记，会话管理器经 `prependPendingInterruptMarker (GRe)` 把它加在下一个 turn 的第一条消息前（7.5）。Codex 与 Grok 的适配器在一次调用中止时记下标记，下一次调用时把它作为第一个文本块放在 prompt 前。pi 的标记不放进下一次 prompt：`createPiWorkerAdapter (vA)` 在中止时向 worker 发送带中止原因的 "abort" 帧，worker 在这次运行结束后把标记作为一条不显示、不触发新 turn 的自定义消息（customType 为 "aladuo.interrupt"）追加进 pi 会话，追加失败时记 "[pi-worker] interrupt marker append failed:"（pi-worker.js 字面量，confirmed，静态阅读）。
+
+标记文字在 daemon 侧由 `selectInterruptMarkerText (Tg)` 选定，pi-worker.js 里有一份相同的选择逻辑和相同的两段文字（confirmed）：用户取消时是 `[Request interrupted by user]`；抢占时只在有工具调用尚未返回时才加标记，文字说明这次工具调用是为了送达后面的消息而被结束的，并非被拒绝，需要时重新执行。
 
 "只注入一次"由两类写回实现（confirmed）。重启提示和记忆板提示在块放进这一轮用户消息之后、调用引擎之前，就把当前的 daemon 启动时间或记忆板哈希写进会话状态的已见值字段（`last_seen_daemon_started_at` 与 `last_seen_board_hash`），所以这一轮的引擎调用即使失败，这两条提示也不会重发。网关结果、打断记录、Skip 记录这三类待送达字段在引擎调用返回之后才从会话状态中清除：调用正常返回，或以 `isAgentSdkTurnInterruptedError (ww)` 判定的中断错误结束时清除，其他错误时保留，下一轮再注入。两个已见值第一次写入时都只记录、不注入，所以新会话不会收到这两条提示：重启提示由 `decideRestartHintInjection (awe)` 判定；记忆板提示由 `decideBoardUpdatedInjection (_xe)` 判定，会话没有记录过记忆板哈希时它返回 `first-seen`，只要求写入已见值（confirmed）。
 
@@ -269,7 +282,7 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 每个入口用哪一级校验，取决于这个入口能不能接受 `void`（confirmed）。渠道种类与渠道实例配置文件里的 `runtime` 由 `parseChannelRuntimeField (WQe)` 经 `validateKnownRuntimeValue (uU)` 解析，配置写入时的键值校验 `validateConfigValue (_ct)` 对 runtime 类型用 `isKnownRuntimeValue (NR)`，`channel.spawn` 也只要求取值在五值数组里，这三处都接受 `void`。job frontmatter、ManageJob 的 `runtime` 参数、后台分区 `CLAUDE.md` frontmatter 和 `ALADUO_DEFAULT_RUNTIME` 都经 `validateRunnableRuntimeValue (Wd)`，只接受四个引擎。渠道配置文件里的非法值不会让解析失败：解析结果记下 `runtimeRefusal`（拒绝说明）而不是 `runtime`，等这个配置真正被用来决定引擎时才拒绝（3.3）。
 
-宿主默认值由 `resolveDefaultRuntime (ho)` 计算（confirmed）：读取 `ALADUO_DEFAULT_RUNTIME`，未设置或去掉首尾空白后为空时取 `"claude"`；否则转成小写交给 `validateRunnableRuntimeValue (Wd)`，被拒时抛出 `InvalidRuntimeError`（`initRuntimeValidationModule (Fu)` 定义的错误类）。`main (kvt)` 在加载 `~/.config/duoduo/.env` 之后、取进程写锁之前调用一次 `ho()`，所以环境或 `.env` 里写了未知值或 `void` 时 daemon 以 `[pid0] fatal startup error` 退出，不会以 claude 启动。
+宿主默认值由 `resolveDefaultRuntime (ho)` 计算（confirmed）：读取 `ALADUO_DEFAULT_RUNTIME`，未设置或去掉首尾空白后为空时取 `"claude"`；否则转成小写交给 `validateRunnableRuntimeValue (Wd)`，被拒时抛出 `InvalidRuntimeError`（`initRuntimeValidationModule (Fu)` 定义的错误类）。`main (kvt)` 在加载 `~/.config/duoduo/.env` 之后、取进程写锁之前调用一次 `ho()`，所以环境或 `.env` 里写了未知值或 `void` 时 daemon 以 `[pid0] fatal startup error` 退出，不会以 claude 启动。在本版本的还原 daemon 上实测（场景 07-job-socket），以 `ALADUO_DEFAULT_RUNTIME=void` 启动时 daemon 没有起来，日志记 `InvalidRuntimeError`，抛出位置是 `main (kvt)` 调用的 `resolveDefaultRuntime (ho)`（confirmed）。
 
 每类会话按自己的顺序取值，取到的值写在 actor 的 `runtime` 字段上（confirmed）。下表的来源标签只写进 actor 启动时的告警日志（探测失败时，以及 job 在 codex 上设置了 `prompt_mode` 时）。drain 拒绝执行时写进 `agent.error` 负载的 `runtime_source` 另有算法：它只看 actor 的 `runtime` 是否有值，而会话 actor 的 `runtime` 总有值，所以这个字段在会话 actor 上恒为 `explicit`（confirmed，静态阅读）。
 
@@ -282,9 +295,11 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 
 渠道会话的分层由 `resolveLayeredChannelRuntime (Ua)` 完成，`resolveSessionChannelRuntime (fh)` 按会话状态里的来源渠道读出实例描述符与种类配置后调用它，种类配置按实例描述符里记的 `channel_kind` 读取，所以实例描述符不存在时种类层也不参与；三层都没有取值时它返回空值，由调用方补上宿主默认值（confirmed）。会话管理器、`/model` 与 `/effort` 的引擎解析、`channel.describe` 以及渠道有效配置的组装（`buildEffectiveRuntimeFields (fct)`，由 `buildEffectiveChannelConfig (Tve)` 调用）都经过这一个分层函数，所以同一个渠道在这些地方得到的取值和拒绝说明一致；`channel.describe` 遇到拒绝时以 JSON-RPC 错误返回这段说明（confirmed）。
 
-`void` 只能经渠道配置生效，`isVoidRuntimeSession (Gu)` 判定一个会话的渠道 runtime 是否解析为 `void`（confirmed）。对这样的会话，运行时从不调用模型（confirmed，各处判定见本节证据表）：网关把入站消息追加进事件日志之后不写邮箱指针、不唤醒，而是由 `writeVoidSessionOutboxRecord (wI)` 把原文作为一条出站记录写进出站队列并在总线上发出 `session.output`，交给会话执行的斜杠命令和注入提示不执行，回复 `This session never runs a model (runtime void).` 加上"命令未运行"；Notify 等会话间投递同样只写出站队列、不写邮箱、不唤醒；`session.wake` 与 `session.compact` 以 `void_session` 拒绝；`/model`、`/effort` 回复这个会话没有模型或推理力度可以显示或设置；渠道挂接回调 `createVoidAwareAttachmentCallbacks (tde)` 不挂接 void 会话；空闲压缩扫描跳过它。这样的会话只在出站队列里积累记录，由拉取或订阅它的出站记录的渠道读走（6.3）。消息与命令在网关与路由上的分流见 6.2。在本版本的还原 daemon 上实测（场景 03-void-session），只在种类配置 `<kernel>/config/<种类>.md` 写 `runtime: void`、实例描述符不写 runtime 的渠道，其会话同样走 void 分支，`channel.describe` 在 `kind_defaults` 里报告 `void`；这正是 `resolveLayeredChannelRuntime (Ua)` 的种类层取值。整个场景里 `enqueueSessionInboxLine (ta)` 与 `drainSessionMailbox (zxe)` 一次都没有被调用（confirmed）。
+`void` 只能经渠道配置生效，`isVoidRuntimeSession (Gu)` 判定一个会话的渠道 runtime 是否解析为 `void`（confirmed）。对这样的会话，运行时从不调用模型（confirmed，各处判定见本节证据表）：网关把入站消息追加进事件日志之后不写邮箱指针、不唤醒，而是由 `writeVoidSessionOutboxRecord (wI)` 把原文作为一条出站记录写进出站队列并在总线上发出 `session.output`，交给会话执行的斜杠命令和注入提示不执行，回复 `This session never runs a model (runtime void).` 加上"命令未运行"；Notify 等会话间投递同样只写出站队列、不写邮箱、不唤醒；`session.wake` 与 `session.compact` 以 `void_session` 拒绝；`/model`、`/effort` 回复这个会话没有模型或推理力度可以显示或设置；渠道挂接回调 `createVoidAwareAttachmentCallbacks (tde)` 不挂接 void 会话；空闲压缩扫描跳过它。这样的会话只在出站队列里积累记录，由拉取或订阅它的出站记录的渠道读走（6.3）。消息与命令在网关与路由上的分流见 6.2。
 
-job 的引擎在创建时就写进文件。ManageJob 的 create 动作先用 `validateRunnableRuntimeValue (Wd)` 校验参数（被拒就报错），再按"参数 → 调用方会话的引擎 → 宿主默认值"解析出一个值写进 frontmatter（4.2），JSON-RPC `job.create` 直接写入宿主默认值（10.1）；因此之后修改 `ALADUO_DEFAULT_RUNTIME` 不影响已有 job（confirmed）。
+种类层的 `void` 与实例层的 `void` 效果相同。在本版本的还原 daemon 上实测（场景 03-void-session），只在种类配置 `<kernel>/config/<种类>.md` 写 `runtime: void`、实例描述符不写 runtime 的渠道，其会话同样走 void 分支，`channel.describe` 在 `kind_defaults` 里报告 `void`；这正是 `resolveLayeredChannelRuntime (Ua)` 的种类层取值。整个场景里 `enqueueSessionInboxLine (ta)` 与 `drainSessionMailbox (zxe)` 一次都没有被调用（confirmed）。
+
+job 的引擎在创建时就写进文件。ManageJob 的 create 动作先用 `validateRunnableRuntimeValue (Wd)` 校验参数（被拒就报错），再按"参数 → 调用方会话的引擎 → 宿主默认值"解析出一个值写进 frontmatter（4.2），JSON-RPC `job.create` 直接写入宿主默认值（10.1）。在本版本的还原 daemon 上实测（场景 07-job-socket），`job.create` 请求里多传的 `runtime: "void"` 被忽略，文件里写的是宿主默认值 `claude`，所以经这个方法创建的 job 不经过创建时的 runtime 校验（confirmed）。job 文件写好之后，修改 `ALADUO_DEFAULT_RUNTIME` 不影响已有 job（confirmed）。
 
 ### 3.2 进程模型与可用性探测
 
@@ -299,7 +314,9 @@ job 的引擎在创建时就写进文件。ManageJob 的 create 动作先用 `va
 
 Claude 一栏里 daemon 自己不启动 Claude 进程。启动探测只校验原生二进制存在；设置了 `CLAUDE_CODE_EXECUTABLE` 时整个校验直接返回（`if (vw(process.env.CLAUDE_CODE_EXECUTABLE)) return;`（`verifyClaudeCodeRuntimeAvailable`）），该路径交给 SDK 使用（confirmed）。SDK 如何运行这个二进制不在本 bundle 内（未证实推测，缺 SDK 源码）。
 
-探测结果有两条互不相干的用途（confirmed）。第一条是列表：`main (kvt)` 在启动时并行运行三个探测并打印 `[pid0] available runtimes at boot`，pi 恒为可用；结果写进进程级缓存，此后读它的有两类地方：一是 ManageJob 的参数说明，包括 runtime 可选列表，以及只在 Codex 可用时才出现的几句关于 codex 的说明；二是 `channel.describe` 返回的 `available_runtimes`。缓存只在启动时写入，所以这两个列表和这些说明反映的是 daemon 启动那一刻的状态。两个列表还有一处差别：三个探测都失败时，ManageJob 的列表仍放入 claude，`channel.describe` 的列表只剩 pi。第二条是执行：会话管理器把 Codex 与 Grok 的探测函数各包一层 `memoizeAvailabilityProbeUntilOk (XRe)`，成功的结果保留到 daemon 退出，失败的结果立即丢弃，下一次创建 actor 时重新运行 CLI 探测。Claude 没有第二条路径：启动探测的结果无论成败都缓存到 daemon 退出，执行时读出的就是这个结果，所以 Claude 不可用时的提示要求修复后重启 daemon。此外，ManageJob 创建 codex 或 grok 的 job 时会当场再运行一次对应 CLI 的探测（4.2）。
+探测结果有两条互不相干的用途（confirmed）。第一条用途是列表：`main (kvt)` 在启动时并行运行三个探测并打印 `[pid0] available runtimes at boot`，pi 恒为可用；结果写进进程级缓存，此后读它的有两类地方：一是 ManageJob 的参数说明，包括 runtime 可选列表，以及只在 Codex 可用时才出现的几句关于 codex 的说明；二是 `channel.describe` 返回的 `available_runtimes`。缓存只在启动时写入，所以这两个列表和这些说明反映的是 daemon 启动那一刻的状态。两个列表还有一处差别：三个探测都失败时，ManageJob 的列表仍放入 claude，`channel.describe` 的列表只剩 pi。
+
+第二条用途是执行：会话管理器把 Codex 与 Grok 的探测函数各包一层 `memoizeAvailabilityProbeUntilOk (XRe)`，成功的结果保留到 daemon 退出，失败的结果立即丢弃，下一次创建 actor 时重新运行 CLI 探测。Claude 没有第二条路径：启动探测的结果无论成败都缓存到 daemon 退出，执行时读出的就是这个结果，所以 Claude 不可用时的提示要求修复后重启 daemon。此外，ManageJob 创建 codex 或 grok 的 job 时会当场再运行一次对应 CLI 的探测（4.2）。
 
 "runtime"这个词在控制面上还指另一样东西：RPC `system.runtime.info` 返回的是 daemon 实例的身份，包括版本、`runtime_id`、运行模式（`runtime_mode: "host",`（`createDaemon`））以及运行、工作、kernel 三个目录，其中不列出可用引擎；可用引擎只能从 `channel.describe` 的 `available_runtimes` 读到（confirmed）。
 
@@ -309,7 +326,9 @@ pi 没有探测函数。`resolvePiWorkerCommand ($S)` 在 daemon bundle 同目�
 
 会话 actor 在 drain 循环开始前按 3.1 的顺序解析 runtime：配置的取值被拒绝时记下拒绝说明，否则把引擎写到 actor 上，然后才探测；探测失败只记下原因，`runtime` 保持不变。到 drain 处理邮箱时，有拒绝说明就以 `runtime_refused` 拒绝，有探测失败原因就以 `runtime_unavailable` 拒绝，会话历史所属的引擎与当前引擎不同就以 `runtime_mismatch` 拒绝。后两种拒绝结束 actor，下一条消息重新绑定、重新探测；渠道会话上的 `runtime_refused` 不结束 actor（confirmed）。
 
-绑定在 `createSessionManager (gbt)` 的 actor 启动段里完成（confirmed）。job 分支用 `validateRunnableRuntimeValue (Wd)` 校验 frontmatter 的 `runtime`，渠道分支调用 `resolveSessionChannelRuntime (fh)`；取值被拒时，拒绝说明存进一个局部变量，job 的 actor 改用宿主默认值，渠道的 actor 保留创建时的值，渠道分支另写一条 `"[session-manager] channel runtime refused"`（`createSessionManager`）日志。渠道 runtime 解析为 `void` 时同样记下拒绝说明（`A message queued before it became void was not run.`（`createSessionManager`）），它只作用于渠道变成 `void` 之前已经进了邮箱的消息，之后的消息不再进邮箱（3.1）。两个分支随后把解析出的引擎写到 actor 的 `runtime` 字段，然后才调用探测函数（渠道分支在取值被拒时不探测）；探测函数只对 codex 与 grok 运行 CLI 探测，claude 与 pi 在这里不探测。探测失败时，原因存进一个局部变量，日志写一条"job 或渠道请求了某引擎但它不可用"的告警（`but it is unavailable`（`createSessionManager`）），actor 的 `runtime` 不改。pi 的对应检查发生在构造 worker 之前：会话既没有存下的 pi 模型、job frontmatter 和配置层也没有给出模型时，原因被设为 "pi binds its model when the worker is built, and this session has none."。这一段代码里没有改用 claude 的分支；选中 codex、grok 或 pi 却没有构造出适配器的 actor，一旦被调用就直接报错，错误文字写明拒绝回落到 Claude（证据见本节证据表）。
+绑定在 `createSessionManager (gbt)` 的 actor 启动段里完成（confirmed）。job 分支用 `validateRunnableRuntimeValue (Wd)` 校验 frontmatter 的 `runtime`，渠道分支调用 `resolveSessionChannelRuntime (fh)`；取值被拒时，拒绝说明存进一个局部变量，job 的 actor 改用宿主默认值，渠道的 actor 保留创建时的值，渠道分支另写一条 `"[session-manager] channel runtime refused"`（`createSessionManager`）日志。渠道 runtime 解析为 `void` 时同样记下拒绝说明（`A message queued before it became void was not run.`（`createSessionManager`）），它只作用于渠道变成 `void` 之前已经进了邮箱的消息，之后的消息不再进邮箱（3.1）。两个分支随后把解析出的引擎写到 actor 的 `runtime` 字段，然后才调用探测函数（渠道分支在取值被拒时不探测）；探测函数只对 codex 与 grok 运行 CLI 探测，claude 与 pi 在这里不探测。
+
+探测失败时，原因存进一个局部变量，日志写一条"job 或渠道请求了某引擎但它不可用"的告警（`but it is unavailable`（`createSessionManager`）），actor 的 `runtime` 不改。pi 的对应检查发生在构造 worker 之前：会话既没有存下的 pi 模型、job frontmatter 和配置层也没有给出模型时，原因被设为 "pi binds its model when the worker is built, and this session has none."。这一段代码里没有改用 claude 的分支；选中 codex、grok 或 pi 却没有构造出适配器的 actor，一旦被调用就直接报错，错误文字写明拒绝回落到 Claude（证据见本节证据表）。
 
 拒绝发生在 `drainSessionMailbox (zxe)` 的第五步（7.1），工作目录检查之后依次做三项检查，都只在本次确有待处理事件时进行（confirmed）：
 
@@ -319,13 +338,13 @@ pi 没有探测函数。`resolvePiWorkerCommand ($S)` 在 daemon bundle 同目�
 
 拒绝的说明如何送达取决于会话类型（confirmed）。渠道会话把说明作为普通回复写给每个待处理事件，并把这些邮箱项标记完成，drain 返回拒绝阶段；拒绝阶段是 `runtime_unavailable` 或 `runtime_mismatch` 时，会话管理器的循环打印 `"[session-manager] runtime refusal, ending actor"`（`createSessionManager`）并结束 actor，用户需要在修复后重发消息。拒绝阶段是 `runtime_refused` 时循环不结束 actor（`de.refusedStage === "runtime_unavailable" || de.refusedStage === "runtime_mismatch"`（`createSessionManager`）只列出另两种），这次 drain 处理了事件，循环照常进入下一次迭代，没有新事件就转入空闲（confirmed）。拒绝说明只在 actor 启动时解析一次，所以修正渠道配置之后，同一个 actor 收到的消息仍按原说明拒绝，直到 actor 结束；渠道仍挂接时空闲超时不结束 actor（8.4），这种情况下修正要等 actor 因其他原因结束（例如 daemon 重启）才生效（未证实推测，由静态阅读推出，未实测）。
 
-其他会话（job 与 system 来源）在三种拒绝下都把说明交给 `handleDrainError (TS)`，生成 `agent.error` 事件（7.7），随后 drain 抛出错误；这个错误落到会话管理器循环外层的 catch，日志写 `error in drain loop for`（`createSessionManager`），会话状态记下 `last_error`，actor 同样在这里结束，job 按"引擎未开始"的失败结算（10.3）（confirmed）。
+其他会话（job 与 system 来源）在三种拒绝下都把说明交给 `handleDrainError (TS)`，生成 `agent.error` 事件（7.7），随后 drain 抛出错误；这个错误落到会话管理器循环外层的 catch，日志写 `error in drain loop for`（`createSessionManager`），会话状态记下 `last_error`，actor 同样在这里结束，job 按"引擎未开始"的失败结算（10.3）（confirmed）。在本版本的还原 daemon 上实测（场景 07-job-socket），job 文件的 runtime 被手工改为 `void` 或未知值后，扫描器照常认领并派生会话；drain 追加 `stage: "runtime_refused"` 的 `agent.error`，随后追加 `job.fail`；状态文件记 `last_result: failure`、`run_count: 0`，job 留在 active 目录；整个过程没有调用任何引擎函数（confirmed）。
 
 actor 结束之后，下一条消息到达时创建新 actor，重新走一遍解析、绑定和探测：Codex 与 Grok 的失败结果没有被保留，装好 CLI 并登录后下一条消息即可运行；Claude 的探测结果在启动时固定，需要重启 daemon（confirmed）。
 
 改引擎的配置入口也检查历史归属。`channel.spawn` 更新渠道实例描述符时若 `runtime` 变了，`upsertChannelSpawnDescriptor (yvt)` 先调用 `checkChannelRuntimeRebindConflict (RIe)`，检查这个渠道下是否有会话持有另一个引擎的历史，有就拒绝修改并列出这些会话，要求逐个 `/clear` 之后再改；`session.config` 的处理函数 `applySessionConfigVerb (fvt)` 设置 `runtime` 时调用同一个检查（confirmed）。渠道描述符里的 `runtime` 已是被拒绝的值、而这次 `channel.spawn` 没有给出新值时，它拒绝更新并要求给出一个 runtime（`Send a runtime to replace it.`（`upsertChannelSpawnDescriptor`））（confirmed）。
 
-后台分区不经过 actor，但遵守同一条规则（confirmed）：`createMetaSession (Pbt)` 在执行分区前先看分区定义是否记有拒绝说明（frontmatter 的 `runtime` 未知或为 `void`，由 `parsePartitionDefinition (Wct)` 经 `validateRunnableRuntimeValue (Wd)` 记下），有就追加一条 `outcome` 为 `runtime_refused`、`error` 为拒绝说明的 `agent.error` 事件；否则探测 codex 与 grok（claude 读启动时的缓存结果），不可用就追加一条 `outcome: "runtime_unavailable"` 的 `agent.error` 事件。两种情况都跳过本次执行并按失败计入退避（11.2），同样不改用其他引擎。pi 分区没有配置模型时走同一个分支，错误文字要求在分区 frontmatter 写 `model: provider/modelId` 或设置全局的 `pi.model`（confirmed）。
+后台分区不经过 actor，但遵守同一条规则（confirmed）：`createMetaSession (Pbt)` 在执行分区前先看分区定义是否记有拒绝说明（frontmatter 的 `runtime` 未知或为 `void`，由 `parsePartitionDefinition (Wct)` 经 `validateRunnableRuntimeValue (Wd)` 记下），有就追加一条 `outcome` 为 `runtime_refused`、`error` 为拒绝说明的 `agent.error` 事件；否则探测 codex 与 grok（claude 读启动时的缓存结果），不可用就追加一条 `outcome: "runtime_unavailable"` 的 `agent.error` 事件。两种情况都跳过本次执行并按失败计入退避（11.2），同样不改用其他引擎。pi 分区没有配置模型时走同一个分支，错误文字要求在分区 frontmatter 写 `model: provider/modelId` 或设置全局的 `pi.model`（confirmed）。在本版本的还原 daemon 上实测（场景 04-cadence，`ALADUO_DEFAULT_RUNTIME=pi` 且没有配置 pi 模型），每个被选中的分区都在启动任何进程之前被拒绝，事件日志各记一条 `agent.error`；第一个分区被拒之后，同一次心跳仍然选了第二个分区（confirmed）。
 
 `/model` 与 `/effort` 需要知道会话用哪个引擎，它们用 `createModelCommandResolvers (VRe)` 返回的解析函数，不做探测（confirmed）：有 actor 且其引擎为 codex、grok 或 pi 时取它（`if (u?.runtime === "codex") return "codex";`（`createModelCommandResolvers`））；其余情况，包括绑定为 claude 的 actor，按来源渠道的实例描述符、渠道种类配置、宿主默认值推出。因此一个仍绑定 claude 的 actor，在渠道配置改成别的引擎之后，`/model` 按新配置的引擎解释（confirmed，静态阅读）。这个结果只决定命令按哪个引擎的语义执行（3.6），不改变 actor 的绑定。同一组函数里的 `runtimeCommandRefusal` 另按渠道配置检查一次：渠道 runtime 被拒时返回拒绝说明，解析为 `void` 时返回“这个会话没有模型或推理力度可以显示或设置”；会话管理器的 `/model`、`/effort` 读取与设置四个方法遇到这段说明都直接返回，设置方法的原因为 `runtime_rejected`，不写入任何状态（confirmed）。
 
@@ -511,7 +530,7 @@ pi 的内置工具由 pi SDK 提供。worker 创建 pi 会话时以 init 帧里�
 
 ## 4 自操作工具
 
-duoduo 在引擎自带的工具之外给模型追加六个自操作工具：ManageJob（创建和查看 job）、RemindDuoduo（给自己预约一次以后的 turn）、ViewSessions（查看会话）、Notify（向另一个会话投递通知）、QueueOutboundAttachment（把文件排进这一轮的出站附件）和 Skip（这一轮不向用户输出）。哪些会话拿到哪些工具由会话来源决定：渠道会话六个都有，job 会话没有 QueueOutboundAttachment 与 Skip，system 来源的会话和后台分区只有 ViewSessions 与 Notify，pi 引擎上这两类会话另外多一个 ManageJob。工具体由 daemon 执行，输入在代码里检查：ManageJob 只接受 create、list、read 三个动作且 `action` 必填；Notify 在目标渠道会话有未读输出、并且超过阈值（默认 1 小时）没有消费者取走时拒绝投递，目标是不运行模型的 void 会话时只写出站记录、不唤醒；Skip 在 Claude 上由 PreToolUse hook 结束这一轮，在 pi 上由 worker 自己中止这一轮，在 Codex 与 Grok 上不中断这一轮，但无论哪个引擎，drain 都丢弃这一轮的输出（confirmed）。4.1 讲分配规则和各引擎的注册差异，4.2 到 4.5 逐个讲工具的检查规则。本节对应 GUIDE 1.6。
+duoduo 在引擎自带的工具之外给模型追加六个自操作工具：ManageJob（创建和查看 job）、RemindDuoduo（给自己预约一次以后的 turn）、ViewSessions（查看会话）、Notify（向另一个会话投递通知）、QueueOutboundAttachment（把文件排进这一轮的出站附件）和 Skip（这一轮不向用户输出）。哪些会话拿到哪些工具由会话来源决定：渠道会话六个都有，job 会话没有 QueueOutboundAttachment 与 Skip，system 来源的会话和后台分区只有 ViewSessions 与 Notify，pi 引擎上这两类会话另外多一个 ManageJob。daemon 执行工具体，并在代码里检查输入：ManageJob 只接受 create、list、read 三个动作且 `action` 必填；Notify 在目标渠道会话有未读输出、并且超过阈值（默认 1 小时）没有消费者取走时拒绝投递，目标是不运行模型的 void 会话时只写出站记录、不唤醒；Skip 在 Claude 上由 PreToolUse hook 结束这一轮，在 pi 上由 worker 自己中止这一轮，在 Codex 与 Grok 上不中断这一轮，但无论哪个引擎，drain 都丢弃这一轮的输出（confirmed）。4.1 讲分配规则和各引擎的注册差异，4.2 到 4.5 逐个讲工具的检查规则。本节对应 GUIDE 1.6。
 
 ### 4.1 六个工具与按会话来源的分配
 
@@ -563,7 +582,9 @@ create 做三类检查，任何一项不满足都不写文件（confirmed）。
 
 第二类是必填字段与取值。id、cron、instruction 必填；`model` 必填，不从宿主默认值继承，拒绝文字给出的理由是宿主默认模型可能是最贵的那个，继承它等于在无意中做了一个花费决定；`acceptance`（验收标准）必填，要求写成可以检查的条件。模型 id 不能含空白，引擎为 pi 时必须是 `provider/modelId` 形式；`effort` 必须是 3.4 所列五个值之一；`stateless` 不能与 keepalive 同时使用；`prompt_mode` 不能与 codex 引擎同时使用。调度规则能否解析、`cwd_rel` 目录是否存在并包含 `CLAUDE.md`，由 job 管理器在写文件时检查（10.1）。
 
-第三类是引擎。参数里的 `runtime` 先经 `validateRunnableRuntimeValue (Wd)` 检查（`let i = Wd(e.runtime, "This job");`（`runManageJobTool`））：不是 duoduo 认识的 runtime 值，或者是不运行模型的 `void`，create 直接以一句点名该值、列出可用值的说明报错，不改用调用方引擎或宿主默认值（confirmed）。通过检查后，create 按"参数、调用方会话的引擎、宿主默认值"的顺序解析引擎（`let s = i.runtime ?? t.callerRuntime ?? ho()`（`runManageJobTool`））。Claude 与 Grok 的 MCP schema 给 `runtime` 设了默认值，调用方的引擎是四个引擎之一且在可选列表里就取它，否则取列表第一项（`buildJobRuntimeSchemaField (Abe)`），MCP 校验时这个默认值被填进参数；可选列表来自 daemon 启动时的探测缓存（3.2）。Codex 的 schema 不带默认值，参数缺省时取调用方引擎 codex；pi 的 schema 列出全部四个值、默认值为 pi（pi-worker.js 静态阅读），不读 daemon 的探测缓存。解析结果为 codex 或 grok 时，create 当场再运行一次对应 CLI 的探测，不可用就拒绝创建；claude 与 pi 在这里不探测。job 创建时可用、运行时不可用的情况由 3.3 的 `runtime_unavailable` 处理。
+第三类是引擎。参数里的 `runtime` 先经 `validateRunnableRuntimeValue (Wd)` 检查（`let i = Wd(e.runtime, "This job");`（`runManageJobTool`））：不是 duoduo 认识的 runtime 值，或者是不运行模型的 `void`，create 直接以一句点名该值、列出可用值的说明报错，不改用调用方引擎或宿主默认值（confirmed）。
+
+通过检查后，create 按"参数、调用方会话的引擎、宿主默认值"的顺序解析引擎（`let s = i.runtime ?? t.callerRuntime ?? ho()`（`runManageJobTool`））。Claude 与 Grok 的 MCP schema 给 `runtime` 设了默认值，调用方的引擎是四个引擎之一且在可选列表里就取它，否则取列表第一项（`buildJobRuntimeSchemaField (Abe)`），MCP 校验时这个默认值被填进参数；可选列表来自 daemon 启动时的探测缓存（3.2）。Codex 的 schema 不带默认值，参数缺省时取调用方引擎 codex；pi 的 schema 列出全部四个值、默认值为 pi（pi-worker.js 静态阅读），不读 daemon 的探测缓存。解析结果为 codex 或 grok 时，create 当场再运行一次对应 CLI 的探测，不可用就拒绝创建；claude 与 pi 在这里不探测。job 创建时可用、运行时不可用的情况由 3.3 的 `runtime_unavailable` 处理。
 
 创建成功后，工具体把调用方会话写为 owner（`owner_session: t.sessionKey`（`runManageJobTool`）），发出总线事件 `job.created`，job 调度器收到后立即扫描一次（10.2）。返回文字附带一段投递说明：失败会唤醒 owner，成功要等 owner 下一次有 turn 时才送达，需要即时送达就在任务书里要求 job 调用 Notify（10.3）。job 可以携带的 SDK 配置键（`prompt_mode`、`allowedTools`、`disallowedTools`、`additionalDirectories`、`extra_tools`）及其合并方式见 3.5，其中 `extra_tools` 写进文件时改名为 `claude.tools`。
 
@@ -577,7 +598,9 @@ Notify 把 `notify_content` 作为一条 `route.deliver` 事件追加进事件�
 
 未命中时的候选会话分三组：与目标相近的会话键、至多三个其他前台会话、至多两个后台会话（`groupNotifyTargetCandidates (sve)`，confirmed）。"相近"由 `matchNearMissSessionKey (Glt)` 判断，比较的不是整个会话键：两个键按 `:` 与 `.` 切成的段数相同、只有最后一段不同且这一段的编辑距离不超过 3；或者两者是可读名相同、哈希不同的 job 会话键（job 可能已重建）；或者最后一段相同（至少 6 个字符）而第一段或段数不同。与目标分属前台、后台不同类别的相近会话单独列出，标题注明投递给它们不会到达用户（confirmed）。
 
-在 job 会话和渠道会话里，Notify 另有两个可选参数 `correlation_id` 与 `reply_to`（`(r === "job" || r === "foreground") && (i.correlation_id`（`buildNotifyInputSchema`））：发起请求的一方给出一个标签，回复的一方原样回填；目标会话收到的 `<session-notify>` 块把两者渲染成属性（`"notify_correlation_id"`（`renderMailboxEventPrompt`）），使双方能在各自的历史里把请求与回复对上（confirmed）。渠道会话的 Notify 还有一个可选参数 `in_reply_to`，描述为"所回复邮件的 id"（`"The id of the mail you are answering, when the message you received gave one."`（`buildNotifyInputSchema`））；工具体把它写进事件负载的 `notify_in_reply_to`（`notify_in_reply_to: l`（`runNotifyTool`）），而 `renderMailboxEventPrompt (_A)` 渲染 `<session-notify>` 块时不读这个字段，所以接收方模型看不到它，它只随负载进入事件日志，目标是 void 会话时也随负载进入出站记录的 `payload.data`（confirmed；bundle 中 `notify_in_reply_to` 只出现在两个写入处）。在本版本的还原 daemon 上实测（场景 03-void-session），`session.notify` 带 `in_reply_to` 发给 void 会话时，调用依次经过 `deliverExternalSessionNotify (EIe)`、`deliverRouteEventToSession (As)` 与 `writeVoidSessionOutboxRecord (wI)`，写出的出站记录在 `payload.data` 里带 `notify_in_reply_to`（confirmed）。按参数描述，它供把 void 会话接到邮件一类外部系统的渠道适配器使用（未证实推测：读取它的代码不在 bundle 里）。
+在 job 会话和渠道会话里，Notify 另有两个可选参数 `correlation_id` 与 `reply_to`（`(r === "job" || r === "foreground") && (i.correlation_id`（`buildNotifyInputSchema`））：发起请求的一方给出一个标签，回复的一方原样回填；目标会话收到的 `<session-notify>` 块把两者渲染成属性（`"notify_correlation_id"`（`renderMailboxEventPrompt`）），使双方能在各自的历史里把请求与回复对上（confirmed）。
+
+渠道会话的 Notify 还有一个可选参数 `in_reply_to`，描述为"所回复邮件的 id"（`"The id of the mail you are answering, when the message you received gave one."`（`buildNotifyInputSchema`））；工具体把它写进事件负载的 `notify_in_reply_to`（`notify_in_reply_to: l`（`runNotifyTool`）），而 `renderMailboxEventPrompt (_A)` 渲染 `<session-notify>` 块时不读这个字段，所以接收方模型看不到它，它只随负载进入事件日志，目标是 void 会话时也随负载进入出站记录的 `payload.data`（confirmed；bundle 中 `notify_in_reply_to` 只出现在两个写入处）。在本版本的还原 daemon 上实测（场景 03-void-session），`session.notify` 带 `in_reply_to` 发给 void 会话时，调用依次经过 `deliverExternalSessionNotify (EIe)`、`deliverRouteEventToSession (As)` 与 `writeVoidSessionOutboxRecord (wI)`，写出的出站记录在 `payload.data` 里带 `notify_in_reply_to`（confirmed）。按参数描述，它供把 void 会话接到邮件一类外部系统的渠道适配器使用（未证实推测：读取它的代码不在 bundle 里）。
 
 通知链深度用来阻止会话之间互相通知形成循环（confirmed）。drain 取本批事件里最大的 `notify_depth`，经批次回调交给会话管理器；Notify 写出的事件深度等于构造工具集时拿到的深度加一，拿到的深度达到上限 5 就报错（`if (a >= eve) throw new Error(`（`runNotifyTool`））。深度在构造工具集时按值复制，而多数路径并不为每一批重建工具集，所以深度只在部分路径上逐跳累加：
 
@@ -609,7 +632,9 @@ Notify 还影响 job 的结果投递：job 会话在一次运行中调用过 Not
 
 RemindDuoduo 让一个会话给自己预约以后的一次 turn，在渠道会话和 job 会话上语义不同：渠道会话写一条一次性的提醒记录，到时把 `context` 投递回本会话；job 会话不写新记录，而是给本 job 再排一次运行（confirmed）。
 
-在渠道会话里，工具要求 `when` 与 `context` 两个参数，描述要求把 `context` 写给一个"什么都不记得的自己"：为什么要回来、第一步做什么、证据在哪里、谁在等、这一轮来晚了怎么办。工具体调用 job 管理器写一条类型为 wake 的记录，owner 固定为调用方会话（`"A wake record needs an owner session — the caller is always the target."`（`initJobManagerModule`）），所以只能提醒自己，不能指定别的会话。到期后由 job 扫描器（10.2）把记录作为一条 self-wake 事件投递给 owner，抢占级别为 `never`，不打断正在执行的 turn；记录随即归档，所以只触发一次。模型收到的是一个 `<self-wake>` 块，写明这不是用户消息、也不代表工作已经完成，要求模型评估现有证据后继续工作、回复用户或调用 Skip（`renderMailboxEventPrompt (_A)`）。ManageJob list 会列出待触发的提醒，`duoduo job archive <id>` 可在触发前取消（10.4）。shell 侧对应的 RPC 是 `session.wake`，它创建同样的记录，只接受渠道会话和 job 会话（8.5），目标的渠道 runtime 为 `void` 时以 `void_session` 拒绝，因为唤醒不会产生 turn（`A wake would start no turn; nothing was scheduled.`（`scheduleSessionWakeRecord`））。
+在渠道会话里，工具要求 `when` 与 `context` 两个参数，描述要求把 `context` 写给一个"什么都不记得的自己"：为什么要回来、第一步做什么、证据在哪里、谁在等、这一轮来晚了怎么办。工具体调用 job 管理器写一条类型为 wake 的记录，owner 固定为调用方会话（`"A wake record needs an owner session — the caller is always the target."`（`initJobManagerModule`）），所以只能提醒自己，不能指定别的会话。到期后由 job 扫描器（10.2）把记录作为一条 self-wake 事件投递给 owner，抢占级别为 `never`，不打断正在执行的 turn；记录随即归档，所以只触发一次。模型收到的是一个 `<self-wake>` 块，写明这不是用户消息、也不代表工作已经完成，要求模型评估现有证据后继续工作、回复用户或调用 Skip（`renderMailboxEventPrompt (_A)`）。ManageJob list 会列出待触发的提醒，`duoduo job archive <id>` 可在触发前取消（10.4）。
+
+shell 侧对应的 RPC 是 `session.wake`，它创建同样的记录，只接受渠道会话和 job 会话（8.5），目标的渠道 runtime 为 `void` 时以 `void_session` 拒绝，因为唤醒不会产生 turn（`A wake would start no turn; nothing was scheduled.`（`scheduleSessionWakeRecord`））。
 
 在 job 会话里，工具只接受 `when`，把本 job 状态文件的 `run_at` 改成这个时间，调度规则不变：周期 job 在原有节奏之外多运行一次，一次性 job 因此不会在本次运行结束时自动归档；第二次调用覆盖前一次的时间（confirmed）。两种用法都由 `parseJobRearmTime (Lw)` 解析 `when`，要求相同：接受 `@in <时长>` 或带显式时区的 ISO 时间；不带时区的时间被拒绝，理由是调度按 UTC 计算；不晚于当前时刻的时间也被拒绝，因为一个已经过去的 `run_at` 会在 job 收尾时被当作已消费，一次性 job 的循环会就此结束而没有任何提示（`A re-arm at or before now would be consumed as already spent at finalize, silently ending the loop.`（`parseJobRearmTime`））（confirmed）。
 
@@ -628,7 +653,9 @@ Skip 与 QueueOutboundAttachment 只注册给渠道会话，两者处理的都�
 
 工具说明写明 `In a turn you decide to skip, make Skip your FIRST action.`（`initSkipToolModule`），并提醒在 Skip 之前流出的文字仍可能到达用户（confirmed）。已经渲染出去的内容能否撤回，取决于渠道适配器是否处理 `stream_end` 的 `skipped` 原因（见本节后文）。
 
-Claude 的 hook 注册在两处：常驻流式会话的 hooks 对象（`createClaudeStreamingSessionFactory (KRe)`）和一次性调用的 SDK 选项，matcher 都是 Skip 的完整工具名 `mcp__aladuo__Skip`（confirmed）。hook 对每次 Skip 调用都返回 `stopReason: "The agent intentionally ended this turn silently by calling Skip."`（`createClaudeStreamingSessionFactory`）；只有主代理的调用（hook 输入不带 `agent_id`）才把当前 turn 标记为 `skipCalled`，所以子代理调用 Skip 不会让父 turn 的输出被丢弃。被标记的 turn 不再接收插话：PostToolUse hook 对它直接返回空结果，对子代理的工具调用（hook 输入带 `agent_id`）也直接返回空结果（`if (se?.agent_id !== void 0) return {};`（`createClaudeStreamingSessionFactory`）），所以排队的消息不会被子代理的工具调用取走；插话回调也不把新消息暂存到它上面，新消息改为下一个 turn 处理（7.4）。hook 返回 `continue: false` 之后，Agent SDK 仍然执行这次 Skip 调用，`continue: false` 结束的是这次调用之后的这一轮。在本版本的还原 daemon 上实测（场景 11-skip-rewind，Claude 引擎，另有场景 10-restart-hint 中模型自行调用 Skip 的一次），调用顺序是 matcher 为 `*` 与 matcher 为 Skip 的两个 PreToolUse hook，然后 `createAladuoMcpServer (by)` 注册的处理函数调用 `runSkipTool (B$)` 写入 `pending_skip_rewind`，工具结果进入 transcript，PostToolUse hook 照常运行，之后这一轮结束，模型不再产出文字。所以 Claude 会话同样留下 Skip 记录，下一个用户消息 turn 收到 `<skip-rewind>` 块，块发出之后记录被清除（confirmed）。
+Claude 的 hook 注册在两处：常驻流式会话的 hooks 对象（`createClaudeStreamingSessionFactory (KRe)`）和一次性调用的 SDK 选项，matcher 都是 Skip 的完整工具名 `mcp__aladuo__Skip`（confirmed）。hook 对每次 Skip 调用都返回 `stopReason: "The agent intentionally ended this turn silently by calling Skip."`（`createClaudeStreamingSessionFactory`）；只有主代理的调用（hook 输入不带 `agent_id`）才把当前 turn 标记为 `skipCalled`，所以子代理调用 Skip 不会让父 turn 的输出被丢弃。被标记的 turn 不再接收插话：PostToolUse hook 对它直接返回空结果，对子代理的工具调用（hook 输入带 `agent_id`）也直接返回空结果（`if (se?.agent_id !== void 0) return {};`（`createClaudeStreamingSessionFactory`）），所以排队的消息不会被子代理的工具调用取走；插话回调也不把新消息暂存到它上面，新消息改为下一个 turn 处理（7.4）。
+
+hook 返回 `continue: false` 之后，Agent SDK 仍然执行这次 Skip 调用，`continue: false` 结束的是这次调用之后的这一轮（confirmed）。在本版本的还原 daemon 上实测（场景 11-skip-rewind，Claude 引擎，另有场景 10-restart-hint 中模型自行调用 Skip 的一次），调用顺序是 matcher 为 `*` 与 matcher 为 Skip 的两个 PreToolUse hook，然后 `createAladuoMcpServer (by)` 注册的处理函数调用 `runSkipTool (B$)` 写入 `pending_skip_rewind`，工具结果进入 transcript，PostToolUse hook 照常运行，之后这一轮结束，模型不再产出文字。所以 Claude 会话同样留下 Skip 记录，下一个用户消息 turn 收到 `<skip-rewind>` 块，块发出之后记录被清除（confirmed）。
 
 一次性调用的适配器用三个标记记录 Skip，规则与常驻流式会话不同（confirmed，静态阅读）。主代理调用 Skip 时，适配器同时记下"本次运行调用过 Skip"和"当前 turn 已跳过"；后者在每个 `result` 消息处清除（`q.type === "result" && (p = !1, f = q)`（`createAgentSdkAdapter`）），标记存在期间这个 turn 的流式输出和 result 文字都不收集；另有一个标记记下"有 turn 产出了 result 文字"。运行结束时，只有调用过 Skip、且没有任何一个 turn 产出 result 文字，整次运行才报告为跳过（`skipped: B \|\| void 0`（`createAgentSdkAdapter`）），所以同一次运行里后面的 turn（例如后台子代理完成之后的那一轮）照常送达。按当前的装配，Skip 只注册给渠道会话，而 Claude 渠道会话总是使用常驻流式会话，这段一次性调用的逻辑没有注册了 Skip 的调用方。
 
@@ -642,9 +669,13 @@ drain 收到引擎结果后，由 `markTurnSkippedFromSkipRecord (Pxe)` 按三�
 
 pi 上 daemon 写的 Skip 记录不参与这项判定，只供下一轮的 skip-rewind 块使用（confirmed，静态阅读）。Codex 与 Grok 在 Skip 之后仍可能继续产出文字，Codex 的描述因此改成"之后的产出不会送达"；Grok 用的是 Claude 原版描述，而它的适配器并不中断这一轮，这句描述在 Grok 上与实际行为不一致（confirmed，静态阅读）。插话回调在适配器报告当前 turn 已观察到 Skip、或 Skip 记录晚于这一轮开始时，不向这个 turn 插话，改为重新 drain（7.4）。
 
-这一轮被标记为跳过之后，处理结果对四个引擎相同（confirmed）。drain 不写出站记录，这一轮涉及的事件照常标记为已处理；会话发给订阅者的 `session.stream_end` 带 `reason: "skipped"`，按协议的类型注释，渠道适配器据此撤回已经流式渲染的部分内容。没有在 `accept_stream_end_reasons` 里声明 `skipped` 的适配器收到的是 `interrupted`（`let b = m === "interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`createSessionSubscriptionRegistry`），见 6.3）。下一轮是用户消息时，每轮瞬时块里加入 `<skip-rewind>` 块，写明跳过的时间、理由、距今多久，以及"上一轮的产出没有送达"（`renderSkipRewindBlock (Amt)`，块的注入与清除见 2.3）。场景 11-skip-rewind 在 Claude 引擎上实测了这条路径：`markTurnSkippedFromSkipRecord (Pxe)` 直接沿用 hook 的标记，drain 记日志 `[runner] Skip called — suppressing outbox`，不写出站记录，事件日志里这一轮只有 `agent.tool_use` 与 `agent.tool_result`，没有 `agent.result`，`createSessionSubscriptionRegistry (uH)` 发出的 stream_end 带 `reason: "skipped"`（confirmed）。
+这一轮被标记为跳过之后，处理结果对四个引擎相同（confirmed）。drain 不写出站记录，这一轮涉及的事件照常标记为已处理；会话发给订阅者的 `session.stream_end` 带 `reason: "skipped"`，按协议的类型注释，渠道适配器据此撤回已经流式渲染的部分内容。没有在 `accept_stream_end_reasons` 里声明 `skipped` 的适配器收到的是 `interrupted`（`let b = m === "interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`createSessionSubscriptionRegistry`），见 6.3）。下一轮是用户消息时，每轮瞬时块里加入 `<skip-rewind>` 块，写明跳过的时间、理由、距今多久，以及"上一轮的产出没有送达"（`renderSkipRewindBlock (Amt)`，块的注入与清除见 2.3）。
 
-QueueOutboundAttachment 把一个文件排进本会话的待发附件，在这一轮结束时随输出一起发给渠道（confirmed）。工具接受 `path`、可选的 `mime` 和可选的 `session_key`：`path` 可以是绝对路径或相对于会话工作目录的路径，必须指向一个普通文件；`mime` 省略时按扩展名从一张固定表推断，表里没有的扩展名记为 `application/octet-stream`；`session_key` 省略时为当前会话。工具按渠道适配器声明的出站能力检查文件：适配器在 `channel.pull` 时声明 `accept_mime` 与 `max_bytes`，由 `recordChannelCapabilityDeclaration (Ybt)` 按渠道种类和消费者记进会话状态（6.3）；没有声明任何 MIME、MIME 不匹配或文件超过大小上限时返回错误，描述要求模型把渠道的限制告诉用户并提供替代办法（例如直接贴出文本内容）。通过检查的文件追加进 `state.json` 的 `pending_outbound_attachments`，同一路径与 MIME 的旧项被替换。drain 在引擎调用结束后由 `runDrainQueryAndCollectOutboundAttachments (Dxe)` 读出这些待发项，与引擎结果自带的附件合并，然后清空字段；引擎调用抛错时同样清空（confirmed）。`session_key` 指向另一个会话时，文件进入那个会话的待发列表，在那个会话下一次 turn 结束时发出（confirmed，静态阅读；送达时机未实测）。
+场景 11-skip-rewind 在 Claude 引擎上实测了这条路径：`markTurnSkippedFromSkipRecord (Pxe)` 直接沿用 hook 的标记，drain 记日志 `[runner] Skip called — suppressing outbox`，不写出站记录，事件日志里这一轮只有 `agent.tool_use` 与 `agent.tool_result`，没有 `agent.result`，`createSessionSubscriptionRegistry (uH)` 发出的 stream_end 带 `reason: "skipped"`（confirmed）。
+
+QueueOutboundAttachment 把一个文件排进本会话的待发附件，在这一轮结束时随输出一起发给渠道（confirmed）。工具接受 `path`、可选的 `mime` 和可选的 `session_key`：`path` 可以是绝对路径或相对于会话工作目录的路径，必须指向一个普通文件；`mime` 省略时按扩展名从一张固定表推断，表里没有的扩展名记为 `application/octet-stream`；`session_key` 省略时为当前会话。工具按渠道适配器声明的出站能力检查文件：适配器在 `channel.pull` 时声明 `accept_mime` 与 `max_bytes`，由 `recordChannelCapabilityDeclaration (Ybt)` 按渠道种类和消费者记进会话状态（6.3）；没有声明任何 MIME、MIME 不匹配或文件超过大小上限时返回错误，描述要求模型把渠道的限制告诉用户并提供替代办法（例如直接贴出文本内容）。通过检查的文件追加进 `state.json` 的 `pending_outbound_attachments`，同一路径与 MIME 的旧项被替换。
+
+drain 在引擎调用结束后由 `runDrainQueryAndCollectOutboundAttachments (Dxe)` 读出这些待发项，与引擎结果自带的附件合并，然后清空字段；引擎调用抛错时同样清空（confirmed）。`session_key` 指向另一个会话时，文件进入那个会话的待发列表，在那个会话下一次 turn 结束时发出（confirmed，静态阅读；送达时机未实测）。
 
 pi 上这个工具的检查时机与其他引擎不同（confirmed，静态阅读）。worker 内的工具只检查 `path` 非空，就向模型返回 "Outbound attachment accepted."（pi-worker.js 字面量），说明文件会在这一轮结束时按渠道能力校验并发送；真正的校验和入队由 `handlePiToolEndObservation (hEe)` 在工具结束时完成，校验不通过只记一条 `"[pi] QueueOutboundAttachment refused at the daemon observation point"`（`handlePiToolEndObservation`）警告。因此 pi 上的模型可能已经告诉用户"文件已发送"，而文件实际被拒绝。
 
@@ -707,7 +738,7 @@ pi 上这个工具的检查时机与其他引擎不同（confirmed，静态阅�
 | shell 侧创建提醒，void 目标拒绝 | `scheduleSessionWakeRecord (ovt)`；`reason: "void_session"`（`scheduleSessionWakeRecord`）；`A wake would start no turn; nothing was scheduled.`（`scheduleSessionWakeRecord`） | confirmed |
 | ViewSessions 只读，列表标出 orphan | `This tool never creates, restores or modifies anything.`（`initViewSessionsToolModule`）；`e.orphan && t.push("orphan — job archived or recreated, will not run")`（`formatViewSessionsListLine`） | confirmed |
 | Skip 的说明要求它是第一个动作，并警告之前流出的文字仍会送达 | `In a turn you decide to skip, make Skip your FIRST action.`（`initSkipToolModule`）；`text streamed before Skip can still reach the user.`（`initSkipToolModule`） | confirmed |
-| Claude 由 PreToolUse hook 结束 Skip 的一轮，子代理不标记父 turn | `matcher: wc`（`createClaudeStreamingSessionFactory`）；`stopReason: "The agent intentionally ended this turn silently by calling Skip."`（`createClaudeStreamingSessionFactory`）；`let j = se?.agent_id !== void 0`（`createClaudeStreamingSessionFactory`）；`"[claude-sdk] Skip detected via PreToolUse hook (non-streaming)"`（`createAgentSdkAdapter`） | confirmed（SDK 是否仍执行工具体未证实） |
+| Claude 由 PreToolUse hook 结束 Skip 的一轮，子代理不标记父 turn | `matcher: wc`（`createClaudeStreamingSessionFactory`）；`stopReason: "The agent intentionally ended this turn silently by calling Skip."`（`createClaudeStreamingSessionFactory`）；`let j = se?.agent_id !== void 0`（`createClaudeStreamingSessionFactory`）；`"[claude-sdk] Skip detected via PreToolUse hook (non-streaming)"`（`createAgentSdkAdapter`） | confirmed；hook 返回之后 SDK 仍执行工具体，在本版本的还原 daemon 上实测（场景 11-skip-rewind） |
 | 一次性调用的跳过标记在每个 result 处清除，只有没有 turn 产出文字时整次运行才算跳过 | `q.type === "result" && (p = !1, f = q)`（`createAgentSdkAdapter`）；`structured: B ? void 0 : i`（`createAgentSdkAdapter`） | confirmed（静态阅读） |
 | Claude 渠道会话使用常驻流式会话，其他会话使用一次性调用 | `!s.createStreamingQuery ? s : (w.streamingAdapter`（`createSessionManager`） | confirmed（静态阅读；判断条件的前半是 origin 是否为 channel） |
 | 已 Skip 的 Claude turn 与子代理的工具调用不接收插话 | `if (k.currentTurn?.skipCalled === !0) return {};`（`createClaudeStreamingSessionFactory`）；`if (se?.agent_id !== void 0) return {};`（`createClaudeStreamingSessionFactory`）；`!gi.skipCalled`（`createSessionManager`） | confirmed |
@@ -726,7 +757,7 @@ pi 上这个工具的检查时机与其他引擎不同（confirmed，静态阅�
 
 ## 5 事件日志
 
-事件日志（上游 Spine，WAL）是按 UTC 日期分区的 JSONL 文件：每条事件先追加一行 WAL、再追加一行 by_id 索引（两次写，不是原子事务），需要会话处理的事件之后才写邮箱指针（目标是 runtime 为 void 的会话时改写出站记录、不写指针，外部写入方经 `spine.record` 追加的 `external.record` 事件既不写指针也不唤醒会话）；去重只认调用方提供的幂等键，渠道消息、`spine.record` 与 `session.notify` 共用一个去重表；by_id 是只在 daemon 启动时按保留期裁剪的近期索引，查不到时按日期倒序扫描分区文件；重启时运行时从会话目录和邮箱指针重建待处理的会话集合，消费进度文件只写不读，崩溃后能自动恢复的是已经写下邮箱指针的工作。下面五个小节依次回答：怎么写、写了哪些类型、重复怎么处理、怎么按 id 读回、重启后靠什么接着处理。
+事件日志（上游 Spine，WAL）是按 UTC 日期分区的 JSONL 文件。每条事件先追加一行 WAL、再追加一行 by_id 索引，这两次写不是原子事务。需要会话处理的事件在这之后才写邮箱指针；目标是 runtime 为 void 的会话时，运行时改写一条出站记录、不写指针；外部写入方经 `spine.record` 追加的 `external.record` 事件既不写指针也不唤醒会话。去重只认调用方提供的幂等键，渠道消息、`spine.record` 与 `session.notify` 共用一个去重表。by_id 是只在 daemon 启动时按保留期裁剪的近期索引，查不到时运行时按日期倒序扫描分区文件。重启时运行时从会话目录和邮箱指针重建待处理的会话集合，消费进度文件只写不读，所以崩溃后能自动恢复的只有已经写下邮箱指针的工作。下面五个小节依次回答：怎么写、写了哪些类型、重复怎么处理、怎么按 id 读回、重启后靠什么接着处理。
 
 ### 5.1 追加：WAL 行 + by_id 索引两次写
 
@@ -769,6 +800,8 @@ pi 上这个工具的检查时机与其他引擎不同（confirmed，静态阅�
 
 后台分区的产出复用 `agent.result`，以 `source.kind = "meta"`、`source.name = "subconscious:<分区名>"` 和 `payload.tick_type = "subconscious"` 区分（confirmed）。drain 路径上的 `agent.result` 由 `emitDrainOutputRecords (Bc)` 写出：它为每个投递目标先写一条出站记录，再追加一条 `agent.result`。`drainSessionMailbox (zxe)` 用它写一轮的回复、拒绝执行时的说明（如 `runtime_unavailable`）和 history-control 命令的结果；`handleDrainError (TS)` 在 drain 失败时用它写错误文字，空闲压缩触发的 drain 失败除外（confirmed）。两个执行事件记录函数的差别在于是否检查 ephemeral：`createDrainExecutionEventRecorder (Yxe)` 只在工具调用没有标为 ephemeral 时写 `agent.tool_use`，工具结果一律写 `agent.tool_result`；`appendPartitionToolEvent (xbt)` 只按事件类型分支，后台分区的工具调用和结果全部记录（confirmed）。
 
+扫描器触发的一次 job 运行在事件日志里留下两条 `job.spawn`（confirmed，在本版本的还原 daemon 上实测，场景 07-job-socket）。第一条由 `scanAndSpawnDueJobs (PG)` 写，来源为 `cadence`/`job-scanner`，payload 带 `tick`。第二条由会话管理器在启动 job 会话时写，来源为 `job`，payload 只有 `job_id`。`job.create` RPC 写的那一条来源为 `{kind: "job", name: <job id>}`，payload 为 `{job_id, cron}`，不带会话键；这次调用不派生会话。
+
 有三类名字看起来像事件类型，但不进事件日志：总线事件（`spine.event`、`session.wake`、`session.output`、`session.stream`、`session.execution`、`session.stream_end`、`cadence.tick`、`job.spawned`、`job.completed`、`job.failed`、`job.created`、`session.streaming_invalidated`、`shutdown`）只在进程内传递；RPC 方法名（附录 B.2）是控制面的调用入口；`notify`、`self-wake`、`external.notify` 等是 `route.deliver` 的 `payload.source_event_type` 取值，不是独立类型（confirmed）。另有 `body.experience` 只出现在读取方的类型集合里（gap lint 的交互事件集合，见 12.2），daemon 中没有构造这一类型事件的代码，写入它的是 daemon 之外的程序（confirmed 为否定性证据；具体由哪个渠道插件写入，未证实推测）。各落库类型的 `source.kind` 与是否写邮箱指针见附录 B.1。
 
 ### 5.3 去重
@@ -777,9 +810,15 @@ pi 上这个工具的检查时机与其他引擎不同（confirmed，静态阅�
 
 去重表是 `var/registry/dedup.jsonl` 一个文件，由 `loadRegistryDedupStore (nv)` 按路径缓存为唯一实例，首次使用时逐行装载进内存 Map；无法解析或缺 `key` 的行被跳过并汇总成一条警告日志，不会让整次装载失败（confirmed）。`spineEventDedupStore (JR)` 没有淘汰分支：新键写入内存 Map 并追加一行，运行期间只增不减；只有读文件出错导致装载失败时，它清空内存 Map，这次摄入以错误结束，下一次访问重新装载（confirmed）。在本版本的还原 daemon 上实测（场景 05-dedup），同一个键重发 5 次只在 `dedup.jsonl` 留下一行 `{key, ts, event_id}`，WAL 里只有一条事件，所以去重表随不同键的数量增长，不随重发次数增长（confirmed）。长期运行下的增长速度和内存占用没有实测。
 
-新键在查询的同时就被登记，时间早于 WAL 追加。命中重复时，`appendBeforeExecuteGateway (yde)` 用去重记录里的事件 id 和时间戳经 `readEventById (Oo)` 读回原事件，再由 `findOutboxRecordByEventId (lh)` 找以原事件为回复对象的出站记录；它不追加新事件、不写指针，内部返回值带 `deduplicated: true`、`enqueued: false` 和该记录的文字（confirmed）。`channel.ingress` 与 `channel.command` 的 RPC 结果不带去重标志：调用方拿到与第一次相同的 `event_id`，记录的文字放在 `gateway_response` 字段（第 6.2 节），结果的形状与首次请求相同（confirmed，在本版本的还原 daemon 上实测，场景 05-dedup）。这段文字不一定是网关回复：网关命令得到网关的回复；已被会话回答的消息得到 agent 的回复，同一轮合并处理的每条消息都登记到这一轮的主出站记录；还没有回答的消息得到空值。void 会话的出站记录不带 `in_reply_to_event_id`，按事件查不到（6.3），所以对 void 会话的重复请求，`gateway_response` 总是空值，即使第一次请求得到过拒绝文字（confirmed，实测同上）。如果原事件读不到（例如进程在登记去重键之后、追加 WAL 之前退出），这个分支不返回，消息按新消息继续处理，所以"登记了键却没写日志"不会让重发的消息丢失（confirmed）。反过来的窗口见 5.5：事件已经追加、指针没来得及写时，重发的消息会被当作重复消息应答。
+新键在查询的同时就被登记，时间早于 WAL 追加。命中重复时，`appendBeforeExecuteGateway (yde)` 用去重记录里的事件 id 和时间戳经 `readEventById (Oo)` 读回原事件，再由 `findOutboxRecordByEventId (lh)` 找以原事件为回复对象的出站记录；它不追加新事件、不写指针，内部返回值带 `deduplicated: true`、`enqueued: false` 和该记录的文字（confirmed）。`channel.ingress` 与 `channel.command` 的 RPC 结果不带去重标志：调用方拿到与第一次相同的 `event_id`，记录的文字放在 `gateway_response` 字段（第 6.2 节），结果的形状与首次请求相同（confirmed，在本版本的还原 daemon 上实测，场景 05-dedup）。去重判断发生在网关摄入内部，而 `createDaemon (Svt)` 在调用网关摄入之前已经运行 `resolveIngressWorkspace (hIe)` 与 `bindSessionSourceChannel (pIe)`，所以重复请求虽然不写事件，仍会重写目标会话的 `state.json`（confirmed，实测同上）。
 
-同一个去重表还有两个使用方（confirmed）。`spine.record` 带 `dedup_key` 时，`recordExternalSpineEvent (Eke)` 把 `dedup.source_id` 设为 `<conversation>:<dedup_key>`，经 `computeDedupKey (GR)` 得到 `<source>:<conversation>:<dedup_key>` 形式的键，与网关摄入一样在追加之前查询并登记；命中且原事件读得回时返回原事件的 id 与时间戳和 `duplicate: true`，不再追加，所以去重按来源分开，不同来源用同一个 `dedup_key` 互不影响；不带 `dedup_key` 时不去重。这个键与网关摄入的 `<source.kind>:<idempotency_key>` 在同一个键空间里：`source` 等于某个渠道种类、且这个渠道某条消息的幂等键恰为 `<conversation>:<dedup_key>` 时，两者得到同一个键，`spine.record` 返回那条渠道消息的 id 与 `duplicate: true`，什么都不写。保留来源名单不含渠道种类，所以这种碰撞会发生（confirmed，在本版本的还原 daemon 上实测，场景 05-dedup）。`session.notify` 带 `idempotency_key` 时，`deliverExternalSessionNotify (EIe)` 用 `session.notify:<键的 JSON 字符串>` 作键，但做法不同：它先只读查询，键已登记且原事件读得回时由 `replayIdempotentSessionNotify (svt)` 按原事件作答，目标会话或消息文字与原请求不同返回 `idempotency_conflict`，原请求曾因没有消费者被拒收（那次只写了日志，见 4.3）返回 `no_consumer`，否则返回原事件的 id 与 `duplicate: true`；键未登记时照常投递，在 `route.deliver` 追加成功之后才登记键。所以进程在追加与登记之间退出，或两个带同一键的请求同时到达时，两次都会投递（后一点由先查询、后登记的顺序推出，未实测）。实测中重复请求返回 `duplicate: true` 与首次相同的 `route_id`，换一条消息返回 `idempotency_conflict`（confirmed，场景 05-dedup）。
+`gateway_response` 里的文字不一定是网关回复：网关命令得到网关的回复；已被会话回答的消息得到 agent 的回复，同一轮合并处理的每条消息都登记到这一轮的主出站记录；还没有回答的消息得到空值。void 会话的出站记录不带 `in_reply_to_event_id`，按事件查不到（6.3），所以对 void 会话的重复请求，`gateway_response` 总是空值，即使第一次请求得到过拒绝文字（confirmed，实测同上）。
+
+如果原事件读不到（例如进程在登记去重键之后、追加 WAL 之前退出），这个分支不返回，消息按新消息继续处理，所以"登记了键却没写日志"不会让重发的消息丢失（confirmed）。反过来的窗口见 5.5：事件已经追加、指针没来得及写时，重发的消息会被当作重复消息应答。
+
+同一个去重表还有两个使用方（confirmed）。`spine.record` 带 `dedup_key` 时，`recordExternalSpineEvent (Eke)` 把 `dedup.source_id` 设为 `<conversation>:<dedup_key>`，经 `computeDedupKey (GR)` 得到 `<source>:<conversation>:<dedup_key>` 形式的键，与网关摄入一样在追加之前查询并登记；命中且原事件读得回时返回原事件的 id 与时间戳和 `duplicate: true`，不再追加，所以去重按来源分开，不同来源用同一个 `dedup_key` 互不影响；不带 `dedup_key` 时不去重。这个键与网关摄入的 `<source.kind>:<idempotency_key>` 在同一个键空间里：`source` 等于某个渠道种类、且这个渠道某条消息的幂等键恰为 `<conversation>:<dedup_key>` 时，两者得到同一个键，`spine.record` 返回那条渠道消息的 id 与 `duplicate: true`，什么都不写。保留来源名单不含渠道种类，所以这种碰撞会发生（confirmed，在本版本的还原 daemon 上实测，场景 05-dedup）。
+
+`session.notify` 带 `idempotency_key` 时，`deliverExternalSessionNotify (EIe)` 用 `session.notify:<键的 JSON 字符串>` 作键，但做法不同：它先只读查询，键已登记且原事件读得回时由 `replayIdempotentSessionNotify (svt)` 按原事件作答，目标会话或消息文字与原请求不同返回 `idempotency_conflict`，原请求曾因"没有读者"被拒收（那次只写了日志，见 4.3）返回 `no_consumer`，否则返回原事件的 id 与 `duplicate: true`；键未登记时照常投递，在 `route.deliver` 追加成功之后才登记键。所以进程在追加与登记之间退出，或两个带同一键的请求同时到达时，两次都会投递（后一点由先查询、后登记的顺序推出，未实测）。实测中重复请求返回 `duplicate: true` 与首次相同的 `route_id`，换一条消息返回 `idempotency_conflict`（confirmed，场景 05-dedup）。
 
 ### 5.4 按 id 读取、索引保留期与回退扫描
 
@@ -796,7 +835,9 @@ by_id 索引有保留期，只在 daemon 启动时裁剪（confirmed）。`main 
 
 超出保留期的事件仍然读得到（confirmed）。daemon 不删除任何 WAL 分区文件，事件目录在 bundle 中只有创建、追加和读取操作，所以索引裁掉的事件仍能经第 4 步的回退扫描读到，代价是扫描一个或多个分区文件。`readEventById (Oo)` 在索引未命中且没有 `notAfter` 时确实返回 `null`，但运行时自己的调用方都给出 `notAfter`，只要分区文件还在，事件就读得到。
 
-另外两个读取入口不按 id 查索引（confirmed）。`spine.tail` RPC 由 `readSpineTail (wwe)` 实现：`limit` 默认 200、限制在 1 到 500 之间；`readPartitionTail (vwe)` 从当日（UTC）分区的末尾按块倒着读，收满即停，返回最新的若干条；给了 `after_id` 时先经内存索引（不触发装载）定位游标行，定位不到就在倒读中遇到该 id 时停止；当日既没找到游标也没收满时，只再读前一日分区一次，找到游标才拼接结果。因此不带 `after_id` 的调用只看当日分区，UTC 零点刚过时返回的事件很少；游标之后的事件多于 `limit` 条时返回的是最新的那一批并置 `has_more`。它在只读 TCP 端口放行的方法集合里，返回的是未经脱敏的原始事件（第 6.1 节）。`duoduo spine cat` 与 `duoduo spine show` 是 CLI 命令，在 CLI 进程内按本机路径直接读取事件目录下的分区文件，不经过 daemon（未证实推测：静态阅读 CLI 代码所得，读取分区的函数没有真名）。daemon 另有 `spine.cat` RPC，由 `runSpineCatRpc (xke)` 在 daemon 进程内执行同一套读取与渲染代码，输出文本放在返回值的 `text` 字段，参数校验失败时返回 JSON-RPC `-32602`（confirmed）。参数 `redact: "external"` 供 duoduo 之外的读取方使用：这时先由 `listVoidChannelSessions (nde)` 列出所有渠道 runtime 为 void 的渠道会话，再对每条事件做脱敏（`redact: a => Npt(a, s)`（`runSpineCatRpc`））（confirmed）。各类事件的保留与删减规则，以及它们在本版本还原 daemon 上的实测结果，见 6.1。
+另外两个读取入口不按 id 查索引（confirmed）。`spine.tail` RPC 由 `readSpineTail (wwe)` 实现：`limit` 默认 200、限制在 1 到 500 之间；`readPartitionTail (vwe)` 从当日（UTC）分区的末尾按块倒着读，收满即停，返回最新的若干条；给了 `after_id` 时先经内存索引（不触发装载）定位游标行，定位不到就在倒读中遇到该 id 时停止；当日既没找到游标也没收满时，只再读前一日分区一次，找到游标才拼接结果。因此不带 `after_id` 的调用只看当日分区，UTC 零点刚过时返回的事件很少；游标之后的事件多于 `limit` 条时返回的是最新的那一批并置 `has_more`。它在只读 TCP 端口放行的方法集合里，返回的是未经脱敏的原始事件（第 6.1 节）。
+
+`duoduo spine cat` 与 `duoduo spine show` 是 CLI 命令，在 CLI 进程内按本机路径直接读取事件目录下的分区文件，不经过 daemon（未证实推测：静态阅读 CLI 代码所得，读取分区的函数没有真名）。daemon 另有 `spine.cat` RPC，由 `runSpineCatRpc (xke)` 在 daemon 进程内执行同一套读取与渲染代码，输出文本放在返回值的 `text` 字段，参数校验失败时返回 JSON-RPC `-32602`（confirmed）。`show` 指定的事件不存在、或被 `redact: "external"` 丢弃时，它返回的不是 `-32602`，而是 `-32603 Internal error`，`data` 为 "Event <id> not found in <date>."（confirmed，在本版本的还原 daemon 上实测，场景 09-spine-redaction）。参数 `redact: "external"` 供 duoduo 之外的读取方使用：这时先由 `listVoidChannelSessions (nde)` 列出所有渠道 runtime 为 void 的渠道会话，再对每条事件做脱敏（`redact: a => Npt(a, s)`（`runSpineCatRpc`））（confirmed）。各类事件的保留与删减规则，以及它们在本版本还原 daemon 上的实测结果，见 6.1。
 
 ### 5.5 重启恢复：邮箱指针、消费进度文件与未覆盖的窗口
 
@@ -865,7 +906,7 @@ by_id 索引有保留期，只在 daemon 启动时裁剪（confirmed）。`main 
 
 ## 6 网关与控制面
 
-daemon 的控制面是 JSON-RPC 2.0，三个监听器共用一套路由：本机 TCP 端口只放行只读方法，unix socket 拥有全部权限，远程监听只有在 `ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项齐全时才打开；入站消息写入事件日志后按命令类型决定是否进入会话邮箱，其中只有 `/compact` 属于 history-control，`/loop` 是网关展开的注入提示，发给不运行模型的 void 会话的消息不进邮箱、改写成出站记录；出站记录由渠道经 `channel.pull` 拉取或经 WebSocket 订阅推送；重启原因由 CLI 在重启前写进一个文件、由下一个 daemon 启动时认领，不经过事件日志。下面四个小节依次讲监听器、入站、出站和重启原因文件。
+daemon 的控制面是 JSON-RPC 2.0，三个监听器共用一套路由。本机 TCP 端口只放行只读方法，unix socket 拥有全部权限，远程监听只有在 `ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项齐全时才打开。入站消息先写入事件日志，再按命令类型决定是否进入会话邮箱：其中只有 `/compact` 属于 history-control，`/loop` 是网关展开的注入提示，发给不运行模型的 void 会话的消息不进邮箱，改写成出站记录。出站记录由渠道经 `channel.pull` 拉取，或经 WebSocket 订阅推送。重启原因由 CLI 在重启前写进一个文件，由下一个 daemon 启动时认领；这个文件本身不经过事件日志。下面四个小节依次讲监听器、入站、出站和重启原因文件。
 
 ### 6.1 三个监听器共用一套路由
 
@@ -877,17 +918,29 @@ daemon 的控制面是 JSON-RPC 2.0，三个监听器共用一套路由：本机
 | unix socket | 默认 `<runDir>/daemon.sock`，可由 `ALADUO_DAEMON_SOCKET` 覆盖（须为绝对路径，且不超过 unix socket 的 104 字节上限） | 启动时要求 socket 所在目录属于当前用户且权限为 0700，监听后把 socket 文件改为 0600；访问控制就是文件系统权限 | 全部方法 | 可用 |
 | 远程 | `ALADUO_DAEMON_HOST`:`ALADUO_REMOTE_PORT` | 对每个请求（包括 `/healthz`、`/readyz`、`/dashboard` 和没有注册的路径）校验 `Authorization: Bearer <token>`：两边各算 SHA-256 后用 `timingSafeEqual` 比较，缺失或不符时 401 | 全部方法 | 可用 |
 
-远程监听的开启条件由 `resolveRemoteListenerConfig (wvt)` 决定：三项环境变量都设置时才开启，主机是否为回环地址不影响这一点；主机设为非回环地址却没给口令时 daemon 拒绝启动；非回环主机给了口令却没给端口时同样拒绝启动；端口必须是 1 到 65535 的整数且不能与只读端口相同（confirmed）。两个检查都是 fastify 的 `onRequest` hook，覆盖范围不同（confirmed）。口令 hook 没有路径条件，远程监听上的每个请求都要带口令，`/healthz`、`/dashboard`、`/readyz` 也不例外，所以浏览器无法直接经远程监听打开 dashboard。Host 与 Origin hook 只挂在本机 TCP 实例上，按请求匹配到的路由模板（`routeOptions.url`）跳过 `/healthz`、`/readyz`、`/dashboard` 三个路由，其余请求都检查；没有匹配到任何路由的请求，路由模板为空，也不跳过检查。运行目录 `run/` 由 `initializeRuntime (lmt)` 设为 0700，默认 socket 路径因此满足目录检查（confirmed）。
+远程监听的开启条件由 `resolveRemoteListenerConfig (wvt)` 决定：三项环境变量都设置时才开启，主机是否为回环地址不影响这一点；主机设为非回环地址却没给口令时 daemon 拒绝启动；非回环主机给了口令却没给端口时同样拒绝启动；端口必须是 1 到 65535 的整数且不能与只读端口相同（confirmed）。
+
+远程口令检查与本机 Host 头检查都是 fastify 的 `onRequest` hook，覆盖范围不同（confirmed）。口令 hook 没有路径条件，远程监听上的每个请求都要带口令，`/healthz`、`/dashboard`、`/readyz` 也不例外，所以浏览器无法直接经远程监听打开 dashboard。Host 与 Origin hook 只挂在本机 TCP 实例上，按请求匹配到的路由模板（`routeOptions.url`）跳过 `/healthz`、`/readyz`、`/dashboard` 三个路由，其余请求都检查；没有匹配到任何路由的请求，路由模板为空，也不跳过检查。
+
+unix socket 的访问控制只有文件系统权限（confirmed）。运行目录 `run/` 由 `initializeRuntime (lmt)` 设为 0700，默认 socket 路径因此满足目录检查（confirmed）。daemon 不区分 socket 上的调用者：同一用户的任何进程都能调用全部方法，daemon 的日志也不记录调用者（在本版本的还原 daemon 上实测，场景 07-job-socket）。
 
 口令由 `duoduo daemon token new` 生成，daemon 缺口令时的报错文字也指向这个命令（confirmed）。这个命令生成 32 字节随机数的十六进制串，把 `ALADUO_DAEMON_TOKEN=<口令>` 写进 `~/.config/duoduo/.env`；已有口令时它拒绝轮换，除非加 `--force`，因为已连接的远程网关仍持有旧口令（confirmed）。`createDaemonToken (OJ)` 在已有口令且没有 `--force` 时抛出 `"a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate."`（`cli:createDaemonToken`）；口令是 `randomBytes(32).toString("hex")`（`cli:generateDaemonTokenHex`）；`writeDaemonTokenToEnvFile (i8)` 先去掉文件里键名相同的行，再把新的一行追加到 `".config", "duoduo", ".env"`（`cli:resolveHostEnvFilePath`）这个文件，键名是 `TB = "ALADUO_DAEMON_TOKEN"`（`cli:CLI_DAEMON_TOKEN_ENV_KEY`）。daemon 启动时只把 `.env` 中进程环境尚未设置的键装进环境（`for (let [o, s] of Object.entries(r))(e[o] === void 0 || e[o] === "") && (e[o] = s, i++)`（`loadHostDotEnv`）），随后从进程环境读取口令，所以 `.env` 里的新口令要在 daemon 重启后才生效（confirmed）。
 
 三个端点不经过分发函数，所有监听器都注册：`/healthz` 固定返回 `{status: "ok"}`；`/readyz` 调用 `probeEventsAppendable (_de)` 以追加模式打开当日事件分区再关闭，失败时返回 503 `not_ready`，所以它检查的是事件日志能否写入，而不是进程是否存活；`/dashboard` 返回 bootstrap 目录下的 `dashboard.html`（confirmed）。`dashboard` 只是 HTTP 路由，不是 RPC 方法：以它为方法名调用 `/rpc`，在 unix socket 上得到 `-32601 Method not found`，在本机 TCP 上得到只读拒绝（在本版本的还原 daemon 上实测，场景 02-rpc-catalog）。
 
-请求格式错误与方法错误的返回形式因传输而不同：`/rpc` 的请求体不满足 `isJsonRpcRequest (Sb)`（`jsonrpc` 为 `"2.0"` 且 `method` 为字符串）时返回 HTTP 400；WebSocket 上解析失败返回 `-32700`，格式不对返回 `-32600`；参数校验失败 `-32602`，`memory.read`、`spine.cat`、`spine.record` 自己抛出的参数与路径错误同样映射为 `-32602` 并带原消息；各方法的参数校验函数（`isSessionWakeParams (aR)`、`isJobCreateParams (xR)` 等）与三个外部方法的错误描述函数（`describeSpineCatProblem (rU)` 等，经 `renderParamsProblem (Dm)` 拼成错误文字）来自上游公开源码的 `@openduo/protocol` 包，daemon 把它们内联进 bundle，这些名字按该包源码确认（附录 A）；`InvalidRuntimeError`（runtime 值不合法，见第 3 节）映射为 `-32603` 并带原消息；其余未分类异常为 `-32603 Internal error`，异常文字放在 `data` 里（confirmed）。`system.shutdown` 先返回响应，再让进程向自己发送 SIGTERM；它不在只读放行集合里，只能经 unix socket 或远程监听调用（confirmed）。在本版本的还原 daemon 上实测（场景 02-rpc-catalog），socket 上的 `system.shutdown` 返回 `{ok: true}` 之后进程退出：`main (kvt)` 的停机流程依次停掉 job 调度器、会话管理器、出站投递与 `createDaemon (Svt)` 的监听器，最后由 `releaseRuntimeWriterLock (EO)` 释放进程写锁。
+请求格式错误与方法错误的返回形式因传输而不同：`/rpc` 的请求体不满足 `isJsonRpcRequest (Sb)`（`jsonrpc` 为 `"2.0"` 且 `method` 为字符串）时返回 HTTP 400；WebSocket 上解析失败返回 `-32700`，格式不对返回 `-32600`；参数校验失败 `-32602`，`memory.read`、`spine.cat`、`spine.record` 自己抛出的参数与路径错误同样映射为 `-32602` 并带原消息；各方法的参数校验函数（`isSessionWakeParams (aR)`、`isJobCreateParams (xR)` 等）与三个外部方法的错误描述函数（`describeSpineCatProblem (rU)` 等，经 `renderParamsProblem (Dm)` 拼成错误文字）来自上游公开源码的 `@openduo/protocol` 包，daemon 把它们内联进 bundle，这些名字按该包源码确认（附录 A）；`InvalidRuntimeError`（runtime 值不合法，见第 3 节）映射为 `-32603` 并带原消息；其余未分类异常为 `-32603 Internal error`，异常文字放在 `data` 里（confirmed）。
+
+`system.shutdown` 先返回响应，再让进程向自己发送 SIGTERM；它不在只读放行集合里，只能经 unix socket 或远程监听调用（confirmed）。在本版本的还原 daemon 上实测（场景 02-rpc-catalog），socket 上的 `system.shutdown` 返回 `{ok: true}` 之后进程退出：`main (kvt)` 的停机流程依次停掉 job 调度器、会话管理器、出站投递与 `createDaemon (Svt)` 的监听器，最后由 `releaseRuntimeWriterLock (EO)` 释放进程写锁。
 
 分发函数还识别 pi 引擎的回调。pi worker 经 `ALADUO_WORKER_RPC_URL` 拿到 socket 路径、经 `ALADUO_WORKER_RPC_TOKEN` 拿到按会话签发的口令；参数里带 `worker_token` 的调用先核对口令（无效时返回 `-32001`），再只放行 `notify.send`、`job.manage`、`session.manage`、`wake.set` 四个方法（其余返回 `-32601`）；这四个方法反过来也要求带有效的 `worker_token`（缺失时返回 `-32001`），并以口令绑定的会话身份执行（confirmed；四个方法对应的自操作工具见第 4.1 节）。实测中不带口令经 unix socket 调用这四个方法，都返回 `-32001`，消息为 "<方法名> requires a pi worker token"，不进入工具体（在本版本的还原 daemon 上实测，场景 02-rpc-catalog）。分发链里没有 `document.get` 方法，任何监听器上调用它都返回 `-32601`（confirmed）。
 
-分发链末尾有三个给 duoduo 之外的程序用的方法，都不在只读放行集合里，只能经 unix socket 或远程监听调用（confirmed）。`memory.read` 由 `readMemoryFileForRpc (QSe)` 处理：参数 `path` 是相对 memory 目录的路径，先按字面路径、再按两边 `realpath` 之后的路径检查它仍在 memory 目录内，所以符号链接不能把读取引到目录之外；越界、文件不存在或目标是目录时以 `-32602` 拒绝，否则返回 `{path, text}`。在本版本的还原 daemon 上实测（场景 02-rpc-catalog），字面路径在 memory 目录内、实际指向 `/etc/hostname` 的符号链接与 `../config` 一样以 "is outside duoduo's memory" 拒绝，说明 realpath 检查生效；目录一例没有测。`spine.cat` 由 `runSpineCatRpc (xke)` 处理：它把参数交给 `duoduo spine` 本地读取用的同一段代码（5.4）执行，把本应写到标准输出的文字作为 `{text}` 返回；参数 `redact: "external"` 时先用 `listVoidChannelSessions (nde)` 找出全部 void 渠道会话，再给每条事件套上脱敏函数 `redactSpineEventForExternal (Npt)`（confirmed）。脱敏函数对 `body.mail` 事件一律原样保留，其余事件不属于渠道会话时丢弃（`"channel"`（`redactSpineEventForExternal`））；渠道会话的 `channel.message`、`agent.result`、`body.experience`、`external.record` 原样保留，`route.deliver` 只在来源事件类型是 `external.notify` 或目标是 void 会话时原样保留，工具调用与工具结果只保留工具名和是否出错（`e.type === "agent.tool_use" || e.type === "agent.tool_result"`（`redactSpineEventForExternal`）），其余事件只保留 id、时间、类型、来源种类和会话键（`stripSpineEventToEnvelope (Ske)`）。`route.deliver` 的保留条件由 `shouldKeepRouteDeliverEvent (Apt)` 判断（`e.type !== "route.deliver"`（`shouldKeepRouteDeliverEvent`））；原样保留的类型集合是入口代码里用 `new Set` 构造的顶层常量，不属于登记工具接受的三种代码，不能按名引用。在本版本的还原 daemon 上实测（场景 09-spine-redaction，逐条比较 `show` 在明文与脱敏下的输出），渠道会话里的 `channel.message`、`agent.result`、`external.record` 原样返回；`route.deliver` 在来源事件类型为 `external.notify` 或目标为 void 会话时原样返回，否则与 `channel.command`、`config.changed` 一样只剩 `{id, ts, type, source: {kind}, session_key}`；没有会话键的 `job.spawn` 被丢弃；调用记录里依次出现 `redactSpineEventForExternal (Npt)`、`shouldKeepRouteDeliverEvent (Apt)` 与 `stripSpineEventToEnvelope (Ske)`（confirmed）。`body.experience`、`body.mail` 与工具事件需要模型才能产生，这几类的规则仍是静态阅读所得（未证实推测）。`show` 指定的事件不存在或被脱敏丢弃时，RPC 返回 `-32603 Internal error`，`data` 为 "Event <id> not found in <date>."，不是参数错误 `-32602`（实测同上）。`spine.record` 由 `recordExternalSpineEvent (Eke)` 处理：它追加一条 `external.record` 事件，会话键为 `<source>:<conversation>`，只写事件日志，不写邮箱指针、不唤醒任何会话；`source` 是 duoduo 自己的内部来源名（`cadence`、`meta`、`system`、`runner`、`route`、`gateway`），或是保留给会话键的前缀（`tether`、`job`、`subconscious`、`lark`）时（`Nm = ["cadence", "meta", "system", "runner", "route", "gateway"], pR = ["tether", "job", "subconscious", "lark"]`（`initProtocolSystemModule`）；两组名单在上游公开源码的 `@openduo/protocol` 包里名为 `INTERNAL_SOURCE_KINDS` 与 `RESERVED_SOURCE_PREFIXES`，见附录 A），`checkReservedRecordSource (Dpt)` 以 `reserved_source` 拒绝，什么都不写；给出 `dedup_key` 时按 `<conversation>:<dedup_key>` 在同一个 source 下去重，重复的调用返回第一次的 `event_id` 与 `ts` 并带 `duplicate: true`（5.3）。`classifySessionKeyKind (_n)` 认作非渠道会话的五个会话键前缀是 `meta:`、`cadence:`、`subconscious:`、`system:` 与 `job:`，对应的来源名全在这两张名单里，所以 `spine.record` 写出的会话键总被归为渠道会话，`external.record` 在 `redact: "external"` 下总是原样返回（confirmed）。实测中 `cadence`、`system` 以 "is one of duoduo's internal sources" 拒绝，`job`、`subconscious` 以 "it begins duoduo's session keys" 拒绝（在本版本的还原 daemon 上实测，场景 09-spine-redaction）。
+分发链末尾有三个给 duoduo 之外的程序用的方法，都不在只读放行集合里，只能经 unix socket 或远程监听调用（confirmed）。`memory.read` 由 `readMemoryFileForRpc (QSe)` 处理：参数 `path` 是相对 memory 目录的路径，先按字面路径、再按两边 `realpath` 之后的路径检查它仍在 memory 目录内，所以符号链接不能把读取引到目录之外；越界、文件不存在或目标是目录时以 `-32602` 拒绝，否则返回 `{path, text}`。在本版本的还原 daemon 上实测（场景 02-rpc-catalog），字面路径在 memory 目录内、实际指向 `/etc/hostname` 的符号链接与 `../config` 一样以 "is outside duoduo's memory" 拒绝，说明 realpath 检查生效；目录一例没有测。
+
+`spine.cat` 由 `runSpineCatRpc (xke)` 处理：它把参数交给 `duoduo spine` 本地读取用的同一段代码（5.4）执行，把本应写到标准输出的文字作为 `{text}` 返回；参数 `redact: "external"` 时先用 `listVoidChannelSessions (nde)` 找出全部 void 渠道会话，再给每条事件套上脱敏函数 `redactSpineEventForExternal (Npt)`（confirmed）。脱敏函数对 `body.mail` 事件一律原样保留，其余事件不属于渠道会话时丢弃（`"channel"`（`redactSpineEventForExternal`））；渠道会话的 `channel.message`、`agent.result`、`body.experience`、`external.record` 原样保留，`route.deliver` 只在来源事件类型是 `external.notify` 或目标是 void 会话时原样保留，工具调用与工具结果只保留工具名和是否出错（`e.type === "agent.tool_use" || e.type === "agent.tool_result"`（`redactSpineEventForExternal`）），其余事件只保留 id、时间、类型、来源种类和会话键（`stripSpineEventToEnvelope (Ske)`）。`route.deliver` 的保留条件由 `shouldKeepRouteDeliverEvent (Apt)` 判断（`e.type !== "route.deliver"`（`shouldKeepRouteDeliverEvent`））；原样保留的类型集合是入口代码里用 `new Set` 构造的顶层常量，不属于登记工具接受的三种代码，不能按名引用。
+
+不需要模型就能产生的事件类型，其脱敏结果已在运行中的 daemon 上逐条确认。在本版本的还原 daemon 上实测（场景 09-spine-redaction，逐条比较 `show` 在明文与脱敏下的输出），渠道会话里的 `channel.message`、`agent.result`、`external.record` 原样返回；`route.deliver` 在来源事件类型为 `external.notify` 或目标为 void 会话时原样返回，否则与 `channel.command`、`config.changed` 一样只剩 `{id, ts, type, source: {kind}, session_key}`；没有会话键的 `job.spawn` 被丢弃；调用记录里依次出现 `redactSpineEventForExternal (Npt)`、`shouldKeepRouteDeliverEvent (Apt)` 与 `stripSpineEventToEnvelope (Ske)`（confirmed）。`body.experience`、`body.mail` 与工具事件需要模型才能产生，这几类的规则仍是静态阅读所得（未证实推测）。`show` 指定的事件不存在或被脱敏丢弃时，RPC 返回 `-32603 Internal error`，`data` 为 "Event <id> not found in <date>."，不是参数错误 `-32602`（实测同上）。
+
+`spine.record` 由 `recordExternalSpineEvent (Eke)` 处理：它追加一条 `external.record` 事件，会话键为 `<source>:<conversation>`，只写事件日志，不写邮箱指针、不唤醒任何会话；`source` 是 duoduo 自己的内部来源名（`cadence`、`meta`、`system`、`runner`、`route`、`gateway`），或是保留给会话键的前缀（`tether`、`job`、`subconscious`、`lark`）时（`Nm = ["cadence", "meta", "system", "runner", "route", "gateway"], pR = ["tether", "job", "subconscious", "lark"]`（`initProtocolSystemModule`）；两组名单在上游公开源码的 `@openduo/protocol` 包里名为 `INTERNAL_SOURCE_KINDS` 与 `RESERVED_SOURCE_PREFIXES`，见附录 A），`checkReservedRecordSource (Dpt)` 以 `reserved_source` 拒绝，什么都不写；给出 `dedup_key` 时按 `<conversation>:<dedup_key>` 在同一个 source 下去重，重复的调用返回第一次的 `event_id` 与 `ts` 并带 `duplicate: true`（5.3）。`classifySessionKeyKind (_n)` 认作非渠道会话的五个会话键前缀是 `meta:`、`cadence:`、`subconscious:`、`system:` 与 `job:`，对应的来源名全在这两张名单里，所以 `spine.record` 写出的会话键总被归为渠道会话，`external.record` 在 `redact: "external"` 下总是原样返回（confirmed）。实测中 `cadence`、`system` 以 "is one of duoduo's internal sources" 拒绝，`job`、`subconscious` 以 "it begins duoduo's session keys" 拒绝（在本版本的还原 daemon 上实测，场景 09-spine-redaction）。
 
 只读 TCP 端口不做脱敏（confirmed）。它放行的 `spine.tail` 由 `readSpineTail (wwe)` 与 `readPartitionTail (vwe)` 直接返回事件日志里的原始事件，调用路径上没有任何脱敏函数；`redact: "external"` 只在 `spine.cat` 上有效，而 `spine.cat` 只能经 unix socket 或远程监听调用。在本版本的还原 daemon 上实测（场景 09-spine-redaction），TCP 上的 `spine.tail` 返回全部 13 条原始事件，包括 notify 正文、`external.record` 的 payload 和入站快照路径 `raw_path`，其中有 `spine.cat` 脱敏后只剩事件头的那条 `route.deliver`。所以本机任何能连到 `127.0.0.1` 的进程都能读到脱敏要隐去的内容。
 
@@ -895,9 +948,13 @@ daemon 的控制面是 JSON-RPC 2.0，三个监听器共用一套路由：本机
 
 ### 6.2 入站分流
 
-渠道消息经 `channel.ingress` 进入，先过三项检查，再由路由规则决定是否需要模型（confirmed）。三项检查按顺序是 WebSocket 身份参数、归档状态、工作目录，通过之后、写入事件日志之前，`bindSessionSourceChannel (pIe)` 先检查 `channel_id` 的格式（`isValidChannelId (sh)` 要求匹配 `[A-Za-z0-9_-]{1,128}`，`assertValidChannelId (ah)` 在不合格时抛错：`Invalid channel_id:`（`assertValidChannelId`）），合格才把它写进会话状态的 `source_channel_id`，格式不对时请求失败，会话原有的绑定不被改写：目标会话正在归档时返回 `-32011`，工作目录不可用时返回 `-32010` 并附带指引文字；经 HTTP 调用且未给 `source_kind` 时，来源种类记为 `rpc`；`channel.command` 做同样三项检查（confirmed）。身份参数与工作目录两项检查各由一个函数实现（confirmed）。`assertWsChannelIdentityParams (mIe)` 只检查经 WebSocket 的调用：必须给出业务渠道种类 `source_kind`（不能是 `rpc` 或 `ws`）和稳定的 `channel_id`，否则返回 `-32602`。`resolveIngressWorkspace (hIe)` 依次取参数 `cwd_abs`（已标为 deprecated，使用时记警告）、渠道配置的 `new_session_workspace`（不存在时尝试创建，失败则记警告并继续往下）、会话已绑定的目录、daemon 的工作目录（`ALADUO_WORK_DIR`，缺省为进程当前目录）；参数给出的目录或会话已绑定的目录不存在时返回 `-32010`，不再往下尝试；取到的目录除会话已绑定的那一种外，都写回会话状态，成为该会话的绑定目录。
+渠道消息经 `channel.ingress` 进入，先过三项检查，再由路由规则决定是否需要模型（confirmed）。三项检查按顺序是 WebSocket 身份参数、归档状态、工作目录：目标会话正在归档时返回 `-32011`，工作目录不可用时返回 `-32010` 并附带指引文字。`channel.command` 做同样三项检查（confirmed）。经 HTTP 调用且未给 `source_kind` 时，来源种类记为 `rpc`。
 
-两个方法成功时都返回 `{event_id, gateway_response, outbox_id}`：`gateway_response` 与 `outbox_id` 只在网关直接回复或去重命中时有值，去重命中时 `gateway_response` 是重放的文字，结果里没有表示去重的字段（5.3）；`channel.ingress` 对业务渠道另带 `kind_config`（9.3）（confirmed）。
+三项检查通过之后、写入事件日志之前，`bindSessionSourceChannel (pIe)` 先检查 `channel_id` 的格式（confirmed）。`isValidChannelId (sh)` 要求它匹配 `[A-Za-z0-9_-]{1,128}`，`assertValidChannelId (ah)` 在不合格时抛错（`Invalid channel_id:`（`assertValidChannelId`））。格式合格时，它把 `channel_id` 写进会话状态的 `source_channel_id`；格式不对时请求失败，会话原有的绑定不被改写。
+
+身份参数与工作目录两项检查各由一个函数实现（confirmed）。`assertWsChannelIdentityParams (mIe)` 只检查经 WebSocket 的调用：必须给出业务渠道种类 `source_kind`（不能是 `rpc` 或 `ws`）和稳定的 `channel_id`，否则返回 `-32602`。`resolveIngressWorkspace (hIe)` 依次取参数 `cwd_abs`（已标为 deprecated，使用时记警告）、渠道配置的 `new_session_workspace`（不存在时尝试创建，失败则记警告并继续往下）、会话已绑定的目录、daemon 的工作目录（`ALADUO_WORK_DIR`，缺省为进程当前目录）；参数给出的目录或会话已绑定的目录不存在时返回 `-32010`，不再往下尝试；取到的目录除会话已绑定的那一种外，都写回会话状态，成为该会话的绑定目录。
+
+两个方法成功时都返回 `{event_id, gateway_response, outbox_id}`，`channel.ingress` 对业务渠道另带 `kind_config`（9.3）（confirmed）。`gateway_response` 与 `outbox_id` 只在网关直接回复或去重命中时有值。去重命中时，结果里没有表示去重的字段，`event_id` 与第一次相同（5.3）。`gateway_response` 只在原事件有带 `in_reply_to_event_id` 的出站记录时才重放；void 会话的出站记录没有这个字段（6.3），所以对 void 会话的重复请求，`gateway_response` 为空，即使第一次带有拒绝文字（在本版本的还原 daemon 上实测，场景 05-dedup）。
 
 `ingestChannelMessage (gde)` 先识别注入提示和网关命令，再由 `resolveRoutingTarget (Aet)` 决定路由目标，之后交给网关摄入函数写入事件日志（第 5.1 节）（confirmed）。网关命令先规范化别名（`/reset` 视同 `/clear`，`#debug` 视同 `/debug`）再按用途归类；注入提示在注入提示表里查找，表中只有 `loop` 一项（confirmed）。`channel.message` 的路由规则如下：
 
@@ -915,7 +972,11 @@ daemon 的控制面是 JSON-RPC 2.0，三个监听器共用一套路由：本机
 
 网关摄入函数还有第三个分支：路由目标为 `meta` 时把指针写进 `meta:subconscious` 邮箱。入站的两个摄入函数的调用方都不传入路由目标，所以没有入站消息走这个分支（confirmed）。
 
-路由目标为 session、而会话的渠道 runtime 解析为 `void` 时，网关摄入函数走第四个分支：事件照常先追加进事件日志，然后不写邮箱指针、不入队，由 `writeVoidSessionOutboxRecord (wI)` 写一条出站记录并发出 `session.output` 总线事件（`"[gateway] void-session event (outbox, no enqueue)"`（`appendBeforeExecuteGateway`））（confirmed）。普通消息的出站记录就是这条消息的文字和附件；`/compact` 或注入提示这类本该交给会话的命令不执行，出站记录与 `gateway_response` 是一句 "This session never runs a model (runtime void). <命令> was not run."。留在网关执行的命令照常执行，但 `/model` 与 `/effort` 对 void 会话和 runtime 被拒的会话不显示也不修改，只回复拒绝文字（`createModelCommandResolvers (VRe)` 给出 "It has no model or effort to show or set." 或拒绝原因，`executeGatewayCommand (Fet)` 原样回复）。`session.compact` RPC 对 void 会话返回 `void_session`，什么都不入队（`enqueueSessionCompactCommand (cvt)`）。void 分支的 `routing.enqueued` 为假，所以调用方也不发出唤醒。在本版本的还原 daemon 上实测（场景 03-void-session），发给 void 会话的普通消息、`/compact` 与 `/loop <文字>` 在 `appendBeforeExecuteGateway (yde)` 里只经过 `atomicAppendEvent (tn)`、`isVoidRuntimeSession (Gu)` 与 `writeVoidSessionOutboxRecord (wI)`，`enqueueSessionInboxLine (ta)` 与 `drainSessionMailbox (zxe)` 都没有被调用；`/model` 由 `executeGatewayCommand (Fet)` 回复拒绝文字，`/status` 照常执行；`session.wake` 与 `session.compact` 都返回 `void_session`，之后什么都不写（confirmed）。被拒绝的 `/loop <文字>` 仍把展开后的整段注入提示正文写进事件的 `payload.text`（实测中约 19,000 字符）。
+路由目标为 session、而会话的渠道 runtime 解析为 `void` 时，网关摄入函数走第四个分支：事件照常先追加进事件日志，然后不写邮箱指针、不入队，由 `writeVoidSessionOutboxRecord (wI)` 写一条出站记录并发出 `session.output` 总线事件（`"[gateway] void-session event (outbox, no enqueue)"`（`appendBeforeExecuteGateway`））（confirmed）。普通消息的出站记录就是这条消息的文字和附件；`/compact` 或注入提示这类本该交给会话的命令不执行，出站记录与 `gateway_response` 是一句 "This session never runs a model (runtime void). <命令> was not run."。
+
+留在网关执行的命令照常执行，但 `/model` 与 `/effort` 对 void 会话和 runtime 被拒的会话不显示也不修改，只回复拒绝文字（`createModelCommandResolvers (VRe)` 给出 "It has no model or effort to show or set." 或拒绝原因，`executeGatewayCommand (Fet)` 原样回复）。`session.compact` RPC 对 void 会话返回 `void_session`，什么都不入队（`enqueueSessionCompactCommand (cvt)`）。void 分支的 `routing.enqueued` 为假，所以调用方也不发出唤醒。
+
+在本版本的还原 daemon 上实测（场景 03-void-session），发给 void 会话的普通消息、`/compact` 与 `/loop <文字>` 在 `appendBeforeExecuteGateway (yde)` 里只经过 `atomicAppendEvent (tn)`、`isVoidRuntimeSession (Gu)` 与 `writeVoidSessionOutboxRecord (wI)`，`enqueueSessionInboxLine (ta)` 与 `drainSessionMailbox (zxe)` 都没有被调用；`/model` 由 `executeGatewayCommand (Fet)` 回复拒绝文字，`/status` 照常执行；`session.wake` 与 `session.compact` 都返回 `void_session`，之后什么都不写（confirmed）。被拒绝的 `/loop <文字>` 仍把展开后的整段注入提示正文写进事件的 `payload.text`（实测中约 19,000 字符）。
 
 会话由调用方唤醒，而不是由写入函数唤醒（confirmed）。在路由结果 `routing.enqueued` 为真时发出 `session.wake` 的调用方有四个：`channel.ingress` 与 `channel.command` 的处理函数，抢占方式由 `resolvePreemptFromCommandText (DG)` 按消息文字决定（第 7.5 节）；`enqueueSessionCompactCommand (cvt)`，抢占方式按 `/compact` 的文字决定；空闲压缩扫描器，抢占方式为 `never`。网关摄入函数另外发出的 `spine.event` 总线事件在 bundle 中没有订阅者（confirmed）。
 
@@ -974,9 +1035,15 @@ daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake
 
 读取方是新 daemon 的 `main (kvt)`（confirmed）。`claimDaemonRestartReason (iwe)` 读取文件后，在解析 JSON 之前就删除它，所以格式错误的文件被静默销毁；解析后原因去掉首尾空白、唤醒目标去掉空串，两者都为空时视同没有文件。认领结果存入模块级变量，只在原因非空时对外提供。它不比较文件里的 `requested_at`、pid 或 boot id，也不看文件时间（confirmed）。在本版本的还原 daemon 上实测（场景 08-restart-reason），`requested_at` 与文件 mtime 都是 2020 年的文件同样被认领，其中的唤醒目标同样被投递；截断的 JSON 与原因、目标都是空白的文件被删除，daemon 不写任何日志；原因为空、只有唤醒目标的文件（CLI 的 `--wake` 不带 `-r` 时写的就是这种）也被认领，唤醒正文省略原因那一句。
 
-认领到的原因首先进入渠道会话跨越重启后的第一轮（confirmed）。`decideRestartHintInjection (awe)` 只在判定为 `cross-restart` 时注入 `daemon-restart-hint` 每轮瞬时块：非渠道会话判为 `out-of-scope`，从未处理过事件的会话判为 `new-session`，没有记录过 daemon 启动时刻的会话判为 `grandfather`，同一个 daemon 内判为 `same-daemon`。块的正文说明会话已在新的 daemon 进程下运行，有原因时追加原因和请求时刻（第 2.3 节）。因此 job、后台分区等非渠道会话收不到这个块。在本版本的还原 daemon 上实测（场景 10-restart-hint，Claude 引擎），渠道会话的第一轮判为 `new-session`，只写入 `last_seen_daemon_started_at`；重启之后的第一轮判为 `cross-restart`，`buildTransientUserBlocks (Vxe)` 经 `getPendingRestartReason (swe)` 与 `renderDaemonRestartHint (uwe)` 生成提示块，作为这一轮用户消息的第一个文本块送给模型，正文为 `[system] You're running under a new daemon process (started <启动时刻>). Restart reason, given by the caller: <原因> (requested <请求时刻>).`；再下一轮判为 `same-daemon`，没有提示块（confirmed）。
+认领到的原因首先进入渠道会话跨越重启后的第一轮（confirmed）。`decideRestartHintInjection (awe)` 只在判定为 `cross-restart` 时注入 `daemon-restart-hint` 每轮瞬时块：非渠道会话判为 `out-of-scope`，从未处理过事件的会话判为 `new-session`，没有记录过 daemon 启动时刻的会话判为 `grandfather`，同一个 daemon 内判为 `same-daemon`。块的正文说明会话已在新的 daemon 进程下运行，有原因时追加原因和请求时刻（第 2.3 节）。因此 job、后台分区等非渠道会话收不到这个块。
 
-唤醒目标另外收到一条强制通知（confirmed）。`main (kvt)` 在监听器和会话管理器启动之后，由 `deliverDaemonRestartWakes (avt)` 对每个唤醒目标投递一条来源为 `daemon-restart`、正文含原因的 `external.notify` 会话间投递，以 `force` 跳过"无读者拒投"检查（第 4.3 节）；目标只能是渠道会话或 job 会话，其余种类以 `forbidden_kind` 拒绝；结果只写日志。CLI 拒绝无原因重启时的提示说原因会到达重启后被唤醒的每个会话，而 daemon 代码只把它交给跨越重启的渠道会话和 `--wake` 指定的目标。在本版本的还原 daemon 上实测（场景 08-restart-reason），`deliverDaemonRestartWakes (avt)` 在会话管理器启动之后、job 调度器启动之前运行，经 `deliverExternalSessionNotify (EIe)` 投递：不存在的目标记一条 `restart wake refused` 日志，原因为 `not_found`；void 渠道会话的目标由 `writeVoidSessionOutboxRecord (wI)` 写成出站记录，不写邮箱指针、不唤醒；`route.deliver` 的来源为 `{kind: "route", name: "daemon-restart"}`，正文由 `renderRestartWakeMessage (lwe)` 生成，原因的首尾空白已去掉（confirmed）。唤醒目标是渠道会话时，这条通知本身让会话 drain 一轮，而重启提示不要求这一批包含用户消息，所以这一轮就是跨越重启的第一轮，提示块在这一轮被消费。在本版本的还原 daemon 上实测（场景 10-restart-hint），提示块排在 `<session-notify … source_label="daemon-restart">` 之前，通知正文也含原因，模型在同一条用户消息里看到两次原因；之后的用户消息不再带提示块（confirmed）。通知的包装文字要求模型对被动提醒（"a passive heads-up"）调用 Skip。实测中被唤醒的会话上一轮已经正常结束，模型判断重启通知是被动提醒而调用了 Skip，这一轮没有输出送到渠道，下一轮用户消息带 `<skip-rewind>` 块（4.5）。因此 `--wake` 不保证用户在渠道里看到回复（confirmed，实测一次；模型是否调用 Skip 取决于模型判断）。
+在本版本的还原 daemon 上实测（场景 10-restart-hint，Claude 引擎），渠道会话的第一轮判为 `new-session`，只写入 `last_seen_daemon_started_at`；重启之后的第一轮判为 `cross-restart`，`buildTransientUserBlocks (Vxe)` 经 `getPendingRestartReason (swe)` 与 `renderDaemonRestartHint (uwe)` 生成提示块，作为这一轮用户消息的第一个文本块送给模型，正文为 `[system] You're running under a new daemon process (started <启动时刻>). Restart reason, given by the caller: <原因> (requested <请求时刻>).`；再下一轮判为 `same-daemon`，没有提示块（confirmed）。
+
+唤醒目标另外收到一条强制通知（confirmed）。`main (kvt)` 在监听器和会话管理器启动之后，由 `deliverDaemonRestartWakes (avt)` 对每个唤醒目标投递一条来源为 `daemon-restart`、正文含原因的 `external.notify` 会话间投递，以 `force` 跳过"无读者拒投"检查（第 4.3 节）；目标只能是渠道会话或 job 会话，其余种类以 `forbidden_kind` 拒绝；结果只写日志。CLI 拒绝无原因重启时的提示说原因会到达重启后被唤醒的每个会话，而 daemon 代码只把它交给跨越重启的渠道会话和 `--wake` 指定的目标。
+
+在本版本的还原 daemon 上实测（场景 08-restart-reason），`deliverDaemonRestartWakes (avt)` 在会话管理器启动之后、job 调度器启动之前运行，经 `deliverExternalSessionNotify (EIe)` 投递：不存在的目标记一条 `restart wake refused` 日志，原因为 `not_found`；void 渠道会话的目标由 `writeVoidSessionOutboxRecord (wI)` 写成出站记录，不写邮箱指针、不唤醒；`route.deliver` 的来源为 `{kind: "route", name: "daemon-restart"}`，正文由 `renderRestartWakeMessage (lwe)` 生成，原因的首尾空白已去掉（confirmed）。
+
+唤醒目标是渠道会话时，这条通知本身让会话 drain 一轮，而重启提示不要求这一批包含用户消息，所以这一轮就是跨越重启的第一轮，提示块在这一轮被消费。在本版本的还原 daemon 上实测（场景 10-restart-hint），提示块排在 `<session-notify … source_label="daemon-restart">` 之前，通知正文也含原因，模型在同一条用户消息里看到两次原因；之后的用户消息不再带提示块（confirmed）。通知的包装文字要求模型对被动提醒（"a passive heads-up"）调用 Skip。实测中被唤醒的会话上一轮已经正常结束，模型判断重启通知是被动提醒而调用了 Skip，这一轮没有输出送到渠道，下一轮用户消息带 `<skip-rewind>` 块（4.5）。因此 `--wake` 不保证用户在渠道里看到回复（confirmed，实测一次；模型是否调用 Skip 取决于模型判断）。
 
 ### 证据表
 
@@ -1043,7 +1110,9 @@ daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake
 
 ## 7 Drain 与 turn 控制
 
-一次 drain 只处理会话邮箱顶部的一个窗口：窗口内的事件满足可合并谓词时合成一次引擎调用，否则逐条调用；渠道会话的 Claude 常驻流式连接一次只接纳一个 turn，turn 进行中到达的消息暂存起来，在下一次工具调用完成后由 PostToolUse hook 插入当前 turn；推迟的抢占只在三个边界执行；非渠道的 Claude 会话在它启动的后台子代理全部结束前不关闭输入流；执行失败统一转成一条用户可见的回复和一条 `agent.error` 事件。7.1 与 7.2 讲邮箱如何被切成引擎调用，7.3 与 7.4 讲一次调用如何交给引擎执行，7.5 到 7.7 讲调用中途的打断、延续与失败。本节只讲 drain 与 turn 的控制流程；actor 的创建、锁与并发池见第 8 节，Skip 工具的语义见 4.5，每轮瞬时块的内容见 2.3。
+一次 drain 只处理会话邮箱顶部的一个窗口。窗口内的事件满足可合并谓词时合成一次引擎调用，否则逐条调用。渠道会话的 Claude 常驻流式连接一次只接纳一个 turn；turn 进行中到达的消息先暂存，在下一次工具调用完成后由 PostToolUse hook 插入当前 turn。推迟的抢占只在三个边界执行。非渠道的 Claude 会话在它启动的后台子代理全部结束前不关闭输入流。执行失败统一转成一条用户可见的回复和一条 `agent.error` 事件。
+
+7.1 与 7.2 讲邮箱如何被切成引擎调用，7.3 与 7.4 讲一次调用如何交给引擎执行，7.5 到 7.7 讲调用中途的打断、延续与失败。本节只讲 drain 与 turn 的控制流程；actor 的创建、锁与并发池见第 8 节，Skip 工具的语义见 4.5，每轮瞬时块的内容见 2.3。
 
 ### 7.1 循环与单批处理器
 
@@ -1062,7 +1131,7 @@ drain 分成两层：循环是 `createSessionManager (gbt)` 内一个没有导�
 1. 取得本会话的 drain 租约文件（8.2），取不到就直接返回。
 2. 把 inbox 目录合并进邮箱（`mergeInboxIntoMailbox (HR)`），列出待处理项，清理没有事件 id 的孤项，再重写 `mailbox.md`。
 3. 用 `batchDrainItems (jW)` 切出窗口（7.2），同时收集 job 完成回执（10.3）。
-4. 逐项解析窗口：循环传入的排除集合里的事件（7.4）记为跳过；出站队列里已经有针对该事件的回复时，直接记为已处理、不再调用模型（`findOutboxRecordByEventId (lh)`）；按 id 读不到正文的事件记为跳过。
+4. 逐项解析窗口：循环传入的排除集合里的事件（7.4）记为跳过；已经有回答该事件的出站记录时，直接记为已处理、不再调用模型（`findOutboxRecordByEventId (lh)`）；按 id 读不到正文的事件记为跳过。
 5. 依次检查工作目录、runtime 取值是否被拒、引擎可用性和历史所属引擎（3.3）。
 6. 调用引擎：可合并时，上下文准备（`prepareDrainTurnContext (NW)`）与引擎调用（`runDrainQueryAndCollectOutboundAttachments (Dxe)`）各执行一次；否则逐个事件各执行一次。
 7. 写回复、更新 `state.json`、把处理过的邮箱项标记为完成、追加一条 drain 记录（`appendDrainRecord (pf)`），最后释放租约。
@@ -1087,7 +1156,11 @@ drain 分成两层：循环是 `createSessionManager (gbt)` 内一个没有导�
 
 Claude adapter 内部有一个把运行配置转换成 SDK options 的构建函数，一次性调用与常驻调用共用它，两种调用最终都调用从 `@anthropic-ai/claude-agent-sdk` 导入的 `query` 函数；差别只在常驻调用总是打开 `includePartialMessages`，一次性调用只在需要流式输出文本时打开（confirmed，`includePartialMessages: !0`（`createAgentSdkAdapter`））。options 的完整字段列在本节末尾的"关键数据结构"里；其中 `systemPrompt` 的取值规则见第 2 节，`permissionMode`、`tools`、`disallowedTools` 见 3.7，`model` 与 `effort` 见 3.4。
 
-构建函数还决定引擎子进程的环境：它复制 daemon 自身的全部环境变量，只删去 `CLAUDECODE`，按是否自动加载附加目录的 `CLAUDE.md` 设置或删除 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`，无条件设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`，把 drain 传入的会话键写进 `ALADUO_CALLER_SESSION`（没有传入时删去这个变量），并在设置了 `CLAUDE_CODE_EXECUTABLE` 时把它作为 Claude Code 可执行文件的路径（confirmed，`delete s.CLAUDECODE`（`createAgentSdkAdapter`）、`s.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", t.callerSession ? s[tl] = t.callerSession : delete s[tl]`（`createAgentSdkAdapter`））。第一个变量让 Claude Code 不启用它自己的 auto memory，duoduo 的记忆只走记忆目录（第 12 节）；变量在 Claude Code 内部的效果不在本 bundle 内（未证实推测）。`ALADUO_CALLER_SESSION` 在其余三个引擎上同样设置：会话管理器构造 Codex、Grok 与 pi 的适配器时都把会话键放进它们的 `env` 参数（confirmed，`sandbox: $g(), env: { [tl]: T },`（`createSessionManager`）），常量本身由 `initCallerSessionEnvModule (V$)` 定义；`main (kvt)` 启动时从 daemon 自己的环境里删去这个变量，避免 daemon 从某个会话的 shell 里启动时把那个会话键传给所有引擎进程（删除动作 confirmed，`delete process.env[tl]`（`main`）；动机为未证实推测）。引擎内运行的命令据此知道自己是从哪个会话发出的，例如 `duoduo session notify` 把它作为 `session.notify` 的 `caller_session` 参数发出（附录 B）。一次性 `run()` 在 abort 信号触发后等待 `ALADUO_ABORT_CLOSE_TIMEOUT_MS`（默认 10 秒）再强制关闭 query，它另外注册一个 Skip 的 PreToolUse hook（4.5）。
+构建函数还决定引擎子进程的环境：它复制 daemon 自身的全部环境变量，只删去 `CLAUDECODE`，按是否自动加载附加目录的 `CLAUDE.md` 设置或删除 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`，无条件设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`，把 drain 传入的会话键写进 `ALADUO_CALLER_SESSION`（没有传入时删去这个变量），并在设置了 `CLAUDE_CODE_EXECUTABLE` 时把它作为 Claude Code 可执行文件的路径（confirmed，`delete s.CLAUDECODE`（`createAgentSdkAdapter`）、`s.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", t.callerSession ? s[tl] = t.callerSession : delete s[tl]`（`createAgentSdkAdapter`））。第一个变量让 Claude Code 不启用它自己的 auto memory，duoduo 的记忆只走记忆目录（第 12 节）；变量在 Claude Code 内部的效果不在本 bundle 内（未证实推测）。
+
+`ALADUO_CALLER_SESSION` 在其余三个引擎上同样设置：会话管理器构造 Codex、Grok 与 pi 的适配器时都把会话键放进它们的 `env` 参数（confirmed，`sandbox: $g(), env: { [tl]: T },`（`createSessionManager`）），常量本身由 `initCallerSessionEnvModule (V$)` 定义；`main (kvt)` 启动时从 daemon 自己的环境里删去这个变量，避免 daemon 从某个会话的 shell 里启动时把那个会话键传给所有引擎进程（删除动作 confirmed，`delete process.env[tl]`（`main`）；动机为未证实推测）。引擎内运行的命令据此知道自己是从哪个会话发出的，例如 `duoduo session notify` 把它作为 `session.notify` 的 `caller_session` 参数发出（附录 B）。
+
+一次性 `run()` 在 abort 信号触发后等待 `ALADUO_ABORT_CLOSE_TIMEOUT_MS`（默认 10 秒）再强制关闭 query，它另外注册一个 Skip 的 PreToolUse hook（4.5）。
 
 adapter 之外还有一层调用包装 `runDrainTurnWithResumeFallback (vht)`，由 `runDrainQueryAndCollectOutboundAttachments (Dxe)` 调用：带 resume 的调用失败时，包装层重新生成 prompt、去掉 resume 再调用一次，并在结果上标记 `usedFallback` 与 `resumeError`；abort、turn 中断、prompt 未被接纳这三类错误不重试，直接抛出（confirmed）。drain 收到带这个标记的结果时只追加一条 `agent.error`（7.7，confirmed）。
 
@@ -1142,15 +1215,17 @@ Codex、Grok 与 pi 不走 `pendingSteer`，插话回调直接调用 adapter 的
 
 用户的 `/cancel` 是网关直接执行的命令（6.2），网关调用会话管理器的 `interruptSession`，它按会话有没有常驻连接分两种处理（confirmed）。Claude 渠道会话有常驻连接时，`/cancel` 不经过上表，整条连接被拆除（`await cp(T, "cancel-interrupt", "user-cancel")`（`createSessionManager`））；其他会话以 `immediate` 调用 `requestBoundaryAwarePreempt (gk)`，立即中止 abort 控制器，即上表最后一行；会话没有正在运行的调用时，`interruptSession` 直接返回 `idle`。
 
-`/cancel` 拆除 Claude 常驻连接后，下一个 turn 的第一条消息前会加上一段中断说明 `[Request interrupted by user]`（confirmed）。`teardownStreamingSession (cp)` 调用 `recordPendingInterruptMarker (ubt)`，后者只在调用方传入中止原因时把说明记到 actor 的 `pendingInterruptMarker` 上；daemon 中拆除连接的五处调用只有 `/cancel` 传入原因 `user-cancel`，连接不能复用时的重建、空闲回收、drain 循环结束和 `/clear` 都不传，因此不记说明，`/clear` 还会清除已记下的说明。常驻连接的 `run()` 在 turn 入队前调用 `prependPendingInterruptMarker (GRe)`，它把说明加在这个 turn 第一条消息的前面，然后清除说明。说明文字由 `selectInterruptMarkerText (Tg)` 选择：原因为 `user-cancel` 时是上面这段；其他原因且有在途工具调用时是一段 `[Tool call did not complete: ...]`，说明 turn 是为了投递后面的消息而结束的，工具调用没有被拒绝，需要时可以重新执行。Claude 常驻连接上只有 `/cancel` 会记下说明，所以第二段文字不会出现在 Claude 会话里。Codex 与 Grok 的适配器在一次调用因用户取消或抢占而中止时用同一个函数选择说明，加在下一次调用的 prompt 前；pi worker 用一份相同的选择逻辑，在中止的运行结束后把说明作为一条自定义消息追加进 pi 会话（2.3）。被中断的 turn 如何收尾见 7.7。
+`/cancel` 拆除 Claude 常驻连接后，下一个 turn 的第一条消息前会加上一段中断说明 `[Request interrupted by user]`（confirmed）。`teardownStreamingSession (cp)` 调用 `recordPendingInterruptMarker (ubt)`，后者只在调用方传入中止原因时把说明记到 actor 的 `pendingInterruptMarker` 上；daemon 中拆除连接的五处调用只有 `/cancel` 传入原因 `user-cancel`，连接不能复用时的重建、空闲回收、drain 循环结束和 `/clear` 都不传，因此不记说明，`/clear` 还会清除已记下的说明。
+
+常驻连接的 `run()` 在 turn 入队前调用 `prependPendingInterruptMarker (GRe)`，它把说明加在这个 turn 第一条消息的前面，然后清除说明。说明文字由 `selectInterruptMarkerText (Tg)` 选择：原因为 `user-cancel` 时是上面这段；其他原因且有在途工具调用时是一段 `[Tool call did not complete: ...]`，说明 turn 是为了投递后面的消息而结束的，工具调用没有被拒绝，需要时可以重新执行。Claude 常驻连接上只有 `/cancel` 会记下说明，所以第二段文字不会出现在 Claude 会话里。Codex 与 Grok 的适配器在一次调用因用户取消或抢占而中止时用同一个函数选择说明，加在下一次调用的 prompt 前；pi worker 用一份相同的选择逻辑，在中止的运行结束后把说明作为一条自定义消息追加进 pi 会话（2.3）。被中断的 turn 如何收尾见 7.7。
 
 ### 7.6 后台会话保持输入通道
 
-duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道会话的一次性 `run()` 收到结果后继续保持输入流，直到它跟踪的后台任务全部结束；渠道会话的常驻连接本来不关闭，后台任务完成时由 Claude CLI 自己发起一个 turn，duoduo 把这个 turn 的结果直接写进出站队列（confirmed）。需要这样处理，是因为子代理可能在主 turn 返回结果之后才结束，而它结束后的续写仍要经过同一个 Claude CLI 进程。
+duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道会话的一次性 `run()` 收到结果后继续保持输入流，直到它跟踪的后台任务全部结束；渠道会话的常驻连接本来不关闭，后台任务完成时由 Claude CLI 自己发起一个 turn，duoduo 把这个 turn 的结果直接写成出站记录（confirmed）。需要这样处理，是因为子代理可能在主 turn 返回结果之后才结束，而它结束后的续写仍要经过同一个 Claude CLI 进程。
 
 非渠道会话由 drain 传入的开关控制，只对 Claude 引擎、非渠道来源的会话打开（`holdInputOpenForBackgroundAgents: w.runtime === "claude" && w.origin !== "channel"`（`createSessionManager`））（confirmed）。开关打开时，Claude adapter 把 prompt 换成一个 generator，它输出 prompt 之后等待一个释放信号。adapter 从 SDK 的 `task_started` 消息里登记后台任务 id，只登记子代理任务和非 `local_bash` 类型的任务，收到对应的 `task_notification` 时移除。释放需要两个条件同时成立：已经收到 result，且登记的任务集合为空（`$ && A.size === 0`（`createAgentSdkAdapter`））。为防止无限等待，收到 result 之后如果 SDK 持续没有新消息超过 `ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS`（默认 600000 毫秒，即 10 分钟），看门狗强制释放并写一条警告；警告文字说明，这时仍在运行的后台任务续写时发起的进程内 MCP 调用可能失败。
 
-渠道会话的处理分三部分（confirmed）。第一，SDK 的 `task_notification` 系统消息以 `completion_owner: "claude-cli"` 写入事件日志，并且只写日志、不进邮箱、不唤醒会话（`"[route] wal-only route event (no mailbox, no wake)"`（`deliverRouteEventToSession`））。第二，CLI 在没有 drain turn 的情况下自己开始一个 turn 时，流式循环把它记为 `cliTurnTentative`；这个 turn 的 result 带有 task-notification 来源时，duoduo 把结果文本连同待发附件直接写入出站队列，追加一条 `origin: "cli-turn"` 的 drain 记录，并唤醒会话（`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`））。如果某个 drain turn 恰好被并入了这个 CLI turn，这个 drain turn 以"prompt 未被接纳"错误作废（7.7 表第二行），它的事件留在邮箱重新 drain。第三，Grok 引擎也有对应的处理：Grok 在 drain 之外产生的 turn 由 adapter 回调写入出站队列（失败日志见证据表）。
+渠道会话的处理分三部分（confirmed）。第一，SDK 的 `task_notification` 系统消息以 `completion_owner: "claude-cli"` 写入事件日志，并且只写日志、不进邮箱、不唤醒会话（`"[route] wal-only route event (no mailbox, no wake)"`（`deliverRouteEventToSession`））。第二，CLI 在没有 drain turn 的情况下自己开始一个 turn 时，流式循环把它记为 `cliTurnTentative`；这个 turn 的 result 带有 task-notification 来源时，duoduo 把结果文本连同待发附件直接写成出站记录，追加一条 `origin: "cli-turn"` 的 drain 记录，并唤醒会话（`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`））。如果某个 drain turn 恰好被并入了这个 CLI turn，这个 drain turn 以"prompt 未被接纳"错误作废（7.7 表第二行），它的事件留在邮箱重新 drain。第三，Grok 引擎也有对应的处理：Grok 在 drain 之外产生的 turn 由 adapter 回调写成出站记录（失败日志见证据表）。
 
 ### 7.7 失败收敛
 
@@ -1167,7 +1242,9 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 
 `handleDrainError (TS)` 在调用方没有提供回复文本时，以"[duoduo:drain-error] agent turn failed at <阶段名>"开头，接着是错误信息（超过 4000 字符时截断）和 `renderDrainErrorRuntimeHint (uht)` 生成的排查建议；回复挂在锚点事件上，来源为空闲压缩的事件例外，只写事件日志（confirmed）。随后它追加一条 `agent.error` 事件，载荷含阶段与错误信息；这两次写入各自失败时只记日志。
 
-除 `sdk_turn` 外，交给它的阶段还有非渠道会话的 `workspace_unavailable`、`runtime_refused`、`runtime_unavailable`、`runtime_mismatch`，这四种由调用方提供各自的说明文字作为回复（confirmed）。渠道会话遇到这四种情况时不经过它：说明文字作为普通回复写出，事件标记为已处理，drain 返回拒绝阶段（3.3）；其中来源为空闲压缩的事件仍交给它，只写事件日志（`refusedStage: X`（`drainSessionMailbox`））。另一个阶段是 `context_profile`：drain 在调用引擎之前，先由 `resolveDrainContextProfileOrRefuse (Ixe)` 解析 Claude 的模型上下文配置，即配置层里的 `claude.model_profiles` 条目（3.4），解析结果作为调用参数传给引擎（confirmed）。解析失败时，它以阶段 `context_profile` 调用 `handleDrainError (TS)`，随后重新抛出原错误，turn 不会开始；它提供的回复文字说明 turn 在开始前被拒绝，附上原错误信息（其中写明出错的配置层），并列出三个配置层对应的文件：global 为 `kernel/config/runtime.md`，kind 为 `kernel/config/<kind>.md`，instance 为渠道描述文件或 job 文件（confirmed，`stage: "context_profile"`（`resolveDrainContextProfileOrRefuse`））。
+除 `sdk_turn` 外，交给它的阶段还有非渠道会话的 `workspace_unavailable`、`runtime_refused`、`runtime_unavailable`、`runtime_mismatch`，这四种由调用方提供各自的说明文字作为回复（confirmed）。渠道会话遇到这四种情况时不经过它：说明文字作为普通回复写出，事件标记为已处理，drain 返回拒绝阶段（3.3）；其中来源为空闲压缩的事件仍交给它，只写事件日志（`refusedStage: X`（`drainSessionMailbox`））。
+
+另一个阶段是 `context_profile`：drain 在调用引擎之前，先由 `resolveDrainContextProfileOrRefuse (Ixe)` 解析 Claude 的模型上下文配置，即配置层里的 `claude.model_profiles` 条目（3.4），解析结果作为调用参数传给引擎（confirmed）。解析失败时，它以阶段 `context_profile` 调用 `handleDrainError (TS)`，随后重新抛出原错误，turn 不会开始；它提供的回复文字说明 turn 在开始前被拒绝，附上原错误信息（其中写明出错的配置层），并列出三个配置层对应的文件：global 为 `kernel/config/runtime.md`，kind 为 `kernel/config/<kind>.md`，instance 为渠道描述文件或 job 文件（confirmed，`stage: "context_profile"`（`resolveDrainContextProfileOrRefuse`））。
 
 错误抛回 drain 循环后，循环把 `last_error`（含 `message` 与 `at`）写入 `state.json` 并结束 actor；之后任何一次成功处理了事件的 drain 会清除这个字段（confirmed，`last_error: {`（`createSessionManager`））。去掉 resume 重试（7.3）成功时，drain 不给用户写回复，只追加一条阶段为 `stage: "resume"`（`drainSessionMailbox`）的 `agent.error` 事件（confirmed）。
 
@@ -1226,8 +1303,8 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 | 非渠道 Claude 会话保持输入流，直到收到结果且登记的后台任务清空 | `holdInputOpenForBackgroundAgents: w.runtime === "claude" && w.origin !== "channel"`（`createSessionManager`）；`prompt: D ? se() : t.prompt`（`createAgentSdkAdapter`）；`$ && A.size === 0`（`createAgentSdkAdapter`） | confirmed |
 | 不登记 local_bash 后台任务；静默 10 分钟强制释放 | `fe !== "local_bash"`（`createAgentSdkAdapter`）；`hV(process.env.ALADUO_HOLD_INPUT_IDLE_TIMEOUT_MS, 6e5)`（`createAgentSdkAdapter`）；`hold-input idle watchdog fired`（`createAgentSdkAdapter`） | confirmed |
 | 渠道会话的后台任务通知只写日志 | `completion_owner: "claude-cli"`（`createClaudeStreamingSessionFactory`）；`"[session-manager] task_notification recorded WAL-only"`（`createClaudeStreamingSessionFactory`）；`"[route] wal-only route event (no mailbox, no wake)"`（`deliverRouteEventToSession`） | confirmed |
-| CLI 自发 turn 的结果直接写出站队列；被并入的 drain turn 作废重试 | `se.origin?.kind === "task-notification"`（`createClaudeStreamingSessionFactory`）；`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`）；`origin: "cli-turn"`（`createClaudeStreamingSessionFactory`）；`"Task-completion turn folded with mailbox drain; retrying the drain"`（`createClaudeStreamingSessionFactory`） | confirmed |
-| Grok 在 drain 之外产生的 turn 写入出站队列 | `"[session-manager] grok detached-turn outbox write failed"`（`createSessionManager`） | confirmed |
+| CLI 自发 turn 的结果直接写成出站记录；被并入的 drain turn 作废重试 | `se.origin?.kind === "task-notification"`（`createClaudeStreamingSessionFactory`）；`"[completion-owner] settled CLI completion turn"`（`createClaudeStreamingSessionFactory`）；`origin: "cli-turn"`（`createClaudeStreamingSessionFactory`）；`"Task-completion turn folded with mailbox drain; retrying the drain"`（`createClaudeStreamingSessionFactory`） | confirmed |
+| Grok 在 drain 之外产生的 turn 写成出站记录 | `"[session-manager] grok detached-turn outbox write failed"`（`createSessionManager`） | confirmed |
 | Fr 的三个来源：已接纳后中断、接纳前中止且有挂起的 /clear、执行中流式 query 结束 | `q.accepted ? q.reject(new Ur)`（`createClaudeStreamingSessionFactory`）；`new Ur("SDK turn cancelled before prompt acceptance")`（`createClaudeStreamingSessionFactory`）；`new Ur("Streaming SDK query ended during execution")`（`createClaudeStreamingSessionFactory`） | confirmed |
 | 三类中断错误的邮箱处理 | `isAgentSdkTurnInterruptedError (ww)`；`isAgentSdkPromptNotAcceptedAbortError (Sw)`；`isAbortLikeError (hg)`；`pp.consumed = !1, sn = !0`（`drainSessionMailbox`） | confirmed |
 | 被打断的 prompt 去重后保存，供下一个 turn 注入；有待处理的 Skip 回退时不保存 | `!(await rt(e, t))?.pending_skip_rewind`（`drainSessionMailbox`）；`await qmt(e, t, zmt(Ie, de ? fe : void 0))`（`drainSessionMailbox`）；`<interrupted-entry-sep />`（`initMailboxDrainRunnerModule`） | confirmed |
@@ -1267,7 +1344,7 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 
   读取这些字段的两处都按 `protocol` 解释输入 token（confirmed）。`normalizeInputTokenTotals (pxe)` 为 `turn_meta` 计算总输入与缓存命中率：`codex` 与 `grok` 的 `input_tokens` 被当作已包含命中缓存的总输入，`anthropic` 与 `pi` 的总输入是 `input_tokens`、命中缓存、写入缓存三项之和，没有可识别的 `protocol` 时不给命中率。`usage.get` 的汇总由 `accumulateDrainRecordIntoSummary (ode)` 逐条累加，其中缓存统计按 `protocol` 分桶：`cache.anthropic` 与 `cache.pi` 记 `cache_read_tokens`、`cache_create_tokens`、`fresh_input_tokens`，`cache.codex` 记 `input_tokens` 与 `cached_tokens`，`cache.grok` 在这两项之外另记 `cache_create_tokens`；带缓存字段却没有可识别 `protocol` 的记录只计入 `cache.unsupported_drains`。Codex 与 Grok 报告的输入数是否真的已包含命中缓存，Anthropic 与 pi 的三项是否真的互不重叠，取决于引擎自身的计数口径，本包内看不到（未证实推测）。
 - **SDK options**（Claude adapter 的内部构建函数）：`resume`、`abortController`、`cwd`、`settingSources`、`persistSession`、`outputFormat`、`model`、`effort`、`permissionMode`、`systemPrompt`、`allowedTools`、`tools`、`disallowedTools`、`mcpServers`、`additionalDirectories`、`env`、`settings`、`pathToClaudeCodeExecutable`、`hooks`、`includePartialMessages`；设置 `ALADUO_SDK_DEBUG` 时另加 `debug` 与 `stderr`。
-- **常驻 query 注册的 hooks**（同一个对象字面量，位于 `createClaudeStreamingSessionFactory (KRe)`）：PreToolUse、matcher 为 `*`，只对主代理把 `transcript_path` 写入 `state.json`；PreToolUse、matcher 为 Skip 工具名，结束当前 turn，并在当前 turn 或 CLI 自发的 turn 上记下 Skip（4.5）；PostToolUse、matcher 为 `*`，注入 `pendingSteer`（7.4），子代理的工具调用之后、或当前 turn 与 CLI 自发的 turn 已调用 Skip 时不注入。一次性 `run()` 只注册 Skip 的 PreToolUse hook。
+- **常驻 query 注册的 hooks**（同一个对象字面量，位于 `createClaudeStreamingSessionFactory (KRe)`）：PreToolUse、matcher 为 `*`，只对主代理把 `transcript_path` 写入 `state.json`；PreToolUse、matcher 为 Skip 工具名，返回 `continue: false`，并在当前 turn 或 CLI 自发的 turn 上记下 Skip；在本版本的还原 daemon 上实测，SDK 收到这个返回值后仍执行 Skip 的工具体，工具结果写入 transcript 之后这一轮结束（4.5）；PostToolUse、matcher 为 `*`，注入 `pendingSteer`（7.4），子代理的工具调用之后、或当前 turn 与 CLI 自发的 turn 已调用 Skip 时不注入。一次性 `run()` 只注册 Skip 的 PreToolUse hook。
 
 ## 8 会话 actor、锁与并发池
 
@@ -1307,7 +1384,9 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 
 actor 记录按会话键存放，每次启动 actor 时生成一个新对象替换旧记录，`actorRunId` 单调递增，并从旧记录继承 SDK 会话 id、常驻连接的代数、渠道附着集合、来源、job id、引擎和 adapter（confirmed，`"[session-manager] actor start"`（`createSessionManager`））。唤醒启动 actor 时，唤醒函数用 `inferActorOriginFromSessionKey (aG)` 按前缀推断来源：`job:` 为 job，`meta:`、`cadence:`、`system:` 为 system，其他前缀推断不出；推断不出时沿用旧记录的来源，没有旧记录则为 channel（confirmed，`origin: T?.origin ?? L?.origin ?? "channel"`（`createSessionManager`））。
 
-actor 的引擎在每次启动 actor 时重新解析一次（drain 循环开始之前），不随记录继承下来就用；同一个 actor 之后的各次 drain 沿用这次的解析结果（confirmed）。渠道会话由 `resolveSessionChannelRuntime (fh)` 按会话状态里的 `source_channel_id` 读出渠道实例描述符和渠道种类配置，交给 `resolveLayeredChannelRuntime (Ua)` 取值：实例层写了合法值就用它（来源记为 explicit），否则用种类层的合法值（inherited），两层都没写时用宿主默认值（default）；实例层的值不合法时直接拒绝，种类层的值不合法时只在实例层没有给出合法值的情况下拒绝，任何一层被拒都不回退到下一层（第 3 节）。被拒时会话管理器记一条 `"[session-manager] channel runtime refused"` 警告，把拒绝原因作为 `runtimeRefusal` 交给 drain，drain 不调用引擎，以 `runtime_refused` 结束这一批并把"原因 + Request was not executed."作为回复写出（第 7 节）。解析结果为 `void` 时同样不调用引擎：会话管理器把 "This session never runs a model (runtime void). A message queued before it became void was not run." 作为拒绝原因，这只会落到会话变成 void 之前就已进邮箱的消息上，因为之后的消息不再进邮箱（6.2）。job 会话不看渠道，按 job frontmatter 的 `runtime` 经 `validateRunnableRuntimeValue (Wd)` 检查，不合法或为 `void` 时同样以拒绝原因交给 drain，job 因此失败（第 10 节）。
+actor 的引擎在每次启动 actor 时重新解析一次（drain 循环开始之前），不随记录继承下来就用；同一个 actor 之后的各次 drain 沿用这次的解析结果（confirmed）。渠道会话由 `resolveSessionChannelRuntime (fh)` 按会话状态里的 `source_channel_id` 读出渠道实例描述符和渠道种类配置，交给 `resolveLayeredChannelRuntime (Ua)` 取值：实例层写了合法值就用它（来源记为 explicit），否则用种类层的合法值（inherited），两层都没写时用宿主默认值（default）；实例层的值不合法时直接拒绝，种类层的值不合法时只在实例层没有给出合法值的情况下拒绝，任何一层被拒都不回退到下一层（第 3 节）。
+
+解析结果被拒、为 `void`，或 job 的 runtime 不合法时，会话管理器都不让 drain 调用引擎，而是把拒绝原因交给 drain（confirmed）。渠道会话被拒时，会话管理器记一条 `"[session-manager] channel runtime refused"` 警告，把拒绝原因作为 `runtimeRefusal` 交给 drain，drain 不调用引擎，以 `runtime_refused` 结束这一批并把"原因 + Request was not executed."作为回复写出（第 7 节）。解析结果为 `void` 时同样不调用引擎：会话管理器把 "This session never runs a model (runtime void). A message queued before it became void was not run." 作为拒绝原因，这只会落到会话变成 void 之前就已进邮箱的消息上，因为之后的消息不再进邮箱（6.2）。job 会话不看渠道，按 job frontmatter 的 `runtime` 经 `validateRunnableRuntimeValue (Wd)` 检查，不合法或为 `void` 时同样以拒绝原因交给 drain，job 因此失败（第 10 节）。
 
 actor 启动时调用 `ensureSessionDescriptorAndStateFiles (nh)`，它只在 `meta.md` 与 `state.json` 不存在时创建它们，已存在的文件不改写（confirmed，证据见证据表）。所以 `meta.md` 里的类别只在第一次创建时写入一次：由 actor 启动创建时，类别由 actor 的来源推出，来源为 job 或 system 时取来源，否则 `meta:` 前缀取 meta，其余为 channel；由 job 创建先写入时，类别为 job；显示名取自此前唤醒事件携带的显示名（`channel.ingress` 发出的唤醒带有这个字段），没有时为空。之后的 actor 启动不会更新它，显示名只能经 `session.set_alias` RPC 由 `updateSessionDisplayName (wce)` 修改。会话类别因此有两个来源：前缀分类，以及 `meta.md` 里第一次写入的类别。
 
@@ -1469,7 +1548,7 @@ actor 有 active、idle、ended 三个状态，转换如下（confirmed）。唤
 
 `duoduo channel <type> start` 先把 `~/.config/duoduo/.env` 读进 CLI 自身的环境（只补未设置或为空的键），再用 `process.execPath` 以 detached 方式派生入口脚本并调用 unref，stdout 与 stderr 追加到 `<type>/run/plugin.log`，pid 写进 `<type>/run/pid.json`。子进程只继承少量基础变量（PATH、HOME、LANG 等）、CLI 设置的 daemon 连接变量（默认是指向 unix socket 的 `ALADUO_DAEMON_SOCKET`，外加 `ALADUO_CHANNEL_LAUNCHER=duoduo-cli`）和清单 envAllowlist 列出的键；`status` 只检查 `pid.json` 里的进程是否存活，`stop` 先发 SIGTERM，1.5 秒后仍存活再发 SIGKILL。除本地路径判断外，上面的安装步骤和本段描述的 CLI 行为已逐条在 cli.pretty.js 中读到，但所在函数都没有真名，构建检查无法核对，按证据约定标为未证实推测（见证据表）。
 
-适配器崩溃后不会被重启，这是一条否定性结论（confirmed）：CLI 派生子进程后不挂任何退出监听，daemon bundle 中没有插件目录或 pid 文件的引用，发现与恢复只能靠 `duoduo channel <type> status` 和手动 `start`。唯一会重新启动适配器的代码路径是 `duoduo upgrade`：`cli:runUpgradeChannelPhase (aZe)` 只处理 npm 上有更新版本的适配器，先安装新版本，再停止其中升级前正在运行的那些，daemon 重启之后重新启动它们；升级前没有运行的保持停止，已是最新版本的适配器不被触碰，daemon 重启造成的断线由适配器自己重连。daemon 看不到适配器进程，只看到它建立的连接与订阅；适配器不在线期间，发往该会话的输出留在 outbox 中，等它重新订阅时回放（6.3）。
+适配器崩溃后不会被重启，这是一条否定性结论（confirmed）：CLI 派生子进程后不挂任何退出监听，daemon bundle 中没有插件目录或 pid 文件的引用，发现与恢复只能靠 `duoduo channel <type> status` 和手动 `start`。唯一会重新启动适配器的代码路径是 `duoduo upgrade`：`cli:runUpgradeChannelPhase (aZe)` 只处理 npm 上有更新版本的适配器，先安装新版本，再停止其中升级前正在运行的那些，daemon 重启之后重新启动它们；升级前没有运行的保持停止，已是最新版本的适配器不被触碰，daemon 重启造成的断线由适配器自己重连。daemon 不跟踪适配器进程，只处理它建立的连接与订阅；适配器不在线期间，发往该会话的输出留在 outbox 中，等它重新订阅时回放（6.3）。
 
 协议方法按用途分为五组，daemon 侧的处理细节分别由第 5、6 节负责：
 
@@ -1483,11 +1562,20 @@ actor 有 active、idle、ended 三个状态，转换如下（confirmed）。唤
 
 `channel.ingress` 的参数是 session_key、text、attachments、idempotency_key、cwd_abs、source_kind、channel_id 与 display_name；daemon 侧的检查顺序、错误码与返回值见 6.2。其中两点决定适配器的写法。第一，经 WebSocket 调用时必须带业务渠道名 source_kind（不能是传输名 rpc 或 ws）和 channel_id，否则返回参数错误（confirmed，`assertWsChannelIdentityParams (mIe)`）；经 HTTP 调用而省略 source_kind 时，daemon 把来源记为 rpc（confirmed，`M = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc")`（`createDaemon`））。第二，source_kind 是业务渠道名时，返回值附带该渠道合并后的 `<kind>:` 配置块 kind_config；daemon 不解读这个块，只负责转交，飞书适配器据此决定进度卡模式（9.2）（confirmed）。两个方法都在入站检查通过之后、写入事件之前把 channel_id 记为会话的来源渠道 `source_channel_id`，channel_id 不合法时报错，不会先改绑会话（`bindSessionSourceChannel (pIe)`，confirmed）。
 
-输出方向上，一条 WebSocket 连接同时只承载一个会话的订阅：在同一连接上再发一次 `channel.pull`，daemon 先退订旧会话再订阅新会话（6.3）。飞书适配器因此为每个会话键各开一条 WebSocket 连接，连接建立后立即发 `channel.pull`：consumer_id 为 "feishu-gw"，return_mask 取 final、stream、stream_end、tool 四类，声明 accept_mime 为 "*/*"、accept_stream_end_reasons 为 interrupted 与 skipped；每收到一条 session.output，先发 `channel.ack` 再渲染。与会话相关的调用（ingress、文件上传与下载，以及客户端实现的 command）也经这条连接发出，所以 daemon 对它们执行上文的 WebSocket 参数检查。启动握手、`channel.describe` 与 `channel.spawn` 经 HTTP `/rpc` 发出，默认走 unix socket，配置了远程 ALADUO_DAEMON_URL 时走 TCP 并附带 bearer token。握手调用带 source_kind "feishu" 的 `system.runtime.info`，daemon 据此返回飞书种类配置的 new_session_workspace，适配器取它作为默认工作目录，没有时取 daemon 的 work_dir；9.2 第 5 步的自动配置用的就是这个目录（以上均为 feishu-gateway.js 字面量与调用结构，confirmed）。能力声明由 daemon 记入会话状态，它如何影响附件检查与结束原因的改写见 6.3。连接断开后，飞书适配器按 2、5、10、30、60 秒的间隔重连；进程重启后按消息缓存目录里保存的会话列表（"watched-sessions.json"）重新订阅，由 daemon 回放消费游标之后的积压。
+输出方向上，一条 WebSocket 连接同时只承载一个会话的订阅：在同一连接上再发一次 `channel.pull`，daemon 先退订旧会话再订阅新会话（6.3）。飞书适配器因此为每个会话键各开一条 WebSocket 连接，连接建立后立即发 `channel.pull`：consumer_id 为 "feishu-gw"，return_mask 取 final、stream、stream_end、tool 四类，声明 accept_mime 为 "*/*"、accept_stream_end_reasons 为 interrupted 与 skipped；每收到一条 session.output，先发 `channel.ack` 再渲染。pull 里的能力声明由 daemon 记入会话状态，它如何影响附件检查与结束原因的改写见 6.3。与会话相关的调用（ingress、文件上传与下载，以及客户端实现的 command）也经这条连接发出，所以 daemon 对它们执行上文的 WebSocket 参数检查。
+
+不针对某个会话的调用走 HTTP，连接断开后由适配器自己重连。启动握手、`channel.describe` 与 `channel.spawn` 经 HTTP `/rpc` 发出，默认走 unix socket，配置了远程 ALADUO_DAEMON_URL 时走 TCP 并附带 bearer token。握手调用带 source_kind "feishu" 的 `system.runtime.info`，daemon 据此返回飞书种类配置的 new_session_workspace，适配器取它作为默认工作目录，没有时取 daemon 的 work_dir；9.2 第 5 步的自动配置用的就是这个目录（以上均为 feishu-gateway.js 字面量与调用结构，confirmed）。连接断开后，飞书适配器按 2、5、10、30、60 秒的间隔重连；进程重启后按消息缓存目录里保存的会话列表（"watched-sessions.json"）重新订阅，由 daemon 回放消费游标之后的积压。
 
 `channel.spawn` 的 session_key 参数让渠道插件在会话收到第一条消息之前就建好它（confirmed）。`upsertChannelSpawnDescriptor (yvt)` 在写任何文件之前做两项检查：会话键必须属于渠道会话，否则拒绝并说明 `channel.spawn creates channel sessions only`；这个会话已绑定到另一个渠道实例时拒绝，`channel.spawn does not move a session to another channel`。描述符写成之后，它为这个会话写好会话描述与状态文件，在状态里记下工作目录、`source_channel_id` 与创建时间，再刷新会话索引；这一步出错时返回 `Failed to create session`。同一函数里，runtime 必须在 `claude`、`codex`、`grok`、`pi`、`void` 五个值之内；调用没给 runtime、而已有描述符里的 runtime 是被拒绝的值时，它拒绝更新并要求给出一个新的 runtime（confirmed）。
 
-渠道插件的会话可以不运行模型：种类或实例配置把 runtime 写成 `void` 时，这个渠道的会话不调用任何引擎，适用于只需要把消息写进事件日志和出站记录的插件（runtime 的五个取值与校验见第 3 节）。`isVoidRuntimeSession (Gu)` 经 `resolveSessionChannelRuntime (fh)` 按会话的来源渠道解析 runtime，结果为 `void` 即判为 void 会话（confirmed）。对这类会话，daemon 在渠道收发上有四处不同的处理（confirmed；`session.wake`、`session.compact` 与 `/model`、`/effort` 的拒绝见 3.1）：`channel.ingress` 与 `channel.command` 的事件追加进日志后改写一条出站记录，不写邮箱指针、不唤醒，送进来的注入提示或斜杠命令得到 "This session never runs a model (runtime void)." 开头的拒绝说明（第 1.2 节第四点）；Notify、job 结果等会话间投递同样改写出站记录（第 5.1 节）；出站订阅挂接时，`createVoidAwareAttachmentCallbacks (tde)` 跳过 void 会话，不把它交给会话管理器，所以订阅它不会建出会话 actor；一个会话在消息排队之后才变成 void 时，会话管理器把这批消息以拒绝说明结束，说明里写着 `A message queued before it became void was not run.`（`createSessionManager`）。void 会话的输出因此只有这些出站记录，渠道插件照常经 `channel.pull` 取回。
+渠道插件的会话可以不运行模型：种类或实例配置把 runtime 写成 `void` 时，这个渠道的会话不调用任何引擎，适用于只需要把消息写进事件日志和出站记录的插件（runtime 的五个取值与校验见第 3 节）。`isVoidRuntimeSession (Gu)` 经 `resolveSessionChannelRuntime (fh)` 按会话的来源渠道解析 runtime，结果为 `void` 即判为 void 会话（confirmed）。只在 `<kernel>/config/<kind>.md` 写 `runtime: void`、实例描述符不写 runtime 的渠道，其会话同样是 void 会话，`channel.describe` 对它报告种类默认值 `runtime: "void"`（在 v0.8.4 的还原 daemon 上实测，场景 03-void-session；取值规则见 `resolveLayeredChannelRuntime (Ua)`）。对 void 会话，daemon 在渠道收发上有四处不同的处理（confirmed；`session.wake`、`session.compact` 与 `/model`、`/effort` 的拒绝见 3.1）：
+
+1. `channel.ingress` 与 `channel.command` 的事件追加进日志后改写一条出站记录，不写邮箱指针、不唤醒。本该交给会话的 `/compact` 与 `/loop` 注入提示得到以 "This session never runs a model (runtime void)." 开头的拒绝说明；留在网关执行的命令照常执行，其中 `/model`、`/effort` 只回复拒绝文字（6.2）。
+2. Notify、job 结果等会话间投递同样改写成出站记录（第 5.1 节）。
+3. 出站订阅挂接时，`createVoidAwareAttachmentCallbacks (tde)` 跳过 void 会话，不把它交给会话管理器，所以订阅它不会建出会话 actor。
+4. 一个会话在消息排队之后才变成 void 时，会话管理器把这批消息以拒绝说明结束，说明里写着 `A message queued before it became void was not run.`（`createSessionManager`）。
+
+void 会话的输出因此只有这些出站记录，渠道插件照常经 `channel.pull` 取回并 `channel.ack`。这些记录不带 `in_reply_to_event_id`，适配器只能从 `payload.data.event_id` 找到对应的入站事件（6.3）。`channel.ingress` 的 display_name 只随唤醒事件传给会话管理器，void 分支不发唤醒，所以它对 void 会话不生效（在 v0.8.4 的还原 daemon 上实测，场景 03-void-session）。
 
 ### 9.2 飞书适配器
 
@@ -1548,7 +1636,9 @@ actor 有 active、idle、ended 三个状态，转换如下（confirmed）。唤
 
 另有 FEISHU_DOMAIN、FEISHU_LOG_LEVEL、FEISHU_MESSAGE_CACHE_DIR（默认 `~/.cache/feishu-channel`）三个运行参数（经 CLI 启动时传入），界面语言 FEISHU_LOCALE（不在清单里，经 CLI 启动时恒为 zh-CN），以及以 FEISHU_CS_ 开头、服务于多实例绑定模式（`/bind` 命令）的一组变量，本文没有分析后者。枚举型变量写成未列出的值时回落到默认值。
 
-这些变量由 CLI 在启动适配器时从 `~/.config/duoduo/.env` 与 CLI 进程环境取得，但只有适配器包清单 envAllowlist 列出的键会传给子进程（9.1）。已发布的清单不含 FEISHU_BOT_OWNER、FEISHU_GROUP_CMD_USERS、FEISHU_STREAMING_CARD、FEISHU_REACTION_NOTIFICATIONS、FEISHU_LOCALE，所以经 CLI 启动时这五个变量无论写在 `.env` 还是 shell 里都到不了适配器，适配器取默认值：所有者退回 FEISHU_ALLOW_FROM 的第一项（它也为空时任何人的私聊都会触发自动配置），群命令名单为空（没有 bound_by 的群因此永远不能再执行 `/setup`），流式卡片开启，表情转发为 own，语言为 zh-CN。只有不经 CLI、自行提供环境变量启动适配器时它们才生效；这种启动方式下适配器不读 `.env`，只记一条警告（"standalone host launch detected; ~/.config/duoduo/.env is not auto-loaded"，feishu-gateway.js 字面量）。清单内容经 npm registry 核对，适配器读取这五个变量是 feishu-gateway.js 字面量（confirmed）；CLI 只复制清单内键的过滤逻辑在无真名的 CLI 函数里，结论整体按未证实推测标注（见证据表）。凭据不应写进 Markdown：种类文件的 `<kind>:` 块会随每次 ingress 原样返回给适配器，出厂的 `feishu.md` 注释也写明了这一点。
+这些变量由 CLI 在启动适配器时从 `~/.config/duoduo/.env` 与 CLI 进程环境取得，但只有适配器包清单 envAllowlist 列出的键会传给子进程（9.1）。已发布的清单不含 FEISHU_BOT_OWNER、FEISHU_GROUP_CMD_USERS、FEISHU_STREAMING_CARD、FEISHU_REACTION_NOTIFICATIONS、FEISHU_LOCALE，所以经 CLI 启动时这五个变量无论写在 `.env` 还是 shell 里都到不了适配器，适配器取默认值：所有者退回 FEISHU_ALLOW_FROM 的第一项（它也为空时任何人的私聊都会触发自动配置），群命令名单为空（没有 bound_by 的群因此永远不能再执行 `/setup`），流式卡片开启，表情转发为 own，语言为 zh-CN。只有不经 CLI、自行提供环境变量启动适配器时它们才生效；这种启动方式下适配器不读 `.env`，只记一条警告（"standalone host launch detected; ~/.config/duoduo/.env is not auto-loaded"，feishu-gateway.js 字面量）。清单内容经 npm registry 核对，适配器读取这五个变量是 feishu-gateway.js 字面量（confirmed）；CLI 只复制清单内键的过滤逻辑在无真名的 CLI 函数里，结论整体按未证实推测标注（见证据表）。
+
+凭据只能放在适配器进程的环境变量里，不应写进 Markdown：种类文件的 `<kind>:` 块会随每次 ingress 原样返回给适配器，出厂的 `feishu.md` 注释也写明了这一点。
 
 ### 证据表
 
@@ -1599,7 +1689,9 @@ job 由一个独立于心跳的 60 秒扫描器调度，调度规则在创建时
 
 定义文件由 `renderJobFileMarkdown (gut)` 按固定顺序写出：type（恒为 "job"）、cron（调度规则）、created_at、owner_session、cwd_rel、runtime、model、effort、acceptance，stateless 只在为 true 时写，prompt_mode 只在为 override 时写，最后是 allowedTools、disallowedTools、additionalDirectories 三个列表和 `claude: { tools }`；没有值的字段不写，所以经 `job.create` 创建的文件只有 type、cron、created_at、owner_session、runtime 五个字段（在本版本的还原 daemon 上实测，场景 07-job-socket）。正文是任务书，每次运行都作为系统提示的 Job Mission 层注入（2.1）；SDK 配置类字段如何叠加进会话配置见 3.5。状态文件初始只有 last_run_at 为 null、last_result 为 "unknown"、run_count 为 0，之后由扫描器和结算写入 last_scheduled_at（认领时间）、last_run_started_at（引擎接受第一轮的时间）、last_run_at、last_result、last_error、run_count，以及改期设定的额外触发时间 run_at。RemindDuoduo 的提醒记录也放在这个目录，frontmatter 的 type 为 "wake"，列 job 时被跳过（4.4）。某个 job 文件解析失败时只有它不被调度，其余 job 照常加载（`the other jobs still load`（`initJobManagerModule`））。
 
-job 的 runtime 在 ManageJob 创建时和每次运行时校验，用的都是 `validateRunnableRuntimeValue (Wd)`，校验不过时拒绝，不改用默认引擎（confirmed）。JSON-RPC `job.create` 没有 runtime 参数：多传的 `runtime` 字段被忽略，文件里写的总是 `resolveDefaultRuntime (ho)` 的结果（`runtime: ho()`（`createDaemon`）），所以这条路径上不会出现创建时的 runtime 拒绝；实测中带 `runtime: "void"` 的请求成功，文件里写的是 `claude`（场景 07-job-socket）。它接受缺省值和 `claude`、`codex`、`grok`、`pi` 四个引擎名，拒绝两类值：duoduo 不认识的值，理由以 `This job sets runtime` 或 `Job "<id>" sets runtime` 开头并列出合法取值；以及 `void`，它不运行模型，不能用在 job 上。ManageJob 创建时，runtime 被拒绝就直接报错，不写任何文件。会话管理器每次启动 job actor 都重新读 job 文件并校验，被拒绝时把理由交给 drain，drain 以 `runtime_refused` 结束这次运行并抛出错误；引擎没有开始，所以这次运行按 10.3 的 NEVER_STARTED_FAILURE 结算。因此 job 文件里的 runtime 被手工改成错误的值后，job 每次到期都失败并通知 owner，直到文件被改正。在本版本的还原 daemon 上实测（场景 07-job-socket），runtime 改成 `void` 与未知值 `codx` 的两个 job 照常被扫描器认领并派生，drain 追加 `stage: "runtime_refused"` 的 `agent.error` 与 `job.fail`，状态文件记 `last_result: failure`、`run_count` 仍为 0，job 留在 `active/`；调用经过 `validateRunnableRuntimeValue (Wd)`、`drainSessionMailbox (zxe)`、`handleDrainError (TS)` 与 `createJobSessionFinalizer (fRe)`，没有调用任何引擎函数（confirmed）。
+job 的 runtime 在 ManageJob 创建时和每次运行时校验，用的都是 `validateRunnableRuntimeValue (Wd)`，校验不过时拒绝，不改用默认引擎（confirmed）。这个函数接受缺省值和 `claude`、`codex`、`grok`、`pi` 四个引擎名，拒绝两类值：duoduo 不认识的值，理由以 `This job sets runtime` 或 `Job "<id>" sets runtime` 开头并列出合法取值；以及 `void`，它不运行模型，不能用在 job 上。ManageJob 创建时，runtime 被拒绝就直接报错，不写任何文件。JSON-RPC `job.create` 没有 runtime 参数：多传的 `runtime` 字段被忽略，文件里写的总是 `resolveDefaultRuntime (ho)` 的结果（`runtime: ho()`（`createDaemon`）），所以这条路径上不会出现创建时的 runtime 拒绝；实测中带 `runtime: "void"` 的请求成功，文件里写的是 `claude`（场景 07-job-socket）。
+
+运行时的校验在会话管理器里：它每次启动 job actor 都重新读 job 文件并校验，被拒绝时把理由交给 drain，drain 以 `runtime_refused` 结束这次运行并抛出错误。引擎没有开始，所以这次运行按 10.3 的 NEVER_STARTED_FAILURE 结算。因此 job 文件里的 runtime 被手工改成错误的值后，job 每次到期都失败并通知 owner，直到文件被改正。在本版本的还原 daemon 上实测（场景 07-job-socket），runtime 改成 `void` 与未知值 `codx` 的两个 job 照常被扫描器认领并派生，drain 追加 `stage: "runtime_refused"` 的 `agent.error` 与 `job.fail`，状态文件记 `last_result: failure`、`run_count` 仍为 0，job 留在 `active/`；调用经过 `validateRunnableRuntimeValue (Wd)`、`drainSessionMailbox (zxe)`、`handleDrainError (TS)` 与 `createJobSessionFinalizer (fRe)`，没有调用任何引擎函数（confirmed）。
 
 调度规则有五种写法，全部按 UTC 计算，到期判断由 `isJobScheduleDue (G_e)` 完成：
 
@@ -1613,9 +1705,13 @@ job 的 runtime 在 ManageJob 创建时和每次运行时校验，用的都是 `
 
 下文的"一次性调度"指 once、@in、keepalive 三种：扫描器的重试规则（10.2）和投递负载里的调度类型 one-shot 都按这三种判断（confirmed，`isOneShotJobSchedule (FC)`）；结算后自动归档只适用于 once 与 @in（confirmed，见证据表）。无论哪种规则，状态文件里的 run_at 一旦到达，job 就到期一次，这是改期的实现方式（10.4）；对还没被认领过的 `once` 与 `@in`，一个尚未到达的 run_at 同时推迟它的首次运行（confirmed，`if ((e === "once" || e.startsWith("@in ")) && t === null) return !1`（`isJobScheduleDue`））。
 
-创建校验在 job 管理器的 createJob 里完成，所有创建途径都经过它。id 必须非空，且不能含路径分隔符或控制字符，因为它原样用作文件名；同一 id 已有活跃 job 时拒绝创建，已归档的 id 可以再次使用。调度规则必须非空并通过 `validateJobScheduleExpression (J_e)`：`once` 与 `keepalive` 直接接受；`@in` 与 `@every` 后面的时长由 `parseScheduleDurationMs (jw)` 解析，支持 s、m、h、d、w 五种单位的复合写法（如 `1d6h4m`），有多余字符即判为格式错误，再由 `assertScheduleDurationRepresentable (_6)` 拒绝超出可表示时间范围的值；其余一律按 UTC 的 cron 表达式解析，解析失败即拒绝。指定 cwd_rel 时，它必须是工作区根目录下已存在、且含 `CLAUDE.md` 的目录；省略时 job 在运行时管理的私有工作目录中运行，该目录跨运行保留。同 id 旧 job 残留的状态文件会被隔离，新 job 从全新状态开始。最后 createJob 为 job 会话写好会话描述（kind 为 job，记录 owner_session）。它不检查 owner_session 指向的会话是否存在。经 `job.create` 提交时，这些校验失败都以 `-32603 Internal error` 返回，理由放在 `data` 字段，不是参数错误 `-32602`（在本版本的还原 daemon 上实测，场景 07-job-socket：非法调度 `every tuesday`、重复 id 与含 `/` 的 id 三种拒绝）。
+创建校验在 job 管理器的 createJob 里完成，所有创建途径都经过它。id 必须非空，且不能含路径分隔符或控制字符，因为它原样用作文件名；同一 id 已有活跃 job 时拒绝创建，已归档的 id 可以再次使用。调度规则必须非空并通过 `validateJobScheduleExpression (J_e)`：`once` 与 `keepalive` 直接接受；`@in` 与 `@every` 后面的时长由 `parseScheduleDurationMs (jw)` 解析，支持 s、m、h、d、w 五种单位的复合写法（如 `1d6h4m`），有多余字符即判为格式错误，再由 `assertScheduleDurationRepresentable (_6)` 拒绝超出可表示时间范围的值；其余一律按 UTC 的 cron 表达式解析，解析失败即拒绝。
 
-创建有两个入口，行为不同。ManageJob 工具的 create 动作（把调用者会话记为 owner，要求 model 与 acceptance，并限制哪些会话能创建，见 4.2）在写完文件后发出总线事件 job.created，扫描器随即扫描一次，已到期的 job 立刻启动。JSON-RPC 方法 `job.create` 只接受 id、cron、instruction、owner_session 与 cwd_rel（`isJobCreateParams (xR)`），runtime 填宿主默认引擎，不检查 model 与 acceptance，只追加一条来源为 job 的 job.spawn 审计事件而不派生会话，也不发 job.created，所以要等下一次定时扫描才被调度；CLI 没有创建 job 的动词。`job.create` 不在只读 TCP 端口的放行集合里，但在 unix socket 上 daemon 不核对、也不在日志里记录调用者：info 级日志只有 `[JobManager] Created job <id>` 与调度规则，同一操作系统用户的任何进程都能经 socket 创建 job（confirmed，在本版本的还原 daemon 上实测，场景 07-job-socket）。`/loop` 不直接创建 job，而是把用户的一句话展开成要求模型调用 ManageJob 的提示（6.2）。
+指定 cwd_rel 时，它必须是工作区根目录下已存在、且含 `CLAUDE.md` 的目录；省略时 job 在运行时管理的私有工作目录中运行，该目录跨运行保留。同 id 旧 job 残留的状态文件会被隔离，新 job 从全新状态开始。最后 createJob 为 job 会话写好会话描述（kind 为 job，记录 owner_session）。它不检查 owner_session 指向的会话是否存在。经 `job.create` 提交时，这些校验失败都以 `-32603 Internal error` 返回，理由放在 `data` 字段，不是参数错误 `-32602`（在本版本的还原 daemon 上实测，场景 07-job-socket：非法调度 `every tuesday`、重复 id 与含 `/` 的 id 三种拒绝）。
+
+创建有两个入口，行为不同。ManageJob 工具的 create 动作（把调用者会话记为 owner，要求 model 与 acceptance，并限制哪些会话能创建，见 4.2）在写完文件后发出总线事件 job.created，扫描器随即扫描一次，已到期的 job 立刻启动。JSON-RPC 方法 `job.create` 只接受 id、cron、instruction、owner_session 与 cwd_rel（`isJobCreateParams (xR)`），runtime 填宿主默认引擎，不检查 model 与 acceptance，只追加一条来源为 job 的 job.spawn 审计事件而不派生会话，也不发 job.created，所以要等下一次定时扫描才被调度；CLI 没有创建 job 的动词。`/loop` 不直接创建 job，而是把用户的一句话展开成要求模型调用 ManageJob 的提示（6.2）。
+
+`job.create` 的访问控制只有监听器一层。它不在只读 TCP 端口的放行集合里，但在 unix socket 上 daemon 不核对、也不在日志里记录调用者：info 级日志只有 `[JobManager] Created job <id>` 与调度规则，同一操作系统用户的任何进程都能经 socket 创建 job（confirmed，在本版本的还原 daemon 上实测，场景 07-job-socket）。
 
 job 会话的会话键由 job id、调度规则和 cwd_rel 三项派生（`cwdRel: n.cwd_rel`（`initJobManagerModule`）），形如 `job:<id 的可读形式>.<哈希>`（包内 `bootstrap/var/jobs/DUODUO.md` 原文）；派生函数本身没有真名。由此可知，手工修改 job 文件里的 cron 或 cwd_rel 会让下一次运行落到一个新的会话键上，之前的会话历史不会带过去；只改 owner_session 不影响会话键。
 
@@ -1654,7 +1750,9 @@ job 会话的 actor 退出时，`createJobSessionFinalizer (fRe)` 按是否出�
 
 结果只投递给 owner，没有别的配置项。owner 取自 job 文件的 owner_session，而且用的是这次运行开始时的快照，所以运行期间修改 job 文件不会改变这次运行的收件人。没有 owner_session、owner 不是可投递的会话、或者 owner 已归档或正在归档时，结果不投递，只写日志。投递经 `deliverRouteEventToSession (As)` 完成：追加一条 route.deliver 事件并在 owner 邮箱写入指针；job.fail 随后发出唤醒，抢占模式为 never，不打断 owner 正在进行的轮次；job.complete 带 enqueueWithoutWake 标记，只进邮箱不唤醒（`enqueueWithoutWake: m === "job.complete"`（`createJobSessionFinalizer`））。成功投递的负载带结果摘要（前 200 个字符）、结果正文（前 2000 个字符）和调度类型（one-shot 或 periodic）。job 在本次运行中成功调用过 Notify 时，系统不再投递 job.complete，因为已经有人收到了结果；Notify 被拒绝的运行照常投递。
 
-成功回执不会自己驱动 owner 的一轮。owner 下一次因为别的原因 drain 时，`batchDrainItems (jW)` 挑选驱动这一轮的条目，跳过所有 job.complete 投递；`collectJobCompletionReceipts (Qmt)` 再从全部待处理条目里把它们收集起来，按 job_id 分组渲染：同一个 job 只有一条回执时给出结果正文，有多条时合并为一条摘要，说明成功了几次，并给出在事件日志里检索各次结果的 grep 命令。渲染出的文本作为 job-receipts 瞬时块放进这一轮的用户消息（2.3），这些条目随这一轮一起标记完成。给渠道会话的回执写明它是信息、不是指令、不要求回复，并说明它随 owner 因其他原因进行的这一轮一起送达，并没有唤醒 owner；给后台会话的回执则要求不产生用户可见输出。插话路径同样经 `batchDrainItems (jW)` 挑选条目，所以回执不会作为插话进入正在进行的轮次，而是留在邮箱里等下一次 drain。失败通知是普通的邮箱条目，会驱动 owner 的一轮，提示词按 owner 的会话类型和 job 的调度类型给出不同的处置要求：渠道会话收到一次性调度的 job 失败时，先被要求检查工作目录里是否已有部分成果，再决定怎样告诉用户；收到周期 job 失败时，被告知暂时性失败可以用 Skip 保持沉默，以及怎样用 `duoduo job archive` 停掉它。owner 不是渠道或未知类型的会话时（例如 keepalive job 派出的子 job 失败），提示词要求它决定是创建替代 job 重试、把错误并入自己的结果，还是不带目标调用 Notify 请求人工判断。
+成功回执不会自己驱动 owner 的一轮。owner 下一次因为别的原因 drain 时，`batchDrainItems (jW)` 挑选驱动这一轮的条目，跳过所有 job.complete 投递；`collectJobCompletionReceipts (Qmt)` 再从全部待处理条目里把它们收集起来，按 job_id 分组渲染：同一个 job 只有一条回执时给出结果正文，有多条时合并为一条摘要，说明成功了几次，并给出在事件日志里检索各次结果的 grep 命令。渲染出的文本作为 job-receipts 瞬时块放进这一轮的用户消息（2.3），这些条目随这一轮一起标记完成。给渠道会话的回执写明它是信息、不是指令、不要求回复，并说明它随 owner 因其他原因进行的这一轮一起送达，并没有唤醒 owner；给后台会话的回执则要求不产生用户可见输出。插话路径同样经 `batchDrainItems (jW)` 挑选条目，所以回执不会作为插话进入正在进行的轮次，而是留在邮箱里等下一次 drain。
+
+失败通知是普通的邮箱条目，会驱动 owner 的一轮，提示词按 owner 的会话类型和 job 的调度类型给出不同的处置要求：渠道会话收到一次性调度的 job 失败时，先被要求检查工作目录里是否已有部分成果，再决定怎样告诉用户；收到周期 job 失败时，被告知暂时性失败可以调用 Skip、不向用户回复，以及怎样用 `duoduo job archive` 停掉它。owner 不是渠道或未知类型的会话时（例如 keepalive job 派出的子 job 失败），提示词要求它决定是创建替代 job 重试、把错误并入自己的结果，还是不带目标调用 Notify 请求人工判断。
 
 认领时间同时起游标的作用：结算写状态时带上本次运行认领时记下的 last_scheduled_at，如果状态文件里的值已经变了（扫描器又认领了新的一次），这次结算什么都不写。job 在运行中被归档时，定义文件已不在 active 目录，结算冻结状态、不再自动归档，但结果仍照常投递给 owner。run_at 只在它不晚于认领时间时才被消费，所以运行期间用 RemindDuoduo 或 `duoduo job reschedule` 设下的新触发时间会保留下来；once 或 @in job 结算时如果 run_at 仍在，就跳过自动归档，等待那次触发。
 
@@ -1669,12 +1767,12 @@ keepalive job 首次运行之后不会再被扫描器判为到期，也不会自
 | `list [--json]` | `job.list` | 列出活跃 job 和提醒记录；该方法也在只读 TCP 端口放行（6.1） |
 | `read <id> [--json]` | `job.get` | 返回定义、任务书与状态；提醒记录和已归档的 job 也能读到；活跃文件无法解析与找不到时返回不同的错误码 |
 | `archive <id>` | `job.archive` | 把 `.md` 与 `.state.json` 移到 `var/jobs/archive/`，并由 `moveSessionDirToArchive (Ob)` 把 job 会话目录移到 `var/sessions-archive/`，不删除任何文件，也不追加事件；对已归档的 job 再次归档返回 `-32603`（实测，场景 07-job-socket）；正在进行的运行继续到结束，之后不再调度；对尚未触发的提醒记录同样有效，用于取消它 |
-| `interrupt <id> -r "<理由>"` | `job.interrupt` | 理由必填，CLI 与 RPC 两处都检查；-r 只对 interrupt 合法，其他动词带 -r 时 CLI 直接报错；先把理由写成该 job 会话的待送网关通知，再请求中止正在进行的运行；当时没有运行在进行时清除这条通知 |
+| `interrupt <id> -r "<理由>"` | `job.interrupt` | 理由必填，CLI 与 RPC 两处都检查；-r 只对 interrupt 合法，其他动词带 -r 时 CLI 直接报错；先把理由写成该 job 会话的待送网关通知，再请求中止正在进行的运行；当时没有运行在进行时清除这条通知；找不到 job 时返回 `-32011`（实测，场景 02-rpc-catalog） |
 | `reschedule <id> <时间>` | `job.reschedule` | 设定一次额外触发（写 run_at），时间为 `@in <时长>` 或带时区的未来 ISO 8601 时间；调度类别不变；已归档的 job 拒绝改期 |
 
 打断不是直接结束进程。会话管理器对常驻流式会话拆除这条流，对其他运行以 immediate 档位调用 `requestBoundaryAwarePreempt (gk)`，立即中止当前的 abort 控制器（7.5）；不响应中止信号的工具不会被强杀，运行中脱离引擎的后台工作也不受影响。被中止的运行按 10.3 结算：引擎已接受轮次时通常是 CANCELLED_POST_ACK，还没接受时是 CANCELLED_PRE_ACK，由扫描器重试。理由作为 gateway-notice 瞬时块出现在该 job 会话的下一次运行里（2.3），被打断的会话由此知道上一次为什么被切断。`job.interrupt` 同时查活跃与已归档的 job，所以先 archive 再 interrupt 可以停掉一个 job 并结束它正在进行的那次运行。CLI 打印的回执 `cli:renderInterruptReceipt (ope)` 逐条说明了这些结局。
 
-除 `job.list` 外，这几个方法都会修改状态或读取完整定义，只在完整控制面上提供，即 unix socket 和可选的远程监听（6.1）。另有一个 `job.manage` 方法不是给 CLI 用的：它只接受携带 pi worker token 的请求，内部调用与 ManageJob 工具相同的 `runManageJobTool (Ag)`，是 pi 引擎的 worker 进程执行 ManageJob 的回调通道（pi 的进程模型见 3.2）。
+除 `job.list` 外，这几个方法都会修改状态或读取完整定义，只在完整控制面上提供，即 unix socket 和可选的远程监听（6.1）。另有一个 `job.manage` 方法不是给 CLI 用的：它只接受携带 pi worker token 的请求，没有口令时返回 `-32001`，不进入工具体（在本版本的还原 daemon 上实测，场景 02-rpc-catalog）；它内部调用与 ManageJob 工具相同的 `runManageJobTool (Ag)`，是 pi 引擎的 worker 进程执行 ManageJob 的回调通道（pi 的进程模型见 3.2）。
 
 ### 证据表
 
@@ -1719,7 +1817,7 @@ keepalive job 首次运行之后不会再被扫描器判为到期，也不会自
 
 ## 11 心跳与后台分区
 
-心跳是 daemon 主进程里的一个定时器，每次触发先在进程内总线上广播 `cadence.tick`，再运行一轮不调用模型的确定性维护；后台分区调度器 `createMetaSession (Pbt)` 订阅这条广播，只有活动指纹有变化、轮转表里有不在冷却或退避中的分区时才运行一个分区，第一次选择选中了分区、且活跃会话不超过一个时才在同一次心跳里再运行一个，每次运行都是一个不保存历史的一次性会话。代码强制的检查有三处：契约过滤、分区工具白名单（只在 Claude 引擎上生效）、自操作工具层在 Claude、Codex、Grok 上不给分区会话提供 ManageJob（pi 分区能经 worker 回调调用 ManageJob create，见 4.1）；其余自我修改的边界只写在提示词里。daemon 启动时，内核已有内容就只补缺失的出厂文件，退休名单里的分区只把调度开关关掉一次。下面五个小节依次展开这五点。记忆检查产出什么任务单见第 12 节，job 的 60 秒扫描器见第 10 节。
+心跳是 daemon 主进程里的一个定时器，每次触发先在进程内总线上广播 `cadence.tick`，再运行一轮不调用模型的确定性维护。后台分区调度器 `createMetaSession (Pbt)` 订阅这条广播：只有活动指纹有变化、轮转表里有不在冷却或退避中的分区时，它才运行一个分区；第一次选择选中了分区、且活跃会话不超过一个时，它才在同一次心跳里再运行一个。每次分区运行都是一个不保存历史的一次性会话。代码强制的检查有三处：契约过滤、分区工具白名单（只在 Claude 引擎上生效）、自操作工具层在 Claude、Codex、Grok 上不给分区会话提供 ManageJob（pi 分区能经 worker 回调调用 ManageJob create，见 4.1）；其余自我修改的边界只写在提示词里。daemon 启动时，内核已有内容就只补缺失的出厂文件，退休名单里的分区只把调度开关关掉一次。下面五个小节依次展开这五点。记忆检查产出什么任务单见第 12 节，job 的 60 秒扫描器见第 10 节。
 
 ### 11.1 心跳与确定性维护
 
@@ -1780,7 +1878,7 @@ keepalive job 首次运行之后不会再被扫描器判为到期，也不会自
 | pattern-tracker | 7 | 900000（15 分钟） | node-converge.v1、revise.v1、orphan-newborn.v1 |
 | memory-committer | 3 | 1800000（30 分钟） | 无 `contract:` |
 
-**轮转表。**`parsePlaylistCurrentRound (Jct)` 只解析 `## Current Round` 一节，`- [ ] <分区名>` 表示未运行，`- [x] <分区名>` 表示已运行，遇到下一个 `## ` 标题就停。每次分区运行结束（包括因引擎不可用或 runtime 被拒绝而没有运行），`markPlaylistItemExecuted (IO)` 把该分区的第一个未勾选行勾上，并在 `## History` 下插入一行 `- <ISO 时间> executed=<分区名>`。当前一轮全部勾完、为空或文件不存在时，调度器用所有 `schedule.enabled` 为真的分区按名字顺序重建一轮；没有启用的分区时记一条 "all partitions are disabled, meta-session will idle" 并且不运行（confirmed）。选中的分区若已被删除或停用，调度器把它勾掉后接着选下一个；如果勾掉之后未勾选的数量没有减少，就记 "stale playlist item did not advance" 并结束这次选择，避免死循环。轮转表是普通文本文件，后台分区总纲写明任何人包括分区自己都可以编辑它（提示词原文，`subconscious/CLAUDE.md`）。
+**轮转表。**`parsePlaylistCurrentRound (Jct)` 只解析 `## Current Round` 一节，`- [ ] <分区名>` 表示未运行，`- [x] <分区名>` 表示已运行，遇到下一个 `## ` 标题就停。每次分区运行结束（包括因引擎不可用或 runtime 被拒绝而没有运行），`markPlaylistItemExecuted (IO)` 把该分区的第一个未勾选行勾上，并在 `## History` 下插入一行 `- <ISO 时间> executed=<分区名>`。当前一轮全部勾完、为空或文件不存在时，调度器用所有 `schedule.enabled` 为真的分区按名字顺序重建一轮；没有启用的分区时记一条 "all partitions are disabled, meta-session will idle" 并且不运行（confirmed）。选中的分区若已被删除或停用，调度器把它勾掉后接着选下一个；如果勾掉之后未勾选的数量没有减少，就记 "stale playlist item did not advance" 并结束这次选择，避免死循环。轮转表是普通文本文件，后台分区总纲写明任何人包括分区自己都可以编辑它（提示词原文，`subconscious/CLAUDE.md`）。调度器改写轮转表之后不提交它：在本版本的还原 daemon 上实测（场景 04-cadence），`playlist.md` 被 `markPlaylistItemExecuted (IO)` 改写后一直作为未提交修改留在内核工作区（confirmed；这次每个被选中的分区都在启动引擎之前被拒绝，没有调用模型）。
 
 **一次分区运行。**`createMetaSession (Pbt)` 的执行函数按以下顺序工作（confirmed，另注的除外）：
 
@@ -1977,7 +2075,11 @@ git -c user.name=aladuo -c user.email=aladuo@local commit -m <说明> -- <第二
 
 `git rm` 只删除已在索引里的文件，`--ignore-unmatch` 让未跟踪的路径什么都不做，所以从未提交过的 STALE 文件不会被删除；批次中任一文件与最近一次提交的内容不一致（有未提交或已暂存的修改）时，`git rm` 整体失败，函数返回空列表，这次什么都不删。提交说明由 `formatForgetCommitMessage (Mft)` 生成，单个文件时是 "forget: <slug>, stale orphan never linked"（confirmed）。在本版本的还原 daemon 上实测（场景 06-forget-gc），批次里有一个文件带未提交的修改时，`git rm` 以 1 退出，两个文件都保留，日志只写 `forgotten: []`，之后每次心跳重复这次失败且不留日志；只剩一个从未提交过的 STALE 文件时，`git rm` 以 0 退出，`git diff --cached` 输出为空，函数在 commit 之前返回，文件保留。
 
-提交这一步在默认布局下不会成功（confirmed）。`git diff --name-only` 输出相对仓库根的路径，后两条命令却按工作目录解析路径。初始化时内核目录本身被建成 git 仓库的顶层（11.5），memory 是它的子目录，所以第二条命令输出的是 `memory/topics/<slug>.md`，commit 在 memory 目录下把它解析成不存在的路径，报 pathspec 不匹配而失败；回滚用的 `git checkout` 同样失败，`git reset` 对不匹配的路径不做任何事。结果是文件已从工作区和索引删除，删除停在暂存区，函数返回空列表，心跳日志不报告这次遗忘，也不会出现 "forget: …" 提交。在本版本的还原 daemon 上实测（场景 06-forget-gc，两个开关都打开，用 `GIT_TRACE2_EVENT` 记下 daemon 执行的每条 git 命令及退出码），调用依次经过 `routeContractDecision (qH)`、`isOrphanWarningDeliverable (eSe)`、`forgetMemoryEntry (NSe)`、`resolveGitToplevelSync (Cft)` 与 `formatForgetCommitMessage (Mft)`；`git rm` 与 `git diff --cached` 以 0 退出，带路径的 commit 与回滚用的 checkout 都以 1 退出，git 报 "pathspec 'memory/topics/<slug>.md' did not match any file(s) known to git"，`git reset` 以 0 退出。结果是 `git status` 显示一项已暂存的删除，`git log` 里没有 "forget:" 提交，`[memory] check tick` 日志写 `forgotten: []`，没有任何错误日志。`.git/index.lock` 那条退出路径没有测。暂存的删除会被之后任何一次不带路径参数的提交带进历史；出厂分区里做提交的是 memory-committer，它的提交范围包含 `memory/topics/**`（提示词原文），它是否在某次唤醒中带上这项删除，取决于会话当时的操作，这一步需要模型，没有实测（未证实推测）。被删文件此前已提交过，仍能从 git 历史恢复。
+提交这一步在默认布局下不会成功（confirmed）。`git diff --name-only` 输出相对仓库根的路径，后两条命令却按工作目录解析路径。初始化时内核目录本身被建成 git 仓库的顶层（11.5），memory 是它的子目录，所以第二条命令输出的是 `memory/topics/<slug>.md`，commit 在 memory 目录下把它解析成不存在的路径，报 pathspec 不匹配而失败；回滚用的 `git checkout` 同样失败，`git reset` 对不匹配的路径不做任何事。结果是文件已从工作区和索引删除，删除停在暂存区，函数返回空列表，心跳日志不报告这次遗忘，也不会出现 "forget: …" 提交。
+
+在本版本的还原 daemon 上实测（场景 06-forget-gc，两个开关都打开，用 `GIT_TRACE2_EVENT` 记下 daemon 执行的每条 git 命令及退出码），调用依次经过 `routeContractDecision (qH)`、`isOrphanWarningDeliverable (eSe)`、`forgetMemoryEntry (NSe)`、`resolveGitToplevelSync (Cft)` 与 `formatForgetCommitMessage (Mft)`；`git rm` 与 `git diff --cached` 以 0 退出，带路径的 commit 与回滚用的 checkout 都以 1 退出，git 报 "pathspec 'memory/topics/<slug>.md' did not match any file(s) known to git"，`git reset` 以 0 退出。结果是 `git status` 显示一项已暂存的删除，`git log` 里没有 "forget:" 提交，`[memory] check tick` 日志写 `forgotten: []`，没有任何错误日志。`.git/index.lock` 那条退出路径没有测。
+
+暂存的删除会被之后任何一次不带路径参数的提交带进历史；出厂分区里做提交的是 memory-committer，它的提交范围包含 `memory/topics/**`（提示词原文），它是否在某次唤醒中带上这项删除，取决于会话当时的操作，这一步需要模型，没有实测（未证实推测）。被删文件此前已提交过，仍能从 git 历史恢复。
 
 **手动入口。**CLI 另有 `duoduo memory reclaim` 子命令（`case "reclaim"`（`cli:runMemoryCommand`）），对孤儿执行同样的处理：NEWBORN 发警告、ISLAND 发说明、STALE 用 git 删除。它要求显式的 `--tag`，不要求遗忘开关（check 开关仍作为契约过滤的 flagFallback），`--force` 同时跳过契约过滤和"能否收到警告"的检查；它删除 STALE 节点用的是 cli bundle 里与 `forgetMemoryEntry` 逐行相同的一段代码，所以有同样的路径问题（未证实推测：已读到 cli bundle 中的处理函数，但它们没有真名，无法按名引用）。
 
@@ -2043,7 +2145,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | broadcast-budget 的两个上限、字符计法与目标分区 | `runBroadcastBudgetLint (hSe)`；`Hdt = 100, Wdt = 200`（`initBroadcastBudgetLintModule`）；`Kdt = "·"`（`initBroadcastBudgetLintModule`）；`"ALADUO_MEMORY_MAX_LINE_CHARS"`（`runBroadcastBudgetLint`）；`Gdt = "intuition-weaver"`（`initBroadcastBudgetLintModule`） | confirmed |
 | broadcast-lint 检查链接能否解析到 entities 或 topics 文件 | `runBroadcastLinkLint (RSe)`；`extractBoardSlugLinks (yft)`；`pendingFilename: "claude-lint.md.pending"`（`runBroadcastLinkLint`）；`hft = "intuition-weaver"`（`initBroadcastLinkLintModule`） | confirmed |
 | broadcast-flatten 找围栏外的标题行 | `runBroadcastFlattenLint (TSe)`；`findBoardHeadingLines (Ift)`；`pendingFilename: "claude-flatten.md.pending"`（`runBroadcastFlattenLint`）；`xft = "intuition-weaver"`（`initBroadcastFlattenLintModule`） | confirmed |
-| activation report：30 个交互日窗口，热孤儿最多列 10 个，前台写入工具单独计数 | `runActivationLint (bSe)`；`renderActivationReportBody (dft)`；`LH = 30, _Se = 10`（`initActivationLintModule`）；`"NotebookEdit"`（`initActivationLintModule`） | confirmed |
+| activation report：30 个交互日窗口，被读过却不在可达集里的文件最多列 10 个，前台写入工具单独计数 | `runActivationLint (bSe)`；`renderActivationReportBody (dft)`；`LH = 30, _Se = 10`（`initActivationLintModule`）；`"NotebookEdit"`（`initActivationLintModule`） | confirmed |
 | 窗口从今天往前逐日读，满 30 个含 `channel.message` 的日子为止；前台工具调用与"读到"的判定 | `scanActivationWindowTouches (aft)`；`s.interactionDays >= LH`（`scanActivationWindowTouches`）；`p.includes('"channel.message"')`（`scanActivationWindowTouches`）；`!p.includes('"kind":"runner"')`（`scanActivationWindowTouches`）；`m.payload?.input_summary`（`scanActivationWindowTouches`） | confirmed |
 | orphan-newborn 按前缀二选一分区，islands 固定给 intuition-weaver，正文逐个列出节点与引用者 | `buildOrphanNewbornSignals (ASe)`；`filterOrphanIslands (DSe)`；`e.slug.startsWith("lesson-")`（`routeContractDecision`）；`partition: qH(n)`（`buildOrphanNewbornSignals`）；`pendingFilename: "orphan-islands.md.pending"`（`buildOrphanIslandsSignal`）；`touches = foreground reads of the node in the activation window`（`renderOrphanIslandsBody`）；`"[orphan-islands]"`（`renderOrphanIslandsBody`） | confirmed |
 | scan-gap 同一时间只有一张 | `deliverScanGapSignal (cSe)`；`zc.join(Mc(r.varDir, "gradient-distiller"), aSe)`（`deliverScanGapSignal`）；`pending: !0`（`deliverScanGapSignal`） | confirmed |
@@ -2173,6 +2275,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 4. **launchd 托管时残留的重启原因文件（6.4）。** 之后任何一次成功启动都会认领残留的旧文件并投递其中的唤醒目标，这一半已在本版本的还原 daemon 上实测（场景 08-restart-reason）。剩下要在 macOS 上验证的是另一半：由 launchd 托管的重启在新 daemon 启动失败时，CLI 是否真的把原因文件留在原处。验证方法：让 launchd 托管的 daemon 在重启后启动失败，再手动启动，观察重启提示与唤醒投递。
 5. **飞书适配器的两个产物是否为同一构建（9.2）。** 第 9.2 节依据包内的 `dist/release/feishu-gateway.js`，实际运行的是 `duoduo channel install` 装入的 `@openduo/channel-feishu`；两者的差异没有对比。第 9.3 节核对 envAllowlist 时，npm registry 上 `@openduo/channel-feishu` 的 latest 是 0.8.2，与本文对齐的 duoduo 版本号不同。
 6. **void 会话在适配器一侧的呈现（6.3、4.3）。** void 会话在 daemon 一侧的流转已在本版本的还原 daemon 上实测（6.2、6.3，场景 03-void-session）。渠道适配器收到这类出站记录后怎样呈现，以及 `notify_in_reply_to` 由谁读取，要在装有声明 `void` 的渠道插件的实例上观察。
+7. **`spine.cat` 脱敏对需要模型才能产生的事件（6.1）。** `redact: "external"` 对 `channel.message`、`agent.result`、`external.record`、`route.deliver` 和只留事件头的类型的处理已在本版本的还原 daemon 上实测（场景 09-spine-redaction）。`body.experience`、`body.mail` 与工具事件需要模型才能写出，它们的保留规则仍只来自静态阅读。验证方法：在能调用模型的实例上产生这几类事件，再比较 `spine.cat` 带与不带 `redact: "external"` 的输出。
 
 ### 14.3 由静态阅读推出、尚未复现的后果
 
@@ -2189,7 +2292,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 ### 14.4 只因函数没有真名而标为未证实推测的项
 
-正文里还有一批未证实推测，代码已在 pretty bundle 读到，缺的只是一个构建检查能核对的引用。多数在 cli bundle 里：cli bundle 的真名主要来自 `__export` 表，推断名映射登记的还只有少数函数，这些 CLI 函数因此没有真名。daemon bundle 入口代码里还有两个用 `new Set` 构造的顶层常量：只读 TCP 端口放行的方法集合，以及 `spine.cat` 脱敏时原样保留的事件类型集合。登记工具只接受函数、模块初始化器和字面量常量，这两个集合不属于任何一种，所以不能命名；它们的成员已在本版本的还原 daemon 上实测（6.1），不再列在这里。按节列出如下：
+正文里还有一批未证实推测，代码已在 pretty bundle 读到，缺的只是一个构建检查能核对的引用。多数在 cli bundle 里：cli bundle 的真名主要来自 `__export` 表，推断名映射登记的还只有少数函数，这些 CLI 函数因此没有真名。daemon bundle 入口代码里还有两个用 `new Set` 构造的顶层常量：只读 TCP 端口放行的方法集合，以及 `spine.cat` 脱敏时原样保留的事件类型集合。登记工具只接受函数、模块初始化器和字面量常量，这两个集合不属于任何一种，所以不能命名。前一个集合的六个成员已在本版本的还原 daemon 上全部实测（6.1、B.3）；后一个集合中能在没有模型时产生的成员已经实测，其余成员见 14.2 第 7 项。所以这两个集合不再列在这里。其余各项按节列出如下：
 
 | 节 | 只因函数没有真名而未证实的主张 |
 |---|---|
@@ -2200,7 +2303,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 ## 附录 A 短名与真名
 
-本文 `真名 (短名)` 引用里的真名来自 esbuild 的 `__export` 表或登记过的推断名，短名是对齐版本的美化 bundle 里的 mangled 名；推断名里有一部分是上游自己的拼写：同作者的 `@openduo/protocol` 包直接发布 TypeScript 源码，daemon 把它的参数校验函数、错误描述函数和常量内联进 bundle 而不保留名字，本仓库按该包源码逐个配对后登记，记录在 `reconstruction/maps/published_daemon.json`（配对方法见 `docs/SOURCE_RECONSTRUCTION.md`）；esbuild 每次构建都重新 mangle，所以短名只对本文对齐的版本有效，跨版本请以真名为准。完整对照表按子系统列在 [`reconstruction/maps/RENAME_TABLE.md`](../reconstruction/maps/RENAME_TABLE.md)（cli 见 [`RENAME_TABLE_cli.md`](../reconstruction/maps/RENAME_TABLE_cli.md)），可读源码按子系统拆在 [`reconstruction/first-party/`](../reconstruction/first-party/)。
+本文 `真名 (短名)` 引用里的真名来自 esbuild 的 `__export` 表或登记过的推断名，短名是对齐版本的美化 bundle 里的 mangled 名。推断名里有一部分是上游自己的拼写。同作者的 `@openduo/protocol` 包直接发布 TypeScript 源码，daemon 把它的参数校验函数、错误描述函数和常量内联进 bundle 而不保留名字；本仓库按该包源码逐个配对后登记这些名字，记录在 `reconstruction/maps/published_daemon.json`（配对方法见 `docs/SOURCE_RECONSTRUCTION.md`）。esbuild 每次构建都重新 mangle，所以短名只对本文对齐的版本有效，跨版本请以真名为准。完整对照表按子系统列在 [`reconstruction/maps/RENAME_TABLE.md`](../reconstruction/maps/RENAME_TABLE.md)（cli 见 [`RENAME_TABLE_cli.md`](../reconstruction/maps/RENAME_TABLE_cli.md)），可读源码按子系统拆在 [`reconstruction/first-party/`](../reconstruction/first-party/)。
 
 ## 附录 B 事件类型与 RPC 方法全集
 
@@ -2263,7 +2366,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | 其他 | `spine.record` | `recordExternalSpineEvent (Eke)`：追加一条 `external.record` 事件，不写邮箱指针、不唤醒任何会话；`source` 是内部来源名或会话键前缀时由 `checkReservedRecordSource (Dpt)` 以 `reserved_source` 拒绝；带 `dedup_key` 时经去重表判重，重复时返回首次的事件 id 与 `duplicate: true` | B.1 |
 | 其他 | `memory.read` | `readMemoryFileForRpc (QSe)`：读取记忆目录下的一个文件，路径先按字面、再按 realpath 检查必须在记忆目录内，越界、不存在与目录都以 `-32602` 拒绝 | 12 |
 
-四个 pi worker 回调方法只接受带有效 worker 口令的调用，带口令的调用也只能使用这四个方法（6.1）；实测中不带口令调用这四个方法都返回 `-32001`，不进入工具体。实测还看到两类错误码：`job.interrupt` 找不到 job 时返回 `-32011`；`job.create` 校验失败与对已归档 job 的 `job.archive` 返回 `-32603`，理由放在 `data` 字段（10.1、10.4）。其余方法在 unix socket 与远程监听上都可用，本机 TCP 端口只放行 B.3 的六个。
+四个 pi worker 回调方法只接受带有效 worker 口令的调用，带口令的调用也只能使用这四个方法（6.1）；实测中不带口令调用这四个方法都返回 `-32001`，不进入工具体。实测还看到两类错误码：`job.interrupt` 找不到 job 时返回 `-32011`；`job.create` 校验失败与对已归档 job 的 `job.archive` 返回 `-32603`，理由放在 `data` 字段（10.1、10.4）。`spine.cat` 用 `show` 指定的事件不存在、或被 `redact: "external"` 丢弃时，也返回 `-32603`，`data` 为 "Event <id> not found in <date>."，而不是参数错误 `-32602`（场景 09-spine-redaction）。其余方法在 unix socket 与远程监听上都可用，本机 TCP 端口只放行 B.3 的六个。
 
 ### B.3 只读 TCP 端口放行的方法
 
