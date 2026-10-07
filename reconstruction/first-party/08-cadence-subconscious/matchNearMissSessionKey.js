@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: matchNearMissSessionKey  (minified: eut, daemon.pretty.js:65090)
+// symbol: matchNearMissSessionKey  (minified: Glt, daemon.pretty.js:65348)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function matchNearMissSessionKey(e, t) {
     if (t.session_key === e) return null;
-    let n = U_e(e),
-        r = U_e(t.session_key);
+    let n = ove(e),
+        r = ove(t.session_key);
     if (n.length === 0 || r.length === 0) return null;
     if (n.length === r.length && n.length >= 2) {
         let s = 0;
@@ -15,8 +15,8 @@ function matchNearMissSessionKey(e, t) {
         if (s === n.length - 1) {
             let a = n[n.length - 1],
                 u = r[r.length - 1],
-                l = computeBoundedEditDistance(a, u, z_e);
-            if (l <= z_e) return {
+                l = computeBoundedEditDistance(a, u, ive);
+            if (l <= ive) return {
                 entry: t,
                 note: `last segment differs by ${l} char${l===1?"":"s"}`
             };

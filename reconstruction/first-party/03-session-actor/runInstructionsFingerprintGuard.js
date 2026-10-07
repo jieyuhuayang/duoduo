@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: runInstructionsFingerprintGuard  (minified: OA, daemon.pretty.js:82402)
+// symbol: runInstructionsFingerprintGuard  (minified: xN, daemon.pretty.js:82704)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -21,7 +21,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
         schema_version: SESSION_SCHEMA_VERSION,
         board_layer_hash: c,
         instructions_nonboard_fingerprint: d
-    }), te(`[session-upgrade] v${u} → v${SESSION_SCHEMA_VERSION} rebuild`, {
+    }), ee(`[session-upgrade] v${u} → v${SESSION_SCHEMA_VERSION} rebuild`, {
         sessionKey: t,
         jobId: l,
         runtime: r,
@@ -43,7 +43,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), te("[instructions-fingerprint] codex board-only drift — fork skipped", {
+            }), ee("[instructions-fingerprint] codex board-only drift — fork skipped", {
                 sessionKey: t,
                 jobId: l,
                 fp_old: a ?? null,
@@ -68,7 +68,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), te("[instructions-fingerprint] codex thread fork", {
+            }), ee("[instructions-fingerprint] codex thread fork", {
                 sessionKey: t,
                 jobId: l,
                 fp_old: a ?? null,
@@ -93,7 +93,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
                 instructions_fingerprint: s,
                 board_layer_hash: c,
                 instructions_nonboard_fingerprint: d
-            }), te("[instructions-fingerprint] codex thread reset (no parent to fork)", {
+            }), ee("[instructions-fingerprint] codex thread reset (no parent to fork)", {
                 sessionKey: t,
                 jobId: l,
                 fp_old: a ?? null,
@@ -116,7 +116,7 @@ async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
             instructions_fingerprint: s,
             board_layer_hash: c,
             instructions_nonboard_fingerprint: d
-        }), te(`[instructions-fingerprint] ${r} instructions updated`, {
+        }), ee(`[instructions-fingerprint] ${r} instructions updated`, {
             sessionKey: t,
             jobId: l,
             fp_old: a ?? null,

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createJobSessionFinalizer  (minified: SEe, daemon.pretty.js:80276)
+// symbol: createJobSessionFinalizer  (minified: fRe, daemon.pretty.js:80578)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -11,7 +11,7 @@ function createJobSessionFinalizer(e) {
         jobManager: r
     } = e;
     async function i(f) {
-        return new Set(await ob(resolveSessionInboxDir(t, f)))
+        return new Set(await $b(resolveSessionInboxDir(t, f)))
     }
     async function o(f, p) {
         let m;
@@ -37,12 +37,12 @@ function createJobSessionFinalizer(e) {
                 consumeRunAt: h,
                 expectedClaimCursor: g
             });
-            return v === vV ? (te(`[session-manager] job gone at finalize (${y}) — state frozen`, {
+            return v === S6 ? (ee(`[session-manager] job gone at finalize (${y}) — state frozen`, {
                 jobId: f,
                 sessionKey: p
             }), {
                 kind: "gone"
-            }) : v === wV ? (Z(`[session-manager] stale finalize (${y}) — a fresh claim owns the sidecar; nothing written`, {
+            }) : v === k6 ? (Z(`[session-manager] stale finalize (${y}) — a fresh claim owns the sidecar; nothing written`, {
                 jobId: f,
                 sessionKey: p,
                 claimCursor: g
@@ -53,7 +53,7 @@ function createJobSessionFinalizer(e) {
                 runAt: v.run_at
             }
         } catch (v) {
-            return Le(`[session-manager] job state finalize failed (${y})`, v), {
+            return Ue(`[session-manager] job state finalize failed (${y})`, v), {
                 kind: "failed"
             }
         }
@@ -69,9 +69,9 @@ function createJobSessionFinalizer(e) {
                 processedCount: v,
                 claimCursor: b,
                 error: _,
-                resultText: I
+                resultText: E
             } = p,
-            E = s({
+            R = s({
                 error: _,
                 cancelled: y,
                 runStarted: g,
@@ -79,9 +79,9 @@ function createJobSessionFinalizer(e) {
             });
         try {
             await r.init();
-            let R = p.jobSnapshot,
-                x = R?.frontmatter.cron ?? "";
-            switch (E) {
+            let P = p.jobSnapshot,
+                k = P?.frontmatter.cron ?? "";
+            switch (R) {
                 case "NEVER_STARTED_FAILURE": {
                     let S = _ instanceof Error ? _.message : String(_);
                     await a(m, h, {
@@ -90,13 +90,13 @@ function createJobSessionFinalizer(e) {
                     }, !1, b, "never-started failure"), await l({
                         jobId: m,
                         sessionKey: h,
-                        job: R,
-                        cron: x,
+                        job: P,
+                        cron: k,
                         errorMsg: S
-                    }), te("[session-manager] job failed (never started, spawn-class) — job preserved", {
+                    }), ee("[session-manager] job failed (never started, spawn-class) — job preserved", {
                         jobId: m,
                         sessionKey: h,
-                        cron: x,
+                        cron: k,
                         error: S
                     });
                     break
@@ -110,15 +110,15 @@ function createJobSessionFinalizer(e) {
                     await l({
                         jobId: m,
                         sessionKey: h,
-                        job: R,
-                        cron: x,
+                        job: P,
+                        cron: k,
                         errorMsg: S
                     }), await c({
                         jobId: m,
                         sessionKey: h,
-                        cron: x,
+                        cron: k,
                         state: D
-                    }), te("[session-manager] job failed", {
+                    }), ee("[session-manager] job failed", {
                         jobId: m,
                         sessionKey: h,
                         error: S
@@ -133,14 +133,14 @@ function createJobSessionFinalizer(e) {
                         D = await c({
                             jobId: m,
                             sessionKey: h,
-                            cron: x,
+                            cron: k,
                             state: S
                         });
                     D && await l({
                         jobId: m,
                         sessionKey: h,
-                        job: R,
-                        cron: x,
+                        job: P,
+                        cron: k,
                         errorMsg: "cancelled — the run was interrupted after it started and this one-shot job has been archived, so it will not run again"
                     }), Z(D ? "[session-manager] job run cancelled after turn ack — archived, owner notified" : "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery", {
                         jobId: m,
@@ -181,37 +181,37 @@ function createJobSessionFinalizer(e) {
                             session_key: h,
                             payload: {
                                 job_id: m,
-                                result_summary: I?.slice(0, 200)
+                                result_summary: E?.slice(0, 200)
                             }
                         });
                     await atomicAppendEvent(t, D);
-                    let $ = I?.slice(0, 200);
+                    let A = E?.slice(0, 200);
                     n.emit("job.completed", {
                         jobId: m,
                         sessionKey: h,
-                        resultSummary: $
-                    }), f.agentNotifiedThisDrain ? Re("[session-manager] skipping system job.complete delivery: agent called Notify", {
+                        resultSummary: A
+                    }), f.agentNotifiedThisDrain ? ke("[session-manager] skipping system job.complete delivery: agent called Notify", {
                         jobId: m,
                         sessionKey: h
-                    }) : await d(R, h, "job.complete", {
+                    }) : await d(P, h, "job.complete", {
                         job_id: m,
-                        result_summary: $,
-                        result_text: I?.slice(0, 2e3),
-                        schedule_type: classifyJobScheduleType(x)
+                        result_summary: A,
+                        result_text: E?.slice(0, 2e3),
+                        schedule_type: classifyJobScheduleType(k)
                     }), await c({
                         jobId: m,
                         sessionKey: h,
-                        cron: x,
+                        cron: k,
                         state: S
-                    }), te("[session-manager] job completed", {
+                    }), ee("[session-manager] job completed", {
                         jobId: m,
                         sessionKey: h
                     });
                     break
                 }
             }
-        } catch (R) {
-            Le("[session-manager] error finalizing job session", R)
+        } catch (P) {
+            Ue("[session-manager] error finalizing job session", P)
         }
     }
     async function l(f) {
@@ -253,12 +253,12 @@ function createJobSessionFinalizer(e) {
         if (!isAutoArchivedJobSchedule(h)) return !1;
         switch (g.kind) {
             case "gone":
-                return te("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
+                return ee("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
                     jobId: p,
                     cron: h
                 }), !1;
             case "stale":
-                return te("[session-manager] skip auto-archive: stale finalize (a fresh claim owns the job)", {
+                return ee("[session-manager] skip auto-archive: stale finalize (a fresh claim owns the job)", {
                     jobId: p,
                     cron: h
                 }), !1;
@@ -268,7 +268,7 @@ function createJobSessionFinalizer(e) {
                     cron: h
                 }), !1;
             case "written":
-                if (g.runAt !== null) return te("[session-manager] skip auto-archive: job re-armed via reschedule", {
+                if (g.runAt !== null) return ee("[session-manager] skip auto-archive: job re-armed via reschedule", {
                     jobId: p,
                     cron: h,
                     runAt: g.runAt
@@ -283,16 +283,16 @@ function createJobSessionFinalizer(e) {
             return v.archived ? (y = !0, (await archiveSessionDirUnlessAlreadyArchiving(t, m)).reason === "archive_in_flight" ? (Z("[session-manager] skip finalize session archive: archive already in flight", {
                 jobId: p,
                 sessionKey: m
-            }), !0) : (te("[session-manager] auto-archived one-shot job", {
+            }), !0) : (ee("[session-manager] auto-archived one-shot job", {
                 jobId: p,
                 cron: h
-            }), !0)) : (te("[session-manager] skip auto-archive: job re-armed during finalize", {
+            }), !0)) : (ee("[session-manager] skip auto-archive: job re-armed during finalize", {
                 jobId: p,
                 cron: h,
                 runAt: v.runAt
             }), !1)
         } catch (v) {
-            return Le("[session-manager] failed to auto-archive one-shot job", v), y
+            return Ue("[session-manager] failed to auto-archive one-shot job", v), y
         }
     }
     async function d(f, p, m, h) {
@@ -305,7 +305,7 @@ function createJobSessionFinalizer(e) {
             });
             return
         }
-        let y = S$(g);
+        let y = fO(g);
         if (!y) {
             Z("[session-manager] job outcome undeliverable: owner_session is not a route target", {
                 jobId: f.id,
@@ -324,7 +324,7 @@ function createJobSessionFinalizer(e) {
                 eventType: m,
                 payload: h,
                 enqueueWithoutWake: m === "job.complete"
-            }), Re("[session-manager] job outcome delivered to owner", {
+            }), ke("[session-manager] job outcome delivered to owner", {
                 jobId: f.id,
                 targetSessionKey: y,
                 eventType: m,

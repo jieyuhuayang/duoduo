@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: renderNodeConvergeSignalBody  (minified: xlt, daemon.pretty.js:66997)
+// symbol: renderNodeConvergeSignalBody  (minified: _dt, daemon.pretty.js:67269)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function renderNodeConvergeSignalBody(e) {
-    let t = Q$(e),
+    let t = DO(e),
         n = [`[node-converge] [[${t}]]`, `node: topics/${t}.md`];
-    if (e.lines > E6 && n.push(`lines: ${e.lines} (over ${E6})`), e.unexpectedSectionCount > 0) {
+    if (e.lines > xH && n.push(`lines: ${e.lines} (over ${xH})`), e.unexpectedSectionCount > 0) {
         n.push(`unexpected-sections: ${e.unexpectedSectionCount}`);
         for (let r of e.unexpectedSections) n.push(`  - ## ${r}`)
     }

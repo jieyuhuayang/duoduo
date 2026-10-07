@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: retireListedPartitions  (minified: Gwe, daemon.pretty.js:69151)
+// symbol: retireListedPartitions  (minified: Fke, daemon.pretty.js:69442)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function retireListedPartitions(e) {
     let t = [];
-    for (let n of cdt) try {
+    for (let n of Jpt) try {
         t.push(await retirePartitionOnce(e, n))
     } catch (r) {
         Z(`[init] retiring partition '${n.name}' failed: ${Wi(r)}`), t.push({

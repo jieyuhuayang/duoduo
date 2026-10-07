@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: computeNonBoardInstructionsFingerprint  (minified: cJ, daemon.pretty.js:82357)
+// symbol: computeNonBoardInstructionsFingerprint  (minified: SG, daemon.pretty.js:82659)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

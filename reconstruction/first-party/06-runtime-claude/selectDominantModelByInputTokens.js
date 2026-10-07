@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: selectDominantModelByInputTokens  (minified: grt, daemon.pretty.js:54855)
+// symbol: selectDominantModelByInputTokens  (minified: cot, daemon.pretty.js:55154)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: createDrainExecutionEventRecorder  (minified: ake, daemon.pretty.js:71983)
+// symbol: createDrainExecutionEventRecorder  (minified: Yxe, daemon.pretty.js:72285)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createDrainExecutionEventRecorder(e, t, n, r, i) {
     return async o => {
-        if (_ft(o) && Re("[runner] execution event", {
+        if (tht(o) && ke("[runner] execution event", {
                 sessionKey: t,
                 eventType: o.type,
                 ...o.type === "tool_use" ? {

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: clearModelOverrideOnRuntimeFlip  (minified: Rft, daemon.pretty.js:72293)
+// symbol: clearModelOverrideOnRuntimeFlip  (minified: lht, daemon.pretty.js:72595)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -14,7 +14,7 @@ async function clearModelOverrideOnRuntimeFlip(e, t, n) {
         model: null,
         model_runtime: null,
         pending_model_fork: null
-    }).catch(() => {}), te(i ? "[runner] cleared session model override on runtime flip" : "[runner] cleared un-stamped legacy model override on incompatible runtime drain", {
+    }).catch(() => {}), ee(i ? "[runner] cleared session model override on runtime flip" : "[runner] cleared un-stamped legacy model override on incompatible runtime drain", {
         sessionKey: t,
         overrideRuntime: i,
         activeRuntime: o,

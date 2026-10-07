@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createModelCommandResolvers  (minified: e0e, daemon.pretty.js:82653)
+// symbol: createModelCommandResolvers  (minified: VRe, daemon.pretty.js:82955)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -7,77 +7,75 @@
 function createModelCommandResolvers(e) {
     let {
         paths: t
-    } = e, n = s => s.map(a => ({
-        value: a.value,
-        displayName: a.displayName
+    } = e, n = a => a.map(u => ({
+        value: u.value,
+        displayName: u.displayName
     }));
-    async function r(s, a) {
-        if (a?.runtime === "grok") return "grok";
-        if (a?.runtime === "codex") return "codex";
-        if (a?.runtime === "pi") return "pi";
-        let l = (await ct(t, s).catch(() => null))?.source_channel_id,
-            c;
-        if (l) {
-            let d = await ho(t, l).catch(() => null),
-                f = d?.channel_kind,
-                p = f ? await loadChannelKindConfig(t.channelConfigDir, f).catch(() => null) : null;
-            c = d?.runtime ?? p?.runtime
-        }
-        return c ??= resolveDefaultRuntime(), c
+    async function r(a, u) {
+        if (u?.runtime === "grok") return "grok";
+        if (u?.runtime === "codex") return "codex";
+        if (u?.runtime === "pi") return "pi";
+        let l = await resolveSessionChannelRuntime(t, a);
+        return (l.ok ? l.runtime : void 0) ?? resolveDefaultRuntime()
     }
-    async function i(s, a) {
-        let u = await Ga(t, s);
-        if (u) return u;
-        if (Lw(a?.sourceKind)) {
-            let l = await Za(t, {
-                channel_kind: a?.sourceKind,
-                channel_id: a?.sourceChannelId
+    async function i(a) {
+        let u = await resolveSessionChannelRuntime(t, a);
+        return u.ok ? u.runtime === "void" ? `${Ju} It has no model or effort to show or set.` : void 0 : u.reason
+    }
+    async function o(a, u) {
+        let l = await iu(t, a);
+        if (l) return l;
+        if (cS(u?.sourceKind)) {
+            let c = await ru(t, {
+                channel_kind: u?.sourceKind,
+                channel_id: u?.sourceChannelId
             });
-            if (l) return l
+            if (c) return c
         }
-        return Ja(await si(t.channelConfigDir))
+        return nu(await li(t.channelConfigDir))
     }
-    async function o(s, a, u, l) {
-        let c = a ? AA(a) : void 0,
-            d = a ? QEe(a) : void 0,
-            f = await i(s, l),
-            p = u ? void 0 : buildSessionInfoFromState(t, s, await ct(t, s).catch(() => null) ?? void 0).cwd,
-            m = await resolveClaudeContextRequirement({
-                model: u,
-                cwd: p,
+    async function s(a, u, l, c) {
+        let d = u ? EN(u) : void 0,
+            f = u ? BRe(u) : void 0,
+            p = await o(a, c),
+            m = l ? void 0 : buildSessionInfoFromState(t, a, await rt(t, a).catch(() => null) ?? void 0).cwd,
+            h = await resolveClaudeContextRequirement({
+                model: l,
+                cwd: m,
                 daemonEnv: process.env,
-                mergedCatalog: f.claudeModelProfiles ?? {},
+                mergedCatalog: p.claudeModelProfiles ?? {},
                 hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                issues: f.claudeModelProfileIssues
+                issues: p.claudeModelProfileIssues
             }),
-            h = xg(m, f.claudeModelProfileIssues);
-        if (h.length > 0) return {
+            g = Wg(h, p.claudeModelProfileIssues);
+        if (g.length > 0) return {
             outcome: "blocked",
-            detail: _O(h)
+            detail: cA(g)
         };
-        let g = lSe(m);
-        return c === void 0 || d === void 0 ? {
+        let y = Qke(h);
+        return d === void 0 || f === void 0 ? {
             outcome: "unknown",
-            requirementKind: m.kind,
-            contextWindow: g
+            requirementKind: h.kind,
+            contextWindow: y
         } : {
-            outcome: Nw({
-                capToken: zf({
-                    requirement: m,
+            outcome: sS({
+                capToken: np({
+                    requirement: h,
                     hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                    liveGenerationToken: c
+                    liveGenerationToken: d
                 }),
-                requirement: m,
-                aliases: D$(f.claudeModelAliases)
-            }) === d ? "compatible" : "rebuild",
-            requirementKind: m.kind,
-            contextWindow: g
+                requirement: h,
+                aliases: yO(p.claudeModelAliases)
+            }) === f ? "compatible" : "rebuild",
+            requirementKind: h.kind,
+            contextWindow: y
         }
     }
     return {
         toModelOptions: n,
         resolveRuntimeForModelCommand: r,
-        resolveModelProfileScope: i,
-        classifyModelTargetAgainstLiveGeneration: o
+        runtimeCommandRefusal: i,
+        resolveModelProfileScope: o,
+        classifyModelTargetAgainstLiveGeneration: s
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: fireDueWakeRecords  (minified: Ggt, daemon.pretty.js:86585)
+// symbol: fireDueWakeRecords  (minified: Obt, daemon.pretty.js:86938)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -43,7 +43,7 @@ async function fireDueWakeRecords(e, t, n, r) {
                 due_at: c.state.run_at
             }
         }));
-        l === "delivered" && (i.push(s.id), te("[cadence] wake delivered", {
+        l === "delivered" && (i.push(s.id), ee("[cadence] wake delivered", {
             wakeId: s.id,
             target: s.frontmatter.owner_session,
             dueAt: a

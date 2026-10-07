@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: buildEffectiveChannelConfig  (minified: cbe, daemon.pretty.js:65607)
+// symbol: buildEffectiveChannelConfig  (minified: Tve, daemon.pretty.js:65878)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -29,8 +29,8 @@ function buildEffectiveChannelConfig(e) {
         piConfigIssues: appendPiConfigIssues(i?.piConfigIssues, o?.piConfigIssues),
         additionalDirectories: o?.additionalDirectories ?? i?.additionalDirectories,
         stream: o?.stream ?? i?.stream,
-        runtime: o?.runtime ?? i?.runtime,
-        claudeModelProfiles: ibe([{
+        ...buildEffectiveRuntimeFields(o, i),
+        claudeModelProfiles: Sve([{
             source: "global",
             profiles: r?.claudeModelProfiles
         }, {
@@ -40,7 +40,7 @@ function buildEffectiveChannelConfig(e) {
             source: "instance",
             profiles: o?.claudeModelProfiles
         }]),
-        claudeModelProfileIssues: L$([{
+        claudeModelProfileIssues: vO([{
             source: "global",
             issues: r?.claudeModelProfileIssues
         }, {
@@ -50,7 +50,7 @@ function buildEffectiveChannelConfig(e) {
             source: "instance",
             issues: o?.claudeModelProfileIssues
         }]),
-        claudeModelAliases: obe([{
+        claudeModelAliases: kve([{
             source: "global",
             aliases: r?.claudeModelAliases
         }, {
@@ -60,7 +60,7 @@ function buildEffectiveChannelConfig(e) {
             source: "instance",
             aliases: o?.claudeModelAliases
         }]),
-        claudeModelAliasIssues: L$([{
+        claudeModelAliasIssues: vO([{
             source: "global",
             issues: r?.claudeModelAliasIssues
         }, {
@@ -92,7 +92,7 @@ function buildEffectiveChannelConfig(e) {
         }]),
         kind_prompt: s,
         instance_prompt: a,
-        merged_prompt: _ut([s, a]),
+        merged_prompt: pct([s, a]),
         kind_config: i?.kind_config === void 0 && o?.kind_config === void 0 ? void 0 : {
             ...i?.kind_config,
             ...o?.kind_config

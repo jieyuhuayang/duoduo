@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: replyToGatewayCommandEvent  (minified: LXe, daemon.pretty.js:87362)
+// symbol: replyToGatewayCommandEvent  (minified: Net, daemon.pretty.js:87734)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function replyToGatewayCommandEvent(e, t, n, r) {
-    let i = FXe(t);
+    let i = Det(t);
     if (!i) return {
         handled: !1
     };
@@ -36,7 +36,7 @@ async function replyToGatewayCommandEvent(e, t, n, r) {
                 }
             }
         });
-    await Wl(e, u);
+    await Va(e, u);
     let l = createSpineEvent({
         type: "agent.result",
         source: {

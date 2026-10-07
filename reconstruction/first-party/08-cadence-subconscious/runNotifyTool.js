@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runNotifyTool  (minified: gg, daemon.pretty.js:65226)
+// symbol: runNotifyTool  (minified: Lg, daemon.pretty.js:65484)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -17,88 +17,92 @@ async function runNotifyTool(e, t) {
         let s = e.notify_content?.trim();
         if (!s) throw new Error("notify_content is required and must not be empty.");
         let a = t.notifyDepth ?? 0;
-        if (a >= M_e) throw new Error(`Notify depth limit exceeded (max ${M_e}). This notification chain is too deep — likely a loop.`);
+        if (a >= eve) throw new Error(`Notify depth limit exceeded (max ${eve}). This notification chain is too deep — likely a loop.`);
         if (e.target_session_key?.trim() === i) throw new Error(`Cannot notify self (session_key=${i}). Notify must target a different session.`);
-        let u = o ? o === "foreground" ? "channel" : o : W_e(i),
-            l = (o ?? (u === "job" ? "job" : "meta")) === "job" && !e.target_session_key?.trim(),
-            c = l ? "job-default-target" : "explicit-target",
-            d = l ? await resolveJobOwnerNotifyTarget(n, i) : [await resolveNotifyTargetSessionKey(n, e.target_session_key)];
-        if (d.filter(v => v === i).length > 0) throw new Error(`Cannot notify self (session_key=${i}). Notify must target a different session.`);
-        let p = a + 1,
-            m = e.correlation_id?.trim(),
-            h = e.reply_to?.trim(),
-            g = [];
-        for (let [v, b] of d.entries()) try {
-            let _ = "notify",
-                I = {
+        let u = o ? o === "foreground" ? "channel" : o : cve(i),
+            l = e.in_reply_to?.trim() || void 0,
+            c = (o ?? (u === "job" ? "job" : "meta")) === "job" && !e.target_session_key?.trim(),
+            d = c ? "job-default-target" : "explicit-target",
+            f = c ? await resolveJobOwnerNotifyTarget(n, i) : [await resolveNotifyTargetSessionKey(n, e.target_session_key)];
+        if (f.filter(b => b === i).length > 0) throw new Error(`Cannot notify self (session_key=${i}). Notify must target a different session.`);
+        let m = a + 1,
+            h = e.correlation_id?.trim(),
+            g = e.reply_to?.trim(),
+            y = [];
+        for (let [b, _] of f.entries()) try {
+            let E = "notify",
+                R = {
                     notify_content: s,
                     text: s,
                     notify_source_kind: u,
                     notify_source_session_key: i,
-                    notify_depth: p,
+                    notify_depth: m,
                     ...t.jobScheduleType ? {
                         notify_job_schedule_type: t.jobScheduleType
                     } : {},
-                    ...m ? {
-                        notify_correlation_id: m
-                    } : {},
                     ...h ? {
-                        notify_reply_to: h
+                        notify_correlation_id: h
+                    } : {},
+                    ...g ? {
+                        notify_reply_to: g
+                    } : {},
+                    ...l ? {
+                        notify_in_reply_to: l
                     } : {}
                 },
-                E = {
-                    traceId: `notify_${Date.now().toString(36)}_${v}`,
-                    routeId: _,
+                P = {
+                    traceId: `notify_${Date.now().toString(36)}_${b}`,
+                    routeId: E,
                     sourceName: "notify-tool",
                     sourceKind: "route",
                     sourceSessionKey: i,
-                    targetSessionKey: b,
+                    targetSessionKey: _,
                     eventType: "notify"
                 },
-                R = await evaluateNotifyConsumerRefusal(n, b);
-            if (R.refused) {
-                let S = renderNotifyRefusalMessage(R.inputs, R.verdict, R.candidates, b, R.unconsumedHours),
-                    D = await deliverRouteEventToSession(n, r, {
-                        ...E,
+                k = await evaluateNotifyConsumerRefusal(n, _);
+            if (k.refused) {
+                let D = renderNotifyRefusalMessage(k.inputs, k.verdict, k.candidates, _, k.unconsumedHours),
+                    A = await deliverRouteEventToSession(n, r, {
+                        ...P,
                         walOnly: !0,
                         payload: {
-                            ...I,
-                            notify_refused_reason: S
+                            ...R,
+                            notify_refused_reason: D
                         }
                     });
-                g.push({
-                    targetSessionKey: b,
+                y.push({
+                    targetSessionKey: _,
                     success: !1,
-                    ...D.success ? {
+                    ...A.success ? {
                         refused: !0
                     } : {},
-                    consumer: R.inputs,
-                    error: D.success ? S : D.error
+                    consumer: k.inputs,
+                    error: A.success ? D : A.error
                 });
                 continue
             }
-            let x = await deliverRouteEventToSession(n, r, {
-                ...E,
-                payload: I
+            let S = await deliverRouteEventToSession(n, r, {
+                ...P,
+                payload: R
             });
-            g.push({
-                targetSessionKey: b,
-                success: x.success,
-                eventId: x.eventId,
-                mailboxPath: x.mailboxPath,
-                consumer: R.inputs,
-                error: x.error
+            y.push({
+                targetSessionKey: _,
+                success: S.success,
+                eventId: S.eventId,
+                mailboxPath: S.mailboxPath,
+                consumer: k.inputs,
+                error: S.error
             })
-        } catch (_) {
-            g.push({
-                targetSessionKey: b,
+        } catch (E) {
+            y.push({
+                targetSessionKey: _,
                 success: !1,
-                error: _ instanceof Error ? _.message : String(_)
+                error: E instanceof Error ? E.message : String(E)
             })
         }
-        if (g.filter(v => !v.success).length > 0) throw new Error(renderNotifyDeliveryReport(i, u, c, g));
-        return renderNotifyDeliveryReport(i, u, c, g)
+        if (y.filter(b => !b.success).length > 0) throw new Error(renderNotifyDeliveryReport(i, u, d, y));
+        return renderNotifyDeliveryReport(i, u, d, y)
     } catch (n) {
-        return Le("[Notify] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
+        return Ue("[Notify] Tool execution failed", n), `Error: ${n instanceof Error?n.message:String(n)}`
     }
 }

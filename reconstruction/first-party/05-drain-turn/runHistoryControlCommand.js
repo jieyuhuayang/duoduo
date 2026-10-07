@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: runHistoryControlCommand  (minified: xft, daemon.pretty.js:72119)
+// symbol: runHistoryControlCommand  (minified: aht, daemon.pretty.js:72421)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

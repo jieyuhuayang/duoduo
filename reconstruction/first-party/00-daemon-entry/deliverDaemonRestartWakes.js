@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: deliverDaemonRestartWakes  (minified: kyt, daemon.pretty.js:89682)
+// symbol: deliverDaemonRestartWakes  (minified: avt, daemon.pretty.js:91202)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -13,7 +13,7 @@ async function deliverDaemonRestartWakes(e, t, n, r) {
             force: !0,
             source: "daemon-restart"
         });
-        s.ok ? te("[pid0] restart wake delivered", {
+        s.ok ? ee("[pid0] restart wake delivered", {
             target: o,
             session_key: s.session_key
         }) : Z("[pid0] restart wake refused", {

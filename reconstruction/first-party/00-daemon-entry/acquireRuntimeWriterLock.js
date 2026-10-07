@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: acquireRuntimeWriterLock  (minified: p6, daemon.pretty.js:88878)
+// symbol: acquireRuntimeWriterLock  (minified: fH, daemon.pretty.js:89259)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -16,21 +16,21 @@ async function acquireRuntimeWriterLock(e, t = {}) {
             started_at: r.toISOString(),
             last_heartbeat_at: r.toISOString()
         };
-    await Uw.mkdir(e.runLocksDir, {
+    await pS.mkdir(e.runLocksDir, {
         recursive: !0
     });
-    let a = `${n}.${o}-${Fut.randomUUID()}`,
+    let a = `${n}.${o}-${Nct.randomUUID()}`,
         u = !1;
     try {
         await Bt(a, s);
         try {
-            await Uw.link(a, n), u = !0
+            await pS.link(a, n), u = !0
         } catch (c) {
             if (c.code !== "EEXIST") throw c
         }
     } finally {
         try {
-            await Uw.unlink(a)
+            await pS.unlink(a)
         } catch {}
     }
     if (u) return {
@@ -39,7 +39,7 @@ async function acquireRuntimeWriterLock(e, t = {}) {
         lock: s,
         lockPath: n
     };
-    let l = await f6(n);
+    let l = await dH(n);
     return l && !isRuntimeWriterLockStale(l, r, i) ? {
         acquired: !1,
         stale: !1,

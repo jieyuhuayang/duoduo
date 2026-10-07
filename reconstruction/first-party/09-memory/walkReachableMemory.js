@@ -1,20 +1,20 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: walkReachableMemory  (minified: Pc, daemon.pretty.js:66881)
+// symbol: walkReachableMemory  (minified: Fc, daemon.pretty.js:67153)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function walkReachableMemory(e, t) {
     let n = new Set,
-        r = resolveMemoryLinkTargets(e).filter(x6);
+        r = resolveMemoryLinkTargets(e).filter(kH);
     for (let i of r) n.add(i);
     for (; r.length > 0;) {
         let i = new Set,
-            o = [...r].sort(Tr);
+            o = [...r].sort(Ar);
         for (let s of o) {
             let a = t(s);
             if (a !== null)
-                for (let u of resolveMemoryLinkTargets(a)) x6(u) && !n.has(u) && i.add(u)
+                for (let u of resolveMemoryLinkTargets(a)) kH(u) && !n.has(u) && i.add(u)
         }
         r = [...i];
         for (let s of r) n.add(s)

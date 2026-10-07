@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: scanAndSpawnDueJobs  (minified: yJ, daemon.pretty.js:86494)
+// symbol: scanAndSpawnDueJobs  (minified: PG, daemon.pretty.js:86847)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function scanAndSpawnDueJobs(e, t, n) {
-    let r = new Ur(e);
+    let r = new Br(e);
     await r.init();
     let i = await r.listJobs(),
         o = n?.now ?? new Date,
@@ -20,7 +20,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         if (u.state.last_result === "failure" && u.state.last_scheduled_at) {
             let v = new Date(u.state.last_scheduled_at).getTime();
             if (o.getTime() - v < 3e5) {
-                Re("[cadence] skip due job: failure backoff", {
+                ke("[cadence] skip due job: failure backoff", {
                     jobId: u.id,
                     lastScheduledAt: u.state.last_scheduled_at,
                     backoffMs: 3e5
@@ -28,13 +28,13 @@ async function scanAndSpawnDueJobs(e, t, n) {
                 continue
             }
         }
-        let p = vc({
+        let p = Cc({
             jobId: u.id,
             cron: u.frontmatter.cron,
             cwdRel: u.frontmatter.cwd_rel
         });
         if (isSessionArchiving(p)) {
-            Re("[cadence] skip due job: session is being archived", {
+            ke("[cadence] skip due job: session is being archived", {
                 jobId: u.id,
                 sessionKey: p
             });
@@ -42,7 +42,7 @@ async function scanAndSpawnDueJobs(e, t, n) {
         }
         let m = t.getActor(p);
         if (m && m.status !== "ended") {
-            Re("[cadence] skip due job: already running", {
+            ke("[cadence] skip due job: already running", {
                 jobId: u.id,
                 sessionKey: p,
                 actorStatus: m.status
@@ -79,13 +79,13 @@ async function scanAndSpawnDueJobs(e, t, n) {
         });
         await atomicAppendEvent(e, h);
         let g = `- [ ] @evt(${h.id}) job:${u.id}`;
-        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), te("[cadence] spawned due job", {
+        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), ee("[cadence] spawned due job", {
             jobId: u.id,
             sessionKey: p,
             cron: u.frontmatter.cron
         })
     }
-    return Re("[cadence] job scan complete", {
+    return ke("[cadence] job scan complete", {
         scanned: i.length,
         spawned: s.length,
         wakesFired: a.length

@@ -1,18 +1,18 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: parseJobFileFrontmatter  (minified: Nye, daemon.pretty.js:61236)
+// symbol: parseJobFileFrontmatter  (minified: tbe, daemon.pretty.js:61555)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseJobFileFrontmatter(e, t) {
-    let n = (0, Dye.default)(e, _r),
+    let n = (0, nbe.default)(e, Sr),
         r = n.data ?? {},
-        i = Vz(r),
+        i = HU(r),
         o = normalizePromptMode(r.prompt_mode),
         s = {
             ...r
         };
-    for (let a of wst) delete s[a];
+    for (let a of hut) delete s[a];
     o && (s.prompt_mode = o), s.effort !== void 0 && !(typeof s.effort == "string" && isEffortLevel(s.effort)) && (Z("[JobManager] ignoring invalid job effort", {
         job: t ?? "(unknown job file)",
         effort: typeof s.effort == "string" ? s.effort : typeof s.effort,

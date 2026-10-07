@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: buildPiSystemPromptSpec  (minified: qft, daemon.pretty.js:72743)
+// symbol: buildPiSystemPromptSpec  (minified: Eht, daemon.pretty.js:73045)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

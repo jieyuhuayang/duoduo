@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: initMemorySignalKindsModule  (minified: Vo, daemon.pretty.js:66617)
+// symbol: initMemorySignalKindsModule  (minified: Go, daemon.pretty.js:66889)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Un, initMemorySignalKindsModule = O(() => {
+var Vn, initMemorySignalKindsModule = O(() => {
     "use strict";
-    Un = {
+    Vn = {
         ENTITY_CONVERGE: "entity-converge.v1",
         NODE_CONVERGE: "node-converge.v1",
         REVISE: "revise.v1",

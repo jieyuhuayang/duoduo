@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverExternalSessionNotify  (minified: A0e, daemon.pretty.js:89595)
+// symbol: deliverExternalSessionNotify  (minified: EIe, daemon.pretty.js:91037)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function deliverExternalSessionNotify(e, t, n, r) {
     let i = r.target.trim(),
-        o = resolveSessionByKeyOrAlias(n, i);
+        o = r.exact_key ? resolveSessionByExactKey(n, i) : resolveSessionByKeyOrAlias(n, i);
     if (!o.ok) return o.reason === "ambiguous" ? {
         ok: !1,
         reason: "ambiguous",
@@ -25,69 +25,121 @@ async function deliverExternalSessionNotify(e, t, n, r) {
         session_key: o.session_key,
         kind: s
     };
-    let a = r.source?.trim() || "session.notify",
-        u = `session-notify-${qS.randomUUID()}`,
-        l = {
+    let a = r.idempotency_key?.trim(),
+        u = a === void 0 ? null : `session.notify:${JSON.stringify(a)}`,
+        l = u === null ? null : await loadRegistryDedupStore(e);
+    if (u !== null && l !== null) {
+        let b = l.get(u),
+            _ = b?.event_id ? await readEventById(e, b.event_id, {
+                notAfter: b.ts
+            }) : null;
+        if (_) return replayIdempotentSessionNotify(_, {
+            target: i,
+            sessionKey: o.session_key,
+            message: r.message,
+            idempotencyKey: a
+        })
+    }
+    let c = async (b, _) => {
+        u === null || l === null || !b || !_ || await l.record({
+            key: u,
+            ts: _,
+            event_id: b
+        })
+    }, d = r.caller_session?.trim(), f = d !== void 0 && d !== o.session_key ? d : null;
+    if (f !== null && !n.get(f)) return {
+        ok: !1,
+        reason: "unknown_caller",
+        target: i,
+        caller_session: f,
+        error: `The calling session ${f} (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.`
+    };
+    let p = r.source?.trim() || "session.notify",
+        m = `session-notify-${AN.randomUUID()}`,
+        h = {
             notify_content: r.message,
             text: r.message,
-            notify_source_kind: "external",
-            notify_source_label: a,
-            notify_source: a
+            ...r.in_reply_to !== void 0 ? {
+                notify_in_reply_to: r.in_reply_to.trim()
+            } : {},
+            ...a !== void 0 ? {
+                idempotency_key: a
+            } : {}
         },
-        c = {
-            traceId: u,
-            routeId: u,
-            sourceName: a,
+        g = f === null ? {
+            ...h,
+            notify_source_kind: "external",
+            notify_source_label: p,
+            notify_source: p
+        } : {
+            ...h,
+            notify_source_kind: classifySessionKeyKind(f),
+            notify_source_session_key: f
+        },
+        y = {
+            traceId: m,
+            routeId: m,
             sourceKind: "route",
             targetSessionKey: o.session_key,
-            sourceSessionKey: "external:session.notify",
-            eventType: "external.notify",
-            preempt: "never"
+            preempt: "never",
+            ...f === null ? {
+                sourceName: p,
+                sourceSessionKey: "external:session.notify",
+                eventType: dW
+            } : {
+                sourceName: "notify-tool",
+                sourceSessionKey: f,
+                eventType: "notify"
+            }
         };
     if (!r.force) {
-        let f = await evaluateNotifyConsumerRefusal(e, o.session_key);
-        if (f.refused) {
-            let p = renderNotifyRefusalMessage(f.inputs, f.verdict, f.candidates, o.session_key, f.unconsumedHours),
-                m = await deliverRouteEventToSession(e, t, {
-                    ...c,
+        let b = await evaluateNotifyConsumerRefusal(e, o.session_key);
+        if (b.refused) {
+            let _ = renderNotifyRefusalMessage(b.inputs, b.verdict, b.candidates, o.session_key, b.unconsumedHours),
+                E = await deliverRouteEventToSession(e, t, {
+                    ...y,
                     walOnly: !0,
                     payload: {
-                        ...l,
-                        notify_refused_reason: p
+                        ...g,
+                        notify_refused_reason: _
                     }
                 });
-            return m.success ? {
+            return E.success ? (await c(E.eventId, E.eventTs), {
                 ok: !1,
                 reason: "no_consumer",
                 target: i,
                 session_key: o.session_key,
-                error: p
-            } : {
+                error: _
+            }) : {
                 ok: !1,
                 reason: "delivery_failed",
                 target: i,
                 session_key: o.session_key,
-                error: m.error
+                error: E.error
             }
         }
     }
-    let d = await deliverRouteEventToSession(e, t, {
-        ...c,
-        payload: l
+    let v = await deliverRouteEventToSession(e, t, {
+        ...y,
+        payload: g
     });
-    return d.success ? {
+    return v.success ? (await c(v.eventId, v.eventTs), {
         ok: !0,
         target: i,
         session_key: o.session_key,
         display_name: o.display_name ?? null,
-        route_id: u,
-        event_id: d.eventId,
-        mailbox_path: d.mailboxPath
-    } : {
+        route_id: m,
+        event_id: v.eventId,
+        ...v.eventTs !== void 0 ? {
+            ts: v.eventTs
+        } : {},
+        mailbox_path: v.mailboxPath,
+        duplicate: !1
+    }) : {
         ok: !1,
         reason: "delivery_failed",
         target: i,
         session_key: o.session_key,
-        error: d.error
+        error: v.error
     }
 }

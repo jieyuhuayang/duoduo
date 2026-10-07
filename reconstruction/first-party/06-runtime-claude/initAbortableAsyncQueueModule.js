@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: initAbortableAsyncQueueModule  (minified: r0e, daemon.pretty.js:82753)
+// symbol: initAbortableAsyncQueueModule  (minified: JRe, daemon.pretty.js:83053)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var MA, initAbortableAsyncQueueModule = O(() => {
+var TN, initAbortableAsyncQueueModule = O(() => {
     "use strict";
-    MA = class {
+    TN = class {
         items = [];
         waiters = [];
         enqueue(t) {
@@ -18,7 +18,7 @@ var MA, initAbortableAsyncQueueModule = O(() => {
             this.items.push(t)
         }
         dequeue(t) {
-            if (t?.aborted) return Promise.reject(n0e());
+            if (t?.aborted) return Promise.reject(WRe());
             let n = this.items.shift();
             return n !== void 0 ? Promise.resolve(n) : new Promise((r, i) => {
                 let o = {
@@ -28,7 +28,7 @@ var MA, initAbortableAsyncQueueModule = O(() => {
                 if (this.waiters.push(o), !t) return;
                 let s = () => {
                     let a = this.waiters.indexOf(o);
-                    a >= 0 && this.waiters.splice(a, 1), i(n0e())
+                    a >= 0 && this.waiters.splice(a, 1), i(WRe())
                 };
                 t.addEventListener("abort", s, {
                     once: !0

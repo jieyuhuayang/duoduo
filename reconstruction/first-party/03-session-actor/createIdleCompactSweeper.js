@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createIdleCompactSweeper  (minified: Xbe, daemon.pretty.js:88480)
+// symbol: createIdleCompactSweeper  (minified: gwe, daemon.pretty.js:88861)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -10,7 +10,7 @@ function createIdleCompactSweeper(e) {
         sessionManager: n,
         sessionIndex: r,
         bus: i
-    } = e, o = e.intervalMs ?? Dut, s = e.fireCapPerSweep ?? IDLE_COMPACT_FIRE_CAP_PER_SWEEP, a = null, u = !1, l = null, c = !1, d = new Map;
+    } = e, o = e.intervalMs ?? $ct, s = e.fireCapPerSweep ?? Oct, a = null, u = !1, l = null, c = !1, d = new Map;
 
     function f(y) {
         let v = y.session_key;
@@ -21,8 +21,8 @@ function createIdleCompactSweeper(e) {
 
     function p(y, v, b) {
         let _ = y.last_event_at ? Date.parse(y.last_event_at) : Number.NaN,
-            I = Number.isFinite(_) ? _ : 0;
-        return b - Math.max(I, typeof v == "number" ? v : 0)
+            E = Number.isFinite(_) ? _ : 0;
+        return b - Math.max(E, typeof v == "number" ? v : 0)
     }
 
     function m(y, v) {
@@ -35,101 +35,101 @@ function createIdleCompactSweeper(e) {
     }
     async function h(y, v, b) {
         let _ = y.session_key;
-        if (isSessionArchiving(_)) return Re("[idle-compact] skip: archiving", {
+        if (isSessionArchiving(_)) return ke("[idle-compact] skip: archiving", {
             sessionKey: _
         }), !1;
-        let I = await Ga(t, _).catch(() => null);
-        if (!I || I.runtime === "codex") return !1;
-        let E = I.auto_compact_idle_minutes,
-            R = I.auto_compact_min_context_tokens;
-        if (!E || E <= 0 || !R || R <= 0 || v < E * Mut) return !1;
-        let x = y.context_used_tokens;
-        if (typeof x != "number" || x < R) return !1;
+        let E = await iu(t, _).catch(() => null);
+        if (!E || E.runtime === "codex" || E.runtimeRefusal || E.runtime === "void") return !1;
+        let R = E.auto_compact_idle_minutes,
+            P = E.auto_compact_min_context_tokens;
+        if (!R || R <= 0 || !P || P <= 0 || v < R * Cct) return !1;
+        let k = y.context_used_tokens;
+        if (typeof k != "number" || k < P) return !1;
         let S = y.compact_measured_floor;
-        if (typeof S == "number" && R <= S) {
+        if (typeof S == "number" && P <= S) {
             b.add(_);
-            let A = `${y.compact_measured_at??""}:${R}`;
-            return d.get(_) !== A ? (d.set(_, A), _t("info", "[idle-compact] fuse: threshold ≤ measured floor, skipping", {
+            let C = `${y.compact_measured_at??""}:${P}`;
+            return d.get(_) !== C ? (d.set(_, C), vt("info", "[idle-compact] fuse: threshold ≤ measured floor, skipping", {
                 sessionKey: _,
-                threshold: R,
+                threshold: P,
                 measured_floor: S
-            })) : Re("[idle-compact] fuse: threshold ≤ measured floor, skipping (repeat)", {
+            })) : ke("[idle-compact] fuse: threshold ≤ measured floor, skipping (repeat)", {
                 sessionKey: _,
-                threshold: R,
+                threshold: P,
                 measured_floor: S
             }), !1
         }
-        let D = I.channel_kind,
-            $ = y.source_channel_id;
+        let D = E.channel_kind,
+            A = y.source_channel_id;
         try {
             await patchSessionRuntimeState(t, _, {
                 last_compact_at: new Date().toISOString()
             })
-        } catch (A) {
-            if (A instanceof xm) return Re("[idle-compact] skip: archiving (marker write)", {
+        } catch (C) {
+            if (C instanceof qm) return ke("[idle-compact] skip: archiving (marker write)", {
                 sessionKey: _
             }), !1;
-            throw A
+            throw C
         }
         return (await ingestChannelCommand(t, {
             sessionKey: _,
             sourceKind: D,
-            sourceChannelId: $,
+            sourceChannelId: A,
             sourceName: "idle-compact",
             command: "/compact",
             idle_ms: v,
-            threshold_at_fire: R
+            threshold_at_fire: P
         }, {
             bus: i
         })).routing.enqueued ? (i.emit("session.wake", {
             sessionKey: _,
             preempt: "never"
-        }), te("[idle-compact] fired", {
+        }), ee("[idle-compact] fired", {
             sessionKey: _,
             channel_kind: D,
             idle_ms: v,
-            context_used_tokens: x
+            context_used_tokens: k
         }), !0) : (Z("[idle-compact] /compact not enqueued", {
             sessionKey: _
         }), !1)
     }
     async function g() {
-        if (u || c) return u && Re("[idle-compact] sweep skipped: previous sweep still running"), 0;
+        if (u || c) return u && ke("[idle-compact] sweep skipped: previous sweep still running"), 0;
         u = !0;
         let y = Date.now(),
             v = 0,
             b = new Set;
         try {
             let _ = Date.now();
-            for (let I of r.listByKind("channel")) {
+            for (let E of r.listByKind("channel")) {
                 if (c) break;
                 if (v >= s) {
-                    Re("[idle-compact] per-sweep fire cap reached", {
+                    ke("[idle-compact] per-sweep fire cap reached", {
                         cap: s
                     });
                     break
                 }
                 try {
-                    if (!f(I)) continue;
-                    let E = n.getSweeperActorState(I.session_key);
-                    if (!E) continue;
-                    let R = p(I, E.lastActivityAt, _);
-                    await h(I, R, b) && (v += 1)
-                } catch (E) {
-                    if (E instanceof xm) continue;
-                    Le("[idle-compact] per-session sweep error", {
-                        sessionKey: I.session_key,
-                        error: E instanceof Error ? E.message : String(E)
+                    if (!f(E)) continue;
+                    let R = n.getSweeperActorState(E.session_key);
+                    if (!R) continue;
+                    let P = p(E, R.lastActivityAt, _);
+                    await h(E, P, b) && (v += 1)
+                } catch (R) {
+                    if (R instanceof qm) continue;
+                    Ue("[idle-compact] per-session sweep error", {
+                        sessionKey: E.session_key,
+                        error: R instanceof Error ? R.message : String(R)
                     })
                 }
             }
-            for (let I of d.keys()) b.has(I) || d.delete(I);
-            Re("[idle-compact] sweep complete", {
+            for (let E of d.keys()) b.has(E) || d.delete(E);
+            ke("[idle-compact] sweep complete", {
                 fired: v,
                 durationMs: Date.now() - y
             })
         } catch (_) {
-            Le("[idle-compact] sweep error", _)
+            Ue("[idle-compact] sweep error", _)
         } finally {
             u = !1
         }
@@ -139,7 +139,7 @@ function createIdleCompactSweeper(e) {
         start() {
             a || c || (a = setInterval(() => {
                 l = g()
-            }, o), te("[idle-compact] started", {
+            }, o), ee("[idle-compact] started", {
                 intervalMs: o,
                 fireCapPerSweep: s
             }))
@@ -151,7 +151,7 @@ function createIdleCompactSweeper(e) {
                 } catch {}
                 l = null
             }
-            te("[idle-compact] stopped")
+            ee("[idle-compact] stopped")
         },
         isSweeping() {
             return u

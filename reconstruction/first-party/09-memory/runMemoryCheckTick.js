@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runMemoryCheckTick  (minified: qct, daemon.pretty.js:68573)
+// symbol: runMemoryCheckTick  (minified: jft, daemon.pretty.js:68864)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ async function runMemoryCheckTick(e, t) {
         check: n,
         forget: r
     } = resolveMemoryCheckFlags();
-    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && Le("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
+    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && Ue("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
     let o = {
             checkEnabled: n,
             forgetEnabled: r,
@@ -33,7 +33,7 @@ async function runMemoryCheckTick(e, t) {
             l.push(...y);
             let v = postMemorySignalsToInboxes(y, s);
             c.push(...v.posted), o.posted.push(...v.posted), o.withheld.push(...v.withheld);
-            for (let b of v.errors) Le(`[memory] pending delivery failed: ${b}`)
+            for (let b of v.errors) Ue(`[memory] pending delivery failed: ${b}`)
         },
         f = null,
         p = runReadAuditedMemoryCheckStep("orphan-states", () => {
@@ -47,17 +47,17 @@ async function runMemoryCheckTick(e, t) {
     if (a) {
         let y = await readIntuitionWeaverLastFinishedMs(e);
         m = runReadAuditedMemoryCheckStep("board-lint", () => {
-            d(collectBoardLintReport(u, B6).selections)
+            d(collectBoardLintReport(u, BH).selections)
         }) && m, m = runReadAuditedMemoryCheckStep("entity-lint", () => {
-            d(runEntityLint(u, B6).selected)
+            d(runEntityLint(u, BH).selected)
         }) && m, m = runReadAuditedMemoryCheckStep("node-lint", () => {
-            d(runNodeLint(u, B6).selected)
+            d(runNodeLint(u, BH).selected)
         }) && m, m = runReadAuditedMemoryCheckStep("gap-lint", () => {
-            let I = deliverScanGapSignal(e.eventsDir, u, t, s, {
+            let E = deliverScanGapSignal(e.eventsDir, u, t, s, {
                 cadenceIntervalMs: resolveCadenceIntervalMs()
             });
-            o.posted.push(...I.delivery.posted), o.withheld.push(...I.delivery.withheld);
-            for (let E of I.delivery.errors) Le(`[memory] pending delivery failed: ${E}`)
+            o.posted.push(...E.delivery.posted), o.withheld.push(...E.delivery.withheld);
+            for (let R of E.delivery.errors) Ue(`[memory] pending delivery failed: ${R}`)
         }) && m, m = runReadAuditedMemoryCheckStep("fold-lint", () => {
             d(runFoldGapLint(u, y).selected)
         }) && m, m = runReadAuditedMemoryCheckStep("broadcast-budget", () => {
@@ -75,12 +75,12 @@ async function runMemoryCheckTick(e, t) {
         b && v && (d(v.selected), h = v.metrics, _ = v.touchWindow), m = runReadAuditedMemoryCheckStep("orphan-newborn-island", () => {
             if (f === null) return;
             d(buildOrphanNewbornSignals(f, _));
-            let I = buildOrphanIslandsSignal(filterOrphanIslands(f), t, void 0, void 0, _);
-            I && d([I])
+            let E = buildOrphanIslandsSignal(filterOrphanIslands(f), t, void 0, void 0, _);
+            E && d([E])
         }) && m, m && runMemoryCheckSubStep("inbox-sync", () => {
-            let I = reconcileMemorySignalInboxes(l, c, s);
-            o.swept.push(...I.removed);
-            for (let E of I.errors) Le(`[memory] inbox sync failed: ${E}`)
+            let E = reconcileMemorySignalInboxes(l, c, s);
+            o.swept.push(...E.removed);
+            for (let R of E.errors) Ue(`[memory] inbox sync failed: ${R}`)
         })
     }
     let g = h;
@@ -111,9 +111,9 @@ async function runMemoryCheckTick(e, t) {
         o.forgotten.push(...forgetMemoryEntry(y, e.kernelDir, {
             dryRun: !1
         }))
-    }), (o.posted.length > 0 || o.swept.length > 0 || o.forgotten.length > 0 || o.withheld.length > 0 || o.sparedUnwarnable.length > 0) && te("[memory] check tick", {
-        posted: o.posted.map(y => Swe.basename(y)),
-        swept: o.swept.map(y => Swe.basename(y)),
+    }), (o.posted.length > 0 || o.swept.length > 0 || o.forgotten.length > 0 || o.withheld.length > 0 || o.sparedUnwarnable.length > 0) && ee("[memory] check tick", {
+        posted: o.posted.map(y => LSe.basename(y)),
+        swept: o.swept.map(y => LSe.basename(y)),
         withheld: o.withheld,
         forgotten: o.forgotten,
         spared_unwarnable: o.sparedUnwarnable

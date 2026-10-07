@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: collectInstructionsInputs  (minified: XEe, daemon.pretty.js:82549)
+// symbol: collectInstructionsInputs  (minified: qRe, daemon.pretty.js:82851)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -14,11 +14,11 @@ async function collectInstructionsInputs(e, t, n, r) {
     }
     let s, a;
     if (n.origin === "channel") {
-        let d = (await ct(e, t))?.source_channel_id;
+        let d = (await rt(e, t))?.source_channel_id;
         if (d) {
-            let f = await ho(e, d).catch(() => null);
+            let f = await vs(e, d).catch(() => null);
             if (f?.channel_kind) {
-                let p = await Za(e, {
+                let p = await ru(e, {
                     channel_kind: f.channel_kind,
                     channel_id: d
                 }).catch(() => null);

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexDynamicTools  (minified: wA, daemon.pretty.js:80065)
+// symbol: buildCodexDynamicTools  (minified: pN, daemon.pretty.js:80367)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -10,10 +10,10 @@ function buildCodexDynamicTools(e) {
         r = "codex",
         i = e.sessionContextKind === "meta" || e.sessionContextKind === "system";
     if (!i) {
-        let o = n ? m$(r) : p$(r);
+        let o = n ? KC(r) : ZC(r);
         t.push({
-            name: ww,
-            description: n ? f$() : d$(),
+            name: Jw,
+            description: n ? GC() : JC(),
             inputSchema: buildCodexStringInputSchema(o),
             handler: async s => {
                 let a = await runManageJobTool(s, {
@@ -31,9 +31,9 @@ function buildCodexDynamicTools(e) {
         })
     }
     return t.push({
-        name: kw,
-        description: g$,
-        inputSchema: buildCodexStringInputSchema(y$),
+        name: Qw,
+        description: sO,
+        inputSchema: buildCodexStringInputSchema(aO),
         handler: async o => {
             let s = await runViewSessionsTool(o, {
                 paths: e.paths,
@@ -46,7 +46,7 @@ function buildCodexDynamicTools(e) {
             }
         }
     }), t.push({
-        name: Ow,
+        name: iS,
         description: renderNotifyToolDescription({
             sessionKey: e.sessionKey,
             sessionContextKind: e.sessionContextKind
@@ -70,9 +70,9 @@ function buildCodexDynamicTools(e) {
             }
         }
     }), e.sessionContextKind === "foreground" && (t.push({
-        name: qf,
-        description: PO,
-        inputSchema: buildCodexStringInputSchema(CO),
+        name: ip,
+        description: wA,
+        inputSchema: buildCodexStringInputSchema(SA),
         handler: async o => {
             let s = await runQueueOutboundAttachmentTool(o, {
                 paths: e.paths,
@@ -84,9 +84,9 @@ function buildCodexDynamicTools(e) {
             }
         }
     }), t.push({
-        name: ws,
-        description: whe,
-        inputSchema: buildCodexStringInputSchema(lC),
+        name: Es,
+        description: qge,
+        inputSchema: buildCodexStringInputSchema(q$),
         handler: async o => {
             let s = await runSkipTool(o, {
                 paths: e.paths,
@@ -99,9 +99,9 @@ function buildCodexDynamicTools(e) {
             }
         }
     })), i || t.push({
-        name: Ew,
-        description: n ? v$ : _$,
-        inputSchema: buildCodexStringInputSchema(n ? w$ : b$),
+        name: tS,
+        description: n ? cO : uO,
+        inputSchema: buildCodexStringInputSchema(n ? dO : lO),
         handler: async o => {
             let s = await runRemindDuoduoTool(o, {
                 paths: e.paths,

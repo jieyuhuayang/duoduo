@@ -43,7 +43,7 @@
 
 **美化只改排版。** `js-beautify` 在 `tools/package.json` 里锁定精确版本，因为 `docs/` 与 `first-party/` 里的行号都来自它的排版，格式化器的一次小版本更新就会让所有行号一起偏移。`ast_equiv.mjs` 比对出厂压缩文件与 `*.pretty.js` 的 AST（verdict `<bundle>.beautifyEquivalent`）。没有这一步，后面所有证明的起点都是一个不随包发布的文件。
 
-**拆包无损。** `split.mjs` 按顶层语句的字节偏移把 bundle 切成模块文件与 shell 片段，`reassemble.mjs` 按 manifest 拼回，与美化文件 `cmp` 逐字节相同（verdict `<bundle>.lossless`）。切片是连续的字节区间，所以这项证明主要防的是写文件出错：压缩标识符常常只差大小写（`Rw` 与 `rW`），片段文件名因此做成大小写不敏感唯一，否则在 macOS 与 Windows 上后写的文件会覆盖前一个。后续步骤不读拆出的模块，`rename.mjs` 直接处理美化后的 bundle。
+**拆包无损。** `split.mjs` 按顶层语句的字节偏移把 bundle 切成模块文件与 shell 片段，`reassemble.mjs` 按 manifest 拼回，与美化文件 `cmp` 逐字节相同（verdict `<bundle>.lossless`）。切片是连续的字节区间，所以这项证明主要防的是写文件出错：压缩标识符常常只差大小写（`nS` 与 `rW`），片段文件名因此做成大小写不敏感唯一，否则在 macOS 与 Windows 上后写的文件会覆盖前一个。后续步骤不读拆出的模块，`rename.mjs` 直接处理美化后的 bundle。
 
 **改名作用域安全。** `rename.mjs` 对每个标识符做作用域解析，只改写解析到目标顶层绑定的位置，包括重复的 `var` 声明、解构赋值和 for-in/of 的写入位置；对象 shorthand、`export { X }`、`import { X }` 展开成保留外部名字的写法。新名字若与已有顶层名或代码用到的全局名冲突，或在某个引用处会被内层同名绑定遮蔽，改名被拒绝，构建失败。改名只替换标识符文本，不动排版。
 

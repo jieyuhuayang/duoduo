@@ -2,6 +2,105 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.4] - 2026-10-06
+
+A runtime value duoduo does not know is now refused instead of silently
+replaced. Up to v0.8.3 a typo such as `runtime: codx` was dropped without a
+word: a channel or partition fell through to the next layer (instance, then
+kind, then the global default), and an invalid `ALADUO_DEFAULT_RUNTIME` fell
+back to Claude. The sessions kept answering, often on a runtime no one chose.
+From v0.8.4 the value is refused with a sentence that names it and lists the
+valid ones.
+
+Upgrading means reinstalling core and protocol (0.8.4) and the Feishu channel
+(0.8.4), then restarting the daemon. The Feishu channel's only change is that
+its setup card labels the new `void` runtime. The ACP channel is unchanged and
+stays on 0.8.2. The bundled agent SDK moves to `^0.3.291` (Claude Code
+2.1.291), and the bundled pi moves from 0.85.1 to 1.0.4.
+
+Behaviour changes to know about:
+
+- **Check every written runtime value before upgrading.** After the upgrade an
+  unknown value in `ALADUO_DEFAULT_RUNTIME` stops the daemon from booting (an
+  absent or empty value still means `claude`). In a channel kind or instance
+  descriptor it refuses the turns of the sessions that layer selects; a valid
+  instance value still overrides an unknown kind value. In job frontmatter the
+  job fails, and in partition frontmatter the partition is skipped. Fix a
+  misspelled value to the runtime those sessions have actually been running
+  on, which is not necessarily Claude. The `duoduo-admin` skill's upgrade
+  playbook has the commands that find every written value.
+- **pi's DeepSeek Flash id is renamed.** pi 1.0 no longer has
+  `deepseek/deepseek-v4-flash` in its built-in catalog; the id is now
+  `deepseek/deepseek-flash`. Any model pin that names the old id fails to
+  resolve: partition or job frontmatter, channel config, or a stored `/model`
+  choice. Change a stored choice by sending `/model deepseek/deepseek-flash`
+  in that session.
+- **Claude Code's own auto memory is off** in every Claude session duoduo
+  starts, because it would keep a second memory store beside duoduo's.
+  Nothing migrates. An `env` entry for `CLAUDE_CODE_DISABLE_AUTO_MEMORY` in a
+  Claude settings file the session loads (for example the user-scope
+  `~/.claude/settings.json`) still wins.
+- **Resumed Claude sessions report their own cost.** The first Claude turn
+  after a session's process restarted (idle reclaim, daemon restart) used to
+  report the session's lifetime cost and most-used model as that one turn's,
+  in the footer and in the usage ledger. A resumed turn now reports its own
+  figures. A session that existed before the upgrade has no saved baseline
+  yet, so its first resume shows no cost and no model. Ledger records written
+  before the upgrade keep their old values.
+- **pi 1.0 extensions.** Extensions are now loaded against pi 1.0. A run that
+  an extension defers from `agent_settled` during a turn now counts toward
+  that turn: its text and usage belong to it. A pi session file is now
+  written at the first user message, so a crash during the first turn resumes
+  a session that holds that message, still unanswered.
+
+### Highlights
+
+- **`duoduo session notify` inside a session sends as that session.** Run
+  from a session's own shell, the message is recorded with that session as
+  the sender, as the `Notify` tool already did, so the recipient sees which
+  session sent it. A shell outside any session keeps the old source
+  label.
+- **Subconscious: second-hand reports stay second-hand.** The
+  `gradient-distiller` and `intuition-weaver` prompts treat another
+  assistant's report of its conversation with the owner as second-hand.
+  Words about the owner are a claim, not the owner's ruling. A change to who
+  receives something, a credential, a permission, or what sessions run needs
+  the owner's explicit yes on a first-hand channel before it reaches the
+  board. An upgrade never overwrites existing partition prompts, so nothing
+  changes until you refresh them; the `duoduo-runtime-admin` skill walks it.
+- **For channel plugin authors:**
+  - A new runtime value, `void`, for channel plugins whose sessions never run
+    a model. A message to a void session is written to the spine and the
+    outbox and wakes nothing. Model commands (`/model`, `/effort`,
+    `/compact`) refuse it. `void` is not accepted as the default runtime, a
+    job runtime or a partition runtime, and should not be set on an ordinary
+    chat channel.
+  - `channel.spawn` takes an optional `session_key` and creates that session
+    bound to the channel.
+  - `channel.pull` accepts `advance: "ack"`: the stream pushes records as
+    before, and only `channel.ack` moves the consumer's cursor.
+  - `spine.record` appends an `external.record` event for writers outside
+    duoduo, with optional per-source deduplication. `spine.cat` takes
+    `redact: "external"` for readers outside duoduo.
+  - `session.list` accepts `deliverable: true` to list only the sessions a
+    `Notify` would deliver to.
+
+### Fixes
+
+- `duoduo spine show --json` is accepted (and ignored) instead of failing.
+- `channel.ingress` and `channel.command` validate `channel_id` before they
+  bind the session. A malformed id used to rebind an existing session to it
+  and was refused only afterwards.
+- `channel.spawn` never moves a session to another channel. Naming a session
+  that another channel owns is refused before anything is written.
+- A message sent while a Claude subagent was running could be taken by the
+  subagent's first tool call: it was marked as handled and injected into the
+  subagent's conversation, which owns no reply, so the main session never
+  answered it. It now waits for the main session's next tool call or the end
+  of the turn.
+- The `brace-expansion` and `source-map-js` advisories are cleared. Both were
+  development dependencies only.
+
 ## [v0.8.3] - 2026-09-23
 
 Claude Opus 5.5 works. It needs Claude Code 2.1.280 or newer, and 0.8.2 ships

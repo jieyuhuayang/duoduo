@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: patchSessionRuntimeState  (minified: et, daemon.pretty.js:35564)
+// symbol: patchSessionRuntimeState  (minified: et, daemon.pretty.js:35690)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
         o = !1;
     await runWithSessionMutex(t, async () => {
         if (assertSessionNotArchiving(t), !i && isSessionArchived(e, t)) {
-            Re("[session] skipping runtime-state patch for tombstoned session", {
+            ke("[session] skipping runtime-state patch for tombstoned session", {
                 sessionKey: t
             });
             return
@@ -19,7 +19,7 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
                 updated_at: new Date().toISOString()
             };
         try {
-            let f = await ja.readFile(s, "utf8");
+            let f = await qa.readFile(s, "utf8");
             a = JSON.parse(f)
         } catch {}
         let u = {},
@@ -31,7 +31,7 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
                     continue
                 }
                 u[f] = p
-            } let c = Gd(u),
+            } let c = af(u),
             d = {
                 ...a,
                 ...c,
@@ -39,5 +39,5 @@ async function patchSessionRuntimeState(e, t, n, r = {}) {
             };
         for (let f of l) delete d[f];
         await Bt(s, d), o = !0
-    }), o && jm(t, "state")
+    }), o && th(t, "state")
 }

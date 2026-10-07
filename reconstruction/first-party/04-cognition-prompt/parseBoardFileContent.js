@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: parseBoardFileContent  (minified: bgt, daemon.pretty.js:82267)
+// symbol: parseBoardFileContent  (minified: nbt, daemon.pretty.js:82569)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseBoardFileContent(e, t) {
     let n = stripBoardIncludeFrontmatter(e),
-        i = new ma({
+        i = new _a({
             gfm: !1
         }).lex(n);
     return {

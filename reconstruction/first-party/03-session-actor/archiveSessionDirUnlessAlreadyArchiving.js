@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: archiveSessionDirUnlessAlreadyArchiving  (minified: Kbe, daemon.pretty.js:65866)
+// symbol: archiveSessionDirUnlessAlreadyArchiving  (minified: mwe, daemon.pretty.js:66138)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -10,7 +10,7 @@ async function archiveSessionDirUnlessAlreadyArchiving(e, t) {
         reason: "archive_in_flight"
     };
     try {
-        return await runWithSessionMutex(t, async () => ab(e, t)) ? {
+        return await runWithSessionMutex(t, async () => Ob(e, t)) ? {
             archived: !0
         } : {
             archived: !1,

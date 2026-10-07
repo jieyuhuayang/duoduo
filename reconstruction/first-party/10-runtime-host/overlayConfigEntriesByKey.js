@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: overlayConfigEntriesByKey  (minified: GV, daemon.pretty.js:65559)
+// symbol: overlayConfigEntriesByKey  (minified: G6, daemon.pretty.js:65830)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

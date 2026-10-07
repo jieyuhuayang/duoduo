@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: memoizeAvailabilityProbeUntilOk  (minified: u0e, daemon.pretty.js:83644)
+// symbol: memoizeAvailabilityProbeUntilOk  (minified: XRe, daemon.pretty.js:83957)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

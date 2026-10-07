@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: resolveClaudeContextRequirement  (minified: Eg, daemon.pretty.js:69842)
+// symbol: resolveClaudeContextRequirement  (minified: Jg, daemon.pretty.js:70133)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -11,7 +11,7 @@ async function resolveClaudeContextRequirement(e) {
         hostMaxContextTokens: e.hostMaxContextTokens
     });
     if (e.model) return t;
-    let n = await Ddt(e.cwd, e.daemonEnv);
+    let n = await _mt(e.cwd, e.daemonEnv);
     if (!n) return t;
     let r = classifyModelContextRequirement({
         model: n.model,
@@ -21,5 +21,5 @@ async function resolveClaudeContextRequirement(e) {
     return r.kind === "profiled-external" ? {
         ...r,
         modelOrigin: n.origin
-    } : xg(r, e.issues).some(o => o.model !== void 0) ? r : t
+    } : Wg(r, e.issues).some(o => o.model !== void 0) ? r : t
 }

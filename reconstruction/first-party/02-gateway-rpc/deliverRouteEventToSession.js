@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverRouteEventToSession  (minified: Ps, daemon.pretty.js:64355)
+// symbol: deliverRouteEventToSession  (minified: As, daemon.pretty.js:65038)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -59,14 +59,14 @@ async function deliverRouteEventToSession(e, t, n) {
                 payload: d
             }
         });
-        if (await atomicAppendEvent(e, h), Re("[route] route event appended", {
+        if (await atomicAppendEvent(e, h), ke("[route] route event appended", {
                 traceId: r,
                 routeId: i,
                 sourceSessionKey: l,
                 targetSessionKey: u,
                 sourceEventType: c,
                 eventId: h.id
-            }), p) return Re("[route] wal-only route event (no mailbox, no wake)", {
+            }), p) return ke("[route] wal-only route event (no mailbox, no wake)", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,
@@ -77,16 +77,44 @@ async function deliverRouteEventToSession(e, t, n) {
             routeId: i,
             targetSessionKey: u,
             success: !0,
-            eventId: h.id
+            eventId: h.id,
+            eventTs: h.ts
         };
+        if (await isVoidRuntimeSession(e, u)) {
+            let v = zlt(d) ? d : {},
+                b = await writeVoidSessionOutboxRecord(e, t, {
+                    sessionKey: u,
+                    text: typeof v.text == "string" ? v.text : "",
+                    data: {
+                        ...v,
+                        event_id: h.id,
+                        event_ts: h.ts,
+                        source_session_key: l
+                    }
+                });
+            return ke("[route] delivered to void session outbox (no mailbox, no wake)", {
+                traceId: r,
+                routeId: i,
+                sourceSessionKey: l,
+                targetSessionKey: u,
+                eventId: h.id,
+                outboxId: b.id
+            }), {
+                routeId: i,
+                targetSessionKey: u,
+                success: !0,
+                eventId: h.id,
+                eventTs: h.ts
+            }
+        }
         let g = await enqueueSessionInboxLine(e, u, `- [ ] @evt(${h.id})`);
-        if (Re("[route] mailbox enqueued", {
+        if (ke("[route] mailbox enqueued", {
                 traceId: r,
                 routeId: i,
                 targetSessionKey: u,
                 eventId: h.id,
                 mailboxPath: g
-            }), m) return Re("[route] enqueued without wake (waits for the owner's next turn)", {
+            }), m) return ke("[route] enqueued without wake (waits for the owner's next turn)", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,
@@ -99,13 +127,14 @@ async function deliverRouteEventToSession(e, t, n) {
             targetSessionKey: u,
             success: !0,
             eventId: h.id,
+            eventTs: h.ts,
             mailboxPath: g
         };
         let y = f ?? (c === "notify" || c === "job.complete" || c === "job.fail" ? "never" : "allow");
         return t.emit("session.wake", {
             sessionKey: u,
             preempt: y
-        }), Re("[route] delivered to target inbox", {
+        }), ke("[route] delivered to target inbox", {
             traceId: r,
             routeId: i,
             sourceSessionKey: l,
@@ -118,6 +147,7 @@ async function deliverRouteEventToSession(e, t, n) {
             targetSessionKey: u,
             success: !0,
             eventId: h.id,
+            eventTs: h.ts,
             mailboxPath: g
         }
     } catch (h) {

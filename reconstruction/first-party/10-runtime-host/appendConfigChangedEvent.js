@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: appendConfigChangedEvent  (minified: ty, daemon.pretty.js:90314)
+// symbol: appendConfigChangedEvent  (minified: ky, daemon.pretty.js:91842)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -26,7 +26,7 @@ async function appendConfigChangedEvent(e, t) {
                 changed: t.changed
             } : {
                 scope: "global",
-                file: `${Jr}.md`,
+                file: `${Yr}.md`,
                 changed: t.changed
             }
         });

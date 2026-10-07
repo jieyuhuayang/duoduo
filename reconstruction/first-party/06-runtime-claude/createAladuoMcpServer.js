@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAladuoMcpServer  (minified: Yg, daemon.pretty.js:79918)
+// symbol: createAladuoMcpServer  (minified: by, daemon.pretty.js:80220)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createAladuoMcpServer(e, t = {}) {
-    let n = new vA({
+    let n = new fN({
             name: "aladuo",
             version: "1.0.0"
         }, {
@@ -17,10 +17,10 @@ function createAladuoMcpServer(e, t = {}) {
             "anthropic/alwaysLoad": !0
         }),
         i = t.sessionContextKind === "job";
-    return t.sessionContextKind === "meta" || t.sessionContextKind === "system" || (n.registerTool(ww, {
-        title: ww,
-        description: i ? f$() : d$(),
-        inputSchema: i ? m$(t.callerRuntime) : p$(t.callerRuntime),
+    return t.sessionContextKind === "meta" || t.sessionContextKind === "system" || (n.registerTool(Jw, {
+        title: Jw,
+        description: i ? GC() : JC(),
+        inputSchema: i ? KC(t.callerRuntime) : ZC(t.callerRuntime),
         _meta: r
     }, async s => ({
         content: [{
@@ -33,10 +33,10 @@ function createAladuoMcpServer(e, t = {}) {
                 bus: t.bus
             })
         }]
-    })), n.registerTool(Ew, {
-        title: Ew,
-        description: i ? v$ : _$,
-        inputSchema: i ? w$ : b$,
+    })), n.registerTool(tS, {
+        title: tS,
+        description: i ? cO : uO,
+        inputSchema: i ? dO : lO,
         _meta: r
     }, async s => ({
         content: [{
@@ -47,10 +47,10 @@ function createAladuoMcpServer(e, t = {}) {
                 sessionContextKind: t.sessionContextKind
             })
         }]
-    }))), n.registerTool(kw, {
-        title: kw,
-        description: g$,
-        inputSchema: y$,
+    }))), n.registerTool(Qw, {
+        title: Qw,
+        description: sO,
+        inputSchema: aO,
         _meta: r
     }, async s => ({
         content: [{
@@ -61,10 +61,10 @@ function createAladuoMcpServer(e, t = {}) {
                 getSessionStatus: t.getSessionStatus
             })
         }]
-    })), t.sessionContextKind === "foreground" && (n.registerTool(qf, {
-        title: qf,
-        description: PO,
-        inputSchema: CO,
+    })), t.sessionContextKind === "foreground" && (n.registerTool(ip, {
+        title: ip,
+        description: wA,
+        inputSchema: SA,
         _meta: r
     }, async s => ({
         content: [{
@@ -74,10 +74,10 @@ function createAladuoMcpServer(e, t = {}) {
                 sessionKey: t.sessionKey
             })
         }]
-    })), n.registerTool(ws, {
-        title: ws,
-        description: cB,
-        inputSchema: lC,
+    })), n.registerTool(Es, {
+        title: Es,
+        description: fV,
+        inputSchema: q$,
         _meta: r
     }, async s => ({
         content: [{
@@ -88,8 +88,8 @@ function createAladuoMcpServer(e, t = {}) {
                 sessionKey: t.sessionKey
             })
         }]
-    }))), n.registerTool(Ow, {
-        title: Ow,
+    }))), n.registerTool(iS, {
+        title: iS,
         description: renderNotifyToolDescription({
             sessionKey: t.sessionKey,
             sessionContextKind: t.sessionContextKind

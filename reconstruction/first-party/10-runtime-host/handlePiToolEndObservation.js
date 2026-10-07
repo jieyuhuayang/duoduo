@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: handlePiToolEndObservation  (minified: Eke, daemon.pretty.js:73355)
+// symbol: handlePiToolEndObservation  (minified: hEe, daemon.pretty.js:73657)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function handlePiToolEndObservation(e, t, n) {
     if (!n.is_error) {
-        if (n.tool_name === ws) {
+        if (n.tool_name === Es) {
             let r = parsePiToolResultDetails(n.result_json)?.reason;
             if (typeof r != "string" || r.trim().length === 0) return;
             await patchSessionRuntimeState(e, t, {
@@ -17,7 +17,7 @@ async function handlePiToolEndObservation(e, t, n) {
             });
             return
         }
-        if (n.tool_name === qf) {
+        if (n.tool_name === ip) {
             let r = parsePiToolResultDetails(n.result_json),
                 i = r?.path;
             if (typeof i != "string" || i.trim().length === 0) return;

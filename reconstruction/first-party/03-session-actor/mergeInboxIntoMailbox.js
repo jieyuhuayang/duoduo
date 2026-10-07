@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: mergeInboxIntoMailbox  (minified: fR, daemon.pretty.js:32558)
+// symbol: mergeInboxIntoMailbox  (minified: HR, daemon.pretty.js:32661)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,25 +8,25 @@ async function mergeInboxIntoMailbox(e, t) {
     let n = resolveSessionInboxDir(e, t),
         r;
     try {
-        r = (await ob(n)).sort()
+        r = (await $b(n)).sort()
     } catch (s) {
-        throw new dR(s)
+        throw new VR(s)
     }
-    if (r.length === 0) return await _z(e, t), {
+    if (r.length === 0) return await bU(e, t), {
         merged: 0
     };
-    let i = await _z(e, t),
+    let i = await bU(e, t),
         o = 0;
     for (let s of r) {
-        let a = Ys.join(n, s),
+        let a = ea.join(n, s),
             u;
         try {
-            u = await yr.readFile(a, "utf8")
+            u = await wr.readFile(a, "utf8")
         } catch (h) {
             let g = h.code,
-                y = fse(g);
+                y = Pae(g);
             if (!y && g === "ENOENT") try {
-                y = (await yr.lstat(a)).isSymbolicLink()
+                y = (await wr.lstat(a)).isSymbolicLink()
             } catch (v) {
                 y = v.code !== "ENOENT"
             }
@@ -34,30 +34,30 @@ async function mergeInboxIntoMailbox(e, t) {
                 if (g === "ENOENT") continue;
                 throw h
             }
-            Le(`[mailbox] unprocessable inbox item — quarantining: ${a}`, h);
+            Ue(`[mailbox] unprocessable inbox item — quarantining: ${a}`, h);
             try {
-                await jd(a, Ys.join(n, "quarantine"))
+                await Gd(a, ea.join(n, "quarantine"))
             } catch (v) {
-                Le(`[mailbox] failed to quarantine inbox item — skipped for this merge: ${a}`, v)
+                Ue(`[mailbox] failed to quarantine inbox item — skipped for this merge: ${a}`, v)
             }
             continue
         }
         let l = u.trim();
         if (l.length === 0) {
-            await yr.unlink(a);
+            await wr.unlink(a);
             continue
         }
-        let c = _se(l) ?? void 0,
-            d = bse(l) ?? void 0,
+        let c = Dae(l) ?? void 0,
+            d = Mae(l) ?? void 0,
             p = `${s.replace(/\.pending$/,"")}.item.json`,
             m = {
                 line: l,
                 event_id: c,
                 reply_session_key: d,
-                created_at: p5e(s) ?? new Date().toISOString()
+                created_at: aYe(s) ?? new Date().toISOString()
             };
-        await Dt(Ys.join(i, p), JSON.stringify(m) + `
-`), await yr.unlink(a), o += 1
+        await Dt(ea.join(i, p), JSON.stringify(m) + `
+`), await wr.unlink(a), o += 1
     }
     return {
         merged: o

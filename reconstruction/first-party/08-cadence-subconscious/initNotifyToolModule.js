@@ -1,19 +1,19 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: initNotifyToolModule  (minified: Aw, daemon.pretty.js:65324)
+// symbol: initNotifyToolModule  (minified: oS, daemon.pretty.js:65586)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Ow, H_e, M_e, z_e, initNotifyToolModule = O(() => {
+var iS, lve, eve, ive, initNotifyToolModule = O(() => {
     "use strict";
-    lc();
-    dt();
-    Dr();
+    vc();
+    pt();
+    $r();
     initJobManagerModule();
-    FV();
-    hg();
-    WV();
-    Ow = "Notify", H_e = "mcp__aladuo__Notify";
-    M_e = 5;
-    z_e = 3
+    H6();
+    jg();
+    iO();
+    iS = "Notify", lve = "mcp__aladuo__Notify";
+    eve = 5;
+    ive = 3
 });

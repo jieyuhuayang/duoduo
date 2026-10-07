@@ -67,9 +67,7 @@ next message arrives.
 
 ## Design rationale
 
-See `docs/design/conversation-history-controls.md` in the source
-repo for the full architectural decisions. The short version:
-spine + mailbox is aladuo's only control plane, so slash commands
+Spine + mailbox is duoduo's only control plane, so slash commands
 must flow through it like any other channel input — no second queue.
 
 ## `/clear` and `/reset` (session reset)

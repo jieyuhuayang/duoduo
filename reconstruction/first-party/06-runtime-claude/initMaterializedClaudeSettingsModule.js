@@ -1,22 +1,22 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: initMaterializedClaudeSettingsModule  (minified: Dw, daemon.pretty.js:65429)
+// symbol: initMaterializedClaudeSettingsModule  (minified: aS, daemon.pretty.js:65691)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var iut, out, sut, aut, uut, ZV, G_e, initMaterializedClaudeSettingsModule = O(() => {
+var Xlt, Qlt, ect, tct, nct, J6, pve, initMaterializedClaudeSettingsModule = O(() => {
     "use strict";
-    Wn();
-    dt();
-    Ii();
-    iut = {
+    Kn();
+    pt();
+    Kr();
+    Xlt = {
         fable: "ANTHROPIC_DEFAULT_FABLE_MODEL",
         opus: "ANTHROPIC_DEFAULT_OPUS_MODEL",
         sonnet: "ANTHROPIC_DEFAULT_SONNET_MODEL",
         haiku: "ANTHROPIC_DEFAULT_HAIKU_MODEL"
-    }, out = {
+    }, Qlt = {
         anthropic_auth_token: "ANTHROPIC_AUTH_TOKEN",
         claude_code_oauth_token: "CLAUDE_CODE_OAUTH_TOKEN"
-    }, sut = "CLAUDE_CODE_MAX_CONTEXT_TOKENS", aut = "ANTHROPIC_BASE_URL", uut = "claude-settings";
-    ZV = new Set, G_e = !1
+    }, ect = "CLAUDE_CODE_MAX_CONTEXT_TOKENS", tct = "ANTHROPIC_BASE_URL", nct = "claude-settings";
+    J6 = new Set, pve = !1
 });

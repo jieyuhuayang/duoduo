@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: collectJobCompletionReceipts  (minified: gft, daemon.pretty.js:71943)
+// symbol: collectJobCompletionReceipts  (minified: Qmt, daemon.pretty.js:72245)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -9,7 +9,7 @@ async function collectJobCompletionReceipts(e, t, n, r, i) {
         s = [];
     for (let u of n) {
         if (!u.eventId) continue;
-        let l = await tke(e, u, r, i);
+        let l = await Hxe(e, u, r, i);
         if (!l) continue;
         let c = extractJobCompletionJobId(l);
         if (!c) continue;
@@ -23,7 +23,7 @@ async function collectJobCompletionReceipts(e, t, n, r, i) {
     }
     if (o.size === 0) return null;
     let a = [];
-    for (let [u, l] of o) a.push(l.length === 1 ? l[0].prompt : hft(e, t, u, l));
+    for (let [u, l] of o) a.push(l.length === 1 ? l[0].prompt : Xmt(e, t, u, l));
     return {
         text: a.join(`
 

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: runDrainTurnWithResumeFallback  (minified: jft, daemon.pretty.js:72483)
+// symbol: runDrainTurnWithResumeFallback  (minified: vht, daemon.pretty.js:72785)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -16,123 +16,123 @@ async function runDrainTurnWithResumeFallback(e, t, n, r) {
         usesStreamingAdapter: d,
         ...f
     } = r;
-    isClaudeRuntimeOrDefault(c) && !d && _t("info", "[claude-context-profile] non-streaming subprocess spawned", {
+    isClaudeRuntimeOrDefault(c) && !d && vt("info", "[claude-context-profile] non-streaming subprocess spawned", {
         sessionKey: t,
         model: f.model ?? "default",
-        context_profile_source: hO(f.claudeContextRequirement),
-        max_context_token: zf({
+        context_profile_source: aA(f.claudeContextRequirement),
+        max_context_token: np({
             requirement: f.claudeContextRequirement,
             hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
             liveGenerationToken: void 0
         }),
-        ...gO(f.claudeContextRequirement),
-        alias_tiers: yO(f.claudeModelAliases)
+        ...uA(f.claudeContextRequirement),
+        alias_tiers: lA(f.claudeModelAliases)
     });
     let p = f.onStream,
         m = f.onExecutionEvent,
         h = {
             ...f
         },
-        g = () => new SO($ => p?.($), $ => m?.({
+        g = () => new mA(A => p?.(A), A => m?.({
             type: "thought_chunk",
-            text: $
+            text: A
         })),
         y;
-    p && (y = g(), h.onStream = ($, C) => {
-        if (C) {
-            p($, !0);
+    p && (y = g(), h.onStream = (A, $) => {
+        if ($) {
+            p(A, !0);
             return
         }
-        y.push($)
-    }, h.onExecutionEvent = $ => {
-        $.type === "tool_result" && y.reset(), m?.($)
+        y.push(A)
+    }, h.onExecutionEvent = A => {
+        A.type === "tool_result" && y.reset(), m?.(A)
     });
-    let v = ($, C) => {
+    let v = (A, $) => {
             y?.flush();
-            let A = $.text;
-            if (A) {
-                let F = wSe(A);
-                if (A = F.text, !p && F.thoughts.length > 0 && m)
-                    for (let k of F.thoughts) m({
+            let C = A.text;
+            if (C) {
+                let N = dxe(C);
+                if (C = N.text, !p && N.thoughts.length > 0 && m)
+                    for (let x of N.thoughts) m({
                         type: "thought_chunk",
-                        text: k
+                        text: x
                     })
             }
             return {
-                ...$,
-                text: A,
-                ...C
+                ...A,
+                text: C,
+                ...$
             }
         },
         b = {
             runtimeDir: e.runtimeDir
         },
         _ = !isClaudeRuntimeOrDefault(c),
-        I = _ ? void 0 : l,
-        E = _ ? l : void 0,
-        R = () => c === "pi" ? Nft(s) : eventToMessageGenerator(s, I, b),
-        x = R(),
-        S = ($, C, A) => {
-            let F = u ? u() : a,
-                k = {
-                    prompt: $,
-                    sessionId: C,
-                    forkFrom: A,
-                    ...E ? {
-                        attachments: E
+        E = _ ? void 0 : l,
+        R = _ ? l : void 0,
+        P = () => c === "pi" ? yht(s) : eventToMessageGenerator(s, E, b),
+        k = P(),
+        S = (A, $, C) => {
+            let N = u ? u() : a,
+                x = {
+                    prompt: A,
+                    sessionId: $,
+                    forkFrom: C,
+                    ...R ? {
+                        attachments: R
                     } : {},
                     ...h
                 };
-            return F === void 0 ? k : {
-                ...k,
-                mcpServers: F
+            return N === void 0 ? x : {
+                ...x,
+                mcpServers: N
             }
         };
     if (o) {
-        let $ = Date.now(),
-            C = await n.run(S(x, void 0, o));
-        return v(C, {
+        let A = Date.now(),
+            $ = await n.run(S(k, void 0, o));
+        return v($, {
             usedFallback: !1,
-            turnStartedAt: $
+            turnStartedAt: A
         })
     }
     if (!i) {
-        let $ = Date.now(),
-            C = await n.run(S(x, i));
-        return v(C, {
+        let A = Date.now(),
+            $ = await n.run(S(k, i));
+        return v($, {
             usedFallback: !1,
-            turnStartedAt: $
+            turnStartedAt: A
         })
     }
     let D = Date.now();
     try {
-        let $ = await n.run(S(x, i));
-        return v($, {
+        let A = await n.run(S(k, i));
+        return v(A, {
             usedFallback: !1,
             turnStartedAt: D
         })
-    } catch ($) {
-        if (isAbortLikeError($) || isAgentSdkTurnInterruptedError($) || isAgentSdkPromptNotAcceptedAbortError($)) throw $;
-        if (y && (y.flush(), y = g(), h.onStream = (k, N) => {
-                if (N) {
-                    p(k, !0);
+    } catch (A) {
+        if (isAbortLikeError(A) || isAgentSdkTurnInterruptedError(A) || isAgentSdkPromptNotAcceptedAbortError(A)) throw A;
+        if (y && (y.flush(), y = g(), h.onStream = (x, M) => {
+                if (M) {
+                    p(x, !0);
                     return
                 }
-                y.push(k)
+                y.push(x)
             }), c === "codex") {
-            let N = (await ct(e, t).catch(() => null))?.pending_skip_rewind?.skipped_at;
-            if (N) {
-                let V = Date.parse(N);
-                Number.isFinite(V) && V >= D && await clearSessionRuntimeStateField(e, t, "pending_skip_rewind").catch(() => {})
+            let M = (await rt(e, t).catch(() => null))?.pending_skip_rewind?.skipped_at;
+            if (M) {
+                let F = Date.parse(M);
+                Number.isFinite(F) && F >= D && await clearSessionRuntimeStateField(e, t, "pending_skip_rewind").catch(() => {})
             }
         }
-        let C = R(),
-            A = Date.now(),
-            F = await n.run(S(C));
-        return v(F, {
+        let $ = P(),
+            C = Date.now(),
+            N = await n.run(S($));
+        return v(N, {
             usedFallback: !0,
-            resumeError: $ instanceof Error ? $.message : String($),
-            turnStartedAt: A
+            resumeError: A instanceof Error ? A.message : String(A),
+            turnStartedAt: C
         })
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveIngressWorkspace  (minified: x0e, daemon.pretty.js:89291)
+// symbol: resolveIngressWorkspace  (minified: hIe, daemon.pretty.js:90710)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -11,7 +11,7 @@ async function resolveIngressWorkspace(e) {
         cwdAbs: r,
         channelKind: i,
         channelId: o
-    } = e, s = await ct(t, n), a = s?.plane ?? classifySessionPlaneByKey(n), u = s?.permission_profile ?? gyt(a), l = i ? await Za(t, {
+    } = e, s = await rt(t, n), a = s?.plane ?? classifySessionPlaneByKey(n), u = s?.permission_profile ?? evt(a), l = i ? await ru(t, {
         channel_kind: i,
         channel_id: o
     }) : null, c = async p => {
@@ -32,7 +32,7 @@ async function resolveIngressWorkspace(e) {
             channelKind: i,
             channelId: o
         });
-        let p = await Gf(r).catch(() => null);
+        let p = await dp(r).catch(() => null);
         return p ? (await c(p), {
             ok: !0,
             cwd: p,
@@ -44,8 +44,8 @@ async function resolveIngressWorkspace(e) {
     }
     if (l?.new_session_workspace) {
         let p = l.new_session_workspace,
-            m = await Gf(p).catch(() => null) ?? void 0;
-        if (m || (m = await $0e(p).catch(() => null) ?? void 0, m && te(`[daemon] created missing new_session_workspace '${m}' for kind '${i}'`)), m) return await c(m), {
+            m = await dp(p).catch(() => null) ?? void 0;
+        if (m || (m = await SIe(p).catch(() => null) ?? void 0, m && ee(`[daemon] created missing new_session_workspace '${m}' for kind '${i}'`)), m) return await c(m), {
             ok: !0,
             cwd: m,
             effectiveConfig: l
@@ -54,7 +54,7 @@ async function resolveIngressWorkspace(e) {
     }
     let d = s?.cwd?.trim() || void 0;
     if (d) {
-        let p = await Gf(d).catch(() => null);
+        let p = await dp(d).catch(() => null);
         return p ? {
             ok: !0,
             cwd: p,
@@ -64,7 +64,7 @@ async function resolveIngressWorkspace(e) {
             guidance: `Workspace unavailable: '${d}' (bound session path does not exist).`
         }
     }
-    let f = await Gf(t.workDir).catch(() => null) ?? oo.resolve(t.workDir);
+    let f = await dp(t.workDir).catch(() => null) ?? so.resolve(t.workDir);
     return await c(f), {
         ok: !0,
         cwd: f,

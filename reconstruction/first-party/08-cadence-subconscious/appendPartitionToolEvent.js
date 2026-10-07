@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: appendPartitionToolEvent  (minified: Ugt, daemon.pretty.js:85715)
+// symbol: appendPartitionToolEvent  (minified: xbt, daemon.pretty.js:86066)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

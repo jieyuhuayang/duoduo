@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: markPlaylistItemExecuted  (minified: H$, daemon.pretty.js:66292)
+// symbol: markPlaylistItemExecuted  (minified: IO, daemon.pretty.js:66564)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -7,7 +7,7 @@
 async function markPlaylistItemExecuted(e, t, n = new Date) {
     let r;
     try {
-        r = await Gu.readFile(e.subconsciousPlaylistPath, "utf8")
+        r = await al.readFile(e.subconsciousPlaylistPath, "utf8")
     } catch {
         return
     }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: ensureSessionDescriptorAndStateFiles  (minified: OR, daemon.pretty.js:35474)
+// symbol: ensureSessionDescriptorAndStateFiles  (minified: nh, daemon.pretty.js:35600)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -16,22 +16,22 @@ async function ensureSessionDescriptorAndStateFiles(e, t) {
         i = !1;
     await runWithSessionMutex(t.session_key, async () => {
         let o = resolveSessionDir(e, n.session_key);
-        await $e(o);
+        await Ne(o);
         let s = resolveSessionMetaPath(e, n.session_key);
         try {
-            await ja.access(s)
+            await qa.access(s)
         } catch {
-            let u = kb.default.stringify(["# Session Descriptor", "", "This file describes declarative metadata for this session.", "High-churn runtime state is stored in state.json."].join(`
-`), Gd(n));
+            let u = Gb.default.stringify(["# Session Descriptor", "", "This file describes declarative metadata for this session.", "High-churn runtime state is stored in state.json."].join(`
+`), af(n));
             await Dt(s, u), r = !0
         }
         let a = resolveSessionStatePath(e, n.session_key);
         try {
-            await ja.access(a)
+            await qa.access(a)
         } catch {
             await Bt(a, {
                 updated_at: new Date().toISOString()
             }), i = !0
         }
-    }), r && jm(n.session_key, "meta"), i && jm(n.session_key, "state")
+    }), r && th(n.session_key, "meta"), i && th(n.session_key, "state")
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: rebuildPlaylistRound  (minified: ave, daemon.pretty.js:66310)
+// symbol: rebuildPlaylistRound  (minified: Rwe, daemon.pretty.js:66582)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -17,7 +17,7 @@ async function rebuildPlaylistRound(e) {
     }
     let r;
     try {
-        r = await Gu.readFile(e.subconsciousPlaylistPath, "utf8")
+        r = await al.readFile(e.subconsciousPlaylistPath, "utf8")
     } catch {
         r = `# Subconscious Playlist
 
@@ -43,7 +43,7 @@ async function rebuildPlaylistRound(e) {
     }
     return await Dt(e.subconsciousPlaylistPath, `${i.join(`
 `).replace(/\s+$/,"")}
-`), Re("[playlist] rebuilt round", {
+`), ke("[playlist] rebuilt round", {
         count: n.length,
         names: n.map(s => s.name)
     }), n.length

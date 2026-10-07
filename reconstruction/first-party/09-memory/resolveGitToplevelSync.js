@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: resolveGitToplevelSync  (minified: Mct, daemon.pretty.js:68437)
+// symbol: resolveGitToplevelSync  (minified: Cft, daemon.pretty.js:68728)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveGitToplevelSync(e) {
     try {
-        let t = kg("git", ["rev-parse", "--show-toplevel"], {
+        let t = Hg("git", ["rev-parse", "--show-toplevel"], {
             cwd: e,
             encoding: "utf8"
         });

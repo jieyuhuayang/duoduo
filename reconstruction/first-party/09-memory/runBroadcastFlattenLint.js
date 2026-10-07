@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBroadcastFlattenLint  (minified: fwe, daemon.pretty.js:68281)
+// symbol: runBroadcastFlattenLint  (minified: TSe, daemon.pretty.js:68572)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function runBroadcastFlattenLint(e) {
     let t = resolveMemoryDirs(e),
-        n = Rn(t.boardPath);
+        n = Tn(t.boardPath);
     if (n === null) return {
         selected: [],
         headings: []
@@ -18,10 +18,10 @@ function runBroadcastFlattenLint(e) {
     } : {
         headings: r,
         selected: [{
-            kind: Un.CLAUDE_FLATTEN,
-            partition: Pct,
+            kind: Vn.CLAUDE_FLATTEN,
+            partition: xft,
             pendingFilename: "claude-flatten.md.pending",
-            pendingBody: Act(t.boardPath, r)
+            pendingBody: Tft(t.boardPath, r)
         }]
     }
 }

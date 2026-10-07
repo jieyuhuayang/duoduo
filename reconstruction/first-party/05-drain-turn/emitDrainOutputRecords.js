@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: emitDrainOutputRecords  (minified: $c, daemon.pretty.js:72153)
+// symbol: emitDrainOutputRecords  (minified: Bc, daemon.pretty.js:72455)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -8,11 +8,11 @@ async function emitDrainOutputRecords(e, t, n) {
     let r = [],
         {
             targetSessionKeys: i
-        } = uke(n.item, n.event, t),
+        } = Xxe(n.item, n.event, t),
         o = i.length,
         s, a = n.item.replySessionKey?.trim();
     for (let [u, l] of i.entries()) {
-        let c = Aft(l, n.event.source.kind),
+        let c = ght(l, n.event.source.kind),
             d = n.turnMeta !== void 0 && classifySessionKeyOrUnknown(l) === "channel",
             f = createOutboxRecord({
                 channel_kind: c,
@@ -34,7 +34,7 @@ async function emitDrainOutputRecords(e, t, n) {
                     } : void 0
                 }
             });
-        await Wl(e, f), r.push(f);
+        await Va(e, f), r.push(f);
         let p = {
             outbox_id: f.id,
             text: f.payload.text,

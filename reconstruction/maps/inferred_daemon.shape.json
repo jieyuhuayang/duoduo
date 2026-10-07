@@ -1,6 +1,7 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-09-24",
+  "recorded": "2026-10-07",
+  "package": "v0.8.4",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -300,17 +301,20 @@
       "kind": "async function",
       "params": 3,
       "literals": [
+        " was not run.",
         "- [ ] @evt(",
         "[gateway] gateway-targeted event (no enqueue)",
         "[gateway] meta-targeted event",
         "[gateway] session-targeted event",
+        "[gateway] void-session event (outbox, no enqueue)",
         "channel.command",
         "gateway",
         "mailbox_enqueued",
         "meta",
         "meta:subconscious",
         "number",
-        "spine.event"
+        "spine.event",
+        "string"
       ],
       "props": [
         "attachments",
@@ -336,6 +340,7 @@
         "payload",
         "rawCommand",
         "rawPayload",
+        "raw_command",
         "raw_path",
         "replyFanoutSessionKeys",
         "responseText",
@@ -696,6 +701,7 @@
       "kind": "async function",
       "params": 3,
       "literals": [
+        " Request was not executed.",
         " cancelled=true",
         " event_id=",
         " item_file=",
@@ -718,8 +724,7 @@
         "channel",
         "claude",
         "codex",
-        "compact_boundary",
-        "default"
+        "compact_boundary"
       ],
       "props": [
         "abortController",
@@ -743,12 +748,14 @@
         "cache_read_input_tokens",
         "cancelled",
         "catch",
+        "claude_cost_baseline",
         "command",
         "compactNoticeInjected",
         "compact_stats",
         "configLayer",
         "consumed",
         "context_used_tokens",
+        "costBaseline",
         "createdAt",
         "cron",
         "cwd",
@@ -779,9 +786,7 @@
         "input_tokens",
         "intent",
         "interruptedContextInjected",
-        "isError",
-        "isNotifyOnly",
-        "item"
+        "isError"
       ]
     },
     "resolveBoardIncludes": {
@@ -1141,11 +1146,14 @@
       "literals": [
         "claude",
         "codex",
-        "grok"
+        "grok",
+        "void"
       ],
       "props": [],
       "values": [
-        "70c9fbc6c844ee1d"
+        "70c9fbc6c844ee1d",
+        "891937cb335016e9",
+        "8daa3ee8ffbe307e"
       ]
     },
     "isJobCreateParams": {
@@ -1172,6 +1180,7 @@
       "kind": "function",
       "params": 1,
       "literals": [
+        "ALADUO_DEFAULT_RUNTIME",
         "claude",
         "string"
       ],
@@ -1179,6 +1188,9 @@
         "ALADUO_DEFAULT_RUNTIME",
         "env",
         "length",
+        "ok",
+        "reason",
+        "runtime",
         "toLowerCase",
         "trim"
       ]
@@ -2010,6 +2022,7 @@
         "number"
       ],
       "props": [
+        "baselineUnknown",
         "cache_creation_input_tokens",
         "cache_read_input_tokens",
         "input_tokens",
@@ -2694,6 +2707,7 @@
       "literals": [
         "- [ ] @evt(",
         "[route] delivered to target inbox",
+        "[route] delivered to void session outbox (no mailbox, no wake)",
         "[route] delivery refused: session archived",
         "[route] delivery refused: session is being archived",
         "[route] enqueued without wake (waits for the owner's next turn)",
@@ -2710,11 +2724,14 @@
         "route.deliver",
         "session.wake",
         "session_archived",
-        "session_archiving"
+        "session_archiving",
+        "string"
       ],
       "props": [
         "emit",
-        "id"
+        "id",
+        "text",
+        "ts"
       ]
     },
     "updateDeliveryCursorFile": {
@@ -3047,7 +3064,6 @@
         "piExtensions",
         "piSkills",
         "prompt_mode",
-        "runtime",
         "runtimeEfforts",
         "runtimeModels",
         "stream",
@@ -3172,7 +3188,8 @@
       "literals": [
         "' has invalid effort frontmatter; ignoring it",
         "' has invalid model frontmatter; ignoring it",
-        "' has invalid runtime frontmatter; falling back to global default",
+        "Partition \"",
+        "[playlist] ",
         "[playlist] partition '",
         "string",
         "utf8"
@@ -3187,8 +3204,10 @@
         "length",
         "max_duration_ms",
         "model",
+        "ok",
         "prompt_mode",
         "readFile",
+        "reason",
         "runtime",
         "schedule",
         "trim"
@@ -3538,21 +3557,16 @@
     "initGapSpanModule": {
       "kind": "moduleInit",
       "params": 0,
-      "literals": [
-        "cadence",
-        "gateway",
-        "meta",
-        "route",
-        "runner",
-        "system"
-      ],
+      "literals": [],
       "props": [],
       "values": [
+        "061c5740ac0b3e27",
         "0f8a76924be9803f",
         "4f4748b0df3b0ebc",
         "74805102739c9d5f",
         "8bdf4e967177e63f",
-        "b3c8ecc8b73838c1"
+        "b3c8ecc8b73838c1",
+        "ce26a98d252f3e2f"
       ]
     },
     "readPartitionContract": {
@@ -5217,18 +5231,19 @@
       "kind": "function",
       "params": 1,
       "literals": [
+        " It has no model or effort to show or set.",
         "blocked",
         "codex",
         "compatible",
         "grok",
         "rebuild",
-        "unknown"
+        "unknown",
+        "void"
       ],
       "props": [
         "CLAUDE_CODE_MAX_CONTEXT_TOKENS",
         "catch",
         "channelConfigDir",
-        "channel_kind",
         "claudeModelAliases",
         "claudeModelProfileIssues",
         "claudeModelProfiles",
@@ -5238,10 +5253,11 @@
         "kind",
         "length",
         "map",
+        "ok",
+        "reason",
         "runtime",
         "sourceChannelId",
         "sourceKind",
-        "source_channel_id",
         "value"
       ]
     },
@@ -5417,6 +5433,7 @@
         "applyFlagSettings",
         "autoloadAdditionalDirectoryClaudeMd",
         "boardHash",
+        "callerSession",
         "catch",
         "claimedEventIds",
         "claudeContextRequirement",
@@ -5430,6 +5447,7 @@
         "configSignature",
         "content",
         "context_used_tokens",
+        "costBaseline",
         "createStreamingQuery",
         "currentTurn",
         "cwd",
@@ -5465,9 +5483,7 @@
         "lastActivityAt",
         "lastAppliedEffort",
         "lastCliTurnSettledAt",
-        "lastModelUsage",
-        "lastTotalCostUsd",
-        "lastTranscriptPath"
+        "lastModelUsage"
       ]
     },
     "memoizeAvailabilityProbeUntilOk": {
@@ -5929,7 +5945,8 @@
         "info",
         "never",
         "number",
-        "session.wake"
+        "session.wake",
+        "void"
       ],
       "props": [
         "NaN",
@@ -5963,6 +5980,7 @@
         "parse",
         "routing",
         "runtime",
+        "runtimeRefusal",
         "session_key",
         "set",
         "source_channel_id",
@@ -6353,7 +6371,9 @@
         "get",
         "length",
         "new_session_workspace",
+        "ok",
         "push",
+        "reason",
         "require_mention",
         "resolve",
         "runtime",
@@ -6392,6 +6412,7 @@
       "kind": "async function",
       "params": 3,
       "literals": [
+        " A wake would start no turn; nothing was scheduled.",
         " is a ",
         " plane is isolated.",
         " session, and the ",
@@ -6402,7 +6423,8 @@
         "failed",
         "forbidden_kind",
         "invalid_when",
-        "not_found"
+        "not_found",
+        "void_session"
       ],
       "props": [
         "context",
@@ -6419,37 +6441,52 @@
       "kind": "async function",
       "params": 4,
       "literals": [
+        " (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.",
+        "The calling session ",
         "ambiguous",
         "delivery_failed",
         "external",
-        "external.notify",
         "external:session.notify",
         "forbidden_kind",
         "never",
         "no_consumer",
         "not_found",
+        "notify",
+        "notify-tool",
         "route",
         "session-notify-",
-        "session.notify"
+        "session.notify",
+        "session.notify:",
+        "unknown_caller"
       ],
       "props": [
+        "caller_session",
         "candidates",
         "display_name",
         "error",
         "eventId",
+        "eventTs",
+        "event_id",
+        "exact_key",
         "force",
+        "get",
+        "idempotency_key",
+        "in_reply_to",
         "inputs",
         "mailboxPath",
         "message",
         "ok",
         "randomUUID",
         "reason",
+        "record",
         "refused",
         "session_key",
         "source",
+        "stringify",
         "success",
         "target",
         "trim",
+        "ts",
         "unconsumedHours",
         "verdict"
       ]
@@ -6504,6 +6541,7 @@
       "kind": "async function",
       "params": 5,
       "literals": [
+        " It has no context to compact; nothing was queued.",
         "/compact",
         "ambiguous",
         "archiving",
@@ -6513,7 +6551,8 @@
         "forbidden_kind",
         "not_found",
         "session.compact",
-        "session.wake"
+        "session.wake",
+        "void_session"
       ],
       "props": [
         "candidates",
@@ -6579,24 +6618,35 @@
       "kind": "async function",
       "params": 3,
       "literals": [
+        " Send a runtime to replace it.",
+        " session key; channel.spawn creates channel sessions only.",
+        "\" belongs to channel \"",
         "\" does not exist and could not be created.",
+        "\" is a ",
         "\" is a reserved name for the global config file (kernel/config/",
+        "\", not \"",
         "\". Must be one of: ",
         "\". Must match [A-Za-z0-9_-]{1,128}.",
+        "\"; channel.spawn does not move a session to another channel.",
         ".md), not a channel kind. Pick a different channel_kind.",
+        "Failed to create session ",
         "Failed to write descriptor: ",
         "Invalid channel_id \"",
         "Unsupported runtime \"",
+        "channel",
         "cwd_abs \"",
         "cwd_abs is required on first-time channel.spawn (no prior descriptor to inherit from).",
         "cwd_abs must be an absolute path (got \"",
-        "runtime is required on first-time channel.spawn (no prior descriptor to inherit from)."
+        "runtime is required on first-time channel.spawn (no prior descriptor to inherit from).",
+        "session_key \""
       ],
       "props": [
         "bound_by",
         "catch",
         "channel_id",
         "channel_kind",
+        "created_at",
+        "cwd",
         "cwd_abs",
         "display_name",
         "includes",
@@ -6606,6 +6656,9 @@
         "new_session_workspace",
         "require_mention",
         "runtime",
+        "runtimeRefusal",
+        "session_key",
+        "source_channel_id",
         "toISOString",
         "toLowerCase",
         "trim"
@@ -7010,12 +7063,13 @@
     },
     "listSessionIndexSummaries": {
       "kind": "async function",
-      "params": 3,
+      "params": 4,
       "literals": [
         "job:"
       ],
       "props": [
         "buildSessionKey",
+        "deliverable",
         "filter",
         "frontmatter",
         "has",
@@ -7096,16 +7150,17 @@
       "params": 1,
       "literals": [
         "Call ViewSessions with no argument to see the sessions you can target (prefer active sessions).",
-        "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery.",
+        "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery, unless that session runs no model.",
         "If omitted, the target is the job's owner — the session that created it.",
         "If provided, delivers to this specific session instead.",
         "Optional unique label (e.g. 'ask-r3-bigshu') when you expect a reply.",
         "Optional: override this job's default Notify target.",
         "Set to the correlation_id of the request you are responding to.",
         "Target to receive this internal notification: either a session key or a session's display-name alias (resolved server-side).",
+        "The id of the mail you are answering, when the message you received gave one.",
         "The label is rendered into the target's inbox as an XML attribute on",
         "The original requester sees this label and matches it against their",
-        "This tool wakes the target session after delivery.",
+        "This tool wakes the target session after delivery, unless that session runs no model.",
         "Use this so your future turns can recognize the matched reply by",
         "attention-aligning on the same label in conversation history.",
         "earlier outgoing request. Do not invent a value — only echo a label",
@@ -7116,6 +7171,7 @@
       "props": [
         "correlation_id",
         "describe",
+        "in_reply_to",
         "join",
         "optional",
         "reply_to",
@@ -7230,6 +7286,7 @@
         "error",
         "eventId",
         "filter",
+        "in_reply_to",
         "inputs",
         "jobScheduleType",
         "length",
@@ -7508,7 +7565,9 @@
       "kind": "moduleInit",
       "params": 0,
       "literals": [
+        "body.experience",
         "channel.message",
+        "external.record",
         "gap-handed-days.txt",
         "scan-gap.md.pending"
       ],
@@ -7516,7 +7575,6 @@
       "values": [
         "0e44305da2e5eea3",
         "112552db9e32aea1",
-        "daa90237e216da72",
         "ed52f94248fc081c"
       ]
     },
@@ -8708,12 +8766,6 @@
         "startsWith"
       ]
     },
-    "IDLE_COMPACT_FIRE_CAP_PER_SWEEP": {
-      "kind": "value",
-      "params": null,
-      "value": "2c624232cdd22177",
-      "preview": "8"
-    },
     "assertWsChannelIdentityParams": {
       "kind": "function",
       "params": 3,
@@ -8891,6 +8943,309 @@
         "unset",
         "verb"
       ]
+    },
+    "validateKnownRuntimeValue": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " sets runtime ",
+        ", which is not a runtime this duoduo knows. Valid runtimes: "
+      ],
+      "props": [
+        "stringify"
+      ]
+    },
+    "validateRunnableRuntimeValue": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        " sets runtime \"void\", which never runs a model, so it cannot run there. Use one of "
+      ],
+      "props": [
+        "ok",
+        "runtime"
+      ]
+    },
+    "isKnownRuntimeValue": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "initRuntimeValidationModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "InvalidRuntimeError"
+      ],
+      "props": [
+        "join",
+        "map",
+        "name"
+      ],
+      "values": []
+    },
+    "parseChannelRuntimeField": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "This channel's config"
+      ],
+      "props": [
+        "ok",
+        "reason",
+        "runtime"
+      ]
+    },
+    "resolveLayeredChannelRuntime": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "default",
+        "explicit",
+        "inherited"
+      ],
+      "props": [
+        "runtime",
+        "runtimeRefusal"
+      ]
+    },
+    "buildEffectiveRuntimeFields": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "ok",
+        "reason",
+        "runtime"
+      ]
+    },
+    "resolveSessionChannelRuntime": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "catch",
+        "channelConfigDir",
+        "channel_kind",
+        "source_channel_id"
+      ]
+    },
+    "isVoidRuntimeSession": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "void"
+      ],
+      "props": [
+        "ok",
+        "runtime"
+      ]
+    },
+    "createVoidAwareAttachmentCallbacks": {
+      "kind": "function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "attachChannel",
+        "catch",
+        "detachChannel",
+        "resolve",
+        "then"
+      ]
+    },
+    "listVoidChannelSessions": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "channel"
+      ],
+      "props": [
+        "add",
+        "entries",
+        "get",
+        "set",
+        "source_channel_id"
+      ]
+    },
+    "writeVoidSessionOutboxRecord": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "session.output"
+      ],
+      "props": [
+        "attachments",
+        "data",
+        "emit",
+        "length",
+        "sessionKey",
+        "split",
+        "text"
+      ]
+    },
+    "initVoidRuntimeModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "This session never runs a model (runtime void)."
+      ],
+      "props": [],
+      "values": [
+        "0d29c4dd33c76ae6"
+      ]
+    },
+    "readMemoryFileForRpc": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        " is a directory",
+        "\" is outside duoduo's memory",
+        "ENOENT",
+        "ENOTDIR",
+        "No file memory/",
+        "memory.read",
+        "memory/",
+        "utf8"
+      ],
+      "props": [
+        "code",
+        "isDirectory",
+        "memoryDir",
+        "path",
+        "readFile",
+        "realpath",
+        "resolve",
+        "stat"
+      ]
+    },
+    "runSpineCatRpc": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "external",
+        "spine.cat"
+      ],
+      "props": [
+        "isUsage",
+        "message",
+        "redact",
+        "stdout"
+      ]
+    },
+    "recordExternalSpineEvent": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "spine.record"
+      ],
+      "props": [
+        "checkAndRecordDetailed",
+        "conversation",
+        "dedup_key",
+        "duplicate",
+        "event_id",
+        "existing",
+        "id",
+        "payload",
+        "source",
+        "ts"
+      ]
+    },
+    "checkReservedRecordSource": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "\" is one of duoduo's internal sources (",
+        "\" is reserved on duoduo (",
+        "), which duoduo never learns from. Nothing was recorded. Record under your own name.",
+        "): it begins duoduo's session keys. Nothing was recorded. Record under your own name.",
+        "reserved_source"
+      ],
+      "props": [
+        "includes",
+        "join"
+      ]
+    },
+    "bindSessionSourceChannel": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": []
+    },
+    "resolveSessionByExactKey": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "not_found"
+      ],
+      "props": [
+        "display_name",
+        "get",
+        "session_key"
+      ]
+    },
+    "filterDeliverableSessions": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "push",
+        "refused",
+        "session_key"
+      ]
+    },
+    "initCallerSessionEnvModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "ALADUO_CALLER_SESSION"
+      ],
+      "props": [],
+      "values": [
+        "6a31555d53552eac"
+      ]
+    },
+    "replayIdempotentSessionNotify": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "idempotency_conflict",
+        "no_consumer",
+        "string"
+      ],
+      "props": [
+        "id",
+        "idempotencyKey",
+        "message",
+        "notify_content",
+        "notify_refused_reason",
+        "payload",
+        "route_id",
+        "sessionKey",
+        "session_key",
+        "target",
+        "ts"
+      ]
+    },
+    "resolveClaudeCostBaseline": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "model_usage",
+        "sdk_session_id",
+        "total_cost_usd"
+      ]
+    },
+    "buildClaudeCostBaseline": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "number",
+        "object"
+      ],
+      "props": []
     }
   }
 }

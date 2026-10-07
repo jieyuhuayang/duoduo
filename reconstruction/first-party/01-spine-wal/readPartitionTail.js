@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: readPartitionTail  (minified: nve, daemon.pretty.js:88984)
+// symbol: readPartitionTail  (minified: vwe, daemon.pretty.js:89365)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -7,7 +7,7 @@
 async function readPartitionTail(e, t, n, r, i = !1) {
     let o;
     try {
-        o = await Hut.open(Wut.join(e.eventsDir, t), "r");
+        o = await zct.open(Uct.join(e.eventsDir, t), "r");
         let {
             size: s,
             blksize: a

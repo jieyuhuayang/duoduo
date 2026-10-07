@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: postMemorySignalsToInboxes  (minified: rO, daemon.pretty.js:67290)
+// symbol: postMemorySignalsToInboxes  (minified: zO, daemon.pretty.js:67581)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -23,11 +23,11 @@ function postMemorySignalsToInboxes(e, t) {
             }
         }
         let i = partitionInboxDirFromVar(t.varDir, r.partition);
-        Ya.mkdirSync(i, {
+        su.mkdirSync(i, {
             recursive: !0
         });
-        let o = Sg.join(i, r.pendingFilename);
-        if (!t.force && Ya.existsSync(o)) {
+        let o = Vg.join(i, r.pendingFilename);
+        if (!t.force && su.existsSync(o)) {
             n.withheld.push({
                 kind: r.kind,
                 partition: r.partition,
@@ -35,9 +35,9 @@ function postMemorySignalsToInboxes(e, t) {
             });
             continue
         }
-        if (t.force) Ya.writeFileSync(o, r.pendingBody, "utf8");
+        if (t.force) su.writeFileSync(o, r.pendingBody, "utf8");
         else try {
-            Ya.writeFileSync(o, r.pendingBody, {
+            su.writeFileSync(o, r.pendingBody, {
                 encoding: "utf8",
                 flag: "wx"
             })

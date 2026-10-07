@@ -1,12 +1,12 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: collectBoardLintReport  (minified: yve, daemon.pretty.js:66768)
+// symbol: collectBoardLintReport  (minified: Mwe, daemon.pretty.js:67040)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function collectBoardLintReport(e, t = 1, n) {
     let r = resolveMemoryDirs(e),
-        i = Rn(r.boardPath);
+        i = Tn(r.boardPath);
     if (i === null) return {
         boardMissing: !0,
         targets: [],
@@ -22,8 +22,8 @@ function collectBoardLintReport(e, t = 1, n) {
     };
     let o = [];
     for (let u of resolveMemoryLinkTargets(i)) {
-        let l = S6.join(r.topicsDir, `${u}.md`);
-        Ic(l) && o.push(buildBoardLintTarget(u, i, r, l))
+        let l = wH.join(r.topicsDir, `${u}.md`);
+        jc(l) && o.push(buildBoardLintTarget(u, i, r, l))
     }
     let s = [...o].sort(compareBoardLintTargets),
         a = runBoardLint(s, t);
@@ -32,7 +32,7 @@ function collectBoardLintReport(e, t = 1, n) {
         targets: o,
         ranked: s,
         selections: a,
-        census: mlt(i),
-        sinkCandidates: hlt(i)
+        census: udt(i),
+        sinkCandidates: ldt(i)
     }
 }

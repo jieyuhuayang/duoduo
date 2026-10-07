@@ -12,7 +12,7 @@
 |---|---|
 | 第一次接触 duoduo，想在 15 分钟内建立全貌 | [GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 第 0 节：0.1 模型的五个限制与运行时的对策、0.2 系统总览、0.4 术语表；然后按 0.5 节的 15 分钟读法，读第一至第五部分各自的第一段和第六部分 |
 | 产品经理或架构师，想理解设计思路 | [GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 全文。自我改进在第四部分（全文核心）；代码强制的检查、成本控制、失败处置与可观测性在第五部分；十二个可借鉴的设计与三个局限在第六部分 |
-| 想知道从 v0.7.1 到 v0.8.3 改了什么 | [GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 附录 D |
+| 想知道从 v0.7.1 到 v0.8.4 改了什么 | [GUIDE](./DUODUO_FRAMEWORK_GUIDE.md) 附录 D |
 | 工程师，要核对某个机制的代码证据 | [INTERNALS](./AGENT_INTERNALS_ANALYSIS.md) 的"结论"表，它列出每个子系统在 INTERNALS 的节和在 GUIDE 的节；从 GUIDE 的某一节出发时，查 GUIDE 附录 C。一条消息从进入到回复的完整路径在 INTERNALS 第 1 节，仍未证实、需要实测的项汇总在第 14 节 |
 | 要查落库的事件类型或控制面 RPC 方法 | [INTERNALS](./AGENT_INTERNALS_ANALYSIS.md) 附录 B |
 | 要部署或运维 | [ARCHITECTURE](./ARCHITECTURE_ANALYSIS.md) §2（安装、认证来源、引擎选择、环境变量与配置文件的位置）、§5（日常运维命令）、§8（运维风险）；命令速查在附录 A |
@@ -40,13 +40,13 @@ reconstruction/  还原源码、符号索引、引用检查工具（为什么可
 
 ## 文档清单与对齐版本
 
-GUIDE 与 INTERNALS 整篇对齐 v0.8.3；ARCHITECTURE 与 COMPARISON 各有一部分对齐 v0.8.3，范围写在各自的头部，下表照录；SOURCE_RECONSTRUCTION 讲方法，不绑定某个版本。INTERNALS 与 ARCHITECTURE 按名字引用代码，并给每条机制主张标 `confirmed` 或 `未证实推测`；COMPARISON 的 duoduo 部分同样按名字引用；GUIDE 不含代码引用。
+GUIDE 与 INTERNALS 整篇对齐 v0.8.4；ARCHITECTURE 有一部分对齐 v0.8.4，COMPARISON 有一部分对齐 v0.8.3，范围写在各自的头部，下表照录；SOURCE_RECONSTRUCTION 讲方法，不绑定某个版本。INTERNALS 与 ARCHITECTURE 按名字引用代码，并给每条机制主张标 `confirmed` 或 `未证实推测`；COMPARISON 的 duoduo 部分同样按名字引用；GUIDE 不含代码引用。
 
 | 文档 | 读者与内容 | 对齐版本 |
 |---|---|---|
-| [DUODUO_FRAMEWORK_GUIDE.md](./DUODUO_FRAMEWORK_GUIDE.md) | 写给产品经理的入门，只假设读者知道大语言模型是输入文本、输出文本的程序。从模型的五个限制出发（不能执行工具、两次调用之间没有记忆、感觉不到时间、没人提问就不运行、不会自己变好），第一至第四部分说明运行时的对策：四个可替换的引擎、一条消息的处理、两套独立的定时器、自我改进；第五部分讲无人值守下的代码强制检查、成本控制、失败处置与可观测性，第六部分总评。附录 C 是证据对照，附录 D 汇总版本变化 | v0.8.3 |
-| [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | 写给工程师的证据文档。第 1 至 13 节各讲一个子系统：端到端路径、系统提示装配、引擎、自操作工具、事件日志、网关与控制面、Drain 与 turn 控制、会话 actor 与并发池、渠道适配器、job 调度、心跳与后台分区、记忆系统、指令指纹与改动生效；第 14 节汇总未证实与待实测的项；附录 B 列出落库事件类型、控制面 RPC 方法与只读 TCP 端口放行的方法 | v0.8.3 |
-| [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 部署与运维：分发形态；安装与首次配置（认证来源、引擎选择、环境变量与配置文件的位置）；内核目录 `~/aladuo` 与运行时目录 `~/.aladuo` 的内容、三种锁与配置生效时机；控制面的只读 TCP 端口、完整控制 unix socket 与可选的远程监听；日常运维命令；渠道适配器的安装与运维；本机部署的实测记录；运维风险 | §1–§6 与 §8 对齐 v0.8.3；§7 的实测记录逐条注明测量时的版本（v0.6.1 或 v0.7.1），未在 v0.8.3 上重测 |
+| [DUODUO_FRAMEWORK_GUIDE.md](./DUODUO_FRAMEWORK_GUIDE.md) | 写给产品经理的入门，只假设读者知道大语言模型是输入文本、输出文本的程序。从模型的五个限制出发（不能执行工具、两次调用之间没有记忆、感觉不到时间、没人提问就不运行、不会自己变好），第一至第四部分说明运行时的对策：四个可替换的引擎、一条消息的处理、两套独立的定时器、自我改进；第五部分讲无人值守下的代码强制检查、成本控制、失败处置与可观测性，第六部分总评。附录 C 是证据对照，附录 D 汇总版本变化 | v0.8.4 |
+| [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | 写给工程师的证据文档。第 1 至 13 节各讲一个子系统：端到端路径、系统提示装配、引擎、自操作工具、事件日志、网关与控制面、Drain 与 turn 控制、会话 actor 与并发池、渠道适配器、job 调度、心跳与后台分区、记忆系统、指令指纹与改动生效；第 14 节汇总未证实与待实测的项；附录 B 列出落库事件类型、控制面 RPC 方法与只读 TCP 端口放行的方法 | v0.8.4 |
+| [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 部署与运维：分发形态；安装与首次配置（认证来源、引擎选择、环境变量与配置文件的位置）；内核目录 `~/aladuo` 与运行时目录 `~/.aladuo` 的内容、三种锁与配置生效时机；控制面的只读 TCP 端口、完整控制 unix socket 与可选的远程监听；日常运维命令；渠道适配器的安装与运维；本机部署的实测记录；运维风险 | §1–§6 与 §8 对齐 v0.8.4；§7 的实测记录逐条注明测量时的版本（v0.6.1 或 v0.7.1），未在 v0.8.4 上重测 |
 | [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | duoduo、hermes-agent、pi 三个框架的设计哲学、十个维度的横向对比与优劣总评，以及面向"充分运用贝叶斯第一性原理、可持续自我迭代、擅长 long-horizon 金融预测任务的 agent"的融合架构建议与落地路线 | 关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 v0.8.3，已对照还原源码与出厂分区提示词核实；标"实测"的 duoduo 运行行为来自早期版本的部署，未在 v0.8.3 上重测；hermes-agent 与 pi 的事实来自调研时的源码快照（见其附录），未随两者的上游更新 |
 | [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 还原方法：排版与拆包不改变语义；导出名从 esbuild 的 `__export` 块读出，推断名逐个登记并在每次构建时核对；改名按作用域进行并由 AST 全等证明；上游升级时按结构签名迁移推断名；文档引用按符号身份核对。末尾有产物地图 | 不绑定版本；产物对应的版本、各项计数与每道检查的结论以 [`reconstruction/maps/pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 为准 |
 
@@ -70,7 +70,7 @@ GUIDE 与 INTERNALS 整篇对齐 v0.8.3；ARCHITECTURE 与 COMPARISON 各有一�
 
 | 写法 | 表示什么 | 检查工具 | 构建失败的条件 |
 |---|---|---|---|
-| `` `真名 (短名)` ``，例如 `atomicAppendEvent (on)` | 指向一个符号。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名，跨版本不变；短名是美化后 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，保留它是为了方便在 bundle 里搜索 | `verify_citations.mjs` | 真名不在任何符号索引里（被上游删除或改名，或者只在正文里起了名、没有登记）；短名不是该符号当前的短名 |
+| `` `真名 (短名)` ``，例如 `atomicAppendEvent (tn)` | 指向一个符号。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名，跨版本不变；短名是美化后 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，保留它是为了方便在 bundle 里搜索 | `verify_citations.mjs` | 真名不在任何符号索引里（被上游删除或改名，或者只在正文里起了名、没有登记）；短名不是该符号当前的短名 |
 | `` `代码片段`（`真名`） ``，例如 `stage: "runtime_mismatch"`（`drainSessionMailbox`） | 这句代码就是证据。片段里的标识符按美化后 bundle 的拼写写，即写短名 | `check_bare_anchors.mjs` | 真名不在符号索引里；片段中没有任何有辨识度的 token（至少 2 个字符的字符串字面量，或至少 3 个字符的非关键字标识符）落在该符号当前的声明范围内；片段调用的某个短名、写出的某个数字不在这个范围内 |
 
 `verify_citations.mjs` 对第一种写法的检查不依赖它出现在哪里：正文、表格和围栏里的图都会被读到，带不带行号都一样。真名在所有符号索引里都找不到时，只要它的拼写像真名（至少 8 个字符，lowerCamelCase、UPPER_SNAKE 或多段 PascalCase），括号里又是短名形状的标识符，构建就失败；这两个条件是为了让正文里普通的"词 (词)"不被误报。
@@ -89,7 +89,7 @@ esbuild 只为模块导出的符号留下原名，很多函数、模块初始化
 
 `name_symbol.mjs` 在写入任何文件之前做完全部检查，一批名字要么全部写入、要么全部拒绝。它确认：给它的 bundle 正是 `reconstruction/maps/` 描述的版本；短名是可以命名的顶层声明（函数、esbuild 的 `__esm` 模块初始化器，或只由字面量组成的常量）；这个短名还没有名字；它属于 duoduo 自己的代码，而不是随包的第三方库；名字的拼写与种类相符（函数用 lowerCamelCase，模块初始化器用 `init<名字>Module`，常量用带下划线的 UPPER_SNAKE，都至少 8 个字符，并且不与 bundle 里的任何变量名、也不与任何 bundle 的已有真名重复）；所属子系统是 `first-party/` 已有的目录之一。通过后它写入 `inferred_daemon.json`、`subsys_daemon.json`，并只为新名字在 `inferred_daemon.shape.json` 里加基线条目；归属没有代码证据、由人读过函数体后用 `--allow-unproven` 断言的名字，另记入 `inferred_daemon.asserted.json`。名字在下一次运行 `rebuild.sh` 时进入还原源码、`first-party/` 和符号索引，复核后用 `PROMOTE=1` 写入仓库；引用检查按符号索引核对，所以新名字要在这之后才能被引用。
 
-运行时的默认值常量通常在 esbuild 的模块初始化器里赋值。这时给初始化器命名，再用片段写法引用赋值语句，例如 Notify 拒投阈值的环境变量名与默认值：`BV = "ALADUO_NOTIFY_UNCONSUMED_HOURS", R$ = 1`（`initNotifyConsumerStalenessModule`）。
+运行时的默认值常量通常在 esbuild 的模块初始化器里赋值。这时给初始化器命名，再用片段写法引用赋值语句，例如 Notify 拒投阈值的环境变量名与默认值：`z6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", eO = 1`（`initNotifyConsumerStalenessModule`）。
 
 两种情况给不了代码引用。cli bundle 没有推断名映射，`name_symbol.mjs` 只处理 daemon，所以 cli 里没有真名的函数只引用它打印的字符串，不给代码引用。一个无法命名的短名，如果包含它的已命名函数里有一句代码能证明主张，就用那句代码作片段引用；连这样的函数也没有时，不给代码引用，把主张降为 `未证实推测` 或删去。
 

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: eke, daemon.pretty.js:71668)
+// symbol: buildTransientUserBlocks  (minified: Vxe, daemon.pretty.js:71970)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -69,7 +69,7 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
         text: g,
         tag: "skip-rewind"
     }), a = !0);
-    let y = Wdt(t.interruptedContext);
+    let y = Pmt(t.interruptedContext);
     return y && (i.push({
         type: "text",
         text: `<interrupted-context>
