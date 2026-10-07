@@ -62,7 +62,7 @@ onboard 提供的三种认证来源都只作用于 Claude 引擎，`isClaudeAuth
 - **`ALADUO_DEFAULT_RUNTIME`**：daemon 不能启动。`resolveDefaultRuntime` 把值去空白、转小写后校验，不通过就抛出 `InvalidRuntimeError`（`if (!r.ok) throw new xb(r.reason)`（`resolveDefaultRuntime`）），而 `main` 在读入 `.env` 之后立即调用它（`delete process.env[tl], ho()`（`main`））。
 - **渠道种类或实例描述文件**：由这一层选定引擎的会话，每一轮都被拒绝，回复是拒绝说明加 "Request was not executed."（`stage: "runtime_refused"`（`drainSessionMailbox`））。实例层的有效值覆盖种类层的未知值，实例层的未知值则不会被种类层的值替代（`resolveLayeredChannelRuntime (Ua)`）。
 - **job frontmatter**：这次 job 运行失败（`Wd(_t.frontmatter.runtime`（`createSessionManager`））；用 ManageJob 创建 job 时也会拒绝（`Wd(e.runtime, "This job")`（`runManageJobTool`））。
-- **分区 frontmatter**：拒绝说明写进一条 `[playlist]` 日志（`Wd(i.data?.runtime`（`parsePartitionDefinition`）），分区这次运行以 `runtime_refused` 结束，不调用模型（`S.runtimeRefusal) return await j(S.runtimeRefusal, "runtime_refused")`（`createMetaSession`））。
+- **分区 frontmatter**：拒绝说明写进一条 `[playlist]` 日志（`Wd(i.data?.runtime`（`parsePartitionDefinition`）），分区轮到时不调用模型，写一条 `outcome` 为 `runtime_refused` 的 `agent.error` 事件，这次运行记为报错并按失败退避（`S.runtimeRefusal) return await j(S.runtimeRefusal, "runtime_refused")`（`createMetaSession`））。
 
 所以升级到 v0.8.4 之前要找出所有写下的 `runtime` 值并核对拼写，做法见 §5.3。`void` 是给 tether 这类渠道插件用的：发给 void 会话的消息写入事件日志和 outbox，不进 mailbox，也不唤醒任何会话（`[gateway] void-session event (outbox, no enqueue)`（`appendBeforeExecuteGateway`）），对它发的模型命令得到 `Ju = "This session never runs a model (runtime void)."`（`initVoidRuntimeModule`）开头的拒绝（confirmed；机制见 INTERNALS 第 3 与第 9 节）。普通聊天渠道不应设为 `void`，否则不会有任何模型回复。
 
