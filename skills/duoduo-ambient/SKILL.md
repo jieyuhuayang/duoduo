@@ -1,6 +1,6 @@
 ---
 name: duoduo-ambient
-description: "Set up and run the ambient channel so the owner can talk to duoduo from the 多多随身 (DuoDuo Pocket) iPhone app and a FoloToy AI Passport with pocket firmware: install @openduo/channel-ambient, point it at a cerebellum the owner already has (wss URL and token), create a pocket room, publish it to the owner's tailnet with tailscale serve, connect the app, pair the Passport, and operate it later (restart, upgrade, add a room, troubleshoot 401/superseded/host not allowed, draft a tailnet ACL). Use when the owner wants to use duoduo from the phone or the Passport, or asks about the ambient channel. Does not build or host the cerebellum, the app or the firmware; it points to their public repos. Triggers: 多多随身, 随身, Passport, 按住说话, 环境模式, ambient 频道, 小脑, cerebellum, 手机连多多, 用手机和多多说话, 配对 Passport, tailscale serve 多多."
+description: "Set up and run the ambient channel so the owner can talk to duoduo from the 多多随身 (DuoDuo Pocket) iPhone app and a FoloToy AI Passport with pocket firmware: install @openduo/channel-ambient, point it at a cerebellum the owner already has (wss URL and token, or a provider's Tailscale share link and onboarding text), create a pocket room, publish it to the owner's tailnet with tailscale serve, connect the app, pair the Passport, and operate it later (restart, upgrade, add a room, troubleshoot 401/superseded/host not allowed, draft a tailnet ACL). Use when the owner wants to use duoduo from the phone or the Passport, or asks about the ambient channel. Does not build or host the cerebellum, the app or the firmware; it points to their public repos. Triggers: 多多随身, 随身, Passport, 按住说话, 环境模式, ambient 频道, 小脑, cerebellum, 手机连多多, 用手机和多多说话, 配对 Passport, tailscale serve 多多, 多多小脑接入, 分享链接."
 ---
 
 # Duoduo Ambient
@@ -62,6 +62,9 @@ tailscale serve status                     # what is already served (policy 2)
 On macOS, `tailscale` is the app's CLI by full path if it is not on `PATH`. Ask the owner:
 
 - "Do you have your cerebellum's `wss://` address and its token?" Only the URL may be said in chat.
+- "Did someone who runs a cerebellum for you send a share link or an onboarding text?" If so, read
+  [references/shared-cerebellum.md](references/shared-cerebellum.md) first: it covers accepting
+  the shared node and getting the token without it passing through chat.
 - "Is 多多随身 installed on your iPhone, and is your Passport flashed with pocket firmware?"
 - "Which Tailscale account will the phone log in with?" It must be the same tailnet as this host.
 
