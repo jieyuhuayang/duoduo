@@ -6,7 +6,7 @@
 
 var BH, initMemoryCheckTickModule = O(() => {
     "use strict";
-    pt();
+    initLogLevelModule();
     initPartitionRunStateModule();
     initBoardLintModule();
     initEntityLintModule();

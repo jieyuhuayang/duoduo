@@ -12,7 +12,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
     Tr();
     Kn();
     yU();
-    pt();
+    initLogLevelModule();
     Kr();
     Fw();
     v6();

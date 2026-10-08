@@ -1,15 +1,15 @@
 {
  "bundle": "daemon",
  "version": "v0.8.4",
- "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
- "symbolCount": 795,
+ "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
+ "symbolCount": 840,
  "counts": {
   "env": 41,
   "logPrefixes": 47,
   "dotted": 94,
-  "paths": 243,
-  "strings": 2682,
-  "unnamedUsed": 628
+  "paths": 244,
+  "strings": 2706,
+  "unnamedUsed": 601
  },
  "symbols": {
   "ALADUO_TOOL_NAMESPACE": {
@@ -149,9 +149,10 @@
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
-   "refBy": [],
+   "refBy": [
+    "listDefaultClaudeToolNames"
+   ],
    "refByUnnamed": [
-    "lRe",
     "yIe"
    ],
    "env": [],
@@ -885,6 +886,31 @@
     "utf8"
    ]
   },
+  "appendOutboxByEventIndexEntry": {
+   "mangled": "iet",
+   "line": 36213,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "ensureDirectoryExists",
+    "isIndexLoadStillCurrent",
+    "resolveOutboxByEventIndexPath",
+    "stringifyJsonlRecord"
+   ],
+   "refsUnnamed": [
+    "XU"
+   ],
+   "refBy": [
+    "indexOutboxRecordByEventId"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "appendPartitionToolEvent": {
    "mangled": "xbt",
    "line": 86066,
@@ -1264,6 +1290,31 @@
     "unreadable"
    ]
   },
+  "assertJobWorkspaceUsable": {
+   "mangled": "Y_e",
+   "line": 61454,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 2,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "CLAUDE.md"
+   ],
+   "strings": [
+    "' is missing CLAUDE.md. cwd_rel requires a CLAUDE.md context file so the job session has project-level instructions; it was present when the job was created but is now missing.",
+    "' no longer exists. cwd_rel points to a directory that must exist with a CLAUDE.md context file; it was present when the job was created but is now missing.",
+    "Job workspace '",
+    "workspace"
+   ]
+  },
   "assertScheduleDurationRepresentable": {
    "mangled": "_6",
    "line": 61319,
@@ -1436,11 +1487,10 @@
    "refBy": [
     "createGrokAcpAdapter",
     "createPiWorkerAdapter",
-    "initCodexAppServerModule"
+    "initCodexAppServerModule",
+    "requestPiWorkerCatalog"
    ],
-   "refByUnnamed": [
-    "oEe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -1792,6 +1842,32 @@
    "strings": [
     "localImage",
     "text"
+   ]
+  },
+  "buildCompactStatsRecord": {
+   "mangled": "Nxe",
+   "line": 72380,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "logWarnMessage"
+   ],
+   "refsUnnamed": [
+    "vce"
+   ],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [
+    "[runner]"
+   ],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "number"
    ]
   },
   "buildDeveloperInstructions": {
@@ -2220,6 +2296,26 @@
     "NEWBORN",
     "orphan-newborn-"
    ]
+  },
+  "buildPiConfigSignature": {
+   "mangled": "cEe",
+   "line": 73491,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "canonicalizeJsonValue"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "buildPiSystemPromptSpec": {
    "mangled": "Eht",
@@ -2672,6 +2768,26 @@
    ],
    "strings": [
     "#debug"
+   ]
+  },
+  "canonicalizeJsonValue": {
+   "mangled": "qW",
+   "line": 73482,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "buildPiConfigSignature"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "object"
    ]
   },
   "capitalizeFirstChar": {
@@ -3286,6 +3402,50 @@
     "pi"
    ]
   },
+  "clearPendingGatewayNotice": {
+   "mangled": "Umt",
+   "line": 72078,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "clearSessionRuntimeStateField"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "pending_gateway_notice"
+   ]
+  },
+  "clearPendingInterruptedContext": {
+   "mangled": "Bmt",
+   "line": 72087,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "clearSessionRuntimeStateField"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "pending_interrupted_context"
+   ]
+  },
   "clearPendingOutboundAttachments": {
    "mangled": "gA",
    "line": 72102,
@@ -3307,6 +3467,28 @@
    "paths": [],
    "strings": [
     "pending_outbound_attachments"
+   ]
+  },
+  "clearPendingSkipRewind": {
+   "mangled": "Vmt",
+   "line": 72090,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "clearSessionRuntimeStateField"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "pending_skip_rewind"
    ]
   },
   "clearSessionArchiving": {
@@ -3347,17 +3529,16 @@
    ],
    "refsUnnamed": [],
    "refBy": [
+    "clearPendingGatewayNotice",
+    "clearPendingInterruptedContext",
     "clearPendingOutboundAttachments",
+    "clearPendingSkipRewind",
     "createDaemon",
     "createSessionManager",
     "drainSessionMailbox",
     "runDrainTurnWithResumeFallback"
    ],
-   "refByUnnamed": [
-    "Bmt",
-    "Umt",
-    "Vmt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [
     "[session]"
@@ -3678,6 +3859,24 @@
    "paths": [],
    "strings": []
   },
+  "computeCacheHitRate": {
+   "mangled": "mxe",
+   "line": 70405,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "computeCodexTurnUsage": {
    "mangled": "abe",
    "line": 62220,
@@ -3962,6 +4161,58 @@
     "timeout"
    ]
   },
+  "computeRuntimeId": {
+   "mangled": "Xbt",
+   "line": 90681,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "hex",
+    "rt_",
+    "sha256"
+   ]
+  },
+  "computeStreamEventDedupKey": {
+   "mangled": "oRe",
+   "line": 80498,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "stringifyExecutionToolInput"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "init",
+    "system",
+    "system:",
+    "thought_chunk",
+    "tool_input_delta",
+    "tool_result",
+    "tool_result:",
+    "tool_use",
+    "tool_use:"
+   ]
+  },
   "computeStreamingConfigSignature": {
    "mangled": "xG",
    "line": 82903,
@@ -4089,6 +4340,32 @@
    "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "countCompactGapIntervals": {
+   "mangled": "Axe",
+   "line": 72356,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 3,
+   "refs": [
+    "logWarnMessage",
+    "readDrainRecords"
+   ],
+   "refsUnnamed": [
+    "iht",
+    "oht"
+   ],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [
+    "[runner]"
+   ],
    "dotted": [],
    "paths": [],
    "strings": []
@@ -4950,6 +5227,7 @@
     "buildSystemConfigReport",
     "classifySessionKeyKind",
     "clearSessionRuntimeStateField",
+    "computeRuntimeId",
     "createEmptySessionIndex",
     "createSessionSubscriptionRegistry",
     "createSpineEvent",
@@ -4995,15 +5273,19 @@
     "logDebugMessage",
     "logInfoMessage",
     "logLatencyStageTelemetry",
+    "logTraceMessage",
     "logWarnMessage",
     "lookupOutboxByIdIndexEntry",
     "moveSessionDirToArchive",
     "normalizeReturnMask",
+    "parseHostHeaderHostname",
+    "parseOriginHostname",
     "patchSessionRuntimeState",
     "probeEventsAppendable",
     "readAllSessionSummaries",
     "readDrainRecords",
     "readEnvIntegerOrFallback",
+    "readFileAsBase64",
     "readGlobalUsageTotals",
     "readLatestDeliveryCursorUpdate",
     "readMemoryFileForRpc",
@@ -5021,7 +5303,9 @@
     "recordOutboxDeliveryAttempt",
     "recordOutboxSentId",
     "redactJobModelProfileTokens",
+    "refreshRuntimeWriterLockHeartbeat",
     "releaseRuntimeWriterLock",
+    "replaceSessionIndexEntry",
     "replayOutboxBacklogToSubscriber",
     "resolveDefaultRuntime",
     "resolveEffectiveChannelConfig",
@@ -5034,6 +5318,7 @@
     "runSpineCatRpc",
     "runViewSessionsTool",
     "runWithSessionMutex",
+    "saveChannelUploadToInbox",
     "scheduleSessionWakeRecord",
     "setSessionAliasAndReindex",
     "summarizeDrainRecords",
@@ -5047,21 +5332,13 @@
     "ON",
     "Rae",
     "Ubt",
-    "Xbt",
-    "_ae",
-    "_vt",
     "bce",
     "bde",
-    "bve",
-    "bvt",
-    "bwe",
     "ibe",
     "iye",
     "jm",
-    "lq",
     "rye",
     "vIe",
-    "vve",
     "xb",
     "zbt"
    ],
@@ -6881,9 +7158,11 @@
    "innerAnonymous": 63,
    "refs": [
     "AgentSdkPromptNotAcceptedAbortError",
+    "assertJobWorkspaceUsable",
     "atomicAppendEvent",
     "batchDrainItems",
     "buildCodexDynamicTools",
+    "buildPiConfigSignature",
     "buildSessionExecutionPayload",
     "buildSessionInfoFromState",
     "channelKindFromSessionKey",
@@ -6895,6 +7174,7 @@
     "classifySessionPoolKind",
     "clearSessionRuntimeStateField",
     "collectInstructionsInputs",
+    "computeStreamEventDedupKey",
     "createAgentSdkAdapter",
     "createAladuoMcpServer",
     "createClaudeStreamingSessionFactory",
@@ -6911,19 +7191,24 @@
     "ensureAgentsMdSymlink",
     "ensureDirectoryExists",
     "ensureSessionDescriptorAndStateFiles",
+    "extractJobSdkConfig",
+    "extractUrlHost",
     "findOutboxRecordByEventId",
     "flagStreamRecreationOnModelReject",
     "handlePiToolEndObservation",
     "inferActorOriginFromSessionKey",
+    "isAvailableWorkspacePath",
     "isLiveStreamRebuildRequired",
     "isProviderQualifiedModelId",
     "isSessionArchiving",
     "issueWorkerToolContextToken",
+    "listDefaultClaudeToolNames",
     "listMailboxPendingItems",
     "logAlwaysAtLevel",
     "logDebugMessage",
     "logErrorMessage",
     "logInfoMessage",
+    "logSessionLifecycleMessage",
     "logWarnMessage",
     "memoizeAvailabilityProbeUntilOk",
     "mergeInboxIntoMailbox",
@@ -6941,6 +7226,7 @@
     "renderMailboxEventPrompt",
     "renderSessionMailboxFile",
     "requestBoundaryAwarePreempt",
+    "requestPiWorkerCatalog",
     "resolveChannelConfigBySession",
     "resolveClaudeContextRequirement",
     "resolveCodexSandbox",
@@ -6951,6 +7237,7 @@
     "resolveSessionChannelRuntime",
     "resolveSessionDir",
     "runInstructionsFingerprintGuard",
+    "selectInstructionsFingerprint",
     "shutdownActorRuntimeAdapter",
     "snapshotInflightEventIds",
     "teardownStreamingSession",
@@ -6966,23 +7253,13 @@
     "OW",
     "Tbe",
     "Xbe",
-    "Y_e",
     "Ybe",
-    "cEe",
-    "dRe",
-    "exe",
     "fEe",
     "iC",
-    "lEe",
-    "lRe",
     "lve",
     "nC",
-    "oEe",
-    "oRe",
     "rC",
-    "rbe",
     "tl",
-    "ut",
     "wc"
    ],
    "refBy": [],
@@ -7710,6 +7987,27 @@
     "source"
    ]
   },
+  "describeWorkspaceProblem": {
+   "mangled": "dht",
+   "line": 72651,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "workspace path does not exist",
+    "workspace path is not absolute"
+   ]
+  },
   "detectEmptyRequiredPartitionOutput": {
    "mangled": "kbt",
    "line": 86063,
@@ -7952,6 +8250,7 @@
     "applyJobSdkConfigOverride",
     "atomicAppendEvent",
     "batchDrainItems",
+    "buildCompactStatsRecord",
     "buildSessionInfoFromState",
     "buildSystemPromptForChannelConfig",
     "buildTransientUserBlocks",
@@ -7959,15 +8258,21 @@
     "classifySessionKeyOrUnknown",
     "claudeUnavailableReason",
     "clearModelOverrideOnRuntimeFlip",
+    "clearPendingGatewayNotice",
+    "clearPendingInterruptedContext",
+    "clearPendingSkipRewind",
     "clearSessionRuntimeStateField",
     "collectJobCompletionReceipts",
+    "computeCacheHitRate",
     "computeTimeGapContext",
+    "countCompactGapIntervals",
     "createAgentSdkAdapter",
     "createDrainExecutionEventRecorder",
     "createSpineEvent",
     "decideBoardUpdatedInjection",
     "decideRestartHintInjection",
     "deleteMailboxPendingItemsByEventIds",
+    "describeWorkspaceProblem",
     "detectInProcessBreak",
     "emitDrainOutputRecords",
     "extractPayloadMediaRefs",
@@ -7975,30 +8280,39 @@
     "findOutboxRecordByEventId",
     "handleDrainError",
     "hashSessionKey",
+    "indexOutboxRecordByEventId",
     "isAbortLikeError",
     "isAgentSdkPromptNotAcceptedAbortError",
     "isAgentSdkTurnInterruptedError",
     "isChannelMessageEvent",
     "isMergeableDrainBatch",
     "isNonNullObject",
+    "isStaleIdleCompactEvent",
     "listMailboxPendingItems",
     "logInfoMessage",
     "logLatencyStageTelemetry",
     "logWarnMessage",
     "markTurnSkippedFromSkipRecord",
     "mergeInboxIntoMailbox",
+    "mergeInterruptedContextTexts",
     "normalizeInputTokenTotals",
     "patchSessionRuntimeState",
     "prepareDrainTurnContext",
     "projectJobPromptContext",
     "readEventById",
+    "readNonNegativeNumberField",
     "readSessionRuntimeState",
+    "recordIdleCompactFireMetric",
     "refreshSessionDrainLockHeartbeat",
     "releaseSessionDrainLock",
+    "removeOrphanMailboxItemFiles",
     "renderMailboxEventPrompt",
+    "renderManualCompactNotice",
     "renderRuntimeMismatchGuidance",
     "renderRuntimeUnavailableGuidance",
     "renderSessionMailboxFile",
+    "renderTurnOutputText",
+    "renderWorkspaceUnavailableNotice",
     "resolveAdditionalDirClaudeMdAutoload",
     "resolveDrainContextProfileOrRefuse",
     "resolveEffectiveChannelConfigForEvent",
@@ -8008,32 +8322,16 @@
     "resolveTurnModelWithLayer",
     "runDrainQueryAndCollectOutboundAttachments",
     "runHistoryControlCommand",
-    "runTimedDrainPhase"
+    "runTimedDrainPhase",
+    "setPendingInterruptedContext"
    ],
    "refsUnnamed": [
     "AW",
-    "Axe",
-    "Bmt",
     "Exe",
     "IW",
     "Lmt",
-    "Nae",
-    "Nxe",
     "OW",
-    "Oae",
-    "Oxe",
-    "TW",
-    "Umt",
-    "Vmt",
-    "dht",
-    "fht",
-    "mxe",
-    "nht",
-    "qmt",
-    "rht",
-    "sht",
-    "tq",
-    "zmt"
+    "Oae"
    ],
    "refBy": [
     "createSessionManager"
@@ -8158,11 +8456,10 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
-    "createPiWorkerAdapter"
+    "createPiWorkerAdapter",
+    "requestPiWorkerCatalog"
    ],
-   "refByUnnamed": [
-    "oEe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -8354,6 +8651,7 @@
     "appendDrainRecord",
     "appendEventIdIndexEntry",
     "appendEventToPartition",
+    "appendOutboxByEventIndexEntry",
     "appendTelemetryRecord",
     "archiveLegacyRegistrySessionsDir",
     "copyDirTreeMissingOnly",
@@ -8372,6 +8670,7 @@
     "recordOutboxSentId",
     "refreshBootstrapDuoduoMdFiles",
     "retirePartitionOnce",
+    "saveChannelUploadToInbox",
     "spineEventDedupStore",
     "updateDeliveryCursorFile",
     "writePartitionRunState"
@@ -8382,14 +8681,12 @@
     "Q_e",
     "Tce",
     "Tct",
-    "bve",
     "cet",
     "cwe",
     "dct",
     "eet",
     "get",
     "het",
-    "iet",
     "kce",
     "lYe",
     "sq",
@@ -8989,6 +9286,24 @@
     "job_id"
    ]
   },
+  "extractJobSdkConfig": {
+   "mangled": "rbe",
+   "line": 61594,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "extractPayloadMediaRefs": {
    "mangled": "DW",
    "line": 71676,
@@ -9152,6 +9467,24 @@
    "strings": [
     "string"
    ]
+  },
+  "extractUrlHost": {
+   "mangled": "exe",
+   "line": 69944,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "filterDeliverableSessions": {
    "mangled": "Olt",
@@ -9543,6 +9876,24 @@
     "renderJobTickBlock",
     "renderSkipRewindBlock",
     "renderTimeGapContextBlock"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "formatLogPrefix": {
+   "mangled": "z8e",
+   "line": 32033,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "writeLogLine"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -10197,6 +10548,27 @@
     "duoduo"
    ]
   },
+  "indexOutboxRecordByEventId": {
+   "mangled": "tq",
+   "line": 36082,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "appendOutboxByEventIndexEntry"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox",
+    "persistOutboxRecord"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "inferActorOriginFromSessionKey": {
    "mangled": "aG",
    "line": 80549,
@@ -10392,6 +10764,7 @@
    "innerAnonymous": 1,
    "refs": [
     "initCallerSessionEnvModule",
+    "initLogLevelModule",
     "initSkipToolModule",
     "verifyClaudeCodeRuntimeAvailable"
    ],
@@ -10399,7 +10772,6 @@
     "O",
     "Q$",
     "Yge",
-    "pt",
     "qu"
    ],
    "refBy": [
@@ -10717,12 +11089,13 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "Kr",
     "O",
     "bs",
-    "pt",
     "yi"
    ],
    "refBy": [
@@ -10860,14 +11233,14 @@
    "refs": [
     "attachStreamLineReader",
     "initInterruptMarkerTextModule",
+    "initLogLevelModule",
     "initSkipToolModule",
     "logDebugMessage",
     "logWarnMessage"
    ],
    "refsUnnamed": [
     "O",
-    "Ql",
-    "pt"
+    "Ql"
    ],
    "refBy": [
     "describeChannelInstance",
@@ -11070,12 +11443,12 @@
     "grokAcpExtMethod",
     "initAgentSdkAdapterModule",
     "initInterruptMarkerTextModule",
+    "initLogLevelModule",
     "initSkipToolModule"
    ],
    "refsUnnamed": [
     "O",
-    "Ql",
-    "pt"
+    "Ql"
    ],
    "refBy": [
     "describeChannelInstance",
@@ -11119,13 +11492,13 @@
    "refs": [
     "initAgentSdkAdapterModule",
     "initBoardTransclusionModule",
+    "initLogLevelModule",
     "initMailboxDrainRunnerModule"
    ],
    "refsUnnamed": [
     "$r",
     "O",
     "lf",
-    "pt",
     "sl",
     "uG"
    ],
@@ -11338,6 +11711,7 @@
     "ensureDirectoryExists",
     "ensureSessionDescriptorAndStateFiles",
     "formatYamlErrorMessage",
+    "initLogLevelModule",
     "listFrontmatterKeyAliases",
     "logErrorMessage",
     "logInfoMessage",
@@ -11359,7 +11733,6 @@
     "hs",
     "k6",
     "lce",
-    "pt",
     "qC",
     "rc",
     "v6",
@@ -11467,11 +11840,12 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "$G",
-    "O",
-    "pt"
+    "O"
    ],
    "refBy": [
     "main"
@@ -11489,11 +11863,12 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 3,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "O",
-    "Tke",
-    "pt"
+    "Tke"
    ],
    "refBy": [
     "initRuntimeInitializationModule"
@@ -11507,6 +11882,66 @@
     "# Runtime state (not part of cognitive evolution)\nmemory/state/\nmemory/fragments/\nmemory/effectiveness/\nsubconscious/inbox/\n.claude/\n*.tmp\nCLAUDE.local.md\n# Model-profile config can embed credential-s…"
    ]
   },
+  "initLogLevelModule": {
+   "mangled": "pt",
+   "line": 32074,
+   "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
+   "refs": [],
+   "refsUnnamed": [
+    "O"
+   ],
+   "refBy": [
+    "initAgentSdkAdapterModule",
+    "initChannelConfigLoaderModule",
+    "initCodexAppServerModule",
+    "initGrokAcpRuntimeModule",
+    "initInstructionsFingerprintModule",
+    "initJobManagerModule",
+    "initJobSchedulerModule",
+    "initKernelGitModule",
+    "initMailboxDrainRunnerModule",
+    "initManageJobToolModule",
+    "initMaterializedClaudeSettingsModule",
+    "initMemoryCheckTickModule",
+    "initMetaSessionModule",
+    "initNotifyToolModule",
+    "initPartitionRetirementModule",
+    "initQueueOutboundAttachmentModule",
+    "initRemindDuoduoToolModule",
+    "initRuntimeInitializationModule",
+    "initSkipToolModule",
+    "initSpineEventLogModule",
+    "initSubconsciousPlaylistModule",
+    "initViewSessionsToolModule"
+   ],
+   "refByUnnamed": [
+    "$G",
+    "$r",
+    "IN",
+    "Kd",
+    "Kr",
+    "Mke",
+    "TG",
+    "XC",
+    "YRe",
+    "aIe",
+    "dA",
+    "eIe",
+    "fIe",
+    "gEe",
+    "jg",
+    "pRe",
+    "qu",
+    "sl"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "initMailboxDrainRunnerModule": {
    "mangled": "PS",
    "line": 72917,
@@ -11516,6 +11951,7 @@
    "refs": [
     "initAgentSdkAdapterModule",
     "initChannelConfigLoaderModule",
+    "initLogLevelModule",
     "initOutboxStoreModule",
     "initSpineEventLogModule"
    ],
@@ -11533,7 +11969,6 @@
     "gxe",
     "hxe",
     "oH",
-    "pt",
     "qu",
     "sH",
     "sl",
@@ -11570,6 +12005,7 @@
     "initCodexAppServerModule",
     "initGrokAcpRuntimeModule",
     "initJobManagerModule",
+    "initLogLevelModule",
     "initRuntimeValidationModule"
    ],
    "refsUnnamed": [
@@ -11581,7 +12017,6 @@
     "hs",
     "mt",
     "nlt",
-    "pt",
     "qi",
     "rlt",
     "slt",
@@ -11710,12 +12145,13 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "Kn",
     "Kr",
-    "O",
-    "pt"
+    "O"
    ],
    "refBy": [],
    "refByUnnamed": [
@@ -11754,6 +12190,7 @@
     "initEntityLintModule",
     "initFoldGapLintModule",
     "initGapLintModule",
+    "initLogLevelModule",
     "initMemorySignalDeliveryModule",
     "initNodeLintModule",
     "initOrphanMemoryModule",
@@ -11763,7 +12200,6 @@
     "LO",
     "O",
     "Qi",
-    "pt",
     "qu"
    ],
    "refBy": [
@@ -11867,6 +12303,7 @@
     "initCodexAppServerModule",
     "initGapSpanModule",
     "initGrokAcpRuntimeModule",
+    "initLogLevelModule",
     "initPartitionRunStateModule",
     "initRuntimeValidationModule",
     "initSpineEventLogModule",
@@ -11882,7 +12319,6 @@
     "ZR",
     "Zu",
     "oG",
-    "pt",
     "sC",
     "sG",
     "sl"
@@ -11959,7 +12395,8 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
-    "initJobManagerModule"
+    "initJobManagerModule",
+    "initLogLevelModule"
    ],
    "refsUnnamed": [
     "$r",
@@ -11967,7 +12404,6 @@
     "O",
     "iO",
     "jg",
-    "pt",
     "vc"
    ],
    "refBy": [],
@@ -12050,7 +12486,9 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "Kn",
     "Kr",
@@ -12058,7 +12496,6 @@
     "O",
     "Tr",
     "bs",
-    "pt",
     "yi"
    ],
    "refBy": [
@@ -12235,12 +12672,13 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "$r",
     "O",
     "mt",
-    "pt",
     "vc"
    ],
    "refBy": [],
@@ -12316,13 +12754,13 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
-    "initJobManagerModule"
+    "initJobManagerModule",
+    "initLogLevelModule"
    ],
    "refsUnnamed": [
     "O",
     "jlt",
     "mt",
-    "pt",
     "vc"
    ],
    "refBy": [],
@@ -12353,6 +12791,7 @@
    "innerAnonymous": 1,
    "refs": [
     "initKernelGitModule",
+    "initLogLevelModule",
     "initPartitionRetirementModule"
    ],
    "refsUnnamed": [
@@ -12360,8 +12799,7 @@
     "Mke",
     "O",
     "Tr",
-    "fW",
-    "pt"
+    "fW"
    ],
    "refBy": [
     "main"
@@ -12467,13 +12905,14 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "$r",
     "O",
     "fV",
     "mt",
-    "pt",
     "vc"
    ],
    "refBy": [
@@ -12524,14 +12963,15 @@
    "kind": "var",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "initLogLevelModule"
+   ],
    "refsUnnamed": [
     "DR",
     "Kn",
     "O",
     "Ql",
-    "Tr",
-    "pt"
+    "Tr"
    ],
    "refBy": [
     "initMailboxDrainRunnerModule",
@@ -12559,6 +12999,7 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
+    "initLogLevelModule",
     "initRuntimeValidationModule"
    ],
    "refsUnnamed": [
@@ -12568,7 +13009,6 @@
     "Yf",
     "aq",
     "bs",
-    "pt",
     "yi"
    ],
    "refBy": [
@@ -12592,7 +13032,8 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
-    "initJobManagerModule"
+    "initJobManagerModule",
+    "initLogLevelModule"
    ],
    "refsUnnamed": [
     "$r",
@@ -12601,7 +13042,6 @@
     "O",
     "Zr",
     "mt",
-    "pt",
     "vc"
    ],
    "refBy": [],
@@ -12861,6 +13301,24 @@
     "@in ",
     "once"
    ]
+  },
+  "isAvailableWorkspacePath": {
+   "mangled": "dRe",
+   "line": 80565,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "isBoardIncludePathCandidate": {
    "mangled": "sbt",
@@ -13378,12 +13836,12 @@
    "refsUnnamed": [],
    "refBy": [
     "appendEventIdIndexEntry",
+    "appendOutboxByEventIndexEntry",
     "lookupEventIdIndexEntry"
    ],
    "refByUnnamed": [
     "get",
     "het",
-    "iet",
     "sq",
     "yet"
    ],
@@ -13687,6 +14145,28 @@
    "paths": [],
    "strings": []
   },
+  "isLogLevelEnabled": {
+   "mangled": "F8e",
+   "line": 32029,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "resolveLogLevel"
+   ],
+   "refsUnnamed": [
+    "pU"
+   ],
+   "refBy": [
+    "writeLogLine"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "isLoopbackBindHost": {
    "mangled": "vvt",
    "line": 92002,
@@ -13874,12 +14354,11 @@
     "extractJobCompletePayload",
     "extractPayloadMediaRefs",
     "isWorkerTaskNotifyDelivery",
+    "readNonNegativeNumberField",
     "renderMailboxEventPrompt",
     "resolveReplyTargetSessionKeys"
    ],
-   "refByUnnamed": [
-    "TW"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -14311,6 +14790,26 @@
     "string"
    ]
   },
+  "isSessionLifecycleLoggingEnabled": {
+   "mangled": "U8e",
+   "line": 32061,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "parseEnvBooleanFlag"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "logSessionLifecycleMessage"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "isSessionListKind": {
    "mangled": "eU",
    "line": 31556,
@@ -14470,6 +14969,26 @@
    "strings": [
     "number",
     "string"
+   ]
+  },
+  "isStaleIdleCompactEvent": {
+   "mangled": "rht",
+   "line": 72351,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "number"
    ]
   },
   "isSupportedRuntime": {
@@ -14861,6 +15380,26 @@
    "refByUnnamed": [
     "Pct"
    ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "listDefaultClaudeToolNames": {
+   "mangled": "lRe",
+   "line": 80545,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "CLAUDE_CORE_TOOLS"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -15433,10 +15972,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Jd"
+   "refs": [
+    "writeLogLine"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "createAgentSdkAdapter",
     "createClaudeStreamingSessionFactory",
@@ -15466,10 +16005,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Jd"
+   "refs": [
+    "writeLogLine"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "appendBeforeExecuteGateway",
     "clearSessionRuntimeStateField",
@@ -15518,10 +16057,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Jd"
+   "refs": [
+    "writeLogLine"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "createClaudeStreamingSessionFactory",
     "createIdleCompactSweeper",
@@ -15557,10 +16096,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Jd"
+   "refs": [
+    "writeLogLine"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "archiveSessionIfQuiescent",
     "clearModelOverrideOnRuntimeFlip",
@@ -15627,19 +16166,66 @@
    "paths": [],
    "strings": []
   },
+  "logSessionLifecycleMessage": {
+   "mangled": "ut",
+   "line": 32065,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "isSessionLifecycleLoggingEnabled",
+    "writeLogLine"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "debug"
+   ]
+  },
+  "logTraceMessage": {
+   "mangled": "_ae",
+   "line": 32057,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "writeLogLine"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "trace"
+   ]
+  },
   "logWarnMessage": {
    "mangled": "Z",
    "line": 32045,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Jd"
+   "refs": [
+    "writeLogLine"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "archiveLegacyRegistrySessionsDir",
     "archiveSessionIfQuiescent",
+    "buildCompactStatsRecord",
+    "countCompactGapIntervals",
     "createAgentSdkAdapter",
     "createClaudeStreamingSessionFactory",
     "createCodexAppServerAdapter",
@@ -15677,9 +16263,7 @@
     "sweepTombstonedSessionRecords"
    ],
    "refByUnnamed": [
-    "Axe",
     "Hpt",
-    "Nxe",
     "RS",
     "Yce",
     "ade",
@@ -16328,6 +16912,28 @@
     "quarantine",
     "utf8"
    ]
+  },
+  "mergeInterruptedContextTexts": {
+   "mangled": "zmt",
+   "line": 72072,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "$W",
+    "Txe",
+    "Uxe"
+   ],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "mergeKernelGitignoreEntries": {
    "mangled": "qpt",
@@ -17052,10 +17658,10 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
+    "isSessionLifecycleLoggingEnabled",
     "resolveEnvConfigEntry"
    ],
    "refByUnnamed": [
-    "U8e",
     "tht"
    ],
    "env": [],
@@ -17110,6 +17716,28 @@
    "logPrefixes": [],
    "dotted": [],
    "paths": [],
+   "strings": []
+  },
+  "parseHostHeaderHostname": {
+   "mangled": "_vt",
+   "line": 91983,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "MG"
+   ],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "http://"
+   ],
    "strings": []
   },
   "parseInjectionPromptCommand": {
@@ -17227,6 +17855,46 @@
     "Invalid reschedule time: ",
     "Reschedule time is not in the future: "
    ]
+  },
+  "parseLogLevelName": {
+   "mangled": "yae",
+   "line": 32006,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "pU"
+   ],
+   "refBy": [
+    "resolveLogLevel"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "parseOriginHostname": {
+   "mangled": "bvt",
+   "line": 91993,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "MG"
+   ],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "parsePartitionDefinition": {
    "mangled": "Wct",
@@ -17502,11 +18170,10 @@
     "resolveIngressWorkspace",
     "runInstructionsFingerprintGuard",
     "runSkipTool",
+    "setPendingInterruptedContext",
     "upsertChannelSpawnDescriptor"
    ],
-   "refByUnnamed": [
-    "qmt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [
     "[session]"
@@ -17549,11 +18216,11 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "ensureOutboxRecordInReplay"
+    "ensureOutboxRecordInReplay",
+    "indexOutboxRecordByEventId"
    ],
    "refsUnnamed": [
-    "eet",
-    "tq"
+    "eet"
    ],
    "refBy": [
     "createClaudeStreamingSessionFactory",
@@ -18063,12 +18730,11 @@
     "ide"
    ],
    "refBy": [
+    "countCompactGapIntervals",
     "createDaemon",
     "readRecentDrainRecords"
    ],
-   "refByUnnamed": [
-    "Axe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -18150,6 +18816,26 @@
    "dotted": [],
    "paths": [],
    "strings": []
+  },
+  "readFileAsBase64": {
+   "mangled": "vve",
+   "line": 88254,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "base64"
+   ]
   },
   "readGapLintDayEvents": {
    "mangled": "rSe",
@@ -18446,6 +19132,28 @@
    "dotted": [],
    "paths": [],
    "strings": []
+  },
+  "readNonNegativeNumberField": {
+   "mangled": "TW",
+   "line": 71670,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "isNonNullObject"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "number"
+   ]
   },
   "readOrSeedGapHandedDays": {
    "mangled": "zdt",
@@ -19225,6 +19933,28 @@
    "paths": [],
    "strings": []
   },
+  "recordIdleCompactFireMetric": {
+   "mangled": "sht",
+   "line": 72413,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "recordTelemetryMetric"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "idle_compact_fire"
+   ]
+  },
   "recordOutboxDeliveryAttempt": {
    "mangled": "df",
    "line": 36155,
@@ -19312,12 +20042,12 @@
    "refBy": [
     "advanceOptimisticDeliveryCursor",
     "readOutboxRecordsPastCursor",
+    "recordIdleCompactFireMetric",
     "runMemoryCheckTick",
     "writeIngressSnapshot"
    ],
    "refByUnnamed": [
     "Zw",
-    "sht",
     "zbe"
    ],
    "env": [],
@@ -19471,6 +20201,29 @@
     "var"
    ]
   },
+  "refreshRuntimeWriterLockHeartbeat": {
+   "mangled": "bwe",
+   "line": 89307,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "resolveRuntimeWriterLockPath",
+    "writeJsonFileAtomic"
+   ],
+   "refsUnnamed": [
+    "dH"
+   ],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "refreshSessionDrainLockHeartbeat": {
    "mangled": "axe",
    "line": 70185,
@@ -19501,11 +20254,10 @@
    "innerAnonymous": 0,
    "refs": [
     "readSessionMetaFile",
-    "readSessionRuntimeState"
+    "readSessionRuntimeState",
+    "replaceSessionIndexEntry"
    ],
-   "refsUnnamed": [
-    "lq"
-   ],
+   "refsUnnamed": [],
    "refBy": [
     "setSessionAliasAndReindex",
     "upsertChannelSpawnDescriptor"
@@ -19633,6 +20385,30 @@
    "dotted": [],
    "paths": [],
    "strings": []
+  },
+  "removeOrphanMailboxItemFiles": {
+   "mangled": "Nae",
+   "line": 32771,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "resolveSessionMailboxPendingDir"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    ".item.json"
+   ],
+   "strings": [
+    "utf8"
+   ]
   },
   "renderActivationReportBody": {
    "mangled": "dft",
@@ -20312,6 +21088,30 @@
    "paths": [],
    "strings": []
   },
+  "renderManualCompactNotice": {
+   "mangled": "nht",
+   "line": 72345,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " tokens).",
+    "number",
+    "📦 History compacted (",
+    "📦 History compacted (pre: ",
+    "📦 History compacted."
+   ]
+  },
   "renderNodeConvergeSignalBody": {
    "mangled": "_dt",
    "line": 67269,
@@ -20903,6 +21703,69 @@
     "Contents of "
    ]
   },
+  "renderTurnOutputText": {
+   "mangled": "Oxe",
+   "line": 72341,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "renderWorkspaceUnavailableNotice": {
+   "mangled": "fht",
+   "line": 72655,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "- action: reopen from an existing directory (or choose a new named session) and retry.",
+    "- cwd: ",
+    "- reason: ",
+    "- session_key: ",
+    "Workspace unavailable. Request was not executed."
+   ]
+  },
+  "replaceSessionIndexEntry": {
+   "mangled": "lq",
+   "line": 36932,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "Ret"
+   ],
+   "refBy": [
+    "createDaemon",
+    "refreshSessionIndexEntry"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "replayIdempotentSessionNotify": {
    "mangled": "svt",
    "line": 91177,
@@ -21014,6 +21877,42 @@
     "soft",
     "tool_result",
     "tool_use"
+   ]
+  },
+  "requestPiWorkerCatalog": {
+   "mangled": "oEe",
+   "line": 72985,
+   "kind": "async function",
+   "inner": [
+    {
+     "name": "r",
+     "line": 72988,
+     "endLine": 72990
+    }
+   ],
+   "innerAnonymous": 6,
+   "refs": [
+    "attachStreamLineReader",
+    "encodePiWorkerFrame"
+   ],
+   "refsUnnamed": [
+    "LW"
+   ],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "catalog",
+    "catalog_result",
+    "close",
+    "data",
+    "error",
+    "pipe"
    ]
   },
   "resolveAdditionalDirClaudeMdAutoload": {
@@ -21698,6 +22597,30 @@
     "inherited"
    ]
   },
+  "resolveLogLevel": {
+   "mangled": "L8e",
+   "line": 32025,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "parseLogLevelName"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "isLogLevelEnabled"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "development",
+    "info",
+    "warn"
+   ]
+  },
   "resolveMemoryCheckFlags": {
    "mangled": "WH",
    "line": 68834,
@@ -21875,10 +22798,10 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
+    "appendOutboxByEventIndexEntry",
     "loadOutboxByEventIndex"
    ],
    "refByUnnamed": [
-    "iet",
     "net"
    ],
    "env": [],
@@ -22363,11 +23286,10 @@
    "refsUnnamed": [],
    "refBy": [
     "acquireRuntimeWriterLock",
+    "refreshRuntimeWriterLockHeartbeat",
     "releaseRuntimeWriterLock"
    ],
-   "refByUnnamed": [
-    "bwe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -22621,10 +23543,10 @@
    "refBy": [
     "deleteMailboxPendingItemsByEventIds",
     "ensureSessionMailboxPendingDir",
-    "listMailboxPendingItems"
+    "listMailboxPendingItems",
+    "removeOrphanMailboxItemFiles"
    ],
    "refByUnnamed": [
-    "Nae",
     "lYe"
    ],
    "env": [],
@@ -23988,6 +24910,56 @@
    "paths": [],
    "strings": []
   },
+  "sanitizeUploadFileName": {
+   "mangled": "lct",
+   "line": 88258,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "saveChannelUploadToInbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "..",
+    "file"
+   ]
+  },
+  "saveChannelUploadToInbox": {
+   "mangled": "bve",
+   "line": 88230,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "ensureDirectoryExists",
+    "sanitizeUploadFileName",
+    "writeFileAtomic"
+   ],
+   "refsUnnamed": [
+    "dct"
+   ],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "base64",
+    "hex",
+    "inbox",
+    "sha256"
+   ]
+  },
   "scanActivationWindowTouches": {
    "mangled": "aft",
    "line": 68200,
@@ -24176,6 +25148,24 @@
     "object"
    ]
   },
+  "selectInstructionsFingerprint": {
+   "mangled": "lEe",
+   "line": 73478,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createSessionManager"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "selectInterruptMarkerText": {
    "mangled": "Tg",
    "line": 62099,
@@ -24215,6 +25205,26 @@
     "createModelCommandResolvers",
     "prepareClaudeContextProfile",
     "resolveClaudeContextRequirement"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "setPendingInterruptedContext": {
+   "mangled": "qmt",
+   "line": 72081,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "patchSessionRuntimeState"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainSessionMailbox"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -24477,11 +25487,10 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
-    "buildSessionExecutionPayload"
+    "buildSessionExecutionPayload",
+    "computeStreamEventDedupKey"
    ],
-   "refByUnnamed": [
-    "oRe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -24502,7 +25511,8 @@
    "refBy": [
     "appendDrainRecord",
     "appendEventIdIndexEntry",
-    "appendEventToPartition"
+    "appendEventToPartition",
+    "appendOutboxByEventIndexEntry"
    ],
    "refByUnnamed": [
     "Ice",
@@ -24511,7 +25521,6 @@
     "cet",
     "get",
     "het",
-    "iet",
     "sq",
     "yet"
    ],
@@ -25288,6 +26297,7 @@
     "renderSessionMailboxFile",
     "retirePartitionOnce",
     "rewriteSessionKeyInStateAndMeta",
+    "saveChannelUploadToInbox",
     "updateSessionDisplayName",
     "writeJsonFileAtomic"
    ],
@@ -25295,7 +26305,6 @@
     "JU",
     "bet",
     "bht",
-    "bve",
     "fU",
     "lYe",
     "tH"
@@ -25473,6 +26482,7 @@
     "mutateSessionRuntimeState",
     "patchSessionRuntimeState",
     "recordOutboxDeliveryAttempt",
+    "refreshRuntimeWriterLockHeartbeat",
     "refreshSessionDrainLockHeartbeat",
     "rewriteSessionKeyInStateAndMeta",
     "updateDeliveryCursorFile",
@@ -25483,9 +26493,35 @@
    ],
    "refByUnnamed": [
     "Z_e",
-    "bwe",
     "eet"
    ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "writeLogLine": {
+   "mangled": "Jd",
+   "line": 32037,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "formatLogPrefix",
+    "isLogLevelEnabled"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "logAlwaysAtLevel",
+    "logDebugMessage",
+    "logErrorMessage",
+    "logInfoMessage",
+    "logSessionLifecycleMessage",
+    "logTraceMessage",
+    "logWarnMessage"
+   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -25845,6 +26881,8 @@
   "[runner]": [
    "drainSessionMailbox",
    "createDrainExecutionEventRecorder",
+   "countCompactGapIntervals",
+   "buildCompactStatsRecord",
    "handleDrainError",
    "clearModelOverrideOnRuntimeFlip",
    "resolvePendingModelFork"
@@ -26439,7 +27477,8 @@
    "probeSessionPendingWork",
    "mergeInboxIntoMailbox",
    "listMailboxPendingItems",
-   "deleteMailboxPendingItemsByEventIds"
+   "deleteMailboxPendingItemsByEventIds",
+   "removeOrphanMailboxItemFiles"
   ],
   ".jade": [
    "initBoardTransclusionModule"
@@ -26865,6 +27904,7 @@
    "ensureAgentsMdSymlink"
   ],
   "CLAUDE.md": [
+   "assertJobWorkspaceUsable",
    "ensureAgentsMdSymlink",
    "resolveRuntimePaths",
    "loadSubconsciousPartitions",
@@ -26914,6 +27954,9 @@
   ],
   "gap-handed-days.txt": [
    "initGapLintModule"
+  ],
+  "http://": [
+   "parseHostHeaderHostname"
   ],
   "image/": [
    "buildCodexTurnInput"
@@ -27584,6 +28627,9 @@
   " timed out after ": [
    "createGrokAcpAdapter"
   ],
+  " tokens).": [
+   "renderManualCompactNotice"
+  ],
   " topics nodes are unreachable from the board closure but are NOT indeg=0 leaf junk;": [
    "renderOrphanIslandsBody"
   ],
@@ -27870,6 +28916,9 @@
   "' is archived — it is no longer scheduled. To run it again, create a new job (same or new id) with the instruction below; it starts with fresh state and a fresh session, and the archived session is no…": [
    "runManageJobTool"
   ],
+  "' is missing CLAUDE.md. cwd_rel requires a CLAUDE.md context file so the job session has project-level instructions; it was present when the job was created but is now missing.": [
+   "assertJobWorkspaceUsable"
+  ],
   "' is retired upstream but no longer declares itself the official '": [
    "retirePartitionOnce"
   ],
@@ -27878,6 +28927,9 @@
   ],
   "' matches more than one session — pass a full session_key.": [
    "scheduleSessionWakeRecord"
+  ],
+  "' no longer exists. cwd_rel points to a directory that must exist with a CLAUDE.md context file; it was present when the job was created but is now missing.": [
+   "assertJobWorkspaceUsable"
   ],
   "' not found": [
    "createDaemon"
@@ -28270,6 +29322,9 @@
   "- accept_mime: ": [
    "runQueueOutboundAttachmentTool"
   ],
+  "- action: reopen from an existing directory (or choose a new named session) and retry.": [
+   "renderWorkspaceUnavailableNotice"
+  ],
   "- applied_at: ": [
    "buildTransientUserBlocks"
   ],
@@ -28300,6 +29355,9 @@
   "- current_cwd: ": [
    "buildTransientUserBlocks",
    "executeGatewayCommand"
+  ],
+  "- cwd: ": [
+   "renderWorkspaceUnavailableNotice"
   ],
   "- delivered_count: ": [
    "renderNotifyDeliveryReport"
@@ -28356,6 +29414,7 @@
    "executeGatewayCommand"
   ],
   "- reason: ": [
+   "renderWorkspaceUnavailableNotice",
    "renderRuntimeUnavailableGuidance",
    "executeGatewayCommand"
   ],
@@ -28376,6 +29435,7 @@
   ],
   "- session_key: ": [
    "buildDeveloperInstructions",
+   "renderWorkspaceUnavailableNotice",
    "runQueueOutboundAttachmentTool",
    "executeGatewayCommand"
   ],
@@ -28704,7 +29764,8 @@
    "probeSessionPendingWork",
    "mergeInboxIntoMailbox",
    "listMailboxPendingItems",
-   "deleteMailboxPendingItemsByEventIds"
+   "deleteMailboxPendingItemsByEventIds",
+   "removeOrphanMailboxItemFiles"
   ],
   ".jade": [
    "initBoardTransclusionModule"
@@ -29534,6 +30595,7 @@
    "createJobSessionFinalizer"
   ],
   "CLAUDE.md": [
+   "assertJobWorkspaceUsable",
    "ensureAgentsMdSymlink",
    "resolveRuntimePaths",
    "loadSubconsciousPartitions",
@@ -29903,6 +30965,9 @@
   ],
   "Job not found": [
    "createDaemon"
+  ],
+  "Job workspace '": [
+   "assertJobWorkspaceUsable"
   ],
   "KEEP": [
    "initBoardLintModule"
@@ -30661,6 +31726,9 @@
   "Working directory for the job, relative to the workspace root (e.g. 'projects/my-project'). If specified, the directory MUST already exist and MUST contain a CLAUDE.md context file — the job will fail…": [
    "initManageJobToolModule"
   ],
+  "Workspace unavailable. Request was not executed.": [
+   "renderWorkspaceUnavailableNotice"
+  ],
   "Workspace unavailable: '": [
    "resolveIngressWorkspace"
   ],
@@ -31405,6 +32473,12 @@
   ],
   "[runner] compact_boundary — telemetry only, no channel ack": [
    "drainSessionMailbox"
+  ],
+  "[runner] compact_stats: G gap counts unavailable (ledger read failed)": [
+   "countCompactGapIntervals"
+  ],
+  "[runner] compact_stats: negative p_estimate (history_post > post_total)": [
+   "buildCompactStatsRecord"
   ],
   "[runner] dropping stale idle-compact item (no SDK call)": [
    "drainSessionMailbox"
@@ -32311,6 +33385,10 @@
    "mapItemCompletedToExecEvent",
    "drainSessionMailbox"
   ],
+  "base64": [
+   "saveChannelUploadToInbox",
+   "readFileAsBase64"
+  ],
   "baselineUnknown": [
    "createClaudeStreamingSessionFactory"
   ],
@@ -32422,6 +33500,12 @@
   ],
   "candidates": [
    "deliverDaemonRestartWakes"
+  ],
+  "catalog": [
+   "requestPiWorkerCatalog"
+  ],
+  "catalog_result": [
+   "requestPiWorkerCatalog"
   ],
   "changed": [
    "decideBoardUpdatedInjection"
@@ -32576,6 +33660,7 @@
   "close": [
    "attachStreamLineReader",
    "iterateStreamLines",
+   "requestPiWorkerCatalog",
    "createDaemon"
   ],
   "code": [
@@ -32861,6 +33946,7 @@
   "data": [
    "attachStreamLineReader",
    "iterateStreamLines",
+   "requestPiWorkerCatalog",
    "createPiWorkerAdapter"
   ],
   "date": [
@@ -32869,6 +33955,7 @@
   ],
   "debug": [
    "logDebugMessage",
+   "logSessionLifecycleMessage",
    "createAgentSdkAdapter",
    "classifyGatewayCommandIntent",
    "resolveRoutingTarget"
@@ -32933,6 +34020,7 @@
    "extractSdkMessageTextChunks"
   ],
   "development": [
+   "resolveLogLevel",
    "copyBootstrapIntoKernel"
   ],
   "diff": [
@@ -33092,6 +34180,7 @@
    "initCodexAppServerModule",
    "createGrokAcpAdapter",
    "renderMailboxEventPrompt",
+   "requestPiWorkerCatalog",
    "createPiWorkerAdapter",
    "createMetaSession",
    "executeGatewayCommand",
@@ -33207,6 +34296,9 @@
   ],
   "features.code_mode.direct_only_tool_namespaces": [
    "initCodexAppServerModule"
+  ],
+  "file": [
+   "sanitizeUploadFileName"
   ],
   "file-unparseable": [
    "loadGlobalRuntimeConfig"
@@ -33463,7 +34555,9 @@
    "archiveLegacyRegistrySessionsDir",
    "computeInstructionsFingerprint",
    "computeBoardLayerHash",
-   "hashActivityFingerprint"
+   "hashActivityFingerprint",
+   "saveChannelUploadToInbox",
+   "computeRuntimeId"
   ],
   "high": [
    "initProtocolEffortModule"
@@ -33495,6 +34589,9 @@
    "stripBoardHtmlComments",
    "collectBoardIncludePaths"
   ],
+  "http://": [
+   "parseHostHeaderHostname"
+  ],
   "id=\"": [
    "renderMailboxEventPrompt"
   ],
@@ -33510,6 +34607,9 @@
    "drainSessionMailbox",
    "handleDrainError",
    "createIdleCompactSweeper"
+  ],
+  "idle_compact_fire": [
+   "recordIdleCompactFireMetric"
   ],
   "idle_ms": [
    "drainSessionMailbox"
@@ -33574,7 +34674,8 @@
    "probeSessionPendingWork",
    "partitionInboxDirFromVar",
    "initSubconsciousPlaylistModule",
-   "generateAllPartitionCodexAgents"
+   "generateAllPartitionCodexAgents",
+   "saveChannelUploadToInbox"
   ],
   "inbox-sync": [
    "runMemoryCheckTick"
@@ -33588,6 +34689,7 @@
    "forgetMemoryEntry"
   ],
   "info": [
+   "resolveLogLevel",
    "logInfoMessage",
    "createAgentSdkAdapter",
    "warnUnmappedCodexItemOnce",
@@ -33619,6 +34721,7 @@
    "ensureKernelGitRepo",
    "drainSessionMailbox",
    "createPiWorkerAdapter",
+   "computeStreamEventDedupKey",
    "createClaudeStreamingSessionFactory"
   ],
   "init_error": [
@@ -34416,33 +35519,6 @@
   "notify_source_label": [
    "renderMailboxEventPrompt"
   ],
-  "number": [
-   "isSessionConfigParams",
-   "isChannelPullParams",
-   "isChannelCapabilities",
-   "isSpineTailParams",
-   "accumulateDrainRecordIntoSummary",
-   "parseToolUseBlockStart",
-   "parseInputJsonDelta",
-   "selectDominantModelByInputTokens",
-   "mapClaudeResultToDrainUsage",
-   "buildClaudeCostBaseline",
-   "computeCodexTurnUsage",
-   "createCodexAppServerAdapter",
-   "createGrokAcpAdapter",
-   "readDeliveryCursorFile",
-   "readOutboxRecordsPastCursor",
-   "readPartitionRunState",
-   "addToNumericField",
-   "drainSessionMailbox",
-   "renderSmartCompactNoticeBlock",
-   "runHistoryControlCommand",
-   "runQueueOutboundAttachmentTool",
-   "createClaudeStreamingSessionFactory",
-   "appendBeforeExecuteGateway",
-   "createIdleCompactSweeper",
-   "resolveEnvConfigEntry"
-  ],
   "obx_": [
    "generateOutboxRecordId"
   ],
@@ -34614,12 +35690,17 @@
    "drainSessionMailbox"
   ],
   "pending_gateway_notice": [
+   "clearPendingGatewayNotice",
    "createDaemon"
+  ],
+  "pending_interrupted_context": [
+   "clearPendingInterruptedContext"
   ],
   "pending_outbound_attachments": [
    "clearPendingOutboundAttachments"
   ],
   "pending_skip_rewind": [
+   "clearPendingSkipRewind",
    "runDrainTurnWithResumeFallback"
   ],
   "pending_work": [
@@ -34713,6 +35794,7 @@
   "pipe": [
    "initCodexAppServerModule",
    "createGrokAcpAdapter",
+   "requestPiWorkerCatalog",
    "createPiWorkerAdapter",
    "computeHostBootId"
   ],
@@ -34986,6 +36068,9 @@
    "enqueueSessionCompactCommand",
    "appendConfigChangedEvent",
    "createDaemon"
+  ],
+  "rt_": [
+   "computeRuntimeId"
   ],
   "run": [
    "resolveRuntimePaths",
@@ -35313,6 +36398,8 @@
    "computeInstructionsFingerprint",
    "computeBoardLayerHash",
    "hashActivityFingerprint",
+   "saveChannelUploadToInbox",
+   "computeRuntimeId",
    "createDaemon"
   ],
   "shape: ": [
@@ -35555,6 +36642,7 @@
    "classifySessionPlane",
    "createAladuoMcpServer",
    "buildCodexDynamicTools",
+   "computeStreamEventDedupKey",
    "inferActorOriginFromSessionKey",
    "createClaudeStreamingSessionFactory",
    "createSessionManager",
@@ -35581,6 +36669,7 @@
    "classifySessionKeyKind",
    "classifySessionKeyOrUnknown",
    "classifySessionPlane",
+   "computeStreamEventDedupKey",
    "inferActorOriginFromSessionKey",
    "classifySessionPlaneByKey"
   ],
@@ -35685,6 +36774,7 @@
    "createDrainExecutionEventRecorder",
    "runDrainTurnWithResumeFallback",
    "createPiWorkerAdapter",
+   "computeStreamEventDedupKey",
    "buildSessionExecutionPayload",
    "createClaudeStreamingSessionFactory"
   ],
@@ -35749,6 +36839,7 @@
    "createAgentSdkAdapter",
    "createDrainExecutionEventRecorder",
    "createPiWorkerAdapter",
+   "computeStreamEventDedupKey",
    "buildSessionExecutionPayload",
    "createClaudeStreamingSessionFactory"
   ],
@@ -35761,12 +36852,16 @@
    "createDrainExecutionEventRecorder",
    "runDrainTurnWithResumeFallback",
    "createPiWorkerAdapter",
+   "computeStreamEventDedupKey",
    "buildSessionExecutionPayload",
    "requestBoundaryAwarePreempt",
    "createClaudeStreamingSessionFactory",
    "createSessionManager",
    "appendPartitionToolEvent",
    "createMetaSession"
+  ],
+  "tool_result:": [
+   "computeStreamEventDedupKey"
   ],
   "tool_start": [
    "createPiWorkerAdapter"
@@ -35780,12 +36875,16 @@
    "drainSessionMailbox",
    "createDrainExecutionEventRecorder",
    "createPiWorkerAdapter",
+   "computeStreamEventDedupKey",
    "buildSessionExecutionPayload",
    "requestBoundaryAwarePreempt",
    "createClaudeStreamingSessionFactory",
    "createSessionManager",
    "appendPartitionToolEvent",
    "createMetaSession"
+  ],
+  "tool_use:": [
+   "computeStreamEventDedupKey"
   ],
   "topics": [
    "resolveRuntimePaths",
@@ -35811,6 +36910,9 @@
   ],
   "touches=": [
    "renderOrphanIslandsBody"
+  ],
+  "trace": [
+   "logTraceMessage"
   ],
   "trailing identifier \"": [
    "matchNearMissSessionKey"
@@ -36047,6 +37149,7 @@
    "renderMailboxEventPrompt"
   ],
   "warn": [
+   "resolveLogLevel",
    "logWarnMessage",
    "createAgentSdkAdapter",
    "flagStreamRecreationOnModelReject",
@@ -36101,7 +37204,14 @@
    "initGrokAcpRuntimeModule"
   ],
   "workspace": [
+   "assertJobWorkspaceUsable",
    "createSessionManager"
+  ],
+  "workspace path does not exist": [
+   "describeWorkspaceProblem"
+  ],
+  "workspace path is not absolute": [
+   "describeWorkspaceProblem"
   ],
   "workspace-write": [
    "resolveCodexSandbox",
@@ -36188,8 +37298,17 @@
   "文件超出 channel 大小限制: ": [
    "runQueueOutboundAttachmentTool"
   ],
+  "📦 History compacted (": [
+   "renderManualCompactNotice"
+  ],
+  "📦 History compacted (pre: ": [
+   "renderManualCompactNotice"
+  ],
   "📦 History compacted (runtime: ": [
    "runHistoryControlCommand"
+  ],
+  "📦 History compacted.": [
+   "renderManualCompactNotice"
   ]
  },
  "unnamed": {
@@ -36219,6 +37338,7 @@
     "initJobManagerModule",
     "initJobSchedulerModule",
     "initKernelGitModule",
+    "initLogLevelModule",
     "initMailboxDrainRunnerModule",
     "initManageJobToolModule",
     "initMaterializedClaudeSettingsModule",
@@ -36246,34 +37366,6 @@
     "initSubconsciousPlaylistModule",
     "initViewSessionsToolModule",
     "initVoidRuntimeModule"
-   ]
-  },
-  "pt": {
-   "line": 32074,
-   "kind": "var",
-   "usedBy": [
-    "initAgentSdkAdapterModule",
-    "initChannelConfigLoaderModule",
-    "initCodexAppServerModule",
-    "initGrokAcpRuntimeModule",
-    "initInstructionsFingerprintModule",
-    "initJobManagerModule",
-    "initJobSchedulerModule",
-    "initKernelGitModule",
-    "initMailboxDrainRunnerModule",
-    "initManageJobToolModule",
-    "initMaterializedClaudeSettingsModule",
-    "initMemoryCheckTickModule",
-    "initMetaSessionModule",
-    "initNotifyToolModule",
-    "initPartitionRetirementModule",
-    "initQueueOutboundAttachmentModule",
-    "initRemindDuoduoToolModule",
-    "initRuntimeInitializationModule",
-    "initSkipToolModule",
-    "initSpineEventLogModule",
-    "initSubconsciousPlaylistModule",
-    "initViewSessionsToolModule"
    ]
   },
   "Vn": {
@@ -36440,17 +37532,6 @@
     "initSubconsciousPlaylistModule"
    ]
   },
-  "Jd": {
-   "line": 32037,
-   "kind": "function",
-   "usedBy": [
-    "logAlwaysAtLevel",
-    "logDebugMessage",
-    "logErrorMessage",
-    "logInfoMessage",
-    "logWarnMessage"
-   ]
-  },
   "Ju": {
    "line": 36998,
    "kind": "var (uninitialised)",
@@ -36554,6 +37635,15 @@
     "initMetaSessionModule"
    ]
   },
+  "dH": {
+   "line": 89251,
+   "kind": "async function",
+   "usedBy": [
+    "acquireRuntimeWriterLock",
+    "refreshRuntimeWriterLockHeartbeat",
+    "releaseRuntimeWriterLock"
+   ]
+  },
   "Gb": {
    "line": 35789,
    "kind": "var (uninitialised)",
@@ -36606,6 +37696,15 @@
     "initMemoryCheckTickModule",
     "initMemorySignalDeliveryModule",
     "initPartitionRetirementModule"
+   ]
+  },
+  "MG": {
+   "line": 91979,
+   "kind": "function",
+   "usedBy": [
+    "isLoopbackBindHost",
+    "parseHostHeaderHostname",
+    "parseOriginHostname"
    ]
   },
   "of": {
@@ -36833,14 +37932,6 @@
     "main"
    ]
   },
-  "dH": {
-   "line": 89251,
-   "kind": "async function",
-   "usedBy": [
-    "acquireRuntimeWriterLock",
-    "releaseRuntimeWriterLock"
-   ]
-  },
   "dI": {
    "line": 35533,
    "kind": "function",
@@ -37025,20 +38116,20 @@
     "createAladuoMcpServer"
    ]
   },
-  "lq": {
-   "line": 36932,
-   "kind": "function",
-   "usedBy": [
-    "createDaemon",
-    "refreshSessionIndexEntry"
-   ]
-  },
   "lSe": {
    "line": 67738,
    "kind": "function",
    "usedBy": [
     "readOrSeedGapHandedDays",
     "recordUnreadableUnlessMissing"
+   ]
+  },
+  "LW": {
+   "line": 72953,
+   "kind": "function",
+   "usedBy": [
+    "createPiWorkerAdapter",
+    "requestPiWorkerCatalog"
    ]
   },
   "M6": {
@@ -37119,6 +38210,14 @@
    "usedBy": [
     "parseGatewayCommandText",
     "parseInjectionPromptCommand"
+   ]
+  },
+  "pU": {
+   "line": 32074,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "isLogLevelEnabled",
+    "parseLogLevelName"
    ]
   },
   "q$": {
@@ -37257,14 +38356,6 @@
     "initKernelGitModule"
    ]
   },
-  "tq": {
-   "line": 36082,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox",
-    "persistOutboxRecord"
-   ]
-  },
   "tS": {
    "line": 65006,
    "kind": "var (uninitialised)",
@@ -37400,13 +38491,6 @@
     "parseBoardFileContent"
    ]
   },
-  "_ae": {
-   "line": 32057,
-   "kind": "function",
-   "usedBy": [
-    "createDaemon"
-   ]
-  },
   "_be": {
    "line": 63346,
    "kind": "async function",
@@ -37463,13 +38547,6 @@
     "main"
    ]
   },
-  "_vt": {
-   "line": 91983,
-   "kind": "function",
-   "usedBy": [
-    "createDaemon"
-   ]
-  },
   "$ce": {
    "line": 36144,
    "kind": "async function",
@@ -37489,6 +38566,13 @@
    "kind": "var",
    "usedBy": [
     "initBoardTransclusionModule"
+   ]
+  },
+  "$W": {
+   "line": 72917,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "mergeInterruptedContextTexts"
    ]
   },
   "A6": {
@@ -37587,13 +38671,6 @@
    "kind": "function",
    "usedBy": [
     "runReadAuditedMemoryCheckStep"
-   ]
-  },
-  "Axe": {
-   "line": 72356,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "aYe": {
@@ -37715,13 +38792,6 @@
     "renderNotifyToolDescription"
    ]
   },
-  "Bmt": {
-   "line": 72087,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "BQe": {
    "line": 35372,
    "kind": "function",
@@ -37743,32 +38813,11 @@
     "createGrokAcpAdapter"
    ]
   },
-  "bve": {
-   "line": 88230,
-   "kind": "async function",
-   "usedBy": [
-    "createDaemon"
-   ]
-  },
-  "bvt": {
-   "line": 91993,
-   "kind": "function",
-   "usedBy": [
-    "createDaemon"
-   ]
-  },
   "BW": {
    "line": 73502,
    "kind": "var",
    "usedBy": [
     "initMetaSessionModule"
-   ]
-  },
-  "bwe": {
-   "line": 89307,
-   "kind": "async function",
-   "usedBy": [
-    "createDaemon"
    ]
   },
   "bYe": {
@@ -37811,13 +38860,6 @@
    "kind": "var",
    "usedBy": [
     "executeGatewayCommand"
-   ]
-  },
-  "cEe": {
-   "line": 73491,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
    ]
   },
   "cet": {
@@ -37911,6 +38953,13 @@
     "mergeInboxIntoMailbox"
    ]
   },
+  "dct": {
+   "line": 88268,
+   "kind": "async function",
+   "usedBy": [
+    "saveChannelUploadToInbox"
+   ]
+  },
   "Ddt": {
    "line": 67746,
    "kind": "function",
@@ -37930,13 +38979,6 @@
    "kind": "function",
    "usedBy": [
     "buildOrphanNewbornSignals"
-   ]
-  },
-  "dht": {
-   "line": 72651,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "dIe": {
@@ -37965,13 +39007,6 @@
    "kind": "function",
    "usedBy": [
     "mapClaudeResultToDrainUsage"
-   ]
-  },
-  "dRe": {
-   "line": 80565,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
    ]
   },
   "dvt": {
@@ -38065,13 +39100,6 @@
     "parsePartitionDefinition"
    ]
   },
-  "exe": {
-   "line": 69944,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
-   ]
-  },
   "Exe": {
    "line": 70563,
    "kind": "async function",
@@ -38126,13 +39154,6 @@
    "kind": "var (uninitialised)",
    "usedBy": [
     "createSessionManager"
-   ]
-  },
-  "fht": {
-   "line": 72655,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "Fht": {
@@ -38562,6 +39583,13 @@
     "initJobManagerModule"
    ]
   },
+  "iht": {
+   "line": 72917,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "countCompactGapIntervals"
+   ]
+  },
   "Iht": {
    "line": 73066,
    "kind": "function",
@@ -38898,13 +39926,6 @@
     "runGapLint"
    ]
   },
-  "lEe": {
-   "line": 73478,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
-   ]
-  },
   "Let": {
    "line": 87838,
    "kind": "function",
@@ -38947,13 +39968,6 @@
     "drainSessionMailbox"
    ]
   },
-  "lRe": {
-   "line": 80545,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
-   ]
-  },
   "Lut": {
    "line": 63336,
    "kind": "async function",
@@ -38966,13 +39980,6 @@
    "kind": "var (uninitialised)",
    "usedBy": [
     "createSessionManager"
-   ]
-  },
-  "LW": {
-   "line": 72953,
-   "kind": "function",
-   "usedBy": [
-    "createPiWorkerAdapter"
    ]
   },
   "Lwe": {
@@ -39022,13 +40029,6 @@
    "kind": "function",
    "usedBy": [
     "executeGatewayCommand"
-   ]
-  },
-  "MG": {
-   "line": 91979,
-   "kind": "function",
-   "usedBy": [
-    "isLoopbackBindHost"
    ]
   },
   "mH": {
@@ -39115,20 +40115,6 @@
     "checkGrokAvailability"
    ]
   },
-  "mxe": {
-   "line": 70405,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
-  "Nae": {
-   "line": 32771,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "nbe": {
    "line": 61640,
    "kind": "var (uninitialised)",
@@ -39171,13 +40157,6 @@
     "runActivationLint"
    ]
   },
-  "nht": {
-   "line": 72345,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "nIe": {
    "line": 86031,
    "kind": "var",
@@ -39218,13 +40197,6 @@
    "kind": "async function",
    "usedBy": [
     "resolveNotifyTargetSessionKey"
-   ]
-  },
-  "Nxe": {
-   "line": 72380,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "nye": {
@@ -39290,13 +40262,6 @@
     "reconcileMemorySignalInboxes"
    ]
   },
-  "oEe": {
-   "line": 72985,
-   "kind": "async function",
-   "usedBy": [
-    "createSessionManager"
-   ]
-  },
   "oet": {
    "line": 36253,
    "kind": "function",
@@ -39325,6 +40290,13 @@
     "initMailboxDrainRunnerModule"
    ]
   },
+  "oht": {
+   "line": 72917,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "countCompactGapIntervals"
+   ]
+  },
   "Omt": {
    "line": 71766,
    "kind": "function",
@@ -39344,13 +40316,6 @@
    "kind": "var",
    "usedBy": [
     "redactSpineEventForExternal"
-   ]
-  },
-  "oRe": {
-   "line": 80498,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
    ]
   },
   "out": {
@@ -39379,13 +40344,6 @@
    "kind": "function",
    "usedBy": [
     "runReadAuditedMemoryCheckStep"
-   ]
-  },
-  "Oxe": {
-   "line": 72341,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "P8e": {
@@ -39633,13 +40591,6 @@
     "classifyModelContextRequirement"
    ]
   },
-  "qmt": {
-   "line": 72081,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "qO": {
    "line": 67730,
    "kind": "function",
@@ -39689,13 +40640,6 @@
     "createDaemon"
    ]
   },
-  "rbe": {
-   "line": 61594,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
-   ]
-  },
   "rc": {
    "line": 35545,
    "kind": "var (uninitialised)",
@@ -39715,6 +40659,13 @@
    "kind": "function",
    "usedBy": [
     "createPiWorkerAdapter"
+   ]
+  },
+  "Ret": {
+   "line": 36926,
+   "kind": "function",
+   "usedBy": [
+    "replaceSessionIndexEntry"
    ]
   },
   "rft": {
@@ -39743,13 +40694,6 @@
    "kind": "function",
    "usedBy": [
     "renderScanGapSignalBody"
-   ]
-  },
-  "rht": {
-   "line": 72351,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "Rht": {
@@ -39883,13 +40827,6 @@
    "kind": "var",
    "usedBy": [
     "initMailboxDrainRunnerModule"
-   ]
-  },
-  "sht": {
-   "line": 72413,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "sIe": {
@@ -40060,18 +40997,18 @@
     "resolveNotifyTargetSessionKey"
    ]
   },
-  "TW": {
-   "line": 71670,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "Twe": {
    "line": 66735,
    "kind": "var (uninitialised)",
    "usedBy": [
     "readPartitionRunState"
+   ]
+  },
+  "Txe": {
+   "line": 71731,
+   "kind": "function",
+   "usedBy": [
+    "mergeInterruptedContextTexts"
    ]
   },
   "Ubt": {
@@ -40144,25 +41081,11 @@
     "buildNotifyInputSchema"
    ]
   },
-  "Umt": {
-   "line": 72078,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "UR": {
    "line": 32541,
    "kind": "var (uninitialised)",
    "usedBy": [
     "runWithSessionMutex"
-   ]
-  },
-  "ut": {
-   "line": 32065,
-   "kind": "function",
-   "usedBy": [
-    "createSessionManager"
    ]
   },
   "UU": {
@@ -40177,6 +41100,13 @@
    "kind": "var",
    "usedBy": [
     "initMetaSessionModule"
+   ]
+  },
+  "Uxe": {
+   "line": 71735,
+   "kind": "function",
+   "usedBy": [
+    "mergeInterruptedContextTexts"
    ]
   },
   "uYe": {
@@ -40205,6 +41135,13 @@
    "kind": "var",
    "usedBy": [
     "buildSdkConfigReport"
+   ]
+  },
+  "vce": {
+   "line": 35579,
+   "kind": "function",
+   "usedBy": [
+    "buildCompactStatsRecord"
    ]
   },
   "vdt": {
@@ -40249,13 +41186,6 @@
     "acquireSessionDrainLock"
    ]
   },
-  "Vmt": {
-   "line": 72090,
-   "kind": "async function",
-   "usedBy": [
-    "drainSessionMailbox"
-   ]
-  },
   "VR": {
    "line": 32864,
    "kind": "var (uninitialised)",
@@ -40282,13 +41212,6 @@
    "kind": "var (uninitialised)",
    "usedBy": [
     "issueWorkerToolContextToken"
-   ]
-  },
-  "vve": {
-   "line": 88254,
-   "kind": "async function",
-   "usedBy": [
-    "createDaemon"
    ]
   },
   "vW": {
@@ -40417,13 +41340,6 @@
     "createSessionManager"
    ]
   },
-  "Xbt": {
-   "line": 90681,
-   "kind": "function",
-   "usedBy": [
-    "createDaemon"
-   ]
-  },
   "XC": {
    "line": 64521,
    "kind": "var",
@@ -40536,6 +41452,13 @@
     "readMemoryFileForRpc"
    ]
   },
+  "XU": {
+   "line": 36718,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "appendOutboxByEventIndexEntry"
+   ]
+  },
   "Xut": {
    "line": 64260,
    "kind": "var (uninitialised)",
@@ -40555,13 +41478,6 @@
    "kind": "var",
    "usedBy": [
     "main"
-   ]
-  },
-  "Y_e": {
-   "line": 61454,
-   "kind": "async function",
-   "usedBy": [
-    "createSessionManager"
    ]
   },
   "Y_t": {
@@ -40786,13 +41702,6 @@
    "kind": "function",
    "usedBy": [
     "groupNotifyTargetCandidates"
-   ]
-  },
-  "zmt": {
-   "line": 72072,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "Zmt": {

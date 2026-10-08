@@ -13,7 +13,7 @@ var Ewe, mH, hH, initSubconsciousPlaylistModule = O(() => {
     Kr();
     initRuntimeValidationModule();
     aq();
-    pt();
+    initLogLevelModule();
     mH = {
         enabled: !0,
         cooldown_ticks: 1,

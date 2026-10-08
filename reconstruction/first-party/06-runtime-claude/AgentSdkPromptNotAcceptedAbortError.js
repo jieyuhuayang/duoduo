@@ -6,7 +6,7 @@
 
 var CLAUDE_CORE_TOOLS, PARTITION_CORE_TOOLS, Hge, pot, mot, AgentSdkTurnInterruptedError, AgentSdkPromptNotAcceptedAbortError, Sc, jf, Yge, yV, Jge, Sot, initAgentSdkAdapterModule = O(() => {
     "use strict";
-    pt();
+    initLogLevelModule();
     qu();
     initSkipToolModule();
     initCallerSessionEnvModule();

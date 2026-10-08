@@ -90,7 +90,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             D = {
                 elapsed_ms: Date.now() - a,
                 total_input_tokens: f.input_tokens === void 0 ? void 0 : S.totalInput,
-                cache_hit_rate: mxe(S),
+                cache_hit_rate: computeCacheHitRate(S),
                 output_tokens: f.output_tokens === void 0 ? void 0 : P - v.output_tokens,
                 total_cost_usd: f.total_cost_usd === void 0 ? void 0 : k - v.total_cost_usd,
                 model: f.model,
@@ -126,7 +126,7 @@ async function drainSessionMailbox(e, t, n = {}) {
             cancelled: !1
         };
         if (_.some(Ie => !Ie.eventId)) {
-            let Ie = await Nae(e, t);
+            let Ie = await removeOrphanMailboxItemFiles(e, t);
             if (Ie.removed > 0) {
                 await appendSessionMailboxNote(e, t, `orphan_cleanup=${Ie.removed}`);
                 let de = await listMailboxPendingItems(e, t);
@@ -336,9 +336,9 @@ async function drainSessionMailbox(e, t, n = {}) {
             mcpServersFactory: n.mcpServersFactory,
             holdInputOpenForBackgroundAgents: n.holdInputOpenForBackgroundAgents,
             boardHash: n.boardHash
-        }, _t = dht(H.cwd);
+        }, _t = describeWorkspaceProblem(H.cwd);
         if (gt.length > 0 && _t) return Us({
-            guidance: fht(t, H.cwd, _t),
+            guidance: renderWorkspaceUnavailableNotice(t, H.cwd, _t),
             stage: "workspace_unavailable",
             payloadExtra: {
                 outcome: "workspace_unavailable",
@@ -417,9 +417,9 @@ async function drainSessionMailbox(e, t, n = {}) {
                 sdk_session_id: Ie
             })
         }, Mn = async (Ie, de) => {
-            await gn(), !(await readSessionRuntimeState(e, t))?.pending_skip_rewind && await qmt(e, t, zmt(Ie, de ? fe : void 0))
+            await gn(), !(await readSessionRuntimeState(e, t))?.pending_skip_rewind && await setPendingInterruptedContext(e, t, mergeInterruptedContextTexts(Ie, de ? fe : void 0))
         }, ji = async Ie => {
-            Ie.gatewayNoticeInjected && !w && (await Umt(e, t), w = !0), Ie.interruptedContextInjected && !T && (await Bmt(e, t), T = !0), Ie.skipRewindInjected && !L && (await Vmt(e, t), L = !0)
+            Ie.gatewayNoticeInjected && !w && (await clearPendingGatewayNotice(e, t), w = !0), Ie.interruptedContextInjected && !T && (await clearPendingInterruptedContext(e, t), T = !0), Ie.skipRewindInjected && !L && (await clearPendingSkipRewind(e, t), L = !0)
         };
         if (isMergeableDrainBatch(gt, t)) {
             let Ie = await prepareDrainTurnContext(e, t, n, gt, H, {
@@ -561,7 +561,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                 eventId: de.event.id
             });
             else {
-                let Le = Oxe(de.event, an),
+                let Le = renderTurnOutputText(de.event, an),
                     Ht = await runTimedDrainPhase(m, "outbox_emit_ms", async () => emitDrainOutputRecords(e, t, {
                         item: de.item,
                         event: de.event,
@@ -576,7 +576,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                         outboxId: Ht.primaryRecord.id,
                         eventIds: Xo
                     }), te(Ht.primaryRecord);
-                    for (let dt of gt.slice(0, -1)) dt.item.eventId && await tq(e, dt.item.eventId, Ht.primaryRecord)
+                    for (let dt of gt.slice(0, -1)) dt.item.eventId && await indexOutboxRecordByEventId(e, dt.item.eventId, Ht.primaryRecord)
                 }
             }
             for (let Le of gt) Le.item.eventId && x.push(Le.item.eventId);
@@ -615,8 +615,8 @@ async function drainSessionMailbox(e, t, n = {}) {
                     let dt = Nn;
                     Nn = void 0, ce = !0;
                     let un = de.event.ts ?? new Date().toISOString(),
-                        Hr = await Axe(e, t, G?.compact_stats?.measured_at),
-                        nr = Nxe({
+                        Hr = await countCompactGapIntervals(e, t, G?.compact_stats?.measured_at),
+                        nr = buildCompactStatsRecord({
                             completion: {
                                 hadBoundary: !0,
                                 history_pre: dt.pre_tokens,
@@ -650,7 +650,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     let ht = isNonNullObject(X.event.payload) ? X.event.payload : void 0,
                         wa = (ht?.text ?? ht?.command ?? "").trim(),
                         mu = /^(\S+)/.exec(wa)?.[1]?.toLowerCase() ?? "";
-                    if (mu === "/compact" && X.event.source?.name === "idle-compact" && rht(X.event.ts, {
+                    if (mu === "/compact" && X.event.source?.name === "idle-compact" && isStaleIdleCompactEvent(X.event.ts, {
                             actorSpawnedAt: n.actorSpawnedAt,
                             actorLastTurnCompletedAt: n.actorLastTurnCompletedAt
                         })) {
@@ -860,7 +860,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                     break
                 }
                 if (await ji(nr), !ur.skipped && !bt) {
-                    let ht = Oxe(X.event, ur),
+                    let ht = renderTurnOutputText(X.event, ur),
                         Dr = await runTimedDrainPhase(m, "outbox_emit_ms", async () => emitDrainOutputRecords(e, t, {
                             item: X.item,
                             event: X.event,
@@ -891,7 +891,7 @@ async function drainSessionMailbox(e, t, n = {}) {
                             history_post: ht.post_tokens,
                             origin: xy ? "idle-compact" : ht.trigger
                         }, ht.trigger === "manual" && !xy) {
-                        let Dr = nht(ht),
+                        let Dr = renderManualCompactNotice(ht),
                             wa = await emitDrainOutputRecords(e, t, {
                                 item: X.item,
                                 event: X.event,
@@ -951,13 +951,13 @@ async function drainSessionMailbox(e, t, n = {}) {
                     f?.context_used_tokens !== void 0 && (ht.context_used_tokens = f.context_used_tokens);
                     let Dr = extractServedModelFromUsage(f);
                     Dr && (ht.last_served_model = Dr);
-                    let wa = TW(X.event.payload, "idle_ms"),
-                        mu = TW(X.event.payload, "threshold_at_fire");
+                    let wa = readNonNegativeNumberField(X.event.payload, "idle_ms"),
+                        mu = readNonNegativeNumberField(X.event.payload, "threshold_at_fire");
                     if (jt) {
                         ce = !0;
                         let DN = X.event.ts ?? new Date().toISOString(),
-                            ed = await Axe(e, t, G?.compact_stats?.measured_at),
-                            mp = Nxe({
+                            ed = await countCompactGapIntervals(e, t, G?.compact_stats?.measured_at),
+                            mp = buildCompactStatsRecord({
                                 completion: jt,
                                 preTotal: G?.context_used_tokens,
                                 postTotal: f?.context_used_tokens,
@@ -970,11 +970,11 @@ async function drainSessionMailbox(e, t, n = {}) {
                         ht.last_compact_at = DN, ht.compact_stats = mp, p = mp
                     }
                     ur.sessionId && !q && (ht.sdk_session_id = ur.sessionId, ht.sdk_session_runtime = Wn, ur.costBaseline && (ht.claude_cost_baseline = ur.costBaseline, z = ur.costBaseline)), Er && (ht.pending_fork_to = null), await patchSessionRuntimeState(e, t, ht)
-                }), jt?.origin === "idle-compact" && await sht(e, {
+                }), jt?.origin === "idle-compact" && await recordIdleCompactFireMetric(e, {
                     sessionKey: t,
                     preTokens: G?.context_used_tokens,
                     postTokens: f?.context_used_tokens,
-                    idleMs: TW(X.event.payload, "idle_ms")
+                    idleMs: readNonNegativeNumberField(X.event.payload, "idle_ms")
                 }), Er && (de = void 0), ur.sessionId && !q && (Ie = ur.sessionId), X.event.ts && (je = X.event.ts)
             }
         }

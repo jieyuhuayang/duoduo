@@ -9,7 +9,7 @@
 var Qw, Ybe, sO, aO, initViewSessionsToolModule = O(() => {
     "use strict";
     vc();
-    pt();
+    initLogLevelModule();
     $r();
     B6();
     Zr();

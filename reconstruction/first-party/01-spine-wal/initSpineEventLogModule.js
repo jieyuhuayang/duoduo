@@ -12,7 +12,7 @@ var bae, H8e, jR, mU, vae, initSpineEventLogModule = O(() => {
     DR();
     Tr();
     Kn();
-    pt();
+    initLogLevelModule();
     bae = new Map;
     H8e = /^\d{4}-\d{2}-\d{2}\.jsonl$/;
     jR = new Map;

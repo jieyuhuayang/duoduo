@@ -11380,6 +11380,540 @@
         "ts",
         "type"
       ]
+    },
+    "removeOrphanMailboxItemFiles": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        ".item.json",
+        "utf8"
+      ],
+      "props": [
+        "endsWith",
+        "event_id",
+        "join",
+        "parse",
+        "readFile",
+        "readdir",
+        "unlink"
+      ]
+    },
+    "clearPendingGatewayNotice": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "pending_gateway_notice"
+      ],
+      "props": []
+    },
+    "clearPendingInterruptedContext": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "pending_interrupted_context"
+      ],
+      "props": []
+    },
+    "clearPendingSkipRewind": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "pending_skip_rewind"
+      ],
+      "props": []
+    },
+    "setPendingInterruptedContext": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "toISOString"
+      ]
+    },
+    "mergeInterruptedContextTexts": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "from",
+        "join",
+        "set",
+        "trim",
+        "values"
+      ]
+    },
+    "renderTurnOutputText": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "stringify",
+        "structured",
+        "text"
+      ]
+    },
+    "renderManualCompactNotice": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " tokens).",
+        "number",
+        "📦 History compacted (",
+        "📦 History compacted (pre: ",
+        "📦 History compacted."
+      ],
+      "props": [
+        "post_tokens",
+        "pre_tokens"
+      ]
+    },
+    "isStaleIdleCompactEvent": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "number"
+      ],
+      "props": [
+        "actorLastTurnCompletedAt",
+        "actorSpawnedAt",
+        "isNaN",
+        "parse"
+      ]
+    },
+    "countCompactGapIntervals": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "[runner] compact_stats: G gap counts unavailable (ledger read failed)"
+      ],
+      "props": [
+        "drain_started_at",
+        "filter",
+        "getTime",
+        "isFinite",
+        "length",
+        "map",
+        "message",
+        "sort"
+      ]
+    },
+    "buildCompactStatsRecord": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "[runner] compact_stats: negative p_estimate (history_post > post_total)",
+        "number"
+      ],
+      "props": [
+        "g_5m1h_since_prev_compact",
+        "g_gt1h_since_prev_compact",
+        "hadBoundary",
+        "history_post",
+        "history_pre",
+        "origin",
+        "p_estimate"
+      ]
+    },
+    "recordIdleCompactFireMetric": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "idle_compact_fire"
+      ],
+      "props": [
+        "idleMs",
+        "postTokens",
+        "preTokens",
+        "sessionKey"
+      ]
+    },
+    "describeWorkspaceProblem": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "workspace path does not exist",
+        "workspace path is not absolute"
+      ],
+      "props": [
+        "isAbsolute"
+      ]
+    },
+    "renderWorkspaceUnavailableNotice": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "- action: reopen from an existing directory (or choose a new named session) and retry.",
+        "- cwd: ",
+        "- reason: ",
+        "- session_key: ",
+        "Workspace unavailable. Request was not executed."
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "computeCacheHitRate": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "cachedInput",
+        "totalInput"
+      ]
+    },
+    "readNonNegativeNumberField": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "number"
+      ],
+      "props": [
+        "isFinite"
+      ]
+    },
+    "indexOutboxRecordByEventId": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "channel_kind",
+        "created_at",
+        "id"
+      ]
+    },
+    "appendOutboxByEventIndexEntry": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "appendFile",
+        "dirname",
+        "event_id",
+        "get",
+        "map",
+        "set"
+      ]
+    },
+    "initLogLevelModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [],
+      "props": [],
+      "values": [
+        "aefd899030666a95"
+      ]
+    },
+    "parseLogLevelName": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "toLowerCase"
+      ]
+    },
+    "resolveLogLevel": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "development",
+        "info",
+        "warn"
+      ],
+      "props": [
+        "ALADUO_LOG_LEVEL",
+        "NODE_ENV",
+        "env"
+      ]
+    },
+    "isLogLevelEnabled": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "formatLogPrefix": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "toISOString",
+        "toUpperCase"
+      ]
+    },
+    "writeLogLine": {
+      "kind": "function",
+      "params": 4,
+      "literals": [],
+      "props": [
+        "error",
+        "force"
+      ]
+    },
+    "logTraceMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "trace"
+      ],
+      "props": []
+    },
+    "isSessionLifecycleLoggingEnabled": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "ALADUO_LOG_SESSION_LIFECYCLE",
+        "env"
+      ]
+    },
+    "logSessionLifecycleMessage": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "debug"
+      ],
+      "props": []
+    },
+    "assertJobWorkspaceUsable": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "' is missing CLAUDE.md. cwd_rel requires a CLAUDE.md context file so the job session has project-level instructions; it was present when the job was created but is now missing.",
+        "' no longer exists. cwd_rel points to a directory that must exist with a CLAUDE.md context file; it was present when the job was created but is now missing.",
+        "CLAUDE.md",
+        "Job workspace '",
+        "workspace"
+      ],
+      "props": [
+        "catch",
+        "context",
+        "cwd",
+        "cwdRel",
+        "isDirectory",
+        "isFile",
+        "join",
+        "stat"
+      ]
+    },
+    "buildPiConfigSignature": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "defaultProjectTrust",
+        "extensions",
+        "instructionsFingerprint",
+        "model",
+        "settingsSeed",
+        "skills",
+        "stringify",
+        "thinkingLevel"
+      ]
+    },
+    "canonicalizeJsonValue": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "fromEntries",
+        "isArray",
+        "keys",
+        "map",
+        "sort"
+      ]
+    },
+    "selectInstructionsFingerprint": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "fpNew",
+        "nonBoardFingerprint"
+      ]
+    },
+    "isAvailableWorkspacePath": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "isAbsolute"
+      ]
+    },
+    "listDefaultClaudeToolNames": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": []
+    },
+    "requestPiWorkerCatalog": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "catalog",
+        "catalog_result",
+        "close",
+        "data",
+        "error",
+        "pipe"
+      ],
+      "props": [
+        "agentDir",
+        "args",
+        "authPath",
+        "command",
+        "cwd",
+        "logDebug",
+        "modelsPath",
+        "modelsStorePath",
+        "on",
+        "once",
+        "providers",
+        "resources",
+        "settingsSeed",
+        "stderr",
+        "stdin",
+        "stdout",
+        "trimEnd",
+        "type",
+        "workerCommand",
+        "write"
+      ]
+    },
+    "computeStreamEventDedupKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "init",
+        "system",
+        "system:",
+        "thought_chunk",
+        "tool_input_delta",
+        "tool_result",
+        "tool_result:",
+        "tool_use",
+        "tool_use:"
+      ],
+      "props": [
+        "ephemeral",
+        "input",
+        "isError",
+        "subtype",
+        "toolUseId",
+        "type"
+      ]
+    },
+    "extractJobSdkConfig": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "extractUrlHost": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "host"
+      ]
+    },
+    "computeRuntimeId": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "sha256"
+      ],
+      "props": [
+        "createHash",
+        "digest",
+        "resolve",
+        "slice",
+        "update"
+      ]
+    },
+    "parseHostHeaderHostname": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "http://"
+      ],
+      "props": [
+        "hostname",
+        "includes"
+      ]
+    },
+    "parseOriginHostname": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "hostname"
+      ]
+    },
+    "refreshRuntimeWriterLockHeartbeat": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "last_heartbeat_at",
+        "pid",
+        "toISOString"
+      ]
+    },
+    "replaceSessionIndexEntry": {
+      "kind": "function",
+      "params": 4,
+      "literals": [],
+      "props": [
+        "remove",
+        "upsert"
+      ]
+    },
+    "saveChannelUploadToInbox": {
+      "kind": "async function",
+      "params": 6,
+      "literals": [
+        "base64",
+        "inbox",
+        "sha256"
+      ],
+      "props": [
+        "createHash",
+        "digest",
+        "extname",
+        "from",
+        "join",
+        "receivedVia",
+        "sourceName",
+        "update",
+        "uploadedAt",
+        "workDir"
+      ]
+    },
+    "readFileAsBase64": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "base64"
+      ],
+      "props": [
+        "readFile",
+        "toString"
+      ]
+    },
+    "sanitizeUploadFileName": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "file"
+      ],
+      "props": [
+        "basename",
+        "length",
+        "replace",
+        "trim"
+      ]
     }
   }
 }

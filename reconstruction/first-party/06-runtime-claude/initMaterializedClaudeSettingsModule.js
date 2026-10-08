@@ -9,7 +9,7 @@
 var Xlt, Qlt, ect, tct, nct, J6, pve, initMaterializedClaudeSettingsModule = O(() => {
     "use strict";
     Kn();
-    pt();
+    initLogLevelModule();
     Kr();
     Xlt = {
         fable: "ANTHROPIC_DEFAULT_FABLE_MODEL",

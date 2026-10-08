@@ -7,7 +7,7 @@
 var Kce, Yr, initChannelConfigLoaderModule = O(() => {
     "use strict";
     Kce = yi(bs(), 1);
-    pt();
+    initLogLevelModule();
     Kr();
     Yr = "runtime"
 });

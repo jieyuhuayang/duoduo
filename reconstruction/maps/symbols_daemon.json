@@ -1,8 +1,8 @@
 {
   "bundle": "daemon",
   "version": "v0.8.4",
-  "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
-  "symbolCount": 795,
+  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
+  "symbolCount": 840,
   "notTopLevel": [],
   "symbols": {
     "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
@@ -6364,6 +6364,366 @@
       "kind": "function",
       "bytes": 258,
       "signature": "0b0e39398f36ae32998a"
+    },
+    "removeOrphanMailboxItemFiles": {
+      "mangled": "Nae",
+      "line": 32771,
+      "endLine": 32797,
+      "kind": "async function",
+      "bytes": 578,
+      "signature": "8cd1e33297fb46fcb7df"
+    },
+    "clearPendingGatewayNotice": {
+      "mangled": "Umt",
+      "line": 72078,
+      "endLine": 72080,
+      "kind": "async function",
+      "bytes": 73,
+      "signature": "6f687797485eec9717fd"
+    },
+    "clearPendingInterruptedContext": {
+      "mangled": "Bmt",
+      "line": 72087,
+      "endLine": 72089,
+      "kind": "async function",
+      "bytes": 78,
+      "signature": "e956eef1126c6e46f7aa"
+    },
+    "clearPendingSkipRewind": {
+      "mangled": "Vmt",
+      "line": 72090,
+      "endLine": 72092,
+      "kind": "async function",
+      "bytes": 70,
+      "signature": "54ddd1b8d8d788434f81"
+    },
+    "setPendingInterruptedContext": {
+      "mangled": "qmt",
+      "line": 72081,
+      "endLine": 72086,
+      "kind": "async function",
+      "bytes": 144,
+      "signature": "287ec4023ff3416ab1de"
+    },
+    "mergeInterruptedContextTexts": {
+      "mangled": "zmt",
+      "line": 72072,
+      "endLine": 72077,
+      "kind": "function",
+      "bytes": 175,
+      "signature": "dc919e44ad128a4bd5b6"
+    },
+    "renderTurnOutputText": {
+      "mangled": "Oxe",
+      "line": 72341,
+      "endLine": 72343,
+      "kind": "function",
+      "bytes": 111,
+      "signature": "5d148d0442ad564ff549"
+    },
+    "renderManualCompactNotice": {
+      "mangled": "nht",
+      "line": 72345,
+      "endLine": 72349,
+      "kind": "function",
+      "bytes": 284,
+      "signature": "f53740ed3333766b06be"
+    },
+    "isStaleIdleCompactEvent": {
+      "mangled": "rht",
+      "line": 72351,
+      "endLine": 72355,
+      "kind": "function",
+      "bytes": 249,
+      "signature": "fc874c5f14ab39bdf3fb"
+    },
+    "countCompactGapIntervals": {
+      "mangled": "Axe",
+      "line": 72356,
+      "endLine": 72378,
+      "kind": "async function",
+      "bytes": 710,
+      "signature": "199b3f3bdc9c72b2ad3c"
+    },
+    "buildCompactStatsRecord": {
+      "mangled": "Nxe",
+      "line": 72380,
+      "endLine": 72412,
+      "kind": "function",
+      "bytes": 986,
+      "signature": "11957fb19c58cb87f94e"
+    },
+    "recordIdleCompactFireMetric": {
+      "mangled": "sht",
+      "line": 72413,
+      "endLine": 72420,
+      "kind": "async function",
+      "bytes": 222,
+      "signature": "7e8e4823ddf0c9c60e74"
+    },
+    "describeWorkspaceProblem": {
+      "mangled": "dht",
+      "line": 72651,
+      "endLine": 72653,
+      "kind": "function",
+      "bytes": 132,
+      "signature": "1242e73b46780c1d4bb7"
+    },
+    "renderWorkspaceUnavailableNotice": {
+      "mangled": "fht",
+      "line": 72655,
+      "endLine": 72658,
+      "kind": "function",
+      "bytes": 245,
+      "signature": "64f3e551afdc1a2e97f2"
+    },
+    "computeCacheHitRate": {
+      "mangled": "mxe",
+      "line": 70405,
+      "endLine": 70407,
+      "kind": "function",
+      "bytes": 113,
+      "signature": "7b8a2bbbd06744e3de3c"
+    },
+    "readNonNegativeNumberField": {
+      "mangled": "TW",
+      "line": 71670,
+      "endLine": 71674,
+      "kind": "function",
+      "bytes": 140,
+      "signature": "95b7f54e9f6ccb20948a"
+    },
+    "indexOutboxRecordByEventId": {
+      "mangled": "tq",
+      "line": 36082,
+      "endLine": 36089,
+      "kind": "async function",
+      "bytes": 173,
+      "signature": "4de520048c9022a367f1"
+    },
+    "appendOutboxByEventIndexEntry": {
+      "mangled": "iet",
+      "line": 36213,
+      "endLine": 36219,
+      "kind": "async function",
+      "bytes": 185,
+      "signature": "e35c54c2ca04df4a617a"
+    },
+    "initLogLevelModule": {
+      "mangled": "pt",
+      "line": 32074,
+      "endLine": 32083,
+      "kind": "var = call",
+      "bytes": 148,
+      "signature": "a6e6b03b5d1d6755a4a6"
+    },
+    "parseLogLevelName": {
+      "mangled": "yae",
+      "line": 32006,
+      "endLine": 32010,
+      "kind": "function",
+      "bytes": 103,
+      "signature": "019a08ba566ebce35b07"
+    },
+    "resolveLogLevel": {
+      "mangled": "L8e",
+      "line": 32025,
+      "endLine": 32027,
+      "kind": "function",
+      "bytes": 133,
+      "signature": "e30331d01abc02086c8a"
+    },
+    "isLogLevelEnabled": {
+      "mangled": "F8e",
+      "line": 32029,
+      "endLine": 32031,
+      "kind": "function",
+      "bytes": 49,
+      "signature": "e2084d73adad25ad79ef"
+    },
+    "formatLogPrefix": {
+      "mangled": "z8e",
+      "line": 32033,
+      "endLine": 32035,
+      "kind": "function",
+      "bytes": 86,
+      "signature": "02c701fb963f075bc48b"
+    },
+    "writeLogLine": {
+      "mangled": "Jd",
+      "line": 32037,
+      "endLine": 32039,
+      "kind": "function",
+      "bytes": 90,
+      "signature": "330ac1a174cd0b90a5ee"
+    },
+    "logTraceMessage": {
+      "mangled": "_ae",
+      "line": 32057,
+      "endLine": 32059,
+      "kind": "function",
+      "bytes": 47,
+      "signature": "cbee17ac287e08900f11"
+    },
+    "isSessionLifecycleLoggingEnabled": {
+      "mangled": "U8e",
+      "line": 32061,
+      "endLine": 32063,
+      "kind": "function",
+      "bytes": 79,
+      "signature": "efdc25ce4f6cdafd3de6"
+    },
+    "logSessionLifecycleMessage": {
+      "mangled": "ut",
+      "line": 32065,
+      "endLine": 32067,
+      "kind": "function",
+      "bytes": 55,
+      "signature": "06ae54e5e4dfa84c2e5c"
+    },
+    "assertJobWorkspaceUsable": {
+      "mangled": "Y_e",
+      "line": 61454,
+      "endLine": 61461,
+      "kind": "async function",
+      "bytes": 693,
+      "signature": "ab12ebf2094396086bfb"
+    },
+    "buildPiConfigSignature": {
+      "mangled": "cEe",
+      "line": 73491,
+      "endLine": 73501,
+      "kind": "function",
+      "bytes": 315,
+      "signature": "59e0034078fe2c2ae265"
+    },
+    "canonicalizeJsonValue": {
+      "mangled": "qW",
+      "line": 73482,
+      "endLine": 73489,
+      "kind": "function",
+      "bytes": 218,
+      "signature": "9a2cc864a6bfa9041262"
+    },
+    "selectInstructionsFingerprint": {
+      "mangled": "lEe",
+      "line": 73478,
+      "endLine": 73480,
+      "kind": "function",
+      "bytes": 69,
+      "signature": "23c3186b3d3d06af5c85"
+    },
+    "isAvailableWorkspacePath": {
+      "mangled": "dRe",
+      "line": 80565,
+      "endLine": 80567,
+      "kind": "function",
+      "bytes": 69,
+      "signature": "cb7b90de9faa3a089dfc"
+    },
+    "listDefaultClaudeToolNames": {
+      "mangled": "lRe",
+      "line": 80545,
+      "endLine": 80547,
+      "kind": "function",
+      "bytes": 37,
+      "signature": "c5bba5d7b7555a41f225"
+    },
+    "requestPiWorkerCatalog": {
+      "mangled": "oEe",
+      "line": 72985,
+      "endLine": 73009,
+      "kind": "async function",
+      "bytes": 917,
+      "signature": "82186cc6c35c86e69340"
+    },
+    "computeStreamEventDedupKey": {
+      "mangled": "oRe",
+      "line": 80498,
+      "endLine": 80500,
+      "kind": "function",
+      "bytes": 348,
+      "signature": "90fedb44497c251fbfc5"
+    },
+    "extractJobSdkConfig": {
+      "mangled": "rbe",
+      "line": 61594,
+      "endLine": 61618,
+      "kind": "function",
+      "bytes": 766,
+      "signature": "a2ff79d9ca2e07b39ade"
+    },
+    "extractUrlHost": {
+      "mangled": "exe",
+      "line": 69944,
+      "endLine": 69950,
+      "kind": "function",
+      "bytes": 109,
+      "signature": "3604febdeeb92ba54841"
+    },
+    "computeRuntimeId": {
+      "mangled": "Xbt",
+      "line": 90681,
+      "endLine": 90684,
+      "kind": "function",
+      "bytes": 125,
+      "signature": "f7310f8001a1707d3e75"
+    },
+    "parseHostHeaderHostname": {
+      "mangled": "_vt",
+      "line": 91983,
+      "endLine": 91991,
+      "kind": "function",
+      "bytes": 188,
+      "signature": "dc9aa9f89570631227a9"
+    },
+    "parseOriginHostname": {
+      "mangled": "bvt",
+      "line": 91993,
+      "endLine": 92000,
+      "kind": "function",
+      "bytes": 138,
+      "signature": "e8843d8ea976f994dc17"
+    },
+    "refreshRuntimeWriterLockHeartbeat": {
+      "mangled": "bwe",
+      "line": 89307,
+      "endLine": 89311,
+      "kind": "async function",
+      "bytes": 174,
+      "signature": "e8969f132d1718e7b75a"
+    },
+    "replaceSessionIndexEntry": {
+      "mangled": "lq",
+      "line": 36932,
+      "endLine": 36939,
+      "kind": "function",
+      "bytes": 146,
+      "signature": "7a13b5d9832bd03dc313"
+    },
+    "saveChannelUploadToInbox": {
+      "mangled": "bve",
+      "line": 88230,
+      "endLine": 88253,
+      "kind": "async function",
+      "bytes": 621,
+      "signature": "6c706a69475d69596075"
+    },
+    "readFileAsBase64": {
+      "mangled": "vve",
+      "line": 88254,
+      "endLine": 88256,
+      "kind": "async function",
+      "bytes": 78,
+      "signature": "e83e6c48f5d95d6c48b5"
+    },
+    "sanitizeUploadFileName": {
+      "mangled": "lct",
+      "line": 88258,
+      "endLine": 88262,
+      "kind": "function",
+      "bytes": 191,
+      "signature": "b002972d99138d8ed107"
     }
   }
 }

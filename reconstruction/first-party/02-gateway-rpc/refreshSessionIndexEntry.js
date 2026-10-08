@@ -7,5 +7,5 @@
 
 async function refreshSessionIndexEntry(e, t, n) {
     let [r, i] = await Promise.all([readSessionRuntimeState(e, n), readSessionMetaFile(e, n)]);
-    lq(t, n, r, i)
+    replaceSessionIndexEntry(t, n, r, i)
 }

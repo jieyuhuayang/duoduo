@@ -7,7 +7,7 @@
 
 var Ike, Tke, zpt, initKernelGitModule = O(() => {
     "use strict";
-    pt();
+    initLogLevelModule();
     Ike = Fpt(jpt), Tke = `# Runtime state (not part of cognitive evolution)
 memory/state/
 memory/fragments/

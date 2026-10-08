@@ -10,7 +10,7 @@ var rmt, imt, smt, gW, yW, initRuntimeInitializationModule = O(() => {
     Tr();
     fW();
     Bm();
-    pt();
+    initLogLevelModule();
     initKernelGitModule();
     Mke();
     initPartitionRetirementModule();

@@ -19,7 +19,7 @@ var OW, AW, $W, Nmt, Lmt, Wmt, CW, iht, oht, initMailboxDrainRunnerModule = O(()
     cl();
     EW();
     fxe();
-    pt();
+    initLogLevelModule();
     qu();
     $r();
     Zu();
