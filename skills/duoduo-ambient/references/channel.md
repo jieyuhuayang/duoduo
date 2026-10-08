@@ -64,7 +64,6 @@ A change to `.env` takes effect at the next `stop` and `start`.
 | `duoduo channel ambient stop`       | Stops it: closes rooms, then the page server, then the daemon links   |
 | `duoduo channel ambient status`     | Running or not, and the process                                       |
 | `duoduo channel ambient logs`       | The channel's log, without looking for its path                       |
-| `duoduo channel ambient doctor`     | Checks the installed plugin when `status` is not enough               |
 | `duoduo channel ambient room add …` | Creates a room (below)                                                |
 | `duoduo channel ambient room list`  | Lists rooms                                                           |
 
@@ -76,10 +75,12 @@ as a room at startup and refuses to start when there is none.
 
 ```bash
 duoduo channel ambient room add <room_id> --workspace <absolute path> \
-  --runtime <claude|codex|grok|pi> [--name <display name>] [--pocket]
+  --runtime <runtime> [--name <display name>] [--pocket]
 ```
 
 - Every argument except `--name` and `--pocket` is required; nothing has a default.
+- The daemon decides which runtimes it accepts (today `claude`, `codex`, `grok`, `pi`); an unknown one is refused with that list.
+- Do not use `duoduo channel ambient doctor`: the channel has no doctor mode, so it starts a full channel in the foreground.
 - `<room_id>` matches `[A-Za-z0-9_-]+`; with the `ambient-` prefix it must fit the daemon's
   128-character channel id limit.
 - It refuses a room that exists. Changing a room's workspace moves it to a new session (the session

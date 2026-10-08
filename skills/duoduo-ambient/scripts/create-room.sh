@@ -6,7 +6,7 @@
 # Fallback for a channel without `duoduo channel ambient room add`; prefer the verb.
 #
 # Usage:
-#   create-room.sh <room_id> <absolute workspace path> <claude|codex|grok|pi> [--pocket]
+#   create-room.sh <room_id> <absolute workspace path> <runtime> [--pocket]
 #
 # --pocket writes the pocket room's instance prompt (short answers, no markdown) into the
 # room's descriptor.md body, only when that body is empty.
@@ -25,7 +25,7 @@ die() {
 }
 
 usage() {
-  echo "usage: create-room.sh <room_id> <absolute workspace path> <claude|codex|grok|pi> [--pocket]" >&2
+  echo "usage: create-room.sh <room_id> <absolute workspace path> <runtime> [--pocket]" >&2
   exit 2
 }
 
@@ -47,10 +47,9 @@ case "$workspace" in
   *) die 2 "workspace must be an absolute path: '$workspace'" ;;
 esac
 [ -d "$workspace" ] || die 2 "workspace is not an existing directory: '$workspace'"
-case "$runtime" in
-  claude | codex | grok | pi) ;;
-  *) die 2 "runtime must be one of claude, codex, grok, pi: '$runtime'" ;;
-esac
+# The runtime is not checked here: the daemon decides which runtimes it accepts
+# and refuses an unknown one in its channel.spawn reply.
+[ -n "$runtime" ] || die 2 "runtime is required"
 command -v curl >/dev/null || die 4 "curl not found"
 command -v node >/dev/null || die 4 "node not found"
 
