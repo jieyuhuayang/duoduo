@@ -6,5 +6,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function logErrorMessage(e, ...t) {
-    Jd("error", e, t)
+    writeLogLine("error", e, t)
 }

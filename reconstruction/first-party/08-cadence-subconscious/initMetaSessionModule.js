@@ -23,7 +23,7 @@ var Sbt, initMetaSessionModule = O(() => {
     EW();
     initChannelConfigLoaderModule();
     sl();
-    pt();
+    initLogLevelModule();
     ZR();
     Zu();
     initSubconsciousPlaylistModule();

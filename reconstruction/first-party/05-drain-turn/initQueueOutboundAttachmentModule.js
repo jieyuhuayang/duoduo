@@ -8,7 +8,7 @@
 var dEe, Dht, ip, fEe, wA, SA, initQueueOutboundAttachmentModule = O(() => {
     "use strict";
     vc();
-    pt();
+    initLogLevelModule();
     $r();
     dEe = "application/octet-stream", Dht = {
         ".png": "image/png",

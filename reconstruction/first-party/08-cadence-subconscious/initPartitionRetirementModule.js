@@ -13,7 +13,7 @@ var hW, Jpt, Gpt, initPartitionRetirementModule = O(() => {
     LO();
     Kn();
     Tr();
-    pt();
+    initLogLevelModule();
     Jpt = [{
         name: "memory-weaver",
         selfId: "contract"

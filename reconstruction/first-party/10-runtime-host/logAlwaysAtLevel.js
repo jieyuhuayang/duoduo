@@ -6,7 +6,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function logAlwaysAtLevel(e, t, ...n) {
-    Jd(e, t, n, {
+    writeLogLine(e, t, n, {
         force: !0
     })
 }

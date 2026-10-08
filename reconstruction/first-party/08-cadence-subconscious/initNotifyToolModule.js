@@ -8,7 +8,7 @@
 var iS, lve, eve, ive, initNotifyToolModule = O(() => {
     "use strict";
     vc();
-    pt();
+    initLogLevelModule();
     $r();
     initJobManagerModule();
     H6();

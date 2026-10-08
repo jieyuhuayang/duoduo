@@ -9,7 +9,7 @@
 var O6, A6, Mut, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, C6, initGrokAcpRuntimeModule = O(() => {
     "use strict";
     Ql();
-    pt();
+    initLogLevelModule();
     initAgentSdkAdapterModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();

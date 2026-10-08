@@ -85,25 +85,25 @@ function createSessionManager(e) {
         if (w.wakeQueue.length === 0 || !ie) return;
         let T = w.wakeQueue.findIndex(U => !isSessionArchiving(U));
         if (T === -1) {
-            ut("[session-manager] dequeue deferred: every queued session is archiving", {
+            logSessionLifecycleMessage("[session-manager] dequeue deferred: every queued session is archiving", {
                 pool: w.name,
                 queuedSessions: w.wakeQueue.length
             });
             return
         }
         let L = w.wakeQueue.splice(T, 1)[0];
-        T > 0 && ut("[session-manager] dequeue skipped archiving sessions", {
+        T > 0 && logSessionLifecycleMessage("[session-manager] dequeue skipped archiving sessions", {
             skipped: T,
             sessionKey: L,
             pool: w.name
-        }), ut("[session-manager] dequeue queued wake", {
+        }), logSessionLifecycleMessage("[session-manager] dequeue queued wake", {
             sessionKey: L,
             pool: w.name,
             queuedSessions: w.wakeQueue.length
         });
         let z = F.get(L);
         if (z && z.status === "idle" && !z.holdsPoolSlot && z.drainPromise) {
-            z.pendingWake = !0, z.wakeResolver && (z.wakeResolver(), z.wakeResolver = null), ut("[session-manager] resuming idle actor from dequeue", {
+            z.pendingWake = !0, z.wakeResolver && (z.wakeResolver(), z.wakeResolver = null), logSessionLifecycleMessage("[session-manager] resuming idle actor from dequeue", {
                 sessionKey: L,
                 actorRunId: z.actorRunId,
                 pool: w.name
@@ -111,7 +111,7 @@ function createSessionManager(e) {
             return
         }
         if (w.activeCount >= w.maxConcurrent) {
-            w.wakeQueue.unshift(L), ut("[session-manager] dequeue deferred: pool re-filled", {
+            w.wakeQueue.unshift(L), logSessionLifecycleMessage("[session-manager] dequeue deferred: pool re-filled", {
                 sessionKey: L,
                 pool: w.name,
                 activeCount: w.activeCount
@@ -140,7 +140,7 @@ function createSessionManager(e) {
             preempt: L,
             preemptBoundary: z
         }) => {
-            ut("[session-manager] wake", {
+            logSessionLifecycleMessage("[session-manager] wake", {
                 sessionKey: w,
                 preempt: L ?? "allow",
                 preemptBoundary: z ?? "default"
@@ -211,13 +211,13 @@ function createSessionManager(e) {
 
     function te(w, T) {
         if (!ie) {
-            ut("[session-manager] wake ignored, manager not running", {
+            logSessionLifecycleMessage("[session-manager] wake ignored, manager not running", {
                 sessionKey: w
             });
             return
         }
         if (isSessionArchiving(w)) {
-            ut("[session-manager] wake suppressed, session is being archived", {
+            logSessionLifecycleMessage("[session-manager] wake suppressed, session is being archived", {
                 sessionKey: w
             });
             return
@@ -226,7 +226,7 @@ function createSessionManager(e) {
             z = T?.preemptBoundary,
             U = F.get(w);
         if (U && U.wakeResolver) {
-            ut("[session-manager] wake delivered to idle actor", {
+            logSessionLifecycleMessage("[session-manager] wake delivered to idle actor", {
                 sessionKey: w,
                 actorRunId: U.actorRunId,
                 status: U.status,
@@ -240,7 +240,7 @@ function createSessionManager(e) {
             if (L === "allow" && (re || Ee) && U.admissionCallback && !U.admissionInProgress) {
                 U.pendingWake = !0, U.admissionInProgress = !0;
                 let Oe = U.admissionCallback;
-                ut("[session-manager] wake: admitting to live streaming session", {
+                logSessionLifecycleMessage("[session-manager] wake: admitting to live streaming session", {
                     sessionKey: w,
                     actorRunId: U.actorRunId
                 }), Oe().then(() => {
@@ -253,40 +253,40 @@ function createSessionManager(e) {
             if (U.status === "active" && U.currentAbortController)
                 if (L === "force") {
                     let Oe = requestBoundaryAwarePreempt(U, "immediate", z, "preempt");
-                    Oe === "immediate" ? ut("[session-manager] wake: forced preempt", {
+                    Oe === "immediate" ? logSessionLifecycleMessage("[session-manager] wake: forced preempt", {
                         sessionKey: w,
                         actorRunId: U.actorRunId,
                         preemptBoundary: z ?? "default"
-                    }) : Oe === "defer_accept" ? ut("[session-manager] wake: forced preempt deferred until prompt acceptance", {
+                    }) : Oe === "defer_accept" ? logSessionLifecycleMessage("[session-manager] wake: forced preempt deferred until prompt acceptance", {
                         sessionKey: w,
                         actorRunId: U.actorRunId
-                    }) : Oe === "defer_tool_result" ? ut("[session-manager] wake: forced preempt deferred until tool_result", {
+                    }) : Oe === "defer_tool_result" ? logSessionLifecycleMessage("[session-manager] wake: forced preempt deferred until tool_result", {
                         sessionKey: w,
                         actorRunId: U.actorRunId
-                    }) : Oe === "defer_tool_use" && ut("[session-manager] wake: forced preempt deferred until tool_use", {
+                    }) : Oe === "defer_tool_use" && logSessionLifecycleMessage("[session-manager] wake: forced preempt deferred until tool_use", {
                         sessionKey: w,
                         actorRunId: U.actorRunId
                     })
                 } else if (L === "allow") {
                 let Oe = requestBoundaryAwarePreempt(U, "soft", z, "preempt");
-                Oe === "defer_accept" ? ut("[session-manager] wake: soft preempt deferred until prompt acceptance", {
+                Oe === "defer_accept" ? logSessionLifecycleMessage("[session-manager] wake: soft preempt deferred until prompt acceptance", {
                     sessionKey: w,
                     actorRunId: U.actorRunId
-                }) : Oe === "defer_tool_use" ? ut("[session-manager] wake: soft preempt pending (streaming)", {
+                }) : Oe === "defer_tool_use" ? logSessionLifecycleMessage("[session-manager] wake: soft preempt pending (streaming)", {
                     sessionKey: w,
                     actorRunId: U.actorRunId
-                }) : Oe === "defer_tool_result" ? ut("[session-manager] wake: soft preempt deferred until tool_result", {
+                }) : Oe === "defer_tool_result" ? logSessionLifecycleMessage("[session-manager] wake: soft preempt deferred until tool_result", {
                     sessionKey: w,
                     actorRunId: U.actorRunId
-                }) : Oe === "immediate" && ut("[session-manager] wake: hard preempt (not streaming)", {
+                }) : Oe === "immediate" && logSessionLifecycleMessage("[session-manager] wake: hard preempt (not streaming)", {
                     sessionKey: w,
                     actorRunId: U.actorRunId
                 })
-            } else ut("[session-manager] wake: preempt disabled, queueing only", {
+            } else logSessionLifecycleMessage("[session-manager] wake: preempt disabled, queueing only", {
                 sessionKey: w,
                 actorRunId: U.actorRunId
             });
-            U.pendingWake = !0, ut("[session-manager] wake marked pending", {
+            U.pendingWake = !0, logSessionLifecycleMessage("[session-manager] wake marked pending", {
                 sessionKey: w,
                 actorRunId: U.actorRunId,
                 status: U.status
@@ -296,7 +296,7 @@ function createSessionManager(e) {
         let Y = N(w, U?.origin);
         if (Y.activeCount >= Y.maxConcurrent) {
             let re = Y.wakeQueue.includes(w);
-            re || Y.wakeQueue.push(w), ut("[session-manager] wake queued", {
+            re || Y.wakeQueue.push(w), logSessionLifecycleMessage("[session-manager] wake queued", {
                 sessionKey: w,
                 pool: Y.name,
                 activeCount: Y.activeCount,
@@ -307,10 +307,10 @@ function createSessionManager(e) {
             return
         }
         let me = inferActorOriginFromSessionKey(w);
-        me ? (ut("[session-manager] wake starting actor with inferred origin", {
+        me ? (logSessionLifecycleMessage("[session-manager] wake starting actor with inferred origin", {
             sessionKey: w,
             ...me
-        }), B(w, me)) : (ut("[session-manager] wake starting actor", {
+        }), B(w, me)) : (logSessionLifecycleMessage("[session-manager] wake starting actor", {
             sessionKey: w
         }), B(w))
     }
@@ -396,7 +396,7 @@ function createSessionManager(e) {
                 error: Ae instanceof Error ? Ae.message : String(Ae)
             }), qe = new Set
         }
-        ut("[session-manager] drain loop begin", {
+        logSessionLifecycleMessage("[session-manager] drain loop begin", {
             sessionKey: T,
             actorRunId: w.actorRunId,
             origin: w.origin,
@@ -426,7 +426,7 @@ function createSessionManager(e) {
                 sn, gt, Gt, Nn, Us, xr = !1;
             if (w.jobStateless = !1, w.origin === "job" && w.jobId) {
                 let _t = await a.getJob(w.jobId);
-                if (Ze = _t, nt = _t?.state.last_scheduled_at ?? null, _t?.execution_cwd && (await Y_e({
+                if (Ze = _t, nt = _t?.state.last_scheduled_at ?? null, _t?.execution_cwd && (await assertJobWorkspaceUsable({
                         cwdRel: _t.execution_context === "workspace" ? _t.frontmatter.cwd_rel ?? null : null,
                         cwd: _t.execution_cwd,
                         runtimeWorkspaceDir: _t.runtime_workspace_dir,
@@ -496,7 +496,7 @@ function createSessionManager(e) {
                             w.pendingWake = !1;
                             continue
                         }
-                        ut("[session-manager] drain parked: CLI busy gate", {
+                        logSessionLifecycleMessage("[session-manager] drain parked: CLI busy gate", {
                             sessionKey: T,
                             actorRunId: w.actorRunId,
                             cliBusy: bt,
@@ -542,7 +542,7 @@ function createSessionManager(e) {
                     acceptance: Re?.frontmatter.acceptance,
                     model: Re ? Re.frontmatter.model : sn,
                     effort: Re ? Re.frontmatter.effort : gt,
-                    sdkConfig: rbe(Re?.frontmatter)
+                    sdkConfig: extractJobSdkConfig(Re?.frontmatter)
                 } : logWarnMessage("[session-manager] job snapshot unavailable at drain start", {
                     sessionKey: T,
                     jobId: w.jobId
@@ -557,7 +557,7 @@ function createSessionManager(e) {
                     w.origin === "channel" && (X.push(fEe), X.push(wc));
                     let bt = w.origin === "job" ? "job" : w.origin === "system" ? "system" : "foreground",
                         jt = 0,
-                        Lt = lRe();
+                        Lt = listDefaultClaudeToolNames();
                     if (w.admissionCallback = async () => {
                             try {
                                 await mergeInboxIntoMailbox(t, T);
@@ -817,14 +817,14 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                             va = ao?.piExtensions ?? "all",
                             an = ao?.piSkills ?? "all",
                             gl = Ve?.effort ?? (Re ? Re.frontmatter.effort : gt) ?? readRuntimeEffortSetting($n ?? Po, "pi")?.effort,
-                            Le = cEe({
+                            Le = buildPiConfigSignature({
                                 model: gi,
                                 thinkingLevel: gl,
                                 settingsSeed: jn,
                                 defaultProjectTrust: Yt,
                                 extensions: va,
                                 skills: an,
-                                instructionsFingerprint: lEe(classifySessionKeyOrUnknown(T) === "channel", gn)
+                                instructionsFingerprint: selectInstructionsFingerprint(classifySessionKeyOrUnknown(T) === "channel", gn)
                             }),
                             Ht = !Jn && !Er;
                         if (Ht || logWarnMessage("[session-manager] pi construction facts unread, keeping the live worker", {
@@ -978,7 +978,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                 toolName: Ve.toolName,
                                 startedAtMs: Date.now()
                             }), w.pendingPreempt && w.pendingPreemptBoundary === "tool_use" && (w.pendingPreempt = !1, w.pendingPreemptBoundary = null, triggerDeferredPreempt(w))), Ve.type === "tool_result" && (w.activeToolCalls.delete(Ve.toolUseId), w.pendingPreempt && w.pendingPreemptBoundary === "tool_result" && w.activeToolCalls.size === 0 && (w.pendingPreempt = !1, w.pendingPreemptBoundary = null, triggerDeferredPreempt(w)));
-                            let jn = oRe(Ve);
+                            let jn = computeStreamEventDedupKey(Ve);
                             if (jn && Mn.has(jn)) return;
                             jn && Mn.add(jn);
                             let Yt = buildSessionExecutionPayload(Ve);
@@ -996,7 +996,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 } finally {
                     w.admissionCallback = null, w.admissionInProgress || w.inflightEventIds.clear(), w.currentAbortController === Ie && (w.currentAbortController = null), w.isStreaming = !1, w.activeToolCalls.clear(), w.pendingPreempt = !1, w.pendingPreemptBoundary = null, w.pendingPreemptReason = null
                 }
-                if (ut("[session-manager] drain result", {
+                if (logSessionLifecycleMessage("[session-manager] drain result", {
                         sessionKey: T,
                         actorRunId: w.actorRunId,
                         processed: de.processed,
@@ -1036,7 +1036,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     }
                 }
                 if (de.lastReplyText && (z = de.lastReplyText), de.outboxRecords && de.outboxRecords.length > 0) {
-                    ut("[session-manager] emitting outbox records", {
+                    logSessionLifecycleMessage("[session-manager] emitting outbox records", {
                         sessionKey: T,
                         actorRunId: w.actorRunId,
                         count: de.outboxRecords.length
@@ -1045,14 +1045,14 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         sessionKey: X.session_key,
                         record: X
                     })
-                } else de.lastOutboxRecord ? (ut("[session-manager] emitting single outbox record", {
+                } else de.lastOutboxRecord ? (logSessionLifecycleMessage("[session-manager] emitting single outbox record", {
                     sessionKey: T,
                     actorRunId: w.actorRunId,
                     recordId: de.lastOutboxRecord.id
                 }), n.emit("session.output", {
                     sessionKey: T,
                     record: de.lastOutboxRecord
-                })) : w.origin === "channel" && de.processed > 0 && !de.cancelled && !de.sdkTurns?.length && (ut("[session-manager] drain produced no output, emitting stream_end", {
+                })) : w.origin === "channel" && de.processed > 0 && !de.cancelled && !de.sdkTurns?.length && (logSessionLifecycleMessage("[session-manager] drain produced no output, emitting stream_end", {
                     sessionKey: T,
                     actorRunId: w.actorRunId,
                     turnSkipped: de.turnSkipped === !0
@@ -1061,7 +1061,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     reason: de.turnSkipped === !0 ? "skipped" : "interrupted"
                 }));
                 if (w.origin === "channel")
-                    for (let X of de.sdkTurns ?? []) !X.consumed || X.hadOutput || (ut("[session-manager] silent turn, emitting stream_end", {
+                    for (let X of de.sdkTurns ?? []) !X.consumed || X.hadOutput || (logSessionLifecycleMessage("[session-manager] silent turn, emitting stream_end", {
                         sessionKey: T,
                         actorRunId: w.actorRunId,
                         anchorEventId: X.anchorEventId,
@@ -1072,7 +1072,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         anchorEventId: X.anchorEventId
                     }));
                 if (de.refusedStage === "runtime_unavailable" || de.refusedStage === "runtime_mismatch") {
-                    ut("[session-manager] runtime refusal, ending actor", {
+                    logSessionLifecycleMessage("[session-manager] runtime refusal, ending actor", {
                         sessionKey: T,
                         actorRunId: w.actorRunId,
                         stage: de.refusedStage
@@ -1081,7 +1081,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 }
                 if (de.processed === 0) {
                     if (w.origin === "job" || w.origin === "system") {
-                        ut("[session-manager] job/system session drain complete, exiting", {
+                        logSessionLifecycleMessage("[session-manager] job/system session drain complete, exiting", {
                             sessionKey: T,
                             actorRunId: w.actorRunId,
                             origin: w.origin,
@@ -1090,26 +1090,26 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         break
                     }
                     if (w.pendingWake) {
-                        w.pendingWake = !1, ut("[session-manager] pending wake after empty drain, re-draining", {
+                        w.pendingWake = !1, logSessionLifecycleMessage("[session-manager] pending wake after empty drain, re-draining", {
                             sessionKey: T,
                             actorRunId: w.actorRunId
                         });
                         continue
                     }
                     if (w.status = "idle", w.idleSince = new Date().toISOString(), w.pendingWake) {
-                        w.pendingWake = !1, ut("[session-manager] pending wake during idle transition, re-draining", {
+                        w.pendingWake = !1, logSessionLifecycleMessage("[session-manager] pending wake during idle transition, re-draining", {
                             sessionKey: T,
                             actorRunId: w.actorRunId
                         });
                         continue
                     }
-                    if (ut("[session-manager] idle", {
+                    if (logSessionLifecycleMessage("[session-manager] idle", {
                             sessionKey: T,
                             actorRunId: w.actorRunId,
                             attachedChannels: w.attachedChannels.size
                         }), w.holdsPoolSlot) {
                         let bt = N(T, w.origin);
-                        bt.activeCount--, w.holdsPoolSlot = !1, ut("[session-manager] released pool slot (idle)", {
+                        bt.activeCount--, w.holdsPoolSlot = !1, logSessionLifecycleMessage("[session-manager] released pool slot (idle)", {
                             sessionKey: T,
                             pool: bt.name,
                             activeCount: bt.activeCount
@@ -1133,7 +1133,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                                 break
                             }
                             if (w.attachedChannels.size > 0) {
-                                ut("[session-manager] idle timeout with attachments, reclaiming runtime processes", {
+                                logSessionLifecycleMessage("[session-manager] idle timeout with attachments, reclaiming runtime processes", {
                                     sessionKey: T,
                                     actorRunId: w.actorRunId,
                                     attachedChannels: w.attachedChannels.size
@@ -1151,7 +1151,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                             break
                         }
                         if (!bt && w.status === "idle") {
-                            ut("[session-manager] idle timeout, no attachments, exiting", {
+                            logSessionLifecycleMessage("[session-manager] idle timeout, no attachments, exiting", {
                                 sessionKey: T,
                                 actorRunId: w.actorRunId
                             }), w.streamingState && !w.streamingState.closed && logAlwaysAtLevel("warn", "[kv-cache] streaming teardown: idle-timeout", {
@@ -1164,14 +1164,14 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                         if (bt && !w.holdsPoolSlot) {
                             let Lt = N(T, w.origin);
                             if (Lt.activeCount >= Lt.maxConcurrent) {
-                                Lt.wakeQueue.includes(T) || Lt.wakeQueue.unshift(T), ut("[session-manager] woken idle actor re-queued (pool full)", {
+                                Lt.wakeQueue.includes(T) || Lt.wakeQueue.unshift(T), logSessionLifecycleMessage("[session-manager] woken idle actor re-queued (pool full)", {
                                     sessionKey: T,
                                     pool: Lt.name,
                                     activeCount: Lt.activeCount
                                 }), w.pendingWake = !1;
                                 continue
                             }
-                            Lt.activeCount++, w.holdsPoolSlot = !0, ut("[session-manager] re-acquired pool slot (woken)", {
+                            Lt.activeCount++, w.holdsPoolSlot = !0, logSessionLifecycleMessage("[session-manager] re-acquired pool slot (woken)", {
                                 sessionKey: T,
                                 pool: Lt.name,
                                 activeCount: Lt.activeCount
@@ -1210,7 +1210,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             } else w.status = "ended";
             if (w.pendingWake = !1, ie && dbt(resolveSessionDir(t, T)) && !isSessionArchiving(T)) {
                 let je = await l(T, qe);
-                je === "fresh" ? (w.consecutiveConservativeRedrive = !1, ut("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
+                je === "fresh" ? (w.consecutiveConservativeRedrive = !1, logSessionLifecycleMessage("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
                     sessionKey: T,
                     actorRunId: w.actorRunId
                 }), te(T, {
@@ -1218,7 +1218,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 })) : je === "conservative" || Oe ? w.consecutiveConservativeRedrive ? logWarnMessage("[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake", {
                     sessionKey: T,
                     actorRunId: w.actorRunId
-                }) : (w.consecutiveConservativeRedrive = !0, ut("[session-manager] post-finalize wake re-check: conservative re-drive (transient read) — re-entering wake path once", {
+                }) : (w.consecutiveConservativeRedrive = !0, logSessionLifecycleMessage("[session-manager] post-finalize wake re-check: conservative re-drive (transient read) — re-entering wake path once", {
                     sessionKey: T,
                     actorRunId: w.actorRunId
                 }), te(T, {
@@ -1242,7 +1242,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
     function H(w, T) {
         if (!ie) return;
         if (isSessionArchiving(T)) {
-            ut("[session-manager] skip job spawn, session is being archived", {
+            logSessionLifecycleMessage("[session-manager] skip job spawn, session is being archived", {
                 jobId: w,
                 sessionKey: T
             });
@@ -1250,7 +1250,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
         }
         let L = F.get(T);
         if (L && L.status !== "ended") {
-            ut("[session-manager] skip duplicate job spawn", {
+            logSessionLifecycleMessage("[session-manager] skip duplicate job spawn", {
                 jobId: w,
                 sessionKey: T,
                 actorStatus: L.status
@@ -1372,7 +1372,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 } = readPiAgentSettings(L),
                 Y = await resolveChannelConfigBySession(t, w).catch(() => null),
                 me = await readSessionRuntimeState(t, w).catch(() => null),
-                re = await oEe({
+                re = await requestPiWorkerCatalog({
                     cwd: me?.cwd ?? t.workDir,
                     agentDir: L,
                     authPath: Qc.join(L, "auth.json"),
@@ -1410,13 +1410,13 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                     let w = await rehydrateSessionState(t);
                     for (let T of w) {
                         if (isSessionArchiving(T)) {
-                            ut("[session-manager] skip hydrating session being archived", {
+                            logSessionLifecycleMessage("[session-manager] skip hydrating session being archived", {
                                 sessionKey: T
                             });
                             continue
                         }
                         let z = (await readSessionRuntimeState(t, T))?.cwd;
-                        if (z && !dRe(z)) {
+                        if (z && !isAvailableWorkspacePath(z)) {
                             logWarnMessage("[session-manager] skip hydrating session with unavailable workspace", {
                                 sessionKey: T,
                                 cwd: z
@@ -1507,7 +1507,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
                 runtime: "claude",
                 adapter: null,
                 consecutiveConservativeRedrive: !1
-            }, F.set(w, L)), L.attachedChannels.add(T), ut("[session-manager] channel attached", {
+            }, F.set(w, L)), L.attachedChannels.add(T), logSessionLifecycleMessage("[session-manager] channel attached", {
                 sessionKey: w,
                 channelId: T,
                 totalAttachments: L.attachedChannels.size
@@ -1521,7 +1521,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
         },
         detachChannel(w, T) {
             let L = F.get(w);
-            L && (L.attachedChannels.delete(T), ut("[session-manager] channel detached", {
+            L && (L.attachedChannels.delete(T), logSessionLifecycleMessage("[session-manager] channel detached", {
                 sessionKey: w,
                 channelId: T,
                 remainingAttachments: L.attachedChannels.size
@@ -1620,7 +1620,7 @@ ${an}`, Le.eventIds.push(...Po), Le.claimedEventIds.push(...Ht), Le.requeueLines
             try {
                 if (re && U === "claude") {
                     let Xe = Object.entries(re.claudeModelProfiles ?? {}).map(([qe, Ae]) => {
-                        let ve = exe(Ae.baseUrl);
+                        let ve = extractUrlHost(Ae.baseUrl);
                         return {
                             model: qe,
                             contextWindow: Ae.cap,

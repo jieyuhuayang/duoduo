@@ -49,7 +49,7 @@ Content-Length: 0\r
         runWithSessionMutex(S, async () => {
             if (!isSessionArchiving(S)) try {
                 let [A, $] = await Promise.all([readSessionRuntimeState(u, S), readSessionMetaFile(u, S)]);
-                lq(d, S, A, $)
+                replaceSessionIndexEntry(d, S, A, $)
             } catch {}
         }).catch(() => {})
     }), Rae(S => {
@@ -57,7 +57,7 @@ Content-Length: 0\r
     });
     let m = {
             version: jbt(import.meta.url)("../../package.json").version,
-            runtime_id: Xbt(u.runtimeDir),
+            runtime_id: computeRuntimeId(u.runtimeDir),
             runtime_mode: "host",
             runtime_dir: so.resolve(u.runtimeDir),
             work_dir: so.resolve(u.workDir),
@@ -72,7 +72,7 @@ Content-Length: 0\r
         _ = new Map,
         E = new Set(["spine.tail", "system.status", "usage.get", "job.list"]);
     async function R(S, D) {
-        (E.has(S.method) ? _ae : logDebugMessage)("[daemon] rpc request", {
+        (E.has(S.method) ? logTraceMessage : logDebugMessage)("[daemon] rpc request", {
             id: S.id ?? null,
             method: S.method,
             session_key: typeof S.params == "object" && S.params !== null ? S.params.session_key : void 0,
@@ -366,7 +366,7 @@ Content-Length: 0\r
             } else if (S.method === "channel.file.upload") {
                 if (!isChannelFileUploadParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
-                    M = await bve(u, x.session_key, x.name, x.mime, x.content_base64, {
+                    M = await saveChannelUploadToInbox(u, x.session_key, x.name, x.mime, x.content_base64, {
                         receivedVia: D?.wsSubscriberId ? "ws" : "rpc",
                         sourceName: D?.wsSubscriberId
                     });
@@ -374,7 +374,7 @@ Content-Length: 0\r
             } else if (S.method === "channel.file.download") {
                 if (!isChannelFileDownloadParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 let x = S.params,
-                    M = await vve(x.path);
+                    M = await readFileAsBase64(x.path);
                 $.result = {
                     content_base64: M
                 }
@@ -747,14 +747,14 @@ Content-Length: 0\r
             if (x !== void 0 && Ubt.has(x)) return;
             let M = C.url ?? "",
                 F = C.headers.host,
-                J = F ? _vt(F) : null;
+                J = F ? parseHostHeaderHostname(F) : null;
             if (!J || !i.has(J)) return logWarnMessage("[daemon] rejected request: Host header not allowed", {
                 url: M,
                 host: F ?? null
             }), s(C, N, "Host header not allowed");
             let ce = C.headers.origin;
             if (ce !== void 0) {
-                let ie = bvt(ce);
+                let ie = parseOriginHostname(ce);
                 if (!ie || !i.has(ie)) return logWarnMessage("[daemon] rejected request: Origin not allowed", {
                     url: M,
                     origin: ce
@@ -1034,7 +1034,7 @@ Content-Length: 0\r
             }
             let $ = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
             v = setInterval(() => {
-                bwe(u).catch(() => {})
+                refreshRuntimeWriterLockHeartbeat(u).catch(() => {})
             }, $), v.unref?.()
         },
         async stop() {

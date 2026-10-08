@@ -7,7 +7,7 @@
 var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule = O(() => {
     "use strict";
     Ql();
-    pt();
+    initLogLevelModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
     ALADUO_TOOL_NAMESPACE = "aladuo", kut = "features.code_mode.direct_only_tool_namespaces";

@@ -11,7 +11,7 @@ var SN, zRe, initInstructionsFingerprintModule = O(() => {
     lf();
     $r();
     initBoardTransclusionModule();
-    pt();
+    initLogLevelModule();
     initMailboxDrainRunnerModule();
     uG();
     SN = "claudeDelivery", zRe = "impliedModel"

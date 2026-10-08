@@ -9,7 +9,7 @@ var Wut, Jut, Jw, Tbe, M6, Gut, Zut, Kut, Yut, Xut, Qut, Pbe, elt, tlt, nlt, rlt
     "use strict";
     initJobManagerModule();
     x6();
-    pt();
+    initLogLevelModule();
     initCodexAppServerModule();
     initGrokAcpRuntimeModule();
     initRuntimeValidationModule();

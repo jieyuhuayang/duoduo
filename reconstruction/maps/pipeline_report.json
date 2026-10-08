@@ -12,13 +12,13 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 683,
-      "renameEntries": 795,
-      "renamesApplied": 795,
-      "referencesRewritten": 3684,
+      "inferredNames": 728,
+      "renameEntries": 840,
+      "renamesApplied": 840,
+      "referencesRewritten": 3879,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 795
+      "indexedSymbols": 840
     },
     "cli": {
       "prettyLines": 75611,
@@ -49,20 +49,20 @@
     }
   },
   "firstPartyTree": {
-    "files": 795,
+    "files": 840,
     "subsystems": 12,
     "bySubsystem": {
-      "00-daemon-entry": 22,
+      "00-daemon-entry": 27,
       "01-spine-wal": 42,
-      "02-gateway-rpc": 132,
-      "03-session-actor": 109,
+      "02-gateway-rpc": 137,
+      "03-session-actor": 124,
       "04-cognition-prompt": 36,
-      "05-drain-turn": 65,
+      "05-drain-turn": 76,
       "06-runtime-claude": 55,
       "07-runtime-codex": 30,
       "08-cadence-subconscious": 87,
       "09-memory": 113,
-      "10-runtime-host": 84,
+      "10-runtime-host": 93,
       "11-runtime-grok": 20
     }
   },
@@ -85,13 +85,13 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.23.3",
+    "node": "v22.22.0",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 855
+    "firstPartySymbols": 900
   }
 }
