@@ -122,8 +122,9 @@ duoduo channel ambient room list
 because answers are read on the phone and the latest one on the Passport's 240×320 screen. The
 verb refuses a room that exists.
 
-If `room` is an unknown verb (an older channel), use the fallback script, with the same
-arguments and the same approval:
+Every published channel (0.1.0 and later) has the verb. If `room` is an unknown verb (a channel
+installed from an older source build), use the fallback script, with the same arguments and the
+same approval:
 
 ```bash
 <this skill>/scripts/create-room.sh <room_id> <absolute path> <runtime> --pocket
