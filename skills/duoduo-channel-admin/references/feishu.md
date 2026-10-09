@@ -14,6 +14,7 @@ card behavior, owner DM, `/setup` routing, 200340 errors, reset, or any
 - `FEISHU_BOT_OWNER` + security hygiene
 - 200340 error triage
 - Reset a bound channel (when descriptor or session is stale)
+- Inbound files with text
 - Outbound media rendering (opus voice notes, image, files)
 - Stale first-time card (v0.5 guard)
 - Web search/fetch disabled by default (re-enable via descriptor)
@@ -162,6 +163,30 @@ duoduo channel feishu stop && duoduo channel feishu start
 The restart is non-negotiable: the plugin caches subscription state
 in memory (`watched-sessions.json`), so editing the file without a
 restart does not detach the old subscription.
+
+## Inbound files with text
+
+Treat text and ordinary file attachments in one Feishu message as one input.
+Rich-text (`post`) messages can carry ordinary files in a top-level `files`
+attachment zone, separate from their paragraph content. Returned message entries
+use `file_key` and `file_name`; the sender's `key` and `name` format is different.
+
+The gateway downloads each ordinary file using the originating message ID,
+uploads it to the daemon inbox, and delivers the text and readable attachment
+paths together. Attachment-zone file names and MIME metadata are preserved.
+Replying to an earlier post uses the same attachment recovery path. Folder
+attachments are not expanded or submitted to the ordinary file download API.
+
+When text arrives but its file is missing:
+
+1. Run `duoduo channel feishu logs`. Check the matching ingress attachment count.
+2. Check for `download+upload failed` or `empty media response` before that ingress.
+3. If no download was attempted, inspect the message's raw `post` structure for
+   the attachment zone as well as paragraph nodes. A screenshot cannot identify
+   which representation the API delivered.
+4. Older plugin builds may omit the attachment zone. After installing a build
+   that includes the correction, run `duoduo channel feishu stop` followed by
+   `duoduo channel feishu start` to load it.
 
 ## Outbound media rendering
 
