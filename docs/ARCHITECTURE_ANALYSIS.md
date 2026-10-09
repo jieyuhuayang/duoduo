@@ -296,7 +296,7 @@ job 的归档、打断和改期只经 CLI 及其调用的 `job.archive`、`job.i
 
 ### 5.7 运维技能
 
-上游仓库以 [skills.sh](https://skills.sh/) 安装器的形式发布 host 模式运维技能，供任意 agent 使用：技能用自然语言触发，不依赖某个 agent 专有的调用语法；安装命令是 `npx -y skills add https://github.com/openduo/duoduo --global --all`。`skills/` 下共七个技能：
+上游仓库以 [skills.sh](https://skills.sh/) 安装器的形式发布 host 模式运维技能，供任意 agent 使用：技能用自然语言触发，不依赖某个 agent 专有的调用语法；安装命令是 `npx -y skills add https://github.com/openduo/duoduo --global --all`。`skills/` 下共八个技能：
 
 | 技能 | 范围 |
 |------|------|
@@ -307,6 +307,7 @@ job 的归档、打断和改期只经 CLI 及其调用的 `job.archive`、`job.i
 | `duoduo-loop` | `/loop` 命令及其创建的周期后台任务：设置、查看、暂停、改节奏、打断 |
 | `smart-compaction` | 渠道会话空闲自动压缩：开关、统计数据与阈值调整 |
 | `duoduo-tether` | 经 tether 渠道把 owner 的其他 AI 助手接入 duoduo（技能文档原文，tether 渠道包不在本仓库的还原范围内）：tether 是一个受 passkey 审批保护的 MCP server，只有 owner 的 passkey 能在授权页上批准连接。可接入的客户端是 ChatGPT 与 Dots、Grok Bot、Cursor、Claude 应用、自建 agent，以及经 `duoduo-tether` CLI（`@openduo/channel-tether` 0.2.1 及以上）接入的 Claude Code、Codex 等能运行 shell 的 agent：这类 agent 用 `duoduo-tether login` 发起连接、由 owner 用 passkey 批准，用 `duoduo-tether listen` 等待来信并被唤醒。技能指导 agent 让本机可从公网访问（网关、Cloudflare tunnel、Tailscale Funnel、Worker 中转、OpenAI tunnel 或固定 IP，共 R1–R8 八种路线，只公开 tether 渠道的地址）、登记 owner 的 passkey、引导 owner 在客户端里添加连接并批准、把唤醒提示交给对方助手，并以一封测试邮件验证对方能在无人提示时被唤醒并回复；也说明 duoduo 会话如何用邮件把任务委派给已接入的助手执行（邮件不授予任何权限，执行方必须在自己的配置里写明接受哪些会话的委派，并按对待陌生人消息的标准设定工具权限），以及撤销连接、邮件与 doorbell |
+| `duoduo-ambient` | 经 ambient 渠道让 owner 从 iPhone 应用「多多随身」和刷了 pocket 固件的 FoloToy AI Passport 与 duoduo 对话（技能文档原文，ambient 渠道包 `@openduo/channel-ambient` 不在本仓库的还原范围内）：安装渠道、把它指向 owner 已有的 cerebellum（`wss://` 地址加 token，或提供方的 Tailscale 分享链接），用 `duoduo channel ambient room add … --pocket` 创建 pocket 房间（渠道 0.1.0 之前的源码构建没有这个动词时，用技能自带的 `scripts/create-room.sh` 经 unix socket 调用 daemon 的 `channel.spawn`），用 `tailscale serve` 只在 tailnet 内以 HTTPS 发布、不用 funnel 公开，再连接应用、配对 Passport，以及之后的重启、升级、加房间、排查 401 / superseded / host not allowed 和起草 tailnet ACL。技能要求 token 只由 owner 在 host 终端写入 `~/.config/duoduo/.env`，不经过对话；cerebellum、应用和固件本身不由技能搭建 |
 
 ---
 
