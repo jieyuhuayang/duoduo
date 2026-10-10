@@ -1,10 +1,14 @@
 # duoduo
 
-**An autonomous agent runtime where intelligence is durable, not disposable.**
+**A model call ends. The work shouldn't.**
 
 [![npm](https://img.shields.io/npm/v/@openduo/duoduo)](https://www.npmjs.com/package/@openduo/duoduo)
 
-Most agent stacks are stateless request/response wrappers: prompt in, answer out, state gone. duoduo is a long-lived runtime with a durable body (filesystem), an explicit event history, and a dual-loop cognitive model — foreground conversations plus a background subconscious that runs continuously.
+DuoDuo is a long-lived local runtime for Claude, Codex, Grok, and Pi. Conversations, jobs, outputs, and prompts live in files on your machine. Foreground sessions handle live work; a scheduled subconscious distills experience into an intuition layer that every new session starts with, kept in Git so every change to what DuoDuo has learned has a diff and a revert.
+
+DuoDuo is not another harness. Claude, Codex, Grok, and Pi are the harnesses, and they keep improving; DuoDuo is the environment that gives them durable state, time, channels, and a Git-tracked history. Talk to it from any channel you plug in: a chat app, a room, a button in your pocket, or another assistant that becomes DuoDuo through Tether.
+
+Site and documentation: [openduo.ai](https://openduo.ai).
 
 ## Why Not Open Source?
 
@@ -117,6 +121,10 @@ Then put them into your host-mode `~/.config/duoduo/.env` as
 Available:
 
 - [`@openduo/channel-feishu`](https://www.npmjs.com/package/@openduo/channel-feishu) — Feishu / Lark
+- [`@openduo/channel-ambient`](https://www.npmjs.com/package/@openduo/channel-ambient) — Ambient: DuoDuo in a room, and the voice path of DuoDuo Pocket ([openduo/ambient](https://github.com/openduo/ambient))
+- [`@openduo/channel-tether`](https://www.npmjs.com/package/@openduo/channel-tether) — Tether: any assistant can become DuoDuo ([openduo/tether](https://github.com/openduo/tether))
+
+The `duoduo-ambient` and `duoduo-tether` skills below walk an agent through setting up each of these two.
 
 ## Skills
 
@@ -160,6 +168,8 @@ Use plain prompts such as:
 - `使用 duoduo-channel-admin 技能，安装并拉起 feishu channel，然后检查 status 和 logs。`
 - `使用 duoduo-runtime-admin 技能，打开 debug log、关闭 telemetry，并把修改后的配置讲清楚。`
 - `使用 duoduo-channel-admin 技能，配置 stdio 的默认 workspace 和 prompt。`
+- `使用 duoduo-ambient 技能，安装 ambient 频道，让我能用多多随身和 Passport 跟多多说话。`
+- `使用 duoduo-tether 技能，把 ChatGPT 里的 Dots 接入多多。`
 - `使用 duoduo-admin 技能，帮我定位这个 duoduo 问题；如果像是产品缺陷，就按 openduo/duoduo 的要求起草 issue。`
 
 These skills are designed around host-mode operations after onboarding. They
@@ -170,6 +180,15 @@ cover:
 - changing host-mode runtime settings such as debug logs, telemetry, cadence,
   and Codex runtime gates
 - investigating problems and preparing public-safe issues for `openduo/duoduo`
+
+Two more skills set up the channels outside this package:
+
+- `duoduo-ambient` installs the ambient channel, connects it to a cerebellum, creates a pocket room, and pairs the DuoDuo Pocket app and the Passport.
+- `duoduo-tether` connects another assistant, such as Dots in ChatGPT, the Grok app, or Claude Code, through the tether channel, approved by your passkey.
+
+```bash
+npx -y skills add https://github.com/openduo/duoduo --skill duoduo-ambient duoduo-tether
+```
 
 ## Subconscious Partitions
 
@@ -204,6 +223,18 @@ nothing to refresh.
 | `@openduo/duoduo`         | Core runtime + CLI                   |
 | `@openduo/channel-feishu` | Feishu / Lark channel adapter        |
 | `@openduo/protocol`       | Shared RPC types (zero dependencies) |
+
+## The openduo family
+
+| Project | What it is |
+| ------- | ---------- |
+| [openduo/duoduo](https://github.com/openduo/duoduo) | This repository: the DuoDuo runtime and CLI on npm, the reference subconscious, and the agent skills |
+| [openduo/ambient](https://github.com/openduo/ambient) | Ambient, DuoDuo in a room: the `@openduo/channel-ambient` channel, its wire protocol, and the perception service behind it |
+| [openduo/pocket-ios](https://github.com/openduo/pocket-ios) | The DuoDuo Pocket iPhone app: one conversation with your DuoDuo, hold to talk, and the phone side of the Passport |
+| [openduo/pocket-passport](https://github.com/openduo/pocket-passport) | Pocket firmware for the FoloToy AI Passport, a fork of [folotoy/ai-passport](https://github.com/folotoy/ai-passport): hold a button, talk to your DuoDuo |
+| [openduo/tether](https://github.com/openduo/tether) | Tether: any assistant can become DuoDuo. Dots in ChatGPT, the Grok app, or an agent such as Claude Code connects over MCP, approved by your passkey |
+| [openduo/ambient-engine](https://github.com/openduo/ambient-engine) | An optional Ambient judge server for one RTX 4090- or 3090-class card |
+| [openduo.ai](https://openduo.ai) | The site and documentation; DuoDuo Pocket is at [openduo.ai/docs/pocket](https://openduo.ai/docs/pocket) |
 
 ## Issues & Feedback
 
