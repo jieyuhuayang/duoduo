@@ -1535,26 +1535,6 @@
       "literals": [],
       "props": []
     },
-    "resolveRegistryStatusPath": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "status.json"
-      ],
-      "props": [
-        "join",
-        "registryDir"
-      ]
-    },
-    "updateRegistryStatus": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [],
-      "props": [
-        "generated_at",
-        "toISOString"
-      ]
-    },
     "normalizePromptMode": {
       "kind": "function",
       "params": 1,
@@ -10255,17 +10235,6 @@
         "toISOString"
       ]
     },
-    "readRegistryStatusFile": {
-      "kind": "async function",
-      "params": 1,
-      "literals": [
-        "utf8"
-      ],
-      "props": [
-        "parse",
-        "readFile"
-      ]
-    },
     "assertValidChannelId": {
       "kind": "function",
       "params": 1,
@@ -10466,31 +10435,6 @@
       ]
     },
     "ensureSessionMailboxPendingDir": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [],
-      "props": []
-    },
-    "buildInitialRegistryStatus": {
-      "kind": "function",
-      "params": 3,
-      "literals": [
-        ".jsonl",
-        "layered",
-        "starting",
-        "unknown"
-      ],
-      "props": [
-        "eventsDir",
-        "join",
-        "kernelDir",
-        "kernelVersion",
-        "slice",
-        "toISOString",
-        "workDir"
-      ]
-    },
-    "writeRegistryStatusFile": {
       "kind": "async function",
       "params": 2,
       "literals": [],
@@ -11913,6 +11857,62 @@
         "length",
         "replace",
         "trim"
+      ]
+    },
+    "statusPath": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "status.json"
+      ],
+      "props": [
+        "join",
+        "registryDir"
+      ]
+    },
+    "readStatus": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "parse",
+        "readFile"
+      ]
+    },
+    "writeStatus": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "updateStatus": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "generated_at",
+        "toISOString"
+      ]
+    },
+    "buildInitialStatus": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        ".jsonl",
+        "layered",
+        "starting",
+        "unknown"
+      ],
+      "props": [
+        "eventsDir",
+        "join",
+        "kernelDir",
+        "kernelVersion",
+        "slice",
+        "toISOString",
+        "workDir"
       ]
     }
   }

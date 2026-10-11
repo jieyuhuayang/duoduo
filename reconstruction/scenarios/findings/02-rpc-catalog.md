@@ -33,7 +33,7 @@
 |---|---|---|---|---|
 | `system.shutdown` | `-32601` | result `{ok:true}`，随后 daemon 退出 | — | 内联；之后 `main (kvt)` 的停机闭包依次停掉 job 调度器、会话管理器、出站投递、`createDaemon` 与写锁（`releaseRuntimeWriterLock (EO)`） |
 | `system.runtime.info` | result | result | result（带 `source_kind` 时多 `channel_defaults`） | `isRuntimeInfoParams (rR)`、`isSystemRuntimeInfo (nR)`；带 `source_kind` 时再走 `resolveEffectiveChannelConfig` |
-| `system.status` | result | result | — | `isSystemStatusParams ($R)`、`readRegistryStatusFile (Mb)`、`readPlaylistRound` |
+| `system.status` | result | result | — | `isSystemStatusParams ($R)`、`readStatus (Mb)`、`readPlaylistRound` |
 | `system.config` | result | result | — | `isSystemConfigParams (CR)`、`buildSystemConfigReport (Jbt)`、`loadSubconsciousPartitions` |
 | `channel.describe` | `-32601` | `-32602` | result | `describeChannelInstance (tvt)` |
 | `channel.spawn` | `-32601` | `-32602` | result `{ok:true}` | `upsertChannelSpawnDescriptor (yvt)`、`ensureSessionDescriptorAndStateFiles` |

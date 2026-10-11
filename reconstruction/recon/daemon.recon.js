@@ -32977,11 +32977,11 @@ import {
     promises as RYe
 } from "node:fs";
 
-function resolveRegistryStatusPath(e) {
+function statusPath(e) {
     return Lae.join(e.registryDir, "status.json")
 }
 
-function buildInitialRegistryStatus(e, t = new Date, n = {}) {
+function buildInitialStatus(e, t = new Date, n = {}) {
     return {
         generated_at: t.toISOString(),
         kernel: {
@@ -33008,21 +33008,21 @@ function buildInitialRegistryStatus(e, t = new Date, n = {}) {
         }
     }
 }
-async function writeRegistryStatusFile(e, t) {
-    await writeJsonFileAtomic(resolveRegistryStatusPath(e), t)
+async function writeStatus(e, t) {
+    await writeJsonFileAtomic(statusPath(e), t)
 }
-async function readRegistryStatusFile(e) {
+async function readStatus(e) {
     try {
-        let t = await RYe.readFile(resolveRegistryStatusPath(e), "utf8");
+        let t = await RYe.readFile(statusPath(e), "utf8");
         return JSON.parse(t)
     } catch {
         return null
     }
 }
-async function updateRegistryStatus(e, t, n = new Date) {
-    let r = await readRegistryStatusFile(e) ?? buildInitialRegistryStatus(e, n),
+async function updateStatus(e, t, n = new Date) {
+    let r = await readStatus(e) ?? buildInitialStatus(e, n),
         i = t(r);
-    return i.generated_at = n.toISOString(), await writeRegistryStatusFile(e, i), i
+    return i.generated_at = n.toISOString(), await writeStatus(e, i), i
 }
 var Bm = O(() => {
     "use strict";
@@ -69836,8 +69836,8 @@ async function initializeRuntime(e, t = process.env) {
     let n = [e.runtimeDir, e.varDir, e.runDir, e.eventsDir, e.eventsIndexDir, e.registryDir, e.outboxDir, e.sessionsDir, e.jobsDir, e.varIngressDir, e.telemetryDir, e.usageDir, e.cadenceDir, e.runLocksDir, e.runQueueOffsetsDir, e.kernelDir, e.workDir];
     for (let i of n) await ensureDirectoryExists(i);
     await or.chmod(e.runDir, 448), await migrateLegacyJobSessionKeys(e), await copyBootstrapIntoKernel(e, t), await refreshBootstrapDuoduoMdFiles(e), await ensureDirectoryExists(e.memoryDir), await ensureDirectoryExists(e.memoryEntitiesDir), await ensureDirectoryExists(e.memoryTopicsDir), await ensureDirectoryExists(e.memoryFragmentsDir), await ensureDirectoryExists(e.memoryStateDir), await ensureDirectoryExists(e.subconsciousDir), await ensureDirectoryExists(e.subconsciousVarDir), await ensureDirectoryExists(e.partitionStateDir), await ensureDirectoryExists(sr.join(e.kernelDir, ".claude")), await fU(e.subconsciousPlaylistPath, rmt), await fU(e.memoryBroadcastPath, imt), await retireListedPartitions(e), await ensureKernelGitRepo(e.kernelDir), await generateAllPartitionCodexAgents(e);
-    let r = resolveRegistryStatusPath(e);
-    return await pathExistsAsync(r) || await writeRegistryStatusFile(e, buildInitialRegistryStatus(e)), {
+    let r = statusPath(e);
+    return await pathExistsAsync(r) || await writeStatus(e, buildInitialStatus(e)), {
         statusPath: r
     }
 }
@@ -86637,7 +86637,7 @@ ${D}`,
                 logDebugMessage("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
                 return
             }
-            y = N, await updateRegistryStatus(t, J => ({
+            y = N, await updateStatus(t, J => ({
                 ...J,
                 health: {
                     ...J.health,
@@ -86649,7 +86649,7 @@ ${D}`,
                 F = await _(x, M, v);
             if (F?.name && d > 1 && (!r || r.activeCount() <= 1))
                 for (let ce = 1; ce < d && await _(x, M, v); ce++);
-            await updateRegistryStatus(t, J => ({
+            await updateStatus(t, J => ({
                 ...J,
                 health: {
                     ...J.health,
@@ -86662,7 +86662,7 @@ ${D}`,
                 backedOff: F?.backedOff ?? []
             })
         } catch (S) {
-            logErrorMessage("[meta-session] tick error:", S), y = null, await updateRegistryStatus(t, A => ({
+            logErrorMessage("[meta-session] tick error:", S), y = null, await updateStatus(t, A => ({
                 ...A,
                 health: {
                     ...A.health,
@@ -86699,7 +86699,7 @@ ${D}`,
     };
     return {
         start() {
-            m || g || (n.on("cadence.tick", k), g = !0, updateRegistryStatus(t, S => ({
+            m || g || (n.on("cadence.tick", k), g = !0, updateStatus(t, S => ({
                 ...S,
                 health: {
                     ...S.health,
@@ -86836,7 +86836,7 @@ async function runCadenceTick(e) {
         },
         payload: {}
     });
-    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await updateRegistryStatus(e, r => ({
+    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await updateStatus(e, r => ({
         ...r,
         cadence: {
             ...r.cadence,
@@ -87642,7 +87642,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         rawPayload: t.rawPayload,
         routingHint: t.routingHint
     }, r);
-    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await ade(e, t.sourceKind, t.sourceChannelId), await updateRegistryStatus(e, f => ({
+    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await ade(e, t.sourceKind, t.sourceChannelId), await updateStatus(e, f => ({
         ...f,
         spine: {
             ...f.spine,
@@ -87895,7 +87895,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
         }
     }
     if (t.name === "/status") {
-        let o = await readRegistryStatusFile(e),
+        let o = await readStatus(e),
             s = r?.listActors?.(),
             a = r?.listPersistentSessions?.() ?? [],
             u = new Set,
@@ -92650,7 +92650,7 @@ Content-Length: 0\r
                 }
             } else if (S.method === "system.status") {
                 if (!isSystemStatusParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let [x, M] = await Promise.all([readRegistryStatusFile(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
+                let [x, M] = await Promise.all([readStatus(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
                     let K = ne?.last_served_model ?? null,
                         te = ne?.model ?? null;
                     return {

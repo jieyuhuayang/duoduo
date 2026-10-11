@@ -624,7 +624,7 @@ Content-Length: 0\r
                 }
             } else if (S.method === "system.status") {
                 if (!isSystemStatusParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let [x, M] = await Promise.all([readRegistryStatusFile(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
+                let [x, M] = await Promise.all([readStatus(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
                     let K = ne?.last_served_model ?? null,
                         te = ne?.model ?? null;
                     return {

@@ -47,7 +47,7 @@ async function executeGatewayCommand(e, t, n, r, i) {
         }
     }
     if (t.name === "/status") {
-        let o = await readRegistryStatusFile(e),
+        let o = await readStatus(e),
             s = r?.listActors?.(),
             a = r?.listPersistentSessions?.() ?? [],
             u = new Set,

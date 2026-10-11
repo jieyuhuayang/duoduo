@@ -211,8 +211,21 @@ const ALLOW_UNPROVEN = flag("--allow-unproven");
 // Vendor evidence still refuses: the report says what the code is, not that it
 // is safe to rename.
 const PUBLISHED = opt("--published");
-const USAGE = "usage: node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem|->\n" +
-              "       node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
+// --historical <report.json>: a match_historical_exports.mjs report. An entry
+// whose short name that report follows (verdict unique) to a name an OLDER
+// release exported, spelled exactly that name, takes upstream's own spelling.
+// Such an entry may also RENAME a short name that already has an inferred name:
+// that is the one case a named short name is accepted, and only to replace an
+// inferred name (never an upstream one) with upstream's historical spelling.
+// A rename keeps the first-party evidence the old name was registered with
+// (an asserted name stays asserted, under its new name); a fresh entry counts
+// the old export block as evidence only when the report classes it
+// first-party. Recorded in maps/historical_<bundle>.json (real name -> the
+// releases that exported it, its short name in the last of them, and the
+// releases where the body changed since).
+const HISTORICAL = opt("--historical");
+const USAGE = "usage: node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--historical <report.json>] [--dry-run] [--allow-unproven] <bundle.js> <shortName> <realName> <subsystem|->\n" +
+              "       node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--historical <report.json>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
 const [BUNDLE, ...rest] = argv;
 if (!BUNDLE || (BATCH ? rest.length : rest.length !== 3)) { console.error(USAGE); process.exit(2); }
 
@@ -268,6 +281,12 @@ if (report) {
   for (const m of report.matches ?? []) if (m.best && ["unique", "ordered", "picked"].includes(m.verdict)) pubByShort.set(m.best.short, { name: m.name, file: m.file, line: m.line, verdict: m.verdict, score: m.best.score, exported: m.exported });
   for (const [file, fi] of Object.entries(report.files ?? {})) if (fi.initialiser) pubInitByShort.set(fi.initialiser.short, { file, hits: fi.initialiser.hits, of: fi.initialiser.of });
 }
+const HISTORICAL_MAP = mapPath(`historical_${B}.json`);
+const historicalFile = fs.existsSync(HISTORICAL_MAP) ? JSON.parse(fs.readFileSync(HISTORICAL_MAP, "utf8")) : null;
+const histReport = HISTORICAL ? JSON.parse(fs.readFileSync(HISTORICAL, "utf8")) : null;
+if (histReport && histReport.package !== index.version) { console.error(`${HISTORICAL} was made for ${histReport.package}, the index is ${index.version}`); process.exit(2); }
+const histByShort = new Map(); // current short -> report entry
+for (const h of histReport?.entries ?? []) if (h.verdict === "unique" && h.current) histByShort.set(h.current, h);
 // every real name another bundle already uses (its maps and export blocks)
 const otherBundleNames = [];
 for (const f of fs.readdirSync(GEN)) {
@@ -518,8 +537,12 @@ for (const e of entries) {
     const through = writtenThrough.get(here(e.short));
     if (rebound || through) { bad(`${e.short} @${d.line} is ${rebound ? `reassigned at line ${rebound}` : `written through at line ${through}`}: that is state initialised with a literal, not a constant`); continue; }
   }
-  // 3. FRESH
-  if (Object.hasOwn(rename, e.short) || inferredKeys.has(e.short)) { bad(`${e.short} is already named ${rename[e.short] ?? inferred[e.short]}`); continue; }
+  // 3. FRESH (or a rename to upstream's historical spelling)
+  const hist = histByShort.get(e.short);
+  const histOk = hist && hist.name === e.name;
+  if (inferredKeys.has(e.short) && histOk) e.replaces = inferred[e.short];
+  else if (Object.hasOwn(rename, e.short) || inferredKeys.has(e.short)) { bad(`${e.short} is already named ${rename[e.short] ?? inferred[e.short]}${hist ? ` (the historical report names it ${hist.name})` : ""}`); continue; }
+  if (hist && !histOk) { bad(`the historical report follows ${e.short} to ${hist.name} (exported ${hist.exportedFirst}..${hist.exportedLast}), not ${e.name}`); continue; }
   if (seenShort.has(e.short)) { bad(`${e.short} is also named at ${seenShort.get(e.short)}`); continue; }
   seenShort.set(e.short, e.where);
   // 5. NAME
@@ -537,10 +560,15 @@ for (const e of entries) {
   if (!HAS_TREE) { if (e.subsystem !== "-") nameProblems.push(`subsystem "${e.subsystem}": the ${B} has no first-party tree, write \`-\``); }
   else if (!subsystems.has(e.subsystem) || !/^\d\d-/.test(e.subsystem)) nameProblems.push(`unknown subsystem "${e.subsystem}" (one of: ${[...subsystems].sort().join(", ")})`);
   // 4. ORIGIN
-  const o = origin(e.short, d, e.name);
-  if (!o.ok && !(o.unproven && e.allowUnproven)) nameProblems.push(o.why + (o.unproven ? " -- mark the entry allow-unproven only if you have read the body and know it is duoduo's" : ""));
+  const histWhy = histOk ? `historical export: ${hist.name} in the __export block of ${hist.exportedFirst}..${hist.exportedLast} (as ${hist.lastShort}), followed to ${index.version} by the release pairing${hist.changedSince?.length ? `, body changed in ${hist.changedSince.join(", ")}` : ", body unchanged"}` : null;
+  const historical = histOk ? { exportedFirst: hist.exportedFirst, exportedLast: hist.exportedLast, lastShort: hist.lastShort, block: hist.block, blockClass: hist.blockClass, changedSince: hist.changedSince ?? [] } : null;
+  const o = e.replaces
+    ? { ok: !Object.hasOwn(asserted, e.replaces), keepsAsserted: Object.hasOwn(asserted, e.replaces), why: `renames ${e.replaces}; ${histWhy}${Object.hasOwn(asserted, e.replaces) ? "; first-party still only asserted by hand, as when it was registered" : ""}` }
+    : histOk && hist.blockClass === "first-party" ? (() => { const r = origin(e.short, d, e.name); return r.ok || r.unproven ? { ok: true, why: histWhy } : r; })()
+    : origin(e.short, d, e.name);
+  if (!o.ok && !o.keepsAsserted && !(o.unproven && e.allowUnproven)) nameProblems.push(o.why + (o.unproven ? " -- mark the entry allow-unproven only if you have read the body and know it is duoduo's" : ""));
   if (nameProblems.length) { for (const p of nameProblems) bad(p); continue; }
-  planned.push({ ...e, decl: d, why: o.why, origin: o.ok ? o.why : `ASSERTED by hand (allow-unproven): ${o.why}`, weak: !o.ok, published: o.published ?? null, propertyToo: propertyNames.has(e.name) });
+  planned.push({ ...e, decl: d, why: o.keepsAsserted ? asserted[e.replaces] : o.why, origin: o.ok || o.keepsAsserted ? o.why : `ASSERTED by hand (allow-unproven): ${o.why}`, weak: !o.ok, published: o.published ?? null, historical, propertyToo: propertyNames.has(e.name) });
 }
 
 // ---- file conventions -------------------------------------------------------------
@@ -552,6 +580,7 @@ const conventions = [
   ...(shapeFile && !NEW_SHAPE ? [[F.shape, shapeFile, x => x]] : []),
   ...(assertedFile ? [[F.asserted, assertedFile, sortedKeys]] : []),
   ...(publishedFile ? [[`published_${B}.json`, publishedFile, sortedKeys]] : []),
+  ...(historicalFile ? [[`historical_${B}.json`, historicalFile, sortedKeys]] : []),
 ];
 for (const [f, obj, norm] of conventions) {
   if (fs.readFileSync(mapPath(f), "utf8") !== canonical(norm(obj))) problems.push(`${f} is not in its usual layout (2-space JSON${norm === sortedKeys ? ", sorted keys" : ""}); normalise it by hand first rather than have this tool reformat it`);
@@ -560,7 +589,7 @@ for (const [f, obj, norm] of conventions) {
 console.error(`bundle: ${path.basename(BUNDLE)} (${isRecon ? "renamed recon" : "pretty"}), ${index.version}; maps: ${MAPS}${GEN !== MAPS ? `; generated maps: ${GEN}` : ""}`);
 console.error(`module boundaries: ${wrappers.length ? `${wrappers.length} lazy-init wrappers (${[...ESM].join(", ")}), CommonJS wrappers (${CJS ?? "none"}) judged alone` : "none found; every statement judged alone"}`);
 for (const p of planned) {
-  console.error(`  ok   ${p.name} (${p.short}) -> ${p.subsystem}   [${p.decl.kind} @${p.decl.line}]`);
+  console.error(`  ok   ${p.name} (${p.short}) -> ${p.subsystem}   [${p.decl.kind} @${p.decl.line}]${p.replaces ? `  (replaces ${p.replaces})` : ""}`);
   console.error(`       ${p.weak ? "UNPROVEN " : ""}evidence: ${p.origin}${p.propertyToo ? `; note: "${p.name}" is also a property name somewhere (no collision)` : ""}`);
 }
 if (problems.length) {
@@ -575,8 +604,15 @@ const nextSubsys = { ...subsys };
 const nextShape = shapeFile ? { ...shapeFile, shapes: { ...shapeFile.shapes } } : null;
 const nextAsserted = { ...asserted };
 const nextPublished = { ...publishedPrior };
+const nextHistorical = { ...(historicalFile ?? {}) };
 for (const p of planned) {
   if (p.published) nextPublished[p.name] = p.published;
+  if (p.historical) nextHistorical[p.name] = p.historical;
+  if (p.replaces) {
+    delete nextSubsys[p.replaces];
+    if (nextShape) delete nextShape.shapes[p.replaces];
+    delete nextAsserted[p.replaces];
+  }
   nextInferred[p.short] = p.name;
   if (HAS_TREE) nextSubsys[p.name] = p.subsystem;
   if (nextShape) {
@@ -586,12 +622,19 @@ for (const p of planned) {
   }
   if (p.weak) nextAsserted[p.name] = p.why;
 }
+// a renamed symbol is named in other entries' recorded verdicts ("its module
+// ... holds <name>"): those texts follow the rename
+for (const p of planned) if (p.replaces) {
+  const re = new RegExp(`\\b${p.replaces}\\b`, "g");
+  for (const k of Object.keys(nextAsserted)) nextAsserted[k] = nextAsserted[k].replace(re, p.name);
+}
 const writes = [
   [F.inferred, canonical(nextInferred)],
   ...(HAS_TREE ? [[F.subsys, canonical(sortedKeys(nextSubsys))]] : []),
   ...(nextShape ? [[F.shape, canonical(nextShape)]] : []),
-  ...(planned.some(p => p.weak) ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : []),
+  ...(planned.some(p => p.weak || p.replaces) && assertedFile ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : planned.some(p => p.weak) ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : []),
   ...(planned.some(p => p.published) ? [[`published_${B}.json`, canonical(sortedKeys(nextPublished))]] : []),
+  ...(planned.some(p => p.historical) ? [[`historical_${B}.json`, canonical(sortedKeys(nextHistorical))]] : []),
 ];
 if (DRY) console.error(`\ndry run: would register ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
 else {

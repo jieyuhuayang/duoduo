@@ -1,7 +1,7 @@
 {
  "bundle": "daemon",
  "version": "v0.8.4",
- "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
+ "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
  "symbolCount": 840,
  "counts": {
   "env": 41,
@@ -719,7 +719,7 @@
     "readEventById",
     "readRoutingTarget",
     "replyToGatewayCommandEvent",
-    "updateRegistryStatus",
+    "updateStatus",
     "writeIngressSnapshot",
     "writeVoidSessionOutboxRecord"
    ],
@@ -1979,7 +1979,7 @@
    "paths": [],
    "strings": []
   },
-  "buildInitialRegistryStatus": {
+  "buildInitialStatus": {
    "mangled": "wU",
    "line": 32984,
    "kind": "function",
@@ -1989,7 +1989,7 @@
    "refsUnnamed": [],
    "refBy": [
     "initializeRuntime",
-    "updateRegistryStatus"
+    "updateStatus"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -5294,10 +5294,10 @@
     "readOutboxRecord",
     "readOutboxRecordsPastCursor",
     "readPlaylistRound",
-    "readRegistryStatusFile",
     "readSessionMetaFile",
     "readSessionRuntimeState",
     "readSpineTail",
+    "readStatus",
     "recordChannelCapabilityDeclaration",
     "recordExternalSpineEvent",
     "recordOutboxDeliveryAttempt",
@@ -6383,7 +6383,7 @@
     "resolvePiAgentDir",
     "resolvePiWorkerCommand",
     "stringToMessageGenerator",
-    "updateRegistryStatus",
+    "updateStatus",
     "writePartitionRunState"
    ],
    "refsUnnamed": [
@@ -8957,9 +8957,9 @@
     "hashSessionKey",
     "isEffortLevel",
     "logWarnMessage",
-    "readRegistryStatusFile",
     "readSessionMetaFile",
     "readSessionRuntimeState",
+    "readStatus",
     "resolveSessionMetaPath",
     "resolveSessionStatePath"
    ],
@@ -13100,7 +13100,7 @@
    "innerAnonymous": 0,
    "refs": [
     "archiveLegacyRegistrySessionsDir",
-    "buildInitialRegistryStatus",
+    "buildInitialStatus",
     "copyBootstrapIntoKernel",
     "ensureDirectoryExists",
     "ensureKernelGitRepo",
@@ -13108,9 +13108,9 @@
     "migrateLegacyJobSessionKeys",
     "pathExistsAsync",
     "refreshBootstrapDuoduoMdFiles",
-    "resolveRegistryStatusPath",
     "retireListedPartitions",
-    "writeRegistryStatusFile"
+    "statusPath",
+    "writeStatus"
    ],
    "refsUnnamed": [
     "fU",
@@ -19542,30 +19542,6 @@
    ],
    "strings": []
   },
-  "readRegistryStatusFile": {
-   "mangled": "Mb",
-   "line": 33014,
-   "kind": "async function",
-   "inner": [],
-   "innerAnonymous": 0,
-   "refs": [
-    "resolveRegistryStatusPath"
-   ],
-   "refsUnnamed": [],
-   "refBy": [
-    "createDaemon",
-    "executeGatewayCommand",
-    "updateRegistryStatus"
-   ],
-   "refByUnnamed": [],
-   "env": [],
-   "logPrefixes": [],
-   "dotted": [],
-   "paths": [],
-   "strings": [
-    "utf8"
-   ]
-  },
   "readRoutingTarget": {
    "mangled": "lde",
    "line": 87429,
@@ -19769,6 +19745,30 @@
    "paths": [],
    "strings": [
     "string",
+    "utf8"
+   ]
+  },
+  "readStatus": {
+   "mangled": "Mb",
+   "line": 33014,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "statusPath"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "createDaemon",
+    "executeGatewayCommand",
+    "updateStatus"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
     "utf8"
    ]
   },
@@ -23118,28 +23118,6 @@
     "never"
    ]
   },
-  "resolveRegistryStatusPath": {
-   "mangled": "KR",
-   "line": 32980,
-   "kind": "function",
-   "inner": [],
-   "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [],
-   "refBy": [
-    "initializeRuntime",
-    "readRegistryStatusFile",
-    "writeRegistryStatusFile"
-   ],
-   "refByUnnamed": [],
-   "env": [],
-   "logPrefixes": [],
-   "dotted": [
-    "status.json"
-   ],
-   "paths": [],
-   "strings": []
-  },
   "resolveRemoteListenerConfig": {
    "mangled": "wvt",
    "line": 92009,
@@ -24031,7 +24009,7 @@
     "createSpineEvent",
     "initMemoryCheckTickModule",
     "logWarnMessage",
-    "updateRegistryStatus"
+    "updateStatus"
    ],
    "refsUnnamed": [
     "aIe",
@@ -25457,6 +25435,28 @@
    "paths": [],
    "strings": []
   },
+  "statusPath": {
+   "mangled": "KR",
+   "line": 32980,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "initializeRuntime",
+    "readStatus",
+    "writeStatus"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [
+    "status.json"
+   ],
+   "paths": [],
+   "strings": []
+  },
   "stringToMessageGenerator": {
    "mangled": "eC",
    "line": 55502,
@@ -25886,30 +25886,6 @@
    "paths": [],
    "strings": []
   },
-  "updateRegistryStatus": {
-   "mangled": "Vu",
-   "line": 33022,
-   "kind": "async function",
-   "inner": [],
-   "innerAnonymous": 0,
-   "refs": [
-    "buildInitialRegistryStatus",
-    "readRegistryStatusFile",
-    "writeRegistryStatusFile"
-   ],
-   "refsUnnamed": [],
-   "refBy": [
-    "appendBeforeExecuteGateway",
-    "createMetaSession",
-    "runCadenceTick"
-   ],
-   "refByUnnamed": [],
-   "env": [],
-   "logPrefixes": [],
-   "dotted": [],
-   "paths": [],
-   "strings": []
-  },
   "updateSessionDisplayName": {
    "mangled": "wce",
    "line": 35640,
@@ -25941,6 +25917,30 @@
     "string",
     "utf8"
    ]
+  },
+  "updateStatus": {
+   "mangled": "Vu",
+   "line": 33022,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "buildInitialStatus",
+    "readStatus",
+    "writeStatus"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "appendBeforeExecuteGateway",
+    "createMetaSession",
+    "runCadenceTick"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "upsertChannelSpawnDescriptor": {
    "mangled": "yvt",
@@ -26489,7 +26489,7 @@
     "writeConsumerOffsetFile",
     "writeIngressSnapshot",
     "writePartitionRunState",
-    "writeRegistryStatusFile"
+    "writeStatus"
    ],
    "refByUnnamed": [
     "Z_e",
@@ -26550,20 +26550,20 @@
    "paths": [],
    "strings": []
   },
-  "writeRegistryStatusFile": {
+  "writeStatus": {
    "mangled": "SU",
    "line": 33011,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "resolveRegistryStatusPath",
+    "statusPath",
     "writeJsonFileAtomic"
    ],
    "refsUnnamed": [],
    "refBy": [
     "initializeRuntime",
-    "updateRegistryStatus"
+    "updateStatus"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -27247,7 +27247,7 @@
    "archiveLegacyRegistrySessionsDir"
   ],
   "status.json": [
-   "resolveRegistryStatusPath"
+   "statusPath"
   ],
   "system.cadence_tick": [
    "runCadenceTick"
@@ -27510,7 +27510,7 @@
   ],
   ".jsonl": [
    "formatEventPartitionName",
-   "buildInitialRegistryStatus",
+   "buildInitialStatus",
    "resolveOutboxReplayFilePath",
    "drainRecordPath",
    "readAllSessionSummaries",
@@ -29797,7 +29797,7 @@
   ],
   ".jsonl": [
    "formatEventPartitionName",
-   "buildInitialRegistryStatus",
+   "buildInitialStatus",
    "resolveOutboxReplayFilePath",
    "drainRecordPath",
    "readAllSessionSummaries",
@@ -35042,7 +35042,7 @@
    "initManageJobToolModule"
   ],
   "layered": [
-   "buildInitialRegistryStatus"
+   "buildInitialStatus"
   ],
   "leader-and-workers shape, and it is what keepalive's dispatch right is for.": [
    "initManageJobToolModule"
@@ -36510,7 +36510,7 @@
    "createJobSessionFinalizer"
   ],
   "starting": [
-   "buildInitialRegistryStatus",
+   "buildInitialStatus",
    "createMetaSession"
   ],
   "state": [
@@ -36544,7 +36544,7 @@
    "resolveRoutingTarget"
   ],
   "status.json": [
-   "resolveRegistryStatusPath"
+   "statusPath"
   ],
   "status=": [
    "mapItemCompletedToExecEvent"
@@ -36980,7 +36980,7 @@
    "main"
   ],
   "unknown": [
-   "buildInitialRegistryStatus",
+   "buildInitialStatus",
    "renderPromptLayers",
    "createAgentSdkAdapter",
    "initJobManagerModule",

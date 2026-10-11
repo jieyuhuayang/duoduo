@@ -2,14 +2,14 @@
  "bundle": "cli",
  "version": "v0.8.4",
  "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
- "symbolCount": 60,
+ "symbolCount": 61,
  "counts": {
-  "env": 0,
+  "env": 6,
   "logPrefixes": 0,
-  "dotted": 6,
-  "paths": 10,
-  "strings": 362,
-  "unnamedUsed": 91
+  "dotted": 14,
+  "paths": 11,
+  "strings": 404,
+  "unnamedUsed": 97
  },
  "symbols": {
   "CLI_DAEMON_TOKEN_ENV_KEY": {
@@ -118,6 +118,228 @@
    "paths": [],
    "strings": [
     "a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate."
+   ]
+  },
+  "createStdioDaemonClient": {
+   "mangled": "a0",
+   "line": 72927,
+   "kind": "async function",
+   "inner": [
+    {
+     "name": "n",
+     "line": 72928,
+     "endLine": 72936
+    },
+    {
+     "name": "createConnection",
+     "line": 72929,
+     "endLine": 72931
+    },
+    {
+     "name": "ve",
+     "line": 72960,
+     "endLine": 72965
+    },
+    {
+     "name": "ye",
+     "line": 72966,
+     "endLine": 72974
+    },
+    {
+     "name": "we",
+     "line": 72975,
+     "endLine": 72983
+    },
+    {
+     "name": "Ce",
+     "line": 72984,
+     "endLine": 72993
+    },
+    {
+     "name": "xe",
+     "line": 72994,
+     "endLine": 72997
+    },
+    {
+     "name": "Le",
+     "line": 72998,
+     "endLine": 73008
+    },
+    {
+     "name": "Ve",
+     "line": 73009,
+     "endLine": 73015
+    },
+    {
+     "name": "Ze",
+     "line": 73016,
+     "endLine": 73022
+    },
+    {
+     "name": "Dt",
+     "line": 73023,
+     "endLine": 73041
+    },
+    {
+     "name": "ze",
+     "line": 73042,
+     "endLine": 73045
+    },
+    {
+     "name": "mt",
+     "line": 73046,
+     "endLine": 73113
+    },
+    {
+     "name": "dt",
+     "line": 73114,
+     "endLine": 73131
+    },
+    {
+     "name": "Gt",
+     "line": 73131,
+     "endLine": 73150
+    },
+    {
+     "name": "re",
+     "line": 73150,
+     "endLine": 73167
+    },
+    {
+     "name": "Ye",
+     "line": 73167,
+     "endLine": 73179
+    },
+    {
+     "name": "lt",
+     "line": 73179,
+     "endLine": 73193
+    },
+    {
+     "name": "Ht",
+     "line": 73193,
+     "endLine": 73200
+    },
+    {
+     "name": "Mt",
+     "line": 73202,
+     "endLine": 73230
+    },
+    {
+     "name": "on",
+     "line": 73210,
+     "endLine": 73212
+    },
+    {
+     "name": "hr",
+     "line": 73213,
+     "endLine": 73215
+    },
+    {
+     "name": "qn",
+     "line": 73216,
+     "endLine": 73218
+    },
+    {
+     "name": "st",
+     "line": 73219,
+     "endLine": 73221
+    },
+    {
+     "name": "Fe",
+     "line": 73230,
+     "endLine": 73238
+    },
+    {
+     "name": "ht",
+     "line": 73238,
+     "endLine": 73238
+    },
+    {
+     "name": "At",
+     "line": 73238,
+     "endLine": 73244
+    },
+    {
+     "name": "runtimeInfo",
+     "line": 73252,
+     "endLine": 73258
+    }
+   ],
+   "innerAnonymous": 15,
+   "refs": [],
+   "refsUnnamed": [
+    "Bne",
+    "ZB",
+    "aGe",
+    "qp",
+    "wne",
+    "xne"
+   ],
+   "refBy": [],
+   "refByUnnamed": [
+    "iU",
+    "rU"
+   ],
+   "env": [
+    "ALADUO_CLI_INITIAL_RECONNECT_DELAY_MS",
+    "ALADUO_CLI_MAX_RECONNECT_DELAY_MS",
+    "ALADUO_CLI_MAX_RECONNECT_RETRIES",
+    "ALADUO_CONSUMER_ID",
+    "ALADUO_PULL_LIMIT",
+    "ALADUO_PULL_WAIT_MS"
+   ],
+   "logPrefixes": [],
+   "dotted": [
+    "channel.ack",
+    "channel.command",
+    "channel.ingress",
+    "channel.pull",
+    "session.execution",
+    "session.output",
+    "session.stream",
+    "system.runtime.info"
+   ],
+   "paths": [
+    "ws://localhost/ws"
+   ],
+   "strings": [
+    " attempts",
+    "2.0",
+    "Bearer ",
+    "Client closed",
+    "Daemon WebSocket not connected",
+    "Daemon did not return event_id",
+    "Failed to establish initial connection",
+    "Failed to reconnect after ",
+    "Invalid runtime info response",
+    "Output wait aborted for event_id=",
+    "Timed out waiting for output event_id=",
+    "WebSocket closed",
+    "abort",
+    "close",
+    "connected",
+    "connection",
+    "disconnected",
+    "error",
+    "execution",
+    "external-reply",
+    "final",
+    "id",
+    "issued-request",
+    "message",
+    "method",
+    "no-reply",
+    "number",
+    "object",
+    "open",
+    "output",
+    "reconnecting",
+    "socket",
+    "stdio:",
+    "stream",
+    "string",
+    "tool"
    ]
   },
   "defaultExistingDaemonChoice": {
@@ -1937,9 +2159,40 @@
    "strings": []
   }
  },
- "byEnv": {},
+ "byEnv": {
+  "ALADUO_CLI_INITIAL_RECONNECT_DELAY_MS": [
+   "createStdioDaemonClient"
+  ],
+  "ALADUO_CLI_MAX_RECONNECT_DELAY_MS": [
+   "createStdioDaemonClient"
+  ],
+  "ALADUO_CLI_MAX_RECONNECT_RETRIES": [
+   "createStdioDaemonClient"
+  ],
+  "ALADUO_CONSUMER_ID": [
+   "createStdioDaemonClient"
+  ],
+  "ALADUO_PULL_LIMIT": [
+   "createStdioDaemonClient"
+  ],
+  "ALADUO_PULL_WAIT_MS": [
+   "createStdioDaemonClient"
+  ]
+ },
  "byLogPrefix": {},
  "byDotted": {
+  "channel.ack": [
+   "createStdioDaemonClient"
+  ],
+  "channel.command": [
+   "createStdioDaemonClient"
+  ],
+  "channel.ingress": [
+   "createStdioDaemonClient"
+  ],
+  "channel.pull": [
+   "createStdioDaemonClient"
+  ],
   "job.archive": [
    "runJobSubcommand"
   ],
@@ -1955,9 +2208,21 @@
   "job.reschedule": [
    "runJobSubcommand"
   ],
+  "session.execution": [
+   "createStdioDaemonClient"
+  ],
   "session.notify": [
    "runSessionNotifyCommand",
    "notifyRestartWakeTargets"
+  ],
+  "session.output": [
+   "createStdioDaemonClient"
+  ],
+  "session.stream": [
+   "createStdioDaemonClient"
+  ],
+  "system.runtime.info": [
+   "createStdioDaemonClient"
   ]
  },
  "byPath": {
@@ -1990,6 +2255,9 @@
   ],
   "n/a": [
    "runChannelCommand"
+  ],
+  "ws://localhost/ws": [
+   "createStdioDaemonClient"
   ]
  },
  "byString": {
@@ -2159,6 +2427,9 @@
   ],
   " argument: ": [
    "parseJobCli"
+  ],
+  " attempts": [
+   "createStdioDaemonClient"
   ],
   " but the daemon restart failed (": [
    "runUpgradeCommand"
@@ -2398,6 +2669,9 @@
   ".tgz": [
    "isInstallTargetFilePath"
   ],
+  "2.0": [
+   "createStdioDaemonClient"
+  ],
   ": cannot compare installed ": [
    "runUpgradeChannelPhase"
   ],
@@ -2464,11 +2738,23 @@
    "renderCompactResult",
    "renderConfigResult"
   ],
+  "Bearer ": [
+   "createStdioDaemonClient"
+  ],
   "CRON": [
    "renderJobList"
   ],
   "Chat options:": [
    "printHelp"
+  ],
+  "Client closed": [
+   "createStdioDaemonClient"
+  ],
+  "Daemon WebSocket not connected": [
+   "createStdioDaemonClient"
+  ],
+  "Daemon did not return event_id": [
+   "createStdioDaemonClient"
   ],
   "ENOENT": [
    "readDaemonTokenFromEnvFile"
@@ -2477,8 +2763,17 @@
    "renderCompactResult",
    "renderConfigResult"
   ],
+  "Failed to establish initial connection": [
+   "createStdioDaemonClient"
+  ],
+  "Failed to reconnect after ": [
+   "createStdioDaemonClient"
+  ],
   "How far this reaches: the runtime is asked to stop. A tool that ignores its abort": [
    "renderInterruptReceipt"
+  ],
+  "Invalid runtime info response": [
+   "createStdioDaemonClient"
   ],
   "Job '": [
    "renderInterruptReceipt",
@@ -2524,6 +2819,9 @@
   ],
   "Nothing is deleted: an archived job's files move to var/jobs/archive/.": [
    "jobHelp"
+  ],
+  "Output wait aborted for event_id=": [
+   "createStdioDaemonClient"
   ],
   "PLANE": [
    "renderSessionList"
@@ -2574,6 +2872,9 @@
   "The run settles on its own: a one-shot that was never re-armed is archived and its": [
    "renderInterruptReceipt"
   ],
+  "Timed out waiting for output event_id=": [
+   "createStdioDaemonClient"
+  ],
   "Unexpected extra arguments after prompt name: ": [
    "runPromptsSubcommand"
   ],
@@ -2605,11 +2906,17 @@
   "Warning: the job's state sidecar could not be moved into the archive and was left behind at ": [
    "runJobSubcommand"
   ],
+  "WebSocket closed": [
+   "createStdioDaemonClient"
+  ],
   "` stops future runs.\n": [
    "renderInterruptReceipt"
   ],
   "a daemon token already exists; rotating it will break every connected remote gateway (they keep presenting the old token). Re-run with --force to rotate.": [
    "createDaemonToken"
+  ],
+  "abort": [
+   "createStdioDaemonClient"
   ],
   "active": [
    "renderJobRead"
@@ -2659,12 +2966,27 @@
   "channel ": [
    "runUpgradeChannelPhase"
   ],
+  "channel.ack": [
+   "createStdioDaemonClient"
+  ],
+  "channel.command": [
+   "createStdioDaemonClient"
+  ],
+  "channel.ingress": [
+   "createStdioDaemonClient"
+  ],
+  "channel.pull": [
+   "createStdioDaemonClient"
+  ],
   "chat": [
    "parseRootCli",
    "main"
   ],
   "check": [
    "runMemoryCommand"
+  ],
+  "close": [
+   "createStdioDaemonClient"
   ],
   "compact": [
    "runSessionSubcommand"
@@ -2677,6 +2999,12 @@
   ],
   "config for ": [
    "renderConfigResult"
+  ],
+  "connected": [
+   "createStdioDaemonClient"
+  ],
+  "connection": [
+   "createStdioDaemonClient"
   ],
   "cron: ": [
    "renderJobRead"
@@ -2702,6 +3030,9 @@
   ],
   "delivery_failed": [
    "renderCompactResult"
+  ],
+  "disconnected": [
+   "createStdioDaemonClient"
   ],
   "doctor": [
    "runChannelCommand"
@@ -2729,7 +3060,8 @@
   ],
   "error": [
    "runSessionNotifyCommand",
-   "runJobSubcommand"
+   "runJobSubcommand",
+   "createStdioDaemonClient"
   ],
   "error: ": [
    "parseJobCli",
@@ -2795,14 +3127,23 @@
   "error: unsupported version \"": [
    "parseUpgradeArgs"
   ],
+  "execution": [
+   "createStdioDaemonClient"
+  ],
   "execution_cwd: ": [
    "renderJobRead"
   ],
   "exit": [
    "parseExistingDaemonChoice"
   ],
+  "external-reply": [
+   "createStdioDaemonClient"
+  ],
   "failed to wake ": [
    "runUpgradeCommand"
+  ],
+  "final": [
+   "createStdioDaemonClient"
   ],
   "forbidden_kind": [
    "renderCompactResult",
@@ -2856,6 +3197,9 @@
   ],
   "invalid": [
    "renderConfigResult"
+  ],
+  "issued-request": [
+   "createStdioDaemonClient"
   ],
   "job": [
    "parseRootCli",
@@ -2933,6 +3277,12 @@
    "parseRootCli",
    "main"
   ],
+  "message": [
+   "createStdioDaemonClient"
+  ],
+  "method": [
+   "createStdioDaemonClient"
+  ],
   "model": [
    "runSessionSubcommand"
   ],
@@ -2941,6 +3291,9 @@
   ],
   "n/a": [
    "runChannelCommand"
+  ],
+  "no-reply": [
+   "createStdioDaemonClient"
   ],
   "node": [
    "runMemoryCommand"
@@ -2982,6 +3335,12 @@
   "npm install of ": [
    "runUpgradeCommand"
   ],
+  "number": [
+   "createStdioDaemonClient"
+  ],
+  "object": [
+   "createStdioDaemonClient"
+  ],
   "onboard": [
    "parseRootCli",
    "main"
@@ -2989,6 +3348,12 @@
   "once": [
    "defaultExistingDaemonChoice",
    "parseExistingDaemonChoice"
+  ],
+  "open": [
+   "createStdioDaemonClient"
+  ],
+  "output": [
+   "createStdioDaemonClient"
   ],
   "owner receives job.fail; any other job stays scheduled and receives no receipt; a run": [
    "renderInterruptReceipt"
@@ -3016,6 +3381,9 @@
   ],
   "reclaim": [
    "runMemoryCommand"
+  ],
+  "reconnecting": [
+   "createStdioDaemonClient"
   ],
   "reschedule": [
    "parseJobCli"
@@ -3049,9 +3417,18 @@
   "session ": [
    "renderConfigResult"
   ],
+  "session.execution": [
+   "createStdioDaemonClient"
+  ],
   "session.notify": [
    "runSessionNotifyCommand",
    "notifyRestartWakeTargets"
+  ],
+  "session.output": [
+   "createStdioDaemonClient"
+  ],
+  "session.stream": [
+   "createStdioDaemonClient"
   ],
   "session_key: ": [
    "renderJobRead"
@@ -3062,6 +3439,9 @@
   ],
   "signal is not killed, and work the run detached from the runtime is not reached.": [
    "renderInterruptReceipt"
+  ],
+  "socket": [
+   "createStdioDaemonClient"
   ],
   "spine": [
    "parseRootCli",
@@ -3076,6 +3456,9 @@
   "status": [
    "runChannelCommand"
   ],
+  "stdio:": [
+   "createStdioDaemonClient"
+  ],
   "stop": [
    "runChannelCommand"
   ],
@@ -3085,13 +3468,23 @@
   "stopped ": [
    "runChannelCommand"
   ],
+  "stream": [
+   "createStdioDaemonClient"
+  ],
   "string": [
    "renderJobRead",
    "renderRpcError",
-   "runJobSubcommand"
+   "runJobSubcommand",
+   "createStdioDaemonClient"
+  ],
+  "system.runtime.info": [
+   "createStdioDaemonClient"
   ],
   "that had not yet acknowledged its turn is preserved as if it never started.": [
    "renderInterruptReceipt"
+  ],
+  "tool": [
+   "createStdioDaemonClient"
   ],
   "unknown": [
    "renderCompactResult",
@@ -3165,6 +3558,9 @@
   ],
   "write_failed": [
    "renderConfigResult"
+  ],
+  "ws://localhost/ws": [
+   "createStdioDaemonClient"
   ]
  },
  "unnamed": {
@@ -3333,6 +3729,13 @@
     "main"
    ]
   },
+  "aGe": {
+   "line": 72890,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
   "AJe": {
    "line": 63189,
    "kind": "async function",
@@ -3394,6 +3797,13 @@
    "kind": "function",
    "usedBy": [
     "renderJobRead"
+   ]
+  },
+  "Bne": {
+   "line": 72858,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
    ]
   },
   "Bp": {
@@ -3648,6 +4058,13 @@
     "main"
    ]
   },
+  "qp": {
+   "line": 39788,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
   "QT": {
    "line": 63860,
    "kind": "function",
@@ -3774,6 +4191,13 @@
     "runSessionSubcommand"
    ]
   },
+  "wne": {
+   "line": 72909,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
   "Xb": {
    "line": 68061,
    "kind": "async function",
@@ -3786,6 +4210,13 @@
    "kind": "async function",
    "usedBy": [
     "runChannelCommand"
+   ]
+  },
+  "xne": {
+   "line": 72923,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
    ]
   },
   "yB": {
@@ -3821,6 +4252,13 @@
    "kind": "async function",
    "usedBy": [
     "runSessionSubcommand"
+   ]
+  },
+  "ZB": {
+   "line": 2345,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "createStdioDaemonClient"
    ]
   },
   "ZXe": {

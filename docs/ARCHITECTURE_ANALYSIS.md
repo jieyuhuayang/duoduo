@@ -95,6 +95,43 @@ macOS 上 daemon 由 launchd 托管，CLI 每次经 launchd 启动 daemon（`dae
 
 有两个变量由 daemon 自己写进会话进程的环境，不应持久化（confirmed）。`ALADUO_CALLER_SESSION`（`tl = "ALADUO_CALLER_SESSION"`（`initCallerSessionEnvModule`））由 daemon 为每个会话派生的引擎进程设置为该会话的 key（pi 会话的 worker 环境是 `[tl]: T, [nC]: t.daemonSocketPath`（`createSessionManager`），Codex 与 Grok 同样；Claude 会话经 `s[tl] = t.callerSession`（`createAgentSdkAdapter`）），会话里执行的 `duoduo session notify` 读取它，以这个会话的身份发送（§5.1）。daemon 在读入 `.env` 之后会从自己的环境里删除它（`delete process.env[tl]`（`main`）），所以写在 `.env` 或 shell 里的值不起作用。`CLAUDE_CODE_DISABLE_AUTO_MEMORY` 在每个 Claude 会话的环境里被设为 `1`（`s.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1"`（`createAgentSdkAdapter`）），即 Claude Code 自带的 auto memory 关闭，避免在 duoduo 的记忆之外再积累一份记忆；CHANGELOG 写明会话加载的 Claude settings 文件（如 `~/.claude/settings.json`）里的 `env` 条目仍可覆盖它，这一点由 Claude Code 决定，本文未实测（未证实推测）。
 
+### 2.5 `duoduo daemon config` 报告的环境变量
+
+`duoduo daemon config` 和 dashboard 调用 `system.config`，报告由 `buildSystemConfigReport (Jbt)` 生成（confirmed）。报告里的每个值都由 `resolveEnvConfigEntry (Hn)` 求出：环境变量未设置或为空时，它返回报告自带的默认值，来源记为 `default`，默认值为 null 时记为 `unset`；变量设置了时返回变量值，来源记为 `env`，敏感变量的值显示为 `value: "***"`（`resolveEnvConfigEntry`）。报告只读 daemon 进程自己的 `process.env`，不读真正使用这些变量的代码，所以报告的默认值是报告函数里另写的一份。下表列出报告覆盖的全部键，默认值照抄 `buildSystemConfigReport`（confirmed）：
+
+| 分组 | 键 | 环境变量 | 报告的默认值 |
+|------|----|----------|--------------|
+| network | `port` | `ALADUO_PORT` | 20233 |
+| network | `daemon_host` | `ALADUO_DAEMON_HOST` | 127.0.0.1 |
+| sessions | `max_concurrent_channel` | `ALADUO_SESSION_MAX_CONCURRENT_CHANNEL` | 旧变量 `ALADUO_SESSION_MAX_CONCURRENT` 的值，没有时为 10 |
+| sessions | `max_concurrent_job` | `ALADUO_SESSION_MAX_CONCURRENT_JOB` | 6 |
+| sessions | `idle_ms` | `ALADUO_SESSION_IDLE_MS` | 3600000（1 小时） |
+| sessions | `heartbeat_ms` | `ALADUO_SESSION_HEARTBEAT_MS` | 30000 |
+| cadence | `interval_ms` | `ALADUO_CADENCE_INTERVAL_MS` | 2220000（37 分钟） |
+| cadence | `runtime_lock_heartbeat_ms` | `ALADUO_RUNTIME_LOCK_HEARTBEAT_MS` | 30000 |
+| transfer | `pull_limit` | `ALADUO_PULL_LIMIT` | 50 |
+| transfer | `pull_wait_ms` | `ALADUO_PULL_WAIT_MS` | 30000 |
+| transfer | `subscribe_replay_limit` | `ALADUO_SUBSCRIBE_REPLAY_LIMIT` | 0 |
+| transfer | `notify_unconsumed_hours` | `ALADUO_NOTIFY_UNCONSUMED_HOURS` | 1 |
+| logging | `log_level` | `ALADUO_LOG_LEVEL` | info |
+| logging | `sdk_debug`、`log_session_lifecycle`、`log_runner_tool_events`、`log_runner_thought_chunks`、`log_latency_stages` | `ALADUO_SDK_DEBUG`、`ALADUO_LOG_SESSION_LIFECYCLE`、`ALADUO_LOG_RUNNER_TOOL_EVENTS`、`ALADUO_LOG_RUNNER_THOUGHT_CHUNKS`、`ALADUO_LOG_LATENCY_STAGES` | false |
+| logging | `telemetry_enabled` | `ALADUO_TELEMETRY_ENABLED` | true |
+| paths | `work_dir`、`kernel_dir`、`bootstrap_dir` | `ALADUO_WORK_DIR`、`ALADUO_KERNEL_DIR`、`ALADUO_BOOTSTRAP_DIR` | daemon 解析出的路径 |
+| paths | `meta_prompt_path` | `ALADUO_META_PROMPT_PATH` | 无（`unset`） |
+
+另有 `sdk` 一组来自 `buildSdkConfigReport (Wbt)`；kernel 里有分区定义时还有 `subconscious` 一组，列出每个分区的 `enabled`、`cooldown_ticks` 和 `max_duration_ms`（confirmed）。
+
+报告与实际行为有四处不一致，排查配置问题时要以实际读取变量的代码为准（confirmed）。
+
+1. **日志级别的默认值。** 报告在变量未设置时显示 info（`"ALADUO_LOG_LEVEL", "info"`（`buildSystemConfigReport`）），但日志模块实际的默认级别是 warn，只有 `NODE_ENV` 为 `development` 时才是 info（`e.NODE_ENV === "development" ? "info" : "warn"`（`resolveLogLevel`））。所以未设置 `ALADUO_LOG_LEVEL` 时，报告写着 info，日志里却只有 warn 以上的条目。
+2. **只读端口。** daemon 在 `ALADUO_PORT` 未设置时还会读 `PORT`（`process.env.ALADUO_PORT ?? process.env.PORT ?? 20233`（`main`）），报告不看 `PORT`。设置了 `PORT` 的环境里，报告显示 20233，实际监听的是 `PORT` 的值。
+3. **远程监听地址。** 报告在 `ALADUO_DAEMON_HOST` 未设置时显示 127.0.0.1（`"ALADUO_DAEMON_HOST", "127.0.0.1"`（`buildSystemConfigReport`））。实际上，这个变量未设置时 daemon 不开远程监听；只有它、`ALADUO_DAEMON_TOKEN` 和 `ALADUO_REMOTE_PORT` 都设置时才开（`resolveRemoteListenerConfig (wvt)`，见 §4）。
+4. **`pull_wait_ms` 不由 daemon 读取。** daemon bundle 里只有报告函数含 `ALADUO_PULL_WAIT_MS`。读取它的是渠道客户端：cli 的 stdio 客户端在每次 `channel.pull` 请求里带上 `wait_ms: Number(process.env.ALADUO_PULL_WAIT_MS ?? ZB)`（`cli:createStdioDaemonClient`）。所以这个值要设在渠道进程的环境里；报告显示的是 daemon 进程环境里的值，不一定是渠道实际使用的值。
+
+cadence 间隔还有一处差别：报告原样显示变量值，而心跳计时器经 `readEnvIntegerOrFallback (wIe)` 读取（`"ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3`（`main`）），值不是整数或小于 1000 时改用默认的 2220000，并写一条 `"[pid0] invalid env integer, using fallback"`（`readEnvIntegerOrFallback`）警告（confirmed）。
+
+DuoDuo Manager（Swift 菜单栏应用，`openduo/duoduo-manager`，2026-09-24 的 `93a214e`）在 `Sources/Models/DashboardModels.swift` 里另存了一份报告键到环境变量的对照表，用于在界面上显示变量名。这份表比 v0.8.4 的报告少五个键（`notify_unconsumed_hours`、`kernel_dir`、`log_runner_tool_events`、`log_runner_thought_chunks`、`log_latency_stages`），还多出一个 `meta_max_quiet_ticks` → `ALADUO_META_MAX_QUIET_TICKS`。v0.8.4 的 daemon bundle 里没有这个变量名，也没有这个键（confirmed，否定性证据），所以 Manager 显示的这一项在 v0.8.4 上不起作用。
+
 ---
 
 ## 3 目录与文件

@@ -29,13 +29,13 @@
       "distinctNamesInBlocks": 29,
       "firstPartyNamesFromBlocks": 29,
       "namesFromEntryExports": 17,
-      "inferredNames": 14,
-      "renameEntries": 60,
-      "renamesApplied": 60,
-      "referencesRewritten": 197,
+      "inferredNames": 15,
+      "renameEntries": 61,
+      "renamesApplied": 61,
+      "referencesRewritten": 200,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 60
+      "indexedSymbols": 61
     }
   },
   "sha256": {
@@ -85,13 +85,13 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.22.0",
+    "node": "v22.23.3",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 900
+    "firstPartySymbols": 901
   }
 }

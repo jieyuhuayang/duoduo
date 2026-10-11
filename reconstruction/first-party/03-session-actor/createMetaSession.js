@@ -476,7 +476,7 @@ ${D}`,
                 logDebugMessage("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
                 return
             }
-            y = N, await updateRegistryStatus(t, J => ({
+            y = N, await updateStatus(t, J => ({
                 ...J,
                 health: {
                     ...J.health,
@@ -488,7 +488,7 @@ ${D}`,
                 F = await _(x, M, v);
             if (F?.name && d > 1 && (!r || r.activeCount() <= 1))
                 for (let ce = 1; ce < d && await _(x, M, v); ce++);
-            await updateRegistryStatus(t, J => ({
+            await updateStatus(t, J => ({
                 ...J,
                 health: {
                     ...J.health,
@@ -501,7 +501,7 @@ ${D}`,
                 backedOff: F?.backedOff ?? []
             })
         } catch (S) {
-            logErrorMessage("[meta-session] tick error:", S), y = null, await updateRegistryStatus(t, A => ({
+            logErrorMessage("[meta-session] tick error:", S), y = null, await updateStatus(t, A => ({
                 ...A,
                 health: {
                     ...A.health,
@@ -538,7 +538,7 @@ ${D}`,
     };
     return {
         start() {
-            m || g || (n.on("cadence.tick", k), g = !0, updateRegistryStatus(t, S => ({
+            m || g || (n.on("cadence.tick", k), g = !0, updateStatus(t, S => ({
                 ...S,
                 health: {
                     ...S.health,

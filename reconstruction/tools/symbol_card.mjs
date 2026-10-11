@@ -51,6 +51,7 @@ if (!xref || !symbols) { console.error(`no xref_daemon.json / symbols_daemon.jso
 const subsys = fs.existsSync(path.join(MAPS, "subsys_daemon.json")) ? readJson(path.join(MAPS, "subsys_daemon.json")) : {};
 const inferred = fs.existsSync(path.join(MAPS, "inferred_daemon.json")) ? readJson(path.join(MAPS, "inferred_daemon.json")) : {};
 const published = fs.existsSync(path.join(MAPS, "published_daemon.json")) ? readJson(path.join(MAPS, "published_daemon.json")) : {};
+const historical = fs.existsSync(path.join(MAPS, "historical_daemon.json")) ? readJson(path.join(MAPS, "historical_daemon.json")) : {};
 const asserted = fs.existsSync(path.join(MAPS, "inferred_daemon.asserted.json")) ? readJson(path.join(MAPS, "inferred_daemon.asserted.json")) : {};
 const history = fs.existsSync(path.join(MAPS, "history_daemon.json")) ? readJson(path.join(MAPS, "history_daemon.json")).symbols : {};
 const changelog = fs.existsSync(path.join(MAPS, "changelog_daemon.json")) ? readJson(path.join(MAPS, "changelog_daemon.json")).symbols : {};
@@ -63,6 +64,7 @@ const assertedReal = new Set(Object.keys(asserted)); // real name -> the verdict
 
 function origin(real) {
   if (published[real]) return `published source (${published[real].package} ${published[real].file}:${published[real].line}, ${published[real].verdict})`;
+  if (historical[real]) return `historical export (${historical[real].exportedFirst}..${historical[real].exportedLast} as ${historical[real].lastShort}${historical[real].changedSince.length ? `, changed in ${historical[real].changedSince.join(", ")}` : ""})${assertedReal.has(real) ? "; first-party asserted with --allow-unproven" : ""}`;
   if (inferredReal.has(real)) return assertedReal.has(real) ? "INFERRED, asserted with --allow-unproven" : "INFERRED by this repository";
   return "authoritative (esbuild __export table)";
 }

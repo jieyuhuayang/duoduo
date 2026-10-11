@@ -1,8 +1,8 @@
 {
   "bundle": "cli",
   "version": "v0.8.4",
-  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
-  "symbolCount": 60,
+  "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
+  "symbolCount": 61,
   "notTopLevel": [],
   "symbols": {
     "PLIST_LABEL": {
@@ -484,6 +484,14 @@
       "kind": "var = StringLiteral",
       "bytes": 31,
       "signature": "9ce48c54b612ccd24be6"
+    },
+    "createStdioDaemonClient": {
+      "mangled": "a0",
+      "line": 72927,
+      "endLine": 73268,
+      "kind": "async function",
+      "bytes": 12611,
+      "signature": "9be8c52967931a2ccbef"
     }
   }
 }

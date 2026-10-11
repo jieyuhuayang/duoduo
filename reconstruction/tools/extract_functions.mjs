@@ -31,6 +31,9 @@ if (!INFERRED) {
 const inferred = JSON.parse(fs.readFileSync(INFERRED, "utf8"));
 const PUBLISHED = path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "published_"));
 const published = fs.existsSync(PUBLISHED) ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : {}; // real -> {package, file}
+// names an older release exported (name_symbol.mjs --historical)
+const HISTORICAL = path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "historical_"));
+const historical = fs.existsSync(HISTORICAL) ? JSON.parse(fs.readFileSync(HISTORICAL, "utf8")) : {}; // real -> {exportedFirst, exportedLast, ...}
 // release history (tools/history.sh): real -> {firstSeen, changedIn}; and the
 // CHANGELOG entries paired with a symbol's first release: real -> [{version, confidence, changelog}]
 const HISTORY = path.join(path.dirname(INFERRED), "history_daemon.json");
@@ -115,7 +118,9 @@ for (const newName of renamed) {
     (inferred[mangled] === newName
       ? (Object.hasOwn(published, newName)
         ? `// name: INFERRED — upstream's own spelling, confirmed against the published source ${published[newName].package} ${published[newName].file} (maps/published_daemon.json)\n`
-        : `// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)\n`)
+        : Object.hasOwn(historical, newName)
+          ? `// name: INFERRED — upstream's own spelling, from the __export block of ${historical[newName].exportedFirst}..${historical[newName].exportedLast}, followed to this release by the release pairing (maps/historical_daemon.json)\n`
+          : `// name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)\n`)
       : `// name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement\n`) +
     (history && history[newName] && history[newName].firstSeen
       ? `// since: v${history[newName].firstSeen} — first release whose bundle holds this declaration; body changed in ${history[newName].changedIn.length ? history[newName].changedIn.map(v => "v" + v).join(", ") : "no later release"} (maps/history_daemon.json)\n`
