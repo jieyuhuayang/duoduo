@@ -1,17 +1,18 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
 // symbol: findEventInPartitionFile  (minified: wae, daemon.pretty.js:32262)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): Readers that miss it fall back to the day's log partition, so nothing becomes unreadable — and `duoduo spine show <id>` falls back to a full scan.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function findEventInPartitionFile(e, t) {
+async function findEventInPartitionFile(filePath, eventId) {
     try {
-        let n = gU(e);
-        for await (let r of iterateStreamLines(n)) {
-            if (!r) continue;
-            let i = hU(r);
-            if (i?.id === t) return i
+        let stream = gU(filePath);
+        for await (let line of iterateStreamLines(stream)) {
+            if (!line) continue;
+            let event = hU(line);
+            if (event?.id === eventId) return event
         }
     } catch {
         return null

@@ -2,26 +2,27 @@
 // symbol: runCadenceTick  (minified: Cbt, daemon.pretty.js:86816)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.5, v0.5.6, v0.8.0 (maps/history_daemon.json)
+// locals: 6 renamed — 4 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.5 (medium): A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function runCadenceTick(e) {
+async function runCadenceTick(paths) {
     let {
-        runMemoryCheckTick: t
+        runMemoryCheckTick
     } = await Promise.resolve().then(() => (initMemoryCheckTickModule(), zSe));
-    await t(e, Date.now());
+    await runMemoryCheckTick(paths, Date.now());
     try {
         let {
-            sweepTombstonedSessionRecords: r
+            sweepTombstonedSessionRecords
         } = await Promise.resolve().then(() => (aIe(), sIe));
-        await r(e)
-    } catch (r) {
+        await sweepTombstonedSessionRecords(paths)
+    } catch (err) {
         logWarnMessage("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {
-            error: r
+            error: err
         })
     }
-    let n = createSpineEvent({
+    let spineEvent = createSpineEvent({
         type: "system.cadence_tick",
         source: {
             kind: "system",
@@ -29,11 +30,11 @@ async function runCadenceTick(e) {
         },
         payload: {}
     });
-    await atomicAppendEvent(e, n), await advanceConsumerWatermark(e, "jobs", n.id, new Date(n.ts)), await updateStatus(e, r => ({
-        ...r,
+    await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "jobs", spineEvent.id, new Date(spineEvent.ts)), await updateStatus(paths, status => ({
+        ...status,
         cadence: {
-            ...r.cadence,
-            last_tick: n.ts
+            ...status.cadence,
+            last_tick: spineEvent.ts
         }
-    }), new Date(n.ts))
+    }), new Date(spineEvent.ts))
 }

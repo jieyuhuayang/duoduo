@@ -2,19 +2,20 @@
 // symbol: runFoldGapLint  (minified: xSe, daemon.pretty.js:68456)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): one consolidates them into intuition.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function runFoldGapLint(e, t) {
-    let n = findNewestFragmentMtimeMs(e);
-    return n === null || n <= t ? {
+function runFoldGapLint(memoryDir, referenceMs) {
+    let newestFragmentMtimeMs = findNewestFragmentMtimeMs(memoryDir);
+    return newestFragmentMtimeMs === null || newestFragmentMtimeMs <= referenceMs ? {
         selected: [],
-        newestFragmentMs: n,
-        referenceMs: t
+        newestFragmentMs: newestFragmentMtimeMs,
+        referenceMs
     } : {
-        newestFragmentMs: n,
-        referenceMs: t,
+        newestFragmentMs: newestFragmentMtimeMs,
+        referenceMs,
         selected: [{
             kind: Vn.FOLD_GAP,
             partition: SSe,

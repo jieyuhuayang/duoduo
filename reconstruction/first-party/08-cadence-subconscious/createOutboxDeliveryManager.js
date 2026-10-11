@@ -2,89 +2,90 @@
 // symbol: createOutboxDeliveryManager  (minified: Mbt, daemon.pretty.js:87079)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1, v0.5.0, v0.5.6, v0.6.0, v0.8.0 (maps/history_daemon.json)
+// locals: 28 renamed — 8 from the code at the binding (rule), 20 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createOutboxDeliveryManager(e) {
+function createOutboxDeliveryManager(options) {
     let {
-        paths: t,
-        bus: n,
-        subscriptions: r,
-        maxAttempts: i = 5
-    } = e, o = !1, s = new Set, a = new Map;
+        paths,
+        bus,
+        subscriptions,
+        maxAttempts = 5
+    } = options, started = !1, inFlightIds = new Set, map = new Map;
 
-    function u(h) {
-        let g = h.session_key,
-            v = (a.get(g) ?? Promise.resolve(!1)).then(() => d(h)).catch(b => (logWarnMessage("[outbox-delivery] live delivery failed", {
-                outboxId: h.id,
-                sessionKey: h.session_key,
-                error: b instanceof Error ? b.message : String(b)
+    function deliverSerialized(record) {
+        let sessionKey = record.session_key,
+            deliveryPromise = (map.get(sessionKey) ?? Promise.resolve(!1)).then(() => deliverRecord(record)).catch(err => (logWarnMessage("[outbox-delivery] live delivery failed", {
+                outboxId: record.id,
+                sessionKey: record.session_key,
+                error: err instanceof Error ? err.message : String(err)
             }), !1));
-        return a.set(g, v), v.then(() => {
-            a.get(g) === v && a.delete(g)
-        }), v
+        return map.set(sessionKey, deliveryPromise), deliveryPromise.then(() => {
+            map.get(sessionKey) === deliveryPromise && map.delete(sessionKey)
+        }), deliveryPromise
     }
-    let l = ({
-            record: h
+    let onSessionOutput = ({
+            record
         }) => {
-            u(h)
+            deliverSerialized(record)
         },
-        c = () => {
-            p().catch(h => {
+        onCadenceTick = () => {
+            flushPending().catch(err => {
                 logWarnMessage("[outbox-delivery] pending flush failed", {
-                    error: h instanceof Error ? h.message : String(h)
+                    error: err instanceof Error ? err.message : String(err)
                 })
             })
         };
-    async function d(h) {
-        if (s.has(h.id)) return !1;
-        s.add(h.id);
+    async function deliverRecord(record) {
+        if (inFlightIds.has(record.id)) return !1;
+        inFlightIds.add(record.id);
         try {
-            if (h = await readOutboxRecord(t, h.channel_kind, h.id) ?? h, h.status === "sent") return await recordOutboxSentId(t, h.id), !0;
-            if (await Ace(t, h.id)) return await recordOutboxDeliveryAttempt(t, h, {
+            if (record = await readOutboxRecord(paths, record.channel_kind, record.id) ?? record, record.status === "sent") return await recordOutboxSentId(paths, record.id), !0;
+            if (await Ace(paths, record.id)) return await recordOutboxDeliveryAttempt(paths, record, {
                 status: "sent"
             }), !0;
-            if (isJobOrMetaOutboxRecord(h)) {
-                let _ = await recordOutboxDeliveryAttempt(t, h, {
+            if (isJobOrMetaOutboxRecord(record)) {
+                let sentRecord = await recordOutboxDeliveryAttempt(paths, record, {
                     status: "sent"
                 });
-                return await recordOutboxSentId(t, _.id), !0
+                return await recordOutboxSentId(paths, sentRecord.id), !0
             }
-            if (r.getSubscribers(h.session_key).length === 0) return !1;
-            if (r.publishOutput(h.session_key, h) === 0) return h.attempts >= i || await recordOutboxDeliveryAttempt(t, h, {
+            if (subscriptions.getSubscribers(record.session_key).length === 0) return !1;
+            if (subscriptions.publishOutput(record.session_key, record) === 0) return record.attempts >= maxAttempts || await recordOutboxDeliveryAttempt(paths, record, {
                 status: "failed",
                 error: "delivery failed"
             }), !1;
-            let b = await recordOutboxDeliveryAttempt(t, h, {
+            let sentRecord = await recordOutboxDeliveryAttempt(paths, record, {
                 status: "sent"
             });
-            return await recordOutboxSentId(t, b.id), logLatencyStageTelemetry("delivered", b.id, {
-                outboxId: b.id,
-                sessionKey: b.session_key
+            return await recordOutboxSentId(paths, sentRecord.id), logLatencyStageTelemetry("delivered", sentRecord.id, {
+                outboxId: sentRecord.id,
+                sessionKey: sentRecord.session_key
             }), !0
         } finally {
-            s.delete(h.id)
+            inFlightIds.delete(record.id)
         }
     }
-    let f = new Set;
+    let pendingFlushes = new Set;
 
-    function p() {
-        let h = m();
-        return f.add(h), h.then(() => f.delete(h), () => f.delete(h)), h
+    function flushPending() {
+        let flushPromise = flushRetryableRecords();
+        return pendingFlushes.add(flushPromise), flushPromise.then(() => pendingFlushes.delete(flushPromise), () => pendingFlushes.delete(flushPromise)), flushPromise
     }
-    async function m() {
-        let h = await listRetryableOutboxRecords(t, i),
-            g = 0;
-        for (let y of h) await u(y) && (g += 1);
-        return g
+    async function flushRetryableRecords() {
+        let retryableOutboxRecords = await listRetryableOutboxRecords(paths, maxAttempts),
+            deliveredCount = 0;
+        for (let record of retryableOutboxRecords) await deliverSerialized(record) && (deliveredCount += 1);
+        return deliveredCount
     }
     return {
         start() {
-            o || (o = !0, n.on("session.output", l), n.on("cadence.tick", c))
+            started || (started = !0, bus.on("session.output", onSessionOutput), bus.on("cadence.tick", onCadenceTick))
         },
         async stop() {
-            o && (o = !1, n.off("session.output", l), n.off("cadence.tick", c), await Promise.allSettled([...f, ...a.values()]))
+            started && (started = !1, bus.off("session.output", onSessionOutput), bus.off("cadence.tick", onCadenceTick), await Promise.allSettled([...pendingFlushes, ...map.values()]))
         },
-        flushPending: p
+        flushPending
     }
 }

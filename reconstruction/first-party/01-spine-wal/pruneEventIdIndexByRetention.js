@@ -2,49 +2,50 @@
 // symbol: pruneEventIdIndexByRetention  (minified: kae, daemon.pretty.js:32282)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 13 renamed — 4 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (high): The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function pruneEventIdIndexByRetention(e, t) {
-    let n = t.now ?? new Date,
-        r = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() - t.retentionDays)),
-        i = formatEventPartitionName(r),
-        o = resolveEventIdIndexPath(e),
-        s = [],
-        a = 0;
+async function pruneEventIdIndexByRetention(paths, options) {
+    let now = options.now ?? new Date,
+        date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - options.retentionDays)),
+        eventPartitionName = formatEventPartitionName(date),
+        eventIdIndexPath = resolveEventIdIndexPath(paths),
+        keptLines = [],
+        droppedCount = 0;
     try {
-        let l = gU(o);
-        for await (let c of iterateStreamLines(l)) {
-            if (!c) continue;
-            let d;
+        let stream = gU(eventIdIndexPath);
+        for await (let line of iterateStreamLines(stream)) {
+            if (!line) continue;
+            let partition;
             try {
-                d = JSON.parse(c).partition
+                partition = JSON.parse(line).partition
             } catch {
-                a += 1;
+                droppedCount += 1;
                 continue
             }
-            typeof d == "string" && d >= i ? s.push(c) : a += 1
+            typeof partition == "string" && partition >= eventPartitionName ? keptLines.push(line) : droppedCount += 1
         }
-    } catch (l) {
-        if (l.code === "ENOENT") return {
+    } catch (err) {
+        if (err.code === "ENOENT") return {
             kept: 0,
             dropped: 0,
-            cutoff: i
+            cutoff: eventPartitionName
         };
-        throw l
+        throw err
     }
-    if (a === 0) return {
-        kept: s.length,
-        dropped: a,
-        cutoff: i
+    if (droppedCount === 0) return {
+        kept: keptLines.length,
+        dropped: droppedCount,
+        cutoff: eventPartitionName
     };
-    let u = s.length === 0 ? "" : `${s.join(`
+    let content = keptLines.length === 0 ? "" : `${keptLines.join(`
 `)}
 `;
-    return await writeFileAtomic(o, u), {
-        kept: s.length,
-        dropped: a,
-        cutoff: i
+    return await writeFileAtomic(eventIdIndexPath, content), {
+        kept: keptLines.length,
+        dropped: droppedCount,
+        cutoff: eventPartitionName
     }
 }

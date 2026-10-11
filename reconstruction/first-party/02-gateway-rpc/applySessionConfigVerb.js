@@ -2,173 +2,174 @@
 // symbol: applySessionConfigVerb  (minified: fvt, daemon.pretty.js:91407)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.7.0, v0.8.1, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// locals: 36 renamed — 8 from the code at the binding (rule), 28 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.10 (high): enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function applySessionConfigVerb(e, t, n) {
-    let r = n.verb;
-    if (r === "profile_get" || r === "profile_set" || r === "profile_unset" || r === "profile_alias_set" || r === "profile_alias_unset") return gvt(e, t, n);
-    let i = {},
-        o = [];
-    if (r === "set") {
-        if (!n.set || Object.keys(n.set).length === 0) return {
+async function applySessionConfigVerb(paths, sessionIndex, params) {
+    let verb = params.verb;
+    if (verb === "profile_get" || verb === "profile_set" || verb === "profile_unset" || verb === "profile_alias_set" || verb === "profile_alias_unset") return gvt(paths, sessionIndex, params);
+    let patch = {},
+        changedKeys = [];
+    if (verb === "set") {
+        if (!params.set || Object.keys(params.set).length === 0) return {
             ok: !1,
             reason: "invalid",
             errors: ["set requires at least one key=value"]
         };
-        let v = Ove(n.set);
-        if (!v.ok) return {
+        let setResult = Ove(params.set);
+        if (!setResult.ok) return {
             ok: !1,
             reason: "invalid",
-            errors: v.errors
+            errors: setResult.errors
         };
-        i = v.patch, o = Object.keys(i)
-    } else if (r === "unset") {
-        if (!n.unset || n.unset.length === 0) return {
+        patch = setResult.patch, changedKeys = Object.keys(patch)
+    } else if (verb === "unset") {
+        if (!params.unset || params.unset.length === 0) return {
             ok: !1,
             reason: "invalid",
             errors: ["unset requires at least one key"]
         };
-        let v = Ave(n.unset);
-        if (!v.ok) return {
+        let unsetResult = Ave(params.unset);
+        if (!unsetResult.ok) return {
             ok: !1,
             reason: "invalid",
-            errors: v.errors
+            errors: unsetResult.errors
         };
-        for (let b of v.keys)
-            for (let _ of listFrontmatterKeyAliases(b)) i[_] = null;
-        o = v.keys
+        for (let key of unsetResult.keys)
+            for (let alias of listFrontmatterKeyAliases(key)) patch[alias] = null;
+        changedKeys = unsetResult.keys
     }
-    if (n.global) {
-        let v = o.filter(R => fS(R) === null);
-        if (v.length > 0) return {
+    if (params.global) {
+        let unsupportedKeys = changedKeys.filter(key => fS(key) === null);
+        if (unsupportedKeys.length > 0) return {
             ok: !1,
             reason: "invalid",
-            errors: v.map(R => `--global does not support "${R}" (${Yr}.md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)`)
+            errors: unsupportedKeys.map(key => `--global does not support "${key}" (${Yr}.md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)`)
         };
-        if (r !== "get") {
-            let R = await zve(e, i);
-            if (!R.ok) return {
+        if (verb !== "get") {
+            let writeResult = await zve(paths, patch);
+            if (!writeResult.ok) return {
                 ok: !1,
                 reason: "write_failed",
-                error: R.error
+                error: writeResult.error
             }
         }
-        let b = await loadGlobalRuntimeConfig(e.channelConfigDir),
-            _ = OG(null, null, b),
-            E = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
+        let globalRuntimeConfig = await loadGlobalRuntimeConfig(paths.channelConfigDir),
+            globalConfig = OG(null, null, globalRuntimeConfig),
+            globalEventId = verb === "get" ? void 0 : await appendConfigChangedEvent(paths, {
                 scope: "global",
-                changed: o
+                changed: changedKeys
             });
         return {
             ok: !0,
-            verb: r,
+            verb,
             scope: "global",
-            config: _,
-            changed: o,
-            event_id: E
+            config: globalConfig,
+            changed: changedKeys,
+            event_id: globalEventId
         }
     }
-    if (n.kind) {
-        let v = n.kind.trim().toLowerCase();
-        if (r !== "get") {
-            let R = await Fve(e, v, i);
-            if (!R.ok) return {
+    if (params.kind) {
+        let channelKind = params.kind.trim().toLowerCase();
+        if (verb !== "get") {
+            let writeResult = await Fve(paths, channelKind, patch);
+            if (!writeResult.ok) return {
                 ok: !1,
                 reason: "write_failed",
-                error: R.error
+                error: writeResult.error
             }
         }
-        let b = await loadChannelKindConfig(e.channelConfigDir, v),
-            _ = OG(null, b),
-            E = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
+        let channelKindConfig = await loadChannelKindConfig(paths.channelConfigDir, channelKind),
+            kindConfig = OG(null, channelKindConfig),
+            kindEventId = verb === "get" ? void 0 : await appendConfigChangedEvent(paths, {
                 scope: "kind",
-                kind: v,
-                changed: o
+                kind: channelKind,
+                changed: changedKeys
             });
         return {
             ok: !0,
-            verb: r,
+            verb,
             scope: "kind",
-            kind: v,
-            config: _,
-            claude_tools: yIe(resolveLayeredChannelRuntime(null, b), b?.claudeTools, void 0),
-            changed: o,
-            event_id: E
+            kind: channelKind,
+            config: kindConfig,
+            claude_tools: yIe(resolveLayeredChannelRuntime(null, channelKindConfig), channelKindConfig?.claudeTools, void 0),
+            changed: changedKeys,
+            event_id: kindEventId
         }
     }
-    let s = (n.target ?? "").trim(),
-        a = resolveSessionByKeyOrAlias(t, s);
-    if (!a.ok) return a.reason === "ambiguous" ? {
+    let trimmed = (params.target ?? "").trim(),
+        sessionByKeyOrAlias = resolveSessionByKeyOrAlias(sessionIndex, trimmed);
+    if (!sessionByKeyOrAlias.ok) return sessionByKeyOrAlias.reason === "ambiguous" ? {
         ok: !1,
         reason: "ambiguous",
-        target: s,
-        candidates: a.candidates
+        target: trimmed,
+        candidates: sessionByKeyOrAlias.candidates
     } : {
         ok: !1,
         reason: "not_found",
-        target: s
+        target: trimmed
     };
-    let u = a.session_key,
-        l = classifySessionKeyKind(u);
-    if (l !== "channel") return {
+    let sessionKey = sessionByKeyOrAlias.session_key,
+        sessionKind = classifySessionKeyKind(sessionKey);
+    if (sessionKind !== "channel") return {
         ok: !1,
         reason: "forbidden_kind",
-        target: s,
-        session_key: u,
-        kind: l
+        target: trimmed,
+        session_key: sessionKey,
+        kind: sessionKind
     };
-    if (isSessionArchiving(u)) return {
+    if (isSessionArchiving(sessionKey)) return {
         ok: !1,
         reason: "archiving",
-        target: s,
-        session_key: u
+        target: trimmed,
+        session_key: sessionKey
     };
-    let c = await readSessionRuntimeState(e, u),
-        d = c?.source_channel_id;
-    if (r !== "get") {
-        if (!d) return {
+    let sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey),
+        channelId = sessionRuntimeState?.source_channel_id;
+    if (verb !== "get") {
+        if (!channelId) return {
             ok: !1,
             reason: "write_failed",
-            error: `session "${u}" has no source_channel_id (no instance descriptor to write)`
+            error: `session "${sessionKey}" has no source_channel_id (no instance descriptor to write)`
         };
-        if (r === "set" && typeof i.runtime == "string") {
-            let b = await checkChannelRuntimeRebindConflict(e, t, d, i.runtime);
-            if (b) return {
+        if (verb === "set" && typeof patch.runtime == "string") {
+            let conflict = await checkChannelRuntimeRebindConflict(paths, sessionIndex, channelId, patch.runtime);
+            if (conflict) return {
                 ok: !1,
                 reason: "invalid",
-                errors: [b]
+                errors: [conflict]
             }
         }
-        let v = await jve(e, d, i);
-        if (!v.ok) return {
+        let writeResult = await jve(paths, channelId, patch);
+        if (!writeResult.ok) return {
             ok: !1,
             reason: "write_failed",
-            error: v.error
+            error: writeResult.error
         }
     }
-    let f = d ? await readChannelDescriptor(e, d) : null,
-        p = f?.channel_kind ? await loadChannelKindConfig(e.channelConfigDir, f.channel_kind) : null,
-        m = await loadGlobalRuntimeConfig(e.channelConfigDir),
-        h = OG(f, p, m),
-        g = dvt(c?.compact_stats, c?.last_compact_at),
-        y = r === "get" ? void 0 : await appendConfigChangedEvent(e, {
+    let channelDescriptor = channelId ? await readChannelDescriptor(paths, channelId) : null,
+        instanceKindConfig = channelDescriptor?.channel_kind ? await loadChannelKindConfig(paths.channelConfigDir, channelDescriptor.channel_kind) : null,
+        globalRuntimeConfig = await loadGlobalRuntimeConfig(paths.channelConfigDir),
+        effectiveConfig = OG(channelDescriptor, instanceKindConfig, globalRuntimeConfig),
+        compactStats = dvt(sessionRuntimeState?.compact_stats, sessionRuntimeState?.last_compact_at),
+        eventId = verb === "get" ? void 0 : await appendConfigChangedEvent(paths, {
             scope: "instance",
-            sessionKey: u,
-            channelId: d,
-            changed: o
+            sessionKey,
+            channelId,
+            changed: changedKeys
         });
     return {
         ok: !0,
-        verb: r,
+        verb,
         scope: "instance",
-        session_key: u,
-        display_name: a.display_name ?? null,
-        config: h,
-        claude_tools: yIe(resolveLayeredChannelRuntime(f, p), p?.claudeTools, f?.claudeTools),
-        stats: g,
-        changed: o,
-        event_id: y
+        session_key: sessionKey,
+        display_name: sessionByKeyOrAlias.display_name ?? null,
+        config: effectiveConfig,
+        claude_tools: yIe(resolveLayeredChannelRuntime(channelDescriptor, instanceKindConfig), instanceKindConfig?.claudeTools, channelDescriptor?.claudeTools),
+        stats: compactStats,
+        changed: changedKeys,
+        event_id: eventId
     }
 }

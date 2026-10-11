@@ -2,9 +2,10 @@
 // symbol: classifySessionKeyOrUnknown  (minified: no, daemon.pretty.js:71746)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function classifySessionKeyOrUnknown(e) {
-    return e ? e.startsWith("job:") ? "job" : e.startsWith("meta:") ? "meta" : e.startsWith("system:") || e.startsWith("cadence:") ? "system" : e.includes(":") ? "channel" : "unknown" : "unknown"
+function classifySessionKeyOrUnknown(sessionKey) {
+    return sessionKey ? sessionKey.startsWith("job:") ? "job" : sessionKey.startsWith("meta:") ? "meta" : sessionKey.startsWith("system:") || sessionKey.startsWith("cadence:") ? "system" : sessionKey.includes(":") ? "channel" : "unknown" : "unknown"
 }

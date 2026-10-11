@@ -2,20 +2,21 @@
 // symbol: buildMemoryCheckStatus  (minified: JH, daemon.pretty.js:68850)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function buildMemoryCheckStatus(e) {
-    let t = resolveMemoryCheckFlags(),
-        n;
+function buildMemoryCheckStatus(ctx) {
+    let memoryCheckFlags = resolveMemoryCheckFlags(),
+        partitions;
     try {
-        n = Kwe(e.subconsciousDir)
+        partitions = Kwe(ctx.subconsciousDir)
     } catch {
-        n = void 0
+        partitions = void 0
     }
     return {
-        check_enabled: t.check,
-        forget_enabled: t.forget,
-        partitions: n
+        check_enabled: memoryCheckFlags.check,
+        forget_enabled: memoryCheckFlags.forget,
+        partitions
     }
 }

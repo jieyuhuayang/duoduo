@@ -1,14 +1,15 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
 // symbol: overlayConfigEntriesByKey  (minified: G6, daemon.pretty.js:65830)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// locals: 6 renamed — 0 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function overlayConfigEntriesByKey(e, t, n) {
-    if (!t) return e;
-    let r = {
-        ...e ?? {}
+function overlayConfigEntriesByKey(base, overlay, mapValue) {
+    if (!overlay) return base;
+    let merged = {
+        ...base ?? {}
     };
-    for (let [i, o] of Object.entries(t)) r[i] = n(o);
-    return r
+    for (let [key, value] of Object.entries(overlay)) merged[key] = mapValue(value);
+    return merged
 }

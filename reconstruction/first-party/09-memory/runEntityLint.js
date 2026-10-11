@@ -2,47 +2,48 @@
 // symbol: runEntityLint  (minified: Uwe, daemon.pretty.js:67204)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.0 (maps/history_daemon.json)
+// locals: 15 renamed — 2 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.5 (medium): A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function runEntityLint(e, t, n) {
-    let r = resolveMemoryDirs(e);
-    if (!isMemoryPathDirectory(r.entitiesDir)) return {
+function runEntityLint(memoryDir, limit, options) {
+    let memoryDirs = resolveMemoryDirs(memoryDir);
+    if (!isMemoryPathDirectory(memoryDirs.entitiesDir)) return {
         ranked: [],
         selected: [],
         entitiesDirMissing: !0
     };
-    let i = readMemoryFileSyncOrNull(r.boardPath) ?? "",
-        o = walkReachableMemory(i, createMemorySlugReader(r)),
-        s = [];
-    for (let l of listMarkdownSlugsSync(r.entitiesDir)) {
-        let c = readMemoryFileSyncOrNull(fdt.join(r.entitiesDir, `${l}.md`));
-        if (c === null || pdt(c)) continue;
-        let d = bytesToKibCeil(measureUtf8ByteLength(c)),
-            f = countNewlineChars(c),
-            p = countDatedStampLines(c),
-            m = d * 1e3 + p;
-        s.push({
-            slug: l,
-            kb: d,
-            lines: f,
-            dated: p,
-            reachable: o.has(l),
-            score: m
+    let boardText = readMemoryFileSyncOrNull(memoryDirs.boardPath) ?? "",
+        reachable = walkReachableMemory(boardText, createMemorySlugReader(memoryDirs)),
+        rows = [];
+    for (let slug of listMarkdownSlugsSync(memoryDirs.entitiesDir)) {
+        let memoryFile = readMemoryFileSyncOrNull(fdt.join(memoryDirs.entitiesDir, `${slug}.md`));
+        if (memoryFile === null || pdt(memoryFile)) continue;
+        let kb = bytesToKibCeil(measureUtf8ByteLength(memoryFile)),
+            lineCount = countNewlineChars(memoryFile),
+            datedCount = countDatedStampLines(memoryFile),
+            score = kb * 1e3 + datedCount;
+        rows.push({
+            slug,
+            kb,
+            lines: lineCount,
+            dated: datedCount,
+            reachable: reachable.has(slug),
+            score
         })
     }
-    s.sort(Lwe);
-    let u = (Number.isFinite(t) && t > 0 ? s.slice(0, t) : []).map(l => ({
-        row: l,
+    rows.sort(Lwe);
+    let selected = (Number.isFinite(limit) && limit > 0 ? rows.slice(0, limit) : []).map(row => ({
+        row,
         kind: Vn.ENTITY_CONVERGE,
         partition: "intuition-weaver",
-        pendingFilename: `entity-converge-${l.slug}.md.pending`,
-        pendingBody: renderEntityConvergeSignalBody(l)
+        pendingFilename: `entity-converge-${row.slug}.md.pending`,
+        pendingBody: renderEntityConvergeSignalBody(row)
     }));
     return {
-        ranked: s,
-        selected: u,
+        ranked: rows,
+        selected,
         entitiesDirMissing: !1
     }
 }

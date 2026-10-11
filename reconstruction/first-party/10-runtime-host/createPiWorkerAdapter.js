@@ -2,352 +2,353 @@
 // symbol: createPiWorkerAdapter  (minified: vA, daemon.pretty.js:73070)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.2 (maps/history_daemon.json)
+// locals: 101 renamed — 9 from the code at the binding (rule), 92 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (high): pi joins Claude, Codex and Grok as a fourth agent runtime.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createPiWorkerAdapter(e) {
-    let t = e.logDebug ?? (() => {}),
-        n = e.logWarn ?? t,
-        r = null,
-        i = null,
-        o = null,
-        s, a, u, l, c = 0,
-        d = new Set,
-        f = null,
-        p = A => {
-            let $;
+function createPiWorkerAdapter(options) {
+    let logDebug = options.logDebug ?? (() => {}),
+        logWarn = options.logWarn ?? logDebug,
+        worker = null,
+        connectPromise = null,
+        shutdownPromise = null,
+        sessionId, excludeTools, appliedExcludeTools, systemPromptSpec, turnCounter = 0,
+        frameWaiters = new Set,
+        activeTurn = null,
+        waitForFrame = match => {
+            let waiter;
             return {
-                promise: new Promise((N, x) => {
-                    $ = {
-                        match: A,
-                        resolve: N,
-                        reject: x
-                    }, d.add($)
+                promise: new Promise((resolve, reject) => {
+                    waiter = {
+                        match,
+                        resolve,
+                        reject
+                    }, frameWaiters.add(waiter)
                 }),
-                cancel: () => $ && d.delete($)
+                cancel: () => waiter && frameWaiters.delete(waiter)
             }
         },
-        m = A => {
-            let $ = r;
-            if ($) {
-                if ($.stdin.writableEnded || $.stdin.destroyed) {
-                    t(`pi adapter: frame dropped, worker stdin closed: ${A.type}`);
+        sendFrame = frame => {
+            let currentWorker = worker;
+            if (currentWorker) {
+                if (currentWorker.stdin.writableEnded || currentWorker.stdin.destroyed) {
+                    logDebug(`pi adapter: frame dropped, worker stdin closed: ${frame.type}`);
                     return
                 }
-                $.stdin.write(encodePiWorkerFrame(A))
+                currentWorker.stdin.write(encodePiWorkerFrame(frame))
             }
         },
-        h = A => {
-            for (let $ of d)
-                if ($.match(A)) {
-                    d.delete($), $.resolve(A);
+        resolveFrameWaiter = incomingFrame => {
+            for (let candidate of frameWaiters)
+                if (candidate.match(incomingFrame)) {
+                    frameWaiters.delete(candidate), candidate.resolve(incomingFrame);
                     return
                 }
         },
-        g = () => {
-            f = null
+        clearActiveTurn = () => {
+            activeTurn = null
         },
-        y = A => {
-            let $ = f;
-            if (!$ || $.turnId !== A.turn_id) return;
-            let C = A.event,
-                N = null;
-            if (C.kind === "tool_start") {
-                let x = C.args_json === "" ? void 0 : C.args_json;
+        handleExecFrame = execFrame => {
+            let turn = activeTurn;
+            if (!turn || turn.turnId !== execFrame.turn_id) return;
+            let event = execFrame.event,
+                executionEvent = null;
+            if (event.kind === "tool_start") {
+                let toolInput = event.args_json === "" ? void 0 : event.args_json;
                 try {
-                    C.args_json !== "" && (x = JSON.parse(C.args_json))
+                    event.args_json !== "" && (toolInput = JSON.parse(event.args_json))
                 } catch {}
-                N = {
+                executionEvent = {
                     type: "tool_use",
-                    toolUseId: C.tool_call_id,
-                    toolName: C.tool_name,
-                    input: x
+                    toolUseId: event.tool_call_id,
+                    toolName: event.tool_name,
+                    input: toolInput
                 }
-            } else C.kind === "tool_delta" ? N = {
+            } else event.kind === "tool_delta" ? executionEvent = {
                 type: "tool_input_delta",
-                toolUseId: C.tool_call_id,
-                toolName: C.tool_name,
-                partialJson: C.delta
-            } : (C.tool_name === "Skip" && ($.skipObserved = !0), e.onToolEnd && $.pendingToolEndEffects.push(Promise.resolve(e.onToolEnd({
-                tool_name: C.tool_name,
-                result_json: C.result_json,
-                is_error: C.is_error
-            })).catch(x => {
-                t(`pi adapter: tool-end effect failed: ${String(x)}`)
-            })), N = {
+                toolUseId: event.tool_call_id,
+                toolName: event.tool_name,
+                partialJson: event.delta
+            } : (event.tool_name === "Skip" && (turn.skipObserved = !0), options.onToolEnd && turn.pendingToolEndEffects.push(Promise.resolve(options.onToolEnd({
+                tool_name: event.tool_name,
+                result_json: event.result_json,
+                is_error: event.is_error
+            })).catch(err => {
+                logDebug(`pi adapter: tool-end effect failed: ${String(err)}`)
+            })), executionEvent = {
                 type: "tool_result",
-                toolUseId: C.tool_call_id,
-                toolName: C.tool_name,
-                isError: C.is_error,
-                summary: C.result_json
+                toolUseId: event.tool_call_id,
+                toolName: event.tool_name,
+                isError: event.is_error,
+                summary: event.result_json
             });
-            $.onExecutionEvent?.(N)
+            turn.onExecutionEvent?.(executionEvent)
         },
-        v = A => {
-            switch (A.type) {
+        handleFrame = frame => {
+            switch (frame.type) {
                 case "stream":
-                    f && f.turnId === A.turn_id && f.onStream?.(A.delta);
+                    activeTurn && activeTurn.turnId === frame.turn_id && activeTurn.onStream?.(frame.delta);
                     return;
                 case "thought":
-                    f && f.turnId === A.turn_id && f.onExecutionEvent?.({
+                    activeTurn && activeTurn.turnId === frame.turn_id && activeTurn.onExecutionEvent?.({
                         type: "thought_chunk",
-                        text: A.delta
+                        text: frame.delta
                     });
                     return;
                 case "exec":
-                    y(A);
+                    handleExecFrame(frame);
                     return;
                 case "notify":
-                    e.onNotify?.(A.text);
+                    options.onNotify?.(frame.text);
                     return;
                 case "run_ack":
-                    A.accepted && f && f.turnId === A.turn_id && (f.acceptedAt = Date.now()), h(A);
+                    frame.accepted && activeTurn && activeTurn.turnId === frame.turn_id && (activeTurn.acceptedAt = Date.now()), resolveFrameWaiter(frame);
                     return;
                 case "orphan_run":
-                    t(`pi adapter: orphan_run ${A.phase}`);
+                    logDebug(`pi adapter: orphan_run ${frame.phase}`);
                     return;
                 default: {
-                    if (!Tht.has(A.type)) {
-                        t(`pi adapter: unknown frame type ignored: ${String(A.type)}`);
+                    if (!Tht.has(frame.type)) {
+                        logDebug(`pi adapter: unknown frame type ignored: ${String(frame.type)}`);
                         return
                     }
-                    h(A)
+                    resolveFrameWaiter(frame)
                 }
             }
         },
-        b = A => {
-            r = null, o || (i = null);
-            for (let $ of [...d]) d.delete($), $.reject(A);
-            g()
+        handleWorkerGone = error => {
+            worker = null, shutdownPromise || (connectPromise = null);
+            for (let waiter of [...frameWaiters]) frameWaiters.delete(waiter), waiter.reject(error);
+            clearActiveTurn()
         },
-        _ = async A => {
-            let $ = o;
-            if ($ && (await $, !A())) throw new Error("pi adapter: connect cancelled by shutdown");
-            let C = iEe(e.workerCommand.command, e.workerCommand.args, {
-                cwd: e.cwd,
+        connectWorker = async isCurrent => {
+            let pendingShutdown = shutdownPromise;
+            if (pendingShutdown && (await pendingShutdown, !isCurrent())) throw new Error("pi adapter: connect cancelled by shutdown");
+            let child = iEe(options.workerCommand.command, options.workerCommand.args, {
+                cwd: options.cwd,
                 env: {
                     ...process.env,
-                    ...e.env
+                    ...options.env
                 },
                 stdio: ["pipe", "pipe", "pipe"]
             });
-            r = C, C.on("error", x => {
-                r === C && b(x)
-            }), C.on("exit", x => {
-                r === C && b(new Error(`pi worker exited (code ${String(x)})`))
-            }), attachStreamLineReader(C.stdout, x => {
-                if (r !== C) return;
-                let M = LW(x);
-                if (!M) {
-                    x.trim() && t("pi adapter: non-frame stdout line skipped");
+            worker = child, child.on("error", err => {
+                worker === child && handleWorkerGone(err)
+            }), child.on("exit", exitCode => {
+                worker === child && handleWorkerGone(new Error(`pi worker exited (code ${String(exitCode)})`))
+            }), attachStreamLineReader(child.stdout, line => {
+                if (worker !== child) return;
+                let parsedFrame = LW(line);
+                if (!parsedFrame) {
+                    line.trim() && logDebug("pi adapter: non-frame stdout line skipped");
                     return
                 }
-                v(M)
-            }), C.stderr.on("data", x => {
-                for (let M of x.toString().split(`
-`)) M.trim() && t(`pi worker: ${M}`)
-            }), C.stdin.on("error", x => {
-                t(`pi adapter: worker stdin error: ${String(x)}`)
+                handleFrame(parsedFrame)
+            }), child.stderr.on("data", chunk => {
+                for (let stderrLine of chunk.toString().split(`
+`)) stderrLine.trim() && logDebug(`pi worker: ${stderrLine}`)
+            }), child.stdin.on("error", err => {
+                logDebug(`pi adapter: worker stdin error: ${String(err)}`)
             });
-            let N = p(x => x.type === "ready" || x.type === "init_error");
-            m({
+            let readyWaiter = waitForFrame(frame => frame.type === "ready" || frame.type === "init_error");
+            sendFrame({
                 type: "init",
-                cwd: e.cwd,
-                agent_dir: e.agentDir,
+                cwd: options.cwd,
+                agent_dir: options.agentDir,
                 session: {
-                    id: e.sdkSessionId,
-                    in_memory: e.inMemorySession
+                    id: options.sdkSessionId,
+                    in_memory: options.inMemorySession
                 },
-                session_dir: e.sessionDir,
-                auth_path: e.authPath,
-                models_path: e.modelsPath,
-                models_store_path: e.modelsStorePath,
-                settings_seed: e.settingsSeed,
-                resources: e.resources,
-                model: e.model,
-                exclude_tools: a,
-                thinking_level: e.thinkingLevel,
-                system_prompt: l
+                session_dir: options.sessionDir,
+                auth_path: options.authPath,
+                models_path: options.modelsPath,
+                models_store_path: options.modelsStorePath,
+                settings_seed: options.settingsSeed,
+                resources: options.resources,
+                model: options.model,
+                exclude_tools: excludeTools,
+                thinking_level: options.thinkingLevel,
+                system_prompt: systemPromptSpec
             });
             try {
-                let x = await N.promise;
-                if (x.type === "init_error") throw new Error(`pi worker init failed: ${x.reason}`);
-                if (x.type !== "ready") throw new Error("pi worker: unexpected frame before ready");
-                return s = x.session_id, u = a, t(`pi adapter: ready session=${s}`), s
+                let promise = await readyWaiter.promise;
+                if (promise.type === "init_error") throw new Error(`pi worker init failed: ${promise.reason}`);
+                if (promise.type !== "ready") throw new Error("pi worker: unexpected frame before ready");
+                return sessionId = promise.session_id, appliedExcludeTools = excludeTools, logDebug(`pi adapter: ready session=${sessionId}`), sessionId
             } finally {
-                N.cancel()
+                readyWaiter.cancel()
             }
-        }, E = () => {
-            if (!i) {
-                let A = _(() => i === A).catch($ => {
-                    throw i === A && (i = null), $
+        }, connect = () => {
+            if (!connectPromise) {
+                let attempt = connectWorker(() => connectPromise === attempt).catch(err => {
+                    throw connectPromise === attempt && (connectPromise = null), err
                 });
-                i = A
+                connectPromise = attempt
             }
-            return i
-        }, R = async A => {
-            if (typeof A.prompt != "string") throw new Error("pi adapter: prompt must be a string (streaming generators are claude-only)");
-            if (f) throw new Error("pi adapter: a run is already in flight (single-inflight violation)");
-            if (A.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
-            A.tools && n("pi adapter: RunInput.tools carries the claude builtin surface — ignored on pi (§3 no-op table)");
-            let $ = `pi-turn-${++c}-${Date.now()}`;
-            f = {
-                turnId: $,
+            return connectPromise
+        }, run = async input => {
+            if (typeof input.prompt != "string") throw new Error("pi adapter: prompt must be a string (streaming generators are claude-only)");
+            if (activeTurn) throw new Error("pi adapter: a run is already in flight (single-inflight violation)");
+            if (input.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
+            input.tools && logWarn("pi adapter: RunInput.tools carries the claude builtin surface — ignored on pi (§3 no-op table)");
+            let turnId = `pi-turn-${++turnCounter}-${Date.now()}`;
+            activeTurn = {
+                turnId,
                 acceptedAt: void 0,
                 skipObserved: !1,
                 pendingToolEndEffects: [],
-                onStream: A.onStream,
-                onExecutionEvent: A.onExecutionEvent
+                onStream: input.onStream,
+                onExecutionEvent: input.onExecutionEvent
             };
-            let C = f,
-                N = () => m({
+            let turn = activeTurn,
+                sendAbort = () => sendFrame({
                     type: "abort",
-                    turn_id: $,
-                    reason: normalizeTurnAbortReason(A.abortController?.signal.reason)
+                    turn_id: turnId,
+                    reason: normalizeTurnAbortReason(input.abortController?.signal.reason)
                 });
-            A.abortController?.signal.addEventListener("abort", N, {
+            input.abortController?.signal.addEventListener("abort", sendAbort, {
                 once: !0
             });
             try {
-                let x = Rht(A.disallowedTools);
-                !r && !i ? (a = x, l = buildPiSystemPromptSpec(A.systemPrompt)) : Iht(u ?? a, x) || t("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
-                let M = A.abortController?.signal;
-                if (M) {
-                    let se, j = new Promise((ne, K) => {
-                        let te = () => K(new AgentSdkPromptNotAcceptedAbortError);
-                        M.addEventListener("abort", te, {
+                let excludedTools = Rht(input.disallowedTools);
+                !worker && !connectPromise ? (excludeTools = excludedTools, systemPromptSpec = buildPiSystemPromptSpec(input.systemPrompt)) : Iht(appliedExcludeTools ?? excludeTools, excludedTools) || logDebug("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
+                let abortSignal = input.abortController?.signal;
+                if (abortSignal) {
+                    let detachAbortListener, promise = new Promise((resolve, reject) => {
+                        let onAbort = () => reject(new AgentSdkPromptNotAcceptedAbortError);
+                        abortSignal.addEventListener("abort", onAbort, {
                             once: !0
-                        }), se = () => M.removeEventListener("abort", te)
+                        }), detachAbortListener = () => abortSignal.removeEventListener("abort", onAbort)
                     });
-                    j.catch(() => {});
+                    promise.catch(() => {});
                     try {
-                        await Promise.race([E(), j])
-                    } catch (ne) {
-                        throw ne instanceof AgentSdkPromptNotAcceptedAbortError && D(), ne
+                        await Promise.race([connect(), promise])
+                    } catch (err) {
+                        throw err instanceof AgentSdkPromptNotAcceptedAbortError && shutdown(), err
                     } finally {
-                        se?.()
+                        detachAbortListener?.()
                     }
-                } else await E();
-                if (A.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
-                let F = rEe(A.attachments),
-                    J = p(se => se.type === "run_ack" && se.turn_id === $),
-                    ce = p(se => se.type === "settled" && se.turn_id === $);
-                ce.promise.catch(() => {}), m({
+                } else await connect();
+                if (input.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
+                let images = rEe(input.attachments),
+                    ackWaiter = waitForFrame(frame => frame.type === "run_ack" && frame.turn_id === turnId),
+                    settledWaiter = waitForFrame(frame => frame.type === "settled" && frame.turn_id === turnId);
+                settledWaiter.promise.catch(() => {}), sendFrame({
                     type: "run",
-                    turn_id: $,
-                    prompt: A.prompt,
-                    images: F.length > 0 ? F : void 0
+                    turn_id: turnId,
+                    prompt: input.prompt,
+                    images: images.length > 0 ? images : void 0
                 });
-                let ie = await J.promise;
-                if (!ie.accepted) throw ce.cancel(), A.onTurnRejected?.(), new Error(`pi worker rejected run: ${ie.reason??"unknown"}`);
-                A.onTurnAcknowledged?.();
-                let Ce = await ce.promise;
-                if (Ce.aborted) {
-                    if (C.skipObserved) return {
-                        sessionId: s,
-                        text: Ce.text,
+                let promise = await ackWaiter.promise;
+                if (!promise.accepted) throw settledWaiter.cancel(), input.onTurnRejected?.(), new Error(`pi worker rejected run: ${promise.reason??"unknown"}`);
+                input.onTurnAcknowledged?.();
+                let promise2 = await settledWaiter.promise;
+                if (promise2.aborted) {
+                    if (turn.skipObserved) return {
+                        sessionId,
+                        text: promise2.text,
                         structured: void 0,
-                        usage: nEe(Ce.usage, e.model),
-                        firstTokenLatencyMs: Ce.first_token_latency_ms,
+                        usage: nEe(promise2.usage, options.model),
+                        firstTokenLatencyMs: promise2.first_token_latency_ms,
                         skipped: !0
                     };
                     throw new AgentSdkTurnInterruptedError
                 }
-                if (Ce.error) throw new Error(`pi run failed: ${Ce.error}`);
+                if (promise2.error) throw new Error(`pi run failed: ${promise2.error}`);
                 return {
-                    sessionId: s,
-                    text: Ce.text,
+                    sessionId,
+                    text: promise2.text,
                     structured: void 0,
-                    usage: nEe(Ce.usage, e.model),
-                    firstTokenLatencyMs: Ce.first_token_latency_ms,
-                    skipped: C.skipObserved
+                    usage: nEe(promise2.usage, options.model),
+                    firstTokenLatencyMs: promise2.first_token_latency_ms,
+                    skipped: turn.skipObserved
                 }
             } finally {
-                A.abortController?.signal.removeEventListener("abort", N), C.pendingToolEndEffects.length > 0 && await Promise.all(C.pendingToolEndEffects), f === C && g()
+                input.abortController?.signal.removeEventListener("abort", sendAbort), turn.pendingToolEndEffects.length > 0 && await Promise.all(turn.pendingToolEndEffects), activeTurn === turn && clearActiveTurn()
             }
-        }, P = async (A, $, C) => {
-            if (!r || !f?.acceptedAt || f.turnId !== $) return !1;
-            let N = rEe(C),
-                x = p(F => F.type === "steer_result" && F.turn_id === $);
-            return m({
+        }, steerActiveTurn = async (text, turnId, attachments) => {
+            if (!worker || !activeTurn?.acceptedAt || activeTurn.turnId !== turnId) return !1;
+            let images = rEe(attachments),
+                steerWaiter = waitForFrame(frame => frame.type === "steer_result" && frame.turn_id === turnId);
+            return sendFrame({
                 type: "steer",
-                turn_id: $,
-                text: A,
-                images: N.length > 0 ? N : void 0
-            }), (await x.promise).landed
-        }, k = async A => {
-            let $ = new Date().toISOString(),
-                C = () => m({
+                turn_id: turnId,
+                text,
+                images: images.length > 0 ? images : void 0
+            }), (await steerWaiter.promise).landed
+        }, compact = async compactInput => {
+            let triggeredAt = new Date().toISOString(),
+                abortCompact = () => sendFrame({
                     type: "abort",
                     turn_id: "compact"
                 }),
-                N = !r && !i;
+                wasCold = !worker && !connectPromise;
             try {
-                await E(), A.abortController?.signal.addEventListener("abort", C, {
+                await connect(), compactInput.abortController?.signal.addEventListener("abort", abortCompact, {
                     once: !0
                 });
-                let x = p(J => J.type === "compact_result");
-                m({
+                let compactWaiter = waitForFrame(frame => frame.type === "compact_result");
+                sendFrame({
                     type: "compact"
                 });
-                let F = (await x.promise).outcome;
-                return F.kind === "succeeded" ? {
+                let outcome = (await compactWaiter.promise).outcome;
+                return outcome.kind === "succeeded" ? {
                     kind: "succeeded",
                     runtime: bA,
-                    pre_input_tokens: F.pre_input_tokens,
-                    summary_excerpt: F.summary_excerpt,
-                    triggered_at: $
-                } : F.kind === "noop" ? {
+                    pre_input_tokens: outcome.pre_input_tokens,
+                    summary_excerpt: outcome.summary_excerpt,
+                    triggered_at: triggeredAt
+                } : outcome.kind === "noop" ? {
                     kind: "noop",
                     runtime: bA,
-                    reason: F.reason,
-                    triggered_at: $
+                    reason: outcome.reason,
+                    triggered_at: triggeredAt
                 } : {
                     kind: "failed",
                     runtime: bA,
-                    error: F.error,
-                    triggered_at: $
+                    error: outcome.error,
+                    triggered_at: triggeredAt
                 }
-            } catch (x) {
+            } catch (err) {
                 return {
                     kind: "failed",
                     runtime: bA,
-                    error: String(x.message ?? x),
-                    triggered_at: $
+                    error: String(err.message ?? err),
+                    triggered_at: triggeredAt
                 }
             } finally {
-                A.abortController?.signal.removeEventListener("abort", C), N && await D()
+                compactInput.abortController?.signal.removeEventListener("abort", abortCompact), wasCold && await shutdown()
             }
-        }, S = async A => {
-            if (A.exitCode !== null || A.signalCode !== null) return;
-            let $ = new Promise(N => {
-                    A.once("exit", () => N())
+        }, stopWorkerProcess = async child => {
+            if (child.exitCode !== null || child.signalCode !== null) return;
+            let promise = new Promise(resolve => {
+                    child.once("exit", () => resolve())
                 }),
-                C = N => new Promise(x => {
-                    let M = setTimeout(() => x(!1), N);
-                    $.then(() => {
-                        clearTimeout(M), x(!0)
+                waitForExit = timeoutMs => new Promise(resolveWait => {
+                    let timer = setTimeout(() => resolveWait(!1), timeoutMs);
+                    promise.then(() => {
+                        clearTimeout(timer), resolveWait(!0)
                     })
                 });
-            A.stdin.end(), !await C(tEe) && (A.kill("SIGTERM"), !await C(tEe) && (A.kill("SIGKILL"), await $))
-        }, D = () => {
-            if (i = null, o) return o;
-            let A = r;
-            if (!A) return Promise.resolve();
-            let $ = S(A).finally(() => {
-                r === A && (r = null), o = null
+            child.stdin.end(), !await waitForExit(tEe) && (child.kill("SIGTERM"), !await waitForExit(tEe) && (child.kill("SIGKILL"), await promise))
+        }, shutdown = () => {
+            if (connectPromise = null, shutdownPromise) return shutdownPromise;
+            let child = worker;
+            if (!child) return Promise.resolve();
+            let stopPromise = stopWorkerProcess(child).finally(() => {
+                worker === child && (worker = null), shutdownPromise = null
             });
-            return o = $, $
+            return shutdownPromise = stopPromise, stopPromise
         };
     return {
-        run: R,
-        compact: k,
-        steerActiveTurn: P,
-        activeTurnId: () => f?.acceptedAt !== void 0 ? f.turnId : void 0,
-        activeTurnStartedAt: () => f?.acceptedAt,
-        activeTurnSkipObserved: () => f?.skipObserved === !0,
-        shutdown: D,
-        connect: E
+        run,
+        compact,
+        steerActiveTurn,
+        activeTurnId: () => activeTurn?.acceptedAt !== void 0 ? activeTurn.turnId : void 0,
+        activeTurnStartedAt: () => activeTurn?.acceptedAt,
+        activeTurnSkipObserved: () => activeTurn?.skipObserved === !0,
+        shutdown,
+        connect
     }
 }

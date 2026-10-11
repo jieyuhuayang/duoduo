@@ -2,25 +2,26 @@
 // symbol: parseUpdaterGuidanceVerdict  (minified: ndt, daemon.pretty.js:66937)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 8 renamed — 1 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function parseUpdaterGuidanceVerdict(e) {
-    let t = !1;
-    for (let n of splitLinesDropTrailingEmpty(e)) {
-        if (/updater guidance:/i.test(n)) {
-            t = !0;
+function parseUpdaterGuidanceVerdict(text) {
+    let inGuidance = !1;
+    for (let line of splitLinesDropTrailingEmpty(text)) {
+        if (/updater guidance:/i.test(line)) {
+            inGuidance = !0;
             continue
         }
-        if (!t || !/^- /.test(n)) continue;
-        let r = n.toUpperCase(),
-            i = null,
-            o = Number.POSITIVE_INFINITY;
-        for (let s of Qct) {
-            let a = r.indexOf(s);
-            a >= 0 && a < o && (o = a, i = s)
+        if (!inGuidance || !/^- /.test(line)) continue;
+        let upperLine = line.toUpperCase(),
+            earliestVerdict = null,
+            POSITIVEINFINITY = Number.POSITIVE_INFINITY;
+        for (let verdict of Qct) {
+            let index = upperLine.indexOf(verdict);
+            index >= 0 && index < POSITIVEINFINITY && (POSITIVEINFINITY = index, earliestVerdict = verdict)
         }
-        if (i !== null) return i
+        if (earliestVerdict !== null) return earliestVerdict
     }
     return null
 }

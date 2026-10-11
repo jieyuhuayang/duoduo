@@ -2,31 +2,32 @@
 // symbol: requestPiWorkerCatalog  (minified: oEe, daemon.pretty.js:72985)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 9 renamed — 0 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function requestPiWorkerCatalog(e) {
-    return new Promise(t => {
-        let n = !1,
-            r = o => {
-                n || (n = !0, t(o))
+async function requestPiWorkerCatalog(options) {
+    return new Promise(resolve => {
+        let settled = !1,
+            finish = providers => {
+                settled || (settled = !0, resolve(providers))
             },
-            i = iEe(e.workerCommand.command, e.workerCommand.args, {
-                cwd: e.cwd,
+            child = iEe(options.workerCommand.command, options.workerCommand.args, {
+                cwd: options.cwd,
                 stdio: ["pipe", "pipe", "pipe"]
             });
-        i.on("error", () => r([])), i.on("close", () => r([])), i.stdin.once("error", () => r([])), i.stderr.on("data", o => e.logDebug?.(String(o).trimEnd())), attachStreamLineReader(i.stdout, o => {
-            let s = LW(o);
-            s?.type === "catalog_result" && r(s.providers)
-        }), i.stdin.write(encodePiWorkerFrame({
+        child.on("error", () => finish([])), child.on("close", () => finish([])), child.stdin.once("error", () => finish([])), child.stderr.on("data", chunk => options.logDebug?.(String(chunk).trimEnd())), attachStreamLineReader(child.stdout, line => {
+            let frame = LW(line);
+            frame?.type === "catalog_result" && finish(frame.providers)
+        }), child.stdin.write(encodePiWorkerFrame({
             type: "catalog",
-            cwd: e.cwd,
-            agent_dir: e.agentDir,
-            auth_path: e.authPath,
-            models_path: e.modelsPath,
-            models_store_path: e.modelsStorePath,
-            settings_seed: e.settingsSeed,
-            resources: e.resources
+            cwd: options.cwd,
+            agent_dir: options.agentDir,
+            auth_path: options.authPath,
+            models_path: options.modelsPath,
+            models_store_path: options.modelsStorePath,
+            settings_seed: options.settingsSeed,
+            resources: options.resources
         }))
     })
 }

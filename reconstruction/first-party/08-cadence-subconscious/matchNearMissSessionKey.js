@@ -2,39 +2,40 @@
 // symbol: matchNearMissSessionKey  (minified: Glt, daemon.pretty.js:65348)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 11 renamed — 1 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (high): Notify "target not found" error now matches candidates scope-aware (session_key prefix + channel kind), yielding actionable suggestions.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function matchNearMissSessionKey(e, t) {
-    if (t.session_key === e) return null;
-    let n = ove(e),
-        r = ove(t.session_key);
-    if (n.length === 0 || r.length === 0) return null;
-    if (n.length === r.length && n.length >= 2) {
-        let s = 0;
-        for (; s < n.length - 1 && n[s] === r[s];) s++;
-        if (s === n.length - 1) {
-            let a = n[n.length - 1],
-                u = r[r.length - 1],
-                l = computeBoundedEditDistance(a, u, ive);
-            if (l <= ive) return {
-                entry: t,
-                note: `last segment differs by ${l} char${l===1?"":"s"}`
+function matchNearMissSessionKey(target, entry) {
+    if (entry.session_key === target) return null;
+    let targetSegments = ove(target),
+        entrySegments = ove(entry.session_key);
+    if (targetSegments.length === 0 || entrySegments.length === 0) return null;
+    if (targetSegments.length === entrySegments.length && targetSegments.length >= 2) {
+        let i = 0;
+        for (; i < targetSegments.length - 1 && targetSegments[i] === entrySegments[i];) i++;
+        if (i === targetSegments.length - 1) {
+            let targetLast = targetSegments[targetSegments.length - 1],
+                entryLast = entrySegments[entrySegments.length - 1],
+                boundedEditDistance = computeBoundedEditDistance(targetLast, entryLast, ive);
+            if (boundedEditDistance <= ive) return {
+                entry,
+                note: `last segment differs by ${boundedEditDistance} char${boundedEditDistance===1?"":"s"}`
             };
-            if (n[0] === "job" && n.length === 3) {
-                let c = n[1];
+            if (targetSegments[0] === "job" && targetSegments.length === 3) {
+                let readableName = targetSegments[1];
                 return {
-                    entry: t,
-                    note: `readable name "${c}" matches; hash differs — job may have been recreated`
+                    entry,
+                    note: `readable name "${readableName}" matches; hash differs — job may have been recreated`
                 }
             }
         }
     }
-    let i = n[n.length - 1],
-        o = r[r.length - 1];
-    return i === o && i.length >= 6 && (n[0] !== r[0] || n.length !== r.length) ? {
-        entry: t,
-        note: `trailing identifier "${i}" matches in a different scope`
+    let targetTail = targetSegments[targetSegments.length - 1],
+        entryTail = entrySegments[entrySegments.length - 1];
+    return targetTail === entryTail && targetTail.length >= 6 && (targetSegments[0] !== entrySegments[0] || targetSegments.length !== entrySegments.length) ? {
+        entry,
+        note: `trailing identifier "${targetTail}" matches in a different scope`
     } : null
 }

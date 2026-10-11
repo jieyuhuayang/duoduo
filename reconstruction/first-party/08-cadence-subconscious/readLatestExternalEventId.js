@@ -2,25 +2,26 @@
 // symbol: readLatestExternalEventId  (minified: Rbt, daemon.pretty.js:86108)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 8 renamed — 2 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function readLatestExternalEventId(e) {
-    let t;
+async function readLatestExternalEventId(paths) {
+    let source;
     try {
-        let r = (await yk.readdir(e.eventsDir)).filter(i => i.endsWith(".jsonl")).sort();
-        if (r.length === 0) return "";
-        t = await yk.readFile(Sy.join(e.eventsDir, r[r.length - 1]), "utf8")
+        let eventFiles = (await yk.readdir(paths.eventsDir)).filter(fileName => fileName.endsWith(".jsonl")).sort();
+        if (eventFiles.length === 0) return "";
+        source = await yk.readFile(Sy.join(paths.eventsDir, eventFiles[eventFiles.length - 1]), "utf8")
     } catch {
         return ""
     }
-    let n = t.split(`
+    let parts = source.split(`
 `);
-    for (let r = n.length - 1; r >= 0; r -= 1)
-        if (n[r]) try {
-            let i = JSON.parse(n[r]),
-                o = i.source?.kind;
-            if (o && !qg.has(o) && typeof i.id == "string") return i.id
+    for (let i2 = parts.length - 1; i2 >= 0; i2 -= 1)
+        if (parts[i2]) try {
+            let parsed = JSON.parse(parts[i2]),
+                sourceKind = parsed.source?.kind;
+            if (sourceKind && !qg.has(sourceKind) && typeof parsed.id == "string") return parsed.id
         } catch {}
     return ""
 }

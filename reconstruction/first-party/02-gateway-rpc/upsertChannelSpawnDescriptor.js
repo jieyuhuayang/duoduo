@@ -2,110 +2,111 @@
 // symbol: upsertChannelSpawnDescriptor  (minified: yvt, daemon.pretty.js:91873)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.7.0, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// locals: 20 renamed — 5 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (high): descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins. Enables per-instance runtime selection without restart.
 // changelog v0.8.4 (high): `channel.spawn` never moves a session to another channel. Naming a session that another channel owns is refused before anything is written.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function upsertChannelSpawnDescriptor(e, t, n) {
-    let r = n.channel_kind.trim().toLowerCase(),
-        i = n.channel_id.trim();
-    if (!isValidChannelId(i)) return {
+async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
+    let channelKind = params.channel_kind.trim().toLowerCase(),
+        trimmed = params.channel_id.trim();
+    if (!isValidChannelId(trimmed)) return {
         ok: !1,
-        reason: `Invalid channel_id "${i}". Must match [A-Za-z0-9_-]{1,128}.`
+        reason: `Invalid channel_id "${trimmed}". Must match [A-Za-z0-9_-]{1,128}.`
     };
-    if (r.toLowerCase() === Yr) return {
+    if (channelKind.toLowerCase() === Yr) return {
         ok: !1,
         reason: `"${Yr}" is a reserved name for the global config file (kernel/config/${Yr}.md), not a channel kind. Pick a different channel_kind.`
     };
-    let o = n.session_key?.trim();
-    if (o !== void 0 && classifySessionKeyKind(o) !== "channel") return {
+    let sessionKey = params.session_key?.trim();
+    if (sessionKey !== void 0 && classifySessionKeyKind(sessionKey) !== "channel") return {
         ok: !1,
-        reason: `session_key "${o}" is a ${classifySessionKeyKind(o)} session key; channel.spawn creates channel sessions only.`
+        reason: `session_key "${sessionKey}" is a ${classifySessionKeyKind(sessionKey)} session key; channel.spawn creates channel sessions only.`
     };
-    if (o !== void 0) {
-        let m = (await readSessionRuntimeState(e, o))?.source_channel_id;
-        if (m !== void 0 && m !== i) return {
+    if (sessionKey !== void 0) {
+        let existingChannelId = (await readSessionRuntimeState(paths, sessionKey))?.source_channel_id;
+        if (existingChannelId !== void 0 && existingChannelId !== trimmed) return {
             ok: !1,
-            reason: `session_key "${o}" belongs to channel "${m}", not "${i}"; channel.spawn does not move a session to another channel.`
+            reason: `session_key "${sessionKey}" belongs to channel "${existingChannelId}", not "${trimmed}"; channel.spawn does not move a session to another channel.`
         }
     }
-    let s = await readChannelDescriptor(e, i);
-    if (n.runtime === void 0 && s?.runtimeRefusal) return {
+    let channelDescriptor = await readChannelDescriptor(paths, trimmed);
+    if (params.runtime === void 0 && channelDescriptor?.runtimeRefusal) return {
         ok: !1,
-        reason: `${s.runtimeRefusal} Send a runtime to replace it.`
+        reason: `${channelDescriptor.runtimeRefusal} Send a runtime to replace it.`
     };
-    let a = n.runtime ?? s?.runtime;
-    if (!a) return {
+    let runtime = params.runtime ?? channelDescriptor?.runtime;
+    if (!runtime) return {
         ok: !1,
         reason: "runtime is required on first-time channel.spawn (no prior descriptor to inherit from)."
     };
-    if (!gIe.includes(a)) return {
+    if (!gIe.includes(runtime)) return {
         ok: !1,
-        reason: `Unsupported runtime "${a}". Must be one of: ${gIe.join(", ")}.`
+        reason: `Unsupported runtime "${runtime}". Must be one of: ${gIe.join(", ")}.`
     };
-    if (s && a !== s.runtime) {
-        let m = await checkChannelRuntimeRebindConflict(e, t, i, a);
-        if (m) return {
+    if (channelDescriptor && runtime !== channelDescriptor.runtime) {
+        let conflict = await checkChannelRuntimeRebindConflict(paths, sessionIndex, trimmed, runtime);
+        if (conflict) return {
             ok: !1,
-            reason: m
+            reason: conflict
         }
     }
-    let u = n.cwd_abs ?? s?.new_session_workspace;
-    if (!u) return {
+    let cwd = params.cwd_abs ?? channelDescriptor?.new_session_workspace;
+    if (!cwd) return {
         ok: !1,
         reason: "cwd_abs is required on first-time channel.spawn (no prior descriptor to inherit from)."
     };
-    if (!so.isAbsolute(u)) return {
+    if (!so.isAbsolute(cwd)) return {
         ok: !1,
-        reason: `cwd_abs must be an absolute path (got "${u}").`
+        reason: `cwd_abs must be an absolute path (got "${cwd}").`
     };
-    let l = await resolveExistingDirRealpath(u).catch(() => null) ?? void 0;
-    if (l || (l = await ensureAbsoluteWorkspaceDir(u).catch(() => null) ?? void 0), !l) return {
+    let workspaceDir = await resolveExistingDirRealpath(cwd).catch(() => null) ?? void 0;
+    if (workspaceDir || (workspaceDir = await ensureAbsoluteWorkspaceDir(cwd).catch(() => null) ?? void 0), !workspaceDir) return {
         ok: !1,
-        reason: `cwd_abs "${u}" does not exist and could not be created.`
+        reason: `cwd_abs "${cwd}" does not exist and could not be created.`
     };
-    let c = n.require_mention !== void 0 ? n.require_mention : s?.require_mention,
-        d = n.display_name ?? s?.display_name,
-        f = n.bound_by?.trim() || s?.bound_by,
-        p = new Date().toISOString();
+    let requireMention = params.require_mention !== void 0 ? params.require_mention : channelDescriptor?.require_mention,
+        displayName = params.display_name ?? channelDescriptor?.display_name,
+        boundBy = params.bound_by?.trim() || channelDescriptor?.bound_by,
+        boundAt = new Date().toISOString();
     try {
-        await xce(e, {
-            channel_id: i,
-            channel_kind: r,
-            display_name: d,
-            new_session_workspace: l,
-            runtime: a,
-            bound_by: f,
-            bound_at: p,
-            require_mention: c
+        await xce(paths, {
+            channel_id: trimmed,
+            channel_kind: channelKind,
+            display_name: displayName,
+            new_session_workspace: workspaceDir,
+            runtime,
+            bound_by: boundBy,
+            bound_at: boundAt,
+            require_mention: requireMention
         })
-    } catch (m) {
+    } catch (err) {
         return {
             ok: !1,
-            reason: `Failed to write descriptor: ${m instanceof Error?m.message:String(m)}`
+            reason: `Failed to write descriptor: ${err instanceof Error?err.message:String(err)}`
         }
     }
-    if (o !== void 0) try {
-        await ensureSessionDescriptorAndStateFiles(e, {
-            session_key: o,
-            display_name: d,
+    if (sessionKey !== void 0) try {
+        await ensureSessionDescriptorAndStateFiles(paths, {
+            session_key: sessionKey,
+            display_name: displayName,
             kind: "channel"
         });
-        let m = await readSessionRuntimeState(e, o);
-        await patchSessionRuntimeState(e, o, {
-            session_key: o,
-            cwd: m?.cwd ?? l,
-            source_channel_id: i,
-            created_at: m?.created_at ?? new Date().toISOString()
+        let sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey);
+        await patchSessionRuntimeState(paths, sessionKey, {
+            session_key: sessionKey,
+            cwd: sessionRuntimeState?.cwd ?? workspaceDir,
+            source_channel_id: trimmed,
+            created_at: sessionRuntimeState?.created_at ?? new Date().toISOString()
         }, {
             create: !0
-        }), await refreshSessionIndexEntry(e, t, o)
-    } catch (m) {
-        let h = m instanceof Error ? m.message : String(m);
+        }), await refreshSessionIndexEntry(paths, sessionIndex, sessionKey)
+    } catch (err) {
+        let message = err instanceof Error ? err.message : String(err);
         return {
             ok: !1,
-            reason: `Failed to create session ${o}: ${h}`
+            reason: `Failed to create session ${sessionKey}: ${message}`
         }
     }
     return {

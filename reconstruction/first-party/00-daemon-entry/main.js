@@ -2,163 +2,164 @@
 // symbol: main  (minified: kvt, daemon.pretty.js:93073)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.7, v0.3.0, v0.3.1, v0.3.3, v0.4.3, v0.5.0, v0.5.3, v0.5.4, v0.5.6, v0.5.10, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
+// locals: 49 renamed — 24 from the code at the binding (rule), 25 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function main() {
     let {
-        resolveRuntimePaths: e
+        resolveRuntimePaths
     } = await Promise.resolve().then(() => (Yf(), xwe)), {
-        initializeRuntime: t
+        initializeRuntime
     } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), Zke)), {
-        createAgentSdkAdapter: n
+        createAgentSdkAdapter
     } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)), {
-        createSessionManager: r
+        createSessionManager
     } = await Promise.resolve().then(() => (eIe(), QRe)), {
-        createMetaSession: i
+        createMetaSession
     } = await Promise.resolve().then(() => (initMetaSessionModule(), nIe)), {
-        runCadenceTick: o
+        runCadenceTick
     } = await Promise.resolve().then(() => ($G(), uIe)), {
-        createJobScheduler: s
+        createJobScheduler
     } = await Promise.resolve().then(() => (initJobSchedulerModule(), lIe)), {
-        createOutboxDeliveryManager: a
+        createOutboxDeliveryManager
     } = await Promise.resolve().then(() => (fIe(), dIe)), {
-        clearHostModelEnvVars: u,
-        loadHostDotEnv: l
+        clearHostModelEnvVars,
+        loadHostDotEnv
     } = await Promise.resolve().then(() => (XH(), YSe));
-    process.on("unhandledRejection", j => {
-        logErrorMessage("[pid0] unhandled promise rejection (contained, daemon survives)", j)
-    }), process.on("uncaughtException", j => {
-        logErrorMessage("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", j), process.exit(1)
+    process.on("unhandledRejection", reason => {
+        logErrorMessage("[pid0] unhandled promise rejection (contained, daemon survives)", reason)
+    }), process.on("uncaughtException", err => {
+        logErrorMessage("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", err), process.exit(1)
     });
-    let c = await l();
-    c > 0 && logInfoMessage(`[pid0] loaded ${c} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && u(process.env), delete process.env[tl], resolveDefaultRuntime();
-    let d = e(),
-        f = await acquireRuntimeWriterLock(d);
-    if (!f.acquired) throw new Error(`Runtime lock already held by pid=${f.lock?.pid??"unknown"} at ${f.lockPath}`);
+    let loadedEnvCount = await loadHostDotEnv();
+    loadedEnvCount > 0 && logInfoMessage(`[pid0] loaded ${loadedEnvCount} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && clearHostModelEnvVars(process.env), delete process.env[tl], resolveDefaultRuntime();
+    let paths = resolveRuntimePaths(),
+        runtimeWriterLock = await acquireRuntimeWriterLock(paths);
+    if (!runtimeWriterLock.acquired) throw new Error(`Runtime lock already held by pid=${runtimeWriterLock.lock?.pid??"unknown"} at ${runtimeWriterLock.lockPath}`);
     try {
-        await t(d);
-        let j = await pruneEventIdIndexByRetention(d, {
+        await initializeRuntime(paths);
+        let pruneResult = await pruneEventIdIndexByRetention(paths, {
             retentionDays: readSpineIndexRetentionDays()
         });
-        logInfoMessage(`[pid0] spine by-id index retention: kept=${j.kept} dropped=${j.dropped} cutoff=${j.cutoff}`)
-    } catch (j) {
-        throw await releaseRuntimeWriterLock(d), j
+        logInfoMessage(`[pid0] spine by-id index retention: kept=${pruneResult.kept} dropped=${pruneResult.dropped} cutoff=${pruneResult.cutoff}`)
+    } catch (err) {
+        throw await releaseRuntimeWriterLock(paths), err
     }
-    let p = await buildSessionIndexFromDisk(d);
-    logInfoMessage(`[pid0] session index populated: ${p.size()} entries`), await gve(_O(d));
-    let m = await claimDaemonRestartReason(d);
-    setPendingRestartReason(m), m && logInfoMessage("[pid0] restart reason claimed", {
-        requested_at: m.requested_at,
-        requested_by_agent: m.requested_by_agent,
-        wake_targets: m.wake_targets
+    let sessionIndexFromDisk = await buildSessionIndexFromDisk(paths);
+    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await gve(_O(paths));
+    let restartReason = await claimDaemonRestartReason(paths);
+    setPendingRestartReason(restartReason), restartReason && logInfoMessage("[pid0] restart reason claimed", {
+        requested_at: restartReason.requested_at,
+        requested_by_agent: restartReason.requested_by_agent,
+        wake_targets: restartReason.wake_targets
     });
-    let h = _ve(),
+    let bus = _ve(),
         {
-            probeClaudeAvailability: g
+            probeClaudeAvailability
         } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)),
         {
-            primeCodexAvailability: y,
-            isCodexAvailable: v
+            primeCodexAvailability,
+            isCodexAvailable
         } = await Promise.resolve().then(() => (initCodexAppServerModule(), $6)),
         {
-            primeGrokAvailability: b,
-            isGrokAvailable: _,
-            grokUnavailableReason: E
+            primeGrokAvailability,
+            isGrokAvailable,
+            grokUnavailableReason
         } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), D6)),
-        [R] = await Promise.all([g(), y(), b()]),
-        P = v(),
-        k = _(),
-        S = R.ok ? n() : void 0;
+        [claudeAvailability] = await Promise.all([probeClaudeAvailability(), primeCodexAvailability(), primeGrokAvailability()]),
+        codexAvailable = isCodexAvailable(),
+        grokAvailable = isGrokAvailable(),
+        sdk = claudeAvailability.ok ? createAgentSdkAdapter() : void 0;
     logInfoMessage("[pid0] available runtimes at boot", {
-        claude: R.ok,
-        codex: P,
-        grok: k,
+        claude: claudeAvailability.ok,
+        codex: codexAvailable,
+        grok: grokAvailable,
         pi: !0,
-        claudeReason: R.ok ? void 0 : R.reason,
-        grokReason: k ? void 0 : E()
+        claudeReason: claudeAvailability.ok ? void 0 : claudeAvailability.reason,
+        grokReason: grokAvailable ? void 0 : grokUnavailableReason()
     });
-    let D = createSessionSubscriptionRegistry(),
-        A = r({
-            paths: d,
-            bus: h,
-            sdk: S,
+    let sessionSubscriptionRegistry = createSessionSubscriptionRegistry(),
+        sessionManager = createSessionManager({
+            paths,
+            bus,
+            sdk,
             idleTimeoutMs: Number(process.env.ALADUO_SESSION_IDLE_MS ?? 36e5),
             maxConcurrentChannel: Number(process.env.ALADUO_SESSION_MAX_CONCURRENT_CHANNEL ?? process.env.ALADUO_SESSION_MAX_CONCURRENT ?? 10),
             maxConcurrentJob: Number(process.env.ALADUO_SESSION_MAX_CONCURRENT_JOB ?? 6),
             heartbeatIntervalMs: Number(process.env.ALADUO_SESSION_HEARTBEAT_MS ?? 3e4)
         }),
-        $ = createDaemon({
-            paths: d,
-            bus: h,
-            sdk: S,
-            subscriptions: D,
-            sessionManager: A,
-            sessionIndex: p,
+        daemon = createDaemon({
+            paths,
+            bus,
+            sdk,
+            subscriptions: sessionSubscriptionRegistry,
+            sessionManager,
+            sessionIndex: sessionIndexFromDisk,
             runtimeLockAlreadyHeld: !0
         }),
-        C = Number(process.env.ALADUO_PORT ?? process.env.PORT ?? 20233);
-    await $.start(C, "127.0.0.1"), logAlwaysAtLevel("info", `[pid0] aladuo daemon started on :${C}, pid=${process.pid}`), await A.start(), m?.wake_targets?.length && await deliverDaemonRestartWakes(d, h, p, m).catch(j => {
-        logErrorMessage("[pid0] restart wake delivery error", j)
-    }), D.setAttachmentCallbacks(createVoidAwareAttachmentCallbacks(d, A, j => {
-        logErrorMessage("[pid0] channel attachment tracking error", j)
+        port = Number(process.env.ALADUO_PORT ?? process.env.PORT ?? 20233);
+    await daemon.start(port, "127.0.0.1"), logAlwaysAtLevel("info", `[pid0] aladuo daemon started on :${port}, pid=${process.pid}`), await sessionManager.start(), restartReason?.wake_targets?.length && await deliverDaemonRestartWakes(paths, bus, sessionIndexFromDisk, restartReason).catch(err => {
+        logErrorMessage("[pid0] restart wake delivery error", err)
+    }), sessionSubscriptionRegistry.setAttachmentCallbacks(createVoidAwareAttachmentCallbacks(paths, sessionManager, err => {
+        logErrorMessage("[pid0] channel attachment tracking error", err)
     }));
-    let N = a({
-        paths: d,
-        bus: h,
-        subscriptions: D
+    let outboxDeliveryManager = createOutboxDeliveryManager({
+        paths,
+        bus,
+        subscriptions: sessionSubscriptionRegistry
     });
-    N.start(), N.flushPending().catch(j => {
-        logErrorMessage("[pid0] outbox initial flush error", j)
+    outboxDeliveryManager.start(), outboxDeliveryManager.flushPending().catch(err => {
+        logErrorMessage("[pid0] outbox initial flush error", err)
     });
-    let x = s({
-        paths: d,
-        sessionManager: A,
-        bus: h
+    let jobScheduler = createJobScheduler({
+        paths,
+        sessionManager,
+        bus
     });
-    x.start();
-    let M = createIdleCompactSweeper({
-        paths: d,
-        sessionManager: A,
-        sessionIndex: p,
-        bus: h
+    jobScheduler.start();
+    let idleCompactSweeper = createIdleCompactSweeper({
+        paths,
+        sessionManager,
+        sessionIndex: sessionIndexFromDisk,
+        bus
     });
-    M.start();
-    let F = readEnvIntegerOrFallback("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
+    idleCompactSweeper.start();
+    let envIntegerOrFallback = readEnvIntegerOrFallback("ALADUO_CADENCE_INTERVAL_MS", 222e4, 1e3);
     logInfoMessage("[pid0] cadence rhythm", {
-        cadenceIntervalMs: F
+        cadenceIntervalMs: envIntegerOrFallback
     });
-    let J = !1,
-        ce = setInterval(() => {
-            if (h.emit("cadence.tick"), J) {
+    let tickInFlight = !1,
+        cadenceTimer = setInterval(() => {
+            if (bus.emit("cadence.tick"), tickInFlight) {
                 logDebugMessage("[pid0] cadence tick skipped: still processing previous tick");
                 return
             }
-            J = !0;
-            let j = Date.now();
-            o(d).then(() => {
+            tickInFlight = !0;
+            let now = Date.now();
+            runCadenceTick(paths).then(() => {
                 logDebugMessage("[pid0] cadence tick complete", {
-                    durationMs: Date.now() - j
+                    durationMs: Date.now() - now
                 })
-            }).catch(ne => {
-                logErrorMessage("[pid0] cadence tick error", ne)
+            }).catch(err => {
+                logErrorMessage("[pid0] cadence tick error", err)
             }).finally(() => {
-                J = !1
+                tickInFlight = !1
             })
-        }, F);
-    logAlwaysAtLevel("info", `[pid0] cadence timer started, interval=${F}ms`);
-    let ie = i({
-        paths: d,
-        bus: h,
-        sdk: S,
-        sessionManager: A,
-        cadenceIntervalMs: F
+        }, envIntegerOrFallback);
+    logAlwaysAtLevel("info", `[pid0] cadence timer started, interval=${envIntegerOrFallback}ms`);
+    let metaSession = createMetaSession({
+        paths,
+        bus,
+        sdk,
+        sessionManager,
+        cadenceIntervalMs: envIntegerOrFallback
     });
-    ie.start();
-    let Ce = !1,
-        se = async j => {
-            Ce || (Ce = !0, logAlwaysAtLevel("info", `[pid0] received ${j}, shutting down...`), await x.stop(), await M.stop(), clearInterval(ce), h.emit("shutdown"), await ie.stop(), await A.stop(), await N.stop(), await $.stop(), h.removeAllListeners(), logAlwaysAtLevel("info", "[pid0] shutdown complete"), process.exit(0))
+    metaSession.start();
+    let shuttingDown = !1,
+        shutdown = async signal => {
+            shuttingDown || (shuttingDown = !0, logAlwaysAtLevel("info", `[pid0] received ${signal}, shutting down...`), await jobScheduler.stop(), await idleCompactSweeper.stop(), clearInterval(cadenceTimer), bus.emit("shutdown"), await metaSession.stop(), await sessionManager.stop(), await outboxDeliveryManager.stop(), await daemon.stop(), bus.removeAllListeners(), logAlwaysAtLevel("info", "[pid0] shutdown complete"), process.exit(0))
         };
-    process.on("SIGTERM", () => se("SIGTERM")), process.on("SIGINT", () => se("SIGINT"))
+    process.on("SIGTERM", () => shutdown("SIGTERM")), process.on("SIGINT", () => shutdown("SIGINT"))
 }

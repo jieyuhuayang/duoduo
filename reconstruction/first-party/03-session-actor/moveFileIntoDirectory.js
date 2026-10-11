@@ -2,11 +2,12 @@
 // symbol: moveFileIntoDirectory  (minified: Gd, daemon.pretty.js:32340)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function moveFileIntoDirectory(e, t, n = "") {
-    await ensureDirectoryExists(t);
-    let r = xae.join(t, xae.basename(e) + n);
-    return await eYe.rename(e, r), r
+async function moveFileIntoDirectory(filePath, targetDir, suffix = "") {
+    await ensureDirectoryExists(targetDir);
+    let destinationPath = xae.join(targetDir, xae.basename(filePath) + suffix);
+    return await eYe.rename(filePath, destinationPath), destinationPath
 }

@@ -47,6 +47,7 @@ for (const b of BUNDLES) {
   const stats = readJson(`${BUILD}/rename_${b}.stats.json`);
   const rep = readJson(`${BUILD}/rename_${b}.report.json`);
   const syms = readJson(`${BUILD}/symbols_${b}.json`);
+  const locals = readJson(`${BUILD}/locals_${b}.applied.json`)?.stats;
   const pretty = `${BEAUTIFIED}/${b}.pretty.js`;
   // --shipped names the directory the fidelity proof read; a bundle missing
   // there is an error, not a null -- the proof cannot have run on it.
@@ -74,6 +75,7 @@ for (const b of BUNDLES) {
     renamesSkippedMissing: rep?.skippedMissingCount ?? null,
     renamesSkippedCollision: rep?.skippedCollisionCount ?? null,
     indexedSymbols: syms?.symbolCount ?? null,
+    ...(locals ? { localBindings: locals.locals, localNamesApplied: locals.named, localNamesBySource: locals.bySource } : {}),
   };
 }
 

@@ -2,20 +2,21 @@
 // symbol: resolveEffectiveChannelConfig  (minified: ru, daemon.pretty.js:65973)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.7.0, v0.8.0 (maps/history_daemon.json)
+// locals: 6 renamed — 0 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function resolveEffectiveChannelConfig(e, t) {
-    if (!t.channel_kind) return null;
-    let n = t.channel_id && t.channel_id.trim().length > 0 ? await readChannelDescriptor(e, t.channel_id) : null,
-        r = t.channel_kind.trim().toLowerCase();
-    n && n.channel_kind.trim().toLowerCase() !== r && (logWarnMessage(`[channel-config] ignoring descriptor for ingress channel_id="${t.channel_id}" because descriptor kind "${n.channel_kind}" != ingress kind "${t.channel_kind}"`), n = null);
-    let [i, o] = await Promise.all([loadGlobalRuntimeConfig(e.channelConfigDir), loadChannelKindConfig(e.channelConfigDir, t.channel_kind)]);
+async function resolveEffectiveChannelConfig(paths, ingress) {
+    if (!ingress.channel_kind) return null;
+    let instanceDescriptor = ingress.channel_id && ingress.channel_id.trim().length > 0 ? await readChannelDescriptor(paths, ingress.channel_id) : null,
+        ingressKind = ingress.channel_kind.trim().toLowerCase();
+    instanceDescriptor && instanceDescriptor.channel_kind.trim().toLowerCase() !== ingressKind && (logWarnMessage(`[channel-config] ignoring descriptor for ingress channel_id="${ingress.channel_id}" because descriptor kind "${instanceDescriptor.channel_kind}" != ingress kind "${ingress.channel_kind}"`), instanceDescriptor = null);
+    let [globalConfig, kindDescriptor] = await Promise.all([loadGlobalRuntimeConfig(paths.channelConfigDir), loadChannelKindConfig(paths.channelConfigDir, ingress.channel_kind)]);
     return buildEffectiveChannelConfig({
-        channelKind: t.channel_kind,
-        channelId: t.channel_id,
-        globalConfig: i,
-        kindDescriptor: o,
-        instanceDescriptor: n
+        channelKind: ingress.channel_kind,
+        channelId: ingress.channel_id,
+        globalConfig,
+        kindDescriptor,
+        instanceDescriptor
     })
 }

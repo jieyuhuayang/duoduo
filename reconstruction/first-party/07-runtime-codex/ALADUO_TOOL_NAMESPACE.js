@@ -21,11 +21,11 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
         ephemeral: !0,
         dynamicTools: []
     }, BC = class extends Sut {
-        constructor(n, r, i) {
+        constructor(binary, cwd, env) {
             super();
-            this.binary = n;
-            this.cwd = r;
-            this.env = i
+            this.binary = binary;
+            this.cwd = cwd;
+            this.env = env
         }
         binary;
         cwd;
@@ -44,173 +44,173 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
                     ...this.env
                 },
                 detached: !0
-            }), this.alive = !0, this.proc.on("error", n => {
+            }), this.alive = !0, this.proc.on("error", err => {
                 this.alive = !1;
-                let r = n.code === "ENOENT" ? new Error(`Codex CLI ('${this.binary}') not found. Install it from https://github.com/openai/codex and run 'codex login'.`) : n;
-                this.rejectAllPending(r)
-            }), this.proc.on("exit", (n, r) => {
+                let startError = err.code === "ENOENT" ? new Error(`Codex CLI ('${this.binary}') not found. Install it from https://github.com/openai/codex and run 'codex login'.`) : err;
+                this.rejectAllPending(startError)
+            }), this.proc.on("exit", (code, signal) => {
                 this.alive = !1;
-                let i = new Error(`codex app-server exited (code=${n} signal=${r})`);
-                this.rejectAllPending(i)
-            }), this.rl = attachStreamLineReader(this.proc.stdout, n => this.handleLine(n)), attachStreamLineReader(this.proc.stderr, n => {
-                logDebugMessage("[codex-stderr]", n)
+                let error = new Error(`codex app-server exited (code=${code} signal=${signal})`);
+                this.rejectAllPending(error)
+            }), this.rl = attachStreamLineReader(this.proc.stdout, line => this.handleLine(line)), attachStreamLineReader(this.proc.stderr, line => {
+                logDebugMessage("[codex-stderr]", line)
             }))
         }
-        request(n, r, i) {
+        request(method, params, signal) {
             if (!this.alive || !this.proc?.stdin?.writable) return Promise.reject(new Error("codex app-server is not running"));
-            if (i?.aborted) {
-                let s = new Error(`request ${n} aborted`);
-                return s.name = "AbortError", Promise.reject(s)
+            if (signal?.aborted) {
+                let error = new Error(`request ${method} aborted`);
+                return error.name = "AbortError", Promise.reject(error)
             }
-            let o = this.nextId++;
-            return new Promise((s, a) => {
-                if (this.pending.set(o, {
-                        method: n,
-                        resolve: s,
-                        reject: a
+            let id = this.nextId++;
+            return new Promise((resolve, reject) => {
+                if (this.pending.set(id, {
+                        method,
+                        resolve,
+                        reject
                     }), this.send({
-                        id: o,
-                        method: n,
-                        params: r
-                    }), i) {
-                    let u = () => {
-                        let l = this.pending.get(o);
-                        if (l) {
-                            this.pending.delete(o);
-                            let c = new Error(`request ${n} aborted`);
-                            c.name = "AbortError", l.reject(c)
+                        id,
+                        method,
+                        params
+                    }), signal) {
+                    let onAbort = () => {
+                        let pendingRequest = this.pending.get(id);
+                        if (pendingRequest) {
+                            this.pending.delete(id);
+                            let error = new Error(`request ${method} aborted`);
+                            error.name = "AbortError", pendingRequest.reject(error)
                         }
                     };
-                    i.addEventListener("abort", u, {
+                    signal.addEventListener("abort", onAbort, {
                         once: !0
                     })
                 }
             })
         }
-        notify(n, r = {}) {
+        notify(method, params = {}) {
             this.send({
-                method: n,
-                params: r
+                method,
+                params
             })
         }
         async shutdown() {
             this.alive = !1, this.rl?.close(), this.rl = null;
-            let n = this.proc;
-            if (this.proc = null, this.rejectAllPending(new Error("codex app-server shut down")), !n || n.exitCode !== null || n.signalCode !== null) return;
-            let r = new Promise(i => {
-                n.once("exit", () => i())
+            let proc = this.proc;
+            if (this.proc = null, this.rejectAllPending(new Error("codex app-server shut down")), !proc || proc.exitCode !== null || proc.signalCode !== null) return;
+            let promise = new Promise(resolve => {
+                proc.once("exit", () => resolve())
             });
-            if (n.stdin?.end(), n.pid) try {
-                process.kill(-n.pid, "SIGTERM")
+            if (proc.stdin?.end(), proc.pid) try {
+                process.kill(-proc.pid, "SIGTERM")
             } catch {
-                n.kill("SIGTERM")
-            } else n.kill("SIGTERM");
-            await r
+                proc.kill("SIGTERM")
+            } else proc.kill("SIGTERM");
+            await promise
         }
         get isAlive() {
             return this.alive
         }
-        send(n) {
-            this.proc?.stdin?.writable && this.proc.stdin.write(JSON.stringify(n) + `
+        send(message) {
+            this.proc?.stdin?.writable && this.proc.stdin.write(JSON.stringify(message) + `
 `)
         }
-        handleLine(n) {
-            let r = n.trim();
-            if (!r) return;
-            let i;
+        handleLine(line) {
+            let trimmed = line.trim();
+            if (!trimmed) return;
+            let message;
             try {
-                i = JSON.parse(r)
+                message = JSON.parse(trimmed)
             } catch {
-                logWarnMessage("[codex-transport] unparseable line:", r.slice(0, 200));
+                logWarnMessage("[codex-transport] unparseable line:", trimmed.slice(0, 200));
                 return
             }
-            if (i.id != null && (i.result !== void 0 || i.error !== void 0)) {
-                let o = this.pending.get(i.id);
-                o && (this.pending.delete(i.id), i.error ? o.reject(Object.assign(new Error(i.error.message || `codex rpc error: ${o.method}`), {
-                    code: i.error.code,
-                    data: i.error.data
-                })) : o.resolve(i.result ?? {}));
+            if (message.id != null && (message.result !== void 0 || message.error !== void 0)) {
+                let pendingRequest = this.pending.get(message.id);
+                pendingRequest && (this.pending.delete(message.id), message.error ? pendingRequest.reject(Object.assign(new Error(message.error.message || `codex rpc error: ${pendingRequest.method}`), {
+                    code: message.error.code,
+                    data: message.error.data
+                })) : pendingRequest.resolve(message.result ?? {}));
                 return
             }
-            if (i.method && i.id != null) {
-                this.handleServerRequest(i);
+            if (message.method && message.id != null) {
+                this.handleServerRequest(message);
                 return
             }
-            i.method && this.emit("notification", i)
+            message.method && this.emit("notification", message)
         }
-        setToolHandlers(n) {
-            this.toolHandlers = n
+        setToolHandlers(handlers) {
+            this.toolHandlers = handlers
         }
         toolHandlers = new Map;
         onToolCallObserved;
-        setToolCallObserved(n) {
-            this.onToolCallObserved = n
+        setToolCallObserved(callback) {
+            this.onToolCallObserved = callback
         }
         onToolCallSettled;
-        setToolCallSettled(n) {
-            this.onToolCallSettled = n
+        setToolCallSettled(callback) {
+            this.onToolCallSettled = callback
         }
-        handleServerRequest(n) {
-            if (logDebugMessage("[codex-transport] server request:", n.method), n.method === "item/tool/call") {
-                let r = n.params,
-                    i = r?.tool,
-                    o = r?.arguments ?? {},
-                    s = i ? this.onToolCallObserved?.(i) : void 0,
-                    a = i ? this.toolHandlers.get(i) : void 0;
-                if (a) {
-                    a(o).then(u => {
-                        i && this.onToolCallSettled?.(i, u.success, s), this.respond(n.id, {
-                            success: u.success,
+        handleServerRequest(request) {
+            if (logDebugMessage("[codex-transport] server request:", request.method), request.method === "item/tool/call") {
+                let params = request.params,
+                    toolName = params?.tool,
+                    toolArgs = params?.arguments ?? {},
+                    observedTurnId = toolName ? this.onToolCallObserved?.(toolName) : void 0,
+                    handler = toolName ? this.toolHandlers.get(toolName) : void 0;
+                if (handler) {
+                    handler(toolArgs).then(result => {
+                        toolName && this.onToolCallSettled?.(toolName, result.success, observedTurnId), this.respond(request.id, {
+                            success: result.success,
                             contentItems: [{
                                 type: "inputText",
-                                text: u.text
+                                text: result.text
                             }]
                         })
-                    }).catch(u => {
-                        i && this.onToolCallSettled?.(i, !1, s), this.respond(n.id, {
+                    }).catch(err => {
+                        toolName && this.onToolCallSettled?.(toolName, !1, observedTurnId), this.respond(request.id, {
                             success: !1,
                             contentItems: [{
                                 type: "inputText",
-                                text: `Error: ${u instanceof Error?u.message:String(u)}`
+                                text: `Error: ${err instanceof Error?err.message:String(err)}`
                             }]
                         })
                     });
                     return
                 }
             }
-            if (n.method === "mcpServer/elicitation/request") {
-                this.respond(n.id, {
+            if (request.method === "mcpServer/elicitation/request") {
+                this.respond(request.id, {
                     action: "accept"
                 });
                 return
             }
-            if (n.method?.includes("Approval") || n.method?.includes("approval")) {
-                this.respond(n.id, {
+            if (request.method?.includes("Approval") || request.method?.includes("approval")) {
+                this.respond(request.id, {
                     decision: "approve"
                 });
                 return
             }
-            this.respondError(n.id, -32601, `duoduo adapter does not handle ${n.method}`)
+            this.respondError(request.id, -32601, `duoduo adapter does not handle ${request.method}`)
         }
-        respond(n, r) {
+        respond(id, result) {
             this.proc?.stdin?.writable && this.proc.stdin.write(JSON.stringify({
-                id: n,
-                result: r
+                id,
+                result
             }) + `
 `)
         }
-        respondError(n, r, i) {
+        respondError(id, code, message) {
             this.proc?.stdin?.writable && this.proc.stdin.write(JSON.stringify({
-                id: n,
+                id,
                 error: {
-                    code: r,
-                    message: i
+                    code,
+                    message
                 }
             }) + `
 `)
         }
-        rejectAllPending(n) {
-            for (let [r, i] of this.pending) i.reject(n), this.pending.delete(r)
+        rejectAllPending(error) {
+            for (let [id, pendingRequest] of this.pending) pendingRequest.reject(error), this.pending.delete(id)
         }
     };
     obe = new Set

@@ -2,32 +2,33 @@
 // symbol: replayOutboxBacklogToSubscriber  (minified: Ube, daemon.pretty.js:64632)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 10 renamed — 8 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function replayOutboxBacklogToSubscriber(e) {
+async function replayOutboxBacklogToSubscriber(options) {
     let {
-        paths: t,
-        sessionKey: n,
-        consumerId: r,
-        send: i,
-        onDelivered: o,
-        limit: s,
-        cursorOverride: a
-    } = e, u = await readOutboxRecordsPastCursor({
-        paths: t,
-        sessionKey: n,
-        consumerId: r,
-        limit: s,
-        cursorOverride: a
+        paths,
+        sessionKey,
+        consumerId,
+        send,
+        onDelivered,
+        limit,
+        cursorOverride
+    } = options, outboxRecordsPastCursor = await readOutboxRecordsPastCursor({
+        paths,
+        sessionKey,
+        consumerId,
+        limit,
+        cursorOverride
     });
-    for (let l of u) i({
+    for (let record of outboxRecordsPastCursor) send({
         jsonrpc: "2.0",
         method: "session.output",
         params: {
-            session_key: n,
-            record: l
+            session_key: sessionKey,
+            record
         }
-    }), o && await o(l);
-    return u.length
+    }), onDelivered && await onDelivered(record);
+    return outboxRecordsPastCursor.length
 }

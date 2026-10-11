@@ -2,33 +2,34 @@
 // symbol: extractCodexGeneratedImageAttachment  (minified: pbe, daemon.pretty.js:62795)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.7 (maps/history_daemon.json)
+// locals: 9 renamed — 1 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (medium): Runtime image output delivery no longer duplicates attachments.
 // changelog v0.5.7 (medium): Codex image generation delivered reliably (Codex 0.140+).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function extractCodexGeneratedImageAttachment(e) {
-    let t = [e],
-        n = new Set;
-    for (; t.length > 0;) {
-        let r = t.pop();
-        if (!(!isCodexPlainObject(r) || n.has(r))) {
-            if (n.add(r), isImageGenerationItemType(r)) {
-                let i = r.saved_path ?? r.savedPath;
-                if (typeof i == "string" && i.trim().length > 0) return {
-                    path: i,
+function extractCodexGeneratedImageAttachment(root) {
+    let stack = [root],
+        visited = new Set;
+    for (; stack.length > 0;) {
+        let node = stack.pop();
+        if (!(!isCodexPlainObject(node) || visited.has(node))) {
+            if (visited.add(node), isImageGenerationItemType(node)) {
+                let savedPath = node.saved_path ?? node.savedPath;
+                if (typeof savedPath == "string" && savedPath.trim().length > 0) return {
+                    path: savedPath,
                     mime: "image/png"
                 };
-                let o = r.result,
-                    s = r.call_id ?? r.callId ?? r.id;
-                if (typeof o == "string" && o.trim().length > 0 && typeof s == "string" && s.trim().length > 0) return {
-                    inlineBase64: o.trim(),
-                    callId: s.trim()
+                let result = node.result,
+                    callId = node.call_id ?? node.callId ?? node.id;
+                if (typeof result == "string" && result.trim().length > 0 && typeof callId == "string" && callId.trim().length > 0) return {
+                    inlineBase64: result.trim(),
+                    callId: callId.trim()
                 }
             }
-            for (let i of ["payload", "event", "msg", "item"]) {
-                let o = r[i];
-                isCodexPlainObject(o) && t.push(o)
+            for (let key of ["payload", "event", "msg", "item"]) {
+                let child = node[key];
+                isCodexPlainObject(child) && stack.push(child)
             }
         }
     }

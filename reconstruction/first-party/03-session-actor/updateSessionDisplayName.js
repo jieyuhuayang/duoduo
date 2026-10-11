@@ -2,31 +2,32 @@
 // symbol: updateSessionDisplayName  (minified: wce, daemon.pretty.js:35640)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.4, v0.7.0 (maps/history_daemon.json)
+// locals: 10 renamed — 2 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (medium): `duoduo session alias <key> "<name>"` — give a session a human label
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function updateSessionDisplayName(e, t, n) {
-    assertSessionNotArchiving(t);
-    let r = null;
-    return await runWithSessionMutex(t, async () => {
-        let i = resolveSessionMetaPath(e, t),
-            o;
+async function updateSessionDisplayName(paths, sessionKey, displayName) {
+    assertSessionNotArchiving(sessionKey);
+    let updatedMeta = null;
+    return await runWithSessionMutex(sessionKey, async () => {
+        let sessionMetaPath = resolveSessionMetaPath(paths, sessionKey),
+            raw;
         try {
-            o = await qa.readFile(i, "utf8")
+            raw = await qa.readFile(sessionMetaPath, "utf8")
         } catch {
             return
         }
-        let s = (0, Gb.default)(o, Sr),
-            a = s.data;
-        if (a.session_key !== t || typeof a.kind != "string" || a.display_name !== void 0 && typeof a.display_name != "string") return;
-        let u = n === null ? "" : n.trim(),
-            l = {
-                ...a,
-                session_key: t,
-                kind: a.kind,
-                display_name: u.length > 0 ? u : void 0
+        let parsedMatter = (0, Gb.default)(raw, Sr),
+            data = parsedMatter.data;
+        if (data.session_key !== sessionKey || typeof data.kind != "string" || data.display_name !== void 0 && typeof data.display_name != "string") return;
+        let trimmedName = displayName === null ? "" : displayName.trim(),
+            nextMeta = {
+                ...data,
+                session_key: sessionKey,
+                kind: data.kind,
+                display_name: trimmedName.length > 0 ? trimmedName : void 0
             };
-        await writeFileAtomic(i, Gb.default.stringify(s.content, stripUndefinedFieldsDeep(l))), r = stripUndefinedFieldsDeep(l)
-    }), r && notifySessionFileChanged(t, "meta"), r
+        await writeFileAtomic(sessionMetaPath, Gb.default.stringify(parsedMatter.content, stripUndefinedFieldsDeep(nextMeta))), updatedMeta = stripUndefinedFieldsDeep(nextMeta)
+    }), updatedMeta && notifySessionFileChanged(sessionKey, "meta"), updatedMeta
 }

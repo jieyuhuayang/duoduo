@@ -2,26 +2,27 @@
 // symbol: loadEventIdIndex  (minified: X8e, daemon.pretty.js:32225)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
+// locals: 7 renamed — 4 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function loadEventIdIndex(e) {
-    let t = getOrCreateEventIdIndexCache(e);
-    return await memoizeIndexLoad(t, async () => {
-        let n = resolveEventIdIndexPath(e);
+async function loadEventIdIndex(paths) {
+    let eventIdIndexCache = getOrCreateEventIdIndexCache(paths);
+    return await memoizeIndexLoad(eventIdIndexCache, async () => {
+        let eventIdIndexPath = resolveEventIdIndexPath(paths);
         try {
-            let r = gU(n);
-            for await (let i of iterateStreamLines(r)) if (i) try {
-                let o = JSON.parse(i);
-                isUsableEventIndexEntry(o) && t.map.set(o.event_id, o)
+            let stream = gU(eventIdIndexPath);
+            for await (let line of iterateStreamLines(stream)) if (line) try {
+                let parsed = JSON.parse(line);
+                isUsableEventIndexEntry(parsed) && eventIdIndexCache.map.set(parsed.event_id, parsed)
             } catch {
                 continue
             }
-        } catch (r) {
-            if (r.code === "ENOENT") return;
-            throw r
+        } catch (err) {
+            if (err.code === "ENOENT") return;
+            throw err
         }
     }, () => {
-        t.map.clear()
-    }), t.map
+        eventIdIndexCache.map.clear()
+    }), eventIdIndexCache.map
 }

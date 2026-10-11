@@ -2,13 +2,14 @@
 // symbol: computeLegacyJobSessionKey  (minified: Bpt, daemon.pretty.js:69335)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function computeLegacyJobSessionKey(e) {
+function computeLegacyJobSessionKey(params) {
     return w6({
         scope: "job",
-        readableName: e.jobId,
-        identityTuple: ["job", e.jobId.trim(), e.ownerSession?.trim() ?? "", e.cron?.trim() ?? "", e.cwdRel?.trim() ?? ""].join("|")
+        readableName: params.jobId,
+        identityTuple: ["job", params.jobId.trim(), params.ownerSession?.trim() ?? "", params.cron?.trim() ?? "", params.cwdRel?.trim() ?? ""].join("|")
     })
 }

@@ -2,55 +2,56 @@
 // symbol: isJobScheduleDue  (minified: G_e, daemon.pretty.js:61356)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 15 renamed — 4 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.6 (medium): The loop runs as a job, paces itself via `ScheduleWakeup`
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function isJobScheduleDue(e, t, n = new Date, r, i) {
-    if (typeof i == "string" && i.length > 0) {
-        let a = new Date(i).getTime();
-        if (Number.isFinite(a)) {
-            if (n.getTime() >= a) return !0;
-            if ((e === "once" || e.startsWith("@in ")) && t === null) return !1
+function isJobScheduleDue(schedule, lastRunAt, now = new Date, createdAt, runAt) {
+    if (typeof runAt == "string" && runAt.length > 0) {
+        let runAtMs = new Date(runAt).getTime();
+        if (Number.isFinite(runAtMs)) {
+            if (now.getTime() >= runAtMs) return !0;
+            if ((schedule === "once" || schedule.startsWith("@in ")) && lastRunAt === null) return !1
         }
     }
-    let o = typeof r == "string" && r.length > 0 ? new Date(r).getTime() : Number.NaN,
-        s = Number.isFinite(o);
-    if (e === "once" || e === "keepalive") return t !== null ? !1 : s ? n.getTime() >= o : !0;
-    if (e.startsWith("@in ")) {
-        let a = e.substring(4).trim();
+    let createdAtMs = typeof createdAt == "string" && createdAt.length > 0 ? new Date(createdAt).getTime() : Number.NaN,
+        hasCreatedAt = Number.isFinite(createdAtMs);
+    if (schedule === "once" || schedule === "keepalive") return lastRunAt !== null ? !1 : hasCreatedAt ? now.getTime() >= createdAtMs : !0;
+    if (schedule.startsWith("@in ")) {
+        let trimmed = schedule.substring(4).trim();
         try {
-            let u = parseScheduleDurationMs(a);
-            return t !== null ? !1 : s ? n.getTime() - o >= u : !0
+            let scheduleDurationMs = parseScheduleDurationMs(trimmed);
+            return lastRunAt !== null ? !1 : hasCreatedAt ? now.getTime() - createdAtMs >= scheduleDurationMs : !0
         } catch {
             return !1
         }
     }
-    if (e.startsWith("@every ")) {
-        let a = e.substring(7).trim();
+    if (schedule.startsWith("@every ")) {
+        let trimmed = schedule.substring(7).trim();
         try {
-            let u = parseScheduleDurationMs(a);
-            if (!t) return s ? n.getTime() >= o : !0;
-            let l = new Date(t).getTime();
-            return n.getTime() - l >= u
+            let scheduleDurationMs = parseScheduleDurationMs(trimmed);
+            if (!lastRunAt) return hasCreatedAt ? now.getTime() >= createdAtMs : !0;
+            let lastRunMs = new Date(lastRunAt).getTime();
+            return now.getTime() - lastRunMs >= scheduleDurationMs
         } catch {
             return !1
         }
     }
     try {
-        if (!t) return s ? Mw.CronExpressionParser.parse(e, {
-            currentDate: new Date(o),
+        if (!lastRunAt) return hasCreatedAt ? Mw.CronExpressionParser.parse(schedule, {
+            currentDate: new Date(createdAtMs),
             tz: "UTC"
-        }).next().toDate().getTime() <= n.getTime() : (Mw.CronExpressionParser.parse(e, {
-            currentDate: n,
+        }).next().toDate().getTime() <= now.getTime() : (Mw.CronExpressionParser.parse(schedule, {
+            currentDate: now,
             tz: "UTC"
         }), !0);
-        let u = Mw.CronExpressionParser.parse(e, {
-                currentDate: new Date(t),
+        let nextRunDate = Mw.CronExpressionParser.parse(schedule, {
+                currentDate: new Date(lastRunAt),
                 tz: "UTC"
             }).next().toDate(),
-            l = new Date(t).getTime();
-        return Number.isNaN(l) ? !0 : u.getTime() <= n.getTime()
+            lastRunTimeMs = new Date(lastRunAt).getTime();
+        return Number.isNaN(lastRunTimeMs) ? !0 : nextRunDate.getTime() <= now.getTime()
     } catch {
         return !1
     }

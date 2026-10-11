@@ -2,176 +2,177 @@
 // symbol: createSessionSubscriptionRegistry  (minified: uH, daemon.pretty.js:89020)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.7, v0.5.0, v0.5.6, v0.5.7, v0.5.10, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// locals: 69 renamed — 16 from the code at the binding (rule), 53 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createSessionSubscriptionRegistry() {
-    let e = new Map,
-        t = new Map,
-        n = null,
-        r = {},
-        i = ["final", "stream"],
-        o = (f, p) => (f.returnMask ?? i).includes(p);
+    let map = new Map,
+        map2 = new Map,
+        bus = null,
+        attachmentCallbacks = {},
+        defaultReturnMask = ["final", "stream"],
+        acceptsKind = (subscriber, kind) => (subscriber.returnMask ?? defaultReturnMask).includes(kind);
 
-    function s(f, p) {
-        let m = t.get(f);
-        if (!m || m.size === 0) return 0;
-        let h = {
+    function publishOutput(sessionKey, record) {
+        let subscriberIds = map2.get(sessionKey);
+        if (!subscriberIds || subscriberIds.size === 0) return 0;
+        let message = {
                 jsonrpc: "2.0",
                 method: "session.output",
                 params: {
-                    session_key: f,
-                    record: p
+                    session_key: sessionKey,
+                    record
                 }
             },
-            g = 0;
-        for (let y of m) {
-            let v = e.get(y);
-            if (v && o(v, "final")) try {
-                v.send(h), g += 1
+            deliveredCount = 0;
+        for (let subscriberId of subscriberIds) {
+            let subscriber = map.get(subscriberId);
+            if (subscriber && acceptsKind(subscriber, "final")) try {
+                subscriber.send(message), deliveredCount += 1
             } catch {
-                d(y)
+                unsubscribe(subscriberId)
             }
         }
-        return g
+        return deliveredCount
     }
-    let a = f => {
+    let onStream = streamEvent => {
             let {
-                sessionKey: p,
-                chunk: m,
-                isSidechain: h,
-                anchorEventId: g
-            } = f, y = t.get(p);
-            if (!y || y.size === 0) return;
-            let v = {
+                sessionKey,
+                chunk,
+                isSidechain,
+                anchorEventId
+            } = streamEvent, subscriberIds = map2.get(sessionKey);
+            if (!subscriberIds || subscriberIds.size === 0) return;
+            let message = {
                 jsonrpc: "2.0",
                 method: "session.stream",
                 params: {
-                    session_key: p,
-                    chunk: m,
-                    is_sidechain: h,
-                    anchor_event_id: g
+                    session_key: sessionKey,
+                    chunk,
+                    is_sidechain: isSidechain,
+                    anchor_event_id: anchorEventId
                 }
             };
-            for (let b of y) {
-                let _ = e.get(b);
-                if (_ && o(_, "stream")) try {
-                    _.send(v)
+            for (let subscriberId of subscriberIds) {
+                let subscriber = map.get(subscriberId);
+                if (subscriber && acceptsKind(subscriber, "stream")) try {
+                    subscriber.send(message)
                 } catch {
-                    d(b)
+                    unsubscribe(subscriberId)
                 }
             }
         },
-        u = f => {
+        onExecution = executionEvent => {
             let {
-                sessionKey: p,
-                event: m,
-                anchorEventId: h,
-                isSidechain: g
-            } = f, y = t.get(p);
-            if (!y || y.size === 0) return;
-            let v = {
+                sessionKey,
+                event,
+                anchorEventId,
+                isSidechain
+            } = executionEvent, subscriberIds = map2.get(sessionKey);
+            if (!subscriberIds || subscriberIds.size === 0) return;
+            let message = {
                 jsonrpc: "2.0",
                 method: "session.execution",
                 params: {
-                    session_key: p,
-                    event: m,
-                    is_sidechain: g,
-                    anchor_event_id: h
+                    session_key: sessionKey,
+                    event,
+                    is_sidechain: isSidechain,
+                    anchor_event_id: anchorEventId
                 }
             };
-            for (let b of y) {
-                let _ = e.get(b);
-                if (_ && o(_, "tool")) try {
-                    _.send(v)
+            for (let subscriberId of subscriberIds) {
+                let subscriber = map.get(subscriberId);
+                if (subscriber && acceptsKind(subscriber, "tool")) try {
+                    subscriber.send(message)
                 } catch {
-                    d(b)
+                    unsubscribe(subscriberId)
                 }
             }
         },
-        l = f => {
+        onStreamEnd = streamEndEvent => {
             let {
-                sessionKey: p,
-                reason: m,
-                anchorEventId: h
-            } = f, g = t.get(p);
-            if (!(!g || g.size === 0))
-                for (let y of g) {
-                    let v = e.get(y);
-                    if (v && o(v, "stream_end")) {
-                        let b = m === "interrupted" || v.acceptStreamEndReasons?.includes(m) ? m : "interrupted",
-                            _ = {
+                sessionKey,
+                reason,
+                anchorEventId
+            } = streamEndEvent, subscriberIds = map2.get(sessionKey);
+            if (!(!subscriberIds || subscriberIds.size === 0))
+                for (let subscriberId of subscriberIds) {
+                    let subscriber = map.get(subscriberId);
+                    if (subscriber && acceptsKind(subscriber, "stream_end")) {
+                        let deliveredReason = reason === "interrupted" || subscriber.acceptStreamEndReasons?.includes(reason) ? reason : "interrupted",
+                            message = {
                                 jsonrpc: "2.0",
                                 method: "session.stream_end",
                                 params: {
-                                    session_key: p,
-                                    reason: b,
-                                    anchor_event_id: h
+                                    session_key: sessionKey,
+                                    reason: deliveredReason,
+                                    anchor_event_id: anchorEventId
                                 }
                             };
                         try {
-                            v.send(_)
+                            subscriber.send(message)
                         } catch {
-                            d(y)
+                            unsubscribe(subscriberId)
                         }
                     }
                 }
         };
 
-    function c(f) {
+    function subscribe(subscriber) {
         let {
-            id: p,
-            sessionKey: m
-        } = f;
-        e.has(p) && d(p), e.set(p, f);
-        let h = t.get(m);
-        h || (h = new Set, t.set(m, h)), h.add(p), r.onAttach && r.onAttach(m, p)
+            id,
+            sessionKey
+        } = subscriber;
+        map.has(id) && unsubscribe(id), map.set(id, subscriber);
+        let sessionSubscriberIds = map2.get(sessionKey);
+        sessionSubscriberIds || (sessionSubscriberIds = new Set, map2.set(sessionKey, sessionSubscriberIds)), sessionSubscriberIds.add(id), attachmentCallbacks.onAttach && attachmentCallbacks.onAttach(sessionKey, id)
     }
 
-    function d(f) {
-        let p = e.get(f);
-        if (!p) return;
+    function unsubscribe(subscriberId) {
+        let subscriber = map.get(subscriberId);
+        if (!subscriber) return;
         let {
-            sessionKey: m
-        } = p, h = t.get(m);
-        h && (h.delete(f), h.size === 0 && t.delete(m)), e.delete(f), r.onDetach && r.onDetach(m, f)
+            sessionKey
+        } = subscriber, sessionSubscriberIds = map2.get(sessionKey);
+        sessionSubscriberIds && (sessionSubscriberIds.delete(subscriberId), sessionSubscriberIds.size === 0 && map2.delete(sessionKey)), map.delete(subscriberId), attachmentCallbacks.onDetach && attachmentCallbacks.onDetach(sessionKey, subscriberId)
     }
     return {
-        subscribe: c,
-        unsubscribe: d,
-        getSubscribers(f) {
-            let p = t.get(f);
-            return p ? Array.from(p).map(m => e.get(m)).filter(m => m !== void 0) : []
+        subscribe,
+        unsubscribe,
+        getSubscribers(sessionKey) {
+            let subscriberIds = map2.get(sessionKey);
+            return subscriberIds ? Array.from(subscriberIds).map(subscriberId => map.get(subscriberId)).filter(subscriber => subscriber !== void 0) : []
         },
-        publishOutput: s,
-        finalSubscriberCount(f) {
-            let p = t.get(f);
-            if (!p) return 0;
-            let m = 0;
-            for (let h of p) {
-                let g = e.get(h);
-                g && o(g, "final") && (m += 1)
+        publishOutput,
+        finalSubscriberCount(sessionKey) {
+            let subscriberIds = map2.get(sessionKey);
+            if (!subscriberIds) return 0;
+            let count = 0;
+            for (let subscriberId of subscriberIds) {
+                let subscriber = map.get(subscriberId);
+                subscriber && acceptsKind(subscriber, "final") && (count += 1)
             }
-            return m
+            return count
         },
         subscriberCount() {
-            return e.size
+            return map.size
         },
-        start(f) {
-            n || (n = f, n.on("session.stream", a), n.on("session.stream_end", l), n.on("session.execution", u))
+        start(eventBus) {
+            bus || (bus = eventBus, bus.on("session.stream", onStream), bus.on("session.stream_end", onStreamEnd), bus.on("session.execution", onExecution))
         },
         stop() {
-            if (n) {
-                if (n.off("session.stream", a), n.off("session.stream_end", l), n.off("session.execution", u), n = null, r.onDetach)
-                    for (let f of e.values()) r.onDetach(f.sessionKey, f.id);
-                for (let f of e.values()) try {
-                    f.close()
+            if (bus) {
+                if (bus.off("session.stream", onStream), bus.off("session.stream_end", onStreamEnd), bus.off("session.execution", onExecution), bus = null, attachmentCallbacks.onDetach)
+                    for (let subscriber of map.values()) attachmentCallbacks.onDetach(subscriber.sessionKey, subscriber.id);
+                for (let subscriber of map.values()) try {
+                    subscriber.close()
                 } catch {}
-                e.clear(), t.clear()
+                map.clear(), map2.clear()
             }
         },
-        setAttachmentCallbacks(f) {
-            r = f
+        setAttachmentCallbacks(callbacks) {
+            attachmentCallbacks = callbacks
         }
     }
 }

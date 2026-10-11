@@ -2,25 +2,26 @@
 // symbol: parsePlaylistCurrentRound  (minified: Jct, daemon.pretty.js:66545)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 6 renamed — 2 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function parsePlaylistCurrentRound(e) {
-    let t = e.split(`
+function parsePlaylistCurrentRound(source) {
+    let parts = source.split(`
 `),
-        n = t.findIndex(i => i.trim() === "## Current Round");
-    if (n === -1) return [];
-    let r = [];
-    for (let i = n + 1; i < t.length; i++) {
-        let o = t[i].trim();
-        if (o.startsWith("## ")) break;
-        o.startsWith("- [x] ") ? r.push({
-            name: o.slice(6).trim(),
+        headerIndex = parts.findIndex(line => line.trim() === "## Current Round");
+    if (headerIndex === -1) return [];
+    let items = [];
+    for (let i = headerIndex + 1; i < parts.length; i++) {
+        let trimmed = parts[i].trim();
+        if (trimmed.startsWith("## ")) break;
+        trimmed.startsWith("- [x] ") ? items.push({
+            name: trimmed.slice(6).trim(),
             done: !0
-        }) : o.startsWith("- [ ] ") && r.push({
-            name: o.slice(6).trim(),
+        }) : trimmed.startsWith("- [ ] ") && items.push({
+            name: trimmed.slice(6).trim(),
             done: !1
         })
     }
-    return r
+    return items
 }

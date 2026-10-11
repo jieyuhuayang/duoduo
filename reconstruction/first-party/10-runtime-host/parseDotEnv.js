@@ -2,21 +2,22 @@
 // symbol: parseDotEnv  (minified: GO, daemon.pretty.js:69045)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.3.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 7 renamed — 3 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.3 (medium): **cli**: Host-side `.env` file support — daemon command auto-loads dotenv before starting.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function parseDotEnv(e) {
-    let t = {};
-    for (let n of e.split(`
+function parseDotEnv(content) {
+    let result = {};
+    for (let line of content.split(`
 `)) {
-        let r = n.trim();
-        if (!r || r.startsWith("#")) continue;
-        let i = r.indexOf("=");
-        if (i < 1) continue;
-        let o = r.slice(0, i).trim(),
-            s = r.slice(i + 1).trim();
-        (s.startsWith('"') && s.endsWith('"') || s.startsWith("'") && s.endsWith("'")) && (s = s.slice(1, -1)), t[o] = s
+        let trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        let eqIndex = trimmed.indexOf("=");
+        if (eqIndex < 1) continue;
+        let trimmed2 = trimmed.slice(0, eqIndex).trim(),
+            trimmed3 = trimmed.slice(eqIndex + 1).trim();
+        (trimmed3.startsWith('"') && trimmed3.endsWith('"') || trimmed3.startsWith("'") && trimmed3.endsWith("'")) && (trimmed3 = trimmed3.slice(1, -1)), result[trimmed2] = trimmed3
     }
-    return t
+    return result
 }

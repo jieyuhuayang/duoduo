@@ -2,43 +2,44 @@
 // symbol: patchSessionRuntimeState  (minified: et, daemon.pretty.js:35690)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.5, v0.5.0, v0.5.10 (maps/history_daemon.json)
+// locals: 16 renamed — 2 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function patchSessionRuntimeState(e, t, n, r = {}) {
-    let i = r.create === !0,
-        o = !1;
-    await runWithSessionMutex(t, async () => {
-        if (assertSessionNotArchiving(t), !i && isSessionArchived(e, t)) {
+async function patchSessionRuntimeState(paths, sessionKey, patch, options = {}) {
+    let create = options.create === !0,
+        written = !1;
+    await runWithSessionMutex(sessionKey, async () => {
+        if (assertSessionNotArchiving(sessionKey), !create && isSessionArchived(paths, sessionKey)) {
             logDebugMessage("[session] skipping runtime-state patch for tombstoned session", {
-                sessionKey: t
+                sessionKey
             });
             return
         }
-        let s = resolveSessionStatePath(e, t),
-            a = {
+        let sessionStatePath = resolveSessionStatePath(paths, sessionKey),
+            current = {
                 updated_at: new Date().toISOString()
             };
         try {
-            let f = await qa.readFile(s, "utf8");
-            a = JSON.parse(f)
+            let content = await qa.readFile(sessionStatePath, "utf8");
+            current = JSON.parse(content)
         } catch {}
-        let u = {},
-            l = new Set;
-        for (let [f, p] of Object.entries(n))
-            if (p !== void 0) {
-                if (p === null) {
-                    l.add(f);
+        let setFields = {},
+            removedKeys = new Set;
+        for (let [key, value] of Object.entries(patch))
+            if (value !== void 0) {
+                if (value === null) {
+                    removedKeys.add(key);
                     continue
                 }
-                u[f] = p
-            } let c = stripUndefinedFieldsDeep(u),
-            d = {
-                ...a,
-                ...c,
+                setFields[key] = value
+            } let cleaned = stripUndefinedFieldsDeep(setFields),
+            next = {
+                ...current,
+                ...cleaned,
                 updated_at: new Date().toISOString()
             };
-        for (let f of l) delete d[f];
-        await writeJsonFileAtomic(s, d), o = !0
-    }), o && notifySessionFileChanged(t, "state")
+        for (let removedKey of removedKeys) delete next[removedKey];
+        await writeJsonFileAtomic(sessionStatePath, next), written = !0
+    }), written && notifySessionFileChanged(sessionKey, "state")
 }

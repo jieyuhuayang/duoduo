@@ -2,26 +2,27 @@
 // symbol: decideRestartHintInjection  (minified: awe, daemon.pretty.js:66093)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function decideRestartHintInjection(e) {
-    return classifySessionKeyKind(e.sessionKey) !== "channel" ? {
+function decideRestartHintInjection(params) {
+    return classifySessionKeyKind(params.sessionKey) !== "channel" ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
         writeLastSeenOnInjectSuccess: void 0,
         stage: "out-of-scope"
-    } : e.lastEventAt === void 0 ? {
+    } : params.lastEventAt === void 0 ? {
         inject: !1,
-        writeLastSeenAtEntry: e.currentDaemonStartedAt,
+        writeLastSeenAtEntry: params.currentDaemonStartedAt,
         writeLastSeenOnInjectSuccess: void 0,
         stage: "new-session"
-    } : e.lastSeenDaemonStartedAt === void 0 ? {
+    } : params.lastSeenDaemonStartedAt === void 0 ? {
         inject: !1,
-        writeLastSeenAtEntry: e.currentDaemonStartedAt,
+        writeLastSeenAtEntry: params.currentDaemonStartedAt,
         writeLastSeenOnInjectSuccess: void 0,
         stage: "grandfather"
-    } : e.lastSeenDaemonStartedAt === e.currentDaemonStartedAt ? {
+    } : params.lastSeenDaemonStartedAt === params.currentDaemonStartedAt ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
         writeLastSeenOnInjectSuccess: void 0,
@@ -29,7 +30,7 @@ function decideRestartHintInjection(e) {
     } : {
         inject: !0,
         writeLastSeenAtEntry: void 0,
-        writeLastSeenOnInjectSuccess: e.currentDaemonStartedAt,
+        writeLastSeenOnInjectSuccess: params.currentDaemonStartedAt,
         stage: "cross-restart"
     }
 }

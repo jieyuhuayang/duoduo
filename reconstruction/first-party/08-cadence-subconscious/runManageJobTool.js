@@ -2,6 +2,7 @@
 // symbol: runManageJobTool  (minified: Ag, daemon.pretty.js:64121)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.4.0, v0.4.4, v0.4.5, v0.5.0, v0.5.4, v0.5.6, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// locals: 30 renamed — 9 from the code at the binding (rule), 21 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.4 (medium): Add `runtime` parameter to job definitions (`"claude"` | `"codex"`)
 // changelog v0.4.5 (high): **`ManageJob(list)` improvements**: every entry now includes `session_key` (for notify routing) and `runtime` (claude/codex). Keepalive entries carry a `note` explaining the dormant-but-wakeable lifecycle.
 // changelog v0.5.4 (high): `stateless` is rejected on keepalive jobs, whose whole point is a persistent lifecycle.
@@ -9,142 +10,142 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function runManageJobTool(e, t) {
-    let n = new Br(t.paths);
-    await n.init();
+async function runManageJobTool(input, ctx) {
+    let jobManager = new Br(ctx.paths);
+    await jobManager.init();
     try {
-        let r = e.action;
-        if (r == null) throw new Error("action is required: create | list | read");
-        switch (e.action) {
+        let action = input.action;
+        if (action == null) throw new Error("action is required: create | list | read");
+        switch (input.action) {
             case "create": {
-                if (t.sessionKey?.startsWith("job:") === !0) {
-                    if (t.callerJobCron !== "keepalive") throw new Error(hlt);
-                    if (e.cron === "keepalive") throw new Error(glt)
+                if (ctx.sessionKey?.startsWith("job:") === !0) {
+                    if (ctx.callerJobCron !== "keepalive") throw new Error(hlt);
+                    if (input.cron === "keepalive") throw new Error(glt)
                 }
-                if (!e.id || !e.cron || !e.instruction) throw new Error("Missing required arguments for 'create' action (id, cron, instruction)");
-                if (e.stateless === !0 && e.cron === "keepalive") throw new Error(M6);
-                let i = validateRunnableRuntimeValue(e.runtime, "This job");
-                if (!i.ok) throw new Error(i.reason);
-                let s = i.runtime ?? t.callerRuntime ?? resolveDefaultRuntime(),
-                    a = e.model;
-                if (a === void 0 || a.trim().length === 0) throw new Error(plt);
-                if (containsWhitespaceChar(a)) throw new Error(`Invalid model id: ${JSON.stringify(a)}. A model id must not contain whitespace.`);
-                if (s === "pi" && !isProviderQualifiedModelId(a)) throw new Error(`Invalid pi model id: ${JSON.stringify(a)}. Pi model ids use the canonical "provider/modelId" form. List what this host serves with a pi channel session's \`/model\`, or \`duoduo session model <pi-channel-session>\`.`);
-                let u = e.effort;
-                if (u !== void 0 && !isEffortLevel(u)) throw new Error(`Invalid effort: ${JSON.stringify(u)}. Accepted values are ${qi.join(", ")}.`);
-                let l = e.acceptance;
-                if (l === void 0 || l.trim().length === 0) throw new Error(mlt);
-                let c = e.prompt_mode;
-                if (c !== void 0 && s === "codex") throw new Error(Gut);
-                if (s === "codex") {
-                    let m = await checkCodexAvailability();
-                    if (!m.ok) throw new Error(m.reason)
+                if (!input.id || !input.cron || !input.instruction) throw new Error("Missing required arguments for 'create' action (id, cron, instruction)");
+                if (input.stateless === !0 && input.cron === "keepalive") throw new Error(M6);
+                let runtimeCheck = validateRunnableRuntimeValue(input.runtime, "This job");
+                if (!runtimeCheck.ok) throw new Error(runtimeCheck.reason);
+                let runtime = runtimeCheck.runtime ?? ctx.callerRuntime ?? resolveDefaultRuntime(),
+                    model = input.model;
+                if (model === void 0 || model.trim().length === 0) throw new Error(plt);
+                if (containsWhitespaceChar(model)) throw new Error(`Invalid model id: ${JSON.stringify(model)}. A model id must not contain whitespace.`);
+                if (runtime === "pi" && !isProviderQualifiedModelId(model)) throw new Error(`Invalid pi model id: ${JSON.stringify(model)}. Pi model ids use the canonical "provider/modelId" form. List what this host serves with a pi channel session's \`/model\`, or \`duoduo session model <pi-channel-session>\`.`);
+                let effort = input.effort;
+                if (effort !== void 0 && !isEffortLevel(effort)) throw new Error(`Invalid effort: ${JSON.stringify(effort)}. Accepted values are ${qi.join(", ")}.`);
+                let acceptance = input.acceptance;
+                if (acceptance === void 0 || acceptance.trim().length === 0) throw new Error(mlt);
+                let promptMode = input.prompt_mode;
+                if (promptMode !== void 0 && runtime === "codex") throw new Error(Gut);
+                if (runtime === "codex") {
+                    let codexAvailability = await checkCodexAvailability();
+                    if (!codexAvailability.ok) throw new Error(codexAvailability.reason)
                 }
-                if (s === "grok") {
-                    let m = await checkGrokAvailability();
-                    if (!m.ok) throw new Error(m.reason)
+                if (runtime === "grok") {
+                    let grokAvailability = await checkGrokAvailability();
+                    if (!grokAvailability.ok) throw new Error(grokAvailability.reason)
                 }
-                let d = await n.createJob(e.id, {
-                        cron: e.cron,
-                        owner_session: t.sessionKey,
-                        cwd_rel: e.cwd_rel,
-                        runtime: s,
-                        stateless: e.stateless,
-                        model: a,
-                        effort: u,
-                        acceptance: l,
-                        prompt_mode: c,
-                        allowedTools: e.allowedTools,
-                        disallowedTools: e.disallowedTools,
-                        additionalDirectories: e.additionalDirectories,
-                        claudeTools: e.extra_tools
-                    }, e.instruction),
-                    f = await n.getJob(e.id),
-                    p = `Job '${e.id}' created successfully. Scheduled: ${e.cron}, Runtime: ${s}, Model: ${a}, Reports to: ${t.sessionKey??"(no owner)"}, Session: ${f?.session_key??"unknown"}, CWD: ${f?.execution_cwd??"unknown"}`;
-                return d.staleSidecarQuarantined && (p += `
-Warning: a stale state sidecar from a previous job with this id was found and quarantined at ${d.staleSidecarQuarantined}. The new job starts from fresh state (the old scheduling fields were not carried over).`), p += `
-${Jut}`, t.bus?.emit("job.created", {
-                    jobId: e.id
-                }), p
+                let createResult = await jobManager.createJob(input.id, {
+                        cron: input.cron,
+                        owner_session: ctx.sessionKey,
+                        cwd_rel: input.cwd_rel,
+                        runtime,
+                        stateless: input.stateless,
+                        model,
+                        effort,
+                        acceptance,
+                        prompt_mode: promptMode,
+                        allowedTools: input.allowedTools,
+                        disallowedTools: input.disallowedTools,
+                        additionalDirectories: input.additionalDirectories,
+                        claudeTools: input.extra_tools
+                    }, input.instruction),
+                    createdJob = await jobManager.getJob(input.id),
+                    message = `Job '${input.id}' created successfully. Scheduled: ${input.cron}, Runtime: ${runtime}, Model: ${model}, Reports to: ${ctx.sessionKey??"(no owner)"}, Session: ${createdJob?.session_key??"unknown"}, CWD: ${createdJob?.execution_cwd??"unknown"}`;
+                return createResult.staleSidecarQuarantined && (message += `
+Warning: a stale state sidecar from a previous job with this id was found and quarantined at ${createResult.staleSidecarQuarantined}. The new job starts from fresh state (the old scheduling fields were not carried over).`), message += `
+${Jut}`, ctx.bus?.emit("job.created", {
+                    jobId: input.id
+                }), message
             }
             case "read": {
-                if (!e.id) throw new Error("Missing required argument 'id' for 'read' action");
-                let i = await n.getWakeRecord(e.id).catch(() => null);
-                if (i) return JSON.stringify({
-                    id: i.id,
+                if (!input.id) throw new Error("Missing required argument 'id' for 'read' action");
+                let wakeRecord = await jobManager.getWakeRecord(input.id).catch(() => null);
+                if (wakeRecord) return JSON.stringify({
+                    id: wakeRecord.id,
                     type: "wake",
-                    owner_session: i.frontmatter.owner_session,
-                    run_at: i.state.run_at ?? null,
-                    created_at: i.frontmatter.created_at,
-                    context: i.context
+                    owner_session: wakeRecord.frontmatter.owner_session,
+                    run_at: wakeRecord.state.run_at ?? null,
+                    created_at: wakeRecord.frontmatter.created_at,
+                    context: wakeRecord.context
                 }, null, 2);
-                let o = await n.classifyActiveJob(e.id);
-                if (o.kind === "invalid") return `Job '${e.id}': active job file exists but is invalid: ${o.reason}`;
-                if (o.kind === "missing") {
-                    let u = await n.getArchivedJob(e.id);
-                    if (!u) return `Job '${e.id}' not found.`;
+                let activeJob = await jobManager.classifyActiveJob(input.id);
+                if (activeJob.kind === "invalid") return `Job '${input.id}': active job file exists but is invalid: ${activeJob.reason}`;
+                if (activeJob.kind === "missing") {
+                    let archivedJob = await jobManager.getArchivedJob(input.id);
+                    if (!archivedJob) return `Job '${input.id}' not found.`;
                     let {
-                        content: l,
-                        ...c
-                    } = redactJobModelProfileTokens(u);
-                    return `[ARCHIVED] Job '${e.id}' is archived — it is no longer scheduled. To run it again, create a new job (same or new id) with the instruction below; it starts with fresh state and a fresh session, and the archived session is not restored.
+                        content,
+                        ...archivedFields
+                    } = redactJobModelProfileTokens(archivedJob);
+                    return `[ARCHIVED] Job '${input.id}' is archived — it is no longer scheduled. To run it again, create a new job (same or new id) with the instruction below; it starts with fresh state and a fresh session, and the archived session is not restored.
 ` + JSON.stringify({
-                        ...c,
+                        ...archivedFields,
                         archived: !0,
-                        usage_ledger_path: drainRecordPath(t.paths, u.session_key),
-                        instruction: l
+                        usage_ledger_path: drainRecordPath(ctx.paths, archivedJob.session_key),
+                        instruction: content
                     }, null, 2)
                 }
                 let {
-                    content: s,
-                    ...a
-                } = redactJobModelProfileTokens(o.job);
+                    content,
+                    ...jobFields
+                } = redactJobModelProfileTokens(activeJob.job);
                 return JSON.stringify({
-                    ...a,
-                    usage_ledger_path: drainRecordPath(t.paths, o.job.session_key),
-                    instruction: s
+                    ...jobFields,
+                    usage_ledger_path: drainRecordPath(ctx.paths, activeJob.job.session_key),
+                    instruction: content
                 }, null, 2)
             }
             case "list": {
-                let i = await n.listJobs(),
-                    o = (await n.listWakeRecords()).map(a => ({
-                        id: a.id,
+                let jobs = await jobManager.listJobs(),
+                    wakeEntries = (await jobManager.listWakeRecords()).map(wakeRecord => ({
+                        id: wakeRecord.id,
                         type: "wake",
-                        owner_session: a.frontmatter.owner_session,
-                        run_at: a.state.run_at ?? null,
-                        created_at: a.frontmatter.created_at
+                        owner_session: wakeRecord.frontmatter.owner_session,
+                        run_at: wakeRecord.state.run_at ?? null,
+                        created_at: wakeRecord.frontmatter.created_at
                     }));
-                if (i.length === 0 && o.length === 0) return "No active jobs found.";
-                let s = i.map(a => {
-                    let u = {
-                        id: a.id,
+                if (jobs.length === 0 && wakeEntries.length === 0) return "No active jobs found.";
+                let jobEntries = jobs.map(job => {
+                    let entry = {
+                        id: job.id,
                         type: "job",
-                        cron: a.frontmatter.cron,
-                        runtime: a.frontmatter.runtime ?? "claude",
-                        model: a.frontmatter.model,
-                        effort: a.frontmatter.effort,
-                        owner_session: a.frontmatter.owner_session,
-                        job_file_path: a.path,
-                        state_file_path: a.path.replace(/\.md$/, ".state.json"),
-                        usage_ledger_path: drainRecordPath(t.paths, a.session_key),
-                        execution_cwd: a.execution_cwd,
-                        runtime_workspace_dir: a.runtime_workspace_dir,
-                        last_scheduled_at: a.state.last_scheduled_at ?? null,
-                        run_at: a.state.run_at ?? null,
-                        last_run: a.state.last_run_at,
-                        last_result: a.state.last_result,
-                        session_key: a.session_key
+                        cron: job.frontmatter.cron,
+                        runtime: job.frontmatter.runtime ?? "claude",
+                        model: job.frontmatter.model,
+                        effort: job.frontmatter.effort,
+                        owner_session: job.frontmatter.owner_session,
+                        job_file_path: job.path,
+                        state_file_path: job.path.replace(/\.md$/, ".state.json"),
+                        usage_ledger_path: drainRecordPath(ctx.paths, job.session_key),
+                        execution_cwd: job.execution_cwd,
+                        runtime_workspace_dir: job.runtime_workspace_dir,
+                        last_scheduled_at: job.state.last_scheduled_at ?? null,
+                        run_at: job.state.run_at ?? null,
+                        last_run: job.state.last_run_at,
+                        last_result: job.state.last_result,
+                        session_key: job.session_key
                     };
-                    return a.frontmatter.cron === "keepalive" && (u.note = Wut), u
+                    return job.frontmatter.cron === "keepalive" && (entry.note = Wut), entry
                 });
-                return JSON.stringify([...s, ...o], null, 2)
+                return JSON.stringify([...jobEntries, ...wakeEntries], null, 2)
             }
             default: {
-                let i = e.action;
-                throw i === "archive" ? new Error(ylt) : i === "reschedule" ? new Error(_lt) : new Error(`Unknown action: ${i??"unknown"}`)
+                let action = input.action;
+                throw action === "archive" ? new Error(ylt) : action === "reschedule" ? new Error(_lt) : new Error(`Unknown action: ${action??"unknown"}`)
             }
         }
-    } catch (r) {
-        return logErrorMessage("[ManageJob] Tool execution failed", r), `Error: ${r instanceof Error?r.message:String(r)}`
+    } catch (err) {
+        return logErrorMessage("[ManageJob] Tool execution failed", err), `Error: ${err instanceof Error?err.message:String(err)}`
     }
 }

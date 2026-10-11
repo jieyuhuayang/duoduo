@@ -2,41 +2,42 @@
 // symbol: readGapLintDayEvents  (minified: rSe, daemon.pretty.js:67874)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
+// locals: 8 renamed — 1 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): one distils raw experience into fragments
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function readGapLintDayEvents(e) {
-    let t = [],
-        n;
+function readGapLintDayEvents(filePath) {
+    let events = [],
+        content;
     try {
-        n = au.readFileSync(e, "utf8")
-    } catch (r) {
+        content = au.readFileSync(filePath, "utf8")
+    } catch (err) {
         return {
-            events: t,
-            readFault: recordUnreadableUnlessMissing(r)
+            events,
+            readFault: recordUnreadableUnlessMissing(err)
         }
     }
-    for (let r of n.split(`
+    for (let line of content.split(`
 `)) {
-        if (!r) continue;
-        let i;
+        if (!line) continue;
+        let event;
         try {
-            i = JSON.parse(r)
+            event = JSON.parse(line)
         } catch {
             continue
         }
-        if (typeof i.ts != "string") continue;
-        let o = MO(i.ts);
-        if (o === null) continue;
-        let s = i.source?.kind;
-        typeof s != "string" || s === "" || qg.has(s) || t.push({
-            msOfDay: o,
-            interaction: Ndt.has(i.type ?? "")
+        if (typeof event.ts != "string") continue;
+        let msOfDay = MO(event.ts);
+        if (msOfDay === null) continue;
+        let sourceKind = event.source?.kind;
+        typeof sourceKind != "string" || sourceKind === "" || qg.has(sourceKind) || events.push({
+            msOfDay,
+            interaction: Ndt.has(event.type ?? "")
         })
     }
     return {
-        events: t,
+        events,
         readFault: !1
     }
 }

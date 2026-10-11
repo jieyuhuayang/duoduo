@@ -2,43 +2,44 @@
 // symbol: retirePartitionOnce  (minified: Zpt, daemon.pretty.js:69455)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 15 renamed — 6 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): The `memory-weaver` subconscious partition is **replaced** by two partitions. Existing partition prompts are never overwritten by an upgrade, so nothing changes until you refresh them
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function retirePartitionOnce(e, t) {
+async function retirePartitionOnce(paths, partition) {
     let {
-        name: n,
-        selfId: r
-    } = t, i = h => ({
-        partition: n,
+        name,
+        selfId
+    } = partition, skipped = reason => ({
+        partition: name,
         action: "skipped",
-        reason: h
-    }), o = readPartitionContract(e.subconsciousDir, n);
-    if (o.state === "partition-absent") return i("absent");
-    if (o.state === "parse-fail") return logWarnMessage(`[init] partition '${n}': charter frontmatter is unreadable, not retiring it.`), i("unreadable");
-    if (!(r === "contract" ? o.state === "valid" : o.state === "no-contract")) return logInfoMessage(`[init] partition '${n}' is retired upstream but no longer declares itself the official '${n}' (contract: ${o.state}) — left untouched.`), i("not-self-identified");
-    let a = jke.join(e.partitionStateDir, `${n}${Gpt}`);
-    if (await Kpt(a)) return o.enabled && logInfoMessage(`[init] partition '${n}' was retired on this host but is enabled again — leaving it alone (the retirement runs once).`), i("already-retired");
-    let u = jke.join(e.subconsciousDir, n, "CLAUDE.md"),
-        l = await Lke.readFile(u, "utf8"),
-        c = (0, hW.default)(l, Sr),
-        d = c.data;
-    if (d == null || typeof d != "object" || Array.isArray(d)) return logWarnMessage(`[init] partition '${n}': frontmatter is not a map, not retiring.`), i("unreadable");
-    let f = d,
-        p = f.schedule;
-    if (typeof p != "object" || p === null || Array.isArray(p) || p.enabled !== !0) return i("not-enabled");
-    await ensureDirectoryExists(e.partitionStateDir), await writeFileAtomic(a, `${JSON.stringify({version:Ypt(),retired_at:new Date().toISOString()})}
+        reason
+    }), partitionContract = readPartitionContract(paths.subconsciousDir, name);
+    if (partitionContract.state === "partition-absent") return skipped("absent");
+    if (partitionContract.state === "parse-fail") return logWarnMessage(`[init] partition '${name}': charter frontmatter is unreadable, not retiring it.`), skipped("unreadable");
+    if (!(selfId === "contract" ? partitionContract.state === "valid" : partitionContract.state === "no-contract")) return logInfoMessage(`[init] partition '${name}' is retired upstream but no longer declares itself the official '${name}' (contract: ${partitionContract.state}) — left untouched.`), skipped("not-self-identified");
+    let markerPath = jke.join(paths.partitionStateDir, `${name}${Gpt}`);
+    if (await Kpt(markerPath)) return partitionContract.enabled && logInfoMessage(`[init] partition '${name}' was retired on this host but is enabled again — leaving it alone (the retirement runs once).`), skipped("already-retired");
+    let claudeMdPath = jke.join(paths.subconsciousDir, name, "CLAUDE.md"),
+        content = await Lke.readFile(claudeMdPath, "utf8"),
+        parsed = (0, hW.default)(content, Sr),
+        data = parsed.data;
+    if (data == null || typeof data != "object" || Array.isArray(data)) return logWarnMessage(`[init] partition '${name}': frontmatter is not a map, not retiring.`), skipped("unreadable");
+    let frontmatter = data,
+        schedule = frontmatter.schedule;
+    if (typeof schedule != "object" || schedule === null || Array.isArray(schedule) || schedule.enabled !== !0) return skipped("not-enabled");
+    await ensureDirectoryExists(paths.partitionStateDir), await writeFileAtomic(markerPath, `${JSON.stringify({version:Ypt(),retired_at:new Date().toISOString()})}
 `);
-    let m = {
-        ...f,
+    let nextFrontmatter = {
+        ...frontmatter,
         schedule: {
-            ...p,
+            ...schedule,
             enabled: !1
         }
     };
-    return await writeFileAtomic(u, hW.default.stringify(c.content, m)), logInfoMessage(`[init] retired partition '${n}': bootstrap no longer ships it, so schedule.enabled was flipped to false once (marker ${a}). Set it back by hand to keep running it.`), {
-        partition: n,
+    return await writeFileAtomic(claudeMdPath, hW.default.stringify(parsed.content, nextFrontmatter)), logInfoMessage(`[init] retired partition '${name}': bootstrap no longer ships it, so schedule.enabled was flipped to false once (marker ${markerPath}). Set it back by hand to keep running it.`), {
+        partition: name,
         action: "retired",
         reason: "flipped"
     }

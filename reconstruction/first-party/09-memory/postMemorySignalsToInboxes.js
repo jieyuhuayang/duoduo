@@ -2,59 +2,60 @@
 // symbol: postMemorySignalsToInboxes  (minified: zO, daemon.pretty.js:67581)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.5.8, v0.8.0 (maps/history_daemon.json)
+// locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.6 (high): Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function postMemorySignalsToInboxes(e, t) {
-    let n = {
+function postMemorySignalsToInboxes(signals, ctx) {
+    let result = {
         posted: [],
         withheld: [],
         errors: []
     };
-    for (let r of e) try {
-        if (!t.force) {
-            let s = enforceContractGate(r.kind, getCachedPartitionContract(t, r.partition), t.flagFallback);
-            if (s !== null) {
-                n.withheld.push({
-                    kind: r.kind,
-                    partition: r.partition,
-                    reason: s
+    for (let signal of signals) try {
+        if (!ctx.force) {
+            let reason = enforceContractGate(signal.kind, getCachedPartitionContract(ctx, signal.partition), ctx.flagFallback);
+            if (reason !== null) {
+                result.withheld.push({
+                    kind: signal.kind,
+                    partition: signal.partition,
+                    reason
                 });
                 continue
             }
         }
-        let i = partitionInboxDirFromVar(t.varDir, r.partition);
-        su.mkdirSync(i, {
+        let inboxDir = partitionInboxDirFromVar(ctx.varDir, signal.partition);
+        su.mkdirSync(inboxDir, {
             recursive: !0
         });
-        let o = Vg.join(i, r.pendingFilename);
-        if (!t.force && su.existsSync(o)) {
-            n.withheld.push({
-                kind: r.kind,
-                partition: r.partition,
+        let pendingPath = Vg.join(inboxDir, signal.pendingFilename);
+        if (!ctx.force && su.existsSync(pendingPath)) {
+            result.withheld.push({
+                kind: signal.kind,
+                partition: signal.partition,
                 reason: "already-pending"
             });
             continue
         }
-        if (t.force) su.writeFileSync(o, r.pendingBody, "utf8");
+        if (ctx.force) su.writeFileSync(pendingPath, signal.pendingBody, "utf8");
         else try {
-            su.writeFileSync(o, r.pendingBody, {
+            su.writeFileSync(pendingPath, signal.pendingBody, {
                 encoding: "utf8",
                 flag: "wx"
             })
-        } catch (s) {
-            if (s?.code !== "EEXIST") throw s;
-            n.withheld.push({
-                kind: r.kind,
-                partition: r.partition,
+        } catch (err) {
+            if (err?.code !== "EEXIST") throw err;
+            result.withheld.push({
+                kind: signal.kind,
+                partition: signal.partition,
                 reason: "already-pending"
             });
             continue
         }
-        n.posted.push(o)
-    } catch (i) {
-        n.errors.push(`${r.kind} → ${r.partition}/${r.pendingFilename}: ${String(i)}`)
+        result.posted.push(pendingPath)
+    } catch (err) {
+        result.errors.push(`${signal.kind} → ${signal.partition}/${signal.pendingFilename}: ${String(err)}`)
     }
-    return n
+    return result
 }

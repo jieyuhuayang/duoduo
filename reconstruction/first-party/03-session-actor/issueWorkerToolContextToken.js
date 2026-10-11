@@ -2,13 +2,14 @@
 // symbol: issueWorkerToolContextToken  (minified: oC, daemon.pretty.js:55858)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function issueWorkerToolContextToken(e) {
-    let t = xot(32).toString("hex"),
-        n = nye.get(e.session_key);
-    return n && vV.delete(n), nye.set(e.session_key, t), vV.set(t, {
-        ...e
-    }), t
+function issueWorkerToolContextToken(context) {
+    let token = xot(32).toString("hex"),
+        previousToken = nye.get(context.session_key);
+    return previousToken && vV.delete(previousToken), nye.set(context.session_key, token), vV.set(token, {
+        ...context
+    }), token
 }

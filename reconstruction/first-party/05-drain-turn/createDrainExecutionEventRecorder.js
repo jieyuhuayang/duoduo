@@ -2,61 +2,62 @@
 // symbol: createDrainExecutionEventRecorder  (minified: Yxe, daemon.pretty.js:72285)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.2, v0.3.3, v0.8.0 (maps/history_daemon.json)
+// locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createDrainExecutionEventRecorder(e, t, n, r, i) {
-    return async o => {
-        if (tht(o) && logDebugMessage("[runner] execution event", {
-                sessionKey: t,
-                eventType: o.type,
-                ...o.type === "tool_use" ? {
-                    toolName: o.toolName,
-                    toolUseId: o.toolUseId
-                } : o.type === "tool_result" ? {
-                    toolName: o.toolName,
-                    toolUseId: o.toolUseId,
-                    isError: o.isError
-                } : o.type === "tool_input_delta" ? {
-                    toolName: o.toolName,
-                    toolUseId: o.toolUseId
-                } : o.type === "thought_chunk" ? {
-                    text: o.text
+function createDrainExecutionEventRecorder(paths, sessionKey, eventSessionKey, onExecutionEvent, anchorEventId) {
+    return async event => {
+        if (tht(event) && logDebugMessage("[runner] execution event", {
+                sessionKey,
+                eventType: event.type,
+                ...event.type === "tool_use" ? {
+                    toolName: event.toolName,
+                    toolUseId: event.toolUseId
+                } : event.type === "tool_result" ? {
+                    toolName: event.toolName,
+                    toolUseId: event.toolUseId,
+                    isError: event.isError
+                } : event.type === "tool_input_delta" ? {
+                    toolName: event.toolName,
+                    toolUseId: event.toolUseId
+                } : event.type === "thought_chunk" ? {
+                    text: event.text
                 } : {
-                    subtype: o.subtype
+                    subtype: event.subtype
                 }
-            }), r && r(o, i), o.type === "tool_use" && !o.ephemeral) {
-            let s = o.input === void 0 || o.input === null ? "{}" : typeof o.input == "string" ? o.input : JSON.stringify(o.input) ?? "{}",
-                a = createSpineEvent({
+            }), onExecutionEvent && onExecutionEvent(event, anchorEventId), event.type === "tool_use" && !event.ephemeral) {
+            let inputSummary = event.input === void 0 || event.input === null ? "{}" : typeof event.input == "string" ? event.input : JSON.stringify(event.input) ?? "{}",
+                spineEvent = createSpineEvent({
                     type: "agent.tool_use",
                     source: {
                         kind: "runner",
                         name: "runner"
                     },
-                    session_key: n,
+                    session_key: eventSessionKey,
                     payload: {
-                        tool_use_id: o.toolUseId,
-                        tool_name: o.toolName,
-                        input_summary: s
+                        tool_use_id: event.toolUseId,
+                        tool_name: event.toolName,
+                        input_summary: inputSummary
                     }
                 });
-            await atomicAppendEvent(e, a)
-        } else if (o.type === "tool_result") {
-            let s = createSpineEvent({
+            await atomicAppendEvent(paths, spineEvent)
+        } else if (event.type === "tool_result") {
+            let spineEvent = createSpineEvent({
                 type: "agent.tool_result",
                 source: {
                     kind: "runner",
                     name: "runner"
                 },
-                session_key: n,
+                session_key: eventSessionKey,
                 payload: {
-                    tool_use_id: o.toolUseId,
-                    tool_name: o.toolName,
-                    is_error: o.isError,
-                    summary: o.summary
+                    tool_use_id: event.toolUseId,
+                    tool_name: event.toolName,
+                    is_error: event.isError,
+                    summary: event.summary
                 }
             });
-            await atomicAppendEvent(e, s)
+            await atomicAppendEvent(paths, spineEvent)
         }
     }
 }

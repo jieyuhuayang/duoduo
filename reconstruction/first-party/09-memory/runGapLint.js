@@ -2,42 +2,43 @@
 // symbol: runGapLint  (minified: Vdt, daemon.pretty.js:67967)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 18 renamed — 2 from the code at the binding (rule), 16 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): one distils raw experience into fragments
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function runGapLint(e, t, n, r) {
-    let i = Ddt(e);
-    if (i.readFault) return buildGapReadFaultResult(null);
-    let o = new Date(n).toISOString().slice(0, 10),
-        s = Date.parse(`${o}T00:00:00.000Z`),
-        a = tSe(t, o),
-        u = jdt(a);
-    if (u < da && i.dates.includes(o)) {
-        let d = readGapLintDayEvents(zc.join(e, `${o}.jsonl`));
-        if (d.readFault) return buildGapReadFaultResult(null);
-        let f = -1;
-        for (let p of d.events) p.interaction && p.msOfDay > u && p.msOfDay > f && (f = p.msOfDay);
-        if (f >= 0 && n - (s + f) >= r) {
-            let p = {
-                date: o,
-                startMs: u,
-                endMs: f
+function runGapLint(eventsDir, coverage, nowMs, minQuietMs) {
+    let eventDates = Ddt(eventsDir);
+    if (eventDates.readFault) return buildGapReadFaultResult(null);
+    let today = new Date(nowMs).toISOString().slice(0, 10),
+        dayStartMs = Date.parse(`${today}T00:00:00.000Z`),
+        todayCoverage = tSe(coverage, today),
+        coveredUntilMs = jdt(todayCoverage);
+    if (coveredUntilMs < da && eventDates.dates.includes(today)) {
+        let gapLintDayEvents = readGapLintDayEvents(zc.join(eventsDir, `${today}.jsonl`));
+        if (gapLintDayEvents.readFault) return buildGapReadFaultResult(null);
+        let lastInteractionMs = -1;
+        for (let event of gapLintDayEvents.events) event.interaction && event.msOfDay > coveredUntilMs && event.msOfDay > lastInteractionMs && (lastInteractionMs = event.msOfDay);
+        if (lastInteractionMs >= 0 && nowMs - (dayStartMs + lastInteractionMs) >= minQuietMs) {
+            let span = {
+                date: today,
+                startMs: coveredUntilMs,
+                endMs: lastInteractionMs
             };
-            return AH(p, mergeContiguousHourRanges(iSe(d.events, p)))
+            return AH(span, mergeContiguousHourRanges(iSe(gapLintDayEvents.events, span)))
         }
     }
-    let l = null;
-    for (let d = i.dates.length - 1; d >= 0; d -= 1) {
-        let f = i.dates[d];
-        if (f >= o) continue;
-        let p = Ldt(f, tSe(t, f));
-        if (p.length > 0) {
-            l = p[p.length - 1];
+    let previousSpan = null;
+    for (let i = eventDates.dates.length - 1; i >= 0; i -= 1) {
+        let date = eventDates.dates[i];
+        if (date >= today) continue;
+        let spans = Ldt(date, tSe(coverage, date));
+        if (spans.length > 0) {
+            previousSpan = spans[spans.length - 1];
             break
         }
     }
-    if (l === null) return AH(null, []);
-    let c = readGapLintDayEvents(zc.join(e, `${l.date}.jsonl`));
-    return c.readFault ? buildGapReadFaultResult(l) : AH(l, mergeContiguousHourRanges(iSe(c.events, l)))
+    if (previousSpan === null) return AH(null, []);
+    let gapLintDayEvents = readGapLintDayEvents(zc.join(eventsDir, `${previousSpan.date}.jsonl`));
+    return gapLintDayEvents.readFault ? buildGapReadFaultResult(previousSpan) : AH(previousSpan, mergeContiguousHourRanges(iSe(gapLintDayEvents.events, previousSpan)))
 }

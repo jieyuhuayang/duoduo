@@ -2,36 +2,37 @@
 // symbol: deleteMailboxPendingItemsByEventIds  (minified: Mo, daemon.pretty.js:32742)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in v0.5.4 (maps/history_daemon.json)
+// locals: 10 renamed — 3 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.1 (medium): Cross-cutting runtime I/O optimizations — caching, append-only mailbox, sharded registry, and lazy reads across hot paths.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function deleteMailboxPendingItemsByEventIds(e, t, n) {
-    if (n.length === 0) return;
-    let r = resolveSessionMailboxPendingDir(e, t),
-        i;
+async function deleteMailboxPendingItemsByEventIds(paths, sessionKey, eventIds) {
+    if (eventIds.length === 0) return;
+    let sessionMailboxPendingDir = resolveSessionMailboxPendingDir(paths, sessionKey),
+        entries;
     try {
-        i = await wr.readdir(r)
+        entries = await wr.readdir(sessionMailboxPendingDir)
     } catch {
         return
     }
-    let o = new Set(n),
-        s = o.size;
-    for (let a of i) {
-        if (s === 0) break;
-        if (!a.endsWith(".item.json")) continue;
-        let u;
+    let remainingIds = new Set(eventIds),
+        size = remainingIds.size;
+    for (let fileName of entries) {
+        if (size === 0) break;
+        if (!fileName.endsWith(".item.json")) continue;
+        let eventId;
         try {
-            let l = await wr.readFile(ea.join(r, a), "utf8");
-            u = JSON.parse(l).event_id ?? void 0
+            let content = await wr.readFile(ea.join(sessionMailboxPendingDir, fileName), "utf8");
+            eventId = JSON.parse(content).event_id ?? void 0
         } catch {
             continue
         }
-        if (u !== void 0 && o.has(u)) {
+        if (eventId !== void 0 && remainingIds.has(eventId)) {
             try {
-                await wr.unlink(ea.join(r, a))
+                await wr.unlink(ea.join(sessionMailboxPendingDir, fileName))
             } catch {}
-            s -= 1
+            size -= 1
         }
     }
 }

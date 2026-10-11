@@ -2,6 +2,7 @@
 // symbol: initJobManagerModule  (minified: ol, daemon.pretty.js:61640)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1, v0.4.0, v0.5.6, v0.6.1, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.2 (maps/history_daemon.json)
+// locals: 137 renamed — 30 from the code at the binding (rule), 107 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -21,8 +22,8 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
     hut = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
     UC = new Map;
     S6 = "gone", k6 = "stale", Br = class {
-        constructor(t) {
-            this.paths = t
+        constructor(paths) {
+            this.paths = paths
         }
         paths;
         get activeDir() {
@@ -31,414 +32,414 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
         get archiveDir() {
             return Hf.join(this.paths.varDir, "jobs", "archive")
         }
-        getJobPath(t) {
-            return Hf.join(this.activeDir, `${Ig(t)}.md`)
+        getJobPath(jobId) {
+            return Hf.join(this.activeDir, `${Ig(jobId)}.md`)
         }
-        getStatePath(t) {
-            return Hf.join(this.activeDir, `${Ig(t)}.state.json`)
+        getStatePath(jobId) {
+            return Hf.join(this.activeDir, `${Ig(jobId)}.state.json`)
         }
-        getArchiveJobPath(t) {
-            return Hf.join(this.archiveDir, `${Ig(t)}.md`)
+        getArchiveJobPath(jobId) {
+            return Hf.join(this.archiveDir, `${Ig(jobId)}.md`)
         }
-        getArchiveStatePath(t) {
-            return Hf.join(this.archiveDir, `${Ig(t)}.state.json`)
+        getArchiveStatePath(jobId) {
+            return Hf.join(this.archiveDir, `${Ig(jobId)}.state.json`)
         }
         async init() {
             await ensureDirectoryExists(this.activeDir), await ensureDirectoryExists(this.archiveDir)
         }
-        async createJob(t, n, r) {
-            if (await this.init(), Ig(t), !n.cron || !n.cron.trim()) throw new Error(`Job ${t} has invalid cron schedule`);
-            let i = n.cron.trim();
+        async createJob(jobId, frontmatterInput, body) {
+            if (await this.init(), Ig(jobId), !frontmatterInput.cron || !frontmatterInput.cron.trim()) throw new Error(`Job ${jobId} has invalid cron schedule`);
+            let trimmed = frontmatterInput.cron.trim();
             try {
-                validateJobScheduleExpression(i)
-            } catch (c) {
-                let d = c instanceof Error ? c.message : String(c);
-                throw new Error(`Job ${t} has an unparsable cron schedule "${n.cron}": ${d}`)
+                validateJobScheduleExpression(trimmed)
+            } catch (err) {
+                let message = err instanceof Error ? err.message : String(err);
+                throw new Error(`Job ${jobId} has an unparsable cron schedule "${frontmatterInput.cron}": ${message}`)
             }
-            let o = await Q_e(this.paths, t, n.cwd_rel),
-                s = {
+            let cwdResolution = await Q_e(this.paths, jobId, frontmatterInput.cwd_rel),
+                frontmatter = {
                     type: "job",
                     created_at: new Date().toISOString(),
-                    ...n,
-                    cron: i,
-                    cwd_rel: o.cwdRel ?? void 0
+                    ...frontmatterInput,
+                    cron: trimmed,
+                    cwd_rel: cwdResolution.cwdRel ?? void 0
                 },
-                a = this.buildSessionKey(t, s),
-                u = renderJobFileMarkdown(s, r),
-                l;
-            return await Oc(t, async () => {
-                if (await this.exists(t)) throw new Error(`Job ${t} already exists`);
-                if (await this.pathExists(this.getStatePath(t))) {
-                    let c = await moveFileIntoDirectory(this.getStatePath(t), this.archiveDir, ".orphan");
-                    l = c, logErrorMessage(`[JobManager] stale pre-existing sidecar quarantined at create for job ${t}: ${c}`)
+                sessionKey = this.buildSessionKey(jobId, frontmatter),
+                jobFileMarkdown = renderJobFileMarkdown(frontmatter, body),
+                staleSidecarQuarantined;
+            return await Oc(jobId, async () => {
+                if (await this.exists(jobId)) throw new Error(`Job ${jobId} already exists`);
+                if (await this.pathExists(this.getStatePath(jobId))) {
+                    let quarantinedPath = await moveFileIntoDirectory(this.getStatePath(jobId), this.archiveDir, ".orphan");
+                    staleSidecarQuarantined = quarantinedPath, logErrorMessage(`[JobManager] stale pre-existing sidecar quarantined at create for job ${jobId}: ${quarantinedPath}`)
                 }
-                await writeFileAtomic(this.getJobPath(t), u, lce(s.claudeModelProfiles) ? {
+                await writeFileAtomic(this.getJobPath(jobId), jobFileMarkdown, lce(frontmatter.claudeModelProfiles) ? {
                     mode: rc
-                } : {}), await writeJsonFileAtomic(this.getStatePath(t), qC())
+                } : {}), await writeJsonFileAtomic(this.getStatePath(jobId), qC())
             }), await ensureSessionDescriptorAndStateFiles(this.paths, {
-                session_key: a,
-                display_name: t,
+                session_key: sessionKey,
+                display_name: jobId,
                 kind: "job",
-                owner_session: s.owner_session
-            }), logInfoMessage(`[JobManager] Created job ${t}`, {
-                cron: n.cron
+                owner_session: frontmatter.owner_session
+            }), logInfoMessage(`[JobManager] Created job ${jobId}`, {
+                cron: frontmatterInput.cron
             }), {
-                staleSidecarQuarantined: l
+                staleSidecarQuarantined
             }
         }
-        async rescheduleJob(t, n, r = new Date) {
-            let i = parseJobRearmTime(n, r);
-            return Oc(t, async () => {
-                if (!await this.exists(t)) throw await this.pathExists(this.getArchiveJobPath(t)) ? new Error(`Job ${t} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${t} not found`);
-                let o = this.getStatePath(t),
-                    s = await this.readStateStrict(o);
-                return await writeJsonFileAtomic(o, {
-                    ...s,
-                    run_at: i
-                }), logInfoMessage(`[JobManager] Rescheduled job ${t}`, {
-                    run_at: i
-                }), i
+        async rescheduleJob(jobId, when, now = new Date) {
+            let jobRearmTime = parseJobRearmTime(when, now);
+            return Oc(jobId, async () => {
+                if (!await this.exists(jobId)) throw await this.pathExists(this.getArchiveJobPath(jobId)) ? new Error(`Job ${jobId} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${jobId} not found`);
+                let statePath = this.getStatePath(jobId),
+                    state = await this.readStateStrict(statePath);
+                return await writeJsonFileAtomic(statePath, {
+                    ...state,
+                    run_at: jobRearmTime
+                }), logInfoMessage(`[JobManager] Rescheduled job ${jobId}`, {
+                    run_at: jobRearmTime
+                }), jobRearmTime
             })
         }
-        async archiveJob(t) {
-            return Oc(t, () => this.archiveJobHoldingLock(t))
+        async archiveJob(jobId) {
+            return Oc(jobId, () => this.archiveJobHoldingLock(jobId))
         }
-        async archiveJobHoldingLock(t) {
-            if (!await this.exists(t)) throw await this.pathExists(this.getArchiveJobPath(t)) ? new Error(`Job ${t} is archived — no longer active. It is already off the schedule.`) : new Error(`Job ${t} not found`);
-            let n = this.getJobPath(t),
-                r = this.getStatePath(t),
-                i = this.getArchiveJobPath(t),
-                o = this.getArchiveStatePath(t);
-            await Wo.rename(n, i);
+        async archiveJobHoldingLock(jobId) {
+            if (!await this.exists(jobId)) throw await this.pathExists(this.getArchiveJobPath(jobId)) ? new Error(`Job ${jobId} is archived — no longer active. It is already off the schedule.`) : new Error(`Job ${jobId} not found`);
+            let jobPath = this.getJobPath(jobId),
+                statePath = this.getStatePath(jobId),
+                archiveJobPath = this.getArchiveJobPath(jobId),
+                archiveStatePath = this.getArchiveStatePath(jobId);
+            await Wo.rename(jobPath, archiveJobPath);
             try {
-                await Wo.rename(r, o)
-            } catch (s) {
-                if (s.code !== "ENOENT") {
+                await Wo.rename(statePath, archiveStatePath)
+            } catch (err) {
+                if (err.code !== "ENOENT") {
                     try {
-                        let u = await this.pathExists(o) ? ".orphan" : "",
-                            l = await moveFileIntoDirectory(r, this.archiveDir, u);
-                        return logErrorMessage(`[JobManager] sidecar archive rename failed for job ${t}; sidecar moved to ${l} on immediate retry`, s), logInfoMessage(`[JobManager] Archived job ${t}`), {}
-                    } catch (u) {
-                        logErrorMessage(`[JobManager] sidecar archive retry also failed for job ${t} — .md archived anyway (degraded cancel), orphan sidecar left at ${r}`, u)
+                        let suffix = await this.pathExists(archiveStatePath) ? ".orphan" : "",
+                            movedPath = await moveFileIntoDirectory(statePath, this.archiveDir, suffix);
+                        return logErrorMessage(`[JobManager] sidecar archive rename failed for job ${jobId}; sidecar moved to ${movedPath} on immediate retry`, err), logInfoMessage(`[JobManager] Archived job ${jobId}`), {}
+                    } catch (err) {
+                        logErrorMessage(`[JobManager] sidecar archive retry also failed for job ${jobId} — .md archived anyway (degraded cancel), orphan sidecar left at ${statePath}`, err)
                     }
                     return {
-                        sidecarOrphanPath: r
+                        sidecarOrphanPath: statePath
                     }
                 }
             }
-            return logInfoMessage(`[JobManager] Archived job ${t}`), {}
+            return logInfoMessage(`[JobManager] Archived job ${jobId}`), {}
         }
-        async renameSidecarOrRollback(t, n, r, i, o) {
+        async renameSidecarOrRollback(jobId, fromPath, toPath, rollbackFromPath, rollbackToPath) {
             try {
-                await Wo.rename(n, r)
-            } catch (s) {
-                if (s.code === "ENOENT") return;
+                await Wo.rename(fromPath, toPath)
+            } catch (err) {
+                if (err.code === "ENOENT") return;
                 try {
-                    await Wo.rename(i, o)
-                } catch (u) {
-                    logErrorMessage(`[JobManager] sidecar-rename rollback failed for job ${t}`, u)
+                    await Wo.rename(rollbackFromPath, rollbackToPath)
+                } catch (err) {
+                    logErrorMessage(`[JobManager] sidecar-rename rollback failed for job ${jobId}`, err)
                 }
-                throw s
+                throw err
             }
         }
-        async archiveJobIfNotRearmed(t) {
-            return Oc(t, async () => {
-                if (!await this.exists(t)) throw new Error(`Job ${t} not found`);
-                let n = await this.readStateStrict(this.getStatePath(t));
-                return typeof n.run_at == "string" && n.run_at.length > 0 ? {
+        async archiveJobIfNotRearmed(jobId) {
+            return Oc(jobId, async () => {
+                if (!await this.exists(jobId)) throw new Error(`Job ${jobId} not found`);
+                let state = await this.readStateStrict(this.getStatePath(jobId));
+                return typeof state.run_at == "string" && state.run_at.length > 0 ? {
                     archived: !1,
-                    runAt: n.run_at
-                } : (await Wo.rename(this.getJobPath(t), this.getArchiveJobPath(t)), await this.renameSidecarOrRollback(t, this.getStatePath(t), this.getArchiveStatePath(t), this.getArchiveJobPath(t), this.getJobPath(t)), logInfoMessage(`[JobManager] Archived job ${t} (finalize auto-archive, not re-armed)`), {
+                    runAt: state.run_at
+                } : (await Wo.rename(this.getJobPath(jobId), this.getArchiveJobPath(jobId)), await this.renameSidecarOrRollback(jobId, this.getStatePath(jobId), this.getArchiveStatePath(jobId), this.getArchiveJobPath(jobId), this.getJobPath(jobId)), logInfoMessage(`[JobManager] Archived job ${jobId} (finalize auto-archive, not re-armed)`), {
                     archived: !0,
                     runAt: null
                 })
             })
         }
-        async createWakeRecord(t) {
+        async createWakeRecord(params) {
             await this.init();
-            let n = t.now ?? new Date,
-                r = parseJobRearmTime(t.when, n),
-                i = t.ownerSession.trim();
-            if (!i) throw new Error("A wake record needs an owner session — the caller is always the target.");
-            let o = `wake-${n.getTime().toString(36)}`,
-                s = {
+            let now = params.now ?? new Date,
+                jobRearmTime = parseJobRearmTime(params.when, now),
+                trimmed = params.ownerSession.trim();
+            if (!trimmed) throw new Error("A wake record needs an owner session — the caller is always the target.");
+            let baseId = `wake-${now.getTime().toString(36)}`,
+                frontmatter = {
                     type: "wake",
-                    owner_session: i,
-                    created_at: n.toISOString()
+                    owner_session: trimmed,
+                    created_at: now.toISOString()
                 },
-                a = ["---", 'type: "wake"', `owner_session: "${i.replace(/"/g,'\\"')}"`, `created_at: "${s.created_at}"`, "---", "", t.context].join(`
+                markdown = ["---", 'type: "wake"', `owner_session: "${trimmed.replace(/"/g,'\\"')}"`, `created_at: "${frontmatter.created_at}"`, "---", "", params.context].join(`
 `);
-            for (let u = 0;; u++) {
-                let l = u === 0 ? o : `${o}-${u}`;
-                if (Ig(l), await Oc(l, async () => await this.exists(l) ? !1 : (await writeFileAtomic(this.getJobPath(l), a), await writeJsonFileAtomic(this.getStatePath(l), {
+            for (let attempt = 0;; attempt++) {
+                let wakeId = attempt === 0 ? baseId : `${baseId}-${attempt}`;
+                if (Ig(wakeId), await Oc(wakeId, async () => await this.exists(wakeId) ? !1 : (await writeFileAtomic(this.getJobPath(wakeId), markdown), await writeJsonFileAtomic(this.getStatePath(wakeId), {
                         ...qC(),
-                        run_at: r
-                    }), !0))) return logInfoMessage(`[JobManager] Created wake record ${l}`, {
-                    owner: i,
-                    run_at: r
+                        run_at: jobRearmTime
+                    }), !0))) return logInfoMessage(`[JobManager] Created wake record ${wakeId}`, {
+                    owner: trimmed,
+                    run_at: jobRearmTime
                 }), {
-                    id: l,
-                    runAt: r
+                    id: wakeId,
+                    runAt: jobRearmTime
                 }
             }
         }
-        async getWakeRecord(t) {
-            let n = this.getJobPath(t),
-                r;
+        async getWakeRecord(wakeId) {
+            let jobPath = this.getJobPath(wakeId),
+                source;
             try {
-                r = await Wo.readFile(n, "utf8")
-            } catch (l) {
-                if (l.code === "ENOENT") return null;
-                throw l
+                source = await Wo.readFile(jobPath, "utf8")
+            } catch (err) {
+                if (err.code === "ENOENT") return null;
+                throw err
             }
             let {
-                data: i,
-                content: o
-            } = parseJobFileFrontmatter(r, n);
-            if (i.type !== "wake") return null;
-            let a = typeof i.owner_session == "string" ? i.owner_session.trim() : "",
-                u = typeof i.created_at == "string" ? i.created_at : "";
-            if (!a || !u) throw new Error(`Wake record ${t} is missing ${a?"created_at":"owner_session"} — it cannot be delivered.`);
+                data,
+                content
+            } = parseJobFileFrontmatter(source, jobPath);
+            if (data.type !== "wake") return null;
+            let ownerSession = typeof data.owner_session == "string" ? data.owner_session.trim() : "",
+                createdAt = typeof data.created_at == "string" ? data.created_at : "";
+            if (!ownerSession || !createdAt) throw new Error(`Wake record ${wakeId} is missing ${ownerSession?"created_at":"owner_session"} — it cannot be delivered.`);
             return {
-                id: t,
-                path: n,
+                id: wakeId,
+                path: jobPath,
                 frontmatter: {
                     type: "wake",
-                    owner_session: a,
-                    created_at: u
+                    owner_session: ownerSession,
+                    created_at: createdAt
                 },
-                context: o.trim(),
-                state: await this.readStateStrict(this.getStatePath(t))
+                context: content.trim(),
+                state: await this.readStateStrict(this.getStatePath(wakeId))
             }
         }
         async listWakeRecords() {
             await this.init();
-            let t;
+            let fileNames;
             try {
-                t = (await Wo.readdir(this.activeDir)).filter(r => r.endsWith(".md"))
-            } catch (r) {
-                return logErrorMessage("[JobManager] Failed to list wake records", r), []
+                fileNames = (await Wo.readdir(this.activeDir)).filter(fileName => fileName.endsWith(".md"))
+            } catch (err) {
+                return logErrorMessage("[JobManager] Failed to list wake records", err), []
             }
-            let n = [];
-            for (let r of t) {
-                let i = r.slice(0, -3);
+            let records = [];
+            for (let fileName of fileNames) {
+                let recordId = fileName.slice(0, -3);
                 try {
-                    let o = await this.getWakeRecord(i);
-                    o && n.push(o)
-                } catch (o) {
-                    logErrorMessage(`[JobManager] Skipping unreadable record ${i} while listing wakes`, {
-                        jobId: i,
-                        error: formatYamlErrorMessage(o)
+                    let record = await this.getWakeRecord(recordId);
+                    record && records.push(record)
+                } catch (err) {
+                    logErrorMessage(`[JobManager] Skipping unreadable record ${recordId} while listing wakes`, {
+                        jobId: recordId,
+                        error: formatYamlErrorMessage(err)
                     })
                 }
             }
-            return n
+            return records
         }
-        async fireWakeRecord(t, n, r) {
-            return Oc(t, async () => {
-                let i = await this.getWakeRecord(t);
-                if (!i) return {
+        async fireWakeRecord(wakeId, now, deliver) {
+            return Oc(wakeId, async () => {
+                let record = await this.getWakeRecord(wakeId);
+                if (!record) return {
                     outcome: "cancelled"
                 };
-                let o = i.state.run_at,
-                    s = typeof o == "string" ? Date.parse(o) : Number.NaN;
-                if (!Number.isFinite(s) || n.getTime() < s) return {
+                let runAt = record.state.run_at,
+                    runAtMs = typeof runAt == "string" ? Date.parse(runAt) : Number.NaN;
+                if (!Number.isFinite(runAtMs) || now.getTime() < runAtMs) return {
                     outcome: "not_due"
                 };
-                let a = await r(i);
-                return await this.archiveJobHoldingLock(t), a.success ? {
+                let deliveryResult = await deliver(record);
+                return await this.archiveJobHoldingLock(wakeId), deliveryResult.success ? {
                     outcome: "delivered"
                 } : {
                     outcome: "undeliverable",
-                    error: a.error
+                    error: deliveryResult.error
                 }
             })
         }
-        async getJob(t) {
-            return this.readJobByPath(t, this.getJobPath(t), this.getStatePath(t))
+        async getJob(jobId) {
+            return this.readJobByPath(jobId, this.getJobPath(jobId), this.getStatePath(jobId))
         }
-        async getArchivedJob(t) {
-            return this.readJobByPath(t, this.getArchiveJobPath(t), this.getArchiveStatePath(t))
+        async getArchivedJob(jobId) {
+            return this.readJobByPath(jobId, this.getArchiveJobPath(jobId), this.getArchiveStatePath(jobId))
         }
-        async classifyActiveJob(t) {
-            let n;
+        async classifyActiveJob(jobId) {
+            let source;
             try {
-                n = await Wo.readFile(this.getJobPath(t), "utf8")
-            } catch (i) {
-                if (i.code === "ENOENT") return {
+                source = await Wo.readFile(this.getJobPath(jobId), "utf8")
+            } catch (err) {
+                if (err.code === "ENOENT") return {
                     kind: "missing"
                 };
-                throw i
+                throw err
             }
-            let r;
+            let job;
             try {
-                r = await this.buildJobDefinition(t, this.getJobPath(t), this.getStatePath(t), n)
-            } catch (i) {
+                job = await this.buildJobDefinition(jobId, this.getJobPath(jobId), this.getStatePath(jobId), source)
+            } catch (err) {
                 return {
                     kind: "invalid",
-                    reason: `frontmatter does not parse: ${formatYamlErrorMessage(i)}`
+                    reason: `frontmatter does not parse: ${formatYamlErrorMessage(err)}`
                 }
             }
-            return r ? {
+            return job ? {
                 kind: "active",
-                job: r
+                job
             } : {
                 kind: "invalid",
                 reason: 'frontmatter is missing type: "job"'
             }
         }
-        async readJobByPath(t, n, r) {
+        async readJobByPath(jobId, jobPath, statePath) {
             try {
-                let i = await Wo.readFile(n, "utf8");
-                return await this.buildJobDefinition(t, n, r, i)
-            } catch (i) {
-                if (i.code === "ENOENT") return null;
-                throw new Error(formatYamlErrorMessage(i))
+                let content = await Wo.readFile(jobPath, "utf8");
+                return await this.buildJobDefinition(jobId, jobPath, statePath, content)
+            } catch (err) {
+                if (err.code === "ENOENT") return null;
+                throw new Error(formatYamlErrorMessage(err))
             }
         }
-        async buildJobDefinition(t, n, r, i) {
+        async buildJobDefinition(jobId, jobPath, statePath, source) {
             let {
-                data: o,
-                content: s
-            } = parseJobFileFrontmatter(i, n);
-            if (o.type === "wake") return null;
-            if (!o.type || o.type !== "job") return logErrorMessage(`[JobManager] Invalid job file ${t}: missing type=job`), null;
-            let u;
+                data,
+                content
+            } = parseJobFileFrontmatter(source, jobPath);
+            if (data.type === "wake") return null;
+            if (!data.type || data.type !== "job") return logErrorMessage(`[JobManager] Invalid job file ${jobId}: missing type=job`), null;
+            let state;
             try {
-                let d = await Wo.readFile(r, "utf8");
-                u = JSON.parse(d)
+                let content = await Wo.readFile(statePath, "utf8");
+                state = JSON.parse(content)
             } catch {
-                u = {
+                state = {
                     last_run_at: null,
                     last_result: "unknown",
                     run_count: 0
                 }
             }
-            let l = X_e(this.paths, t, o.cwd_rel),
-                c = {
-                    ...o
+            let executionInfo = X_e(this.paths, jobId, data.cwd_rel),
+                frontmatter = {
+                    ...data
                 };
-            return delete c.notify, {
-                id: t,
-                path: n,
-                frontmatter: c,
-                content: s,
-                state: u,
-                session_key: this.buildSessionKey(t, c),
-                execution_context: l.context,
-                execution_cwd: l.cwd,
-                runtime_workspace_dir: l.runtimeWorkspaceDir
+            return delete frontmatter.notify, {
+                id: jobId,
+                path: jobPath,
+                frontmatter,
+                content,
+                state,
+                session_key: this.buildSessionKey(jobId, frontmatter),
+                execution_context: executionInfo.context,
+                execution_cwd: executionInfo.cwd,
+                runtime_workspace_dir: executionInfo.runtimeWorkspaceDir
             }
         }
         async listJobs() {
             await this.init();
-            let t;
+            let fileNames;
             try {
-                t = (await Wo.readdir(this.activeDir)).filter(o => o.endsWith(".md"))
-            } catch (i) {
-                return logErrorMessage("[JobManager] Failed to list jobs", i), []
+                fileNames = (await Wo.readdir(this.activeDir)).filter(fileName => fileName.endsWith(".md"))
+            } catch (err) {
+                return logErrorMessage("[JobManager] Failed to list jobs", err), []
             }
-            let n = [],
-                r = [];
-            for (let i of t) {
-                let o = i.slice(0, -3);
+            let jobs = [],
+                failedJobIds = [];
+            for (let fileName of fileNames) {
+                let jobId = fileName.slice(0, -3);
                 try {
-                    let s = await this.getJob(o);
-                    s && n.push(s)
-                } catch (s) {
-                    r.push(o), logErrorMessage(`[JobManager] Skipping unreadable job file ${o} — the other jobs still load`, {
-                        jobId: o,
-                        error: formatYamlErrorMessage(s)
+                    let job = await this.getJob(jobId);
+                    job && jobs.push(job)
+                } catch (err) {
+                    failedJobIds.push(jobId), logErrorMessage(`[JobManager] Skipping unreadable job file ${jobId} — the other jobs still load`, {
+                        jobId,
+                        error: formatYamlErrorMessage(err)
                     })
                 }
             }
-            return r.length > 0 && logErrorMessage(`[JobManager] ${r.length} job file(s) failed to parse and are NOT scheduled: ${r.join(", ")}`), n
+            return failedJobIds.length > 0 && logErrorMessage(`[JobManager] ${failedJobIds.length} job file(s) failed to parse and are NOT scheduled: ${failedJobIds.join(", ")}`), jobs
         }
-        async updateState(t, n, r) {
-            await Oc(t, async () => {
-                if (!await this.exists(t)) throw await this.quarantineOrphanSidecarIfPresent(t), new Error(`Job ${t} is not active (archived or removed) — state writes are active-only`);
-                let i = this.getStatePath(t),
-                    o = await this.readStateStrict(i);
-                if (r && "expectedClaimCursor" in r) {
-                    let s = o.last_scheduled_at ?? null,
-                        a = r.expectedClaimCursor ?? null;
-                    if (s !== a) return
+        async updateState(jobId, patch, options) {
+            await Oc(jobId, async () => {
+                if (!await this.exists(jobId)) throw await this.quarantineOrphanSidecarIfPresent(jobId), new Error(`Job ${jobId} is not active (archived or removed) — state writes are active-only`);
+                let statePath = this.getStatePath(jobId),
+                    state = await this.readStateStrict(statePath);
+                if (options && "expectedClaimCursor" in options) {
+                    let currentCursor = state.last_scheduled_at ?? null,
+                        expectedCursor = options.expectedClaimCursor ?? null;
+                    if (currentCursor !== expectedCursor) return
                 }
-                await writeJsonFileAtomic(i, {
-                    ...o,
-                    ...n
+                await writeJsonFileAtomic(statePath, {
+                    ...state,
+                    ...patch
                 })
             })
         }
-        async finalizeJobState(t, n, r) {
-            return Oc(t, async () => {
-                if (!await this.exists(t)) return await this.quarantineOrphanSidecarIfPresent(t), S6;
-                let i = this.getStatePath(t),
-                    o = await this.readStateStrict(i);
-                if (r && "expectedClaimCursor" in r) {
-                    let a = o.last_scheduled_at ?? null,
-                        u = r.expectedClaimCursor ?? null;
-                    if (a !== u) return k6
+        async finalizeJobState(jobId, patch, options) {
+            return Oc(jobId, async () => {
+                if (!await this.exists(jobId)) return await this.quarantineOrphanSidecarIfPresent(jobId), S6;
+                let statePath = this.getStatePath(jobId),
+                    state = await this.readStateStrict(statePath);
+                if (options && "expectedClaimCursor" in options) {
+                    let currentCursor = state.last_scheduled_at ?? null,
+                        expectedCursor = options.expectedClaimCursor ?? null;
+                    if (currentCursor !== expectedCursor) return k6
                 }
-                let s = {
-                    ...o,
-                    ...n
+                let nextState = {
+                    ...state,
+                    ...patch
                 };
-                if (s.run_count = n.last_result === "success" ? (o.run_count ?? 0) + 1 : o.run_count ?? 0, r?.consumeRunAt !== !1 && typeof s.run_at == "string" && s.run_at.length > 0) {
-                    let a = new Date(s.run_at).getTime(),
-                        u = s.last_scheduled_at ? new Date(s.last_scheduled_at).getTime() : Number.NaN;
-                    Number.isFinite(a) && Number.isFinite(u) && a <= u && (s.run_at = null)
+                if (nextState.run_count = patch.last_result === "success" ? (state.run_count ?? 0) + 1 : state.run_count ?? 0, options?.consumeRunAt !== !1 && typeof nextState.run_at == "string" && nextState.run_at.length > 0) {
+                    let runAtMs = new Date(nextState.run_at).getTime(),
+                        lastScheduledMs = nextState.last_scheduled_at ? new Date(nextState.last_scheduled_at).getTime() : Number.NaN;
+                    Number.isFinite(runAtMs) && Number.isFinite(lastScheduledMs) && runAtMs <= lastScheduledMs && (nextState.run_at = null)
                 }
-                return await writeJsonFileAtomic(i, s), {
-                    run_at: s.run_at ?? null
+                return await writeJsonFileAtomic(statePath, nextState), {
+                    run_at: nextState.run_at ?? null
                 }
             })
         }
-        async quarantineOrphanSidecarIfPresent(t) {
-            let n = this.getStatePath(t);
-            if (await this.pathExists(n)) try {
-                let r = await moveFileIntoDirectory(n, this.archiveDir, ".orphan");
-                logErrorMessage(`[JobManager] orphan sidecar quarantined for job ${t} (no active .md): ${r}`)
-            } catch (r) {
-                logErrorMessage(`[JobManager] failed to quarantine orphan sidecar for job ${t}`, r)
+        async quarantineOrphanSidecarIfPresent(jobId) {
+            let statePath = this.getStatePath(jobId);
+            if (await this.pathExists(statePath)) try {
+                let quarantinedPath = await moveFileIntoDirectory(statePath, this.archiveDir, ".orphan");
+                logErrorMessage(`[JobManager] orphan sidecar quarantined for job ${jobId} (no active .md): ${quarantinedPath}`)
+            } catch (err) {
+                logErrorMessage(`[JobManager] failed to quarantine orphan sidecar for job ${jobId}`, err)
             }
         }
-        async readStateStrict(t) {
-            let n;
+        async readStateStrict(statePath) {
+            let source;
             try {
-                n = await Wo.readFile(t, "utf8")
-            } catch (r) {
-                if (r.code === "ENOENT") return qC();
-                throw r
+                source = await Wo.readFile(statePath, "utf8")
+            } catch (err) {
+                if (err.code === "ENOENT") return qC();
+                throw err
             }
             try {
-                return JSON.parse(n)
-            } catch (r) {
+                return JSON.parse(source)
+            } catch (err) {
                 try {
-                    let i = await moveFileIntoDirectory(t, Hf.dirname(t), `.corrupt-${Date.now()}`);
-                    logErrorMessage(`[JobManager] corrupt state sidecar quarantined: ${t} → ${i}`, r)
-                } catch (i) {
-                    logErrorMessage(`[JobManager] failed to quarantine corrupt sidecar: ${t}`, i)
+                    let quarantinedPath = await moveFileIntoDirectory(statePath, Hf.dirname(statePath), `.corrupt-${Date.now()}`);
+                    logErrorMessage(`[JobManager] corrupt state sidecar quarantined: ${statePath} → ${quarantinedPath}`, err)
+                } catch (err) {
+                    logErrorMessage(`[JobManager] failed to quarantine corrupt sidecar: ${statePath}`, err)
                 }
                 return qC()
             }
         }
-        async pathExists(t) {
+        async pathExists(filePath) {
             try {
-                return await Wo.access(t), !0
-            } catch (n) {
-                if (n.code === "ENOENT") return !1;
-                throw n
+                return await Wo.access(filePath), !0
+            } catch (err) {
+                if (err.code === "ENOENT") return !1;
+                throw err
             }
         }
-        async exists(t) {
-            return this.pathExists(this.getJobPath(t))
+        async exists(jobId) {
+            return this.pathExists(this.getJobPath(jobId))
         }
-        buildSessionKey(t, n) {
+        buildSessionKey(jobId, frontmatter) {
             return buildJobSessionKey({
-                jobId: t,
-                cron: n.cron,
-                cwdRel: n.cwd_rel
+                jobId,
+                cron: frontmatter.cron,
+                cwdRel: frontmatter.cwd_rel
             })
         }
     }

@@ -2,163 +2,164 @@
 // symbol: deliverRouteEventToSession  (minified: As, daemon.pretty.js:65038)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.4 (maps/history_daemon.json)
+// locals: 21 renamed — 14 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function deliverRouteEventToSession(e, t, n) {
+async function deliverRouteEventToSession(paths, bus, delivery) {
     let {
-        traceId: r,
-        routeId: i,
-        sourceName: o,
-        sourceKind: s,
-        channelDescriptorId: a,
-        targetSessionKey: u,
-        sourceSessionKey: l,
-        eventType: c,
-        payload: d,
-        preempt: f,
-        walOnly: p,
-        enqueueWithoutWake: m
-    } = n;
-    if (isSessionArchiving(u)) return logWarnMessage("[route] delivery refused: session is being archived", {
-        traceId: r,
-        routeId: i,
-        sourceSessionKey: l,
-        sourceEventType: c,
-        targetSessionKey: u
+        traceId,
+        routeId,
+        sourceName,
+        sourceKind,
+        channelDescriptorId,
+        targetSessionKey,
+        sourceSessionKey,
+        eventType,
+        payload,
+        preempt,
+        walOnly,
+        enqueueWithoutWake
+    } = delivery;
+    if (isSessionArchiving(targetSessionKey)) return logWarnMessage("[route] delivery refused: session is being archived", {
+        traceId,
+        routeId,
+        sourceSessionKey,
+        sourceEventType: eventType,
+        targetSessionKey
     }), {
-        routeId: i,
-        targetSessionKey: u,
+        routeId,
+        targetSessionKey,
         success: !1,
         error: "session_archiving"
     };
-    if (isSessionArchived(e, u)) return logWarnMessage("[route] delivery refused: session archived", {
-        traceId: r,
-        routeId: i,
-        sourceSessionKey: l,
-        sourceEventType: c,
-        targetSessionKey: u
+    if (isSessionArchived(paths, targetSessionKey)) return logWarnMessage("[route] delivery refused: session archived", {
+        traceId,
+        routeId,
+        sourceSessionKey,
+        sourceEventType: eventType,
+        targetSessionKey
     }), {
-        routeId: i,
-        targetSessionKey: u,
+        routeId,
+        targetSessionKey,
         success: !1,
         error: "session_archived"
     };
     try {
-        let h = createSpineEvent({
+        let spineEvent = createSpineEvent({
             type: "route.deliver",
             source: {
-                kind: s ?? "route",
-                name: o ?? i
+                kind: sourceKind ?? "route",
+                name: sourceName ?? routeId
             },
-            session_key: u,
+            session_key: targetSessionKey,
             payload: {
-                route_id: i,
-                source_session_key: l,
-                source_event_type: c,
-                channel_descriptor_id: a,
-                payload: d
+                route_id: routeId,
+                source_session_key: sourceSessionKey,
+                source_event_type: eventType,
+                channel_descriptor_id: channelDescriptorId,
+                payload
             }
         });
-        if (await atomicAppendEvent(e, h), logDebugMessage("[route] route event appended", {
-                traceId: r,
-                routeId: i,
-                sourceSessionKey: l,
-                targetSessionKey: u,
-                sourceEventType: c,
-                eventId: h.id
-            }), p) return logDebugMessage("[route] wal-only route event (no mailbox, no wake)", {
-            traceId: r,
-            routeId: i,
-            sourceSessionKey: l,
-            targetSessionKey: u,
-            sourceEventType: c,
-            eventId: h.id
+        if (await atomicAppendEvent(paths, spineEvent), logDebugMessage("[route] route event appended", {
+                traceId,
+                routeId,
+                sourceSessionKey,
+                targetSessionKey,
+                sourceEventType: eventType,
+                eventId: spineEvent.id
+            }), walOnly) return logDebugMessage("[route] wal-only route event (no mailbox, no wake)", {
+            traceId,
+            routeId,
+            sourceSessionKey,
+            targetSessionKey,
+            sourceEventType: eventType,
+            eventId: spineEvent.id
         }), {
-            routeId: i,
-            targetSessionKey: u,
+            routeId,
+            targetSessionKey,
             success: !0,
-            eventId: h.id,
-            eventTs: h.ts
+            eventId: spineEvent.id,
+            eventTs: spineEvent.ts
         };
-        if (await isVoidRuntimeSession(e, u)) {
-            let v = zlt(d) ? d : {},
-                b = await writeVoidSessionOutboxRecord(e, t, {
-                    sessionKey: u,
-                    text: typeof v.text == "string" ? v.text : "",
+        if (await isVoidRuntimeSession(paths, targetSessionKey)) {
+            let payloadRecord = zlt(payload) ? payload : {},
+                outboxRecord = await writeVoidSessionOutboxRecord(paths, bus, {
+                    sessionKey: targetSessionKey,
+                    text: typeof payloadRecord.text == "string" ? payloadRecord.text : "",
                     data: {
-                        ...v,
-                        event_id: h.id,
-                        event_ts: h.ts,
-                        source_session_key: l
+                        ...payloadRecord,
+                        event_id: spineEvent.id,
+                        event_ts: spineEvent.ts,
+                        source_session_key: sourceSessionKey
                     }
                 });
             return logDebugMessage("[route] delivered to void session outbox (no mailbox, no wake)", {
-                traceId: r,
-                routeId: i,
-                sourceSessionKey: l,
-                targetSessionKey: u,
-                eventId: h.id,
-                outboxId: b.id
+                traceId,
+                routeId,
+                sourceSessionKey,
+                targetSessionKey,
+                eventId: spineEvent.id,
+                outboxId: outboxRecord.id
             }), {
-                routeId: i,
-                targetSessionKey: u,
+                routeId,
+                targetSessionKey,
                 success: !0,
-                eventId: h.id,
-                eventTs: h.ts
+                eventId: spineEvent.id,
+                eventTs: spineEvent.ts
             }
         }
-        let g = await enqueueSessionInboxLine(e, u, `- [ ] @evt(${h.id})`);
+        let mailboxPath = await enqueueSessionInboxLine(paths, targetSessionKey, `- [ ] @evt(${spineEvent.id})`);
         if (logDebugMessage("[route] mailbox enqueued", {
-                traceId: r,
-                routeId: i,
-                targetSessionKey: u,
-                eventId: h.id,
-                mailboxPath: g
-            }), m) return logDebugMessage("[route] enqueued without wake (waits for the owner's next turn)", {
-            traceId: r,
-            routeId: i,
-            sourceSessionKey: l,
-            sourceEventType: c,
-            targetSessionKey: u,
-            eventId: h.id,
-            mailboxPath: g
+                traceId,
+                routeId,
+                targetSessionKey,
+                eventId: spineEvent.id,
+                mailboxPath
+            }), enqueueWithoutWake) return logDebugMessage("[route] enqueued without wake (waits for the owner's next turn)", {
+            traceId,
+            routeId,
+            sourceSessionKey,
+            sourceEventType: eventType,
+            targetSessionKey,
+            eventId: spineEvent.id,
+            mailboxPath
         }), {
-            routeId: i,
-            targetSessionKey: u,
+            routeId,
+            targetSessionKey,
             success: !0,
-            eventId: h.id,
-            eventTs: h.ts,
-            mailboxPath: g
+            eventId: spineEvent.id,
+            eventTs: spineEvent.ts,
+            mailboxPath
         };
-        let y = f ?? (c === "notify" || c === "job.complete" || c === "job.fail" ? "never" : "allow");
-        return t.emit("session.wake", {
-            sessionKey: u,
-            preempt: y
+        let preemptMode = preempt ?? (eventType === "notify" || eventType === "job.complete" || eventType === "job.fail" ? "never" : "allow");
+        return bus.emit("session.wake", {
+            sessionKey: targetSessionKey,
+            preempt: preemptMode
         }), logDebugMessage("[route] delivered to target inbox", {
-            traceId: r,
-            routeId: i,
-            sourceSessionKey: l,
-            sourceEventType: c,
-            targetSessionKey: u,
-            eventId: h.id,
-            mailboxPath: g
+            traceId,
+            routeId,
+            sourceSessionKey,
+            sourceEventType: eventType,
+            targetSessionKey,
+            eventId: spineEvent.id,
+            mailboxPath
         }), {
-            routeId: i,
-            targetSessionKey: u,
+            routeId,
+            targetSessionKey,
             success: !0,
-            eventId: h.id,
-            eventTs: h.ts,
-            mailboxPath: g
+            eventId: spineEvent.id,
+            eventTs: spineEvent.ts,
+            mailboxPath
         }
-    } catch (h) {
+    } catch (err) {
         throw logWarnMessage("[route] failed to enqueue to target inbox", {
-            traceId: r,
-            routeId: i,
-            sourceSessionKey: l,
-            sourceEventType: c,
-            targetSessionKey: u,
-            error: String(h)
-        }), h
+            traceId,
+            routeId,
+            sourceSessionKey,
+            sourceEventType: eventType,
+            targetSessionKey,
+            error: String(err)
+        }), err
     }
 }

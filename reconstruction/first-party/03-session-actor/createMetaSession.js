@@ -2,558 +2,559 @@
 // symbol: createMetaSession  (minified: Pbt, daemon.pretty.js:86170)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.3.3, v0.5.0, v0.5.2, v0.5.3, v0.5.4, v0.5.7, v0.5.8, v0.5.10, v0.7.1, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
+// locals: 154 renamed — 44 from the code at the binding (rule), 110 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.1 (medium): **cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createMetaSession(e) {
+function createMetaSession(options) {
     let {
-        paths: t,
-        bus: n,
-        sessionManager: r
-    } = e, i = e.sdk, o = e.sessionKey ?? "meta:subconscious", s = e.codexAvailability ?? checkCodexAvailability, a = e.codexAdapterFactory ?? (() => createCodexAppServerAdapter({
+        paths,
+        bus,
+        sessionManager
+    } = options, sdk = options.sdk, sessionKey = options.sessionKey ?? "meta:subconscious", codexAvailability = options.codexAvailability ?? checkCodexAvailability, codexAdapterFactory = options.codexAdapterFactory ?? (() => createCodexAppServerAdapter({
         sandbox: resolveCodexSandbox(),
         ephemeral: !0,
         dynamicTools: buildCodexDynamicTools({
-            paths: t,
-            sessionKey: o,
-            bus: n,
+            paths,
+            sessionKey,
+            bus,
             sessionContextKind: "meta"
         })
-    })), u = e.grokAvailability ?? checkGrokAvailability, l = e.grokAdapterFactory, c = e.piAdapterFactory ?? (({
-        cwd: S,
-        model: D,
-        thinkingLevel: A
+    })), grokAvailability = options.grokAvailability ?? checkGrokAvailability, grokAdapterFactory = options.grokAdapterFactory, piAdapterFactory = options.piAdapterFactory ?? (({
+        cwd,
+        model,
+        thinkingLevel
     }) => {
-        let $ = resolvePiAgentDir(),
+        let piAgentDir = resolvePiAgentDir(),
             {
-                settingsSeed: C,
-                defaultProjectTrust: N
-            } = readPiAgentSettings($),
-            x = _bt(Sy.join(vbt(), "aladuo-pi-partition-")),
-            M = {
+                settingsSeed,
+                defaultProjectTrust
+            } = readPiAgentSettings(piAgentDir),
+            piSessionDir = _bt(Sy.join(vbt(), "aladuo-pi-partition-")),
+            workerToolContext = {
                 session_context_kind: "system"
             },
-            F = createPiWorkerAdapter({
-                cwd: S,
+            piWorkerAdapter = createPiWorkerAdapter({
+                cwd,
                 sdkSessionId: crypto.randomUUID(),
-                sessionDir: x,
-                agentDir: $,
-                authPath: Sy.join($, "auth.json"),
-                modelsPath: Sy.join($, "models.json"),
-                modelsStorePath: Sy.join(x, "models-store.json"),
-                settingsSeed: C,
+                sessionDir: piSessionDir,
+                agentDir: piAgentDir,
+                authPath: Sy.join(piAgentDir, "auth.json"),
+                modelsPath: Sy.join(piAgentDir, "models.json"),
+                modelsStorePath: Sy.join(piSessionDir, "models-store.json"),
+                settingsSeed,
                 resources: {
                     extensions: "all",
                     skills: "all",
-                    default_project_trust: N
+                    default_project_trust: defaultProjectTrust
                 },
-                model: D,
-                thinkingLevel: A,
+                model,
+                thinkingLevel,
                 inMemorySession: !0,
                 workerCommand: resolvePiWorkerCommand(),
                 env: {
-                    [nC]: t.daemonSocketPath,
+                    [nC]: paths.daemonSocketPath,
                     [rC]: issueWorkerToolContextToken({
-                        session_key: o,
-                        ...M
+                        session_key: sessionKey,
+                        ...workerToolContext
                     }),
-                    [iC]: JSON.stringify(M)
+                    [iC]: JSON.stringify(workerToolContext)
                 },
-                logDebug: J => logDebugMessage(J, {
-                    sessionKey: o
+                logDebug: message => logDebugMessage(message, {
+                    sessionKey
                 })
             });
         return {
-            ...F,
+            ...piWorkerAdapter,
             shutdown: async () => {
                 try {
-                    await F.shutdown()
+                    await piWorkerAdapter.shutdown()
                 } finally {
-                    bbt(x, {
+                    bbt(piSessionDir, {
                         recursive: !0,
                         force: !0
                     })
                 }
             }
         }
-    }), d = e.maxPartitionsPerIdleTick ?? 2, f = e.cadenceIntervalMs ?? zg, p = !1, m = !1, h = null, g = !1, y = null, v = 0, b = new Map;
-    async function _(S, D, A) {
-        let $ = await Promise.all(S.map(async N => [N.name, await readPartitionRunState(t, N.name)])),
-            C = new Map($);
+    }), maxPartitionsPerIdleTick = options.maxPartitionsPerIdleTick ?? 2, cadenceIntervalMs = options.cadenceIntervalMs ?? zg, processing = !1, stopRequested = !1, inFlightTick = null, listening = !1, lastActivityFingerprint = null, tickCount = 0, map = new Map;
+    async function runNextPartition(partitions, runtimeContext, currentTick) {
+        let runStateEntries = await Promise.all(partitions.map(async partition => [partition.name, await readPartitionRunState(paths, partition.name)])),
+            map = new Map(runStateEntries);
         for (;;) {
-            let N = await readPlaylistRound(t);
-            if (N.allDone) {
-                if (await rebuildPlaylistRound(t) === 0) return null;
-                N = await readPlaylistRound(t)
+            let playlistRound = await readPlaylistRound(paths);
+            if (playlistRound.allDone) {
+                if (await rebuildPlaylistRound(paths) === 0) return null;
+                playlistRound = await readPlaylistRound(paths)
             }
-            let x = R(N.items, S, A, C, new Date);
-            if (!x) return null;
-            let M = S.find(ie => ie.name === x.name);
-            if (!M || !M.schedule.enabled) {
-                let ie = N.items.filter(j => !j.done).length;
-                await markPlaylistItemExecuted(t, x.name);
-                let se = (await readPlaylistRound(t)).items.filter(j => !j.done).length;
-                if (se >= ie) return logWarnMessage("[meta-session] stale playlist item did not advance", {
-                    name: x.name,
-                    reason: M ? "disabled" : "removed",
-                    beforeUnchecked: ie,
-                    afterUnchecked: se
+            let nextItem = pickNextPlaylistItem(playlistRound.items, partitions, currentTick, map, new Date);
+            if (!nextItem) return null;
+            let nextPartition = partitions.find(candidate => candidate.name === nextItem.name);
+            if (!nextPartition || !nextPartition.schedule.enabled) {
+                let length = playlistRound.items.filter(item => !item.done).length;
+                await markPlaylistItemExecuted(paths, nextItem.name);
+                let length2 = (await readPlaylistRound(paths)).items.filter(item => !item.done).length;
+                if (length2 >= length) return logWarnMessage("[meta-session] stale playlist item did not advance", {
+                    name: nextItem.name,
+                    reason: nextPartition ? "disabled" : "removed",
+                    beforeUnchecked: length,
+                    afterUnchecked: length2
                 }), null;
                 logDebugMessage("[meta-session] skipping unavailable partition, will retry next", {
-                    name: x.name,
-                    reason: M ? "disabled" : "removed"
+                    name: nextItem.name,
+                    reason: nextPartition ? "disabled" : "removed"
                 });
                 continue
             }
-            let F = await E(M, D, A),
-                ce = (await Promise.all(S.map(async ie => [ie.name, await readPartitionRunState(t, ie.name)]))).filter(([, ie]) => isPartitionBackedOff(ie, new Date)).map(([ie]) => ie);
+            let executionResult = await executePartition(nextPartition, runtimeContext, currentTick),
+                backedOffNames = (await Promise.all(partitions.map(async partition => [partition.name, await readPartitionRunState(paths, partition.name)]))).filter(([, runState]) => isPartitionBackedOff(runState, new Date)).map(([name]) => name);
             return {
-                ...F,
-                backedOff: ce
+                ...executionResult,
+                backedOff: backedOffNames
             }
         }
     }
-    async function E(S, D, A) {
-        let $ = Date.now(),
-            C, N, x = 0,
-            M = 0,
-            F = S.runtime,
-            J = F ?? resolveDefaultRuntime();
+    async function executePartition(partition, runtimeContext, currentTick) {
+        let now = Date.now(),
+            outcome, runResult, toolCalls = 0,
+            toolErrors = 0,
+            runtime = partition.runtime,
+            effectiveRuntime = runtime ?? resolveDefaultRuntime();
         logInfoMessage("[v12-observe] partition runtime selected", {
-            partition: S.name,
-            runtime: J,
-            requestedRuntime: F ?? null,
-            sdkInjected: !!i
+            partition: partition.name,
+            runtime: effectiveRuntime,
+            requestedRuntime: runtime ?? null,
+            sdkInjected: !!sdk
         });
-        let ce, ie, Ce, se, j = async (ve, je = "runtime_unavailable") => {
-            let sn = Date.now() - $,
-                gt = createSpineEvent({
+        let adapter, shutdownCodex, shutdownGrok, shutdownPi, skipUnavailable = async (reason, skipOutcome = "runtime_unavailable") => {
+            let durationMs = Date.now() - now,
+                spineEvent = createSpineEvent({
                     type: "agent.error",
                     source: {
                         kind: "meta",
-                        name: `subconscious:${S.name}`
+                        name: `subconscious:${partition.name}`
                     },
-                    session_key: o,
+                    session_key: sessionKey,
                     payload: {
                         stage: "partition_execution",
-                        partition: S.name,
-                        outcome: je,
-                        runtime: J,
-                        runtime_source: F ? "explicit" : "default",
-                        error: je === "runtime_refused" ? ve : `runtime '${J}' is unavailable: ${ve}`
+                        partition: partition.name,
+                        outcome: skipOutcome,
+                        runtime: effectiveRuntime,
+                        runtime_source: runtime ? "explicit" : "default",
+                        error: skipOutcome === "runtime_refused" ? reason : `runtime '${effectiveRuntime}' is unavailable: ${reason}`
                     }
                 });
-            await atomicAppendEvent(t, gt), await advanceConsumerWatermark(t, "meta_session", gt.id, new Date(gt.ts)), logWarnMessage("[meta-session] partition skipped: requested runtime unavailable", {
-                partition: S.name,
-                runtime: J,
-                requestedFrom: F ? "frontmatter" : "default",
-                reason: ve
-            }), await markPlaylistItemExecuted(t, S.name), b.set(S.name, A);
-            let Gt = await readPartitionRunState(t, S.name),
-                Nn = new Date,
-                Us = {
-                    last_started_at: new Date($).toISOString(),
-                    last_finished_at: Nn.toISOString(),
+            await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "meta_session", spineEvent.id, new Date(spineEvent.ts)), logWarnMessage("[meta-session] partition skipped: requested runtime unavailable", {
+                partition: partition.name,
+                runtime: effectiveRuntime,
+                requestedFrom: runtime ? "frontmatter" : "default",
+                reason
+            }), await markPlaylistItemExecuted(paths, partition.name), map.set(partition.name, currentTick);
+            let partitionRunState = await readPartitionRunState(paths, partition.name),
+                date = new Date,
+                nextRunState = {
+                    last_started_at: new Date(now).toISOString(),
+                    last_finished_at: date.toISOString(),
                     last_result: "error",
-                    consecutive_failures: Gt.consecutive_failures + 1,
-                    backoff_until: computePartitionBackoffUntil("error", Gt.consecutive_failures + 1, Nn, f)
+                    consecutive_failures: partitionRunState.consecutive_failures + 1,
+                    backoff_until: computePartitionBackoffUntil("error", partitionRunState.consecutive_failures + 1, date, cadenceIntervalMs)
                 };
-            return await writePartitionRunState(t, S.name, Us), {
-                name: S.name,
+            return await writePartitionRunState(paths, partition.name, nextRunState), {
+                name: partition.name,
                 outcome: "error",
-                durationMs: sn,
+                durationMs,
                 backedOff: []
             }
         };
-        if (S.runtimeRefusal) return await j(S.runtimeRefusal, "runtime_refused");
-        let ne = claudeUnavailableReason();
-        if (J === "claude" && !i && ne) return await j(ne);
-        let K = mergeGlobalModelConfigLayers(await loadGlobalRuntimeConfig(t.channelConfigDir)),
-            te = S.model ?? K.runtimeModels?.[J]?.model,
-            B = S.effort ?? K.runtimeEfforts?.[J]?.effort;
-        if (i && J === "claude") ce = i;
-        else if (J === "codex") {
-            let ve = await s();
+        if (partition.runtimeRefusal) return await skipUnavailable(partition.runtimeRefusal, "runtime_refused");
+        let claudeUnavailable = claudeUnavailableReason();
+        if (effectiveRuntime === "claude" && !sdk && claudeUnavailable) return await skipUnavailable(claudeUnavailable);
+        let globalModelConfigLayers = mergeGlobalModelConfigLayers(await loadGlobalRuntimeConfig(paths.channelConfigDir)),
+            model = partition.model ?? globalModelConfigLayers.runtimeModels?.[effectiveRuntime]?.model,
+            effort = partition.effort ?? globalModelConfigLayers.runtimeEfforts?.[effectiveRuntime]?.effort;
+        if (sdk && effectiveRuntime === "claude") adapter = sdk;
+        else if (effectiveRuntime === "codex") {
+            let codexProbe = await codexAvailability();
             if (logInfoMessage("[v12-observe] codex probe result", {
-                    partition: S.name,
-                    probeOk: ve.ok,
-                    probeReason: ve.ok ? null : ve.reason
-                }), !ve.ok) return await j(ve.reason);
+                    partition: partition.name,
+                    probeOk: codexProbe.ok,
+                    probeReason: codexProbe.ok ? null : codexProbe.reason
+                }), !codexProbe.ok) return await skipUnavailable(codexProbe.reason);
             logInfoMessage("[v12-observe] codex adapter spawn", {
-                partition: S.name,
+                partition: partition.name,
                 sandbox: resolveCodexSandbox()
             });
-            let je = a();
-            ce = je, ie = () => je.shutdown()
-        } else if (J === "grok") {
-            let ve = await u();
+            let codexAdapter = codexAdapterFactory();
+            adapter = codexAdapter, shutdownCodex = () => codexAdapter.shutdown()
+        } else if (effectiveRuntime === "grok") {
+            let grokProbe = await grokAvailability();
             if (logInfoMessage("[v12-observe] grok probe result", {
-                    partition: S.name,
-                    probeOk: ve.ok,
-                    probeReason: ve.ok ? null : ve.reason
-                }), !ve.ok) return await j(ve.reason);
+                    partition: partition.name,
+                    probeOk: grokProbe.ok,
+                    probeReason: grokProbe.ok ? null : grokProbe.reason
+                }), !grokProbe.ok) return await skipUnavailable(grokProbe.reason);
             logInfoMessage("[v12-observe] grok adapter spawn", {
-                partition: S.name
+                partition: partition.name
             });
-            let je = l ? l() : createGrokAcpAdapter({
-                cwd: S.dir,
-                mcpServerFactory: () => createAladuoMcpServer(t, {
-                    sessionKey: o,
-                    bus: n,
+            let grokAdapter = grokAdapterFactory ? grokAdapterFactory() : createGrokAcpAdapter({
+                cwd: partition.dir,
+                mcpServerFactory: () => createAladuoMcpServer(paths, {
+                    sessionKey,
+                    bus,
                     sessionContextKind: "meta",
-                    callerRuntime: J
+                    callerRuntime: effectiveRuntime
                 })
             });
-            ce = je, Ce = () => je.shutdown()
-        } else if (J === "pi") {
-            if (!te) return await j("pi partition has no model: set `model: provider/modelId` in the partition CLAUDE.md frontmatter, or `pi.model` in the global runtime config");
+            adapter = grokAdapter, shutdownGrok = () => grokAdapter.shutdown()
+        } else if (effectiveRuntime === "pi") {
+            if (!model) return await skipUnavailable("pi partition has no model: set `model: provider/modelId` in the partition CLAUDE.md frontmatter, or `pi.model` in the global runtime config");
             logInfoMessage("[v12-observe] pi adapter spawn", {
-                partition: S.name
+                partition: partition.name
             });
-            let ve = c({
-                cwd: S.dir,
-                model: te,
-                thinkingLevel: B
+            let piAdapter = piAdapterFactory({
+                cwd: partition.dir,
+                model,
+                thinkingLevel: effort
             });
-            ce = ve, se = () => ve.shutdown()
-        } else ce = createAgentSdkAdapter();
-        let G = [],
-            H = !1,
-            q = partitionInboxDir(t, S.name),
-            pe = await readPartitionInboxEntries(t, S.name),
-            fe = renderPartitionInboxSection(q, pe),
-            Se = `### Partition
-- Name: ${S.name}
-- cwd: ${S.dir}/
-- Inbox: ${q}/
-- runtime: ${J}
+            adapter = piAdapter, shutdownPi = () => piAdapter.shutdown()
+        } else adapter = createAgentSdkAdapter();
+        let pendingToolEventWrites = [],
+            settled = !1,
+            inboxDir = partitionInboxDir(paths, partition.name),
+            partitionInboxEntries = await readPartitionInboxEntries(paths, partition.name),
+            partitionInboxSection = renderPartitionInboxSection(inboxDir, partitionInboxEntries),
+            partitionSection = `### Partition
+- Name: ${partition.name}
+- cwd: ${partition.dir}/
+- Inbox: ${inboxDir}/
+- runtime: ${effectiveRuntime}
 `,
-            w = fe ? `${S.promptContent}
+            prompt = partitionInboxSection ? `${partition.promptContent}
 
-${Se}
-${D}
+${partitionSection}
+${runtimeContext}
 
-${fe}` : `${S.promptContent}
+${partitionInboxSection}` : `${partition.promptContent}
 
-${Se}
-${D}`,
-            T = createAladuoMcpServer(t, {
-                sessionKey: o,
-                bus: n,
+${partitionSection}
+${runtimeContext}`,
+            aladuoMcpServer = createAladuoMcpServer(paths, {
+                sessionKey,
+                bus,
                 sessionContextKind: "meta",
-                callerRuntime: J
+                callerRuntime: effectiveRuntime
             }),
-            L = [...new Set([...PARTITION_CORE_TOOLS, ...S.claudeTools ?? []])],
-            z = new AbortController;
+            tools = [...new Set([...PARTITION_CORE_TOOLS, ...partition.claudeTools ?? []])],
+            abortController = new AbortController;
         logInfoMessage("[meta-session] executing partition", {
-            partition: S.name
+            partition: partition.name
         });
-        let U = J === "grok" ? buildSystemPromptForChannelConfig({
+        let systemPrompt = effectiveRuntime === "grok" ? buildSystemPromptForChannelConfig({
                 channel_kind: "meta",
-                prompt_mode: S.prompt_mode ?? "append"
-            }, o, void 0, void 0, J) : void 0,
-            Y = Math.max(1, S.schedule.max_duration_ms),
-            me, re = new Error(`partition timeout: ${S.name} exceeded ${Y}ms`),
-            Ee;
+                prompt_mode: partition.prompt_mode ?? "append"
+            }, sessionKey, void 0, void 0, effectiveRuntime) : void 0,
+            maxDurationMs = Math.max(1, partition.schedule.max_duration_ms),
+            errorMessage, error = new Error(`partition timeout: ${partition.name} exceeded ${maxDurationMs}ms`),
+            timeoutHandle;
         try {
-            let ve = await prepareClaudeContextProfile(t, {
-                    runtime: J,
-                    model: te,
-                    cwd: S.dir,
+            let claudeContextProfile = await prepareClaudeContextProfile(paths, {
+                    runtime: effectiveRuntime,
+                    model,
+                    cwd: partition.dir,
                     effective: null
                 }),
-                je = ce.run({
-                    prompt: J === "pi" ? w : stringToMessageGenerator(w),
-                    cwd: S.dir,
-                    model: J === "claude" ? ve.effectiveModel ?? te : J === "pi" ? void 0 : te,
-                    effort: J === "pi" ? void 0 : B,
-                    claudeContextRequirement: ve.requirement,
-                    claudeModelAliases: ve.aliases,
-                    claudeSettingsPath: ve.settingsPath,
+                runPromise = adapter.run({
+                    prompt: effectiveRuntime === "pi" ? prompt : stringToMessageGenerator(prompt),
+                    cwd: partition.dir,
+                    model: effectiveRuntime === "claude" ? claudeContextProfile.effectiveModel ?? model : effectiveRuntime === "pi" ? void 0 : model,
+                    effort: effectiveRuntime === "pi" ? void 0 : effort,
+                    claudeContextRequirement: claudeContextProfile.requirement,
+                    claudeModelAliases: claudeContextProfile.aliases,
+                    claudeSettingsPath: claudeContextProfile.settingsPath,
                     settingSources: ["user", "project"],
                     persistSession: !1,
                     mcpServers: {
-                        aladuo: T
+                        aladuo: aladuoMcpServer
                     },
                     holdInputOpenForBackgroundAgents: !0,
-                    additionalDirectories: [t.memoryDir],
+                    additionalDirectories: [paths.memoryDir],
                     autoloadAdditionalDirectoryClaudeMd: !1,
-                    tools: L,
-                    systemPrompt: U,
-                    abortController: z,
-                    onStream: (gt, Gt) => {
-                        H || n.emit("session.stream", {
-                            sessionKey: o,
-                            chunk: gt,
-                            isSidechain: Gt
+                    tools,
+                    systemPrompt,
+                    abortController,
+                    onStream: (chunk, isSidechain) => {
+                        settled || bus.emit("session.stream", {
+                            sessionKey,
+                            chunk,
+                            isSidechain
                         })
                     },
-                    onExecutionEvent: gt => {
-                        H || (gt.type === "tool_use" ? x += 1 : gt.type === "tool_result" && gt.isError && (M += 1), G.push(appendPartitionToolEvent(t, o, S.name, gt).catch(Gt => {
+                    onExecutionEvent: executionEvent => {
+                        settled || (executionEvent.type === "tool_use" ? toolCalls += 1 : executionEvent.type === "tool_result" && executionEvent.isError && (toolErrors += 1), pendingToolEventWrites.push(appendPartitionToolEvent(paths, sessionKey, partition.name, executionEvent).catch(err => {
                             logWarnMessage("[meta-session] failed to persist execution event", {
-                                partition: S.name,
-                                eventType: gt.type,
-                                error: Gt instanceof Error ? Gt.message : String(Gt)
+                                partition: partition.name,
+                                eventType: executionEvent.type,
+                                error: err instanceof Error ? err.message : String(err)
                             })
                         })))
                     }
                 }),
-                sn = new Promise((gt, Gt) => {
-                    Ee = setTimeout(() => {
-                        je.catch(Nn => {
+                promise = new Promise((resolve, reject) => {
+                    timeoutHandle = setTimeout(() => {
+                        runPromise.catch(err => {
                             logWarnMessage("[meta-session] late sdk completion after timeout", {
-                                partition: S.name,
-                                error: Nn instanceof Error ? Nn.message : String(Nn)
+                                partition: partition.name,
+                                error: err instanceof Error ? err.message : String(err)
                             })
-                        }), Gt(re)
-                    }, Y)
+                        }), reject(error)
+                    }, maxDurationMs)
                 });
-            N = await Promise.race([je, sn])
-        } catch (ve) {
-            H = !0, ve === re ? (C = "timeout", z.abort()) : (C = "error", me = ve instanceof Error ? ve.message : String(ve))
+            runResult = await Promise.race([runPromise, promise])
+        } catch (err) {
+            settled = !0, err === error ? (outcome = "timeout", abortController.abort()) : (outcome = "error", errorMessage = err instanceof Error ? err.message : String(err))
         } finally {
-            Ee && clearTimeout(Ee)
+            timeoutHandle && clearTimeout(timeoutHandle)
         }
-        if (!C) {
-            let ve = normalizePartitionOutputText(N?.text);
-            C = detectEmptyRequiredPartitionOutput(S.name, ve) ? "invalid_output" : "success"
+        if (!outcome) {
+            let partitionOutputText = normalizePartitionOutputText(runResult?.text);
+            outcome = detectEmptyRequiredPartitionOutput(partition.name, partitionOutputText) ? "invalid_output" : "success"
         }
-        let Oe = Date.now() - $;
-        if (ie) {
+        let durationMs = Date.now() - now;
+        if (shutdownCodex) {
             logInfoMessage("[v12-observe] codex adapter shutdown", {
-                partition: S.name,
-                outcome: C,
-                durationMs: Oe
+                partition: partition.name,
+                outcome,
+                durationMs
             });
             try {
-                await ie()
-            } catch (ve) {
+                await shutdownCodex()
+            } catch (err) {
                 logWarnMessage("[meta-session] codex adapter shutdown threw", {
-                    partition: S.name,
-                    error: ve instanceof Error ? ve.message : String(ve)
+                    partition: partition.name,
+                    error: err instanceof Error ? err.message : String(err)
                 })
             }
         }
-        if (Ce) {
+        if (shutdownGrok) {
             logInfoMessage("[v12-observe] grok adapter shutdown", {
-                partition: S.name,
-                outcome: C,
-                durationMs: Oe
+                partition: partition.name,
+                outcome,
+                durationMs
             });
             try {
-                await Ce()
-            } catch (ve) {
+                await shutdownGrok()
+            } catch (err) {
                 logWarnMessage("[meta-session] grok adapter shutdown threw", {
-                    partition: S.name,
-                    error: ve instanceof Error ? ve.message : String(ve)
+                    partition: partition.name,
+                    error: err instanceof Error ? err.message : String(err)
                 })
             }
         }
-        if (se) {
+        if (shutdownPi) {
             logInfoMessage("[v12-observe] pi adapter shutdown", {
-                partition: S.name,
-                outcome: C,
-                durationMs: Oe
+                partition: partition.name,
+                outcome,
+                durationMs
             });
             try {
-                await se()
-            } catch (ve) {
+                await shutdownPi()
+            } catch (err) {
                 logWarnMessage("[meta-session] pi adapter shutdown threw", {
-                    partition: S.name,
-                    error: ve instanceof Error ? ve.message : String(ve)
+                    partition: partition.name,
+                    error: err instanceof Error ? err.message : String(err)
                 })
             }
         }
-        let Xe = N?.usage;
-        if (appendDrainRecord(t, {
+        let usage = runResult?.usage;
+        if (appendDrainRecord(paths, {
                 id: crypto.randomUUID(),
-                session_key: `${o}:${S.name}`,
-                sdk_session_id: N?.sessionId,
-                drain_started_at: new Date($).toISOString(),
-                drain_duration_ms: Oe,
-                sdk_duration_ms: Oe,
+                session_key: `${sessionKey}:${partition.name}`,
+                sdk_session_id: runResult?.sessionId,
+                drain_started_at: new Date(now).toISOString(),
+                drain_duration_ms: durationMs,
+                sdk_duration_ms: durationMs,
                 events_processed: 1,
                 events_skipped: 0,
-                tool_calls: x,
-                tool_errors: M,
-                output_chars: N?.text?.length ?? 0,
-                cancelled: C === "timeout",
-                usage: Xe
-            }).catch(() => {}), G.length > 0 && await Promise.all(G), C === "success") {
-            let ve = normalizePartitionOutputText(N?.text),
-                je = createSpineEvent({
+                tool_calls: toolCalls,
+                tool_errors: toolErrors,
+                output_chars: runResult?.text?.length ?? 0,
+                cancelled: outcome === "timeout",
+                usage
+            }).catch(() => {}), pendingToolEventWrites.length > 0 && await Promise.all(pendingToolEventWrites), outcome === "success") {
+            let partitionOutputText = normalizePartitionOutputText(runResult?.text),
+                spineEvent = createSpineEvent({
                     type: "agent.result",
                     source: {
                         kind: "meta",
-                        name: `subconscious:${S.name}`
+                        name: `subconscious:${partition.name}`
                     },
-                    session_key: o,
+                    session_key: sessionKey,
                     payload: {
-                        text: ve,
+                        text: partitionOutputText,
                         tick_type: "subconscious",
-                        partition: S.name,
-                        runtime: J,
-                        runtime_source: F ? "explicit" : "default"
+                        partition: partition.name,
+                        runtime: effectiveRuntime,
+                        runtime_source: runtime ? "explicit" : "default"
                     }
                 });
-            await atomicAppendEvent(t, je), await advanceConsumerWatermark(t, "meta_session", je.id, new Date(je.ts)), logInfoMessage("[meta-session] partition completed", {
-                partition: S.name,
-                runtime: J,
-                eventId: je.id
+            await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "meta_session", spineEvent.id, new Date(spineEvent.ts)), logInfoMessage("[meta-session] partition completed", {
+                partition: partition.name,
+                runtime: effectiveRuntime,
+                eventId: spineEvent.id
             })
         } else {
-            let ve = C === "timeout" ? `partition timeout: ${S.name} exceeded ${Y}ms` : C === "invalid_output" ? `invalid output from ${S.name}` : `partition error: ${S.name}${me?`: ${me}`:""}`,
-                je = createSpineEvent({
+            let errorText = outcome === "timeout" ? `partition timeout: ${partition.name} exceeded ${maxDurationMs}ms` : outcome === "invalid_output" ? `invalid output from ${partition.name}` : `partition error: ${partition.name}${errorMessage?`: ${errorMessage}`:""}`,
+                spineEvent = createSpineEvent({
                     type: "agent.error",
                     source: {
                         kind: "meta",
-                        name: `subconscious:${S.name}`
+                        name: `subconscious:${partition.name}`
                     },
-                    session_key: o,
+                    session_key: sessionKey,
                     payload: {
                         stage: "partition_execution",
-                        partition: S.name,
-                        outcome: C,
-                        error: ve,
-                        output_preview: N?.text?.slice(0, 400),
-                        runtime: J,
-                        runtime_source: F ? "explicit" : "default"
+                        partition: partition.name,
+                        outcome,
+                        error: errorText,
+                        output_preview: runResult?.text?.slice(0, 400),
+                        runtime: effectiveRuntime,
+                        runtime_source: runtime ? "explicit" : "default"
                     }
                 });
-            await atomicAppendEvent(t, je), await advanceConsumerWatermark(t, "meta_session", je.id, new Date(je.ts)), logWarnMessage("[meta-session] partition settled with non-success outcome", {
-                partition: S.name,
-                runtime: J,
-                outcome: C,
-                error: ve
+            await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "meta_session", spineEvent.id, new Date(spineEvent.ts)), logWarnMessage("[meta-session] partition settled with non-success outcome", {
+                partition: partition.name,
+                runtime: effectiveRuntime,
+                outcome,
+                error: errorText
             })
         }
-        await markPlaylistItemExecuted(t, S.name), b.set(S.name, A);
-        let nt = await readPartitionRunState(t, S.name),
-            Ze = C === "success" ? 0 : nt.consecutive_failures + 1,
-            qe = new Date,
-            Ae = {
-                last_started_at: new Date($).toISOString(),
-                last_finished_at: qe.toISOString(),
-                last_result: C,
-                consecutive_failures: Ze,
-                backoff_until: computePartitionBackoffUntil(C, Ze, qe, f)
+        await markPlaylistItemExecuted(paths, partition.name), map.set(partition.name, currentTick);
+        let partitionRunState = await readPartitionRunState(paths, partition.name),
+            consecutiveFailures = outcome === "success" ? 0 : partitionRunState.consecutive_failures + 1,
+            date = new Date,
+            nextRunState = {
+                last_started_at: new Date(now).toISOString(),
+                last_finished_at: date.toISOString(),
+                last_result: outcome,
+                consecutive_failures: consecutiveFailures,
+                backoff_until: computePartitionBackoffUntil(outcome, consecutiveFailures, date, cadenceIntervalMs)
             };
-        return await writePartitionRunState(t, S.name, Ae), {
-            name: S.name,
-            outcome: C,
-            durationMs: Oe,
+        return await writePartitionRunState(paths, partition.name, nextRunState), {
+            name: partition.name,
+            outcome,
+            durationMs,
             backedOff: []
         }
     }
 
-    function R(S, D, A, $, C) {
-        for (let N of S) {
-            if (N.done) continue;
-            let x = D.find(ce => ce.name === N.name);
-            if (!x || !x.schedule.enabled) return N;
-            let M = $.get(N.name);
-            if (M && isPartitionBackedOff(M, C)) continue;
-            let F = Math.max(0, x.schedule.cooldown_ticks),
-                J = b.get(N.name);
-            if (J === void 0 || A - J >= F) return N
+    function pickNextPlaylistItem(items, partitions, currentTick, runStates, now) {
+        for (let item of items) {
+            if (item.done) continue;
+            let partition = partitions.find(candidate => candidate.name === item.name);
+            if (!partition || !partition.schedule.enabled) return item;
+            let runState = runStates.get(item.name);
+            if (runState && isPartitionBackedOff(runState, now)) continue;
+            let cooldownTicks = Math.max(0, partition.schedule.cooldown_ticks),
+                lastRunTick = map.get(item.name);
+            if (lastRunTick === void 0 || currentTick - lastRunTick >= cooldownTicks) return item
         }
         return null
     }
-    let P = async () => {
-        if (p || m) {
+    let runTick = async () => {
+        if (processing || stopRequested) {
             logDebugMessage("[meta-session] skipping tick", {
-                processing: p,
-                stopRequested: m
+                processing,
+                stopRequested
             });
             return
         }
-        p = !0, logInfoMessage("[meta-session] starting tick");
+        processing = !0, logInfoMessage("[meta-session] starting tick");
         try {
-            v += 1;
-            let [S, D, A, $] = await Promise.all([readNewestMtimeRecursive(t.memoryFragmentsDir), readNewestMtimeRecursive(t.memoryEntitiesDir), readNewestMtimeRecursive(t.memoryTopicsDir), readLatestExternalEventId(t)]), C = [S, D, A, $].join(":"), N = hashActivityFingerprint(C);
-            if (y !== null && N === y) {
-                logDebugMessage("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), p = !1;
+            tickCount += 1;
+            let [fragmentsMtime, entitiesMtime, topicsMtime, latestExternalEventId] = await Promise.all([readNewestMtimeRecursive(paths.memoryFragmentsDir), readNewestMtimeRecursive(paths.memoryEntitiesDir), readNewestMtimeRecursive(paths.memoryTopicsDir), readLatestExternalEventId(paths)]), fingerprintSource = [fragmentsMtime, entitiesMtime, topicsMtime, latestExternalEventId].join(":"), fingerprint = hashActivityFingerprint(fingerprintSource);
+            if (lastActivityFingerprint !== null && fingerprint === lastActivityFingerprint) {
+                logDebugMessage("[meta-session] activity gate: skipping tick (fingerprint unchanged)"), processing = !1;
                 return
             }
-            y = N, await updateStatus(t, J => ({
-                ...J,
+            lastActivityFingerprint = fingerprint, await updateStatus(paths, status => ({
+                ...status,
                 health: {
-                    ...J.health,
+                    ...status.health,
                     meta_session: "starting"
                 }
             }));
-            let x = await loadSubconsciousPartitions(t),
-                M = await renderPartitionRuntimeContext(t, r),
-                F = await _(x, M, v);
-            if (F?.name && d > 1 && (!r || r.activeCount() <= 1))
-                for (let ce = 1; ce < d && await _(x, M, v); ce++);
-            await updateStatus(t, J => ({
-                ...J,
+            let subconsciousPartitions = await loadSubconsciousPartitions(paths),
+                partitionRuntimeContext = await renderPartitionRuntimeContext(paths, sessionManager),
+                firstResult = await runNextPartition(subconsciousPartitions, partitionRuntimeContext, tickCount);
+            if (firstResult?.name && maxPartitionsPerIdleTick > 1 && (!sessionManager || sessionManager.activeCount() <= 1))
+                for (let i = 1; i < maxPartitionsPerIdleTick && await runNextPartition(subconsciousPartitions, partitionRuntimeContext, tickCount); i++);
+            await updateStatus(paths, status => ({
+                ...status,
                 health: {
-                    ...J.health,
+                    ...status.health,
                     meta_session: "ok"
                 }
             })), logInfoMessage("[meta-session] tick completed", {
-                executed: F?.name ?? null,
-                outcome: F?.outcome ?? null,
-                durationMs: F?.durationMs ?? null,
-                backedOff: F?.backedOff ?? []
+                executed: firstResult?.name ?? null,
+                outcome: firstResult?.outcome ?? null,
+                durationMs: firstResult?.durationMs ?? null,
+                backedOff: firstResult?.backedOff ?? []
             })
-        } catch (S) {
-            logErrorMessage("[meta-session] tick error:", S), y = null, await updateStatus(t, A => ({
-                ...A,
+        } catch (err) {
+            logErrorMessage("[meta-session] tick error:", err), lastActivityFingerprint = null, await updateStatus(paths, status => ({
+                ...status,
                 health: {
-                    ...A.health,
+                    ...status.health,
                     meta_session: "down"
                 }
             }));
-            let D = createSpineEvent({
+            let spineEvent = createSpineEvent({
                 type: "agent.error",
                 source: {
                     kind: "meta",
                     name: "meta-session"
                 },
-                session_key: o,
+                session_key: sessionKey,
                 payload: {
                     stage: "tick",
-                    error: S instanceof Error ? S.message : String(S)
+                    error: err instanceof Error ? err.message : String(err)
                 }
             });
-            await atomicAppendEvent(t, D), await advanceConsumerWatermark(t, "meta_session", D.id, new Date(D.ts))
+            await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "meta_session", spineEvent.id, new Date(spineEvent.ts))
         } finally {
-            p = !1
+            processing = !1
         }
-    }, k = () => {
-        if (p || m) {
-            P();
+    }, onCadenceTick = () => {
+        if (processing || stopRequested) {
+            runTick();
             return
         }
-        let S = P();
-        h = S;
-        let D = () => {
-            h === S && (h = null)
+        let tickPromise = runTick();
+        inFlightTick = tickPromise;
+        let clearInFlight = () => {
+            inFlightTick === tickPromise && (inFlightTick = null)
         };
-        S.then(D, D)
+        tickPromise.then(clearInFlight, clearInFlight)
     };
     return {
         start() {
-            m || g || (n.on("cadence.tick", k), g = !0, updateStatus(t, S => ({
-                ...S,
+            stopRequested || listening || (bus.on("cadence.tick", onCadenceTick), listening = !0, updateStatus(paths, status => ({
+                ...status,
                 health: {
-                    ...S.health,
+                    ...status.health,
                     meta_session: "starting"
                 }
             })), logAlwaysAtLevel("info", "[meta-session] started, listening for cadence ticks"))
         },
         async stop() {
-            if (m = !0, g && (n.off("cadence.tick", k), g = !1), h) try {
-                await h
+            if (stopRequested = !0, listening && (bus.off("cadence.tick", onCadenceTick), listening = !1), inFlightTick) try {
+                await inFlightTick
             } catch {}
             logAlwaysAtLevel("info", "[meta-session] stopped")
         },
         isProcessing() {
-            return p
+            return processing
         }
     }
 }

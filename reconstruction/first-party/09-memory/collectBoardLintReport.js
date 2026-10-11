@@ -2,14 +2,15 @@
 // symbol: collectBoardLintReport  (minified: Mwe, daemon.pretty.js:67040)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 10 renamed — 2 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.5 (medium): A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function collectBoardLintReport(e, t = 1, n) {
-    let r = resolveMemoryDirs(e),
-        i = readMemoryFileSyncOrNull(r.boardPath);
-    if (i === null) return {
+function collectBoardLintReport(memoryDir, limit = 1, options) {
+    let memoryDirs = resolveMemoryDirs(memoryDir),
+        memoryFile = readMemoryFileSyncOrNull(memoryDirs.boardPath);
+    if (memoryFile === null) return {
         boardMissing: !0,
         targets: [],
         ranked: [],
@@ -22,19 +23,19 @@ function collectBoardLintReport(e, t = 1, n) {
         },
         sinkCandidates: []
     };
-    let o = [];
-    for (let u of resolveMemoryLinkTargets(i)) {
-        let l = wH.join(r.topicsDir, `${u}.md`);
-        isMemoryPathFile(l) && o.push(buildBoardLintTarget(u, i, r, l))
+    let targets = [];
+    for (let slug of resolveMemoryLinkTargets(memoryFile)) {
+        let topicPath = wH.join(memoryDirs.topicsDir, `${slug}.md`);
+        isMemoryPathFile(topicPath) && targets.push(buildBoardLintTarget(slug, memoryFile, memoryDirs, topicPath))
     }
-    let s = [...o].sort(compareBoardLintTargets),
-        a = runBoardLint(s, t);
+    let ranked = [...targets].sort(compareBoardLintTargets),
+        selections = runBoardLint(ranked, limit);
     return {
         boardMissing: !1,
-        targets: o,
-        ranked: s,
-        selections: a,
-        census: udt(i),
-        sinkCandidates: ldt(i)
+        targets,
+        ranked,
+        selections,
+        census: udt(memoryFile),
+        sinkCandidates: ldt(memoryFile)
     }
 }

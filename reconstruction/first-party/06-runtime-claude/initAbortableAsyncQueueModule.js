@@ -2,6 +2,7 @@
 // symbol: initAbortableAsyncQueueModule  (minified: JRe, daemon.pretty.js:83053)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -10,37 +11,37 @@ var TN, initAbortableAsyncQueueModule = O(() => {
     TN = class {
         items = [];
         waiters = [];
-        enqueue(t) {
-            let n = this.waiters.shift();
-            if (n) {
-                n.cleanup?.(), n.resolve(t);
+        enqueue(item) {
+            let waiter = this.waiters.shift();
+            if (waiter) {
+                waiter.cleanup?.(), waiter.resolve(item);
                 return
             }
-            this.items.push(t)
+            this.items.push(item)
         }
-        dequeue(t) {
-            if (t?.aborted) return Promise.reject(WRe());
-            let n = this.items.shift();
-            return n !== void 0 ? Promise.resolve(n) : new Promise((r, i) => {
-                let o = {
-                    resolve: r,
-                    reject: i
+        dequeue(signal) {
+            if (signal?.aborted) return Promise.reject(WRe());
+            let item = this.items.shift();
+            return item !== void 0 ? Promise.resolve(item) : new Promise((resolve, reject) => {
+                let waiter = {
+                    resolve,
+                    reject
                 };
-                if (this.waiters.push(o), !t) return;
-                let s = () => {
-                    let a = this.waiters.indexOf(o);
-                    a >= 0 && this.waiters.splice(a, 1), i(WRe())
+                if (this.waiters.push(waiter), !signal) return;
+                let onAbort = () => {
+                    let index = this.waiters.indexOf(waiter);
+                    index >= 0 && this.waiters.splice(index, 1), reject(WRe())
                 };
-                t.addEventListener("abort", s, {
+                signal.addEventListener("abort", onAbort, {
                     once: !0
-                }), o.cleanup = () => {
-                    t.removeEventListener("abort", s)
+                }), waiter.cleanup = () => {
+                    signal.removeEventListener("abort", onAbort)
                 }
             })
         }
         drain() {
-            let t = [...this.items];
-            return this.items.length = 0, t
+            let items = [...this.items];
+            return this.items.length = 0, items
         }
     }
 });

@@ -2,49 +2,50 @@
 // symbol: reconcileMemorySignalInboxes  (minified: Xwe, daemon.pretty.js:67665)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
+// locals: 17 renamed — 3 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.1 (medium): partition inboxes now have defined snapshot semantics, so a partition can no longer quietly lose or re-process work handed to it.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function reconcileMemorySignalInboxes(e, t, n) {
-    let r = {
+function reconcileMemorySignalInboxes(signals, postedPaths, ctx) {
+    let result = {
             removed: [],
             errors: []
         },
-        i = new Map;
-    for (let o of $H) i.set(o, new Set);
-    for (let o of e) try {
-        if (!n.force && enforceContractGate(o.kind, getCachedPartitionContract(n, o.partition), n.flagFallback) !== null) continue;
-        CH(o.pendingFilename) && i.get(o.partition)?.add(o.pendingFilename)
-    } catch (s) {
-        r.errors.push(`${o.kind} → ${o.partition}: ${String(s)}`)
+        map = new Map;
+    for (let partition of $H) map.set(partition, new Set);
+    for (let signal of signals) try {
+        if (!ctx.force && enforceContractGate(signal.kind, getCachedPartitionContract(ctx, signal.partition), ctx.flagFallback) !== null) continue;
+        CH(signal.pendingFilename) && map.get(signal.partition)?.add(signal.pendingFilename)
+    } catch (err) {
+        result.errors.push(`${signal.kind} → ${signal.partition}: ${String(err)}`)
     }
-    for (let o of $H) try {
-        let s = i.get(o) ?? new Set,
-            a = partitionInboxDirFromVar(n.varDir, o);
-        if (s.size === 0 && !su.existsSync(a)) continue;
-        let u = new Set;
-        for (let l of t) {
-            if (Vg.dirname(l) !== a) continue;
-            let c = Vg.basename(l);
-            CH(c) && u.add(c)
+    for (let partition of $H) try {
+        let expected = map.get(partition) ?? new Set,
+            inboxDir = partitionInboxDirFromVar(ctx.varDir, partition);
+        if (expected.size === 0 && !su.existsSync(inboxDir)) continue;
+        let keep = new Set;
+        for (let postedPath of postedPaths) {
+            if (Vg.dirname(postedPath) !== inboxDir) continue;
+            let fileName = Vg.basename(postedPath);
+            CH(fileName) && keep.add(fileName)
         }
-        for (let l of Odt(n.varDir, o)) {
-            if (s.has(l)) {
-                u.add(l);
+        for (let pendingName of Odt(ctx.varDir, partition)) {
+            if (expected.has(pendingName)) {
+                keep.add(pendingName);
                 continue
             }
-            let c = Vg.join(a, l);
-            su.existsSync(c) && (su.rmSync(c, {
+            let pendingPath = Vg.join(inboxDir, pendingName);
+            su.existsSync(pendingPath) && (su.rmSync(pendingPath, {
                 force: !0
-            }), r.removed.push(c))
+            }), result.removed.push(pendingPath))
         }
-        su.mkdirSync(a, {
+        su.mkdirSync(inboxDir, {
             recursive: !0
-        }), su.writeFileSync(Ywe(n.varDir, o), `${JSON.stringify([...u].sort())}
+        }), su.writeFileSync(Ywe(ctx.varDir, partition), `${JSON.stringify([...keep].sort())}
 `, "utf8")
-    } catch (s) {
-        r.errors.push(`${o}: ${String(s)}`)
+    } catch (err) {
+        result.errors.push(`${partition}: ${String(err)}`)
     }
-    return r
+    return result
 }

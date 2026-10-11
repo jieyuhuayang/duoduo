@@ -2,27 +2,28 @@
 // symbol: runBroadcastLinkLint  (minified: RSe, daemon.pretty.js:68519)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function runBroadcastLinkLint(e) {
-    let t = resolveMemoryDirs(e),
-        n = readMemoryFileSyncOrNull(t.boardPath);
-    if (n === null) return {
+function runBroadcastLinkLint(memoryDir) {
+    let memoryDirs = resolveMemoryDirs(memoryDir),
+        memoryFile = readMemoryFileSyncOrNull(memoryDirs.boardPath);
+    if (memoryFile === null) return {
         selected: [],
         brokenLinks: []
     };
-    let r = extractBoardSlugLinks(n).filter(i => !bft(t, i.slug));
-    return r.length === 0 ? {
+    let brokenLinks = extractBoardSlugLinks(memoryFile).filter(link => !bft(memoryDirs, link.slug));
+    return brokenLinks.length === 0 ? {
         selected: [],
-        brokenLinks: r
+        brokenLinks
     } : {
-        brokenLinks: r,
+        brokenLinks,
         selected: [{
             kind: Vn.CLAUDE_LINT,
             partition: hft,
             pendingFilename: "claude-lint.md.pending",
-            pendingBody: Sft(t.boardPath, r)
+            pendingBody: Sft(memoryDirs.boardPath, brokenLinks)
         }]
     }
 }

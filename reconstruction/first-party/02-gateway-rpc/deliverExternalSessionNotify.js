@@ -2,146 +2,147 @@
 // symbol: deliverExternalSessionNotify  (minified: EIe, daemon.pretty.js:91037)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.2, v0.8.4 (maps/history_daemon.json)
+// locals: 26 renamed — 3 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (high): `duoduo session notify <target> -m "<msg>"` — wake another session by key or alias with a source-tagged notification (for cross-session orchestration). Only foreground/job sessions are valid targets; the kernel/subconscious plane is isolated and refused.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function deliverExternalSessionNotify(e, t, n, r) {
-    let i = r.target.trim(),
-        o = r.exact_key ? resolveSessionByExactKey(n, i) : resolveSessionByKeyOrAlias(n, i);
-    if (!o.ok) return o.reason === "ambiguous" ? {
+async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
+    let trimmed = params.target.trim(),
+        resolved = params.exact_key ? resolveSessionByExactKey(sessionIndex, trimmed) : resolveSessionByKeyOrAlias(sessionIndex, trimmed);
+    if (!resolved.ok) return resolved.reason === "ambiguous" ? {
         ok: !1,
         reason: "ambiguous",
-        target: i,
-        candidates: o.candidates
+        target: trimmed,
+        candidates: resolved.candidates
     } : {
         ok: !1,
         reason: "not_found",
-        target: i
+        target: trimmed
     };
-    let s = resolveIsolatedPlaneKind(o.session_key);
-    if (s) return {
+    let isolatedPlaneKind = resolveIsolatedPlaneKind(resolved.session_key);
+    if (isolatedPlaneKind) return {
         ok: !1,
         reason: "forbidden_kind",
-        target: i,
-        session_key: o.session_key,
-        kind: s
+        target: trimmed,
+        session_key: resolved.session_key,
+        kind: isolatedPlaneKind
     };
-    let a = r.idempotency_key?.trim(),
-        u = a === void 0 ? null : `session.notify:${JSON.stringify(a)}`,
-        l = u === null ? null : await loadRegistryDedupStore(e);
-    if (u !== null && l !== null) {
-        let b = l.get(u),
-            _ = b?.event_id ? await readEventById(e, b.event_id, {
-                notAfter: b.ts
+    let idempotencyKey = params.idempotency_key?.trim(),
+        dedupKey = idempotencyKey === void 0 ? null : `session.notify:${JSON.stringify(idempotencyKey)}`,
+        dedupStore = dedupKey === null ? null : await loadRegistryDedupStore(paths);
+    if (dedupKey !== null && dedupStore !== null) {
+        let dedupEntry = dedupStore.get(dedupKey),
+            priorEvent = dedupEntry?.event_id ? await readEventById(paths, dedupEntry.event_id, {
+                notAfter: dedupEntry.ts
             }) : null;
-        if (_) return replayIdempotentSessionNotify(_, {
-            target: i,
-            sessionKey: o.session_key,
-            message: r.message,
-            idempotencyKey: a
+        if (priorEvent) return replayIdempotentSessionNotify(priorEvent, {
+            target: trimmed,
+            sessionKey: resolved.session_key,
+            message: params.message,
+            idempotencyKey
         })
     }
-    let c = async (b, _) => {
-        u === null || l === null || !b || !_ || await l.record({
-            key: u,
-            ts: _,
-            event_id: b
+    let recordDedup = async (eventId, eventTs) => {
+        dedupKey === null || dedupStore === null || !eventId || !eventTs || await dedupStore.record({
+            key: dedupKey,
+            ts: eventTs,
+            event_id: eventId
         })
-    }, d = r.caller_session?.trim(), f = d !== void 0 && d !== o.session_key ? d : null;
-    if (f !== null && !n.get(f)) return {
+    }, callerSession = params.caller_session?.trim(), callerSessionKey = callerSession !== void 0 && callerSession !== resolved.session_key ? callerSession : null;
+    if (callerSessionKey !== null && !sessionIndex.get(callerSessionKey)) return {
         ok: !1,
         reason: "unknown_caller",
-        target: i,
-        caller_session: f,
-        error: `The calling session ${f} (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.`
+        target: trimmed,
+        caller_session: callerSessionKey,
+        error: `The calling session ${callerSessionKey} (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.`
     };
-    let p = r.source?.trim() || "session.notify",
-        m = `session-notify-${AN.randomUUID()}`,
-        h = {
-            notify_content: r.message,
-            text: r.message,
-            ...r.in_reply_to !== void 0 ? {
-                notify_in_reply_to: r.in_reply_to.trim()
+    let sourceLabel = params.source?.trim() || "session.notify",
+        routeId = `session-notify-${AN.randomUUID()}`,
+        basePayload = {
+            notify_content: params.message,
+            text: params.message,
+            ...params.in_reply_to !== void 0 ? {
+                notify_in_reply_to: params.in_reply_to.trim()
             } : {},
-            ...a !== void 0 ? {
-                idempotency_key: a
+            ...idempotencyKey !== void 0 ? {
+                idempotency_key: idempotencyKey
             } : {}
         },
-        g = f === null ? {
-            ...h,
+        payload = callerSessionKey === null ? {
+            ...basePayload,
             notify_source_kind: "external",
-            notify_source_label: p,
-            notify_source: p
+            notify_source_label: sourceLabel,
+            notify_source: sourceLabel
         } : {
-            ...h,
-            notify_source_kind: classifySessionKeyKind(f),
-            notify_source_session_key: f
+            ...basePayload,
+            notify_source_kind: classifySessionKeyKind(callerSessionKey),
+            notify_source_session_key: callerSessionKey
         },
-        y = {
-            traceId: m,
-            routeId: m,
+        routeParams = {
+            traceId: routeId,
+            routeId,
             sourceKind: "route",
-            targetSessionKey: o.session_key,
+            targetSessionKey: resolved.session_key,
             preempt: "never",
-            ...f === null ? {
-                sourceName: p,
+            ...callerSessionKey === null ? {
+                sourceName: sourceLabel,
                 sourceSessionKey: "external:session.notify",
                 eventType: dW
             } : {
                 sourceName: "notify-tool",
-                sourceSessionKey: f,
+                sourceSessionKey: callerSessionKey,
                 eventType: "notify"
             }
         };
-    if (!r.force) {
-        let b = await evaluateNotifyConsumerRefusal(e, o.session_key);
-        if (b.refused) {
-            let _ = renderNotifyRefusalMessage(b.inputs, b.verdict, b.candidates, o.session_key, b.unconsumedHours),
-                E = await deliverRouteEventToSession(e, t, {
-                    ...y,
+    if (!params.force) {
+        let refusal = await evaluateNotifyConsumerRefusal(paths, resolved.session_key);
+        if (refusal.refused) {
+            let notifyRefusalMessage = renderNotifyRefusalMessage(refusal.inputs, refusal.verdict, refusal.candidates, resolved.session_key, refusal.unconsumedHours),
+                refusedDelivery = await deliverRouteEventToSession(paths, bus, {
+                    ...routeParams,
                     walOnly: !0,
                     payload: {
-                        ...g,
-                        notify_refused_reason: _
+                        ...payload,
+                        notify_refused_reason: notifyRefusalMessage
                     }
                 });
-            return E.success ? (await c(E.eventId, E.eventTs), {
+            return refusedDelivery.success ? (await recordDedup(refusedDelivery.eventId, refusedDelivery.eventTs), {
                 ok: !1,
                 reason: "no_consumer",
-                target: i,
-                session_key: o.session_key,
-                error: _
+                target: trimmed,
+                session_key: resolved.session_key,
+                error: notifyRefusalMessage
             }) : {
                 ok: !1,
                 reason: "delivery_failed",
-                target: i,
-                session_key: o.session_key,
-                error: E.error
+                target: trimmed,
+                session_key: resolved.session_key,
+                error: refusedDelivery.error
             }
         }
     }
-    let v = await deliverRouteEventToSession(e, t, {
-        ...y,
-        payload: g
+    let delivery = await deliverRouteEventToSession(paths, bus, {
+        ...routeParams,
+        payload
     });
-    return v.success ? (await c(v.eventId, v.eventTs), {
+    return delivery.success ? (await recordDedup(delivery.eventId, delivery.eventTs), {
         ok: !0,
-        target: i,
-        session_key: o.session_key,
-        display_name: o.display_name ?? null,
-        route_id: m,
-        event_id: v.eventId,
-        ...v.eventTs !== void 0 ? {
-            ts: v.eventTs
+        target: trimmed,
+        session_key: resolved.session_key,
+        display_name: resolved.display_name ?? null,
+        route_id: routeId,
+        event_id: delivery.eventId,
+        ...delivery.eventTs !== void 0 ? {
+            ts: delivery.eventTs
         } : {},
-        mailbox_path: v.mailboxPath,
+        mailbox_path: delivery.mailboxPath,
         duplicate: !1
     }) : {
         ok: !1,
         reason: "delivery_failed",
-        target: i,
-        session_key: o.session_key,
-        error: v.error
+        target: trimmed,
+        session_key: resolved.session_key,
+        error: delivery.error
     }
 }

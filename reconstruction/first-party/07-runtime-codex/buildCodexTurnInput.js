@@ -2,19 +2,20 @@
 // symbol: buildCodexTurnInput  (minified: R6, daemon.pretty.js:62280)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.0 (high): **Codex sessions accept inbound images** as first-class turn input rather than as a path the model has to open for itself.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function buildCodexTurnInput(e, t) {
-    let n = [{
+function buildCodexTurnInput(text, attachments) {
+    let input = [{
         type: "text",
-        text: e,
+        text,
         text_elements: []
     }];
-    for (let r of t ?? []) r.mime?.startsWith("image/") && (!r.path || !wut.isAbsolute(r.path) || vut(r.path) && n.push({
+    for (let attachment of attachments ?? []) attachment.mime?.startsWith("image/") && (!attachment.path || !wut.isAbsolute(attachment.path) || vut(attachment.path) && input.push({
         type: "localImage",
-        path: r.path
+        path: attachment.path
     }));
-    return n
+    return input
 }

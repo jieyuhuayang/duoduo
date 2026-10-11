@@ -2,23 +2,24 @@
 // symbol: findBoardHeadingLines  (minified: Ift, daemon.pretty.js:68547)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function findBoardHeadingLines(e) {
-    let t = [],
-        n = e.split(`
+function findBoardHeadingLines(text) {
+    let headings = [],
+        parts = text.split(`
 `),
-        r = !1;
-    for (let i = 0; i < n.length; i += 1) {
-        if (Rft.test(n[i])) {
-            r = !r;
+        inFence = !1;
+    for (let i = 0; i < parts.length; i += 1) {
+        if (Rft.test(parts[i])) {
+            inFence = !inFence;
             continue
         }
-        r || Eft.test(n[i]) && t.push({
+        inFence || Eft.test(parts[i]) && headings.push({
             line: i + 1,
-            text: n[i]
+            text: parts[i]
         })
     }
-    return t
+    return headings
 }

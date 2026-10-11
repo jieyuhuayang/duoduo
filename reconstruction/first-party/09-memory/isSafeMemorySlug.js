@@ -2,9 +2,10 @@
 // symbol: isSafeMemorySlug  (minified: kH, daemon.pretty.js:67134)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function isSafeMemorySlug(e) {
-    return !(e.length === 0 || e.includes("/") || e.includes("\\") || e.includes("\0") || e === ".." || e === ".")
+function isSafeMemorySlug(slug) {
+    return !(slug.length === 0 || slug.includes("/") || slug.includes("\\") || slug.includes("\0") || slug === ".." || slug === ".")
 }

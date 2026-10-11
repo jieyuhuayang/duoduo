@@ -18,7 +18,17 @@
       "referencesRewritten": 3879,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 840
+      "indexedSymbols": 840,
+      "localBindings": 6203,
+      "localNamesApplied": 6199,
+      "localNamesBySource": {
+        "llm": 4956,
+        "rule:callee": 514,
+        "rule:member": 234,
+        "rule:catch": 153,
+        "rule:destructure": 276,
+        "rule:new": 66
+      }
     },
     "cli": {
       "prettyLines": 75611,
@@ -79,6 +89,7 @@
     "daemon.astEquivalent": "pass",
     "daemon.beautifyEquivalent": "pass",
     "daemon.inferredNames": "pass",
+    "daemon.localNames": "pass",
     "daemon.lossless": "pass",
     "daemon.syntax": "pass",
     "firstPartyTree": "pass",

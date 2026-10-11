@@ -2,27 +2,28 @@
 // symbol: runBroadcastFlattenLint  (minified: TSe, daemon.pretty.js:68572)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 3 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function runBroadcastFlattenLint(e) {
-    let t = resolveMemoryDirs(e),
-        n = readMemoryFileSyncOrNull(t.boardPath);
-    if (n === null) return {
+function runBroadcastFlattenLint(memoryDir) {
+    let memoryDirs = resolveMemoryDirs(memoryDir),
+        memoryFile = readMemoryFileSyncOrNull(memoryDirs.boardPath);
+    if (memoryFile === null) return {
         selected: [],
         headings: []
     };
-    let r = findBoardHeadingLines(n);
-    return r.length === 0 ? {
+    let boardHeadingLines = findBoardHeadingLines(memoryFile);
+    return boardHeadingLines.length === 0 ? {
         selected: [],
-        headings: r
+        headings: boardHeadingLines
     } : {
-        headings: r,
+        headings: boardHeadingLines,
         selected: [{
             kind: Vn.CLAUDE_FLATTEN,
             partition: xft,
             pendingFilename: "claude-flatten.md.pending",
-            pendingBody: Tft(t.boardPath, r)
+            pendingBody: Tft(memoryDirs.boardPath, boardHeadingLines)
         }]
     }
 }

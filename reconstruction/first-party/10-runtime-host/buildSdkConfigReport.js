@@ -2,25 +2,26 @@
 // symbol: buildSdkConfigReport  (minified: Wbt, daemon.pretty.js:90550)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.3 — first release whose bundle holds this declaration; body changed in v0.6.0 (maps/history_daemon.json)
+// locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.3 (medium): refactor: simplify host onboarding auth flow
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function buildSdkConfigReport() {
-    let e = {
+    let report = {
             permission_mode: resolveEnvConfigEntry("ALADUO_PERMISSION_MODE", "default")
         },
-        t = readClaudeAuthSourceEnv(process.env) ?? null;
-    if (e.claude_auth_source = t === null ? {
+        authSource = readClaudeAuthSourceEnv(process.env) ?? null;
+    if (report.claude_auth_source = authSource === null ? {
             value: null,
             source: "unset"
         } : {
-            value: t,
+            value: authSource,
             source: "env"
-        }, t === "claude_code_local") return e;
-    for (let n of Vbt) {
-        let r = resolveEnvConfigEntry(n, null);
-        r.source !== "unset" && (e[Hbt(n)] = r)
+        }, authSource === "claude_code_local") return report;
+    for (let envKey of Vbt) {
+        let envConfigEntry = resolveEnvConfigEntry(envKey, null);
+        envConfigEntry.source !== "unset" && (report[Hbt(envKey)] = envConfigEntry)
     }
-    return e
+    return report
 }

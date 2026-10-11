@@ -2,46 +2,47 @@
 // symbol: parsePartitionDefinition  (minified: Wct, daemon.pretty.js:66486)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.10, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
+// locals: 16 renamed — 3 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.4 (high): In job frontmatter the job fails, and in partition frontmatter the partition is skipped.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function parsePartitionDefinition(e, t, n) {
+async function parsePartitionDefinition(name, dir, claudeMdPath) {
     try {
-        let r = await al.readFile(n, "utf8"),
-            i = (0, Ewe.default)(r, Sr),
-            o = i.data?.schedule ?? {},
-            s = {
-                enabled: o.enabled ?? mH.enabled,
-                cooldown_ticks: o.cooldown_ticks ?? mH.cooldown_ticks,
-                max_duration_ms: o.max_duration_ms ?? mH.max_duration_ms
+        let content = await al.readFile(claudeMdPath, "utf8"),
+            parsed = (0, Ewe.default)(content, Sr),
+            rawSchedule = parsed.data?.schedule ?? {},
+            schedule = {
+                enabled: rawSchedule.enabled ?? mH.enabled,
+                cooldown_ticks: rawSchedule.cooldown_ticks ?? mH.cooldown_ticks,
+                max_duration_ms: rawSchedule.max_duration_ms ?? mH.max_duration_ms
             },
-            a = validateRunnableRuntimeValue(i.data?.runtime, `Partition "${e}"`),
-            u = a.ok ? a.runtime : void 0,
-            l = a.ok ? void 0 : a.reason;
-        l && logWarnMessage(`[playlist] ${l}`);
+            runtimeCheck = validateRunnableRuntimeValue(parsed.data?.runtime, `Partition "${name}"`),
+            runtime = runtimeCheck.ok ? runtimeCheck.runtime : void 0,
+            runtimeRefusal = runtimeCheck.ok ? void 0 : runtimeCheck.reason;
+        runtimeRefusal && logWarnMessage(`[playlist] ${runtimeRefusal}`);
         let {
-            claudeTools: c
-        } = parseClaudeFrontmatterBlock(i.data ?? {}), d = normalizePromptMode(i.data?.prompt_mode), f = i.data?.model, p;
-        typeof f == "string" && f.trim().length > 0 ? p = f.trim() : f !== void 0 && logDebugMessage(`[playlist] partition '${e}' has invalid model frontmatter; ignoring it`, {
-            rawModel: f
+            claudeTools
+        } = parseClaudeFrontmatterBlock(parsed.data ?? {}), promptMode = normalizePromptMode(parsed.data?.prompt_mode), rawModel = parsed.data?.model, model;
+        typeof rawModel == "string" && rawModel.trim().length > 0 ? model = rawModel.trim() : rawModel !== void 0 && logDebugMessage(`[playlist] partition '${name}' has invalid model frontmatter; ignoring it`, {
+            rawModel
         });
-        let m = i.data?.effort,
-            h;
-        return typeof m == "string" && isEffortLevel(m) ? h = m : m !== void 0 && logDebugMessage(`[playlist] partition '${e}' has invalid effort frontmatter; ignoring it`, {
-            rawEffort: m
+        let rawEffort = parsed.data?.effort,
+            effort;
+        return typeof rawEffort == "string" && isEffortLevel(rawEffort) ? effort = rawEffort : rawEffort !== void 0 && logDebugMessage(`[playlist] partition '${name}' has invalid effort frontmatter; ignoring it`, {
+            rawEffort
         }), {
-            name: e,
-            dir: t,
-            claudeMdPath: n,
-            schedule: s,
-            promptContent: i.content.trim(),
-            runtime: u,
-            runtimeRefusal: l,
-            claudeTools: c,
-            prompt_mode: d,
-            model: p,
-            effort: h
+            name,
+            dir,
+            claudeMdPath,
+            schedule,
+            promptContent: parsed.content.trim(),
+            runtime,
+            runtimeRefusal,
+            claudeTools,
+            prompt_mode: promptMode,
+            model,
+            effort
         }
     } catch {
         return null

@@ -30,20 +30,38 @@
 // by a direct eval(), which sees module scope by name. rename.mjs reports the
 // latter.
 //
-// Usage: node ast_equiv.mjs <original.js> <renamed.js> [rename.json]
+// Local names (--locals <applied.json>, written by name_locals.mjs apply): a
+// local binding of a renamed top-level declaration may change its spelling to
+// exactly the name the list gives it, identified the way name_locals.mjs
+// identifies it -- the real name of its declaration and its ordinal among that
+// declaration's locals (local_bindings.mjs), computed here on the ORIGINAL file
+// through the rename map. Every other local keeps its spelling, and the
+// one-to-one correspondence of declarations below covers locals as it covers
+// top-level bindings, so a local name that captured or was captured by another
+// binding fails exactly as a top-level one does. Renaming a local can also turn
+// `{ key: x }` into the shorthand `{ key }`, so `shorthand` may flip from false
+// to true exactly when the key and the renamed value share a spelling.
+//
+// Usage: node ast_equiv.mjs <original.js> <renamed.js> [rename.json] [--locals <applied.json>]
 // Without rename.json the two files must be identical up to formatting (used to
 // prove the beautifier preserved the shipped minified bundle).
 import { parse } from "@babel/parser";
 import _traverse from "@babel/traverse";
 const traverse = _traverse.default || _traverse;
 import fs from "node:fs";
+import { collectLocals } from "./local_bindings.mjs";
 
-const [, , A, B, MAP] = process.argv;
-if (!A || !B) { console.error("usage: node ast_equiv.mjs <original.js> <renamed.js> [rename.json]"); process.exit(2); }
+const argv = process.argv.slice(2);
+const li = argv.indexOf("--locals");
+const LOCALS = li >= 0 ? argv.splice(li, 2)[1] : null;
+const [A, B, MAP] = argv;
+if (!A || !B) { console.error("usage: node ast_equiv.mjs <original.js> <renamed.js> [rename.json] [--locals <applied.json>]"); process.exit(2); }
+if (LOCALS && !MAP) { console.error("--locals needs rename.json: locals are identified by their declaration's real name"); process.exit(2); }
 const renameMap = MAP ? JSON.parse(fs.readFileSync(MAP, "utf8")) : {}; // mangled -> newName
 
 function analyse(file) {
-  const ast = parse(fs.readFileSync(file, "utf8"), { sourceType: "module" });
+  const text = fs.readFileSync(file, "utf8");
+  const ast = parse(text, { sourceType: "module" });
   const cls = new WeakMap(); // Identifier node -> {kind, binding?, top?}
   let program;
   traverse(ast, {
@@ -59,10 +77,28 @@ function analyse(file) {
       else cls.set(n, { kind: "binding", binding: b, top: b.scope === program });
     },
   });
-  return { ast, cls };
+  return { ast, cls, text };
 }
 
 const a = analyse(A), b = analyse(B);
+
+// binding of A -> the spelling its local name list requires
+const localWant = new Map();
+let localsListed = 0, localHits = 0;
+if (LOCALS) {
+  const applied = JSON.parse(fs.readFileSync(LOCALS, "utf8")).applied;
+  const { decls } = collectLocals(a.ast, a.text, (n) => (Object.prototype.hasOwnProperty.call(renameMap, n) ? renameMap[n] : undefined));
+  for (const [real, byOrdinal] of Object.entries(applied)) {
+    const d = decls.get(real);
+    if (!d) { console.log(`RESULT: NOT EQUIVALENT — local names listed for ${real}, which is not a renamed declaration of ${A}`); process.exit(1); }
+    for (const [ord, r] of Object.entries(byOrdinal)) {
+      const e = d.bindings[Number(ord)];
+      if (!e || e.name !== r.from) { console.log(`RESULT: NOT EQUIVALENT — ${real} local #${ord} is ${e ? e.name : "missing"} in ${A}, the list says ${r.from}`); process.exit(1); }
+      localWant.set(e.binding, r.to);
+      localsListed++;
+    }
+  }
+}
 
 // fields to ignore (positional/metadata)
 const IGNORE = new Set(["start", "end", "loc", "range", "leadingComments", "trailingComments", "innerComments", "extra", "comments", "tokens", "errors"]);
@@ -80,10 +116,12 @@ function checkIdentifier(x, y, path) {
     return;
   }
   const mapped = cx.top && Object.prototype.hasOwnProperty.call(renameMap, x.name);
-  const want = mapped ? renameMap[x.name] : x.name;
+  const local = !cx.top && localWant.has(cx.binding);
+  const want = mapped ? renameMap[x.name] : local ? localWant.get(cx.binding) : x.name;
   if (y.name !== want) { problems.push(`${path}: identifier ${x.name} vs ${y.name} (expected ${want})`); return; }
-  if (mapped && !cy.top) { problems.push(`${path}: ${x.name} is top-level, ${y.name} is not`); return; }
+  if (cx.top !== cy.top) { problems.push(`${path}: ${x.name} is ${cx.top ? "" : "not "}top-level, ${y.name} is ${cy.top ? "" : "not"}`); return; }
   if (mapped && y.name !== x.name) renameHits++;
+  if (local) localHits++;
   // one-to-one correspondence of declarations
   const prevB = aToB.get(cx.binding), prevA = bToA.get(cy.binding);
   if (prevB === undefined && prevA === undefined) { aToB.set(cx.binding, cy.binding); bToA.set(cy.binding, cx.binding); return; }
@@ -107,7 +145,8 @@ function cmp(x, y, path) {
     if (x.type === "Identifier") checkIdentifier(x, y, path);
     else if (x.type === "JSXIdentifier" && x.name !== y.name) problems.push(`${path}: JSX name ${x.name} vs ${y.name}`);
     if (x.type === "ObjectProperty" && x.shorthand !== y.shorthand) {
-      const legit = x.shorthand && !y.shorthand && !y.computed && y.key.type === "Identifier" && valueName(y.value) !== y.key.name;
+      const legit = !y.computed && y.key.type === "Identifier" &&
+        (x.shorthand ? valueName(y.value) !== y.key.name : valueName(y.value) === y.key.name);
       if (!legit) problems.push(`${path}: shorthand ${x.shorthand} vs ${y.shorthand}`);
     }
     const keys = new Set([...Object.keys(x), ...Object.keys(y)].filter(k => !IGNORE.has(k)));
@@ -127,6 +166,7 @@ if (a.ast.program.interpreter?.value !== b.ast.program.interpreter?.value) probl
 
 console.log(`nodes compared: ${nodeCount}`);
 console.log(`identifier checks: ${idChecks}, rename-map matches: ${renameHits}, declarations paired: ${aToB.size}`);
+if (LOCALS) console.log(`local names: ${localWant.size} listed (${localsListed} entries), ${localHits} occurrences carry them`);
 if (problems.length === 0) {
   console.log("RESULT: SEMANTICALLY EQUIVALENT (identical AST modulo intended renames)");
   process.exit(0);

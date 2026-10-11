@@ -40,6 +40,10 @@ const HISTORY = path.join(path.dirname(INFERRED), "history_daemon.json");
 const history = fs.existsSync(HISTORY) ? JSON.parse(fs.readFileSync(HISTORY, "utf8")).symbols : null;
 const CHANGELOG = path.join(path.dirname(INFERRED), "changelog_daemon.json");
 const changelog = fs.existsSync(CHANGELOG) ? JSON.parse(fs.readFileSync(CHANGELOG, "utf8")).symbols : {};
+// local names that name_locals.mjs applied in this run ($OUT/locals_daemon.applied.json,
+// next to the recon it wrote): real -> {ordinal: {from, to, source}}
+const APPLIED = path.join(path.dirname(RECON), "locals_daemon.applied.json");
+const localsApplied = fs.existsSync(APPLIED) ? JSON.parse(fs.readFileSync(APPLIED, "utf8")).applied : null;
 const src = fs.readFileSync(RECON, "utf8");
 const renameMap = JSON.parse(fs.readFileSync(MAP, "utf8")); // mangled -> newName
 const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8")); // newName -> subsystem
@@ -99,6 +103,18 @@ if (unfiled.length || stale.length || badDir.length || notTopLevel.length) {
   process.exit(1);
 }
 
+// Where the local variable names of a declaration came from. Rule names are
+// read off the code at the binding (a destructured key, a member read, a class,
+// a callee); LLM names are a reading of the body, and the equivalence proof
+// says nothing about whether they are apt. Neither is evidence for a claim.
+function localsLine(real) {
+  if (!localsApplied) return "";
+  const list = Object.values(localsApplied[real] ?? {});
+  if (!list.length) return "";
+  const rule = list.filter(r => r.source.startsWith("rule:")).length, llm = list.length - rule;
+  return `// locals: ${list.length} renamed — ${rule} from the code at the binding (rule), ${llm} proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)\n`;
+}
+
 const index = [];
 let extracted = 0;
 for (const newName of renamed) {
@@ -125,6 +141,7 @@ for (const newName of renamed) {
     (history && history[newName] && history[newName].firstSeen
       ? `// since: v${history[newName].firstSeen} — first release whose bundle holds this declaration; body changed in ${history[newName].changedIn.length ? history[newName].changedIn.map(v => "v" + v).join(", ") : "no later release"} (maps/history_daemon.json)\n`
       : "") +
+    localsLine(newName) +
     (changelog[newName] ?? []).filter(c => c.confidence !== "low").map(c => `// changelog v${c.version} (${c.confidence}): ${c.changelog.replace(/\s+/g, " ")}\n`).join("") +
     `// NOTE: readable extract from daemon.recon.js; references other top-level\n` +
     `// symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).\n\n`;

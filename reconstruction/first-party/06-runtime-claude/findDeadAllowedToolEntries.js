@@ -2,11 +2,12 @@
 // symbol: findDeadAllowedToolEntries  (minified: Zge, daemon.pretty.js:55261)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.10 (medium): a startup warning flags any descriptor still relying on the old behavior.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function findDeadAllowedToolEntries(e, t) {
-    let n = new Set(t);
-    return e.filter(r => r.startsWith("mcp__") ? !1 : !n.has(r === "Task" ? "Agent" : r))
+function findDeadAllowedToolEntries(allowedTools, tools) {
+    let toolSet = new Set(tools);
+    return allowedTools.filter(tool => tool.startsWith("mcp__") ? !1 : !toolSet.has(tool === "Task" ? "Agent" : tool))
 }

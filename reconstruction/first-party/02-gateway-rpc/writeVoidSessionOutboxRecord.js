@@ -2,24 +2,25 @@
 // symbol: writeVoidSessionOutboxRecord  (minified: wI, daemon.pretty.js:36981)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.4 (high): A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function writeVoidSessionOutboxRecord(e, t, n) {
-    let r = createOutboxRecord({
-        channel_kind: n.sessionKey.split(":")[0],
-        session_key: n.sessionKey,
+async function writeVoidSessionOutboxRecord(paths, bus, output) {
+    let outboxRecord = createOutboxRecord({
+        channel_kind: output.sessionKey.split(":")[0],
+        session_key: output.sessionKey,
         payload: {
-            text: n.text,
-            ...n.attachments && n.attachments.length > 0 ? {
-                attachments: n.attachments
+            text: output.text,
+            ...output.attachments && output.attachments.length > 0 ? {
+                attachments: output.attachments
             } : {},
-            data: n.data
+            data: output.data
         }
     });
-    return await persistOutboxRecord(e, r), t?.emit("session.output", {
-        sessionKey: n.sessionKey,
-        record: r
-    }), r
+    return await persistOutboxRecord(paths, outboxRecord), bus?.emit("session.output", {
+        sessionKey: output.sessionKey,
+        record: outboxRecord
+    }), outboxRecord
 }

@@ -2,9 +2,10 @@
 // symbol: isJobCreateParams  (minified: xR, daemon.pretty.js:31734)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function isJobCreateParams(e) {
-    return !(!isRecord(e) || typeof e.id != "string" || typeof e.cron != "string" || typeof e.instruction != "string" || e.owner_session !== void 0 && typeof e.owner_session != "string" || e.cwd_rel !== void 0 && typeof e.cwd_rel != "string")
+function isJobCreateParams(params) {
+    return !(!isRecord(params) || typeof params.id != "string" || typeof params.cron != "string" || typeof params.instruction != "string" || params.owner_session !== void 0 && typeof params.owner_session != "string" || params.cwd_rel !== void 0 && typeof params.cwd_rel != "string")
 }

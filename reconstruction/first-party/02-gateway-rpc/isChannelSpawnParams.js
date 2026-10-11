@@ -2,11 +2,12 @@
 // symbol: isChannelSpawnParams  (minified: kR, daemon.pretty.js:31705)
 // name: INFERRED — upstream's own spelling, confirmed against the published source @openduo/protocol@0.8.4 channel.ts (maps/published_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.7.1, v0.8.4 (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (high): new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.
 // changelog v0.8.4 (high): `channel.spawn` takes an optional `session_key` and creates that session bound to the channel.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function isChannelSpawnParams(e) {
-    return !(!isRecord(e) || typeof e.channel_kind != "string" || e.channel_kind.trim().length === 0 || typeof e.channel_id != "string" || e.channel_id.trim().length === 0 || e.cwd_abs !== void 0 && (typeof e.cwd_abs != "string" || e.cwd_abs.trim().length === 0) || e.runtime !== void 0 && !isAgentRuntime(e.runtime) || !isOptionalString(e.display_name) || !isOptionalString(e.bound_by) || e.require_mention !== void 0 && typeof e.require_mention != "boolean" || e.session_key !== void 0 && (typeof e.session_key != "string" || e.session_key.trim().length === 0))
+function isChannelSpawnParams(params) {
+    return !(!isRecord(params) || typeof params.channel_kind != "string" || params.channel_kind.trim().length === 0 || typeof params.channel_id != "string" || params.channel_id.trim().length === 0 || params.cwd_abs !== void 0 && (typeof params.cwd_abs != "string" || params.cwd_abs.trim().length === 0) || params.runtime !== void 0 && !isAgentRuntime(params.runtime) || !isOptionalString(params.display_name) || !isOptionalString(params.bound_by) || params.require_mention !== void 0 && typeof params.require_mention != "boolean" || params.session_key !== void 0 && (typeof params.session_key != "string" || params.session_key.trim().length === 0))
 }

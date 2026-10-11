@@ -2,14 +2,15 @@
 // symbol: probeEventsAppendable  (minified: _de, daemon.pretty.js:87719)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function probeEventsAppendable(e, t = new Date) {
-    let n = formatEventPartitionName(t),
-        r = mf.join(e.eventsDir, n);
+async function probeEventsAppendable(paths, now = new Date) {
+    let eventPartitionName = formatEventPartitionName(now),
+        partitionPath = mf.join(paths.eventsDir, eventPartitionName);
     try {
-        return await (await Cet.open(r, "a")).close(), !0
+        return await (await Cet.open(partitionPath, "a")).close(), !0
     } catch {
         return !1
     }
