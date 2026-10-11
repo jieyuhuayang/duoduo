@@ -1,0 +1,64 @@
+{
+  "buildInitialStatus": {
+    "exportedFirst": "v0.2.0",
+    "exportedLast": "v0.3.7",
+    "lastShort": "_S",
+    "block": [
+      "buildInitialStatus",
+      "getHydratableSessions",
+      "getSessionsByStatus"
+    ],
+    "blockClass": "unclassified",
+    "changedSince": []
+  },
+  "readStatus": {
+    "exportedFirst": "v0.2.0",
+    "exportedLast": "v0.3.7",
+    "lastShort": "Gf",
+    "block": [
+      "buildInitialStatus",
+      "getHydratableSessions",
+      "getSessionsByStatus"
+    ],
+    "blockClass": "unclassified",
+    "changedSince": [
+      "v0.5.0"
+    ]
+  },
+  "statusPath": {
+    "exportedFirst": "v0.2.0",
+    "exportedLast": "v0.3.7",
+    "lastShort": "ey",
+    "block": [
+      "buildInitialStatus",
+      "getHydratableSessions",
+      "getSessionsByStatus"
+    ],
+    "blockClass": "unclassified",
+    "changedSince": []
+  },
+  "updateStatus": {
+    "exportedFirst": "v0.2.0",
+    "exportedLast": "v0.3.7",
+    "lastShort": "Vo",
+    "block": [
+      "buildInitialStatus",
+      "getHydratableSessions",
+      "getSessionsByStatus"
+    ],
+    "blockClass": "unclassified",
+    "changedSince": []
+  },
+  "writeStatus": {
+    "exportedFirst": "v0.2.0",
+    "exportedLast": "v0.3.7",
+    "lastShort": "vS",
+    "block": [
+      "buildInitialStatus",
+      "getHydratableSessions",
+      "getSessionsByStatus"
+    ],
+    "blockClass": "unclassified",
+    "changedSince": []
+  }
+}

@@ -20,7 +20,7 @@
 
 ## 观测与判定
 
-- **四步顺序：confirmed。** trace 中定时器回调先同步调用两个订阅者 `createOutboxDeliveryManager>c` 和 `createMetaSession>k`，然后才进入 `runCadenceTick`。四步按 seq 依次是 `runMemoryCheckTick`、`sweepTombstonedSessionRecords ($bt)`、`createSpineEvent (en)` 加 `atomicAppendEvent (tn)`（写 `system.cadence_tick`，来源 `{kind:"system",name:"cadence"}`，payload `{}`）、`advanceConsumerWatermark (Bu)` 加 `updateRegistryStatus (Vu)`。三次维护分别用了 14、6、5 ms，没有调用任何引擎适配器。
+- **四步顺序：confirmed。** trace 中定时器回调先同步调用两个订阅者 `createOutboxDeliveryManager>c` 和 `createMetaSession>k`，然后才进入 `runCadenceTick`。四步按 seq 依次是 `runMemoryCheckTick`、`sweepTombstonedSessionRecords ($bt)`、`createSpineEvent (en)` 加 `atomicAppendEvent (tn)`（写 `system.cadence_tick`，来源 `{kind:"system",name:"cadence"}`，payload `{}`）、`advanceConsumerWatermark (Bu)` 加 `updateStatus (Vu)`。三次维护分别用了 14、6、5 ms，没有调用任何引擎适配器。
 - **记忆检查只读：confirmed，但证据较弱。** memory/ 下所有文件的哈希都没变，因为这次 memory 目录几乎是空的。kernel diff 里唯一的变化是 `subconscious/playlist.md`，它由分区调度器的 `markPlaylistItemExecuted (IO)` 改写，并且一直没有提交。
 - **任务单：** 记忆检查只投递了 `intuition-weaver/inbox/activation-report.md.pending`，同时写了快照文件 `.memory-signals.json`。第二、三次心跳把它记为 `withheld … reason: 'already-pending'`。第一次心跳的 activation report 写着 "(no event partitions on disk)"，因为记忆检查跑在第一条心跳事件写入之前。
 - **指纹门：confirmed。** 判定在 `createMetaSession (Pbt)` 里做。`hashActivityFingerprint (Ebt)` 三次收到的输入完全相同，都是 `"<mtime>:<mtime>:<mtime>:"`，第四段外部事件 id 为空。第一次心跳（重启后）通过检查，之后调用了 `loadSubconsciousPartitions`、`rebuildPlaylistRound`，再对 gradient-distiller 和 intuition-weaver 各走一遍拒绝路径（`createMetaSession>j`）。第二、三次心跳只记一条 DEBUG 日志 "[meta-session] activity gate: skipping tick (fingerprint unchanged)" 就返回。

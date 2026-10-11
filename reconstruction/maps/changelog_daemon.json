@@ -3959,12 +3959,12 @@
    "getCachedHostBootId",
    "initAbortableAsyncQueueModule",
    "isRuntimeWriterLockStale",
-   "readRegistryStatusFile",
+   "readStatus",
    "recordTelemetryMetric",
    "renderNotifyToolDescription",
    "runTimedDrainPhase",
    "stringifyToolResultContent",
-   "writeRegistryStatusFile"
+   "writeStatus"
   ],
   "0.3.1": [
    "hasUnqueuedPendingOutboxRecords",

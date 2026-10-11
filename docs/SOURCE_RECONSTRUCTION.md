@@ -84,6 +84,8 @@
 
 `name_symbol.mjs --published <报告>` 把这类配对当作归属证据：登记的名字必须与报告里配对的上游名字相同，vendor 证据仍然优先拒绝；登记后写入 `maps/published_daemon.json`（真名 → 包、文件、行、配对方式），`RENAME_TABLE.md` 与可读树文件头据此标注 *published source*，读者因此能区分上游的拼写与本仓库的推断。在 v0.8.4 上，该包 73 个顶层声明里 34 个唯一配对、7 个按顺序配对、15 个常量落在 4 个初始化器里，另有两个已登记的推断名（`isRuntimeKind`、`isDaemonRuntimeInfo`）被改成上游的拼写（`isAgentRuntime`、`isSystemRuntimeInfo`）；其余的要么没有被 daemon 内联（渠道绑定相关的校验函数），要么被 esbuild 内联到调用点。
 
+**第五类证据是旧版本的导出块。** esbuild 只在模块的导出对象在运行时被用到时才生成 `__export` 块，模块不再被动态引用时，块就消失，名字随之丢失。例如 v0.2.0–v0.3.7 导出了会话注册表模块，v0.4.0 起这个模块被内联，它的函数在当前版本里没有名字。旧导出块里的名字同样是上游的拼写，要证明的只是当前声明与旧版本的那个声明是同一段代码。`tools/history.sh` 已经把每两个相邻版本按声明配对（函数体相同、在已配对邻居之间的位置、特征相似度）。`match_historical_exports.mjs` 对当前版本的每个顶层声明都沿这条配对链往回走，再列出每个版本导出块里的名字，对当前 maps 和当前导出块都没有的名字，查找哪个当前声明的链经过该名字在最后一个导出它的版本里的短名。从那个版本到当前版本之间，只要有一步是靠顺序区分的孪生体（两个函数体相同、只按出现顺序配对），这个名字就被拒绝；两个旧名字落在同一个当前声明上时，两个都被拒绝。`name_symbol.mjs --historical <报告>` 登记通过的名字，写入 `maps/historical_daemon.json`（真名 → 导出它的版本区间、最后一个版本里的短名、此后函数体变化过的版本），`RENAME_TABLE.md` 与可读树文件头据此标注 *historical export*。这种登记可以把已有的推断名换成上游的拼写，但不能替换上游名字，并且保留旧名字登记时的 first-party 证据：旧名字是人工断言的，新名字仍是人工断言的。在 v0.8.4 上，旧版本共导出 31 个当前版本没有的非 vendor 名字，其中 5 个唯一追到当前声明，都是会话注册表的 `status.json` 读写函数（`statusPath`、`readStatus`、`writeStatus`、`updateStatus`、`buildInitialStatus`），它们替换了本仓库的推断名；其余 26 个所在的代码已被删除或改写到配对追不到的程度。
+
 first-party 的判定依据一条不对称关系：vendored 库不会按名字引用应用自身的代码。所以被 vendor 导出块导出、或直接间接被 vendor 代码引用的代码判为 vendor，这类证据在任何情况下都不能被覆盖；反过来，直接间接引用上游命名的 first-party 符号的代码判为 first-party，只经由已有推断名得到的证据会单独标出。判定以 esbuild 模块为单位，两个 `__esm` 初始化器之间的语句属于同一个模块、共享一个结论；同时带两种证据的模块被拒绝。代码在 bundle 里的位置只作参考、不作依据，因为它在两个方向上都会误判：vendored 库可以没有自己的导出块而位于 first-party 导出块之后，自研辅助函数也可以紧跟在 vendor 导出块之后。没有任何引用证据的条目，只有在人读过代码之后显式标注 allow-unproven 才能登记；这类断言记录在 `maps/inferred_daemon.asserted.json`（第一次断言时创建），并且不作为其他代码的证据，只经由人工断言的名字才连到 first-party 代码的条目，同样需要自己的 allow-unproven。
 
 ### 只处理 daemon 与 cli
@@ -225,7 +227,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | **符号的位置与结构签名** | `reconstruction/maps/symbols_<bundle>.json` |
 | **恢复出的导出名** | `maps/blocks_<bundle>.json`（按模块分组）、`maps/<bundle>.exports.json`（压平视图） |
 | **自研与第三方的判定** | `maps/modules_<bundle>.json`（逐 `__export` 块，即逐源模块） |
-| **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/published_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建） |
+| **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/published_daemon.json`、`maps/historical_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建） |
 | **遗留行号的上限** | `maps/bare_anchor_baseline.json` |
 | **谁引用它、它引用谁、谁读某个环境变量** | `reconstruction/maps/xref_<bundle>.json`；查询用 `tools/symbol_card.mjs`，覆盖报告用 `tools/doc_coverage.mjs` |
 | **符号的首见版本与上游 CHANGELOG 的说明** | `maps/history_daemon.json`、`maps/changelog_daemon.json`；`first-party/` 文件头的 `// since:` 与 `// changelog` 行 |
@@ -244,7 +246,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 | 单版本还原 | `split.mjs` → `reassemble.mjs`；`export_blocks.mjs` → `build_rename.mjs` → `rename.mjs` → `ast_equiv.mjs` → `symbol_index.mjs`；由 `rebuild.sh` 串起，含美化步骤 |
 | 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs`、`exports_map.mjs` |
 | 产物检查与写入 | `build_rename.mjs` 的模块归属检查、`verify_inferred.mjs`、`verify_first_party.mjs`、`pipeline_report.mjs`、`promote.mjs` |
-| 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs`、`match_published_source.mjs` |
+| 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs`、`match_published_source.mjs`、`match_historical_exports.mjs` |
 | 索引与查询 | `xref.mjs`、`symbol_card.mjs`、`doc_coverage.mjs`、`doc_cites.mjs` |
 | 运行场景 | `instrument.mjs`、`trace_report.mjs`；`scenarios/run.sh`、`scenarios/lib.sh` |
 | 发行历史 | `history.sh`、`decl_features.mjs`、`history_chain.mjs`、`changelog_merge.mjs`（复用 `fingerprint_match.mjs` 与 `pair_changes.mjs`） |

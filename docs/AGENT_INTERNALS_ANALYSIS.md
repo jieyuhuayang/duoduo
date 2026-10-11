@@ -100,7 +100,7 @@
 | ① 入站检查 | `createDaemon (Svt)`；`assertWsChannelIdentityParams (mIe)`；`isSessionArchiving (dr)`；`resolveIngressWorkspace (hIe)`；`bindSessionSourceChannel (pIe)` | `over WebSocket requires params.channel_id`（`assertWsChannelIdentityParams`）；`code: -32011`（`createDaemon`）；`code: -32010`（`createDaemon`）；`await pIe(u, x.session_key, x.channel_id)`（`createDaemon`） |
 | ② 识别命令、决定路由 | `ingestChannelMessage (gde)`；`parseInjectionPromptCommand (xI)`；`resolveRoutingTarget (Aet)` | `s = Aet(t, i, r)`（`ingestChannelMessage`）；`if (n) return n.args ? "session" : "gateway"`（`resolveRoutingTarget`） |
 | ③ 封装与去重 | `appendBeforeExecuteGateway (yde)`；`createSpineEvent (en)`；`computeDedupKey (GR)`；`spineEventDedupStore (JR)` | `let f = await i.checkAndRecordDetailed({`（`appendBeforeExecuteGateway`）；`deduplicated: !0`（`appendBeforeExecuteGateway`） |
-| ④ 快照与追加 | `writeIngressSnapshot (zet)`；`atomicAppendEvent (tn)`；`advanceConsumerWatermark (Bu)`；`updateRegistryStatus (Vu)` | `r.payload && (r.payload.raw_path = s)`（`appendBeforeExecuteGateway`）；`await Bu(e, "gateway", r.id, new Date(r.ts))`（`appendBeforeExecuteGateway`） |
+| ④ 快照与追加 | `writeIngressSnapshot (zet)`；`atomicAppendEvent (tn)`；`advanceConsumerWatermark (Bu)`；`updateStatus (Vu)` | `r.payload && (r.payload.raw_path = s)`（`appendBeforeExecuteGateway`）；`await Bu(e, "gateway", r.id, new Date(r.ts))`（`appendBeforeExecuteGateway`） |
 | ⑤ 路由分支 | `readRoutingTarget (lde)`；`replyToGatewayCommandEvent (Net)`；`enqueueSessionInboxLine (ta)`；`isVoidRuntimeSession (Gu)`；`writeVoidSessionOutboxRecord (wI)` | `"[gateway] gateway-targeted event (no enqueue)"`（`appendBeforeExecuteGateway`）；`a = await ta(e, t.sessionKey, f)`（`appendBeforeExecuteGateway`）；`"[gateway] void-session event (outbox, no enqueue)"`（`appendBeforeExecuteGateway`） |
 | ⑥ 唤醒 | `createDaemon (Svt)`；`resolvePreemptFromCommandText (DG)` | `J.routing.enqueued && l.emit("session.wake", {`（`createDaemon`）；`preempt: DG(x.text)`（`createDaemon`） |
 | ⑦ actor 与 drain | `createSessionManager (gbt)`；`drainSessionMailbox (zxe)`；`mergeInboxIntoMailbox (HR)`；`listMailboxPendingItems (Nb)`；`batchDrainItems (jW)`；`readEventById (Oo)` | `de = await zxe(t, T, {`（`createSessionManager`）；`"mailbox_merge_ms"`（`drainSessionMailbox`）；`"event_read_ms"`（`drainSessionMailbox`） |
@@ -847,7 +847,7 @@ by_id 索引有保留期，只在 daemon 启动时裁剪（confirmed）。`main 
 
 重新 drain 时不会为已经回复过的事件再跑一轮（confirmed）。邮箱条目在一轮输出写完之后才标记完成；再次 drain 时，某条目的事件若已经有出站记录（`findOutboxRecordByEventId (lh)` 能查到），就直接计为已处理。合并处理的一轮只有一条主出站记录，但同一轮的其他事件也登记到这条记录上，所以整批都不会重跑。于是"回复已写出、标记完成之前退出"不会产生重复回复；"回复写出之前退出"会让这一轮在重启后重新执行（第 7 节）。
 
-消费进度文件只写不读（confirmed）。`advanceConsumerWatermark (Bu)` 经 by_id 反查事件的分区与偏移，把 `{updated_at, partition, byte_offset, last_event_id}` 写到 `run/queue_offsets/<消费者>.json`；消费者只有三个：`gateway` 在网关摄入每条事件后、路由之前推进；`jobs` 在每次心跳追加 `system.cadence_tick` 后推进（名字是 jobs，挂的却是心跳事件）；`meta_session` 在后台分区的跳过、完成、非成功结算和出错事件后推进。daemon、CLI 与其余 bundle 中都没有读取这些文件的代码，重启恢复不依赖它们，它们只能用来人工观察。`var/registry/status.json` 由 `updateRegistryStatus (Vu)` 合并更新：网关摄入写 `health.gateway = "ok"` 与当日分区路径，心跳写 `cadence.last_tick`；网关命令 `/status` 与 `system.status` RPC 读取它（confirmed）。
+消费进度文件只写不读（confirmed）。`advanceConsumerWatermark (Bu)` 经 by_id 反查事件的分区与偏移，把 `{updated_at, partition, byte_offset, last_event_id}` 写到 `run/queue_offsets/<消费者>.json`；消费者只有三个：`gateway` 在网关摄入每条事件后、路由之前推进；`jobs` 在每次心跳追加 `system.cadence_tick` 后推进（名字是 jobs，挂的却是心跳事件）；`meta_session` 在后台分区的跳过、完成、非成功结算和出错事件后推进。daemon、CLI 与其余 bundle 中都没有读取这些文件的代码，重启恢复不依赖它们，它们只能用来人工观察。`var/registry/status.json` 由 `updateStatus (Vu)` 合并更新：网关摄入写 `health.gateway = "ok"` 与当日分区路径，心跳写 `cadence.last_tick`；网关命令 `/status` 与 `system.status` RPC 读取它（confirmed）。
 
 未覆盖的窗口在追加与写指针之间（confirmed，静态分析）。5.1 的三个入口都是先追加、后写指针，进程在两者之间退出时，事件留在日志里但没有指针，运行时没有任何把"缺指针的事件"补入邮箱的步骤。三个入口的后果不同：网关摄入的消息已经登记了去重键，渠道带同一幂等键重发时会被当作重复消息应答（5.3），这条消息不会被处理；会话间投递的 `route.deliver` 不会到达目标会话；到期 job 扫描器在追加之前已经写下认领时间，重启后这次运行被视为已调度，周期调度的 job 等到下一个到期时刻，一次性调度只在上次结果为 unknown 或 failure 时按第 10.2 节的重试规则重新派生。这个窗口的长度是几次本地文件写入。
 
@@ -1830,7 +1830,7 @@ keepalive job 首次运行之后不会再被扫描器判为到期，也不会自
 1. 记忆检查 `runMemoryCheckTick (jft)`，内容见第 12.2、12.3 节；
 2. `sweepTombstonedSessionRecords ($bt)` 清理已归档会话的残留：删除这些会话里状态不是 pending 的出站记录，以及它们的出站重放日志；这一步抛错只记告警，不中断心跳；
 3. 构造一条 `system.cadence_tick` 事件（来源 `{kind: "system", name: "cadence"}`，payload 为空对象），经 `atomicAppendEvent (tn)` 写入事件日志；
-4. 把名为 `jobs` 的消费进度推进到这条事件（`advanceConsumerWatermark (Bu)`），并用 `updateRegistryStatus (Vu)` 把事件时间写进 daemon 状态文件的 `cadence.last_tick`。
+4. 把名为 `jobs` 的消费进度推进到这条事件（`advanceConsumerWatermark (Bu)`），并用 `updateStatus (Vu)` 把事件时间写进 daemon 状态文件的 `cadence.last_tick`。
 
 在本版本的还原 daemon 上实测（场景 04-cadence，心跳周期设为 4 秒），定时器回调先同步调用两个订阅者，即 `createOutboxDeliveryManager (Mbt)` 与 `createMetaSession (Pbt)` 注册的回调，然后才进入 `runCadenceTick (Cbt)`；四步按上面的顺序执行，三次维护分别用了 14、6、5 毫秒，没有调用任何引擎适配器（confirmed）。`system.status` 的 `cadence.last_tick` 在第一次心跳之前为 `null`，之后等于最近一条 `system.cadence_tick` 事件的 `ts`。
 

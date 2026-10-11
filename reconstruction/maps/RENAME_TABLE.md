@@ -1,6 +1,6 @@
 # duoduo 首字符还原：符号名映射表（daemon）
 
-下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 `maps/published_daemon.json` 记录）。“原行号”指反混淆后的 `daemon.pretty.js`。“首见版本”是 npm 上最早含有该声明的发行版（`maps/history_daemon.json`，由 `tools/history.sh` 逐版本配对得出）。
+下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 `maps/published_daemon.json` 记录；标注 *historical export* 的名字是上游在旧版本 `__export` 块里的拼写，经版本配对追到本版本，由 `maps/historical_daemon.json` 记录）。“原行号”指反混淆后的 `daemon.pretty.js`。“首见版本”是 npm 上最早含有该声明的发行版（`maps/history_daemon.json`，由 `tools/history.sh` 逐版本配对得出）。
 
 共 840 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.4。
 
@@ -8,11 +8,11 @@
 
 | minified | 还原名 | 来源 | pretty 行 | 首见版本 |
 |---|---|---|---|---|
-| `KR` | `resolveRegistryStatusPath` | inferred | 32980 | v0.2.0 |
-| `wU` | `buildInitialRegistryStatus` | inferred | 32984 | v0.2.0 |
-| `SU` | `writeRegistryStatusFile` | inferred | 33011 | v0.2.0 |
-| `Mb` | `readRegistryStatusFile` | inferred | 33014 | v0.2.0 |
-| `Vu` | `updateRegistryStatus` | inferred | 33022 | v0.2.0 |
+| `KR` | `statusPath` | inferred, historical export (v0.2.0..v0.3.7) | 32980 | v0.2.0 |
+| `wU` | `buildInitialStatus` | inferred, historical export (v0.2.0..v0.3.7) | 32984 | v0.2.0 |
+| `SU` | `writeStatus` | inferred, historical export (v0.2.0..v0.3.7) | 33011 | v0.2.0 |
+| `Mb` | `readStatus` | inferred, historical export (v0.2.0..v0.3.7) | 33014 | v0.2.0 |
+| `Vu` | `updateStatus` | inferred, historical export (v0.2.0..v0.3.7) | 33022 | v0.2.0 |
 | `lq` | `replaceSessionIndexEntry` | inferred | 36932 |  |
 | `tde` | `createVoidAwareAttachmentCallbacks` | inferred | 36957 | v0.8.4 |
 | `Ect` | `daemonRestartReasonPath` | inferred | 66052 | v0.6.2 |
@@ -26,12 +26,12 @@
 | `_we` | `getCachedHostBootId` | inferred | 89243 |  |
 | `Fct` | `isRuntimeWriterLockStale` | inferred | 89247 | v0.3.0 |
 | `fH` | `acquireRuntimeWriterLock` | inferred | 89259 | v0.2.0 |
-| `bwe` | `refreshRuntimeWriterLockHeartbeat` | inferred | 89307 |  |
+| `bwe` | `refreshRuntimeWriterLockHeartbeat` | inferred | 89307 | v0.2.0 |
 | `EO` | `releaseRuntimeWriterLock` | inferred | 89312 | v0.2.0 |
 | `wIe` | `readEnvIntegerOrFallback` | inferred | 90501 | v0.2.0 |
-| `Xbt` | `computeRuntimeId` | inferred | 90681 |  |
+| `Xbt` | `computeRuntimeId` | inferred | 90681 | v0.2.0 |
 | `avt` | `deliverDaemonRestartWakes` | __export | 91202 | v0.8.0 |
-| `_vt` | `parseHostHeaderHostname` | inferred | 91983 |  |
+| `_vt` | `parseHostHeaderHostname` | inferred | 91983 | v0.7.0 |
 | `bvt` | `parseOriginHostname` | inferred | 91993 |  |
 | `Svt` | `createDaemon` | __export | 92035 | v0.2.0 |
 | `kvt` | `main` | __export | 93073 | v0.2.0 |
@@ -142,7 +142,7 @@
 | `Xb` | `resolveOutboxRecordPath` | inferred | 36040 | v0.2.0 |
 | `Ba` | `createOutboxRecord` | inferred | 36044 | v0.2.0 |
 | `Va` | `persistOutboxRecord` | inferred | 36076 | v0.2.0 |
-| `tq` | `indexOutboxRecordByEventId` | inferred | 36082 |  |
+| `tq` | `indexOutboxRecordByEventId` | inferred | 36082 | v0.2.0 |
 | `Ha` | `readOutboxRecord` | inferred | 36090 | v0.2.0 |
 | `Qb` | `listAllOutboxRecords` | inferred | 36115 | v0.2.0 |
 | `lh` | `findOutboxRecordByEventId` | inferred | 36147 | v0.2.0 |
@@ -150,7 +150,7 @@
 | `nq` | `resolveOutboxByEventIndexPath` | inferred | 36179 | v0.2.0 |
 | `Cce` | `resolveOutboxSentIdsPath` | inferred | 36183 | v0.2.0 |
 | `ret` | `loadOutboxByEventIndex` | inferred | 36196 | v0.2.0 |
-| `iet` | `appendOutboxByEventIndexEntry` | inferred | 36213 |  |
+| `iet` | `appendOutboxByEventIndexEntry` | inferred | 36213 | v0.2.0 |
 | `ch` | `recordOutboxSentId` | inferred | 36243 | v0.2.0 |
 | `mI` | `resolveOutboxReplayDir` | inferred | 36249 | v0.3.0 |
 | `ws` | `resolveOutboxReplayFilePath` | inferred | 36257 |  |
@@ -190,9 +190,9 @@
 | `Net` | `replyToGatewayCommandEvent` | inferred | 87734 | v0.2.0 |
 | `Fet` | `executeGatewayCommand` | inferred | 87857 | v0.2.0 |
 | `zet` | `writeIngressSnapshot` | inferred | 88165 | v0.2.0 |
-| `bve` | `saveChannelUploadToInbox` | inferred | 88230 |  |
-| `vve` | `readFileAsBase64` | inferred | 88254 |  |
-| `lct` | `sanitizeUploadFileName` | inferred | 88258 |  |
+| `bve` | `saveChannelUploadToInbox` | inferred | 88230 | v0.2.0 |
+| `vve` | `readFileAsBase64` | inferred | 88254 | v0.2.0 |
+| `lct` | `sanitizeUploadFileName` | inferred | 88258 | v0.2.0 |
 | `uH` | `createSessionSubscriptionRegistry` | inferred | 89020 | v0.2.0 |
 | `Uc` | `MemoryReadRpcError` | inferred | 89447 |  |
 | `QSe` | `readMemoryFileForRpc` | inferred | 89453 | v0.8.4 |
@@ -257,7 +257,7 @@
 | `HR` | `mergeInboxIntoMailbox` | inferred | 32661 | v0.2.0 |
 | `Nb` | `listMailboxPendingItems` | inferred | 32720 | v0.3.1 |
 | `Mo` | `deleteMailboxPendingItemsByEventIds` | inferred | 32742 | v0.3.1 |
-| `Nae` | `removeOrphanMailboxItemFiles` | inferred | 32771 |  |
+| `Nae` | `removeOrphanMailboxItemFiles` | inferred | 32771 | v0.4.2 |
 | `Db` | `appendSessionMailboxNote` | inferred | 32798 | v0.3.1 |
 | `WR` | `renderSessionMailboxFile` | inferred | 32808 | v0.3.1 |
 | `th` | `notifySessionFileChanged` | inferred | 35572 |  |
@@ -282,8 +282,8 @@
 | `dq` | `readAllSessionSummaries` | __export | 37150 | v0.2.0 |
 | `V$` | `initCallerSessionEnvModule` | inferred | 55016 |  |
 | `oC` | `issueWorkerToolContextToken` | inferred | 55858 | v0.8.0 |
-| `Y_e` | `assertJobWorkspaceUsable` | inferred | 61454 |  |
-| `rbe` | `extractJobSdkConfig` | inferred | 61594 |  |
+| `Y_e` | `assertJobWorkspaceUsable` | inferred | 61454 | v0.5.5 |
+| `rbe` | `extractJobSdkConfig` | inferred | 61594 | v0.6.2 |
 | `oO` | `listSessionIndexSummaries` | inferred | 64866 | v0.5.4 |
 | `Kbe` | `formatViewSessionsListLine` | inferred | 64904 | v0.8.2 |
 | `Dg` | `runViewSessionsTool` | inferred | 64941 | v0.8.2 |
@@ -301,26 +301,26 @@
 | `lxe` | `readDrainLockFile` | inferred | 70205 | v0.2.0 |
 | `zxe` | `drainSessionMailbox` | inferred | 70662 | v0.2.0 |
 | `no` | `classifySessionKeyOrUnknown` | inferred | 71746 | v0.3.0 |
-| `Umt` | `clearPendingGatewayNotice` | inferred | 72078 |  |
-| `qmt` | `setPendingInterruptedContext` | inferred | 72081 |  |
-| `Bmt` | `clearPendingInterruptedContext` | inferred | 72087 |  |
-| `Vmt` | `clearPendingSkipRewind` | inferred | 72090 |  |
+| `Umt` | `clearPendingGatewayNotice` | inferred | 72078 | v0.2.0 |
+| `qmt` | `setPendingInterruptedContext` | inferred | 72081 | v0.2.0 |
+| `Bmt` | `clearPendingInterruptedContext` | inferred | 72087 | v0.2.0 |
+| `Vmt` | `clearPendingSkipRewind` | inferred | 72090 | v0.2.0 |
 | `Zg` | `buildSessionInfoFromState` | inferred | 72634 | v0.2.0 |
 | `hht` | `classifySessionPlane` | inferred | 72679 | v0.2.0 |
-| `oEe` | `requestPiWorkerCatalog` | inferred | 72985 |  |
+| `oEe` | `requestPiWorkerCatalog` | inferred | 72985 | v0.8.0 |
 | `CS` | `resolvePiAgentDir` | inferred | 73448 | v0.8.0 |
 | `OS` | `readPiAgentSettings` | inferred | 73452 | v0.8.0 |
 | `lEe` | `selectInstructionsFingerprint` | inferred | 73478 |  |
-| `qW` | `canonicalizeJsonValue` | inferred | 73482 |  |
-| `cEe` | `buildPiConfigSignature` | inferred | 73491 |  |
+| `qW` | `canonicalizeJsonValue` | inferred | 73482 | v0.8.0 |
+| `cEe` | `buildPiConfigSignature` | inferred | 73491 | v0.8.0 |
 | `iRe` | `stringifyExecutionToolInput` | inferred | 80488 | v0.2.0 |
-| `oRe` | `computeStreamEventDedupKey` | inferred | 80498 |  |
+| `oRe` | `computeStreamEventDedupKey` | inferred | 80498 | v0.2.0 |
 | `sRe` | `buildSessionExecutionPayload` | inferred | 80502 | v0.2.0 |
 | `uk` | `channelKindFromSessionKey` | inferred | 80532 | v0.2.0 |
-| `lRe` | `listDefaultClaudeToolNames` | inferred | 80545 |  |
+| `lRe` | `listDefaultClaudeToolNames` | inferred | 80545 | v0.2.0 |
 | `aG` | `inferActorOriginFromSessionKey` | inferred | 80549 | v0.4.0 |
 | `cRe` | `classifySessionPoolKind` | inferred | 80561 | v0.2.0 |
-| `dRe` | `isAvailableWorkspacePath` | inferred | 80565 |  |
+| `dRe` | `isAvailableWorkspacePath` | inferred | 80565 | v0.2.0 |
 | `wy` | `SESSION_SCHEMA_VERSION` | __export | 80573 |  |
 | `fRe` | `createJobSessionFinalizer` | inferred | 80578 | v0.8.0 |
 | `mk` | `computeInstructionsFingerprint` | __export | 82650 | v0.4.5 |
@@ -418,7 +418,7 @@
 | `Uw` | `initInterruptMarkerTextModule` | inferred | 62106 |  |
 | `abe` | `computeCodexTurnUsage` | __export | 62220 | v0.5.6 |
 | `pxe` | `normalizeInputTokenTotals` | inferred | 70389 | v0.5.6 |
-| `mxe` | `computeCacheHitRate` | inferred | 70405 |  |
+| `mxe` | `computeCacheHitRate` | inferred | 70405 | v0.5.6 |
 | `PW` | `addToNumericField` | inferred | 70485 |  |
 | `Io` | `runTimedDrainPhase` | inferred | 70493 |  |
 | `kxe` | `resolveTurnModelWithLayer` | inferred | 70538 | v0.8.1 |
@@ -430,9 +430,9 @@
 | `Ixe` | `resolveDrainContextProfileOrRefuse` | inferred | 70643 | v0.7.0 |
 | `to` | `isNonNullObject` | inferred | 71661 | v0.2.0 |
 | `on` | `readStringProperty` | inferred | 71665 | v0.2.0 |
-| `TW` | `readNonNegativeNumberField` | inferred | 71670 |  |
+| `TW` | `readNonNegativeNumberField` | inferred | 71670 | v0.5.10 |
 | `DW` | `extractPayloadMediaRefs` | inferred | 71676 | v0.2.0 |
-| `zmt` | `mergeInterruptedContextTexts` | inferred | 72072 |  |
+| `zmt` | `mergeInterruptedContextTexts` | inferred | 72072 | v0.2.0 |
 | `Hmt` | `hasSkipRewindRecordSince` | inferred | 72093 | v0.5.6 |
 | `Pxe` | `markTurnSkippedFromSkipRecord` | inferred | 72099 | v0.8.0 |
 | `gA` | `clearPendingOutboundAttachments` | inferred | 72102 | v0.2.0 |
@@ -452,12 +452,12 @@
 | `Qmt` | `collectJobCompletionReceipts` | inferred | 72245 | v0.8.1 |
 | `eht` | `renderCoalescedDrainPrompt` | inferred | 72273 | v0.8.1 |
 | `Yxe` | `createDrainExecutionEventRecorder` | inferred | 72285 | v0.2.0 |
-| `Oxe` | `renderTurnOutputText` | inferred | 72341 |  |
-| `nht` | `renderManualCompactNotice` | inferred | 72345 |  |
-| `rht` | `isStaleIdleCompactEvent` | inferred | 72351 |  |
-| `Axe` | `countCompactGapIntervals` | inferred | 72356 |  |
-| `Nxe` | `buildCompactStatsRecord` | inferred | 72380 |  |
-| `sht` | `recordIdleCompactFireMetric` | inferred | 72413 |  |
+| `Oxe` | `renderTurnOutputText` | inferred | 72341 | v0.2.0 |
+| `nht` | `renderManualCompactNotice` | inferred | 72345 | v0.5.5 |
+| `rht` | `isStaleIdleCompactEvent` | inferred | 72351 | v0.5.10 |
+| `Axe` | `countCompactGapIntervals` | inferred | 72356 | v0.5.10 |
+| `Nxe` | `buildCompactStatsRecord` | inferred | 72380 | v0.5.10 |
+| `sht` | `recordIdleCompactFireMetric` | inferred | 72413 | v0.5.10 |
 | `aht` | `runHistoryControlCommand` | inferred | 72421 | v0.5.2 |
 | `Xxe` | `resolveReplyTargetSessionKeys` | inferred | 72443 | v0.2.0 |
 | `Bc` | `emitDrainOutputRecords` | inferred | 72455 | v0.2.0 |
@@ -465,8 +465,8 @@
 | `TS` | `handleDrainError` | inferred | 72539 | v0.5.0 |
 | `lht` | `clearModelOverrideOnRuntimeFlip` | inferred | 72595 | v0.5.6 |
 | `cht` | `resolvePendingModelFork` | inferred | 72612 | v0.5.6 |
-| `dht` | `describeWorkspaceProblem` | inferred | 72651 |  |
-| `fht` | `renderWorkspaceUnavailableNotice` | inferred | 72655 |  |
+| `dht` | `describeWorkspaceProblem` | inferred | 72651 | v0.2.0 |
+| `fht` | `renderWorkspaceUnavailableNotice` | inferred | 72655 | v0.2.0 |
 | `pht` | `renderRuntimeUnavailableGuidance` | inferred | 72660 | v0.5.4 |
 | `mht` | `renderRuntimeMismatchGuidance` | inferred | 72668 | v0.8.3 |
 | `Dxe` | `runDrainQueryAndCollectOutboundAttachments` | inferred | 72694 | v0.5.0 |
@@ -794,21 +794,21 @@
 | `ho` | `resolveDefaultRuntime` | inferred | 31828 | v0.7.1 |
 | `Fu` | `initRuntimeValidationModule` | inferred | 31837 | v0.8.4 |
 | `Xl` | `attachStreamLineReader` | inferred | 31880 | v0.8.0 |
-| `yae` | `parseLogLevelName` | inferred | 32006 |  |
+| `yae` | `parseLogLevelName` | inferred | 32006 | v0.2.0 |
 | `Fm` | `parseEnvBooleanFlag` | inferred | 32012 | v0.2.0 |
-| `L8e` | `resolveLogLevel` | inferred | 32025 |  |
+| `L8e` | `resolveLogLevel` | inferred | 32025 | v0.3.3 |
 | `F8e` | `isLogLevelEnabled` | inferred | 32029 |  |
-| `z8e` | `formatLogPrefix` | inferred | 32033 |  |
-| `Jd` | `writeLogLine` | inferred | 32037 |  |
+| `z8e` | `formatLogPrefix` | inferred | 32033 | v0.2.0 |
+| `Jd` | `writeLogLine` | inferred | 32037 | v0.2.0 |
 | `Ue` | `logErrorMessage` | inferred | 32041 | v0.2.0 |
 | `Z` | `logWarnMessage` | inferred | 32045 | v0.2.0 |
 | `ee` | `logInfoMessage` | inferred | 32049 | v0.2.0 |
 | `ke` | `logDebugMessage` | inferred | 32053 | v0.2.0 |
 | `_ae` | `logTraceMessage` | inferred | 32057 |  |
-| `U8e` | `isSessionLifecycleLoggingEnabled` | inferred | 32061 |  |
-| `ut` | `logSessionLifecycleMessage` | inferred | 32065 |  |
+| `U8e` | `isSessionLifecycleLoggingEnabled` | inferred | 32061 | v0.2.0 |
+| `ut` | `logSessionLifecycleMessage` | inferred | 32065 | v0.2.0 |
 | `vt` | `logAlwaysAtLevel` | inferred | 32069 | v0.2.0 |
-| `pt` | `initLogLevelModule` | inferred | 32074 |  |
+| `pt` | `initLogLevelModule` | inferred | 32074 | v0.2.0 |
 | `yYe` | `appendTelemetryRecord` | inferred | 32914 | v0.3.0 |
 | `_Ye` | `isTelemetryEnabled` | inferred | 32919 | v0.4.5 |
 | `go` | `logLatencyStageTelemetry` | inferred | 32927 | v0.2.0 |

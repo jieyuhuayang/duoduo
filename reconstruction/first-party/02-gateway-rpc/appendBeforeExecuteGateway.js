@@ -83,7 +83,7 @@ async function appendBeforeExecuteGateway(e, t, n) {
         rawPayload: t.rawPayload,
         routingHint: t.routingHint
     }, r);
-    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await ade(e, t.sourceKind, t.sourceChannelId), await updateRegistryStatus(e, f => ({
+    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await ade(e, t.sourceKind, t.sourceChannelId), await updateStatus(e, f => ({
         ...f,
         spine: {
             ...f.spine,

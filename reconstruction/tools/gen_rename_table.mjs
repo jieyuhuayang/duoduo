@@ -25,6 +25,9 @@ const inferredSet = new Set(Object.keys(inferred));
 // (name_symbol.mjs --published): maps/published_<bundle>.json next to the inferred map
 const PUBLISHED = INFERRED === "-" ? null : path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "published_"));
 const published = PUBLISHED && fs.existsSync(PUBLISHED) ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : {}; // real -> {package, file, ...}
+// names an older release exported (name_symbol.mjs --historical): maps/historical_<bundle>.json
+const HISTORICAL = INFERRED === "-" ? null : path.join(path.dirname(INFERRED), path.basename(INFERRED).replace(/^inferred_/, "historical_"));
+const historical = HISTORICAL && fs.existsSync(HISTORICAL) ? JSON.parse(fs.readFileSync(HISTORICAL, "utf8")) : {}; // real -> {exportedFirst, exportedLast, ...}
 // release history (tools/history.sh), daemon only: real -> {firstSeen, changedIn}
 const HISTORY = INFERRED === "-" ? null : path.join(path.dirname(INFERRED), "history_daemon.json");
 const history = HISTORY && BUNDLE === "daemon" && fs.existsSync(HISTORY) ? JSON.parse(fs.readFileSync(HISTORY, "utf8")).symbols : null;
@@ -62,13 +65,13 @@ const groups = new Map();
 for (const [mangled, real] of Object.entries(rename)) {
   const sub = SUBSYS === "-" ? "all" : subsys[real];
   if (!groups.has(sub)) groups.set(sub, []);
-  groups.get(sub).push({ mangled, real, source: inferredSet.has(mangled) ? (Object.hasOwn(published, real) ? `inferred, published source (${published[real].package} ${published[real].file})` : "inferred") : "__export", line: declLine.get(mangled) ?? "—", since: history && history[real] && history[real].firstSeen ? `v${history[real].firstSeen}` : "" });
+  groups.get(sub).push({ mangled, real, source: inferredSet.has(mangled) ? (Object.hasOwn(published, real) ? `inferred, published source (${published[real].package} ${published[real].file})` : Object.hasOwn(historical, real) ? `inferred, historical export (${historical[real].exportedFirst}..${historical[real].exportedLast})` : "inferred") : "__export", line: declLine.get(mangled) ?? "—", since: history && history[real] && history[real].firstSeen ? `v${history[real].firstSeen}` : "" });
 }
 const subs = [...groups.keys()].sort();
 const total = Object.keys(rename).length;
 
 let md = `# duoduo 首字符还原：符号名映射表（${BUNDLE}）\n\n`;
-md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 \`maps/published_${BUNDLE}.json\` 记录）。“原行号”指反混淆后的 \`${BUNDLE}.pretty.js\`。${history ? "“首见版本”是 npm 上最早含有该声明的发行版（\`maps/history_daemon.json\`，由 \`tools/history.sh\` 逐版本配对得出）。" : ""}\n\n`;
+md += `下表把 esbuild \`--minify\` 后的短标识符映射回**真实原名**。名字来源：\`__export()\` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 \`maps/published_${BUNDLE}.json\` 记录；标注 *historical export* 的名字是上游在旧版本 \`__export\` 块里的拼写，经版本配对追到本版本，由 \`maps/historical_${BUNDLE}.json\` 记录）。“原行号”指反混淆后的 \`${BUNDLE}.pretty.js\`。${history ? "“首见版本”是 npm 上最早含有该声明的发行版（\`maps/history_daemon.json\`，由 \`tools/history.sh\` 逐版本配对得出）。" : ""}\n\n`;
 md += `共 ${total} 个一等公民符号，覆盖 ${subs.length} 个子系统。基于 \`@openduo/duoduo\` ${PKG_VERSION}。\n`;
 for (const sub of subs) {
   const rows = groups.get(sub).sort((a, b) => (a.line === "—" ? 1e9 : a.line) - (b.line === "—" ? 1e9 : b.line));

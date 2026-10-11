@@ -12,5 +12,6 @@
   "r8": "readDaemonTokenFromEnvFile",
   "cZe": "runChannelCommand",
   "BA": "resolveHostEnvFilePath",
-  "TB": "CLI_DAEMON_TOKEN_ENV_KEY"
+  "TB": "CLI_DAEMON_TOKEN_ENV_KEY",
+  "a0": "createStdioDaemonClient"
 }

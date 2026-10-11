@@ -1,8 +1,8 @@
 # duoduo 首字符还原：符号名映射表（cli）
 
-下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 `maps/published_cli.json` 记录）。“原行号”指反混淆后的 `cli.pretty.js`。
+下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 `maps/published_cli.json` 记录；标注 *historical export* 的名字是上游在旧版本 `__export` 块里的拼写，经版本配对追到本版本，由 `maps/historical_cli.json` 记录）。“原行号”指反混淆后的 `cli.pretty.js`。
 
-共 60 个一等公民符号，覆盖 1 个子系统。基于 `@openduo/duoduo` v0.8.4。
+共 61 个一等公民符号，覆盖 1 个子系统。基于 `@openduo/duoduo` v0.8.4。
 
 ## all
 
@@ -49,6 +49,7 @@
 | `OJ` | `createDaemonToken` | inferred | 68243 |
 | `pk` | `restartDaemonWithReason` | inferred | 68254 |
 | `BJ` | `notifyRestartWakeTargets` | inferred | 68294 |
+| `a0` | `createStdioDaemonClient` | inferred | 72927 |
 | `zXe` | `isInstallTargetFilePath` | __export | 74651 |
 | `KXe` | `parseRootCli` | __export | 74655 |
 | `FEe` | `defaultExistingDaemonChoice` | __export | 74703 |

@@ -10,8 +10,8 @@ async function initializeRuntime(e, t = process.env) {
     let n = [e.runtimeDir, e.varDir, e.runDir, e.eventsDir, e.eventsIndexDir, e.registryDir, e.outboxDir, e.sessionsDir, e.jobsDir, e.varIngressDir, e.telemetryDir, e.usageDir, e.cadenceDir, e.runLocksDir, e.runQueueOffsetsDir, e.kernelDir, e.workDir];
     for (let i of n) await ensureDirectoryExists(i);
     await or.chmod(e.runDir, 448), await migrateLegacyJobSessionKeys(e), await copyBootstrapIntoKernel(e, t), await refreshBootstrapDuoduoMdFiles(e), await ensureDirectoryExists(e.memoryDir), await ensureDirectoryExists(e.memoryEntitiesDir), await ensureDirectoryExists(e.memoryTopicsDir), await ensureDirectoryExists(e.memoryFragmentsDir), await ensureDirectoryExists(e.memoryStateDir), await ensureDirectoryExists(e.subconsciousDir), await ensureDirectoryExists(e.subconsciousVarDir), await ensureDirectoryExists(e.partitionStateDir), await ensureDirectoryExists(sr.join(e.kernelDir, ".claude")), await fU(e.subconsciousPlaylistPath, rmt), await fU(e.memoryBroadcastPath, imt), await retireListedPartitions(e), await ensureKernelGitRepo(e.kernelDir), await generateAllPartitionCodexAgents(e);
-    let r = resolveRegistryStatusPath(e);
-    return await pathExistsAsync(r) || await writeRegistryStatusFile(e, buildInitialRegistryStatus(e)), {
+    let r = statusPath(e);
+    return await pathExistsAsync(r) || await writeStatus(e, buildInitialStatus(e)), {
         statusPath: r
     }
 }

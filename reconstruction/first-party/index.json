@@ -9,11 +9,11 @@
   },
   {
     "subsystem": "00-daemon-entry",
-    "symbol": "buildInitialRegistryStatus",
+    "symbol": "buildInitialStatus",
     "mangled": "wU",
     "origLine": 32984,
     "inferred": true,
-    "bytes": 694
+    "bytes": 686
   },
   {
     "subsystem": "00-daemon-entry",
@@ -45,7 +45,7 @@
     "mangled": "Svt",
     "origLine": 92035,
     "inferred": false,
-    "bytes": 49797
+    "bytes": 49785
   },
   {
     "subsystem": "00-daemon-entry",
@@ -137,11 +137,11 @@
   },
   {
     "subsystem": "00-daemon-entry",
-    "symbol": "readRegistryStatusFile",
+    "symbol": "readStatus",
     "mangled": "Mb",
     "origLine": 33014,
     "inferred": true,
-    "bytes": 197
+    "bytes": 170
   },
   {
     "subsystem": "00-daemon-entry",
@@ -177,14 +177,6 @@
   },
   {
     "subsystem": "00-daemon-entry",
-    "symbol": "resolveRegistryStatusPath",
-    "mangled": "KR",
-    "origLine": 32980,
-    "inferred": true,
-    "bytes": 91
-  },
-  {
-    "subsystem": "00-daemon-entry",
     "symbol": "resolveRuntimeWriterLockPath",
     "mangled": "cH",
     "origLine": 89212,
@@ -201,19 +193,27 @@
   },
   {
     "subsystem": "00-daemon-entry",
-    "symbol": "updateRegistryStatus",
-    "mangled": "Vu",
-    "origLine": 33022,
+    "symbol": "statusPath",
+    "mangled": "KR",
+    "origLine": 32980,
     "inferred": true,
-    "bytes": 242
+    "bytes": 76
   },
   {
     "subsystem": "00-daemon-entry",
-    "symbol": "writeRegistryStatusFile",
+    "symbol": "updateStatus",
+    "mangled": "Vu",
+    "origLine": 33022,
+    "inferred": true,
+    "bytes": 202
+  },
+  {
+    "subsystem": "00-daemon-entry",
+    "symbol": "writeStatus",
     "mangled": "SU",
     "origLine": 33011,
     "inferred": true,
-    "bytes": 111
+    "bytes": 84
   },
   {
     "subsystem": "01-spine-wal",
@@ -565,7 +565,7 @@
     "mangled": "yde",
     "origLine": 87568,
     "inferred": true,
-    "bytes": 5828
+    "bytes": 5820
   },
   {
     "subsystem": "02-gateway-rpc",
@@ -757,7 +757,7 @@
     "mangled": "Fet",
     "origLine": 87857,
     "inferred": true,
-    "bytes": 17268
+    "bytes": 17256
   },
   {
     "subsystem": "02-gateway-rpc",
@@ -1925,7 +1925,7 @@
     "mangled": "Pbt",
     "origLine": 86170,
     "inferred": false,
-    "bytes": 22024
+    "bytes": 21992
   },
   {
     "subsystem": "03-session-actor",
@@ -4853,7 +4853,7 @@
     "mangled": "Cbt",
     "origLine": 86816,
     "inferred": false,
-    "bytes": 925
+    "bytes": 917
   },
   {
     "subsystem": "08-cadence-subconscious",
@@ -6037,7 +6037,7 @@
     "mangled": "lmt",
     "origLine": 69834,
     "inferred": false,
-    "bytes": 1380
+    "bytes": 1345
   },
   {
     "subsystem": "10-runtime-host",

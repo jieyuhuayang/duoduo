@@ -1,7 +1,7 @@
 {
   "bundle": "daemon",
   "version": "v0.8.4",
-  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
+  "source": "/home/linewalker/Projects/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/daemon.pretty.js",
   "symbolCount": 840,
   "notTopLevel": [],
   "symbols": {
@@ -1605,7 +1605,7 @@
       "bytes": 58,
       "signature": "691d8c7164a6e25751d5"
     },
-    "resolveRegistryStatusPath": {
+    "statusPath": {
       "mangled": "KR",
       "line": 32980,
       "endLine": 32982,
@@ -1613,7 +1613,7 @@
       "bytes": 68,
       "signature": "cd017cb84dc6963e3275"
     },
-    "updateRegistryStatus": {
+    "updateStatus": {
       "mangled": "Vu",
       "line": 33022,
       "endLine": 33026,
@@ -5589,7 +5589,7 @@
       "bytes": 507,
       "signature": "10192b09d82862df3956"
     },
-    "readRegistryStatusFile": {
+    "readStatus": {
       "mangled": "Mb",
       "line": 33014,
       "endLine": 33021,
@@ -5749,7 +5749,7 @@
       "bytes": 64,
       "signature": "74b46c4f3bc6906ae406"
     },
-    "buildInitialRegistryStatus": {
+    "buildInitialStatus": {
       "mangled": "wU",
       "line": 32984,
       "endLine": 33010,
@@ -5757,7 +5757,7 @@
       "bytes": 670,
       "signature": "016d71cd940ab0b23307"
     },
-    "writeRegistryStatusFile": {
+    "writeStatus": {
       "mangled": "SU",
       "line": 33011,
       "endLine": 33013,
