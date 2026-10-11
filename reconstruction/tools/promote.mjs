@@ -19,7 +19,8 @@
 // is also where "proven" is enforced. It refuses -- before writing anything --
 // unless the fresh pipeline_report.json says every proof passed:
 //   per bundle   lossless, beautifyEquivalent, syntax, astEquivalent, and
-//                inferredNames wherever maps/inferred_<b>.json exists
+//                inferredNames wherever maps/inferred_<b>.json exists, and
+//                localNames wherever maps/locals_<b>.json exists
 //   whole run    firstPartyTree, citations, lineAnchors, anchorCheckers,
 //                anchorTargetMatches
 // each exactly `pass`; plus a release version and a shipped-bundle hash per
@@ -81,6 +82,7 @@ function unpromotable(report) {
   for (const b of BUNDLES) {
     for (const g of PER_BUNDLE) need.push(`${b}.${g}`);
     if (fs.existsSync(`${ROOT}/maps/inferred_${b}.json`)) need.push(`${b}.inferredNames`);
+    if (fs.existsSync(`${ROOT}/maps/locals_${b}.json`)) need.push(`${b}.localNames`);
   }
   need.push(...WHOLE_RUN);
   const why = need.filter(g => v[g] !== "pass").map(g => `verdict ${g}=${v[g] ?? "(never ran)"}`);
@@ -128,6 +130,10 @@ if (MODE === "write") {
     if (why.some(w => w.includes("inferredNames=warn"))) {
       console.error("  inferredNames=warn: re-read the names verify_inferred.mjs warned about, then record the");
       console.error("  reviewed shapes (verify_inferred.mjs record ...) and re-run.");
+    }
+    if (why.some(w => w.includes("localNames=warn"))) {
+      console.error("  localNames=warn: entries of maps/locals_<bundle>.json no longer find their binding; name the");
+      console.error("  locals again (name_locals.mjs tasks, then record) or drop the entries (name_locals.mjs prune).");
     }
     console.error("  nothing was written.");
     process.exit(1);

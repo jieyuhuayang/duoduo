@@ -2,48 +2,49 @@
 // symbol: readOrSeedGapHandedDays  (minified: zdt, daemon.pretty.js:67824)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 8 renamed — 3 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): one distils raw experience into fragments
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function readOrSeedGapHandedDays(e, t, n) {
-    let r = zc.join(t, "memory", uSe);
+function readOrSeedGapHandedDays(memoryDir, varDir, dryRun) {
+    let handedPath = zc.join(varDir, "memory", uSe);
     try {
         return {
-            coverage: _S(au.readFileSync(r, "utf8")),
+            coverage: _S(au.readFileSync(handedPath, "utf8")),
             readFault: !1
         }
-    } catch (s) {
-        if (!lSe(s)) return recordUnreadableMemoryPath(s), {
+    } catch (err) {
+        if (!lSe(err)) return recordUnreadableMemoryPath(err), {
             coverage: new Map,
             readFault: !0
         }
     }
-    let i = listMemoryFragmentDates(e);
-    if (i.readFault) return {
+    let memoryFragmentDates = listMemoryFragmentDates(memoryDir);
+    if (memoryFragmentDates.readFault) return {
         coverage: new Map,
         readFault: !0
     };
-    let o = i.dates.length > 0 ? `${i.dates.join(`
+    let seedText = memoryFragmentDates.dates.length > 0 ? `${memoryFragmentDates.dates.join(`
 `)}
 ` : "";
-    if (n) return {
-        coverage: _S(o),
+    if (dryRun) return {
+        coverage: _S(seedText),
         readFault: !1
     };
-    au.mkdirSync(zc.dirname(r), {
+    au.mkdirSync(zc.dirname(handedPath), {
         recursive: !0
     });
     try {
-        return au.writeFileSync(r, o, {
+        return au.writeFileSync(handedPath, seedText, {
             encoding: "utf8",
             flag: "wx"
         }), {
-            coverage: _S(o),
+            coverage: _S(seedText),
             readFault: !1
         }
-    } catch (s) {
-        if (s?.code !== "EEXIST") throw s;
-        return Fdt(r)
+    } catch (err) {
+        if (err?.code !== "EEXIST") throw err;
+        return Fdt(handedPath)
     }
 }

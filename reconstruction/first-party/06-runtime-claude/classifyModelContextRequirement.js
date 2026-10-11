@@ -2,28 +2,29 @@
 // symbol: classifyModelContextRequirement  (minified: wW, daemon.pretty.js:69991)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 4 renamed — 3 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.0 (medium): A model served through a gateway can now declare its real context window, its own endpoint and credential, and tier aliases, so a session on that model is no longer capped by whatever window the runtime assumed.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function classifyModelContextRequirement({
-    model: e,
-    mergedCatalog: t,
-    hostMaxContextTokens: n
+    model,
+    mergedCatalog,
+    hostMaxContextTokens
 }) {
-    if (!e) return Xke(null, n);
-    if (e.startsWith(UU)) return {
+    if (!model) return Xke(null, hostMaxContextTokens);
+    if (model.startsWith(UU)) return {
         kind: "native-claude",
-        model: e,
+        model,
         requiredMaxContextTokens: void 0
     };
-    if (e.endsWith(Qm)) {
-        let r = vW(e);
-        return Object.hasOwn(t, r) ? buildProfiledExternalRequirement(e, t[r]) : {
+    if (model.endsWith(Qm)) {
+        let baseModel = vW(model);
+        return Object.hasOwn(mergedCatalog, baseModel) ? buildProfiledExternalRequirement(model, mergedCatalog[baseModel]) : {
             kind: "explicit-1m",
-            model: e,
+            model,
             requiredMaxContextTokens: void 0
         }
     }
-    return Object.hasOwn(t, e) ? buildProfiledExternalRequirement(e, t[e]) : Xke(e, n)
+    return Object.hasOwn(mergedCatalog, model) ? buildProfiledExternalRequirement(model, mergedCatalog[model]) : Xke(model, hostMaxContextTokens)
 }

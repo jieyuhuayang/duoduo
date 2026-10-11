@@ -2,14 +2,15 @@
 // symbol: listPendingInboxFiles  (minified: $b, daemon.pretty.js:32414)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function listPendingInboxFiles(e) {
+async function listPendingInboxFiles(inboxDir) {
     try {
-        return (await No.readdir(e)).filter(t => t.endsWith(".pending"))
-    } catch (t) {
-        if (t.code === "ENOENT") return [];
-        throw t
+        return (await No.readdir(inboxDir)).filter(fileName => fileName.endsWith(".pending"))
+    } catch (err) {
+        if (err.code === "ENOENT") return [];
+        throw err
     }
 }

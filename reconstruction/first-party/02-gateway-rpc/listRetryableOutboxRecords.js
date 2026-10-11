@@ -2,24 +2,25 @@
 // symbol: listRetryableOutboxRecords  (minified: Bce, daemon.pretty.js:36700)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
+// locals: 8 renamed — 2 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function listRetryableOutboxRecords(e, t = 5) {
-    let n = await qce(e),
-        r = [];
-    for (let i of n.values()) {
-        if (i.status === "failed" && i.attempts >= t || i.status !== "pending" && i.status !== "failed") continue;
-        let o = await readOutboxRecord(e, i.channel_kind, i.record_id);
-        if (o) {
-            if (o.status !== "pending" && o.status !== "failed") {
-                let s = resolveOutboxPendingQueuePath(e),
-                    a = uh.get(s);
-                a?.load && a.map.delete(i.record_id);
+async function listRetryableOutboxRecords(paths, maxAttempts = 5) {
+    let pendingQueue = await qce(paths),
+        records = [];
+    for (let queueEntry of pendingQueue.values()) {
+        if (queueEntry.status === "failed" && queueEntry.attempts >= maxAttempts || queueEntry.status !== "pending" && queueEntry.status !== "failed") continue;
+        let outboxRecord = await readOutboxRecord(paths, queueEntry.channel_kind, queueEntry.record_id);
+        if (outboxRecord) {
+            if (outboxRecord.status !== "pending" && outboxRecord.status !== "failed") {
+                let outboxPendingQueuePath = resolveOutboxPendingQueuePath(paths),
+                    queueCache = uh.get(outboxPendingQueuePath);
+                queueCache?.load && queueCache.map.delete(queueEntry.record_id);
                 continue
             }
-            o.status === "failed" && o.attempts >= t || r.push(o)
+            outboxRecord.status === "failed" && outboxRecord.attempts >= maxAttempts || records.push(outboxRecord)
         }
     }
-    return r
+    return records
 }

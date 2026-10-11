@@ -2,106 +2,107 @@
 // symbol: runActivationLint  (minified: bSe, daemon.pretty.js:68305)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 42 renamed — 6 from the code at the binding (rule), 36 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (high): On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function runActivationLint(e, t, n) {
-    let r = resolveMemoryDirs(t),
-        i = scanActivationWindowTouches(e, t, n),
-        o = i.dates,
-        s = [...ySe(t, r.entitiesDir, "entities"), ...ySe(t, r.topicsDir, "topics")],
-        a = new Map(s.map(k => [k.rel, k])),
-        u = new Map;
-    for (let [k, S] of i.touches) a.has(k) && u.set(k, S);
-    let l = o.length > 0 ? o[0] : null,
-        c = o.length > 0 ? o[o.length - 1] : null,
-        d = l === null ? null : Date.parse(`${l}T00:00:00.000Z`),
-        f = 0;
-    if (d !== null)
-        for (let k of s) u.has(k.rel) || k.birthtimeMs > 0 && k.birthtimeMs < d && (f += 1);
-    let p = readMemoryFileSyncOrNull(r.boardPath),
-        m = p === null ? new Set : walkReachableMemory(p, createMemorySlugReader(r)),
-        h = [];
-    if (p !== null) {
-        for (let [k, S] of u) {
-            let D = uu.basename(k, ".md");
-            m.has(D) || h.push({
-                rel: k,
-                touches: S
+function runActivationLint(eventsDir, memoryDir, nowMs) {
+    let memoryDirs = resolveMemoryDirs(memoryDir),
+        scan = scanActivationWindowTouches(eventsDir, memoryDir, nowMs),
+        dates = scan.dates,
+        inventory = [...ySe(memoryDir, memoryDirs.entitiesDir, "entities"), ...ySe(memoryDir, memoryDirs.topicsDir, "topics")],
+        map = new Map(inventory.map(file => [file.rel, file])),
+        map2 = new Map;
+    for (let [rel, count] of scan.touches) map.has(rel) && map2.set(rel, count);
+    let windowStart = dates.length > 0 ? dates[0] : null,
+        windowEnd = dates.length > 0 ? dates[dates.length - 1] : null,
+        windowStartMs = windowStart === null ? null : Date.parse(`${windowStart}T00:00:00.000Z`),
+        coldCount = 0;
+    if (windowStartMs !== null)
+        for (let inventoryFile of inventory) map2.has(inventoryFile.rel) || inventoryFile.birthtimeMs > 0 && inventoryFile.birthtimeMs < windowStartMs && (coldCount += 1);
+    let memoryFile = readMemoryFileSyncOrNull(memoryDirs.boardPath),
+        reachable = memoryFile === null ? new Set : walkReachableMemory(memoryFile, createMemorySlugReader(memoryDirs)),
+        hotOrphans = [];
+    if (memoryFile !== null) {
+        for (let [rel, touches] of map2) {
+            let slug = uu.basename(rel, ".md");
+            reachable.has(slug) || hotOrphans.push({
+                rel,
+                touches
             })
         }
-        h.sort((k, S) => k.touches !== S.touches ? S.touches - k.touches : compareStringsAscending(k.rel, S.rel))
+        hotOrphans.sort((a, b) => a.touches !== b.touches ? b.touches - a.touches : compareStringsAscending(a.rel, b.rel))
     }
-    let g = h.slice(0, _Se),
-        y = readMemoryMaxLinesLimit(),
-        v = [];
-    if (p !== null) {
-        let k = splitLinesDropTrailingEmpty(p);
-        for (let S = 0; S < k.length; S += 1)
-            for (let D of scanWikiLinkOccurrences(k[S])) {
-                let A = [];
-                for (let $ of ["entities", "topics"]) {
-                    let C = `${$}/${D.slug}.md`;
-                    a.has(C) && A.push({
-                        rel: C,
-                        touches: u.get(C) ?? 0
+    let topHotOrphans = hotOrphans.slice(0, _Se),
+        memoryMaxLinesLimit = readMemoryMaxLinesLimit(),
+        allTemperatureRows = [];
+    if (memoryFile !== null) {
+        let boardLines = splitLinesDropTrailingEmpty(memoryFile);
+        for (let i = 0; i < boardLines.length; i += 1)
+            for (let occurrence of scanWikiLinkOccurrences(boardLines[i])) {
+                let twins = [];
+                for (let tree of ["entities", "topics"]) {
+                    let twinRel = `${tree}/${occurrence.slug}.md`;
+                    map.has(twinRel) && twins.push({
+                        rel: twinRel,
+                        touches: map2.get(twinRel) ?? 0
                     })
                 }
-                v.push({
-                    line: S + 1,
-                    slug: D.slug,
-                    touches: A.length === 0 ? null : A.reduce(($, C) => $ + C.touches, 0),
-                    twins: A
+                allTemperatureRows.push({
+                    line: i + 1,
+                    slug: occurrence.slug,
+                    touches: twins.length === 0 ? null : twins.reduce((sum, twin) => sum + twin.touches, 0),
+                    twins
                 })
             }
     }
-    let b = v.slice(0, y),
-        _ = v.length - b.length,
-        E = 0;
-    for (let k of u.values()) E += k;
-    let R = {
+    let temperature = allTemperatureRows.slice(0, memoryMaxLinesLimit),
+        truncatedCount = allTemperatureRows.length - temperature.length,
+        memoryTouches = 0;
+    for (let count of map2.values()) memoryTouches += count;
+    let metrics = {
             windowDays: LH,
-            windowStart: l,
-            windowEnd: c,
-            partitionFiles: o.length,
-            interactionDays: i.interactionDays,
-            foregroundToolEvents: i.foregroundToolEvents,
-            memoryTouches: E,
-            filesTouched: u.size,
-            inventory: s.length,
-            foregroundWrites: i.foregroundWrites,
-            coldCount: f,
-            hotOrphanCount: h.length,
-            expansionRate: jH(E, i.foregroundToolEvents),
-            liveRatio: jH(u.size, s.length),
-            wiringIncompleteness: jH(h.length, u.size)
+            windowStart,
+            windowEnd,
+            partitionFiles: dates.length,
+            interactionDays: scan.interactionDays,
+            foregroundToolEvents: scan.foregroundToolEvents,
+            memoryTouches,
+            filesTouched: map2.size,
+            inventory: inventory.length,
+            foregroundWrites: scan.foregroundWrites,
+            coldCount,
+            hotOrphanCount: hotOrphans.length,
+            expansionRate: jH(memoryTouches, scan.foregroundToolEvents),
+            liveRatio: jH(map2.size, inventory.length),
+            wiringIncompleteness: jH(hotOrphans.length, map2.size)
         },
-        P = {
+        touchWindow = {
             windowDays: LH,
-            windowStart: l,
-            windowEnd: c,
-            interactionDays: i.interactionDays,
-            touches: u
+            windowStart,
+            windowEnd,
+            interactionDays: scan.interactionDays,
+            touches: map2
         };
-    return p === null ? {
+    return memoryFile === null ? {
         selected: [],
-        metrics: R,
-        touchWindow: P,
-        hotOrphans: g,
-        temperature: b,
-        temperatureTruncated: _
+        metrics,
+        touchWindow,
+        hotOrphans: topHotOrphans,
+        temperature,
+        temperatureTruncated: truncatedCount
     } : {
         selected: [{
             kind: Vn.ACTIVATION_REPORT,
             partition: nft,
             pendingFilename: "activation-report.md.pending",
-            pendingBody: renderActivationReportBody(R, b, _, g)
+            pendingBody: renderActivationReportBody(metrics, temperature, truncatedCount, topHotOrphans)
         }],
-        metrics: R,
-        touchWindow: P,
-        hotOrphans: g,
-        temperature: b,
-        temperatureTruncated: _
+        metrics,
+        touchWindow,
+        hotOrphans: topHotOrphans,
+        temperature,
+        temperatureTruncated: truncatedCount
     }
 }

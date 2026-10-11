@@ -2,37 +2,38 @@
 // symbol: appendConfigChangedEvent  (minified: ky, daemon.pretty.js:91842)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.7.0 (maps/history_daemon.json)
+// locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.10 (medium): enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function appendConfigChangedEvent(e, t) {
+async function appendConfigChangedEvent(paths, change) {
     try {
-        let n = createSpineEvent({
+        let spineEvent = createSpineEvent({
             type: "config.changed",
             source: {
                 kind: "rpc",
                 name: "session.config"
             },
-            ...t.scope === "instance" ? {
-                session_key: t.sessionKey
+            ...change.scope === "instance" ? {
+                session_key: change.sessionKey
             } : {},
-            payload: t.scope === "instance" ? {
+            payload: change.scope === "instance" ? {
                 scope: "instance",
-                session_key: t.sessionKey,
-                channel_id: t.channelId,
-                changed: t.changed
-            } : t.scope === "kind" ? {
+                session_key: change.sessionKey,
+                channel_id: change.channelId,
+                changed: change.changed
+            } : change.scope === "kind" ? {
                 scope: "kind",
-                kind: t.kind,
-                changed: t.changed
+                kind: change.kind,
+                changed: change.changed
             } : {
                 scope: "global",
                 file: `${Yr}.md`,
-                changed: t.changed
+                changed: change.changed
             }
         });
-        return await atomicAppendEvent(e, n), n.id
+        return await atomicAppendEvent(paths, spineEvent), spineEvent.id
     } catch {
         return
     }

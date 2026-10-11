@@ -2,41 +2,42 @@
 // symbol: createMapBackedSessionIndex  (minified: ede, daemon.pretty.js:36885)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (medium): `SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createMapBackedSessionIndex(e) {
+function createMapBackedSessionIndex(entriesByKey) {
     return {
-        get(t) {
-            return e.get(t)
+        get(sessionKey) {
+            return entriesByKey.get(sessionKey)
         },
         list() {
-            return Array.from(e.values())
+            return Array.from(entriesByKey.values())
         },
-        listByKind(t) {
-            let n = [];
-            for (let r of e.values()) classifySessionKeyKind(r.session_key) === t && n.push(r);
-            return n
+        listByKind(kind) {
+            let result = [];
+            for (let entry of entriesByKey.values()) classifySessionKeyKind(entry.session_key) === kind && result.push(entry);
+            return result
         },
         listUserVisible() {
-            let t = [];
-            for (let n of e.values()) isUserVisibleSessionKey(n.session_key) && t.push(n);
-            return t
+            let result = [];
+            for (let entry of entriesByKey.values()) isUserVisibleSessionKey(entry.session_key) && result.push(entry);
+            return result
         },
-        upsert(t) {
-            let r = {
-                ...e.get(t.session_key),
-                ...Eet(t),
-                session_key: t.session_key
+        upsert(entry) {
+            let merged = {
+                ...entriesByKey.get(entry.session_key),
+                ...Eet(entry),
+                session_key: entry.session_key
             };
-            e.set(t.session_key, r)
+            entriesByKey.set(entry.session_key, merged)
         },
-        remove(t) {
-            e.delete(t)
+        remove(sessionKey) {
+            entriesByKey.delete(sessionKey)
         },
         size() {
-            return e.size
+            return entriesByKey.size
         }
     }
 }

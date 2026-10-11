@@ -2,40 +2,41 @@
 // symbol: rehydrateSessionState  (minified: Tae, daemon.pretty.js:32443)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 12 renamed — 4 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.0 (high): feat(session): reader fallback chain and session_key backfill (3fd1b1e)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function rehydrateSessionState(e) {
-    let t = [],
-        n;
+async function rehydrateSessionState(paths) {
+    let sessionKeys = [],
+        entries;
     try {
-        n = await No.readdir(e.sessionsDir)
+        entries = await No.readdir(paths.sessionsDir)
     } catch {
-        return t
+        return sessionKeys
     }
-    for (let r of n) {
-        let i = Gr.join(e.sessionsDir, r);
-        if (!(!(await No.stat(i).catch(() => null))?.isDirectory() || !await iYe(i))) {
+    for (let sessionHash of entries) {
+        let sessionDir = Gr.join(paths.sessionsDir, sessionHash);
+        if (!(!(await No.stat(sessionDir).catch(() => null))?.isDirectory() || !await iYe(sessionDir))) {
             try {
-                let a = await No.readFile(Gr.join(i, "state.json"), "utf8"),
-                    u = JSON.parse(a);
-                if (u.session_key) {
-                    t.push(u.session_key);
+                let content = await No.readFile(Gr.join(sessionDir, "state.json"), "utf8"),
+                    parsed = JSON.parse(content);
+                if (parsed.session_key) {
+                    sessionKeys.push(parsed.session_key);
                     continue
                 }
             } catch {}
             try {
-                let a = await No.readdir(e.registrySessionsDir);
-                for (let u of a)
-                    if (!(!u.endsWith(".json") || u.startsWith(".") || u === "sessions.snapshot.json")) try {
-                        let l = decodeURIComponent(u.slice(0, -5));
-                        if (hashSessionKey(l) === r) {
-                            t.push(l);
-                            let c = Gr.join(i, "state.json");
+                let dirEntries = await No.readdir(paths.registrySessionsDir);
+                for (let registryFile of dirEntries)
+                    if (!(!registryFile.endsWith(".json") || registryFile.startsWith(".") || registryFile === "sessions.snapshot.json")) try {
+                        let sessionKey = decodeURIComponent(registryFile.slice(0, -5));
+                        if (hashSessionKey(sessionKey) === sessionHash) {
+                            sessionKeys.push(sessionKey);
+                            let statePath = Gr.join(sessionDir, "state.json");
                             try {
-                                let d = JSON.parse(await No.readFile(c, "utf8"));
-                                d.session_key = l, await No.writeFile(c, JSON.stringify(d, null, 2) + `
+                                let parsed = JSON.parse(await No.readFile(statePath, "utf8"));
+                                parsed.session_key = sessionKey, await No.writeFile(statePath, JSON.stringify(parsed, null, 2) + `
 `)
                             } catch {}
                             break
@@ -44,5 +45,5 @@ async function rehydrateSessionState(e) {
             } catch {}
         }
     }
-    return t
+    return sessionKeys
 }

@@ -2,25 +2,26 @@
 // symbol: attachStreamLineReader  (minified: Xl, daemon.pretty.js:31880)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 9 renamed — 0 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): pi joins Claude, Codex and Grok as a fourth agent runtime.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function attachStreamLineReader(e, t, n) {
-    let r = gae(t),
-        i = !1,
-        o = u => {
-            r.write(u)
+function attachStreamLineReader(stream, onLine, options) {
+    let lineBuffer = gae(onLine),
+        closed = !1,
+        onData = chunk => {
+            lineBuffer.write(chunk)
         },
-        s = () => {
-            i || (i = !0, r.flush(), a(), n?.onEof?.())
+        onEnd = () => {
+            closed || (closed = !0, lineBuffer.flush(), detach(), options?.onEof?.())
         },
-        a = () => {
-            e.off("data", o), e.off("end", s), e.off("close", s)
+        detach = () => {
+            stream.off("data", onData), stream.off("end", onEnd), stream.off("close", onEnd)
         };
-    return e.on("data", o), e.on("end", s), e.on("close", s), {
+    return stream.on("data", onData), stream.on("end", onEnd), stream.on("close", onEnd), {
         close() {
-            i || (i = !0, a())
+            closed || (closed = !0, detach())
         }
     }
 }

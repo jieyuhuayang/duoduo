@@ -2,101 +2,102 @@
 // symbol: mapItemStartedToExecEvent  (minified: gbe, daemon.pretty.js:62854)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.8.1 (maps/history_daemon.json)
+// locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function mapItemStartedToExecEvent(e) {
-    let t = e.type,
-        n = e.id;
-    switch (t) {
+function mapItemStartedToExecEvent(item) {
+    let type = item.type,
+        id = item.id;
+    switch (type) {
         case "commandExecution":
             return {
-                type: "tool_use", toolUseId: n, toolName: "Bash", input: {
-                    command: e.command
+                type: "tool_use", toolUseId: id, toolName: "Bash", input: {
+                    command: item.command
                 }
             };
         case "fileChange":
             return {
-                type: "tool_use", toolUseId: n, toolName: "Write", input: {
-                    files: e.changes?.map(r => r.path)
+                type: "tool_use", toolUseId: id, toolName: "Write", input: {
+                    files: item.changes?.map(change => change.path)
                 }
             };
         case "mcpToolCall":
             return {
-                type: "tool_use", toolUseId: n, toolName: `mcp__${e.server}__${e.tool}`, input: {}
+                type: "tool_use", toolUseId: id, toolName: `mcp__${item.server}__${item.tool}`, input: {}
             };
         case "dynamicToolCall":
             return {
-                type: "tool_use", toolUseId: n, toolName: e.tool ?? "unknown", input: {}
+                type: "tool_use", toolUseId: id, toolName: item.tool ?? "unknown", input: {}
             };
         case "webSearch":
             return {
-                type: "tool_use", toolUseId: n, toolName: "WebSearch", input: {
-                    query: e.query,
-                    action: e.action ?? null
+                type: "tool_use", toolUseId: id, toolName: "WebSearch", input: {
+                    query: item.query,
+                    action: item.action ?? null
                 }
             };
         case "plan":
             return {
-                type: "tool_use", toolUseId: n, toolName: "Plan", input: {
-                    text: e.text
+                type: "tool_use", toolUseId: id, toolName: "Plan", input: {
+                    text: item.text
                 }
             };
         case "collabAgentToolCall": {
-            let r = typeof e.tool == "string" ? e.tool : "unknown";
+            let toolName = typeof item.tool == "string" ? item.tool : "unknown";
             return {
                 type: "tool_use",
-                toolUseId: n,
-                toolName: `CollabAgent${capitalizeFirstChar(r)}`,
+                toolUseId: id,
+                toolName: `CollabAgent${capitalizeFirstChar(toolName)}`,
                 input: {
-                    tool: r,
-                    receiverThreadIds: e.receiverThreadIds,
-                    prompt: e.prompt,
-                    model: e.model,
-                    reasoningEffort: e.reasoningEffort
+                    tool: toolName,
+                    receiverThreadIds: item.receiverThreadIds,
+                    prompt: item.prompt,
+                    model: item.model,
+                    reasoningEffort: item.reasoningEffort
                 }
             }
         }
         case "imageView":
             return {
-                type: "tool_use", toolUseId: n, toolName: "ImageView", input: {
-                    path: e.path
+                type: "tool_use", toolUseId: id, toolName: "ImageView", input: {
+                    path: item.path
                 }
             };
         case "sleep":
             return {
-                type: "tool_use", toolUseId: n, toolName: "Sleep", input: {
-                    durationMs: e.durationMs
+                type: "tool_use", toolUseId: id, toolName: "Sleep", input: {
+                    durationMs: item.durationMs
                 }
             };
         case "subAgentActivity":
             return {
                 type: "system", subtype: "codex_subagent_activity", data: {
-                    kind: e.kind,
-                    agentThreadId: e.agentThreadId,
-                    agentPath: e.agentPath
+                    kind: item.kind,
+                    agentThreadId: item.agentThreadId,
+                    agentPath: item.agentPath
                 }
             };
         case "enteredReviewMode":
             return {
                 type: "system", subtype: "codex_review_mode", data: {
                     phase: "entered",
-                    review: e.review
+                    review: item.review
                 }
             };
         case "exitedReviewMode":
             return {
                 type: "system", subtype: "codex_review_mode", data: {
                     phase: "exited",
-                    review: e.review
+                    review: item.review
                 }
             };
         case "agentMessage":
-            return e.phase === "commentary" ? {
+            return item.phase === "commentary" ? {
                 type: "system",
                 subtype: "codex_commentary",
                 data: {
-                    text: e.text
+                    text: item.text
                 }
             } : null;
         case "reasoning":
@@ -112,6 +113,6 @@ function mapItemStartedToExecEvent(e) {
         case "functionCallOutput":
             return null;
         default:
-            return warnUnmappedCodexItemOnce("started", t), null
+            return warnUnmappedCodexItemOnce("started", type), null
     }
 }

@@ -2,155 +2,156 @@
 // symbol: runInstructionsFingerprintGuard  (minified: xN, daemon.pretty.js:82704)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.5 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.1, v0.5.2, v0.5.10, v0.7.1, v0.8.0, v0.8.3 (maps/history_daemon.json)
+// locals: 14 renamed — 4 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.5 (high): **Runtime-aware mission fingerprint guard**: when a job's mission file is edited (per the "everything is a file" design), the change takes effect on the next drain. On the Claude runtime, conversation history is fully preserved (zero cost). On the Codex runtime, the thread is rebuilt
 // changelog v0.5.1 (high): Instructions fingerprint guard generalized to full surface (schema v1 → v2)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function runInstructionsFingerprintGuard(e, t, n, r, i, o) {
-    let s = computeInstructionsFingerprint(n),
-        a = i.instructions_fingerprint ?? i.mission_fingerprint,
-        u = i.schema_version ?? 0,
-        l = o?.jobId,
-        c = computeBoardLayerHash(n.memoryBoard),
-        d = computeNonBoardInstructionsFingerprint(n),
-        f = i.board_layer_hash !== void 0 && i.instructions_nonboard_fingerprint !== void 0 && i.board_layer_hash !== c && i.instructions_nonboard_fingerprint === d;
-    if (u < SESSION_SCHEMA_VERSION) return await patchSessionRuntimeState(e, t, {
+async function runInstructionsFingerprintGuard(paths, sessionKey, instructions, runtime, sessionState, context) {
+    let instructionsFingerprint = computeInstructionsFingerprint(instructions),
+        previousFingerprint = sessionState.instructions_fingerprint ?? sessionState.mission_fingerprint,
+        schemaVersion = sessionState.schema_version ?? 0,
+        jobId = context?.jobId,
+        boardLayerHash = computeBoardLayerHash(instructions.memoryBoard),
+        nonBoardInstructionsFingerprint = computeNonBoardInstructionsFingerprint(instructions),
+        boardOnlyDrift = sessionState.board_layer_hash !== void 0 && sessionState.instructions_nonboard_fingerprint !== void 0 && sessionState.board_layer_hash !== boardLayerHash && sessionState.instructions_nonboard_fingerprint === nonBoardInstructionsFingerprint;
+    if (schemaVersion < SESSION_SCHEMA_VERSION) return await patchSessionRuntimeState(paths, sessionKey, {
         sdk_session_id: null,
         sdk_session_runtime: null,
         pending_fork_to: null,
-        instructions_fingerprint: s,
+        instructions_fingerprint: instructionsFingerprint,
         mission_fingerprint: null,
         schema_version: SESSION_SCHEMA_VERSION,
-        board_layer_hash: c,
-        instructions_nonboard_fingerprint: d
-    }), logInfoMessage(`[session-upgrade] v${u} → v${SESSION_SCHEMA_VERSION} rebuild`, {
-        sessionKey: t,
-        jobId: l,
-        runtime: r,
-        fp_new: s
+        board_layer_hash: boardLayerHash,
+        instructions_nonboard_fingerprint: nonBoardInstructionsFingerprint
+    }), logInfoMessage(`[session-upgrade] v${schemaVersion} → v${SESSION_SCHEMA_VERSION} rebuild`, {
+        sessionKey,
+        jobId,
+        runtime,
+        fp_new: instructionsFingerprint
     }), {
         gate1Fired: !0,
         gate2Fired: !1,
-        fpNew: s,
-        fpOld: a,
+        fpNew: instructionsFingerprint,
+        fpOld: previousFingerprint,
         clearedSdkSessionId: !0,
         requestedFork: !1,
         boardOnlyDrift: !1,
-        boardLayerHash: c,
-        nonBoardFingerprint: d
+        boardLayerHash,
+        nonBoardFingerprint: nonBoardInstructionsFingerprint
     };
-    if (a !== s) {
-        if (r === "codex") {
-            if (f && classifySessionKeyOrUnknown(t) === "channel") return await patchSessionRuntimeState(e, t, {
-                instructions_fingerprint: s,
-                board_layer_hash: c,
-                instructions_nonboard_fingerprint: d
+    if (previousFingerprint !== instructionsFingerprint) {
+        if (runtime === "codex") {
+            if (boardOnlyDrift && classifySessionKeyOrUnknown(sessionKey) === "channel") return await patchSessionRuntimeState(paths, sessionKey, {
+                instructions_fingerprint: instructionsFingerprint,
+                board_layer_hash: boardLayerHash,
+                instructions_nonboard_fingerprint: nonBoardInstructionsFingerprint
             }), logInfoMessage("[instructions-fingerprint] codex board-only drift — fork skipped", {
-                sessionKey: t,
-                jobId: l,
-                fp_old: a ?? null,
-                fp_new: s,
+                sessionKey,
+                jobId,
+                fp_old: previousFingerprint ?? null,
+                fp_new: instructionsFingerprint,
                 runtime: "codex",
                 cleared_sdk_session_id: !1,
                 board_only_drift: !0
             }), {
                 gate1Fired: !1,
                 gate2Fired: !0,
-                fpNew: s,
-                fpOld: a,
+                fpNew: instructionsFingerprint,
+                fpOld: previousFingerprint,
                 clearedSdkSessionId: !1,
                 requestedFork: !1,
-                boardOnlyDrift: f,
-                boardLayerHash: c,
-                nonBoardFingerprint: d
+                boardOnlyDrift,
+                boardLayerHash,
+                nonBoardFingerprint: nonBoardInstructionsFingerprint
             };
-            let m = i.sdk_session_id;
-            return m ? (await patchSessionRuntimeState(e, t, {
-                pending_fork_to: m,
-                instructions_fingerprint: s,
-                board_layer_hash: c,
-                instructions_nonboard_fingerprint: d
+            let sdkSessionId = sessionState.sdk_session_id;
+            return sdkSessionId ? (await patchSessionRuntimeState(paths, sessionKey, {
+                pending_fork_to: sdkSessionId,
+                instructions_fingerprint: instructionsFingerprint,
+                board_layer_hash: boardLayerHash,
+                instructions_nonboard_fingerprint: nonBoardInstructionsFingerprint
             }), logInfoMessage("[instructions-fingerprint] codex thread fork", {
-                sessionKey: t,
-                jobId: l,
-                fp_old: a ?? null,
-                fp_new: s,
+                sessionKey,
+                jobId,
+                fp_old: previousFingerprint ?? null,
+                fp_new: instructionsFingerprint,
                 runtime: "codex",
-                parent_thread_id: m,
+                parent_thread_id: sdkSessionId,
                 cleared_sdk_session_id: !1
             }), {
                 gate1Fired: !1,
                 gate2Fired: !0,
-                fpNew: s,
-                fpOld: a,
+                fpNew: instructionsFingerprint,
+                fpOld: previousFingerprint,
                 clearedSdkSessionId: !1,
                 requestedFork: !0,
-                boardOnlyDrift: f,
-                boardLayerHash: c,
-                nonBoardFingerprint: d
-            }) : (await patchSessionRuntimeState(e, t, {
+                boardOnlyDrift,
+                boardLayerHash,
+                nonBoardFingerprint: nonBoardInstructionsFingerprint
+            }) : (await patchSessionRuntimeState(paths, sessionKey, {
                 sdk_session_id: null,
                 sdk_session_runtime: null,
                 pending_fork_to: null,
-                instructions_fingerprint: s,
-                board_layer_hash: c,
-                instructions_nonboard_fingerprint: d
+                instructions_fingerprint: instructionsFingerprint,
+                board_layer_hash: boardLayerHash,
+                instructions_nonboard_fingerprint: nonBoardInstructionsFingerprint
             }), logInfoMessage("[instructions-fingerprint] codex thread reset (no parent to fork)", {
-                sessionKey: t,
-                jobId: l,
-                fp_old: a ?? null,
-                fp_new: s,
+                sessionKey,
+                jobId,
+                fp_old: previousFingerprint ?? null,
+                fp_new: instructionsFingerprint,
                 runtime: "codex",
                 cleared_sdk_session_id: !0
             }), {
                 gate1Fired: !1,
                 gate2Fired: !0,
-                fpNew: s,
-                fpOld: a,
+                fpNew: instructionsFingerprint,
+                fpOld: previousFingerprint,
                 clearedSdkSessionId: !0,
                 requestedFork: !1,
-                boardOnlyDrift: f,
-                boardLayerHash: c,
-                nonBoardFingerprint: d
+                boardOnlyDrift,
+                boardLayerHash,
+                nonBoardFingerprint: nonBoardInstructionsFingerprint
             })
         }
-        return await patchSessionRuntimeState(e, t, {
-            instructions_fingerprint: s,
-            board_layer_hash: c,
-            instructions_nonboard_fingerprint: d
-        }), logInfoMessage(`[instructions-fingerprint] ${r} instructions updated`, {
-            sessionKey: t,
-            jobId: l,
-            fp_old: a ?? null,
-            fp_new: s,
-            runtime: r,
+        return await patchSessionRuntimeState(paths, sessionKey, {
+            instructions_fingerprint: instructionsFingerprint,
+            board_layer_hash: boardLayerHash,
+            instructions_nonboard_fingerprint: nonBoardInstructionsFingerprint
+        }), logInfoMessage(`[instructions-fingerprint] ${runtime} instructions updated`, {
+            sessionKey,
+            jobId,
+            fp_old: previousFingerprint ?? null,
+            fp_new: instructionsFingerprint,
+            runtime,
             cleared_sdk_session_id: !1,
-            board_only_drift: f
+            board_only_drift: boardOnlyDrift
         }), {
             gate1Fired: !1,
             gate2Fired: !0,
-            fpNew: s,
-            fpOld: a,
+            fpNew: instructionsFingerprint,
+            fpOld: previousFingerprint,
             clearedSdkSessionId: !1,
             requestedFork: !1,
-            boardOnlyDrift: f,
-            boardLayerHash: c,
-            nonBoardFingerprint: d
+            boardOnlyDrift,
+            boardLayerHash,
+            nonBoardFingerprint: nonBoardInstructionsFingerprint
         }
     }
-    return (i.board_layer_hash === void 0 || i.instructions_nonboard_fingerprint === void 0) && await patchSessionRuntimeState(e, t, {
-        board_layer_hash: c,
-        instructions_nonboard_fingerprint: d
+    return (sessionState.board_layer_hash === void 0 || sessionState.instructions_nonboard_fingerprint === void 0) && await patchSessionRuntimeState(paths, sessionKey, {
+        board_layer_hash: boardLayerHash,
+        instructions_nonboard_fingerprint: nonBoardInstructionsFingerprint
     }), {
         gate1Fired: !1,
         gate2Fired: !1,
-        fpNew: s,
-        fpOld: a,
+        fpNew: instructionsFingerprint,
+        fpOld: previousFingerprint,
         clearedSdkSessionId: !1,
         requestedFork: !1,
         boardOnlyDrift: !1,
-        boardLayerHash: c,
-        nonBoardFingerprint: d
+        boardLayerHash,
+        nonBoardFingerprint: nonBoardInstructionsFingerprint
     }
 }

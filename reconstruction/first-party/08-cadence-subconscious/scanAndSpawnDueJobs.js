@@ -2,98 +2,99 @@
 // symbol: scanAndSpawnDueJobs  (minified: PG, daemon.pretty.js:86847)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.3.0, v0.4.5, v0.5.0, v0.5.6, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// locals: 19 renamed — 3 from the code at the binding (rule), 16 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (medium): Cadence scheduler skips due jobs whose session is being archived
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function scanAndSpawnDueJobs(e, t, n) {
-    let r = new Br(e);
-    await r.init();
-    let i = await r.listJobs(),
-        o = n?.now ?? new Date,
-        s = [],
-        a = await fireDueWakeRecords(e, r, o, n?.bus);
-    for (let u of i) {
-        let l = u.state.last_scheduled_at ?? u.state.last_run_at,
-            c = u.state.last_scheduled_at ? new Date(u.state.last_scheduled_at).getTime() : Number.NaN,
-            d = u.state.last_run_started_at ? new Date(u.state.last_run_started_at).getTime() : Number.NaN,
-            f = !Number.isFinite(d) || Number.isFinite(c) && d < c;
-        if (isOneShotJobSchedule(u.frontmatter.cron) && u.state.last_scheduled_at && f && (u.state.last_result === "unknown" || u.state.last_result === "failure") && (l = null), !isJobScheduleDue(u.frontmatter.cron, l, o, u.frontmatter.created_at, u.state.run_at ?? null)) continue;
-        if (u.state.last_result === "failure" && u.state.last_scheduled_at) {
-            let v = new Date(u.state.last_scheduled_at).getTime();
-            if (o.getTime() - v < 3e5) {
+async function scanAndSpawnDueJobs(paths, sessionManager, options) {
+    let jobManager = new Br(paths);
+    await jobManager.init();
+    let jobs = await jobManager.listJobs(),
+        now = options?.now ?? new Date,
+        spawned = [],
+        wakesFired = await fireDueWakeRecords(paths, jobManager, now, options?.bus);
+    for (let job of jobs) {
+        let lastRunAt = job.state.last_scheduled_at ?? job.state.last_run_at,
+            lastScheduledMs = job.state.last_scheduled_at ? new Date(job.state.last_scheduled_at).getTime() : Number.NaN,
+            lastRunStartedMs = job.state.last_run_started_at ? new Date(job.state.last_run_started_at).getTime() : Number.NaN,
+            claimNotStarted = !Number.isFinite(lastRunStartedMs) || Number.isFinite(lastScheduledMs) && lastRunStartedMs < lastScheduledMs;
+        if (isOneShotJobSchedule(job.frontmatter.cron) && job.state.last_scheduled_at && claimNotStarted && (job.state.last_result === "unknown" || job.state.last_result === "failure") && (lastRunAt = null), !isJobScheduleDue(job.frontmatter.cron, lastRunAt, now, job.frontmatter.created_at, job.state.run_at ?? null)) continue;
+        if (job.state.last_result === "failure" && job.state.last_scheduled_at) {
+            let failureScheduledMs = new Date(job.state.last_scheduled_at).getTime();
+            if (now.getTime() - failureScheduledMs < 3e5) {
                 logDebugMessage("[cadence] skip due job: failure backoff", {
-                    jobId: u.id,
-                    lastScheduledAt: u.state.last_scheduled_at,
+                    jobId: job.id,
+                    lastScheduledAt: job.state.last_scheduled_at,
                     backoffMs: 3e5
                 });
                 continue
             }
         }
-        let p = buildJobSessionKey({
-            jobId: u.id,
-            cron: u.frontmatter.cron,
-            cwdRel: u.frontmatter.cwd_rel
+        let jobSessionKey = buildJobSessionKey({
+            jobId: job.id,
+            cron: job.frontmatter.cron,
+            cwdRel: job.frontmatter.cwd_rel
         });
-        if (isSessionArchiving(p)) {
+        if (isSessionArchiving(jobSessionKey)) {
             logDebugMessage("[cadence] skip due job: session is being archived", {
-                jobId: u.id,
-                sessionKey: p
+                jobId: job.id,
+                sessionKey: jobSessionKey
             });
             continue
         }
-        let m = t.getActor(p);
-        if (m && m.status !== "ended") {
+        let actor = sessionManager.getActor(jobSessionKey);
+        if (actor && actor.status !== "ended") {
             logDebugMessage("[cadence] skip due job: already running", {
-                jobId: u.id,
-                sessionKey: p,
-                actorStatus: m.status
+                jobId: job.id,
+                sessionKey: jobSessionKey,
+                actorStatus: actor.status
             });
             continue
         }
         try {
-            await r.updateState(u.id, {
-                last_scheduled_at: o.toISOString()
+            await jobManager.updateState(job.id, {
+                last_scheduled_at: now.toISOString()
             })
-        } catch (y) {
+        } catch (err) {
             logWarnMessage("[cadence] skip due job: claim state write failed, retrying next scan", {
-                jobId: u.id,
-                error: y instanceof Error ? y.message : String(y)
+                jobId: job.id,
+                error: err instanceof Error ? err.message : String(err)
             });
             continue
         }
-        let h = createSpineEvent({
+        let spineEvent = createSpineEvent({
             type: "job.spawn",
             source: {
                 kind: "cadence",
                 name: "job-scanner"
             },
-            session_key: p,
+            session_key: jobSessionKey,
             payload: {
-                job_id: u.id,
-                cron: u.frontmatter.cron,
+                job_id: job.id,
+                cron: job.frontmatter.cron,
                 tick: {
-                    run_number: (u.state.run_count ?? 0) + 1,
-                    triggered_at: o.toISOString(),
-                    previous_run_at: u.state.last_run_at ?? null
+                    run_number: (job.state.run_count ?? 0) + 1,
+                    triggered_at: now.toISOString(),
+                    previous_run_at: job.state.last_run_at ?? null
                 }
             }
         });
-        await atomicAppendEvent(e, h);
-        let g = `- [ ] @evt(${h.id}) job:${u.id}`;
-        await enqueueSessionInboxLine(e, p, g), t.spawnJobSession(u.id, p), s.push(u.id), logInfoMessage("[cadence] spawned due job", {
-            jobId: u.id,
-            sessionKey: p,
-            cron: u.frontmatter.cron
+        await atomicAppendEvent(paths, spineEvent);
+        let inboxLine = `- [ ] @evt(${spineEvent.id}) job:${job.id}`;
+        await enqueueSessionInboxLine(paths, jobSessionKey, inboxLine), sessionManager.spawnJobSession(job.id, jobSessionKey), spawned.push(job.id), logInfoMessage("[cadence] spawned due job", {
+            jobId: job.id,
+            sessionKey: jobSessionKey,
+            cron: job.frontmatter.cron
         })
     }
     return logDebugMessage("[cadence] job scan complete", {
-        scanned: i.length,
-        spawned: s.length,
-        wakesFired: a.length
+        scanned: jobs.length,
+        spawned: spawned.length,
+        wakesFired: wakesFired.length
     }), {
-        scanned: i.length,
-        spawned: s,
-        wakesFired: a
+        scanned: jobs.length,
+        spawned,
+        wakesFired
     }
 }

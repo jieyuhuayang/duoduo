@@ -2,62 +2,63 @@
 // symbol: createJobScheduler  (minified: Nbt, daemon.pretty.js:87008)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
+// locals: 14 renamed — 5 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createJobScheduler(e) {
+function createJobScheduler(options) {
     let {
-        paths: t,
-        sessionManager: n,
-        bus: r
-    } = e, i = e.intervalMs ?? Abt, o = null, s = !1, a = null, u = !1;
-    async function l() {
-        if (s || u) {
-            s && logDebugMessage("[job-scheduler] scan skipped: previous scan still running");
+        paths,
+        sessionManager,
+        bus
+    } = options, intervalMs = options.intervalMs ?? Abt, intervalTimer = null, scanning = !1, scanPromise = null, stopped = !1;
+    async function runScan() {
+        if (scanning || stopped) {
+            scanning && logDebugMessage("[job-scheduler] scan skipped: previous scan still running");
             return
         }
-        s = !0;
-        let d = Date.now();
+        scanning = !0;
+        let now = Date.now();
         try {
-            let f = await scanAndSpawnDueJobs(t, n, {
-                bus: r
+            let scanResult = await scanAndSpawnDueJobs(paths, sessionManager, {
+                bus
             });
             logDebugMessage("[job-scheduler] scan complete", {
-                scanned: f.scanned,
-                spawned: f.spawned.length,
-                spawnedIds: f.spawned,
-                wakesFired: f.wakesFired.length,
-                durationMs: Date.now() - d
+                scanned: scanResult.scanned,
+                spawned: scanResult.spawned.length,
+                spawnedIds: scanResult.spawned,
+                wakesFired: scanResult.wakesFired.length,
+                durationMs: Date.now() - now
             })
-        } catch (f) {
-            logErrorMessage("[job-scheduler] scan error", f)
+        } catch (err) {
+            logErrorMessage("[job-scheduler] scan error", err)
         } finally {
-            s = !1
+            scanning = !1
         }
     }
 
-    function c() {
-        s || u || (a = l())
+    function onJobCreated() {
+        scanning || stopped || (scanPromise = runScan())
     }
     return {
         start() {
-            o || u || (r && r.on("job.created", c), a = l(), o = setInterval(() => {
-                a = l()
-            }, i), logInfoMessage("[job-scheduler] started", {
-                intervalMs: i
+            intervalTimer || stopped || (bus && bus.on("job.created", onJobCreated), scanPromise = runScan(), intervalTimer = setInterval(() => {
+                scanPromise = runScan()
+            }, intervalMs), logInfoMessage("[job-scheduler] started", {
+                intervalMs
             }))
         },
         async stop() {
-            if (u = !0, r && r.off("job.created", c), o && (clearInterval(o), o = null), a) {
+            if (stopped = !0, bus && bus.off("job.created", onJobCreated), intervalTimer && (clearInterval(intervalTimer), intervalTimer = null), scanPromise) {
                 try {
-                    await a
+                    await scanPromise
                 } catch {}
-                a = null
+                scanPromise = null
             }
             logInfoMessage("[job-scheduler] stopped")
         },
         isScanning() {
-            return s
+            return scanning
         }
     }
 }

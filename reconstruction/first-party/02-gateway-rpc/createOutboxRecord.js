@@ -2,16 +2,17 @@
 // symbol: createOutboxRecord  (minified: Ba, daemon.pretty.js:36044)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createOutboxRecord(e, t = new Date) {
-    let n = generateOutboxRecordId();
+function createOutboxRecord(fields, now = new Date) {
+    let outboxRecordId = generateOutboxRecordId();
     return {
-        ...e,
-        id: n,
-        idempotency_key: n,
-        created_at: t.toISOString(),
+        ...fields,
+        id: outboxRecordId,
+        idempotency_key: outboxRecordId,
+        created_at: now.toISOString(),
         status: "pending",
         attempts: 0,
         last_attempt_at: null,

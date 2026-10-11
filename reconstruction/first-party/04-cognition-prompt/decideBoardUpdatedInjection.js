@@ -2,21 +2,22 @@
 // symbol: decideBoardUpdatedInjection  (minified: _xe, daemon.pretty.js:70449)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function decideBoardUpdatedInjection(e) {
-    return e.currentBoardHash === void 0 ? {
+function decideBoardUpdatedInjection(params) {
+    return params.currentBoardHash === void 0 ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
         writeLastSeenOnInjectSuccess: void 0,
         stage: "no-board"
-    } : e.lastSeenBoardHash === void 0 ? {
+    } : params.lastSeenBoardHash === void 0 ? {
         inject: !1,
-        writeLastSeenAtEntry: e.currentBoardHash,
+        writeLastSeenAtEntry: params.currentBoardHash,
         writeLastSeenOnInjectSuccess: void 0,
         stage: "first-seen"
-    } : e.lastSeenBoardHash === e.currentBoardHash ? {
+    } : params.lastSeenBoardHash === params.currentBoardHash ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
         writeLastSeenOnInjectSuccess: void 0,
@@ -24,7 +25,7 @@ function decideBoardUpdatedInjection(e) {
     } : {
         inject: !0,
         writeLastSeenAtEntry: void 0,
-        writeLastSeenOnInjectSuccess: e.currentBoardHash,
+        writeLastSeenOnInjectSuccess: params.currentBoardHash,
         stage: "changed"
     }
 }

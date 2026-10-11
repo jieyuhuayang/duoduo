@@ -230,7 +230,28 @@ run_bundle() {
   # 3. scope-safe, formatting-preserving rename (line numbers are preserved,
   #    which is what lets first-party/ headers cite the pretty bundle).
   node "$HERE/rename.mjs" "$PRETTY" "$OUT/rename_$name.json" \
-       "$OUT/$name.recon.js" "$OUT/rename_$name.report.json"
+       "$OUT/$name.recon.top.js" "$OUT/rename_$name.report.json"
+
+  # 3b. local names, where maps/locals_<bundle>.json exists (the daemon): the
+  #     parameters and variables inside each renamed declaration, from rules
+  #     recomputed here and the reviewed names of that map
+  #     (name_locals.mjs). Same splice-in-place rename, so line numbers stay.
+  #     Exit 3 is a map entry that no longer finds its binding (the code next
+  #     to it changed in this release): `warn`, which PROMOTE refuses.
+  local equiv_locals=()
+  if [ -f "$MAPS/locals_$name.json" ]; then
+    local locals_rc=0
+    node --max-old-space-size=8192 "$HERE/name_locals.mjs" apply "$OUT/$name.recon.top.js" "$OUT/rename_$name.json" \
+         "$MAPS/locals_$name.json" "$OUT/$name.recon.js" "$OUT/locals_$name.applied.json" || locals_rc=$?
+    case "$locals_rc" in
+      0) verdict "$name.localNames" pass ;;
+      3) verdict "$name.localNames" warn ;;
+      *) verdict "$name.localNames" fail; return 1 ;;
+    esac
+    equiv_locals=(--locals "$OUT/locals_$name.applied.json")
+  else
+    cp "$OUT/$name.recon.top.js" "$OUT/$name.recon.js"
+  fi
 
   # 4. prove semantic equivalence + syntax. `node --check file.js` is vacuous
   #    here: with no "type":"module" above the file, Node (v25 at least) accepts
@@ -238,7 +259,7 @@ run_bundle() {
   #    makes Node really parse it.
   node --input-type=module --check < "$OUT/$name.recon.js"
   echo "  syntax: OK"; verdict "$name.syntax" pass
-  node --max-old-space-size=8192 "$HERE/ast_equiv.mjs" "$PRETTY" "$OUT/$name.recon.js" "$OUT/rename_$name.json"
+  node --max-old-space-size=8192 "$HERE/ast_equiv.mjs" "$PRETTY" "$OUT/$name.recon.js" "$OUT/rename_$name.json" ${equiv_locals[@]+"${equiv_locals[@]}"}
   verdict "$name.astEquivalent" pass
 
   # 5. binding: where each symbol is, and a version-stable hash of its body.

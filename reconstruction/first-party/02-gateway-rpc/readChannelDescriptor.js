@@ -2,39 +2,40 @@
 // symbol: readChannelDescriptor  (minified: vs, daemon.pretty.js:35849)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.8.0 (maps/history_daemon.json)
+// locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function readChannelDescriptor(e, t) {
-    let n;
+async function readChannelDescriptor(paths, channelId) {
+    let descriptorPath;
     try {
-        n = Kb(e, t)
+        descriptorPath = Kb(paths, channelId)
     } catch {
         return null
     }
-    let r;
+    let content;
     try {
-        r = await oh.readFile(n, "utf8")
+        content = await oh.readFile(descriptorPath, "utf8")
     } catch {
         return null
     }
     let {
-        fm: i,
-        body: o
-    } = fI(r);
-    if (!ZU(i, t)) return null;
-    let s = i,
-        a = parseChannelConfigFields(s),
-        u = yce(s);
+        fm,
+        body
+    } = fI(content);
+    if (!ZU(fm, channelId)) return null;
+    let frontMatter = fm,
+        channelConfigFields = parseChannelConfigFields(frontMatter),
+        extraFields = yce(frontMatter);
     return {
-        schema_version: i.schema_version,
-        revision: i.revision,
-        channel_id: i.channel_id,
-        channel_kind: i.channel_kind,
-        display_name: Hb(s.display_name),
-        ...a,
-        ...u,
-        channel_prompt: o.trim(),
-        kind_config: dI(s, i.channel_kind, n)
+        schema_version: fm.schema_version,
+        revision: fm.revision,
+        channel_id: fm.channel_id,
+        channel_kind: fm.channel_kind,
+        display_name: Hb(frontMatter.display_name),
+        ...channelConfigFields,
+        ...extraFields,
+        channel_prompt: body.trim(),
+        kind_config: dI(frontMatter, fm.channel_kind, descriptorPath)
     }
 }

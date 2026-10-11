@@ -2,164 +2,165 @@
 // symbol: createIdleCompactSweeper  (minified: gwe, daemon.pretty.js:88861)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
+// locals: 52 renamed — 18 from the code at the binding (rule), 34 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.10 (high): A channel session that has sat idle past a configurable threshold and grown past a token floor now silently runs `/compact` on its next turn
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createIdleCompactSweeper(e) {
+function createIdleCompactSweeper(options) {
     let {
-        paths: t,
-        sessionManager: n,
-        sessionIndex: r,
-        bus: i
-    } = e, o = e.intervalMs ?? $ct, s = e.fireCapPerSweep ?? Oct, a = null, u = !1, l = null, c = !1, d = new Map;
+        paths,
+        sessionManager,
+        sessionIndex,
+        bus
+    } = options, intervalMs = options.intervalMs ?? $ct, fireCapPerSweep = options.fireCapPerSweep ?? Oct, intervalHandle = null, sweeping = !1, currentSweep = null, stopped = !1, map = new Map;
 
-    function f(y) {
-        let v = y.session_key;
-        if (classifySessionKeyKind(v) !== "channel") return !1;
-        let b = n.getSweeperActorState(v);
-        return !(!b || b.midTurn || m(y.last_compact_at, y.last_event_at))
+    function isEligible(entry) {
+        let sessionKey = entry.session_key;
+        if (classifySessionKeyKind(sessionKey) !== "channel") return !1;
+        let actorState = sessionManager.getSweeperActorState(sessionKey);
+        return !(!actorState || actorState.midTurn || isCompactedSinceLastEvent(entry.last_compact_at, entry.last_event_at))
     }
 
-    function p(y, v, b) {
-        let _ = y.last_event_at ? Date.parse(y.last_event_at) : Number.NaN,
-            E = Number.isFinite(_) ? _ : 0;
-        return b - Math.max(E, typeof v == "number" ? v : 0)
+    function computeIdleMs(entry, lastActivityAt, now) {
+        let parsedLastEventAt = entry.last_event_at ? Date.parse(entry.last_event_at) : Number.NaN,
+            lastEventMs = Number.isFinite(parsedLastEventAt) ? parsedLastEventAt : 0;
+        return now - Math.max(lastEventMs, typeof lastActivityAt == "number" ? lastActivityAt : 0)
     }
 
-    function m(y, v) {
-        if (!y) return !1;
-        let b = Date.parse(y);
-        if (Number.isNaN(b)) return !1;
-        if (!v) return !0;
-        let _ = Date.parse(v);
-        return Number.isNaN(_) ? !0 : b >= _
+    function isCompactedSinceLastEvent(lastCompactAt, lastEventAt) {
+        if (!lastCompactAt) return !1;
+        let compactMs = Date.parse(lastCompactAt);
+        if (Number.isNaN(compactMs)) return !1;
+        if (!lastEventAt) return !0;
+        let eventMs = Date.parse(lastEventAt);
+        return Number.isNaN(eventMs) ? !0 : compactMs >= eventMs
     }
-    async function h(y, v, b) {
-        let _ = y.session_key;
-        if (isSessionArchiving(_)) return logDebugMessage("[idle-compact] skip: archiving", {
-            sessionKey: _
+    async function tryFireCompact(entry, idleMs, fusedKeys) {
+        let sessionKey = entry.session_key;
+        if (isSessionArchiving(sessionKey)) return logDebugMessage("[idle-compact] skip: archiving", {
+            sessionKey
         }), !1;
-        let E = await resolveChannelConfigBySession(t, _).catch(() => null);
-        if (!E || E.runtime === "codex" || E.runtimeRefusal || E.runtime === "void") return !1;
-        let R = E.auto_compact_idle_minutes,
-            P = E.auto_compact_min_context_tokens;
-        if (!R || R <= 0 || !P || P <= 0 || v < R * Cct) return !1;
-        let k = y.context_used_tokens;
-        if (typeof k != "number" || k < P) return !1;
-        let S = y.compact_measured_floor;
-        if (typeof S == "number" && P <= S) {
-            b.add(_);
-            let C = `${y.compact_measured_at??""}:${P}`;
-            return d.get(_) !== C ? (d.set(_, C), logAlwaysAtLevel("info", "[idle-compact] fuse: threshold ≤ measured floor, skipping", {
-                sessionKey: _,
-                threshold: P,
-                measured_floor: S
+        let channelConfig = await resolveChannelConfigBySession(paths, sessionKey).catch(() => null);
+        if (!channelConfig || channelConfig.runtime === "codex" || channelConfig.runtimeRefusal || channelConfig.runtime === "void") return !1;
+        let autoCompactIdleMinutes = channelConfig.auto_compact_idle_minutes,
+            autoCompactMinContextTokens = channelConfig.auto_compact_min_context_tokens;
+        if (!autoCompactIdleMinutes || autoCompactIdleMinutes <= 0 || !autoCompactMinContextTokens || autoCompactMinContextTokens <= 0 || idleMs < autoCompactIdleMinutes * Cct) return !1;
+        let contextUsedTokens = entry.context_used_tokens;
+        if (typeof contextUsedTokens != "number" || contextUsedTokens < autoCompactMinContextTokens) return !1;
+        let compactMeasuredFloor = entry.compact_measured_floor;
+        if (typeof compactMeasuredFloor == "number" && autoCompactMinContextTokens <= compactMeasuredFloor) {
+            fusedKeys.add(sessionKey);
+            let fuseKey = `${entry.compact_measured_at??""}:${autoCompactMinContextTokens}`;
+            return map.get(sessionKey) !== fuseKey ? (map.set(sessionKey, fuseKey), logAlwaysAtLevel("info", "[idle-compact] fuse: threshold ≤ measured floor, skipping", {
+                sessionKey,
+                threshold: autoCompactMinContextTokens,
+                measured_floor: compactMeasuredFloor
             })) : logDebugMessage("[idle-compact] fuse: threshold ≤ measured floor, skipping (repeat)", {
-                sessionKey: _,
-                threshold: P,
-                measured_floor: S
+                sessionKey,
+                threshold: autoCompactMinContextTokens,
+                measured_floor: compactMeasuredFloor
             }), !1
         }
-        let D = E.channel_kind,
-            A = y.source_channel_id;
+        let channelKind = channelConfig.channel_kind,
+            sourceChannelId = entry.source_channel_id;
         try {
-            await patchSessionRuntimeState(t, _, {
+            await patchSessionRuntimeState(paths, sessionKey, {
                 last_compact_at: new Date().toISOString()
             })
-        } catch (C) {
-            if (C instanceof qm) return logDebugMessage("[idle-compact] skip: archiving (marker write)", {
-                sessionKey: _
+        } catch (err) {
+            if (err instanceof qm) return logDebugMessage("[idle-compact] skip: archiving (marker write)", {
+                sessionKey
             }), !1;
-            throw C
+            throw err
         }
-        return (await ingestChannelCommand(t, {
-            sessionKey: _,
-            sourceKind: D,
-            sourceChannelId: A,
+        return (await ingestChannelCommand(paths, {
+            sessionKey,
+            sourceKind: channelKind,
+            sourceChannelId,
             sourceName: "idle-compact",
             command: "/compact",
-            idle_ms: v,
-            threshold_at_fire: P
+            idle_ms: idleMs,
+            threshold_at_fire: autoCompactMinContextTokens
         }, {
-            bus: i
-        })).routing.enqueued ? (i.emit("session.wake", {
-            sessionKey: _,
+            bus
+        })).routing.enqueued ? (bus.emit("session.wake", {
+            sessionKey,
             preempt: "never"
         }), logInfoMessage("[idle-compact] fired", {
-            sessionKey: _,
-            channel_kind: D,
-            idle_ms: v,
-            context_used_tokens: k
+            sessionKey,
+            channel_kind: channelKind,
+            idle_ms: idleMs,
+            context_used_tokens: contextUsedTokens
         }), !0) : (logWarnMessage("[idle-compact] /compact not enqueued", {
-            sessionKey: _
+            sessionKey
         }), !1)
     }
-    async function g() {
-        if (u || c) return u && logDebugMessage("[idle-compact] sweep skipped: previous sweep still running"), 0;
-        u = !0;
-        let y = Date.now(),
-            v = 0,
-            b = new Set;
+    async function sweep() {
+        if (sweeping || stopped) return sweeping && logDebugMessage("[idle-compact] sweep skipped: previous sweep still running"), 0;
+        sweeping = !0;
+        let now = Date.now(),
+            fired = 0,
+            fusedKeys = new Set;
         try {
-            let _ = Date.now();
-            for (let E of r.listByKind("channel")) {
-                if (c) break;
-                if (v >= s) {
+            let now2 = Date.now();
+            for (let entry of sessionIndex.listByKind("channel")) {
+                if (stopped) break;
+                if (fired >= fireCapPerSweep) {
                     logDebugMessage("[idle-compact] per-sweep fire cap reached", {
-                        cap: s
+                        cap: fireCapPerSweep
                     });
                     break
                 }
                 try {
-                    if (!f(E)) continue;
-                    let R = n.getSweeperActorState(E.session_key);
-                    if (!R) continue;
-                    let P = p(E, R.lastActivityAt, _);
-                    await h(E, P, b) && (v += 1)
-                } catch (R) {
-                    if (R instanceof qm) continue;
+                    if (!isEligible(entry)) continue;
+                    let actorState = sessionManager.getSweeperActorState(entry.session_key);
+                    if (!actorState) continue;
+                    let idleMs = computeIdleMs(entry, actorState.lastActivityAt, now2);
+                    await tryFireCompact(entry, idleMs, fusedKeys) && (fired += 1)
+                } catch (err) {
+                    if (err instanceof qm) continue;
                     logErrorMessage("[idle-compact] per-session sweep error", {
-                        sessionKey: E.session_key,
-                        error: R instanceof Error ? R.message : String(R)
+                        sessionKey: entry.session_key,
+                        error: err instanceof Error ? err.message : String(err)
                     })
                 }
             }
-            for (let E of d.keys()) b.has(E) || d.delete(E);
+            for (let sessionKey of map.keys()) fusedKeys.has(sessionKey) || map.delete(sessionKey);
             logDebugMessage("[idle-compact] sweep complete", {
-                fired: v,
-                durationMs: Date.now() - y
+                fired,
+                durationMs: Date.now() - now
             })
-        } catch (_) {
-            logErrorMessage("[idle-compact] sweep error", _)
+        } catch (err) {
+            logErrorMessage("[idle-compact] sweep error", err)
         } finally {
-            u = !1
+            sweeping = !1
         }
-        return v
+        return fired
     }
     return {
         start() {
-            a || c || (a = setInterval(() => {
-                l = g()
-            }, o), logInfoMessage("[idle-compact] started", {
-                intervalMs: o,
-                fireCapPerSweep: s
+            intervalHandle || stopped || (intervalHandle = setInterval(() => {
+                currentSweep = sweep()
+            }, intervalMs), logInfoMessage("[idle-compact] started", {
+                intervalMs,
+                fireCapPerSweep
             }))
         },
         async stop() {
-            if (c = !0, a && (clearInterval(a), a = null), l) {
+            if (stopped = !0, intervalHandle && (clearInterval(intervalHandle), intervalHandle = null), currentSweep) {
                 try {
-                    await l
+                    await currentSweep
                 } catch {}
-                l = null
+                currentSweep = null
             }
             logInfoMessage("[idle-compact] stopped")
         },
         isSweeping() {
-            return u
+            return sweeping
         },
         async sweepNow() {
-            return g()
+            return sweep()
         }
     }
 }

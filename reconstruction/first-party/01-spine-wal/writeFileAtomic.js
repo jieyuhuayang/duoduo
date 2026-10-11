@@ -2,22 +2,23 @@
 // symbol: writeFileAtomic  (minified: Dt, daemon.pretty.js:31956)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 7 renamed — 1 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function writeFileAtomic(e, t, n = {}) {
-    let r = cU.dirname(e);
-    await MR.mkdir(r, {
+async function writeFileAtomic(filePath, data, options = {}) {
+    let dir = cU.dirname(filePath);
+    await MR.mkdir(dir, {
         recursive: !0
     });
-    let i = `.${cU.basename(e)}.${process.pid}.${Date.now()}.${M8e.randomUUID()}.tmp`,
-        o = cU.join(r, i);
+    let tempName = `.${cU.basename(filePath)}.${process.pid}.${Date.now()}.${M8e.randomUUID()}.tmp`,
+        tempPath = cU.join(dir, tempName);
     try {
-        await MR.writeFile(o, t, n), await MR.rename(o, e)
-    } catch (s) {
+        await MR.writeFile(tempPath, data, options), await MR.rename(tempPath, filePath)
+    } catch (err) {
         try {
-            await MR.unlink(o)
+            await MR.unlink(tempPath)
         } catch {}
-        throw s
+        throw err
     }
 }

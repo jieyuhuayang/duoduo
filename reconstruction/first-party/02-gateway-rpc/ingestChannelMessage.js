@@ -2,31 +2,32 @@
 // symbol: ingestChannelMessage  (minified: gde, daemon.pretty.js:87515)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.5.7 (maps/history_daemon.json)
+// locals: 8 renamed — 2 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function ingestChannelMessage(e, t, n) {
-    let r = parseInjectionPromptCommand(t.text),
-        i = r ? void 0 : parseGatewayCommandText(t.text),
-        o = t.routingHint?.intent ?? classifyGatewayCommandIntent(i),
-        s = resolveRoutingTarget(t, i, r),
-        a = s === "session" ? expandInjectionPromptCommand(r, t.text) : void 0;
-    return appendBeforeExecuteGateway(e, {
+async function ingestChannelMessage(paths, message, options) {
+    let injectionPromptCommand = parseInjectionPromptCommand(message.text),
+        gatewayCommand = injectionPromptCommand ? void 0 : parseGatewayCommandText(message.text),
+        intent = message.routingHint?.intent ?? classifyGatewayCommandIntent(gatewayCommand),
+        routingTarget = resolveRoutingTarget(message, gatewayCommand, injectionPromptCommand),
+        expanded = routingTarget === "session" ? expandInjectionPromptCommand(injectionPromptCommand, message.text) : void 0;
+    return appendBeforeExecuteGateway(paths, {
         eventType: "channel.message",
-        sessionKey: t.sessionKey,
-        sourceKind: t.sourceKind,
-        sourceName: t.sourceName,
-        sourceChannelId: t.sourceChannelId,
-        dedupSourceId: t.dedupSourceId,
-        text: a?.text ?? t.text,
-        rawCommand: a?.rawCommand,
-        attachments: t.attachments,
-        replyFanoutSessionKeys: t.replyFanoutSessionKeys,
-        rawPayload: t.rawPayload,
+        sessionKey: message.sessionKey,
+        sourceKind: message.sourceKind,
+        sourceName: message.sourceName,
+        sourceChannelId: message.sourceChannelId,
+        dedupSourceId: message.dedupSourceId,
+        text: expanded?.text ?? message.text,
+        rawCommand: expanded?.rawCommand,
+        attachments: message.attachments,
+        replyFanoutSessionKeys: message.replyFanoutSessionKeys,
+        rawPayload: message.rawPayload,
         routingHint: {
-            target: t.routingHint?.target ?? s,
-            intent: o,
-            tags: t.routingHint?.tags
+            target: message.routingHint?.target ?? routingTarget,
+            intent,
+            tags: message.routingHint?.tags
         }
-    }, n)
+    }, options)
 }

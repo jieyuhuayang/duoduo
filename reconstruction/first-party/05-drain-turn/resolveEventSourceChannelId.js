@@ -2,13 +2,14 @@
 // symbol: resolveEventSourceChannelId  (minified: Ymt, daemon.pretty.js:72219)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function resolveEventSourceChannelId(e) {
-    if (e.source.kind === "route") {
-        let t = e.payload?.channel_descriptor_id;
-        return typeof t == "string" ? t : ""
+function resolveEventSourceChannelId(event) {
+    if (event.source.kind === "route") {
+        let descriptorId = event.payload?.channel_descriptor_id;
+        return typeof descriptorId == "string" ? descriptorId : ""
     }
-    return e.source.channel_id ? e.source.channel_id : e.source.kind === "rpc" || e.source.kind === "ws" ? "<legacy>" : e.source.kind
+    return event.source.channel_id ? event.source.channel_id : event.source.kind === "rpc" || event.source.kind === "ws" ? "<legacy>" : event.source.kind
 }

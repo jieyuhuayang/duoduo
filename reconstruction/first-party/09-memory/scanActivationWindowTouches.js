@@ -2,58 +2,59 @@
 // symbol: scanActivationWindowTouches  (minified: aft, daemon.pretty.js:68200)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 22 renamed — 3 from the code at the binding (rule), 19 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (high): The activation window counts days on which someone actually interacted, so a quiet week no longer ages memories out.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function scanActivationWindowTouches(e, t, n) {
-    let r = uu.join(t, "entities") + uu.sep,
-        i = uu.join(t, "topics") + uu.sep,
-        o = new RegExp(`${gSe(t+uu.sep)}(?:entities|topics)${gSe(uu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
-        s = {
+function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
+    let entitiesPrefix = uu.join(memoryDir, "entities") + uu.sep,
+        topicsPrefix = uu.join(memoryDir, "topics") + uu.sep,
+        regExp = new RegExp(`${gSe(memoryDir+uu.sep)}(?:entities|topics)${gSe(uu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
+        result = {
             dates: [],
             interactionDays: 0,
             foregroundToolEvents: 0,
             foregroundWrites: 0,
             touches: new Map
         },
-        a = new Date(n).toISOString().slice(0, 10),
-        u = listEventPartitionDates(e);
-    for (let l = u.length - 1; l >= 0; l -= 1) {
-        let c = u[l];
-        if (c > a) continue;
-        s.dates.push(c);
-        let d;
+        today = new Date(nowMs).toISOString().slice(0, 10),
+        eventPartitionDates = listEventPartitionDates(eventsDir);
+    for (let i = eventPartitionDates.length - 1; i >= 0; i -= 1) {
+        let date = eventPartitionDates[i];
+        if (date > today) continue;
+        result.dates.push(date);
+        let content;
         try {
-            d = FH.readFileSync(uu.join(e, `${c}.jsonl`), "utf8")
-        } catch (p) {
-            recordUnreadableMemoryPath(p);
+            content = FH.readFileSync(uu.join(eventsDir, `${date}.jsonl`), "utf8")
+        } catch (err) {
+            recordUnreadableMemoryPath(err);
             continue
         }
-        let f = !1;
-        for (let p of d.split(`
+        let hasInteraction = !1;
+        for (let line of content.split(`
 `)) {
-            if (!f && p.includes('"channel.message"') && sft(p) && (f = !0), !p.includes('"agent.tool_use"') || !p.includes('"kind":"runner"') || (s.foregroundToolEvents += 1, !p.includes(r) && !p.includes(i))) continue;
-            let m;
+            if (!hasInteraction && line.includes('"channel.message"') && sft(line) && (hasInteraction = !0), !line.includes('"agent.tool_use"') || !line.includes('"kind":"runner"') || (result.foregroundToolEvents += 1, !line.includes(entitiesPrefix) && !line.includes(topicsPrefix))) continue;
+            let event;
             try {
-                m = JSON.parse(p)
+                event = JSON.parse(line)
             } catch {
                 continue
             }
-            let h = m.payload?.input_summary;
-            if (typeof h != "string") continue;
-            let g = h.match(o);
-            if (g === null) continue;
-            let y = new Set;
-            for (let b of g) y.add(uu.relative(t, b));
-            let v = m.payload?.tool_name;
-            if (typeof v == "string" && ift.has(v)) {
-                s.foregroundWrites += 1;
+            let inputSummary = event.payload?.input_summary;
+            if (typeof inputSummary != "string") continue;
+            let matches = inputSummary.match(regExp);
+            if (matches === null) continue;
+            let relPaths = new Set;
+            for (let matchPath of matches) relPaths.add(uu.relative(memoryDir, matchPath));
+            let toolName = event.payload?.tool_name;
+            if (typeof toolName == "string" && ift.has(toolName)) {
+                result.foregroundWrites += 1;
                 continue
             }
-            for (let b of y) s.touches.set(b, (s.touches.get(b) ?? 0) + 1)
+            for (let relPath of relPaths) result.touches.set(relPath, (result.touches.get(relPath) ?? 0) + 1)
         }
-        if (f && (s.interactionDays += 1, s.interactionDays >= LH)) break
+        if (hasInteraction && (result.interactionDays += 1, result.interactionDays >= LH)) break
     }
-    return s.dates.reverse(), s
+    return result.dates.reverse(), result
 }

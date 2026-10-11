@@ -2,19 +2,20 @@
 // symbol: computePartitionBackoffUntil  (minified: _H, daemon.pretty.js:66723)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.1 (medium): **cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function computePartitionBackoffUntil(e, t, n, r) {
-    if (e === "success" || e === "invalid_output") return null;
-    let i = r ?? zg;
-    if (e === "timeout") {
-        if (t <= 2) return null;
-        let s = Math.min(t * i, Yct);
-        return new Date(n.getTime() + s).toISOString()
+function computePartitionBackoffUntil(result, consecutiveFailures, now, cadenceIntervalMs) {
+    if (result === "success" || result === "invalid_output") return null;
+    let baseMs = cadenceIntervalMs ?? zg;
+    if (result === "timeout") {
+        if (consecutiveFailures <= 2) return null;
+        let delayMs = Math.min(consecutiveFailures * baseMs, Yct);
+        return new Date(now.getTime() + delayMs).toISOString()
     }
-    if (t <= 1) return null;
-    let o = Math.min(t * 2 * i, Xct);
-    return new Date(n.getTime() + o).toISOString()
+    if (consecutiveFailures <= 1) return null;
+    let delayMs = Math.min(consecutiveFailures * 2 * baseMs, Xct);
+    return new Date(now.getTime() + delayMs).toISOString()
 }

@@ -2,122 +2,123 @@
 // symbol: runMemoryCheckTick  (minified: jft, daemon.pretty.js:68864)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.5.8, v0.7.1, v0.8.0 (maps/history_daemon.json)
+// locals: 33 renamed — 6 from the code at the binding (rule), 27 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.5 (high): A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function runMemoryCheckTick(e, t) {
+async function runMemoryCheckTick(ctx, nowMs) {
     let {
-        check: n,
-        forget: r
+        check,
+        forget
     } = resolveMemoryCheckFlags();
-    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !n && logErrorMessage("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
-    let o = {
-            checkEnabled: n,
-            forgetEnabled: r,
+    isTruthyEnvFlag("ALADUO_EXP_MEMORY_FORGET") && !check && logErrorMessage("[memory] ALADUO_EXP_MEMORY_FORGET is set but ALADUO_EXP_MEMORY_CHECK is not — forgetting is DISABLED this tick. FORGET requires CHECK so a node is warned (NEWBORN) before it can be forgotten (STALE). Enable ALADUO_EXP_MEMORY_CHECK too.");
+    let result = {
+            checkEnabled: check,
+            forgetEnabled: forget,
             posted: [],
             swept: [],
             withheld: [],
             forgotten: [],
             sparedUnwarnable: []
         },
-        s = {
-            subconsciousDir: e.subconsciousDir,
-            varDir: e.varDir,
-            flagFallback: n
+        signalCtx = {
+            subconsciousDir: ctx.subconsciousDir,
+            varDir: ctx.varDir,
+            flagFallback: check
         },
-        a = evaluatePredicateOrFalse(() => hasAnyMemorySignalConsumer(s));
-    if (!a && !r) return o;
-    let u = e.memoryDir,
-        l = [],
-        c = [],
-        d = y => {
-            l.push(...y);
-            let v = postMemorySignalsToInboxes(y, s);
-            c.push(...v.posted), o.posted.push(...v.posted), o.withheld.push(...v.withheld);
-            for (let b of v.errors) logErrorMessage(`[memory] pending delivery failed: ${b}`)
+        hasConsumer = evaluatePredicateOrFalse(() => hasAnyMemorySignalConsumer(signalCtx));
+    if (!hasConsumer && !forget) return result;
+    let memoryDir = ctx.memoryDir,
+        selectedSignals = [],
+        postedPaths = [],
+        deliver = signals => {
+            selectedSignals.push(...signals);
+            let delivery = postMemorySignalsToInboxes(signals, signalCtx);
+            postedPaths.push(...delivery.posted), result.posted.push(...delivery.posted), result.withheld.push(...delivery.withheld);
+            for (let message of delivery.errors) logErrorMessage(`[memory] pending delivery failed: ${message}`)
         },
-        f = null,
-        p = runReadAuditedMemoryCheckStep("orphan-states", () => {
-            let y = detectOrphanMemory(u, {
-                refTimestampMs: t
+        orphanStates = null,
+        orphanStatesOk = runReadAuditedMemoryCheckStep("orphan-states", () => {
+            let orphanMemory = detectOrphanMemory(memoryDir, {
+                refTimestampMs: nowMs
             });
-            y.missing || (f = y.states)
+            orphanMemory.missing || (orphanStates = orphanMemory.states)
         }),
-        m = f !== null && p,
-        h = null;
-    if (a) {
-        let y = await readIntuitionWeaverLastFinishedMs(e);
-        m = runReadAuditedMemoryCheckStep("board-lint", () => {
-            d(collectBoardLintReport(u, BH).selections)
-        }) && m, m = runReadAuditedMemoryCheckStep("entity-lint", () => {
-            d(runEntityLint(u, BH).selected)
-        }) && m, m = runReadAuditedMemoryCheckStep("node-lint", () => {
-            d(runNodeLint(u, BH).selected)
-        }) && m, m = runReadAuditedMemoryCheckStep("gap-lint", () => {
-            let E = deliverScanGapSignal(e.eventsDir, u, t, s, {
+        allReadsClean = orphanStates !== null && orphanStatesOk,
+        activationMetrics = null;
+    if (hasConsumer) {
+        let intuitionWeaverLastFinishedMs = await readIntuitionWeaverLastFinishedMs(ctx);
+        allReadsClean = runReadAuditedMemoryCheckStep("board-lint", () => {
+            deliver(collectBoardLintReport(memoryDir, BH).selections)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("entity-lint", () => {
+            deliver(runEntityLint(memoryDir, BH).selected)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("node-lint", () => {
+            deliver(runNodeLint(memoryDir, BH).selected)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("gap-lint", () => {
+            let gapResult = deliverScanGapSignal(ctx.eventsDir, memoryDir, nowMs, signalCtx, {
                 cadenceIntervalMs: resolveCadenceIntervalMs()
             });
-            o.posted.push(...E.delivery.posted), o.withheld.push(...E.delivery.withheld);
-            for (let R of E.delivery.errors) logErrorMessage(`[memory] pending delivery failed: ${R}`)
-        }) && m, m = runReadAuditedMemoryCheckStep("fold-lint", () => {
-            d(runFoldGapLint(u, y).selected)
-        }) && m, m = runReadAuditedMemoryCheckStep("broadcast-budget", () => {
-            d(runBroadcastBudgetLint(u).selected)
-        }) && m, m = runReadAuditedMemoryCheckStep("broadcast-lint", () => {
-            d(runBroadcastLinkLint(u).selected)
-        }) && m, m = runReadAuditedMemoryCheckStep("broadcast-flatten", () => {
-            d(runBroadcastFlattenLint(u).selected)
-        }) && m;
-        let v, b = runReadAuditedMemoryCheckStep("activation-lint", () => {
-            v = runActivationLint(e.eventsDir, u, t)
+            result.posted.push(...gapResult.delivery.posted), result.withheld.push(...gapResult.delivery.withheld);
+            for (let message of gapResult.delivery.errors) logErrorMessage(`[memory] pending delivery failed: ${message}`)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("fold-lint", () => {
+            deliver(runFoldGapLint(memoryDir, intuitionWeaverLastFinishedMs).selected)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("broadcast-budget", () => {
+            deliver(runBroadcastBudgetLint(memoryDir).selected)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("broadcast-lint", () => {
+            deliver(runBroadcastLinkLint(memoryDir).selected)
+        }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("broadcast-flatten", () => {
+            deliver(runBroadcastFlattenLint(memoryDir).selected)
+        }) && allReadsClean;
+        let activation, activationOk = runReadAuditedMemoryCheckStep("activation-lint", () => {
+            activation = runActivationLint(ctx.eventsDir, memoryDir, nowMs)
         });
-        m = b && m;
-        let _;
-        b && v && (d(v.selected), h = v.metrics, _ = v.touchWindow), m = runReadAuditedMemoryCheckStep("orphan-newborn-island", () => {
-            if (f === null) return;
-            d(buildOrphanNewbornSignals(f, _));
-            let E = buildOrphanIslandsSignal(filterOrphanIslands(f), t, void 0, void 0, _);
-            E && d([E])
-        }) && m, m && runMemoryCheckSubStep("inbox-sync", () => {
-            let E = reconcileMemorySignalInboxes(l, c, s);
-            o.swept.push(...E.removed);
-            for (let R of E.errors) logErrorMessage(`[memory] inbox sync failed: ${R}`)
+        allReadsClean = activationOk && allReadsClean;
+        let touchWindow;
+        activationOk && activation && (deliver(activation.selected), activationMetrics = activation.metrics, touchWindow = activation.touchWindow), allReadsClean = runReadAuditedMemoryCheckStep("orphan-newborn-island", () => {
+            if (orphanStates === null) return;
+            deliver(buildOrphanNewbornSignals(orphanStates, touchWindow));
+            let orphanIslandsSignal = buildOrphanIslandsSignal(filterOrphanIslands(orphanStates), nowMs, void 0, void 0, touchWindow);
+            orphanIslandsSignal && deliver([orphanIslandsSignal])
+        }) && allReadsClean, allReadsClean && runMemoryCheckSubStep("inbox-sync", () => {
+            let sweep = reconcileMemorySignalInboxes(selectedSignals, postedPaths, signalCtx);
+            result.swept.push(...sweep.removed);
+            for (let message of sweep.errors) logErrorMessage(`[memory] inbox sync failed: ${message}`)
         })
     }
-    let g = h;
-    return g !== null && g.expansionRate !== null && await recordTelemetryMetric(e, "memory_activation_loss", g.expansionRate, {
-        window_days: g.windowDays,
-        interaction_days: g.interactionDays,
-        window_start: g.windowStart,
-        window_end: g.windowEnd,
-        foreground_tool_events: g.foregroundToolEvents,
-        memory_touches: g.memoryTouches,
-        files_touched: g.filesTouched,
-        inventory: g.inventory,
-        foreground_writes: g.foregroundWrites,
-        expansion_rate: g.expansionRate,
-        live_ratio: g.liveRatio,
-        dead_weight: g.coldCount,
-        wiring_incompleteness: g.wiringIncompleteness
-    }), r && runMemoryCheckSubStep("orphan-forget", () => {
-        if (f === null) return;
-        let y = [];
-        for (let v of f) {
-            if (v.state !== "STALE") {
-                y.push(v);
+    let metrics = activationMetrics;
+    return metrics !== null && metrics.expansionRate !== null && await recordTelemetryMetric(ctx, "memory_activation_loss", metrics.expansionRate, {
+        window_days: metrics.windowDays,
+        interaction_days: metrics.interactionDays,
+        window_start: metrics.windowStart,
+        window_end: metrics.windowEnd,
+        foreground_tool_events: metrics.foregroundToolEvents,
+        memory_touches: metrics.memoryTouches,
+        files_touched: metrics.filesTouched,
+        inventory: metrics.inventory,
+        foreground_writes: metrics.foregroundWrites,
+        expansion_rate: metrics.expansionRate,
+        live_ratio: metrics.liveRatio,
+        dead_weight: metrics.coldCount,
+        wiring_incompleteness: metrics.wiringIncompleteness
+    }), forget && runMemoryCheckSubStep("orphan-forget", () => {
+        if (orphanStates === null) return;
+        let forgettable = [];
+        for (let state of orphanStates) {
+            if (state.state !== "STALE") {
+                forgettable.push(state);
                 continue
             }
-            isOrphanWarningDeliverable(s, routeContractDecision(v)) ? y.push(v) : o.sparedUnwarnable.push(v.rel)
+            isOrphanWarningDeliverable(signalCtx, routeContractDecision(state)) ? forgettable.push(state) : result.sparedUnwarnable.push(state.rel)
         }
-        o.forgotten.push(...forgetMemoryEntry(y, e.kernelDir, {
+        result.forgotten.push(...forgetMemoryEntry(forgettable, ctx.kernelDir, {
             dryRun: !1
         }))
-    }), (o.posted.length > 0 || o.swept.length > 0 || o.forgotten.length > 0 || o.withheld.length > 0 || o.sparedUnwarnable.length > 0) && logInfoMessage("[memory] check tick", {
-        posted: o.posted.map(y => LSe.basename(y)),
-        swept: o.swept.map(y => LSe.basename(y)),
-        withheld: o.withheld,
-        forgotten: o.forgotten,
-        spared_unwarnable: o.sparedUnwarnable
-    }), o
+    }), (result.posted.length > 0 || result.swept.length > 0 || result.forgotten.length > 0 || result.withheld.length > 0 || result.sparedUnwarnable.length > 0) && logInfoMessage("[memory] check tick", {
+        posted: result.posted.map(postedPath => LSe.basename(postedPath)),
+        swept: result.swept.map(sweptPath => LSe.basename(sweptPath)),
+        withheld: result.withheld,
+        forgotten: result.forgotten,
+        spared_unwarnable: result.sparedUnwarnable
+    }), result
 }

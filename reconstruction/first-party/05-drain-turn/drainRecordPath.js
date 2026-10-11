@@ -2,9 +2,10 @@
 // symbol: drainRecordPath  (minified: Za, daemon.pretty.js:37040)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function drainRecordPath(e, t) {
-    return Iet.join(e.usageDir, `${Pet(t)}.jsonl`)
+function drainRecordPath(paths, sessionKey) {
+    return Iet.join(paths.usageDir, `${Pet(sessionKey)}.jsonl`)
 }

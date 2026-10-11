@@ -2,13 +2,14 @@
 // symbol: deliverScanGapSignal  (minified: cSe, daemon.pretty.js:68003)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 12 renamed — 0 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): one distils raw experience into fragments
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function deliverScanGapSignal(e, t, n, r, i) {
-    let o = zc.join(partitionInboxDirFromVar(r.varDir, "gradient-distiller"), aSe);
-    if (au.existsSync(o)) return {
+function deliverScanGapSignal(eventsDir, memoryDir, nowMs, ctx, options) {
+    let pendingPath = zc.join(partitionInboxDirFromVar(ctx.varDir, "gradient-distiller"), aSe);
+    if (au.existsSync(pendingPath)) return {
         selected: [],
         span: null,
         bands: [],
@@ -17,36 +18,36 @@ function deliverScanGapSignal(e, t, n, r, i) {
         recorded: !1,
         delivery: qO()
     };
-    let s = i.dryRun === !0,
-        a = readOrSeedGapHandedDays(t, r.varDir, s);
-    if (a.readFault) return {
+    let dryRun = options.dryRun === !0,
+        handed = readOrSeedGapHandedDays(memoryDir, ctx.varDir, dryRun);
+    if (handed.readFault) return {
         ...buildGapReadFaultResult(null),
         pending: !1,
         recorded: !1,
         delivery: qO()
     };
-    let u = runGapLint(e, a.coverage, n, i.cadenceIntervalMs);
-    if (u.readFault || s) return {
-        ...u,
+    let lint = runGapLint(eventsDir, handed.coverage, nowMs, options.cadenceIntervalMs);
+    if (lint.readFault || dryRun) return {
+        ...lint,
         pending: !1,
         recorded: !1,
         delivery: qO()
     };
-    if (u.selected.length === 0) {
-        let d = u.span !== null;
-        return d && appendGapHandedSpan(r.varDir, u.span), {
-            ...u,
+    if (lint.selected.length === 0) {
+        let recorded = lint.span !== null;
+        return recorded && appendGapHandedSpan(ctx.varDir, lint.span), {
+            ...lint,
             pending: !1,
-            recorded: d,
+            recorded,
             delivery: qO()
         }
     }
-    let l = postMemorySignalsToInboxes(u.selected, r),
-        c = l.posted.length > 0;
-    return c && appendGapHandedSpan(r.varDir, u.span), {
-        ...u,
+    let delivery = postMemorySignalsToInboxes(lint.selected, ctx),
+        posted = delivery.posted.length > 0;
+    return posted && appendGapHandedSpan(ctx.varDir, lint.span), {
+        ...lint,
         pending: !1,
-        recorded: c,
-        delivery: l
+        recorded: posted,
+        delivery
     }
 }

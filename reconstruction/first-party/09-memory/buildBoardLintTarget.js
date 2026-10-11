@@ -2,36 +2,37 @@
 // symbol: buildBoardLintTarget  (minified: cdt, daemon.pretty.js:67073)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 14 renamed — 2 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function buildBoardLintTarget(e, t, n, r) {
-    let i = Cwe(t, e),
-        o = readMemoryFileSyncOrNull(r) ?? "",
-        s = wH.join(n.effectivenessDir, `${e}.md`),
-        a = readMemoryFileSyncOrNull(s),
-        u = "NO-EFF",
-        l = 0,
-        c = 0,
-        d = 0,
-        f = null;
-    if (a !== null) {
-        u = parseEffectivenessTrajectory(a);
-        let p = parseEffectivenessCounts(a);
-        l = p.s, c = p.n, d = p.w, f = parseUpdaterGuidanceVerdict(a)
+function buildBoardLintTarget(slug, boardText, memoryDirs, topicPath) {
+    let boardLine = Cwe(boardText, slug),
+        topicText = readMemoryFileSyncOrNull(topicPath) ?? "",
+        effectivenessPath = wH.join(memoryDirs.effectivenessDir, `${slug}.md`),
+        memoryFile = readMemoryFileSyncOrNull(effectivenessPath),
+        trajectory = "NO-EFF",
+        strengthening = 0,
+        neutral = 0,
+        weakening = 0,
+        verdict = null;
+    if (memoryFile !== null) {
+        trajectory = parseEffectivenessTrajectory(memoryFile);
+        let effectivenessCounts = parseEffectivenessCounts(memoryFile);
+        strengthening = effectivenessCounts.s, neutral = effectivenessCounts.n, weakening = effectivenessCounts.w, verdict = parseUpdaterGuidanceVerdict(memoryFile)
     }
     return {
-        slug: e,
-        boardLine: i,
-        node: `topics/${e}.md`,
-        hasEffectiveness: a !== null,
-        trajectory: u,
-        s: l,
-        n: c,
-        w: d,
-        verdict: f,
-        fmt: classifyTopicNodeFormat(o),
-        cls: classifyTopicNodeType(o),
-        dual: isMemoryPathFile(wH.join(n.entitiesDir, `${e}.md`))
+        slug,
+        boardLine,
+        node: `topics/${slug}.md`,
+        hasEffectiveness: memoryFile !== null,
+        trajectory,
+        s: strengthening,
+        n: neutral,
+        w: weakening,
+        verdict,
+        fmt: classifyTopicNodeFormat(topicText),
+        cls: classifyTopicNodeType(topicText),
+        dual: isMemoryPathFile(wH.join(memoryDirs.entitiesDir, `${slug}.md`))
     }
 }

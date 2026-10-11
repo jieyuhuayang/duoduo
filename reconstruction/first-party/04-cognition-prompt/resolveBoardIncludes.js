@@ -2,34 +2,35 @@
 // symbol: resolveBoardIncludes  (minified: jRe, daemon.pretty.js:82514)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 14 renamed — 4 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.2 (high): The runtime parses Claude Code's `@<file>` directives itself and injects the rendered import graph
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function resolveBoardIncludes(e, t, n = 0, r) {
-    if (n >= Z_t) return [];
-    let i = ba.resolve(e),
-        o = normalizeIncludePathKey(i);
-    if (t.has(o)) return [];
-    let s = ba.extname(i).toLowerCase();
-    if (s && !K_t.has(s)) return [];
-    let a = await realpathOrSelf(i);
-    t.add(o), t.add(normalizeIncludePathKey(a));
-    let u = await Q_t(i);
-    if (u === void 0) return [];
+async function resolveBoardIncludes(filePath, visited, depth = 0, parentPath) {
+    if (depth >= Z_t) return [];
+    let resolvedPath = ba.resolve(filePath),
+        includePathKey = normalizeIncludePathKey(resolvedPath);
+    if (visited.has(includePathKey)) return [];
+    let extension = ba.extname(resolvedPath).toLowerCase();
+    if (extension && !K_t.has(extension)) return [];
+    let realPath = await realpathOrSelf(resolvedPath);
+    visited.add(includePathKey), visited.add(normalizeIncludePathKey(realPath));
+    let rawContent = await Q_t(resolvedPath);
+    if (rawContent === void 0) return [];
     let {
-        content: l,
-        includePaths: c
-    } = parseBoardFileContent(u, a);
-    if (!l.trim()) return [];
-    let d = [{
-        path: i,
-        content: l,
-        parentPath: r
+        content,
+        includePaths
+    } = parseBoardFileContent(rawContent, realPath);
+    if (!content.trim()) return [];
+    let results = [{
+        path: resolvedPath,
+        content,
+        parentPath
     }];
-    for (let f of c) {
-        let p = await resolveBoardIncludes(f, t, n + 1, i);
-        d.push(...p)
+    for (let includePath of includePaths) {
+        let boardIncludes = await resolveBoardIncludes(includePath, visited, depth + 1, resolvedPath);
+        results.push(...boardIncludes)
     }
-    return d
+    return results
 }

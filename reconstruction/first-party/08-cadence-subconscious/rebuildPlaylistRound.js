@@ -2,50 +2,51 @@
 // symbol: rebuildPlaylistRound  (minified: Rwe, daemon.pretty.js:66582)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 17 renamed — 3 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function rebuildPlaylistRound(e) {
-    let t = await loadSubconsciousPartitions(e),
-        n = t.filter(s => s.schedule.enabled);
-    if (n.length === 0 && t.length > 0) {
-        let s = t.map(a => a.name);
+async function rebuildPlaylistRound(paths) {
+    let subconsciousPartitions = await loadSubconsciousPartitions(paths),
+        enabledPartitions = subconsciousPartitions.filter(partition => partition.schedule.enabled);
+    if (enabledPartitions.length === 0 && subconsciousPartitions.length > 0) {
+        let disabledNames = subconsciousPartitions.map(partition => partition.name);
         logWarnMessage("[playlist] all partitions are disabled, meta-session will idle", {
-            totalPartitions: t.length,
-            disabledPartitions: s,
+            totalPartitions: subconsciousPartitions.length,
+            disabledPartitions: disabledNames,
             recoveryHint: "Edit partition CLAUDE.md files to set 'enabled: true' in frontmatter, or add new partitions"
         })
     }
-    let r;
+    let source;
     try {
-        r = await al.readFile(e.subconsciousPlaylistPath, "utf8")
+        source = await al.readFile(paths.subconsciousPlaylistPath, "utf8")
     } catch {
-        r = `# Subconscious Playlist
+        source = `# Subconscious Playlist
 
 ## Current Round
 
 ## History
 `
     }
-    let i = r.split(`
+    let parts = source.split(`
 `),
-        o = i.findIndex(s => s.trim() === "## Current Round");
-    if (o === -1) {
-        let s = n.map(a => `- [ ] ${a.name}`);
-        i.push("## Current Round", ...s)
+        roundIndex = parts.findIndex(line => line.trim() === "## Current Round");
+    if (roundIndex === -1) {
+        let roundLines = enabledPartitions.map(partition => `- [ ] ${partition.name}`);
+        parts.push("## Current Round", ...roundLines)
     } else {
-        let s = i.length;
-        for (let u = o + 1; u < i.length; u++)
-            if (i[u].trim().startsWith("## ") && i[u].trim() !== "## Current Round") {
-                s = u;
+        let length = parts.length;
+        for (let i2 = roundIndex + 1; i2 < parts.length; i2++)
+            if (parts[i2].trim().startsWith("## ") && parts[i2].trim() !== "## Current Round") {
+                length = i2;
                 break
-            } let a = n.map(u => `- [ ] ${u.name}`);
-        i.splice(o + 1, s - o - 1, ...a, "")
+            } let roundLines = enabledPartitions.map(partition => `- [ ] ${partition.name}`);
+        parts.splice(roundIndex + 1, length - roundIndex - 1, ...roundLines, "")
     }
-    return await writeFileAtomic(e.subconsciousPlaylistPath, `${i.join(`
+    return await writeFileAtomic(paths.subconsciousPlaylistPath, `${parts.join(`
 `).replace(/\s+$/,"")}
 `), logDebugMessage("[playlist] rebuilt round", {
-        count: n.length,
-        names: n.map(s => s.name)
-    }), n.length
+        count: enabledPartitions.length,
+        names: enabledPartitions.map(partition => partition.name)
+    }), enabledPartitions.length
 }

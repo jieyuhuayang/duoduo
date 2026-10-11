@@ -2,16 +2,17 @@
 // symbol: updateDeliveryCursorFile  (minified: Dbe, daemon.pretty.js:64398)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
+// locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function updateDeliveryCursorFile(e, t, n, r) {
-    let i = resolveDeliveryCursorPath(e, t, n);
-    return runWithSessionMutex(t, async () => {
-        if (isSessionArchived(e, t)) return logDebugMessage("[delivery-cursor] skip cursor write: session archived (tombstoned)", {
-            sessionKey: t
+async function updateDeliveryCursorFile(paths, sessionKey, consumerId, update) {
+    let deliveryCursorPath = resolveDeliveryCursorPath(paths, sessionKey, consumerId);
+    return runWithSessionMutex(sessionKey, async () => {
+        if (isSessionArchived(paths, sessionKey)) return logDebugMessage("[delivery-cursor] skip cursor write: session archived (tombstoned)", {
+            sessionKey
         }), !1;
-        let o = r(await readDeliveryCursorFile(e, t, n));
-        return o ? (await ensureDirectoryExists(Nbe.dirname(i)), await writeJsonFileAtomic(i, o), !0) : !1
+        let nextCursor = update(await readDeliveryCursorFile(paths, sessionKey, consumerId));
+        return nextCursor ? (await ensureDirectoryExists(Nbe.dirname(deliveryCursorPath)), await writeJsonFileAtomic(deliveryCursorPath, nextCursor), !0) : !1
     })
 }

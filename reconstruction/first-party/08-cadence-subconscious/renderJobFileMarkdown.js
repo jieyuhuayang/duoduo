@@ -2,25 +2,26 @@
 // symbol: renderJobFileMarkdown  (minified: gut, daemon.pretty.js:61576)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.4, v0.5.4, v0.5.6, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
+// locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.4 (high): fix(job): serialize runtime field in frontmatter
 // changelog v0.5.4 (high): A periodic job that does not depend on prior-run state can set `stateless: true`
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function renderJobFileMarkdown(e, t) {
-    let n = ["---"];
-    n.push(`type: "${e.type}"`), n.push(`cron: "${e.cron}"`), n.push(`created_at: "${e.created_at}"`), e.owner_session && n.push(`owner_session: "${e.owner_session}"`), e.cwd_rel && n.push(`cwd_rel: "${e.cwd_rel}"`), e.runtime && n.push(`runtime: "${e.runtime}"`), e.model && n.push(`model: "${e.model}"`), e.effort && n.push(`effort: "${e.effort}"`), e.acceptance && n.push(`acceptance: ${JSON.stringify(e.acceptance)}`), e.stateless === !0 && n.push("stateless: true"), e.prompt_mode === "override" && n.push('prompt_mode: "override"');
-    for (let r of ["allowedTools", "disallowedTools", "additionalDirectories"]) {
-        let i = e[r];
-        if (i && i.length > 0) {
-            n.push(`${r}:`);
-            for (let o of i) n.push(`  - ${JSON.stringify(o)}`)
+function renderJobFileMarkdown(frontmatter, body) {
+    let lines = ["---"];
+    lines.push(`type: "${frontmatter.type}"`), lines.push(`cron: "${frontmatter.cron}"`), lines.push(`created_at: "${frontmatter.created_at}"`), frontmatter.owner_session && lines.push(`owner_session: "${frontmatter.owner_session}"`), frontmatter.cwd_rel && lines.push(`cwd_rel: "${frontmatter.cwd_rel}"`), frontmatter.runtime && lines.push(`runtime: "${frontmatter.runtime}"`), frontmatter.model && lines.push(`model: "${frontmatter.model}"`), frontmatter.effort && lines.push(`effort: "${frontmatter.effort}"`), frontmatter.acceptance && lines.push(`acceptance: ${JSON.stringify(frontmatter.acceptance)}`), frontmatter.stateless === !0 && lines.push("stateless: true"), frontmatter.prompt_mode === "override" && lines.push('prompt_mode: "override"');
+    for (let listKey of ["allowedTools", "disallowedTools", "additionalDirectories"]) {
+        let listValues = frontmatter[listKey];
+        if (listValues && listValues.length > 0) {
+            lines.push(`${listKey}:`);
+            for (let item of listValues) lines.push(`  - ${JSON.stringify(item)}`)
         }
     }
-    if (e.claudeTools && e.claudeTools.length > 0) {
-        n.push("claude:"), n.push("  tools:");
-        for (let r of e.claudeTools) n.push(`    - ${JSON.stringify(r)}`)
+    if (frontmatter.claudeTools && frontmatter.claudeTools.length > 0) {
+        lines.push("claude:"), lines.push("  tools:");
+        for (let tool of frontmatter.claudeTools) lines.push(`    - ${JSON.stringify(tool)}`)
     }
-    return n.push("---"), n.push(""), n.push(t), n.join(`
+    return lines.push("---"), lines.push(""), lines.push(body), lines.join(`
 `)
 }

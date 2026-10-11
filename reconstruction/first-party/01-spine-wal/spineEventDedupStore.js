@@ -2,6 +2,7 @@
 // symbol: spineEventDedupStore  (minified: JR, daemon.pretty.js:87200)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
+// locals: 12 renamed — 1 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -9,57 +10,57 @@ var spineEventDedupStore = class {
     filePath;
     entries = new Map;
     cache = {};
-    constructor(t) {
-        this.filePath = t
+    constructor(filePath) {
+        this.filePath = filePath
     }
     async ensureLoaded() {
         await memoizeIndexLoad(this.cache, () => this.load(), () => this.entries.clear())
     }
     async load() {
-        let t = 0;
+        let skippedCount = 0;
         try {
-            let n = vYe(this.filePath);
-            for await (let r of iterateStreamLines(n)) {
-                if (!r.trim()) continue;
-                let i;
+            let stream = vYe(this.filePath);
+            for await (let line of iterateStreamLines(stream)) {
+                if (!line.trim()) continue;
+                let entry;
                 try {
-                    i = JSON.parse(r)
+                    entry = JSON.parse(line)
                 } catch {
-                    t++;
+                    skippedCount++;
                     continue
                 }
-                if (typeof i?.key != "string" || !i.key) {
-                    t++;
+                if (typeof entry?.key != "string" || !entry.key) {
+                    skippedCount++;
                     continue
                 }
-                this.entries.set(i.key, i)
+                this.entries.set(entry.key, entry)
             }
-        } catch (n) {
-            if (n.code === "ENOENT") return;
-            throw n
+        } catch (err) {
+            if (err.code === "ENOENT") return;
+            throw err
         }
-        t > 0 && logWarnMessage(`[spine] dedup store ${this.filePath}: skipped ${t} unreadable line(s)`)
+        skippedCount > 0 && logWarnMessage(`[spine] dedup store ${this.filePath}: skipped ${skippedCount} unreadable line(s)`)
     }
-    has(t) {
-        return this.entries.has(t)
+    has(key) {
+        return this.entries.has(key)
     }
-    get(t) {
-        return this.entries.get(t)
+    get(key) {
+        return this.entries.get(key)
     }
-    async record(t) {
-        this.entries.set(t.key, t), await ensureDirectoryExists(SYe.dirname(this.filePath));
-        let n = `${JSON.stringify(t)}
+    async record(entry) {
+        this.entries.set(entry.key, entry), await ensureDirectoryExists(SYe.dirname(this.filePath));
+        let line = `${JSON.stringify(entry)}
 `;
-        await wYe.appendFile(this.filePath, n)
+        await wYe.appendFile(this.filePath, line)
     }
-    async checkAndRecord(t) {
-        return (await this.checkAndRecordDetailed(t)).duplicate
+    async checkAndRecord(entry) {
+        return (await this.checkAndRecordDetailed(entry)).duplicate
     }
-    async checkAndRecordDetailed(t) {
-        return this.entries.has(t.key) ? {
+    async checkAndRecordDetailed(entry) {
+        return this.entries.has(entry.key) ? {
             duplicate: !0,
-            existing: this.entries.get(t.key)
-        } : (await this.record(t), {
+            existing: this.entries.get(entry.key)
+        } : (await this.record(entry), {
             duplicate: !1
         })
     }

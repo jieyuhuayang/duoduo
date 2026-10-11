@@ -2,158 +2,159 @@
 // symbol: appendBeforeExecuteGateway  (minified: yde, daemon.pretty.js:87568)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.5.10, v0.8.0, v0.8.4 (maps/history_daemon.json)
+// locals: 23 renamed — 6 from the code at the binding (rule), 17 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): Identical text sent twice was silently suppressed as a duplicate. Ingress de-duplication now keys only on an explicit source id, so resending a message always gets an answer.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function appendBeforeExecuteGateway(e, t, n) {
-    t.sourceChannelId !== void 0 && assertValidChannelId(t.sourceChannelId);
-    let r = createSpineEvent({
-            type: t.eventType,
+async function appendBeforeExecuteGateway(paths, request, options) {
+    request.sourceChannelId !== void 0 && assertValidChannelId(request.sourceChannelId);
+    let spineEvent = createSpineEvent({
+            type: request.eventType,
             source: {
-                kind: t.sourceKind,
-                name: t.sourceName,
-                channel_id: t.sourceChannelId
+                kind: request.sourceKind,
+                name: request.sourceName,
+                channel_id: request.sourceChannelId
             },
-            session_key: t.sessionKey,
-            payload: t.eventType === "channel.command" ? {
-                command: t.command ?? t.text,
-                text: t.text,
-                ...t.rawCommand ? {
-                    raw_command: t.rawCommand
+            session_key: request.sessionKey,
+            payload: request.eventType === "channel.command" ? {
+                command: request.command ?? request.text,
+                text: request.text,
+                ...request.rawCommand ? {
+                    raw_command: request.rawCommand
                 } : {},
-                ...typeof t.idle_ms == "number" && Number.isFinite(t.idle_ms) && t.idle_ms >= 0 ? {
-                    idle_ms: t.idle_ms
+                ...typeof request.idle_ms == "number" && Number.isFinite(request.idle_ms) && request.idle_ms >= 0 ? {
+                    idle_ms: request.idle_ms
                 } : {},
-                ...typeof t.threshold_at_fire == "number" && Number.isFinite(t.threshold_at_fire) && t.threshold_at_fire >= 0 ? {
-                    threshold_at_fire: t.threshold_at_fire
+                ...typeof request.threshold_at_fire == "number" && Number.isFinite(request.threshold_at_fire) && request.threshold_at_fire >= 0 ? {
+                    threshold_at_fire: request.threshold_at_fire
                 } : {}
             } : {
-                text: t.text,
-                media: t.attachments,
-                reply_fanout_session_keys: t.replyFanoutSessionKeys,
-                ...t.rawCommand ? {
-                    raw_command: t.rawCommand
+                text: request.text,
+                media: request.attachments,
+                reply_fanout_session_keys: request.replyFanoutSessionKeys,
+                ...request.rawCommand ? {
+                    raw_command: request.rawCommand
                 } : {}
             },
-            dedup: t.dedupSourceId ? {
-                source_id: t.dedupSourceId
+            dedup: request.dedupSourceId ? {
+                source_id: request.dedupSourceId
             } : void 0,
-            routing_hint: t.routingHint ? {
-                target: t.routingHint.target,
-                intent: t.routingHint.intent,
-                tags: t.routingHint.tags
+            routing_hint: request.routingHint ? {
+                target: request.routingHint.target,
+                intent: request.routingHint.intent,
+                tags: request.routingHint.tags
             } : void 0
         }),
-        i = await loadRegistryDedupStore(e),
-        o = computeDedupKey(r);
-    if (o) {
-        let f = await i.checkAndRecordDetailed({
-            key: o,
-            ts: r.ts,
-            event_id: r.id
+        registryDedupStore = await loadRegistryDedupStore(paths),
+        dedupKey = computeDedupKey(spineEvent);
+    if (dedupKey) {
+        let dedupResult = await registryDedupStore.checkAndRecordDetailed({
+            key: dedupKey,
+            ts: spineEvent.ts,
+            event_id: spineEvent.id
         });
-        if (f.duplicate && f.existing?.event_id) {
-            let p = await readEventById(e, f.existing.event_id, {
-                notAfter: f.existing.ts
+        if (dedupResult.duplicate && dedupResult.existing?.event_id) {
+            let eventById = await readEventById(paths, dedupResult.existing.event_id, {
+                notAfter: dedupResult.existing.ts
             });
-            if (p) {
-                let m = await findOutboxRecordByEventId(e, p.id);
-                return await ade(e, t.sourceKind, t.sourceChannelId), {
-                    event: p,
+            if (eventById) {
+                let outboxRecordByEventId = await findOutboxRecordByEventId(paths, eventById.id);
+                return await ade(paths, request.sourceKind, request.sourceChannelId), {
+                    event: eventById,
                     routing: {
-                        target: readRoutingTarget(p),
+                        target: readRoutingTarget(eventById),
                         enqueued: !1
                     },
                     deduplicated: !0,
-                    gatewayResponse: m?.payload.text,
-                    gatewayOutboxId: m?.id
+                    gatewayResponse: outboxRecordByEventId?.payload.text,
+                    gatewayOutboxId: outboxRecordByEventId?.id
                 }
             }
         }
     }
-    let s = await writeIngressSnapshot(e, {
-        sessionKey: t.sessionKey,
-        sourceKind: t.sourceKind,
-        sourceName: t.sourceName,
-        text: t.text,
-        attachments: t.attachments,
-        replyFanoutSessionKeys: t.replyFanoutSessionKeys,
-        dedupSourceId: t.dedupSourceId,
-        rawPayload: t.rawPayload,
-        routingHint: t.routingHint
-    }, r);
-    r.payload && (r.payload.raw_path = s), await atomicAppendEvent(e, r), await advanceConsumerWatermark(e, "gateway", r.id, new Date(r.ts)), await ade(e, t.sourceKind, t.sourceChannelId), await updateStatus(e, f => ({
-        ...f,
+    let rawPath = await writeIngressSnapshot(paths, {
+        sessionKey: request.sessionKey,
+        sourceKind: request.sourceKind,
+        sourceName: request.sourceName,
+        text: request.text,
+        attachments: request.attachments,
+        replyFanoutSessionKeys: request.replyFanoutSessionKeys,
+        dedupSourceId: request.dedupSourceId,
+        rawPayload: request.rawPayload,
+        routingHint: request.routingHint
+    }, spineEvent);
+    spineEvent.payload && (spineEvent.payload.raw_path = rawPath), await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "gateway", spineEvent.id, new Date(spineEvent.ts)), await ade(paths, request.sourceKind, request.sourceChannelId), await updateStatus(paths, status => ({
+        ...status,
         spine: {
-            ...f.spine,
-            event_log: mf.join(e.eventsDir, formatEventPartitionName(new Date(r.ts)))
+            ...status.spine,
+            event_log: mf.join(paths.eventsDir, formatEventPartitionName(new Date(spineEvent.ts)))
         },
         health: {
-            ...f.health,
+            ...status.health,
             gateway: "ok"
         }
-    }), new Date(r.ts));
-    let a, u = !1,
-        l, c, d = readRoutingTarget(r);
-    if (d === "gateway") {
-        let f = await replyToGatewayCommandEvent(e, r, n?.bus, n?.gatewayCommands);
-        l = f.responseText, c = f.outboxId, logDebugMessage("[gateway] gateway-targeted event (no enqueue)", {
-            id: r.id,
-            type: r.type,
-            intent: r.routing_hint?.intent,
-            raw_path: s,
-            handled: f.handled
+    }), new Date(spineEvent.ts));
+    let mailboxFile, enqueued = !1,
+        gatewayResponse, gatewayOutboxId, routingTarget = readRoutingTarget(spineEvent);
+    if (routingTarget === "gateway") {
+        let commandReply = await replyToGatewayCommandEvent(paths, spineEvent, options?.bus, options?.gatewayCommands);
+        gatewayResponse = commandReply.responseText, gatewayOutboxId = commandReply.outboxId, logDebugMessage("[gateway] gateway-targeted event (no enqueue)", {
+            id: spineEvent.id,
+            type: spineEvent.type,
+            intent: spineEvent.routing_hint?.intent,
+            raw_path: rawPath,
+            handled: commandReply.handled
         })
-    } else if (d === "meta") {
-        let f = "meta:subconscious",
-            p = `- [ ] @evt(${r.id})`;
-        a = await enqueueSessionInboxLine(e, f, p), u = !0, logLatencyStageTelemetry("mailbox_enqueued", r.id, {
-            sessionKey: f
+    } else if (routingTarget === "meta") {
+        let metaSessionKey = "meta:subconscious",
+            mailboxLine = `- [ ] @evt(${spineEvent.id})`;
+        mailboxFile = await enqueueSessionInboxLine(paths, metaSessionKey, mailboxLine), enqueued = !0, logLatencyStageTelemetry("mailbox_enqueued", spineEvent.id, {
+            sessionKey: metaSessionKey
         }), logDebugMessage("[gateway] meta-targeted event", {
-            id: r.id,
-            type: r.type,
-            raw_path: s,
-            mailboxFile: a
+            id: spineEvent.id,
+            type: spineEvent.type,
+            raw_path: rawPath,
+            mailboxFile
         })
-    } else if (await isVoidRuntimeSession(e, t.sessionKey, t.sourceChannelId)) {
-        let f = typeof r.payload?.raw_command == "string" ? r.payload.raw_command : typeof r.payload?.command == "string" ? r.payload.command : t.text,
-            p = parseInjectionPromptCommand(f) !== void 0 || parseGatewayCommandText(f) !== void 0,
-            m = await writeVoidSessionOutboxRecord(e, n?.bus, {
-                sessionKey: t.sessionKey,
-                text: p ? `${Ju} ${f} was not run.` : t.text,
-                attachments: p ? void 0 : t.attachments,
+    } else if (await isVoidRuntimeSession(paths, request.sessionKey, request.sourceChannelId)) {
+        let commandText = typeof spineEvent.payload?.raw_command == "string" ? spineEvent.payload.raw_command : typeof spineEvent.payload?.command == "string" ? spineEvent.payload.command : request.text,
+            isCommand = parseInjectionPromptCommand(commandText) !== void 0 || parseGatewayCommandText(commandText) !== void 0,
+            outboxRecord = await writeVoidSessionOutboxRecord(paths, options?.bus, {
+                sessionKey: request.sessionKey,
+                text: isCommand ? `${Ju} ${commandText} was not run.` : request.text,
+                attachments: isCommand ? void 0 : request.attachments,
                 data: {
-                    event_id: r.id,
-                    event_ts: r.ts
+                    event_id: spineEvent.id,
+                    event_ts: spineEvent.ts
                 }
             });
-        p && (l = m.payload.text, c = m.id), logDebugMessage("[gateway] void-session event (outbox, no enqueue)", {
-            id: r.id,
-            type: r.type,
-            session_key: t.sessionKey,
-            outbox_id: m.id
+        isCommand && (gatewayResponse = outboxRecord.payload.text, gatewayOutboxId = outboxRecord.id), logDebugMessage("[gateway] void-session event (outbox, no enqueue)", {
+            id: spineEvent.id,
+            type: spineEvent.type,
+            session_key: request.sessionKey,
+            outbox_id: outboxRecord.id
         })
     } else {
-        let f = `- [ ] @evt(${r.id})`;
-        a = await enqueueSessionInboxLine(e, t.sessionKey, f), u = !0, logLatencyStageTelemetry("mailbox_enqueued", r.id, {
-            sessionKey: t.sessionKey
+        let mailboxLine = `- [ ] @evt(${spineEvent.id})`;
+        mailboxFile = await enqueueSessionInboxLine(paths, request.sessionKey, mailboxLine), enqueued = !0, logLatencyStageTelemetry("mailbox_enqueued", spineEvent.id, {
+            sessionKey: request.sessionKey
         }), logDebugMessage("[gateway] session-targeted event", {
-            id: r.id,
-            type: r.type,
-            session_key: t.sessionKey,
-            raw_path: s,
-            mailboxFile: a
+            id: spineEvent.id,
+            type: spineEvent.type,
+            session_key: request.sessionKey,
+            raw_path: rawPath,
+            mailboxFile
         })
     }
-    return n?.bus && n.bus.emit("spine.event", r), {
-        event: r,
-        mailboxFile: a,
+    return options?.bus && options.bus.emit("spine.event", spineEvent), {
+        event: spineEvent,
+        mailboxFile,
         routing: {
-            target: d,
-            enqueued: u
+            target: routingTarget,
+            enqueued
         },
-        gatewayResponse: l,
-        gatewayOutboxId: c
+        gatewayResponse,
+        gatewayOutboxId
     }
 }

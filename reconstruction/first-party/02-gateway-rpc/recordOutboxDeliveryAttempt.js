@@ -2,29 +2,30 @@
 // symbol: recordOutboxDeliveryAttempt  (minified: df, daemon.pretty.js:36155)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1 (maps/history_daemon.json)
+// locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function recordOutboxDeliveryAttempt(e, t, n) {
-    let r = new Date().toISOString(),
-        i = {
-            ...t,
-            status: n.status,
-            attempts: t.attempts + 1,
-            last_attempt_at: r,
-            last_error: n.error ?? null
+async function recordOutboxDeliveryAttempt(paths, record, attempt) {
+    let attemptedAt = new Date().toISOString(),
+        updatedRecord = {
+            ...record,
+            status: attempt.status,
+            attempts: record.attempts + 1,
+            last_attempt_at: attemptedAt,
+            last_error: attempt.error ?? null
         },
-        o = resolveOutboxRecordPath(e, t.channel_kind, t.id);
-    await ensureDirectoryExists(Lr.dirname(o)), await writeJsonFileAtomic(o, i);
+        outboxRecordPath = resolveOutboxRecordPath(paths, record.channel_kind, record.id);
+    await ensureDirectoryExists(Lr.dirname(outboxRecordPath)), await writeJsonFileAtomic(outboxRecordPath, updatedRecord);
     try {
-        n.status === "sent" ? await get(e, t.id) : n.status === "failed" && await yet(e, {
-            record_id: t.id,
-            channel_kind: t.channel_kind,
-            session_key: t.session_key,
+        attempt.status === "sent" ? await get(paths, record.id) : attempt.status === "failed" && await yet(paths, {
+            record_id: record.id,
+            channel_kind: record.channel_kind,
+            session_key: record.session_key,
             status: "failed",
-            attempts: i.attempts,
-            created_at: t.created_at
+            attempts: updatedRecord.attempts,
+            created_at: record.created_at
         })
     } catch {}
-    return i
+    return updatedRecord
 }

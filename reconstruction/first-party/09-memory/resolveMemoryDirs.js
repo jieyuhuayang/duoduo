@@ -2,15 +2,16 @@
 // symbol: resolveMemoryDirs  (minified: Ni, daemon.pretty.js:66751)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function resolveMemoryDirs(e) {
+function resolveMemoryDirs(memoryDir) {
     return {
-        memoryDir: e,
-        boardPath: $O.join(e, "CLAUDE.md"),
-        entitiesDir: $O.join(e, "entities"),
-        topicsDir: $O.join(e, "topics"),
-        effectivenessDir: $O.join(e, "effectiveness")
+        memoryDir,
+        boardPath: $O.join(memoryDir, "CLAUDE.md"),
+        entitiesDir: $O.join(memoryDir, "entities"),
+        topicsDir: $O.join(memoryDir, "topics"),
+        effectivenessDir: $O.join(memoryDir, "effectiveness")
     }
 }

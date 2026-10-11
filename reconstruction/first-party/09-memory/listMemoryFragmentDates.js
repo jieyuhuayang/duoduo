@@ -2,26 +2,27 @@
 // symbol: listMemoryFragmentDates  (minified: Mdt, daemon.pretty.js:67767)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): one distils raw experience into fragments
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function listMemoryFragmentDates(e) {
-    let t;
+function listMemoryFragmentDates(memoryDir) {
+    let entries;
     try {
-        t = au.readdirSync(zc.join(e, "fragments"), {
+        entries = au.readdirSync(zc.join(memoryDir, "fragments"), {
             withFileTypes: !0
         })
-    } catch (r) {
+    } catch (err) {
         return {
             dates: [],
-            readFault: recordUnreadableUnlessMissing(r)
+            readFault: recordUnreadableUnlessMissing(err)
         }
     }
-    let n = [];
-    for (let r of t) r.isDirectory() && Bg(r.name) && n.push(r.name);
+    let dates = [];
+    for (let entry of entries) entry.isDirectory() && Bg(entry.name) && dates.push(entry.name);
     return {
-        dates: n.sort(),
+        dates: dates.sort(),
         readFault: !1
     }
 }

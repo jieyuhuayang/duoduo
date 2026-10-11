@@ -2,206 +2,207 @@
 // symbol: createClaudeStreamingSessionFactory  (minified: KRe, daemon.pretty.js:83211)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// locals: 161 renamed — 50 from the code at the binding (rule), 111 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createClaudeStreamingSessionFactory(e) {
+function createClaudeStreamingSessionFactory(deps) {
     let {
-        paths: t,
-        bus: n,
-        resolvedSdk: r,
-        classifyModelTargetAgainstLiveGeneration: i
-    } = e;
-    async function o(u, l) {
-        let c = l,
-            d = String(c.task_id ?? "unknown"),
-            f = String(c.status ?? "completed"),
-            p = String(c.summary ?? ""),
-            m = String(c.output_file ?? "");
+        paths,
+        bus,
+        resolvedSdk,
+        classifyModelTargetAgainstLiveGeneration
+    } = deps;
+    async function recordTaskNotification(sessionKey, message) {
+        let notification = message,
+            taskId = String(notification.task_id ?? "unknown"),
+            status = String(notification.status ?? "completed"),
+            summary = String(notification.summary ?? ""),
+            outputFile = String(notification.output_file ?? "");
         try {
-            let h = await deliverRouteEventToSession(t, n, {
-                traceId: `task-notify-${d}`,
+            let deliveryResult = await deliverRouteEventToSession(paths, bus, {
+                traceId: `task-notify-${taskId}`,
                 routeId: "task_notification",
                 sourceName: "sdk_subagent",
-                targetSessionKey: u,
-                sourceSessionKey: u,
+                targetSessionKey: sessionKey,
+                sourceSessionKey: sessionKey,
                 eventType: "notify",
                 walOnly: !0,
                 payload: {
-                    task_id: d,
-                    task_status: f,
-                    task_summary: p || void 0,
-                    task_output_file: m || void 0,
+                    task_id: taskId,
+                    task_status: status,
+                    task_summary: summary || void 0,
+                    task_output_file: outputFile || void 0,
                     completion_owner: "claude-cli"
                 }
             });
             logDebugMessage("[session-manager] task_notification recorded WAL-only", {
-                sessionKey: u,
-                taskId: d,
-                status: f,
-                success: h.success
+                sessionKey,
+                taskId,
+                status,
+                success: deliveryResult.success
             })
-        } catch (h) {
+        } catch (err) {
             logErrorMessage("[session-manager] task_notification WAL record failed", {
-                sessionKey: u,
-                taskId: d,
-                status: f,
-                error: h instanceof Error ? h.message : String(h)
+                sessionKey,
+                taskId,
+                status,
+                error: err instanceof Error ? err.message : String(err)
             })
         }
     }
-    async function s(u, l, c) {
-        let d = c.effort ?? null;
-        if (l.lastAppliedEffort === d) return;
-        let f = u.query;
-        if (!(!f || typeof f.applyFlagSettings != "function")) try {
-            await f.applyFlagSettings({
-                effortLevel: d
-            }), l.lastAppliedEffort = d
-        } catch (p) {
+    async function applyDrainEffort(actor, state, config) {
+        let effort = config.effort ?? null;
+        if (state.lastAppliedEffort === effort) return;
+        let query = actor.query;
+        if (!(!query || typeof query.applyFlagSettings != "function")) try {
+            await query.applyFlagSettings({
+                effortLevel: effort
+            }), state.lastAppliedEffort = effort
+        } catch (err) {
             logWarnMessage("[session-manager] failed to apply drain effort to the live session", {
-                sessionKey: u.sessionKey,
-                effort: d ?? "(runtime default)",
-                error: p instanceof Error ? p.message : String(p)
+                sessionKey: actor.sessionKey,
+                effort: effort ?? "(runtime default)",
+                error: err instanceof Error ? err.message : String(err)
             })
         }
     }
-    async function a(u, l) {
-        if (!r.createStreamingQuery) throw new Error("Streaming query support unavailable");
-        let c = readLiveStreamContextToken(u),
-            d = resolveContextCapToken({
-                requirement: l.claudeContextRequirement,
+    async function ensureStreamingSession(actor, config) {
+        if (!resolvedSdk.createStreamingQuery) throw new Error("Streaming query support unavailable");
+        let liveStreamContextToken = readLiveStreamContextToken(actor),
+            contextCapToken = resolveContextCapToken({
+                requirement: config.claudeContextRequirement,
                 hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
-                liveGenerationToken: c
+                liveGenerationToken: liveStreamContextToken
             }),
-            f = computeContextProfileSignature({
-                capToken: d,
-                requirement: l.claudeContextRequirement,
-                aliases: l.claudeModelAliases
+            contextProfileSignature = computeContextProfileSignature({
+                capToken: contextCapToken,
+                requirement: config.claudeContextRequirement,
+                aliases: config.claudeModelAliases
             }),
-            p = computeStreamingConfigSignature(l, f),
-            m = l.sessionId;
-        if (u.streamingState && !u.streamingState.closed && !u.streamingState.needsRecreation && u.streamingState.configSignature === p && (u.streamingState.hasAcceptedTurn || u.streamingState.initialSessionId === m)) return await s(u, u.streamingState, l), u.streamingState;
-        let h = u.streamingState,
-            g;
-        if (h && !h.closed)
-            if (h.configSignature !== p) {
-                let se = diffStreamingConfigSignature(h.configSignature, p);
+            streamingConfigSignature = computeStreamingConfigSignature(config, contextProfileSignature),
+            sessionId = config.sessionId;
+        if (actor.streamingState && !actor.streamingState.closed && !actor.streamingState.needsRecreation && actor.streamingState.configSignature === streamingConfigSignature && (actor.streamingState.hasAcceptedTurn || actor.streamingState.initialSessionId === sessionId)) return await applyDrainEffort(actor, actor.streamingState, config), actor.streamingState;
+        let streamingState = actor.streamingState,
+            teardownReason;
+        if (streamingState && !streamingState.closed)
+            if (streamingState.configSignature !== streamingConfigSignature) {
+                let signatureDiff = diffStreamingConfigSignature(streamingState.configSignature, streamingConfigSignature);
                 logAlwaysAtLevel("warn", "[kv-cache] respawn: signature-mismatch", {
-                    sessionKey: u.sessionKey,
-                    generation: u.streamingGeneration,
-                    sdk_session_id: u.sdkSessionId ?? null,
-                    diff: se
-                }), se.some(j => j.startsWith(`${SN}:`)) && (g = "model-context-profile-change")
-            } else h.needsRecreation ? logDebugMessage("[kv-cache] respawn: recreation-requested (already audited at source)", {
-                sessionKey: u.sessionKey,
-                generation: u.streamingGeneration,
-                sdk_session_id: u.sdkSessionId ?? null
+                    sessionKey: actor.sessionKey,
+                    generation: actor.streamingGeneration,
+                    sdk_session_id: actor.sdkSessionId ?? null,
+                    diff: signatureDiff
+                }), signatureDiff.some(entry => entry.startsWith(`${SN}:`)) && (teardownReason = "model-context-profile-change")
+            } else streamingState.needsRecreation ? logDebugMessage("[kv-cache] respawn: recreation-requested (already audited at source)", {
+                sessionKey: actor.sessionKey,
+                generation: actor.streamingGeneration,
+                sdk_session_id: actor.sdkSessionId ?? null
             }) : logAlwaysAtLevel("warn", "[kv-cache] respawn: resume-sessionid-change", {
-                sessionKey: u.sessionKey,
-                generation: u.streamingGeneration,
-                sdk_session_id: u.sdkSessionId ?? null,
-                requested_session_id: m ?? null
+                sessionKey: actor.sessionKey,
+                generation: actor.streamingGeneration,
+                sdk_session_id: actor.sdkSessionId ?? null,
+                requested_session_id: sessionId ?? null
             });
-        await teardownStreamingSession(u, g);
-        let y = resolveContextCapToken({
-                requirement: l.claudeContextRequirement,
+        await teardownStreamingSession(actor, teardownReason);
+        let contextCapToken2 = resolveContextCapToken({
+                requirement: config.claudeContextRequirement,
                 hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
                 liveGenerationToken: void 0
             }),
-            v = y === d ? f : computeContextProfileSignature({
-                capToken: y,
-                requirement: l.claudeContextRequirement,
-                aliases: l.claudeModelAliases
+            spawnDeliveryToken = contextCapToken2 === contextCapToken ? contextProfileSignature : computeContextProfileSignature({
+                capToken: contextCapToken2,
+                requirement: config.claudeContextRequirement,
+                aliases: config.claudeModelAliases
             }),
-            b = v === f ? p : computeStreamingConfigSignature(l, v),
-            _ = new TN,
-            E = new AbortController,
-            R = l.mcpServersFactory ? l.mcpServersFactory() : l.mcpServers,
-            P = resolveClaudeCostBaseline(m, l.costBaseline),
-            k = {
-                queue: _,
-                abortController: E,
-                configSignature: b,
-                initialSessionId: m,
+            configSignature = spawnDeliveryToken === contextProfileSignature ? streamingConfigSignature : computeStreamingConfigSignature(config, spawnDeliveryToken),
+            turnQueue = new TN,
+            abortController = new AbortController,
+            mcpServers = config.mcpServersFactory ? config.mcpServersFactory() : config.mcpServers,
+            claudeCostBaseline = resolveClaudeCostBaseline(sessionId, config.costBaseline),
+            newState = {
+                queue: turnQueue,
+                abortController,
+                configSignature,
+                initialSessionId: sessionId,
                 hasAcceptedTurn: !1,
                 needsRecreation: !1,
                 closed: !1,
                 currentTurn: null,
                 loopPromise: Promise.resolve(),
                 cliTurnTentative: null,
-                spawnMaxContextToken: y,
-                spawnDeliveryToken: v,
-                liveModel: l.model,
-                lastAppliedEffort: l.effort ?? null,
-                ...P && "prevTotalCostUsd" in P ? {
-                    lastTotalCostUsd: P.prevTotalCostUsd,
-                    lastModelUsage: P.prevModelUsage
+                spawnMaxContextToken: contextCapToken2,
+                spawnDeliveryToken,
+                liveModel: config.model,
+                lastAppliedEffort: config.effort ?? null,
+                ...claudeCostBaseline && "prevTotalCostUsd" in claudeCostBaseline ? {
+                    lastTotalCostUsd: claudeCostBaseline.prevTotalCostUsd,
+                    lastModelUsage: claudeCostBaseline.prevModelUsage
                 } : {}
             },
-            S = se => {
-                for (let j of _.drain()) j.reject(se())
+            rejectQueuedTurns = makeError => {
+                for (let queuedTurn of turnQueue.drain()) queuedTurn.reject(makeError())
             };
-        async function* D() {
-            for (; !E.signal.aborted;) {
-                let se;
+        async function* promptGenerator() {
+            for (; !abortController.signal.aborted;) {
+                let turn;
                 try {
-                    se = await _.dequeue(E.signal)
-                } catch (ne) {
-                    if (ne instanceof Error && ne.name === "AbortError") return;
-                    throw ne
+                    turn = await turnQueue.dequeue(abortController.signal)
+                } catch (err) {
+                    if (err instanceof Error && err.name === "AbortError") return;
+                    throw err
                 }
-                let j = k.currentTurn;
-                if (j !== null && j !== se) {
+                let currentTurn = newState.currentTurn;
+                if (currentTurn !== null && currentTurn !== turn) {
                     logWarnMessage("[session-manager] drain turn dequeued while the slot is occupied — rejected", {
-                        sessionKey: u.sessionKey,
-                        occupantAccepted: j.accepted
-                    }), se.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming slot occupied — prompt not yielded; retry after the occupant settles"));
+                        sessionKey: actor.sessionKey,
+                        occupantAccepted: currentTurn.accepted
+                    }), turn.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming slot occupied — prompt not yielded; retry after the occupant settles"));
                     continue
-                } else k.currentTurn = se, k.cliTurnTentative && (k.cliTurnTentative.compromised = !0), se.accepted = !1, se.streamedText = "", se.turnStreamedText = "", se.toolUseMap.clear();
-                for await (let ne of se.input.prompt) yield ne
+                } else newState.currentTurn = turn, newState.cliTurnTentative && (newState.cliTurnTentative.compromised = !0), turn.accepted = !1, turn.streamedText = "", turn.turnStreamedText = "", turn.toolUseMap.clear();
+                for await (let promptMessage of turn.input.prompt) yield promptMessage
             }
         }
-        let A = l.sessionId,
+        let sessionId2 = config.sessionId,
             {
-                query: $
-            } = r.createStreamingQuery({
-                prompt: D(),
-                abortController: E,
-                sessionId: A,
-                cwd: l.cwd,
-                settingSources: l.settingSources,
-                persistSession: l.persistSession,
-                permissionMode: l.permissionMode,
-                allowedTools: l.allowedTools,
-                disallowedTools: l.disallowedTools,
-                tools: l.tools,
-                effort: l.effort,
-                effortOrigin: l.effortOrigin,
-                model: l.model,
-                claudeContextRequirement: l.claudeContextRequirement,
-                claudeSettingsPath: l.claudeSettingsPath,
-                mcpServers: R,
-                additionalDirectories: l.additionalDirectories,
-                autoloadAdditionalDirectoryClaudeMd: l.autoloadAdditionalDirectoryClaudeMd,
-                callerSession: l.callerSession,
-                systemPrompt: l.systemPrompt,
+                query
+            } = resolvedSdk.createStreamingQuery({
+                prompt: promptGenerator(),
+                abortController,
+                sessionId: sessionId2,
+                cwd: config.cwd,
+                settingSources: config.settingSources,
+                persistSession: config.persistSession,
+                permissionMode: config.permissionMode,
+                allowedTools: config.allowedTools,
+                disallowedTools: config.disallowedTools,
+                tools: config.tools,
+                effort: config.effort,
+                effortOrigin: config.effortOrigin,
+                model: config.model,
+                claudeContextRequirement: config.claudeContextRequirement,
+                claudeSettingsPath: config.claudeSettingsPath,
+                mcpServers,
+                additionalDirectories: config.additionalDirectories,
+                autoloadAdditionalDirectoryClaudeMd: config.autoloadAdditionalDirectoryClaudeMd,
+                callerSession: config.callerSession,
+                systemPrompt: config.systemPrompt,
                 hooks: {
                     PreToolUse: [{
                         matcher: "*",
-                        hooks: [async se => {
-                            let j = se,
-                                ne = j.transcript_path;
-                            return typeof ne == "string" && ne.length > 0 && j.agent_id === void 0 && u.lastTranscriptPath !== ne && (u.lastTranscriptPath = ne, patchSessionRuntimeState(t, u.sessionKey, {
-                                transcript_path: ne
+                        hooks: [async hookInput => {
+                            let preToolInput = hookInput,
+                                transcriptPath = preToolInput.transcript_path;
+                            return typeof transcriptPath == "string" && transcriptPath.length > 0 && preToolInput.agent_id === void 0 && actor.lastTranscriptPath !== transcriptPath && (actor.lastTranscriptPath = transcriptPath, patchSessionRuntimeState(paths, actor.sessionKey, {
+                                transcript_path: transcriptPath
                             }).catch(() => {})), {}
                         }]
                     }, {
                         matcher: wc,
-                        hooks: [async se => {
-                            let j = se?.agent_id !== void 0,
-                                ne = j ? null : k.currentTurn;
-                            return ne ? ne.skipCalled = !0 : !j && k.cliTurnTentative && (k.cliTurnTentative.skipObserved = !0), {
+                        hooks: [async hookInput => {
+                            let isSubagent = hookInput?.agent_id !== void 0,
+                                turn = isSubagent ? null : newState.currentTurn;
+                            return turn ? turn.skipCalled = !0 : !isSubagent && newState.cliTurnTentative && (newState.cliTurnTentative.skipObserved = !0), {
                                 continue: !1,
                                 stopReason: "The agent intentionally ended this turn silently by calling Skip."
                             }
@@ -209,32 +210,32 @@ function createClaudeStreamingSessionFactory(e) {
                     }],
                     PostToolUse: [{
                         matcher: "*",
-                        hooks: [async se => {
-                            let j = [];
-                            if (se?.agent_id !== void 0) return {};
-                            if (k.currentTurn?.skipCalled === !0) return {};
-                            if (k.cliTurnTentative?.skipObserved === !0) return {};
-                            let ne = u.pendingSteer;
-                            if (ne && (u.pendingSteer = null, !ne.settled)) {
-                                ne.settled = !0;
+                        hooks: [async hookInput => {
+                            let additionalContexts = [];
+                            if (hookInput?.agent_id !== void 0) return {};
+                            if (newState.currentTurn?.skipCalled === !0) return {};
+                            if (newState.cliTurnTentative?.skipObserved === !0) return {};
+                            let pendingSteer = actor.pendingSteer;
+                            if (pendingSteer && (actor.pendingSteer = null, !pendingSteer.settled)) {
+                                pendingSteer.settled = !0;
                                 try {
-                                    await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, ne.eventIds)
-                                } catch (K) {
+                                    await deleteMailboxPendingItemsByEventIds(paths, actor.sessionKey, pendingSteer.eventIds)
+                                } catch (err) {
                                     logInfoMessage("[session-manager] steer hook markDone error", {
-                                        sessionKey: u.sessionKey,
-                                        error: String(K)
+                                        sessionKey: actor.sessionKey,
+                                        error: String(err)
                                     })
                                 }
-                                for (let K of ne.claimedEventIds) u.inflightEventIds.delete(K);
+                                for (let eventId of pendingSteer.claimedEventIds) actor.inflightEventIds.delete(eventId);
                                 logInfoMessage("[session-manager] steer hook: injected interjection mid-turn", {
-                                    sessionKey: u.sessionKey,
-                                    eventIds: ne.eventIds
-                                }), j.push(ne.steerText)
+                                    sessionKey: actor.sessionKey,
+                                    eventIds: pendingSteer.eventIds
+                                }), additionalContexts.push(pendingSteer.steerText)
                             }
-                            return j.length === 0 ? {} : {
+                            return additionalContexts.length === 0 ? {} : {
                                 hookSpecificOutput: {
                                     hookEventName: "PostToolUse",
-                                    additionalContext: j.join(`
+                                    additionalContext: additionalContexts.join(`
 
 `)
                                 }
@@ -243,464 +244,464 @@ function createClaudeStreamingSessionFactory(e) {
                     }]
                 }
             });
-        u.query = $, u.streamAbortController = E, u.streamingState = k, u.spawnBoardHash = l.boardHash, u.streamingGeneration += 1;
-        let C = u.streamingGeneration,
-            N = l.model,
-            x = typeof $.setModel == "function",
-            M = typeof $.applyFlagSettings == "function";
-        if (x || M) {
-            let se = await readSessionRuntimeState(t, u.sessionKey).catch(() => null);
-            if (x) {
-                let j = se ? se.model ?? null : void 0,
-                    K = l.claudeContextRequirement?.modelOrigin !== void 0 ? null : l.model ?? null;
-                if (j !== void 0 && j !== K && !E.signal.aborted) {
-                    let te = "compatible",
-                        B;
+        actor.query = query, actor.streamAbortController = abortController, actor.streamingState = newState, actor.spawnBoardHash = config.boardHash, actor.streamingGeneration += 1;
+        let streamingGeneration = actor.streamingGeneration,
+            model = config.model,
+            canSetModel = typeof query.setModel == "function",
+            canApplyFlagSettings = typeof query.applyFlagSettings == "function";
+        if (canSetModel || canApplyFlagSettings) {
+            let runtimeState = await readSessionRuntimeState(paths, actor.sessionKey).catch(() => null);
+            if (canSetModel) {
+                let persistedModel = runtimeState ? runtimeState.model ?? null : void 0,
+                    spawnModel = config.claudeContextRequirement?.modelOrigin !== void 0 ? null : config.model ?? null;
+                if (persistedModel !== void 0 && persistedModel !== spawnModel && !abortController.signal.aborted) {
+                    let reconcileOutcome = "compatible",
+                        requirementKind;
                     try {
-                        let G = await i(u.sessionKey, u, j);
-                        te = G.outcome, G.outcome !== "blocked" && (B = G.requirementKind)
-                    } catch (G) {
+                        let classification = await classifyModelTargetAgainstLiveGeneration(actor.sessionKey, actor, persistedModel);
+                        reconcileOutcome = classification.outcome, classification.outcome !== "blocked" && (requirementKind = classification.requirementKind)
+                    } catch (err) {
                         logWarnMessage("[session-manager] spawn-time model reconcile failed to read config", {
-                            sessionKey: u.sessionKey,
-                            model: j ?? "(reset to default)",
-                            error: G instanceof Error ? G.message : String(G)
-                        }), te = "config-unreadable"
+                            sessionKey: actor.sessionKey,
+                            model: persistedModel ?? "(reset to default)",
+                            error: err instanceof Error ? err.message : String(err)
+                        }), reconcileOutcome = "config-unreadable"
                     }
-                    if (te !== "compatible") logWarnMessage("[session-manager] deferring spawn-time model re-apply — context profile differs from this generation", {
-                        sessionKey: u.sessionKey,
-                        generation: C,
-                        deferred_model: j ?? "(reset to default)",
-                        running_model: l.model ?? "(runtime default)",
-                        outcome: te
+                    if (reconcileOutcome !== "compatible") logWarnMessage("[session-manager] deferring spawn-time model re-apply — context profile differs from this generation", {
+                        sessionKey: actor.sessionKey,
+                        generation: streamingGeneration,
+                        deferred_model: persistedModel ?? "(reset to default)",
+                        running_model: config.model ?? "(runtime default)",
+                        outcome: reconcileOutcome
                     });
                     else try {
-                        await $.setModel(j ?? void 0), N = j ?? void 0, k.liveModel = j ?? void 0
-                    } catch (G) {
+                        await query.setModel(persistedModel ?? void 0), model = persistedModel ?? void 0, newState.liveModel = persistedModel ?? void 0
+                    } catch (err) {
                         logWarnMessage("[session-manager] failed to re-apply session model override — keeping it for the next spawn", {
-                            sessionKey: u.sessionKey,
-                            model: j ?? "(reset to default)",
-                            running_model: l.model ?? "(runtime default)",
-                            error: G instanceof Error ? G.message : String(G)
-                        }), j !== null && flagStreamRecreationOnModelReject(u, {
-                            model: j,
-                            requirementKind: B,
+                            sessionKey: actor.sessionKey,
+                            model: persistedModel ?? "(reset to default)",
+                            running_model: config.model ?? "(runtime default)",
+                            error: err instanceof Error ? err.message : String(err)
+                        }), persistedModel !== null && flagStreamRecreationOnModelReject(actor, {
+                            model: persistedModel,
+                            requirementKind,
                             reason: "spawn-reconcile"
                         })
                     }
                 }
             }
-            if (M && !E.signal.aborted) {
-                let j = se?.effort ?? null,
-                    ne = l.effortOrigin !== void 0 ? null : l.effort ?? null;
-                if (j !== ne) try {
-                    await $.applyFlagSettings({
-                        effortLevel: j
-                    }), u.streamingState && (u.streamingState.lastAppliedEffort = j)
-                } catch (K) {
+            if (canApplyFlagSettings && !abortController.signal.aborted) {
+                let persistedEffort = runtimeState?.effort ?? null,
+                    spawnEffort = config.effortOrigin !== void 0 ? null : config.effort ?? null;
+                if (persistedEffort !== spawnEffort) try {
+                    await query.applyFlagSettings({
+                        effortLevel: persistedEffort
+                    }), actor.streamingState && (actor.streamingState.lastAppliedEffort = persistedEffort)
+                } catch (err) {
                     logWarnMessage("[session-manager] failed to re-apply session effort override at spawn", {
-                        sessionKey: u.sessionKey,
-                        effort: j ?? "(reset to default)",
-                        error: K instanceof Error ? K.message : String(K)
+                        sessionKey: actor.sessionKey,
+                        effort: persistedEffort ?? "(reset to default)",
+                        error: err instanceof Error ? err.message : String(err)
                     })
                 }
             }
         }
         logAlwaysAtLevel("info", "[kv-cache] streaming subprocess spawned", {
-            sessionKey: u.sessionKey,
-            generation: C,
-            model: N ?? "default",
-            context_profile_source: describeContextProfileSource(l.claudeContextRequirement),
-            max_context_token: y,
-            ...extractProfiledEndpointFields(l.claudeContextRequirement),
-            alias_tiers: listSortedAliasKeys(l.claudeModelAliases),
-            board_hash: l.boardHash ? l.boardHash.slice(0, 12) : null
+            sessionKey: actor.sessionKey,
+            generation: streamingGeneration,
+            model: model ?? "default",
+            context_profile_source: describeContextProfileSource(config.claudeContextRequirement),
+            max_context_token: contextCapToken2,
+            ...extractProfiledEndpointFields(config.claudeContextRequirement),
+            alias_tiers: listSortedAliasKeys(config.claudeModelAliases),
+            board_hash: config.boardHash ? config.boardHash.slice(0, 12) : null
         });
-        let F = (se, j, ne, K = !1) => {
-                if (j && !se.skipCalled) {
-                    if (K) {
-                        se.input.onStream?.(j, !0);
+        let emitStream = (turn, text, isDelta, isSidechain = !1) => {
+                if (text && !turn.skipCalled) {
+                    if (isSidechain) {
+                        turn.input.onStream?.(text, !0);
                         return
                     }
-                    if (ne) {
-                        se.streamedText += j, se.turnStreamedText += j, se.input.onStream?.(j, !1);
+                    if (isDelta) {
+                        turn.streamedText += text, turn.turnStreamedText += text, turn.input.onStream?.(text, !1);
                         return
                     }
-                    if (se.turnStreamedText && j.startsWith(se.turnStreamedText)) {
-                        let te = j.slice(se.turnStreamedText.length);
-                        te && (se.streamedText += te, se.turnStreamedText = j, se.input.onStream?.(te, !1));
+                    if (turn.turnStreamedText && text.startsWith(turn.turnStreamedText)) {
+                        let suffix = text.slice(turn.turnStreamedText.length);
+                        suffix && (turn.streamedText += suffix, turn.turnStreamedText = text, turn.input.onStream?.(suffix, !1));
                         return
                     }
-                    if (j.startsWith(se.streamedText)) {
-                        let te = j.slice(se.streamedText.length);
-                        te && (se.streamedText = j, se.turnStreamedText += te, se.input.onStream?.(te, !1));
+                    if (text.startsWith(turn.streamedText)) {
+                        let suffix = text.slice(turn.streamedText.length);
+                        suffix && (turn.streamedText = text, turn.turnStreamedText += suffix, turn.input.onStream?.(suffix, !1));
                         return
                     }
-                    se.streamedText += j, se.turnStreamedText += j, se.input.onStream?.(j, !1)
+                    turn.streamedText += text, turn.turnStreamedText += text, turn.input.onStream?.(text, !1)
                 }
             },
-            J = async () => {
-                let se = u.pendingSteer;
-                if (se && (u.pendingSteer = null, !se.settled)) {
-                    if (k.closed) {
-                        se.settled = !0;
-                        let j = [];
-                        for (let K = 0; K < se.requeueLines.length; K += 1) {
-                            let te = se.requeueLines[K],
-                                B = se.requeueEventIds[K];
+            settlePendingSteer = async () => {
+                let pendingSteer = actor.pendingSteer;
+                if (pendingSteer && (actor.pendingSteer = null, !pendingSteer.settled)) {
+                    if (newState.closed) {
+                        pendingSteer.settled = !0;
+                        let requeuedEventIds = [];
+                        for (let i = 0; i < pendingSteer.requeueLines.length; i += 1) {
+                            let line = pendingSteer.requeueLines[i],
+                                eventId = pendingSteer.requeueEventIds[i];
                             try {
-                                await enqueueSessionInboxLine(t, u.sessionKey, te), j.push(B)
-                            } catch (G) {
+                                await enqueueSessionInboxLine(paths, actor.sessionKey, line), requeuedEventIds.push(eventId)
+                            } catch (err) {
                                 logWarnMessage("[session-manager] steer fallback closed-stream requeue failed", {
-                                    sessionKey: u.sessionKey,
-                                    eventId: B,
-                                    error: G instanceof Error ? G.message : String(G)
+                                    sessionKey: actor.sessionKey,
+                                    eventId,
+                                    error: err instanceof Error ? err.message : String(err)
                                 })
                             }
                         }
-                        let ne = [...j, ...se.processedEventIds];
-                        if (ne.length > 0) try {
-                            await deleteMailboxPendingItemsByEventIds(t, u.sessionKey, ne)
-                        } catch (K) {
+                        let doneEventIds = [...requeuedEventIds, ...pendingSteer.processedEventIds];
+                        if (doneEventIds.length > 0) try {
+                            await deleteMailboxPendingItemsByEventIds(paths, actor.sessionKey, doneEventIds)
+                        } catch (err) {
                             logInfoMessage("[session-manager] steer fallback closed markDone error", {
-                                sessionKey: u.sessionKey,
-                                error: String(K)
+                                sessionKey: actor.sessionKey,
+                                error: String(err)
                             })
                         }
-                        for (let K of se.claimedEventIds) u.inflightEventIds.delete(K);
-                        u.pendingWake = !0, logInfoMessage("[session-manager] steer fallback requeued to inbox (stream closed)", {
-                            sessionKey: u.sessionKey,
-                            eventIds: se.eventIds,
-                            requeued: j.length,
-                            requeueFailed: se.requeueLines.length - j.length
+                        for (let eventId of pendingSteer.claimedEventIds) actor.inflightEventIds.delete(eventId);
+                        actor.pendingWake = !0, logInfoMessage("[session-manager] steer fallback requeued to inbox (stream closed)", {
+                            sessionKey: actor.sessionKey,
+                            eventIds: pendingSteer.eventIds,
+                            requeued: requeuedEventIds.length,
+                            requeueFailed: pendingSteer.requeueLines.length - requeuedEventIds.length
                         });
                         return
                     }
-                    se.settled = !0;
+                    pendingSteer.settled = !0;
                     try {
-                        await se.enqueueAsNewTurn()
-                    } catch (j) {
+                        await pendingSteer.enqueueAsNewTurn()
+                    } catch (err) {
                         logInfoMessage("[session-manager] steer fallback enqueue error", {
-                            sessionKey: u.sessionKey,
-                            error: String(j)
+                            sessionKey: actor.sessionKey,
+                            error: String(err)
                         })
                     }
                 }
-            }, ce = se => buildClaudeCostBaseline(se, k.lastTotalCostUsd, k.lastModelUsage), ie = se => se.origin?.kind === "task-notification", Ce = async (se, j, ne, K) => {
-                let te = se,
-                    B = typeof te.duration_ms == "number" && Number.isFinite(te.duration_ms) && te.duration_ms >= 0 ? te.duration_ms : 0,
-                    G = typeof te.duration_api_ms == "number" && Number.isFinite(te.duration_api_ms) && te.duration_api_ms >= 0 ? te.duration_api_ms : 0;
+            }, buildCostBaseline = sdkSessionId => buildClaudeCostBaseline(sdkSessionId, newState.lastTotalCostUsd, newState.lastModelUsage), isTaskNotificationResult = result => result.origin?.kind === "task-notification", appendCliTurnRecord = async (resultMessage, usage, outputChars, settledAt) => {
+                let result = resultMessage,
+                    durationMs = typeof result.duration_ms == "number" && Number.isFinite(result.duration_ms) && result.duration_ms >= 0 ? result.duration_ms : 0,
+                    sdkDurationMs = typeof result.duration_api_ms == "number" && Number.isFinite(result.duration_api_ms) && result.duration_api_ms >= 0 ? result.duration_api_ms : 0;
                 try {
-                    await appendDrainRecord(t, {
+                    await appendDrainRecord(paths, {
                         origin: "cli-turn",
                         id: cbt(),
-                        session_key: u.sessionKey,
-                        sdk_session_id: u.sdkSessionId,
-                        drain_started_at: new Date(K - B).toISOString(),
-                        drain_duration_ms: B,
-                        sdk_duration_ms: G,
+                        session_key: actor.sessionKey,
+                        sdk_session_id: actor.sdkSessionId,
+                        drain_started_at: new Date(settledAt - durationMs).toISOString(),
+                        drain_duration_ms: durationMs,
+                        sdk_duration_ms: sdkDurationMs,
                         events_processed: 0,
                         events_skipped: 0,
                         tool_calls: 0,
                         tool_errors: 0,
-                        output_chars: ne,
+                        output_chars: outputChars,
                         cancelled: !1,
-                        usage: j
+                        usage
                     })
-                } catch (H) {
+                } catch (err) {
                     logErrorMessage("[completion-owner] CLI turn ledger write failed", {
-                        sessionKey: u.sessionKey,
-                        generation: u.streamingGeneration,
-                        error: H instanceof Error ? H.message : String(H)
+                        sessionKey: actor.sessionKey,
+                        generation: actor.streamingGeneration,
+                        error: err instanceof Error ? err.message : String(err)
                     })
                 }
             };
-        return k.loopPromise = (async () => {
-            let se = null,
-                j;
+        return newState.loopPromise = (async () => {
+            let initAcceptedTurn = null,
+                unspokenCompletion;
             try {
-                for await (let ne of $) {
-                    let K = ne;
-                    u.lastActivityAt = Date.now();
-                    let te, B, G = !1,
-                        H = null;
-                    if (K.type === "result") {
-                        te = k.lastModelUsage, B = k.lastTotalCostUsd, G = P !== void 0 && "baselineUnknown" in P && (B === void 0 || te === void 0), H = se, se = null;
-                        let pe = K.modelUsage;
-                        pe !== void 0 && (k.lastModelUsage = pe);
-                        let fe = K.total_cost_usd;
-                        typeof fe == "number" && (k.lastTotalCostUsd = fe)
+                for await (let sdkMessage of query) {
+                    let msg = sdkMessage;
+                    actor.lastActivityAt = Date.now();
+                    let prevModelUsage, prevTotalCostUsd, baselineUnknown = !1,
+                        resultInitTurn = null;
+                    if (msg.type === "result") {
+                        prevModelUsage = newState.lastModelUsage, prevTotalCostUsd = newState.lastTotalCostUsd, baselineUnknown = claudeCostBaseline !== void 0 && "baselineUnknown" in claudeCostBaseline && (prevTotalCostUsd === void 0 || prevModelUsage === void 0), resultInitTurn = initAcceptedTurn, initAcceptedTurn = null;
+                        let modelUsage = msg.modelUsage;
+                        modelUsage !== void 0 && (newState.lastModelUsage = modelUsage);
+                        let totalCostUsd = msg.total_cost_usd;
+                        typeof totalCostUsd == "number" && (newState.lastTotalCostUsd = totalCostUsd)
                     }
-                    if (K.type === "result" && ie(K)) {
-                        let pe = Date.now(),
-                            fe = k.cliTurnTentative;
-                        k.cliTurnTentative = null;
-                        let Se = k.currentTurn,
-                            w = fe?.skipObserved ?? !1,
-                            T;
-                        if (K.subtype === "success" && (T = mapClaudeResultToDrainUsage(K, {
-                                prevModelUsage: te,
-                                prevTotalCostUsd: B,
-                                baselineUnknown: G
-                            }), T && !w && typeof $.getContextUsage == "function")) try {
-                            let Y = (await $.getContextUsage())?.totalTokens;
-                            typeof Y == "number" && Number.isFinite(Y) && Y >= 0 && (T.context_used_tokens = Y)
+                    if (msg.type === "result" && isTaskNotificationResult(msg)) {
+                        let now = Date.now(),
+                            cliTurnTentative = newState.cliTurnTentative;
+                        newState.cliTurnTentative = null;
+                        let currentTurn = newState.currentTurn,
+                            skipObserved = cliTurnTentative?.skipObserved ?? !1,
+                            usage;
+                        if (msg.subtype === "success" && (usage = mapClaudeResultToDrainUsage(msg, {
+                                prevModelUsage,
+                                prevTotalCostUsd,
+                                baselineUnknown
+                            }), usage && !skipObserved && typeof query.getContextUsage == "function")) try {
+                            let contextUsedTokens = (await query.getContextUsage())?.totalTokens;
+                            typeof contextUsedTokens == "number" && Number.isFinite(contextUsedTokens) && contextUsedTokens >= 0 && (usage.context_used_tokens = contextUsedTokens)
                         } catch {}
-                        if (u.lastCliTurnSettledAt = pe, u.lastTurnCompletedAt = pe, j = void 0, Se) {
-                            let U = H === Se,
-                                Y = fe?.compromised === !0,
-                                me = Se.accepted;
-                            k.currentTurn = null, Se.accepted = !1, await J(), Se.reject(new AgentSdkPromptNotAcceptedAbortError("Task-completion turn folded with mailbox drain; retrying the drain")), u.pendingWake = !0, u.wakeResolver?.(), await Ce(K, T, 0, pe), logAlwaysAtLevel("warn", "[completion-owner] voided folded drain", {
-                                sessionKey: u.sessionKey,
-                                generation: u.streamingGeneration,
-                                acceptedByForeignInit: U,
-                                installedDuringTentative: Y,
-                                wasAccepted: me
+                        if (actor.lastCliTurnSettledAt = now, actor.lastTurnCompletedAt = now, unspokenCompletion = void 0, currentTurn) {
+                            let acceptedByForeignInit = resultInitTurn === currentTurn,
+                                installedDuringTentative = cliTurnTentative?.compromised === !0,
+                                accepted = currentTurn.accepted;
+                            newState.currentTurn = null, currentTurn.accepted = !1, await settlePendingSteer(), currentTurn.reject(new AgentSdkPromptNotAcceptedAbortError("Task-completion turn folded with mailbox drain; retrying the drain")), actor.pendingWake = !0, actor.wakeResolver?.(), await appendCliTurnRecord(msg, usage, 0, now), logAlwaysAtLevel("warn", "[completion-owner] voided folded drain", {
+                                sessionKey: actor.sessionKey,
+                                generation: actor.streamingGeneration,
+                                acceptedByForeignInit,
+                                installedDuringTentative,
+                                wasAccepted: accepted
                             });
                             continue
                         }
-                        let L = 0,
-                            z = K.subtype === "success" && !w && typeof K.result == "string" && K.result.length > 0 ? K.result : void 0;
-                        if (z !== void 0) {
-                            let U = await readPendingOutboundAttachments(t, u.sessionKey).catch(() => {}),
-                                Y = createOutboxRecord({
-                                    channel_kind: channelKindFromSessionKey(u.sessionKey),
-                                    session_key: u.sessionKey,
+                        let outputChars = 0,
+                            resultText = msg.subtype === "success" && !skipObserved && typeof msg.result == "string" && msg.result.length > 0 ? msg.result : void 0;
+                        if (resultText !== void 0) {
+                            let attachments = await readPendingOutboundAttachments(paths, actor.sessionKey).catch(() => {}),
+                                outboxRecord = createOutboxRecord({
+                                    channel_kind: channelKindFromSessionKey(actor.sessionKey),
+                                    session_key: actor.sessionKey,
                                     payload: {
-                                        text: z,
-                                        attachments: U
+                                        text: resultText,
+                                        attachments
                                     }
                                 });
                             try {
-                                await persistOutboxRecord(t, Y), L = z.length, n.emit("session.output", {
-                                    sessionKey: u.sessionKey,
-                                    record: Y
+                                await persistOutboxRecord(paths, outboxRecord), outputChars = resultText.length, bus.emit("session.output", {
+                                    sessionKey: actor.sessionKey,
+                                    record: outboxRecord
                                 })
-                            } catch (me) {
+                            } catch (err) {
                                 logErrorMessage("[completion-owner] proactive outbox write failed", {
-                                    sessionKey: u.sessionKey,
-                                    generation: u.streamingGeneration,
-                                    error: me instanceof Error ? me.message : String(me)
+                                    sessionKey: actor.sessionKey,
+                                    generation: actor.streamingGeneration,
+                                    error: err instanceof Error ? err.message : String(err)
                                 })
                             }
-                            L > 0 && U && await clearPendingOutboundAttachments(t, u.sessionKey).catch(me => logErrorMessage("[completion-owner] pending attachment clear failed", {
-                                sessionKey: u.sessionKey,
-                                generation: u.streamingGeneration,
-                                error: me instanceof Error ? me.message : String(me)
+                            outputChars > 0 && attachments && await clearPendingOutboundAttachments(paths, actor.sessionKey).catch(clearErr => logErrorMessage("[completion-owner] pending attachment clear failed", {
+                                sessionKey: actor.sessionKey,
+                                generation: actor.streamingGeneration,
+                                error: clearErr instanceof Error ? clearErr.message : String(clearErr)
                             }))
                         }
-                        await Ce(K, T, L, pe), u.pendingWake = !0, u.wakeResolver?.(), logInfoMessage("[completion-owner] settled CLI completion turn", {
-                            sessionKey: u.sessionKey,
-                            generation: u.streamingGeneration,
-                            subtype: K.subtype,
-                            skipped: w,
-                            outputChars: L
+                        await appendCliTurnRecord(msg, usage, outputChars, now), actor.pendingWake = !0, actor.wakeResolver?.(), logInfoMessage("[completion-owner] settled CLI completion turn", {
+                            sessionKey: actor.sessionKey,
+                            generation: actor.streamingGeneration,
+                            subtype: msg.subtype,
+                            skipped: skipObserved,
+                            outputChars
                         });
                         continue
                     }
-                    let q = k.currentTurn;
-                    if (!q) {
-                        if (K.type === "system" && K.subtype === "task_notification") {
-                            let pe = K;
-                            await o(u.sessionKey, K), j = {
-                                taskId: String(pe.task_id ?? "unknown"),
-                                status: String(pe.status ?? "completed"),
+                    let currentTurn = newState.currentTurn;
+                    if (!currentTurn) {
+                        if (msg.type === "system" && msg.subtype === "task_notification") {
+                            let taskNotification = msg;
+                            await recordTaskNotification(actor.sessionKey, msg), unspokenCompletion = {
+                                taskId: String(taskNotification.task_id ?? "unknown"),
+                                status: String(taskNotification.status ?? "completed"),
                                 observedAt: Date.now()
                             };
                             continue
                         }
-                        if (K.type === "system" && K.subtype === "init") {
-                            k.cliTurnTentative ??= {
+                        if (msg.type === "system" && msg.subtype === "init") {
+                            newState.cliTurnTentative ??= {
                                 skipObserved: !1,
                                 compromised: !1
-                            }, se = null;
+                            }, initAcceptedTurn = null;
                             continue
                         }
-                        if (K.type === "result") {
-                            let pe = k.cliTurnTentative !== null;
-                            k.cliTurnTentative = null, logInfoMessage("[session-manager] orphan result received", {
-                                sessionKey: u.sessionKey,
-                                subtype: K.subtype,
-                                hadTentative: pe
-                            }), u.pendingWake = !0, u.wakeResolver?.();
+                        if (msg.type === "result") {
+                            let hadTentative = newState.cliTurnTentative !== null;
+                            newState.cliTurnTentative = null, logInfoMessage("[session-manager] orphan result received", {
+                                sessionKey: actor.sessionKey,
+                                subtype: msg.subtype,
+                                hadTentative
+                            }), actor.pendingWake = !0, actor.wakeResolver?.();
                             continue
                         }
                         continue
                     }
-                    if (K.type === "system") {
-                        if (K.subtype === "task_notification") {
-                            let fe = K;
-                            await o(u.sessionKey, K), j = {
-                                taskId: String(fe.task_id ?? "unknown"),
-                                status: String(fe.status ?? "completed"),
+                    if (msg.type === "system") {
+                        if (msg.subtype === "task_notification") {
+                            let taskNotification = msg;
+                            await recordTaskNotification(actor.sessionKey, msg), unspokenCompletion = {
+                                taskId: String(taskNotification.task_id ?? "unknown"),
+                                status: String(taskNotification.status ?? "completed"),
                                 observedAt: Date.now()
                             }
                         }
-                        if (K.subtype === "init") {
-                            let fe = !q.accepted;
-                            k.hasAcceptedTurn = !0, q.accepted = !0, k.cliTurnTentative = null, se = fe ? q : null;
+                        if (msg.subtype === "init") {
+                            let firstAccept = !currentTurn.accepted;
+                            newState.hasAcceptedTurn = !0, currentTurn.accepted = !0, newState.cliTurnTentative = null, initAcceptedTurn = firstAccept ? currentTurn : null;
                             try {
-                                q.input.onTurnAcknowledged?.()
+                                currentTurn.input.onTurnAcknowledged?.()
                             } catch {}
-                            q.sessionId = K.session_id ?? q.sessionId, u.sdkSessionId = K.session_id ?? u.sdkSessionId, u.sdkSessionIdVerified = !0, A && K.session_id && A !== K.session_id && logWarnMessage("[session-manager] SDK session ID mismatch — context lost", {
-                                sessionKey: u.sessionKey,
-                                requestedSessionId: A,
-                                actualSessionId: K.session_id
-                            }), K.session_id && u.jobStateless !== !0 && await patchSessionRuntimeState(t, u.sessionKey, {
-                                sdk_session_id: K.session_id,
+                            currentTurn.sessionId = msg.session_id ?? currentTurn.sessionId, actor.sdkSessionId = msg.session_id ?? actor.sdkSessionId, actor.sdkSessionIdVerified = !0, sessionId2 && msg.session_id && sessionId2 !== msg.session_id && logWarnMessage("[session-manager] SDK session ID mismatch — context lost", {
+                                sessionKey: actor.sessionKey,
+                                requestedSessionId: sessionId2,
+                                actualSessionId: msg.session_id
+                            }), msg.session_id && actor.jobStateless !== !0 && await patchSessionRuntimeState(paths, actor.sessionKey, {
+                                sdk_session_id: msg.session_id,
                                 sdk_session_runtime: "claude"
-                            }), u.pendingPreempt && u.pendingPreemptBoundary === "accept" && (u.pendingPreempt = !1, u.pendingPreemptBoundary = null, u.pendingPreemptReason = null, interruptActorQuery(u))
+                            }), actor.pendingPreempt && actor.pendingPreemptBoundary === "accept" && (actor.pendingPreempt = !1, actor.pendingPreemptBoundary = null, actor.pendingPreemptReason = null, interruptActorQuery(actor))
                         }
-                        let pe;
-                        K.subtype === "init" ? pe = {
-                            session_id: K.session_id
-                        } : K.subtype === "compact_boundary" && K.compact_metadata && (pe = {
-                            trigger: K.compact_metadata.trigger,
-                            pre_tokens: K.compact_metadata.pre_tokens,
-                            post_tokens: K.compact_metadata.post_tokens
-                        }), q.input.onExecutionEvent?.({
+                        let eventData;
+                        msg.subtype === "init" ? eventData = {
+                            session_id: msg.session_id
+                        } : msg.subtype === "compact_boundary" && msg.compact_metadata && (eventData = {
+                            trigger: msg.compact_metadata.trigger,
+                            pre_tokens: msg.compact_metadata.pre_tokens,
+                            post_tokens: msg.compact_metadata.post_tokens
+                        }), currentTurn.input.onExecutionEvent?.({
                             type: "system",
-                            subtype: K.subtype ?? "unknown",
-                            data: pe
+                            subtype: msg.subtype ?? "unknown",
+                            data: eventData
                         });
                         continue
                     }
-                    if (K.type === "stream_event") {
-                        let pe = hasParentToolUseId(K);
-                        for (let w of extractStreamTextDeltas(K.event)) F(q, w.text, w.isDelta, pe);
-                        for (let w of extractStreamThinkingText(K.event)) q.input.onExecutionEvent?.({
+                    if (msg.type === "stream_event") {
+                        let isSidechain = hasParentToolUseId(msg);
+                        for (let chunk of extractStreamTextDeltas(msg.event)) emitStream(currentTurn, chunk.text, chunk.isDelta, isSidechain);
+                        for (let thought of extractStreamThinkingText(msg.event)) currentTurn.input.onExecutionEvent?.({
                             type: "thought_chunk",
-                            text: w
+                            text: thought
                         });
-                        let fe = parseToolUseBlockStart(K.event);
-                        fe && (q.toolBlockIndexMap.set(fe.index, {
-                            toolUseId: fe.toolUseId,
-                            toolName: fe.toolName
-                        }), q.toolUseMap.set(fe.toolUseId, fe.toolName), q.input.onExecutionEvent?.({
+                        let toolUseBlockStart = parseToolUseBlockStart(msg.event);
+                        toolUseBlockStart && (currentTurn.toolBlockIndexMap.set(toolUseBlockStart.index, {
+                            toolUseId: toolUseBlockStart.toolUseId,
+                            toolName: toolUseBlockStart.toolName
+                        }), currentTurn.toolUseMap.set(toolUseBlockStart.toolUseId, toolUseBlockStart.toolName), currentTurn.input.onExecutionEvent?.({
                             type: "tool_use",
-                            toolUseId: fe.toolUseId,
-                            toolName: fe.toolName,
+                            toolUseId: toolUseBlockStart.toolUseId,
+                            toolName: toolUseBlockStart.toolName,
                             input: void 0,
                             ephemeral: !0,
-                            isSidechain: pe
+                            isSidechain
                         }));
-                        let Se = parseInputJsonDelta(K.event);
-                        if (Se) {
-                            let w = q.toolBlockIndexMap.get(Se.index);
-                            w && q.input.onExecutionEvent?.({
+                        let inputJsonDelta = parseInputJsonDelta(msg.event);
+                        if (inputJsonDelta) {
+                            let toolBlock = currentTurn.toolBlockIndexMap.get(inputJsonDelta.index);
+                            toolBlock && currentTurn.input.onExecutionEvent?.({
                                 type: "tool_input_delta",
-                                toolUseId: w.toolUseId,
-                                toolName: w.toolName,
-                                partialJson: Se.partialJson
+                                toolUseId: toolBlock.toolUseId,
+                                toolName: toolBlock.toolName,
+                                partialJson: inputJsonDelta.partialJson
                             })
                         }
                         continue
                     }
-                    if (typeof K.type == "string" && K.type.includes("assistant")) {
-                        let pe = hasParentToolUseId(K);
-                        for (let Se of extractSdkMessageTextChunks(K)) F(q, Se.text, Se.isDelta, pe);
-                        let fe = K.message?.content;
-                        if (Array.isArray(fe))
-                            for (let Se of fe) {
-                                if (!Se || typeof Se != "object" || Se.type !== "tool_use") continue;
-                                let w = Se.id,
-                                    T = Se.name;
-                                !w || !T || (q.toolUseMap.set(w, T), q.input.onExecutionEvent?.({
+                    if (typeof msg.type == "string" && msg.type.includes("assistant")) {
+                        let isSidechain = hasParentToolUseId(msg);
+                        for (let chunk of extractSdkMessageTextChunks(msg)) emitStream(currentTurn, chunk.text, chunk.isDelta, isSidechain);
+                        let messageContent = msg.message?.content;
+                        if (Array.isArray(messageContent))
+                            for (let block of messageContent) {
+                                if (!block || typeof block != "object" || block.type !== "tool_use") continue;
+                                let id = block.id,
+                                    name = block.name;
+                                !id || !name || (currentTurn.toolUseMap.set(id, name), currentTurn.input.onExecutionEvent?.({
                                     type: "tool_use",
-                                    toolUseId: w,
-                                    toolName: T,
-                                    input: Se.input,
-                                    isSidechain: pe
+                                    toolUseId: id,
+                                    toolName: name,
+                                    input: block.input,
+                                    isSidechain
                                 }))
                             }
                         continue
                     }
-                    if (K.type === "user") {
-                        let pe = hasParentToolUseId(K),
-                            fe = K.message?.content;
-                        if (Array.isArray(fe))
-                            for (let Se of fe) {
-                                if (!Se || typeof Se != "object" || Se.type !== "tool_result") continue;
-                                let w = Se.tool_use_id;
-                                w && (q.input.onExecutionEvent?.({
+                    if (msg.type === "user") {
+                        let isSidechain = hasParentToolUseId(msg),
+                            messageContent = msg.message?.content;
+                        if (Array.isArray(messageContent))
+                            for (let block of messageContent) {
+                                if (!block || typeof block != "object" || block.type !== "tool_result") continue;
+                                let toolUseId = block.tool_use_id;
+                                toolUseId && (currentTurn.input.onExecutionEvent?.({
                                     type: "tool_result",
-                                    toolUseId: w,
-                                    toolName: q.toolUseMap.get(w),
-                                    isError: Se.is_error ?? !1,
-                                    summary: stringifyToolResultContent(Se.content),
-                                    isSidechain: pe
-                                }), q.turnStreamedText = "")
+                                    toolUseId,
+                                    toolName: currentTurn.toolUseMap.get(toolUseId),
+                                    isError: block.is_error ?? !1,
+                                    summary: stringifyToolResultContent(block.content),
+                                    isSidechain
+                                }), currentTurn.turnStreamedText = "")
                             }
                         continue
                     }
-                    if (K.type === "result") {
-                        if (K.subtype === "success") {
-                            if (typeof K.result == "string" && (q.text = K.result), K.structured_output !== void 0 && (q.structured = K.structured_output), q.usage = mapClaudeResultToDrainUsage(K, {
-                                    prevModelUsage: te,
-                                    prevTotalCostUsd: B,
-                                    baselineUnknown: G
-                                }), q.usage && !q.skipCalled && typeof $.getContextUsage == "function") try {
-                                let fe = (await $.getContextUsage())?.totalTokens;
-                                typeof fe == "number" && Number.isFinite(fe) && fe >= 0 && (q.usage.context_used_tokens = fe)
+                    if (msg.type === "result") {
+                        if (msg.subtype === "success") {
+                            if (typeof msg.result == "string" && (currentTurn.text = msg.result), msg.structured_output !== void 0 && (currentTurn.structured = msg.structured_output), currentTurn.usage = mapClaudeResultToDrainUsage(msg, {
+                                    prevModelUsage,
+                                    prevTotalCostUsd,
+                                    baselineUnknown
+                                }), currentTurn.usage && !currentTurn.skipCalled && typeof query.getContextUsage == "function") try {
+                                let contextUsedTokens = (await query.getContextUsage())?.totalTokens;
+                                typeof contextUsedTokens == "number" && Number.isFinite(contextUsedTokens) && contextUsedTokens >= 0 && (currentTurn.usage.context_used_tokens = contextUsedTokens)
                             } catch {}
-                            if (await J(), k.currentTurn = null, q.skipCalled) q.resolve({
-                                sessionId: q.sessionId ?? u.sdkSessionId,
+                            if (await settlePendingSteer(), newState.currentTurn = null, currentTurn.skipCalled) currentTurn.resolve({
+                                sessionId: currentTurn.sessionId ?? actor.sdkSessionId,
                                 text: void 0,
                                 skipped: !0,
-                                usage: q.usage,
-                                costBaseline: ce(q.sessionId ?? u.sdkSessionId)
+                                usage: currentTurn.usage,
+                                costBaseline: buildCostBaseline(currentTurn.sessionId ?? actor.sdkSessionId)
                             });
                             else {
-                                let pe = q.text ?? (q.streamedText ? q.streamedText : void 0);
-                                q.resolve({
-                                    sessionId: q.sessionId ?? u.sdkSessionId,
-                                    text: pe,
-                                    structured: q.structured,
-                                    usage: q.usage,
-                                    costBaseline: ce(q.sessionId ?? u.sdkSessionId)
+                                let text = currentTurn.text ?? (currentTurn.streamedText ? currentTurn.streamedText : void 0);
+                                currentTurn.resolve({
+                                    sessionId: currentTurn.sessionId ?? actor.sdkSessionId,
+                                    text,
+                                    structured: currentTurn.structured,
+                                    usage: currentTurn.usage,
+                                    costBaseline: buildCostBaseline(currentTurn.sessionId ?? actor.sdkSessionId)
                                 })
                             }
                             continue
                         }
-                        if (K.subtype === "error_during_execution" && q.skipCalled) {
-                            await J(), k.currentTurn = null, q.resolve({
-                                sessionId: q.sessionId ?? u.sdkSessionId,
+                        if (msg.subtype === "error_during_execution" && currentTurn.skipCalled) {
+                            await settlePendingSteer(), newState.currentTurn = null, currentTurn.resolve({
+                                sessionId: currentTurn.sessionId ?? actor.sdkSessionId,
                                 text: void 0,
                                 skipped: !0,
-                                usage: q.usage,
-                                costBaseline: ce(q.sessionId ?? u.sdkSessionId)
+                                usage: currentTurn.usage,
+                                costBaseline: buildCostBaseline(currentTurn.sessionId ?? actor.sdkSessionId)
                             });
                             continue
                         }
-                        await J(), k.currentTurn = null, K.subtype === "error_during_execution" ? q.accepted ? q.reject(new AgentSdkTurnInterruptedError) : u.pendingClear ? (k.needsRecreation = !0, q.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance"))) : (k.needsRecreation = !0, A && !u.sdkSessionIdVerified && (u.sdkSessionId = void 0, u.pendingWake = !0, await patchSessionRuntimeState(t, u.sessionKey, {
+                        await settlePendingSteer(), newState.currentTurn = null, msg.subtype === "error_during_execution" ? currentTurn.accepted ? currentTurn.reject(new AgentSdkTurnInterruptedError) : actor.pendingClear ? (newState.needsRecreation = !0, currentTurn.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance"))) : (newState.needsRecreation = !0, sessionId2 && !actor.sdkSessionIdVerified && (actor.sdkSessionId = void 0, actor.pendingWake = !0, await patchSessionRuntimeState(paths, actor.sessionKey, {
                             sdk_session_id: null,
                             sdk_session_runtime: null,
                             pending_fork_to: null
                         }).catch(() => {}), logWarnMessage("[session-manager] cleared stale sdk_session_id after resume failure", {
-                            sessionKey: u.sessionKey,
-                            staleSessionId: A
-                        })), q.reject(new AgentSdkPromptNotAcceptedAbortError)) : q.reject(new Error(`Unexpected streaming SDK result subtype: ${K.subtype??"unknown"}`))
+                            sessionKey: actor.sessionKey,
+                            staleSessionId: sessionId2
+                        })), currentTurn.reject(new AgentSdkPromptNotAcceptedAbortError)) : currentTurn.reject(new Error(`Unexpected streaming SDK result subtype: ${msg.subtype??"unknown"}`))
                     }
                 }
-            } catch (ne) {
-                let K = k.currentTurn;
-                k.currentTurn = null, K && (E.signal.aborted && !K.accepted ? (k.needsRecreation = !0, u.pendingClear ? K.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : K.reject(new AgentSdkPromptNotAcceptedAbortError)) : E.signal.aborted ? K.reject(createAbortErrorWithCause("Streaming SDK run aborted", ne)) : (K.accepted || (k.needsRecreation = !0), K.reject(ne))), S(() => new AgentSdkPromptNotAcceptedAbortError)
+            } catch (err) {
+                let currentTurn = newState.currentTurn;
+                newState.currentTurn = null, currentTurn && (abortController.signal.aborted && !currentTurn.accepted ? (newState.needsRecreation = !0, actor.pendingClear ? currentTurn.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : currentTurn.reject(new AgentSdkPromptNotAcceptedAbortError)) : abortController.signal.aborted ? currentTurn.reject(createAbortErrorWithCause("Streaming SDK run aborted", err)) : (currentTurn.accepted || (newState.needsRecreation = !0), currentTurn.reject(err))), rejectQueuedTurns(() => new AgentSdkPromptNotAcceptedAbortError)
             } finally {
-                k.closed = !0, k.needsRecreation = !0, E.signal.aborted || logAlwaysAtLevel("warn", "[kv-cache] streaming loop exited unexpectedly (closed)", {
-                    sessionKey: u.sessionKey,
-                    generation: u.streamingGeneration,
-                    sdk_session_id: u.sdkSessionId ?? null
+                newState.closed = !0, newState.needsRecreation = !0, abortController.signal.aborted || logAlwaysAtLevel("warn", "[kv-cache] streaming loop exited unexpectedly (closed)", {
+                    sessionKey: actor.sessionKey,
+                    generation: actor.streamingGeneration,
+                    sdk_session_id: actor.sdkSessionId ?? null
                 });
-                let ne = k.currentTurn;
-                k.currentTurn = null, ne && (E.signal.aborted && !ne.accepted ? u.pendingClear ? ne.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : ne.reject(new AgentSdkPromptNotAcceptedAbortError) : E.signal.aborted ? ne.reject(createAbortErrorWithCause("Streaming SDK run aborted")) : ne.accepted ? ne.reject(new AgentSdkTurnInterruptedError("Streaming SDK query ended during execution")) : ne.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"))), S(() => new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted")), j && (u.lastCliTurnSettledAt === void 0 || j.observedAt > u.lastCliTurnSettledAt) && logAlwaysAtLevel("warn", "[completion-owner] unspoken-completion", {
-                    sessionKey: u.sessionKey,
-                    taskId: j.taskId,
-                    status: j.status,
-                    generation: u.streamingGeneration
-                }), k.cliTurnTentative = null, u.wakeResolver?.(), u.pendingSteer && (await J(), u.wakeResolver?.()), u.streamingState === k && (u.streamingState = null), u.query === $ && (u.query = null), u.streamAbortController === E && (u.streamAbortController = null)
+                let currentTurn = newState.currentTurn;
+                newState.currentTurn = null, currentTurn && (abortController.signal.aborted && !currentTurn.accepted ? actor.pendingClear ? currentTurn.reject(new AgentSdkTurnInterruptedError("SDK turn cancelled before prompt acceptance")) : currentTurn.reject(new AgentSdkPromptNotAcceptedAbortError) : abortController.signal.aborted ? currentTurn.reject(createAbortErrorWithCause("Streaming SDK run aborted")) : currentTurn.accepted ? currentTurn.reject(new AgentSdkTurnInterruptedError("Streaming SDK query ended during execution")) : currentTurn.reject(new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted"))), rejectQueuedTurns(() => new AgentSdkPromptNotAcceptedAbortError("Streaming SDK query ended before the prompt was accepted")), unspokenCompletion && (actor.lastCliTurnSettledAt === void 0 || unspokenCompletion.observedAt > actor.lastCliTurnSettledAt) && logAlwaysAtLevel("warn", "[completion-owner] unspoken-completion", {
+                    sessionKey: actor.sessionKey,
+                    taskId: unspokenCompletion.taskId,
+                    status: unspokenCompletion.status,
+                    generation: actor.streamingGeneration
+                }), newState.cliTurnTentative = null, actor.wakeResolver?.(), actor.pendingSteer && (await settlePendingSteer(), actor.wakeResolver?.()), actor.streamingState === newState && (actor.streamingState = null), actor.query === query && (actor.query = null), actor.streamAbortController === abortController && (actor.streamAbortController = null)
             }
-        })(), k
+        })(), newState
     }
     return {
-        ensureStreamingSession: a
+        ensureStreamingSession
     }
 }

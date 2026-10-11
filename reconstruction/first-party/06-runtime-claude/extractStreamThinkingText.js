@@ -2,27 +2,28 @@
 // symbol: extractStreamThinkingText  (minified: J$, daemon.pretty.js:55093)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 9 renamed — 7 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function extractStreamThinkingText(e) {
-    let t = [];
-    if (!e || typeof e != "object") return t;
-    let n = e.type;
-    if (n === "content_block_start") {
-        let r = e.content_block;
-        if (r && typeof r == "object") {
-            let i = r.type,
-                o = r.thinking;
-            i === "thinking" && typeof o == "string" && o.length > 0 && t.push(o)
+function extractStreamThinkingText(event) {
+    let thoughts = [];
+    if (!event || typeof event != "object") return thoughts;
+    let type = event.type;
+    if (type === "content_block_start") {
+        let contentBlock = event.content_block;
+        if (contentBlock && typeof contentBlock == "object") {
+            let type = contentBlock.type,
+                thinking = contentBlock.thinking;
+            type === "thinking" && typeof thinking == "string" && thinking.length > 0 && thoughts.push(thinking)
         }
-    } else if (n === "content_block_delta") {
-        let r = e.delta;
-        if (r && typeof r == "object") {
-            let i = r.type,
-                o = r.thinking;
-            i === "thinking_delta" && typeof o == "string" && o.length > 0 && t.push(o)
+    } else if (type === "content_block_delta") {
+        let delta = event.delta;
+        if (delta && typeof delta == "object") {
+            let type = delta.type,
+                thinking = delta.thinking;
+            type === "thinking_delta" && typeof thinking == "string" && thinking.length > 0 && thoughts.push(thinking)
         }
     }
-    return t
+    return thoughts
 }

@@ -2,138 +2,139 @@
 // symbol: runDrainTurnWithResumeFallback  (minified: vht, daemon.pretty.js:72785)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.5.7, v0.6.0, v0.7.0, v0.7.1, v0.8.0 (maps/history_daemon.json)
+// locals: 55 renamed — 16 from the code at the binding (rule), 39 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function runDrainTurnWithResumeFallback(e, t, n, r) {
+async function runDrainTurnWithResumeFallback(paths, sessionKey, sdk, request) {
     let {
-        sessionId: i,
-        forkFrom: o,
-        prompt: s,
-        mcpServers: a,
-        mcpServersFactory: u,
-        attachments: l,
-        runtime: c,
-        usesStreamingAdapter: d,
-        ...f
-    } = r;
-    isClaudeRuntimeOrDefault(c) && !d && logAlwaysAtLevel("info", "[claude-context-profile] non-streaming subprocess spawned", {
-        sessionKey: t,
-        model: f.model ?? "default",
-        context_profile_source: describeContextProfileSource(f.claudeContextRequirement),
+        sessionId,
+        forkFrom,
+        prompt,
+        mcpServers,
+        mcpServersFactory,
+        attachments,
+        runtime,
+        usesStreamingAdapter,
+        ...runOptions
+    } = request;
+    isClaudeRuntimeOrDefault(runtime) && !usesStreamingAdapter && logAlwaysAtLevel("info", "[claude-context-profile] non-streaming subprocess spawned", {
+        sessionKey,
+        model: runOptions.model ?? "default",
+        context_profile_source: describeContextProfileSource(runOptions.claudeContextRequirement),
         max_context_token: resolveContextCapToken({
-            requirement: f.claudeContextRequirement,
+            requirement: runOptions.claudeContextRequirement,
             hostMaxContextTokens: process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS,
             liveGenerationToken: void 0
         }),
-        ...extractProfiledEndpointFields(f.claudeContextRequirement),
-        alias_tiers: listSortedAliasKeys(f.claudeModelAliases)
+        ...extractProfiledEndpointFields(runOptions.claudeContextRequirement),
+        alias_tiers: listSortedAliasKeys(runOptions.claudeModelAliases)
     });
-    let p = f.onStream,
-        m = f.onExecutionEvent,
-        h = {
-            ...f
+    let onStream = runOptions.onStream,
+        onExecutionEvent = runOptions.onExecutionEvent,
+        baseRunOptions = {
+            ...runOptions
         },
-        g = () => new mA(A => p?.(A), A => m?.({
+        createThoughtSplitter = () => new mA(chunk => onStream?.(chunk), thought => onExecutionEvent?.({
             type: "thought_chunk",
-            text: A
+            text: thought
         })),
-        y;
-    p && (y = g(), h.onStream = (A, $) => {
-        if ($) {
-            p(A, !0);
+        thoughtSplitter;
+    onStream && (thoughtSplitter = createThoughtSplitter(), baseRunOptions.onStream = (chunk, isFinal) => {
+        if (isFinal) {
+            onStream(chunk, !0);
             return
         }
-        y.push(A)
-    }, h.onExecutionEvent = A => {
-        A.type === "tool_result" && y.reset(), m?.(A)
+        thoughtSplitter.push(chunk)
+    }, baseRunOptions.onExecutionEvent = event => {
+        event.type === "tool_result" && thoughtSplitter.reset(), onExecutionEvent?.(event)
     });
-    let v = (A, $) => {
-            y?.flush();
-            let C = A.text;
-            if (C) {
-                let N = dxe(C);
-                if (C = N.text, !p && N.thoughts.length > 0 && m)
-                    for (let x of N.thoughts) m({
+    let finalizeResult = (result, extra) => {
+            thoughtSplitter?.flush();
+            let text = result.text;
+            if (text) {
+                let split = dxe(text);
+                if (text = split.text, !onStream && split.thoughts.length > 0 && onExecutionEvent)
+                    for (let thought of split.thoughts) onExecutionEvent({
                         type: "thought_chunk",
-                        text: x
+                        text: thought
                     })
             }
             return {
-                ...A,
-                text: C,
-                ...$
+                ...result,
+                text,
+                ...extra
             }
         },
-        b = {
-            runtimeDir: e.runtimeDir
+        messageOptions = {
+            runtimeDir: paths.runtimeDir
         },
-        _ = !isClaudeRuntimeOrDefault(c),
-        E = _ ? void 0 : l,
-        R = _ ? l : void 0,
-        P = () => c === "pi" ? yht(s) : eventToMessageGenerator(s, E, b),
-        k = P(),
-        S = (A, $, C) => {
-            let N = u ? u() : a,
-                x = {
-                    prompt: A,
-                    sessionId: $,
-                    forkFrom: C,
-                    ...R ? {
-                        attachments: R
+        isNonClaude = !isClaudeRuntimeOrDefault(runtime),
+        claudeAttachments = isNonClaude ? void 0 : attachments,
+        adapterAttachments = isNonClaude ? attachments : void 0,
+        buildPrompt = () => runtime === "pi" ? yht(prompt) : eventToMessageGenerator(prompt, claudeAttachments, messageOptions),
+        promptInput = buildPrompt(),
+        buildRunRequest = (promptArg, resumeSessionId, forkFromSessionId) => {
+            let resolvedMcpServers = mcpServersFactory ? mcpServersFactory() : mcpServers,
+                runRequest = {
+                    prompt: promptArg,
+                    sessionId: resumeSessionId,
+                    forkFrom: forkFromSessionId,
+                    ...adapterAttachments ? {
+                        attachments: adapterAttachments
                     } : {},
-                    ...h
+                    ...baseRunOptions
                 };
-            return N === void 0 ? x : {
-                ...x,
-                mcpServers: N
+            return resolvedMcpServers === void 0 ? runRequest : {
+                ...runRequest,
+                mcpServers: resolvedMcpServers
             }
         };
-    if (o) {
-        let A = Date.now(),
-            $ = await n.run(S(k, void 0, o));
-        return v($, {
+    if (forkFrom) {
+        let now = Date.now(),
+            result = await sdk.run(buildRunRequest(promptInput, void 0, forkFrom));
+        return finalizeResult(result, {
             usedFallback: !1,
-            turnStartedAt: A
+            turnStartedAt: now
         })
     }
-    if (!i) {
-        let A = Date.now(),
-            $ = await n.run(S(k, i));
-        return v($, {
+    if (!sessionId) {
+        let now = Date.now(),
+            result = await sdk.run(buildRunRequest(promptInput, sessionId));
+        return finalizeResult(result, {
             usedFallback: !1,
-            turnStartedAt: A
+            turnStartedAt: now
         })
     }
-    let D = Date.now();
+    let now = Date.now();
     try {
-        let A = await n.run(S(k, i));
-        return v(A, {
+        let result = await sdk.run(buildRunRequest(promptInput, sessionId));
+        return finalizeResult(result, {
             usedFallback: !1,
-            turnStartedAt: D
+            turnStartedAt: now
         })
-    } catch (A) {
-        if (isAbortLikeError(A) || isAgentSdkTurnInterruptedError(A) || isAgentSdkPromptNotAcceptedAbortError(A)) throw A;
-        if (y && (y.flush(), y = g(), h.onStream = (x, M) => {
-                if (M) {
-                    p(x, !0);
+    } catch (err) {
+        if (isAbortLikeError(err) || isAgentSdkTurnInterruptedError(err) || isAgentSdkPromptNotAcceptedAbortError(err)) throw err;
+        if (thoughtSplitter && (thoughtSplitter.flush(), thoughtSplitter = createThoughtSplitter(), baseRunOptions.onStream = (chunk, isFinal) => {
+                if (isFinal) {
+                    onStream(chunk, !0);
                     return
                 }
-                y.push(x)
-            }), c === "codex") {
-            let M = (await readSessionRuntimeState(e, t).catch(() => null))?.pending_skip_rewind?.skipped_at;
-            if (M) {
-                let F = Date.parse(M);
-                Number.isFinite(F) && F >= D && await clearSessionRuntimeStateField(e, t, "pending_skip_rewind").catch(() => {})
+                thoughtSplitter.push(chunk)
+            }), runtime === "codex") {
+            let skippedAt = (await readSessionRuntimeState(paths, sessionKey).catch(() => null))?.pending_skip_rewind?.skipped_at;
+            if (skippedAt) {
+                let skippedAtMs = Date.parse(skippedAt);
+                Number.isFinite(skippedAtMs) && skippedAtMs >= now && await clearSessionRuntimeStateField(paths, sessionKey, "pending_skip_rewind").catch(() => {})
             }
         }
-        let $ = P(),
-            C = Date.now(),
-            N = await n.run(S($));
-        return v(N, {
+        let freshPrompt = buildPrompt(),
+            now2 = Date.now(),
+            result = await sdk.run(buildRunRequest(freshPrompt));
+        return finalizeResult(result, {
             usedFallback: !0,
-            resumeError: A instanceof Error ? A.message : String(A),
-            turnStartedAt: C
+            resumeError: err instanceof Error ? err.message : String(err),
+            turnStartedAt: now2
         })
     }
 }

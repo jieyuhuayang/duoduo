@@ -2,26 +2,27 @@
 // symbol: listAllOutboxRecords  (minified: Qb, daemon.pretty.js:36115)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 6 renamed — 0 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function listAllOutboxRecords(e) {
-    let t = [];
+async function listAllOutboxRecords(paths) {
+    let entries = [];
     try {
-        t = await Rn.readdir(e.outboxDir)
+        entries = await Rn.readdir(paths.outboxDir)
     } catch {
         return []
     }
-    let n = [];
-    for (let r of t) {
-        let i = Lr.join(e.outboxDir, r);
+    let records = [];
+    for (let channelKind of entries) {
+        let channelDir = Lr.join(paths.outboxDir, channelKind);
         try {
-            if (!(await Rn.stat(i)).isDirectory()) continue
+            if (!(await Rn.stat(channelDir)).isDirectory()) continue
         } catch {
             continue
         }
-        let o = await Pce(e, r);
-        n.push(...o)
+        let channelRecords = await Pce(paths, channelKind);
+        records.push(...channelRecords)
     }
-    return n
+    return records
 }

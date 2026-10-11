@@ -2,14 +2,15 @@
 // symbol: buildSystemConfigReport  (minified: Jbt, daemon.pretty.js:90568)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.3 — first release whose bundle holds this declaration; body changed in v0.4.3, v0.4.5, v0.5.0, v0.5.3, v0.6.0, v0.8.0, v0.8.2, v0.8.4 (maps/history_daemon.json)
+// locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.3 (high): **daemon**: `system.config` RPC — inspect effective runtime configuration (network, sessions, cadence, SDK, paths) with source tracking (`env` / `default` / `unset`).
 // changelog v0.4.5 (high): Exposed in `system.config` RPC and dashboard.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function buildSystemConfigReport(e) {
-    let t = await loadSubconsciousPartitions(e),
-        n = {
+async function buildSystemConfigReport(paths) {
+    let subconsciousPartitions = await loadSubconsciousPartitions(paths),
+        report = {
             network: {
                 port: resolveEnvConfigEntry("ALADUO_PORT", 20233),
                 daemon_host: resolveEnvConfigEntry("ALADUO_DAEMON_HOST", "127.0.0.1")
@@ -41,18 +42,18 @@ async function buildSystemConfigReport(e) {
             },
             sdk: buildSdkConfigReport(),
             paths: {
-                work_dir: resolveEnvConfigEntry("ALADUO_WORK_DIR", e.workDir),
-                kernel_dir: resolveEnvConfigEntry("ALADUO_KERNEL_DIR", e.kernelDir),
-                bootstrap_dir: resolveEnvConfigEntry("ALADUO_BOOTSTRAP_DIR", e.bootstrapDir),
+                work_dir: resolveEnvConfigEntry("ALADUO_WORK_DIR", paths.workDir),
+                kernel_dir: resolveEnvConfigEntry("ALADUO_KERNEL_DIR", paths.kernelDir),
+                bootstrap_dir: resolveEnvConfigEntry("ALADUO_BOOTSTRAP_DIR", paths.bootstrapDir),
                 meta_prompt_path: resolveEnvConfigEntry("ALADUO_META_PROMPT_PATH", null)
             }
         };
-    return t.length > 0 && (n.subconscious = {
-        partitions: t.map(r => ({
-            name: r.name,
-            enabled: r.schedule.enabled,
-            cooldown_ticks: r.schedule.cooldown_ticks,
-            max_duration_ms: r.schedule.max_duration_ms
+    return subconsciousPartitions.length > 0 && (report.subconscious = {
+        partitions: subconsciousPartitions.map(partition => ({
+            name: partition.name,
+            enabled: partition.schedule.enabled,
+            cooldown_ticks: partition.schedule.cooldown_ticks,
+            max_duration_ms: partition.schedule.max_duration_ms
         }))
-    }), n
+    }), report
 }

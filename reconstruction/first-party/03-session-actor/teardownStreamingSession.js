@@ -2,20 +2,21 @@
 // symbol: teardownStreamingSession  (minified: cp, daemon.pretty.js:83163)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
+// locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function teardownStreamingSession(e, t, n) {
-    let r = e.streamingState;
-    if (!r) return;
-    t && logAlwaysAtLevel("warn", `[kv-cache] streaming teardown: ${t}`, {
-        sessionKey: e.sessionKey,
-        generation: e.streamingGeneration,
-        sdk_session_id: e.sdkSessionId ?? null
-    }), recordPendingInterruptMarker(e, n);
-    let i = e.query;
-    e.streamingState = null, e.query = null, e.streamAbortController = null, e.spawnBoardHash = void 0, r.abortController.signal.aborted || r.abortController.abort(n), typeof i?.close == "function" && i.close();
+async function teardownStreamingSession(actor, teardownReason, abortReason) {
+    let streamingState = actor.streamingState;
+    if (!streamingState) return;
+    teardownReason && logAlwaysAtLevel("warn", `[kv-cache] streaming teardown: ${teardownReason}`, {
+        sessionKey: actor.sessionKey,
+        generation: actor.streamingGeneration,
+        sdk_session_id: actor.sdkSessionId ?? null
+    }), recordPendingInterruptMarker(actor, abortReason);
+    let query = actor.query;
+    actor.streamingState = null, actor.query = null, actor.streamAbortController = null, actor.spawnBoardHash = void 0, streamingState.abortController.signal.aborted || streamingState.abortController.abort(abortReason), typeof query?.close == "function" && query.close();
     try {
-        await r.loopPromise
+        await streamingState.loopPromise
     } catch {}
 }

@@ -2,348 +2,349 @@
 // symbol: createJobSessionFinalizer  (minified: fRe, daemon.pretty.js:80578)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
+// locals: 71 renamed — 29 from the code at the binding (rule), 42 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createJobSessionFinalizer(e) {
+function createJobSessionFinalizer(deps) {
     let {
-        paths: t,
-        bus: n,
-        jobManager: r
-    } = e;
-    async function i(f) {
-        return new Set(await listPendingInboxFiles(resolveSessionInboxDir(t, f)))
+        paths,
+        bus,
+        jobManager
+    } = deps;
+    async function listSessionInboxPendingNames(sessionKey) {
+        return new Set(await listPendingInboxFiles(resolveSessionInboxDir(paths, sessionKey)))
     }
-    async function o(f, p) {
-        let m;
+    async function sessionInboxFreshNameVerdict(sessionKey, knownNames) {
+        let pendingNames;
         try {
-            m = await i(f)
-        } catch (h) {
+            pendingNames = await listSessionInboxPendingNames(sessionKey)
+        } catch (err) {
             return logWarnMessage("[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)", {
-                sessionKey: f,
-                error: h instanceof Error ? h.message : String(h)
+                sessionKey,
+                error: err instanceof Error ? err.message : String(err)
             }), "conservative"
         }
-        for (let h of m)
-            if (!p.has(h)) return "fresh";
+        for (let name of pendingNames)
+            if (!knownNames.has(name)) return "fresh";
         return "none"
     }
 
-    function s(f) {
-        return f.error ? f.runStarted ? "STARTED_FAILURE" : "NEVER_STARTED_FAILURE" : f.cancelled ? f.runStarted ? "CANCELLED_POST_ACK" : "CANCELLED_PRE_ACK" : !f.runStarted && f.processedCount === 0 ? "ZERO_FED" : "STARTED_SUCCESS"
+    function classifyJobRunOutcome(runFacts) {
+        return runFacts.error ? runFacts.runStarted ? "STARTED_FAILURE" : "NEVER_STARTED_FAILURE" : runFacts.cancelled ? runFacts.runStarted ? "CANCELLED_POST_ACK" : "CANCELLED_PRE_ACK" : !runFacts.runStarted && runFacts.processedCount === 0 ? "ZERO_FED" : "STARTED_SUCCESS"
     }
-    async function a(f, p, m, h, g, y) {
+    async function finalizeJobStateSafely(jobId, sessionKey, statePatch, consumeRunAt, expectedClaimCursor, label) {
         try {
-            let v = await r.finalizeJobState(f, m, {
-                consumeRunAt: h,
-                expectedClaimCursor: g
+            let result = await jobManager.finalizeJobState(jobId, statePatch, {
+                consumeRunAt,
+                expectedClaimCursor
             });
-            return v === S6 ? (logInfoMessage(`[session-manager] job gone at finalize (${y}) — state frozen`, {
-                jobId: f,
-                sessionKey: p
+            return result === S6 ? (logInfoMessage(`[session-manager] job gone at finalize (${label}) — state frozen`, {
+                jobId,
+                sessionKey
             }), {
                 kind: "gone"
-            }) : v === k6 ? (logWarnMessage(`[session-manager] stale finalize (${y}) — a fresh claim owns the sidecar; nothing written`, {
-                jobId: f,
-                sessionKey: p,
-                claimCursor: g
+            }) : result === k6 ? (logWarnMessage(`[session-manager] stale finalize (${label}) — a fresh claim owns the sidecar; nothing written`, {
+                jobId,
+                sessionKey,
+                claimCursor: expectedClaimCursor
             }), {
                 kind: "stale"
             }) : {
                 kind: "written",
-                runAt: v.run_at
+                runAt: result.run_at
             }
-        } catch (v) {
-            return logErrorMessage(`[session-manager] job state finalize failed (${y})`, v), {
+        } catch (err) {
+            return logErrorMessage(`[session-manager] job state finalize failed (${label})`, err), {
                 kind: "failed"
             }
         }
     }
-    async function u(f, p) {
-        let m = f.jobId,
+    async function finalizeJobSession(drainCtx, runOutcome) {
+        let jobId = drainCtx.jobId,
             {
-                sessionKey: h
-            } = f,
+                sessionKey
+            } = drainCtx,
             {
-                runStarted: g,
-                cancelled: y,
-                processedCount: v,
-                claimCursor: b,
-                error: _,
-                resultText: E
-            } = p,
-            R = s({
-                error: _,
-                cancelled: y,
-                runStarted: g,
-                processedCount: v
+                runStarted,
+                cancelled,
+                processedCount,
+                claimCursor,
+                error,
+                resultText
+            } = runOutcome,
+            outcomeClass = classifyJobRunOutcome({
+                error,
+                cancelled,
+                runStarted,
+                processedCount
             });
         try {
-            await r.init();
-            let P = p.jobSnapshot,
-                k = P?.frontmatter.cron ?? "";
-            switch (R) {
+            await jobManager.init();
+            let jobSnapshot = runOutcome.jobSnapshot,
+                jobCron = jobSnapshot?.frontmatter.cron ?? "";
+            switch (outcomeClass) {
                 case "NEVER_STARTED_FAILURE": {
-                    let S = _ instanceof Error ? _.message : String(_);
-                    await a(m, h, {
+                    let errorMessage = error instanceof Error ? error.message : String(error);
+                    await finalizeJobStateSafely(jobId, sessionKey, {
                         last_result: "failure",
-                        last_error: S
-                    }, !1, b, "never-started failure"), await l({
-                        jobId: m,
-                        sessionKey: h,
-                        job: P,
-                        cron: k,
-                        errorMsg: S
+                        last_error: errorMessage
+                    }, !1, claimCursor, "never-started failure"), await emitJobFailure({
+                        jobId,
+                        sessionKey,
+                        job: jobSnapshot,
+                        cron: jobCron,
+                        errorMsg: errorMessage
                     }), logInfoMessage("[session-manager] job failed (never started, spawn-class) — job preserved", {
-                        jobId: m,
-                        sessionKey: h,
-                        cron: k,
-                        error: S
+                        jobId,
+                        sessionKey,
+                        cron: jobCron,
+                        error: errorMessage
                     });
                     break
                 }
                 case "STARTED_FAILURE": {
-                    let S = _ instanceof Error ? _.message : String(_),
-                        D = await a(m, h, {
+                    let errorMessage = error instanceof Error ? error.message : String(error),
+                        finalizeState = await finalizeJobStateSafely(jobId, sessionKey, {
                             last_result: "failure",
-                            last_error: S
-                        }, !0, b, "started failure");
-                    await l({
-                        jobId: m,
-                        sessionKey: h,
-                        job: P,
-                        cron: k,
-                        errorMsg: S
-                    }), await c({
-                        jobId: m,
-                        sessionKey: h,
-                        cron: k,
-                        state: D
+                            last_error: errorMessage
+                        }, !0, claimCursor, "started failure");
+                    await emitJobFailure({
+                        jobId,
+                        sessionKey,
+                        job: jobSnapshot,
+                        cron: jobCron,
+                        errorMsg: errorMessage
+                    }), await autoArchiveOneShotJob({
+                        jobId,
+                        sessionKey,
+                        cron: jobCron,
+                        state: finalizeState
                     }), logInfoMessage("[session-manager] job failed", {
-                        jobId: m,
-                        sessionKey: h,
-                        error: S
+                        jobId,
+                        sessionKey,
+                        error: errorMessage
                     });
                     break
                 }
                 case "CANCELLED_POST_ACK": {
-                    let S = await a(m, h, {
+                    let finalizeState = await finalizeJobStateSafely(jobId, sessionKey, {
                             last_result: "failure",
                             last_error: "cancelled"
-                        }, !0, b, "cancelled post-ack"),
-                        D = await c({
-                            jobId: m,
-                            sessionKey: h,
-                            cron: k,
-                            state: S
+                        }, !0, claimCursor, "cancelled post-ack"),
+                        archived = await autoArchiveOneShotJob({
+                            jobId,
+                            sessionKey,
+                            cron: jobCron,
+                            state: finalizeState
                         });
-                    D && await l({
-                        jobId: m,
-                        sessionKey: h,
-                        job: P,
-                        cron: k,
+                    archived && await emitJobFailure({
+                        jobId,
+                        sessionKey,
+                        job: jobSnapshot,
+                        cron: jobCron,
                         errorMsg: "cancelled — the run was interrupted after it started and this one-shot job has been archived, so it will not run again"
-                    }), logWarnMessage(D ? "[session-manager] job run cancelled after turn ack — archived, owner notified" : "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery", {
-                        jobId: m,
-                        sessionKey: h
+                    }), logWarnMessage(archived ? "[session-manager] job run cancelled after turn ack — archived, owner notified" : "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery", {
+                        jobId,
+                        sessionKey
                     });
                     break
                 }
                 case "ZERO_FED": {
-                    await a(m, h, {
+                    await finalizeJobStateSafely(jobId, sessionKey, {
                         last_result: "failure",
                         last_error: "zero-fed run — no items merged"
-                    }, !1, b, "zero-fed"), logWarnMessage("[session-manager] zero-fed job run — failure marker written, job preserved", {
-                        jobId: m,
-                        sessionKey: h
+                    }, !1, claimCursor, "zero-fed"), logWarnMessage("[session-manager] zero-fed job run — failure marker written, job preserved", {
+                        jobId,
+                        sessionKey
                     });
                     break
                 }
                 case "CANCELLED_PRE_ACK": {
                     logWarnMessage("[session-manager] job run ended without turn ack (cancelled before start) — finalize skipped, job preserved", {
-                        jobId: m,
-                        sessionKey: h,
-                        processedCount: v
+                        jobId,
+                        sessionKey,
+                        processedCount
                     });
                     break
                 }
                 case "STARTED_SUCCESS": {
-                    let S = await a(m, h, {
+                    let finalizeState = await finalizeJobStateSafely(jobId, sessionKey, {
                             last_result: "success",
                             last_run_at: new Date().toISOString(),
                             last_error: void 0
-                        }, !0, b, "success"),
-                        D = createSpineEvent({
+                        }, !0, claimCursor, "success"),
+                        spineEvent = createSpineEvent({
                             type: "job.complete",
                             source: {
                                 kind: "job",
-                                name: m
+                                name: jobId
                             },
-                            session_key: h,
+                            session_key: sessionKey,
                             payload: {
-                                job_id: m,
-                                result_summary: E?.slice(0, 200)
+                                job_id: jobId,
+                                result_summary: resultText?.slice(0, 200)
                             }
                         });
-                    await atomicAppendEvent(t, D);
-                    let A = E?.slice(0, 200);
-                    n.emit("job.completed", {
-                        jobId: m,
-                        sessionKey: h,
-                        resultSummary: A
-                    }), f.agentNotifiedThisDrain ? logDebugMessage("[session-manager] skipping system job.complete delivery: agent called Notify", {
-                        jobId: m,
-                        sessionKey: h
-                    }) : await d(P, h, "job.complete", {
-                        job_id: m,
-                        result_summary: A,
-                        result_text: E?.slice(0, 2e3),
-                        schedule_type: classifyJobScheduleType(k)
-                    }), await c({
-                        jobId: m,
-                        sessionKey: h,
-                        cron: k,
-                        state: S
+                    await atomicAppendEvent(paths, spineEvent);
+                    let resultSummary = resultText?.slice(0, 200);
+                    bus.emit("job.completed", {
+                        jobId,
+                        sessionKey,
+                        resultSummary
+                    }), drainCtx.agentNotifiedThisDrain ? logDebugMessage("[session-manager] skipping system job.complete delivery: agent called Notify", {
+                        jobId,
+                        sessionKey
+                    }) : await deliverJobOutcomeToOwner(jobSnapshot, sessionKey, "job.complete", {
+                        job_id: jobId,
+                        result_summary: resultSummary,
+                        result_text: resultText?.slice(0, 2e3),
+                        schedule_type: classifyJobScheduleType(jobCron)
+                    }), await autoArchiveOneShotJob({
+                        jobId,
+                        sessionKey,
+                        cron: jobCron,
+                        state: finalizeState
                     }), logInfoMessage("[session-manager] job completed", {
-                        jobId: m,
-                        sessionKey: h
+                        jobId,
+                        sessionKey
                     });
                     break
                 }
             }
-        } catch (P) {
-            logErrorMessage("[session-manager] error finalizing job session", P)
+        } catch (err) {
+            logErrorMessage("[session-manager] error finalizing job session", err)
         }
     }
-    async function l(f) {
+    async function emitJobFailure(params) {
         let {
-            jobId: p,
-            sessionKey: m,
-            job: h,
-            cron: g,
-            errorMsg: y
-        } = f, v = createSpineEvent({
+            jobId,
+            sessionKey,
+            job,
+            cron,
+            errorMsg
+        } = params, spineEvent = createSpineEvent({
             type: "job.fail",
             source: {
                 kind: "job",
-                name: p
+                name: jobId
             },
-            session_key: m,
+            session_key: sessionKey,
             payload: {
-                job_id: p,
-                error: y
+                job_id: jobId,
+                error: errorMsg
             }
         });
-        await atomicAppendEvent(t, v), n.emit("job.failed", {
-            jobId: p,
-            sessionKey: m,
-            error: y
-        }), await d(h, m, "job.fail", {
-            job_id: p,
-            error: y,
-            schedule_type: classifyJobScheduleType(g)
+        await atomicAppendEvent(paths, spineEvent), bus.emit("job.failed", {
+            jobId,
+            sessionKey,
+            error: errorMsg
+        }), await deliverJobOutcomeToOwner(job, sessionKey, "job.fail", {
+            job_id: jobId,
+            error: errorMsg,
+            schedule_type: classifyJobScheduleType(cron)
         })
     }
-    async function c(f) {
+    async function autoArchiveOneShotJob(params) {
         let {
-            jobId: p,
-            sessionKey: m,
-            cron: h,
-            state: g
-        } = f;
-        if (!isAutoArchivedJobSchedule(h)) return !1;
-        switch (g.kind) {
+            jobId,
+            sessionKey,
+            cron,
+            state
+        } = params;
+        if (!isAutoArchivedJobSchedule(cron)) return !1;
+        switch (state.kind) {
             case "gone":
                 return logInfoMessage("[session-manager] skip auto-archive: job already gone (archived mid-run)", {
-                    jobId: p,
-                    cron: h
+                    jobId,
+                    cron
                 }), !1;
             case "stale":
                 return logInfoMessage("[session-manager] skip auto-archive: stale finalize (a fresh claim owns the job)", {
-                    jobId: p,
-                    cron: h
+                    jobId,
+                    cron
                 }), !1;
             case "failed":
                 return logWarnMessage("[session-manager] skip auto-archive: job state unreadable at finalize (failing toward stale-active)", {
-                    jobId: p,
-                    cron: h
+                    jobId,
+                    cron
                 }), !1;
             case "written":
-                if (g.runAt !== null) return logInfoMessage("[session-manager] skip auto-archive: job re-armed via reschedule", {
-                    jobId: p,
-                    cron: h,
-                    runAt: g.runAt
+                if (state.runAt !== null) return logInfoMessage("[session-manager] skip auto-archive: job re-armed via reschedule", {
+                    jobId,
+                    cron,
+                    runAt: state.runAt
                 }), !1;
                 break;
             default:
-                return g
+                return state
         }
-        let y = !1;
+        let archived = !1;
         try {
-            let v = await r.archiveJobIfNotRearmed(p);
-            return v.archived ? (y = !0, (await archiveSessionDirUnlessAlreadyArchiving(t, m)).reason === "archive_in_flight" ? (logWarnMessage("[session-manager] skip finalize session archive: archive already in flight", {
-                jobId: p,
-                sessionKey: m
+            let archiveResult = await jobManager.archiveJobIfNotRearmed(jobId);
+            return archiveResult.archived ? (archived = !0, (await archiveSessionDirUnlessAlreadyArchiving(paths, sessionKey)).reason === "archive_in_flight" ? (logWarnMessage("[session-manager] skip finalize session archive: archive already in flight", {
+                jobId,
+                sessionKey
             }), !0) : (logInfoMessage("[session-manager] auto-archived one-shot job", {
-                jobId: p,
-                cron: h
+                jobId,
+                cron
             }), !0)) : (logInfoMessage("[session-manager] skip auto-archive: job re-armed during finalize", {
-                jobId: p,
-                cron: h,
-                runAt: v.runAt
+                jobId,
+                cron,
+                runAt: archiveResult.runAt
             }), !1)
-        } catch (v) {
-            return logErrorMessage("[session-manager] failed to auto-archive one-shot job", v), y
+        } catch (err) {
+            return logErrorMessage("[session-manager] failed to auto-archive one-shot job", err), archived
         }
     }
-    async function d(f, p, m, h) {
-        if (!f) return;
-        let g = f.frontmatter.owner_session?.trim();
-        if (!g) {
+    async function deliverJobOutcomeToOwner(job, sourceSessionKey, eventType, payload) {
+        if (!job) return;
+        let ownerSession = job.frontmatter.owner_session?.trim();
+        if (!ownerSession) {
             logWarnMessage("[session-manager] job outcome undeliverable: no owner_session", {
-                jobId: f.id,
-                eventType: m
+                jobId: job.id,
+                eventType
             });
             return
         }
-        let y = normalizeNotifyChannelTarget(g);
-        if (!y) {
+        let notifyChannelTarget = normalizeNotifyChannelTarget(ownerSession);
+        if (!notifyChannelTarget) {
             logWarnMessage("[session-manager] job outcome undeliverable: owner_session is not a route target", {
-                jobId: f.id,
-                owner: g,
-                eventType: m
+                jobId: job.id,
+                owner: ownerSession,
+                eventType
             });
             return
         }
         try {
-            await deliverRouteEventToSession(t, n, {
-                traceId: `job-finalize_${f.id}`,
+            await deliverRouteEventToSession(paths, bus, {
+                traceId: `job-finalize_${job.id}`,
                 routeId: "job-result",
-                sourceName: `job:${f.id}`,
-                sourceSessionKey: p,
-                targetSessionKey: y,
-                eventType: m,
-                payload: h,
-                enqueueWithoutWake: m === "job.complete"
+                sourceName: `job:${job.id}`,
+                sourceSessionKey,
+                targetSessionKey: notifyChannelTarget,
+                eventType,
+                payload,
+                enqueueWithoutWake: eventType === "job.complete"
             }), logDebugMessage("[session-manager] job outcome delivered to owner", {
-                jobId: f.id,
-                targetSessionKey: y,
-                eventType: m,
-                woke: m === "job.fail"
+                jobId: job.id,
+                targetSessionKey: notifyChannelTarget,
+                eventType,
+                woke: eventType === "job.fail"
             })
-        } catch (v) {
+        } catch (err) {
             logWarnMessage("[session-manager] failed to deliver job outcome to owner", {
-                jobId: f.id,
-                targetSessionKey: y,
-                eventType: m,
-                error: String(v)
+                jobId: job.id,
+                targetSessionKey: notifyChannelTarget,
+                eventType,
+                error: String(err)
             })
         }
     }
     return {
-        listSessionInboxPendingNames: i,
-        sessionInboxFreshNameVerdict: o,
-        finalizeJobSession: u
+        listSessionInboxPendingNames,
+        sessionInboxFreshNameVerdict,
+        finalizeJobSession
     }
 }

@@ -2,81 +2,82 @@
 // symbol: validateConfigValue  (minified: _ct, daemon.pretty.js:88340)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.1 (maps/history_daemon.json)
+// locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.10 (medium): enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function validateConfigValue(e, t) {
-    switch (CHANNEL_CONFIG_KEY_TYPES[e]) {
+function validateConfigValue(key, rawValue) {
+    switch (CHANNEL_CONFIG_KEY_TYPES[key]) {
         case "string":
             return {
-                ok: !0, value: t
+                ok: !0, value: rawValue
             };
         case "prompt_mode":
-            return t === "append" || t === "override" ? {
+            return rawValue === "append" || rawValue === "override" ? {
                 ok: !0,
-                value: t
+                value: rawValue
             } : {
                 ok: !1,
-                error: `${e}: expected "append" or "override", got "${t}"`
+                error: `${key}: expected "append" or "override", got "${rawValue}"`
             };
         case "runtime":
-            return isKnownRuntimeValue(t) ? {
+            return isKnownRuntimeValue(rawValue) ? {
                 ok: !0,
-                value: t
+                value: rawValue
             } : {
                 ok: !1,
-                error: `${e}: expected ${Lm.map(r=>JSON.stringify(r)).join(", ")}, got "${t}"`
+                error: `${key}: expected ${Lm.map(runtime=>JSON.stringify(runtime)).join(", ")}, got "${rawValue}"`
             };
         case "boolean":
-            return t === "true" ? {
+            return rawValue === "true" ? {
                 ok: !0,
                 value: !0
-            } : t === "false" ? {
+            } : rawValue === "false" ? {
                 ok: !0,
                 value: !1
             } : {
                 ok: !1,
-                error: `${e}: expected "true" or "false", got "${t}"`
+                error: `${key}: expected "true" or "false", got "${rawValue}"`
             };
         case "nonneg_number": {
-            let r = t.trim();
-            if (r.length === 0 || !/^\d+(\.\d+)?$/.test(r)) return {
+            let trimmed = rawValue.trim();
+            if (trimmed.length === 0 || !/^\d+(\.\d+)?$/.test(trimmed)) return {
                 ok: !1,
-                error: `${e}: expected a non-negative decimal number, got "${t}"`
+                error: `${key}: expected a non-negative decimal number, got "${rawValue}"`
             };
-            let i = Number(r);
-            return Number.isFinite(i) ? {
+            let numberValue = Number(trimmed);
+            return Number.isFinite(numberValue) ? {
                 ok: !0,
-                value: i
+                value: numberValue
             } : {
                 ok: !1,
-                error: `${e}: expected a non-negative decimal number, got "${t}"`
+                error: `${key}: expected a non-negative decimal number, got "${rawValue}"`
             }
         }
         case "model_id": {
-            let r = t.trim();
-            return r.length > 0 && !/\s/.test(r) ? {
+            let trimmed = rawValue.trim();
+            return trimmed.length > 0 && !/\s/.test(trimmed) ? {
                 ok: !0,
-                value: r
+                value: trimmed
             } : {
                 ok: !1,
-                error: `${e}: expected a model id with no whitespace, got "${t}"`
+                error: `${key}: expected a model id with no whitespace, got "${rawValue}"`
             }
         }
         case "effort_level": {
-            let r = t.trim();
-            return isEffortLevel(r) ? {
+            let trimmed = rawValue.trim();
+            return isEffortLevel(trimmed) ? {
                 ok: !0,
-                value: r
+                value: trimmed
             } : {
                 ok: !1,
-                error: `${e}: expected one of ${qi.join(", ")}, got "${t}"`
+                error: `${key}: expected one of ${qi.join(", ")}, got "${rawValue}"`
             }
         }
         case "string_array":
             return {
-                ok: !0, value: t.split(",").map(r => r.trim()).filter(r => r.length > 0)
+                ok: !0, value: rawValue.split(",").map(item => item.trim()).filter(item => item.length > 0)
             }
     }
 }

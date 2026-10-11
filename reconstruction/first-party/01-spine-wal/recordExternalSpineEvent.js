@@ -2,52 +2,53 @@
 // symbol: recordExternalSpineEvent  (minified: Eke, daemon.pretty.js:90429)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.4 (high): `spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function recordExternalSpineEvent(e, t) {
-    let n = describeSpineRecordProblem(t);
-    if (n !== null) throw new SpineRpcParamsError(renderParamsProblem("spine.record", n));
-    let r = t,
-        i = checkReservedRecordSource(r.source);
-    if (i !== null) return i;
-    let o = createSpineEvent({
+async function recordExternalSpineEvent(paths, params) {
+    let problem = describeSpineRecordProblem(params);
+    if (problem !== null) throw new SpineRpcParamsError(renderParamsProblem("spine.record", problem));
+    let recordParams = params,
+        reservedRefusal = checkReservedRecordSource(recordParams.source);
+    if (reservedRefusal !== null) return reservedRefusal;
+    let spineEvent = createSpineEvent({
             type: tA,
             source: {
-                kind: r.source
+                kind: recordParams.source
             },
-            session_key: `${r.source}:${r.conversation}`,
-            ...r.dedup_key !== void 0 ? {
+            session_key: `${recordParams.source}:${recordParams.conversation}`,
+            ...recordParams.dedup_key !== void 0 ? {
                 dedup: {
-                    source_id: `${r.conversation}:${r.dedup_key}`
+                    source_id: `${recordParams.conversation}:${recordParams.dedup_key}`
                 }
             } : {},
-            payload: r.payload
+            payload: recordParams.payload
         }),
-        s = computeDedupKey(o);
-    if (s) {
-        let u = await (await loadRegistryDedupStore(e)).checkAndRecordDetailed({
-            key: s,
-            ts: o.ts,
-            event_id: o.id
+        dedupKey = computeDedupKey(spineEvent);
+    if (dedupKey) {
+        let dedupResult = await (await loadRegistryDedupStore(paths)).checkAndRecordDetailed({
+            key: dedupKey,
+            ts: spineEvent.ts,
+            event_id: spineEvent.id
         });
-        if (u.duplicate && u.existing?.event_id) {
-            let l = await readEventById(e, u.existing.event_id, {
-                notAfter: u.existing.ts
+        if (dedupResult.duplicate && dedupResult.existing?.event_id) {
+            let eventById = await readEventById(paths, dedupResult.existing.event_id, {
+                notAfter: dedupResult.existing.ts
             });
-            if (l) return {
+            if (eventById) return {
                 ok: !0,
-                event_id: l.id,
-                ts: l.ts,
+                event_id: eventById.id,
+                ts: eventById.ts,
                 duplicate: !0
             }
         }
     }
-    return await atomicAppendEvent(e, o), {
+    return await atomicAppendEvent(paths, spineEvent), {
         ok: !0,
-        event_id: o.id,
-        ts: o.ts,
+        event_id: spineEvent.id,
+        ts: spineEvent.ts,
         duplicate: !1
     }
 }

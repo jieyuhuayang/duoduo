@@ -2,101 +2,102 @@
 // symbol: buildEffectiveChannelConfig  (minified: Tve, daemon.pretty.js:65878)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.5, v0.5.0, v0.5.10, v0.7.0, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
+// locals: 8 renamed — 5 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function buildEffectiveChannelConfig(e) {
+function buildEffectiveChannelConfig(params) {
     let {
-        channelKind: t,
-        channelId: n,
-        globalConfig: r,
-        kindDescriptor: i,
-        instanceDescriptor: o
-    } = e, s = i?.channel_prompt?.trim() || void 0, a = o?.channel_prompt?.trim() || void 0;
+        channelKind,
+        channelId,
+        globalConfig,
+        kindDescriptor,
+        instanceDescriptor
+    } = params, kindPrompt = kindDescriptor?.channel_prompt?.trim() || void 0, instancePrompt = instanceDescriptor?.channel_prompt?.trim() || void 0;
     return {
-        channel_kind: o?.channel_kind ?? i?.channel_kind ?? t,
-        channel_id: o?.channel_id ?? n,
-        display_name: o?.display_name,
-        new_session_workspace: o?.new_session_workspace ?? i?.new_session_workspace,
-        prompt_mode: o?.prompt_mode ?? i?.prompt_mode ?? "append",
-        time_gap_minutes: o?.time_gap_minutes ?? i?.time_gap_minutes,
-        auto_compact_idle_minutes: o?.auto_compact_idle_minutes ?? i?.auto_compact_idle_minutes,
-        auto_compact_min_context_tokens: o?.auto_compact_min_context_tokens ?? i?.auto_compact_min_context_tokens,
-        allowedTools: o?.allowedTools ?? i?.allowedTools,
-        disallowedTools: o?.disallowedTools ?? i?.disallowedTools,
-        claudeTools: mergeClaudeToolLists(i?.claudeTools, o?.claudeTools),
-        piExtensions: o?.piExtensions ?? i?.piExtensions,
-        piSkills: o?.piSkills ?? i?.piSkills,
-        piConfigIssues: appendPiConfigIssues(i?.piConfigIssues, o?.piConfigIssues),
-        additionalDirectories: o?.additionalDirectories ?? i?.additionalDirectories,
-        stream: o?.stream ?? i?.stream,
-        ...buildEffectiveRuntimeFields(o, i),
+        channel_kind: instanceDescriptor?.channel_kind ?? kindDescriptor?.channel_kind ?? channelKind,
+        channel_id: instanceDescriptor?.channel_id ?? channelId,
+        display_name: instanceDescriptor?.display_name,
+        new_session_workspace: instanceDescriptor?.new_session_workspace ?? kindDescriptor?.new_session_workspace,
+        prompt_mode: instanceDescriptor?.prompt_mode ?? kindDescriptor?.prompt_mode ?? "append",
+        time_gap_minutes: instanceDescriptor?.time_gap_minutes ?? kindDescriptor?.time_gap_minutes,
+        auto_compact_idle_minutes: instanceDescriptor?.auto_compact_idle_minutes ?? kindDescriptor?.auto_compact_idle_minutes,
+        auto_compact_min_context_tokens: instanceDescriptor?.auto_compact_min_context_tokens ?? kindDescriptor?.auto_compact_min_context_tokens,
+        allowedTools: instanceDescriptor?.allowedTools ?? kindDescriptor?.allowedTools,
+        disallowedTools: instanceDescriptor?.disallowedTools ?? kindDescriptor?.disallowedTools,
+        claudeTools: mergeClaudeToolLists(kindDescriptor?.claudeTools, instanceDescriptor?.claudeTools),
+        piExtensions: instanceDescriptor?.piExtensions ?? kindDescriptor?.piExtensions,
+        piSkills: instanceDescriptor?.piSkills ?? kindDescriptor?.piSkills,
+        piConfigIssues: appendPiConfigIssues(kindDescriptor?.piConfigIssues, instanceDescriptor?.piConfigIssues),
+        additionalDirectories: instanceDescriptor?.additionalDirectories ?? kindDescriptor?.additionalDirectories,
+        stream: instanceDescriptor?.stream ?? kindDescriptor?.stream,
+        ...buildEffectiveRuntimeFields(instanceDescriptor, kindDescriptor),
         claudeModelProfiles: Sve([{
             source: "global",
-            profiles: r?.claudeModelProfiles
+            profiles: globalConfig?.claudeModelProfiles
         }, {
             source: "kind",
-            profiles: i?.claudeModelProfiles
+            profiles: kindDescriptor?.claudeModelProfiles
         }, {
             source: "instance",
-            profiles: o?.claudeModelProfiles
+            profiles: instanceDescriptor?.claudeModelProfiles
         }]),
         claudeModelProfileIssues: vO([{
             source: "global",
-            issues: r?.claudeModelProfileIssues
+            issues: globalConfig?.claudeModelProfileIssues
         }, {
             source: "kind",
-            issues: i?.claudeModelProfileIssues
+            issues: kindDescriptor?.claudeModelProfileIssues
         }, {
             source: "instance",
-            issues: o?.claudeModelProfileIssues
+            issues: instanceDescriptor?.claudeModelProfileIssues
         }]),
         claudeModelAliases: kve([{
             source: "global",
-            aliases: r?.claudeModelAliases
+            aliases: globalConfig?.claudeModelAliases
         }, {
             source: "kind",
-            aliases: i?.claudeModelAliases
+            aliases: kindDescriptor?.claudeModelAliases
         }, {
             source: "instance",
-            aliases: o?.claudeModelAliases
+            aliases: instanceDescriptor?.claudeModelAliases
         }]),
         claudeModelAliasIssues: vO([{
             source: "global",
-            issues: r?.claudeModelAliasIssues
+            issues: globalConfig?.claudeModelAliasIssues
         }, {
             source: "kind",
-            issues: i?.claudeModelAliasIssues
+            issues: kindDescriptor?.claudeModelAliasIssues
         }, {
             source: "instance",
-            issues: o?.claudeModelAliasIssues
+            issues: instanceDescriptor?.claudeModelAliasIssues
         }]),
         runtimeModels: mergeRuntimeModelLayers([{
             source: "global",
-            models: r?.runtimeModels
+            models: globalConfig?.runtimeModels
         }, {
             source: "kind",
-            models: i?.runtimeModels
+            models: kindDescriptor?.runtimeModels
         }, {
             source: "instance",
-            models: o?.runtimeModels
+            models: instanceDescriptor?.runtimeModels
         }]),
         runtimeEfforts: mergeRuntimeEffortLayers([{
             source: "global",
-            efforts: r?.runtimeEfforts
+            efforts: globalConfig?.runtimeEfforts
         }, {
             source: "kind",
-            efforts: i?.runtimeEfforts
+            efforts: kindDescriptor?.runtimeEfforts
         }, {
             source: "instance",
-            efforts: o?.runtimeEfforts
+            efforts: instanceDescriptor?.runtimeEfforts
         }]),
-        kind_prompt: s,
-        instance_prompt: a,
-        merged_prompt: pct([s, a]),
-        kind_config: i?.kind_config === void 0 && o?.kind_config === void 0 ? void 0 : {
-            ...i?.kind_config,
-            ...o?.kind_config
+        kind_prompt: kindPrompt,
+        instance_prompt: instancePrompt,
+        merged_prompt: pct([kindPrompt, instancePrompt]),
+        kind_config: kindDescriptor?.kind_config === void 0 && instanceDescriptor?.kind_config === void 0 ? void 0 : {
+            ...kindDescriptor?.kind_config,
+            ...instanceDescriptor?.kind_config
         }
     }
 }

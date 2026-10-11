@@ -2,849 +2,850 @@
 // symbol: createDaemon  (minified: Svt, daemon.pretty.js:92035)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10, v0.3.0, v0.3.2, v0.3.3, v0.3.4, v0.3.6, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.4, v0.5.0, v0.5.4, v0.5.5, v0.5.6, v0.5.8, v0.5.10, v0.6.0, v0.7.0, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
+// locals: 257 renamed — 72 from the code at the binding (rule), 185 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.0 (high): That interface now lives on a socket file that carries owner-only permissions, so the operating system enforces what nothing was enforcing before.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function createDaemon(e) {
-    let t = (0, ON.default)({
+function createDaemon(options) {
+    let readOnlyApp = (0, ON.default)({
             logger: !1
         }),
-        n = (0, ON.default)({
+        socketApp = (0, ON.default)({
             logger: !1
         }),
-        r = null,
-        i = new Set(["127.0.0.1", "localhost", "::1"]),
-        o = (S, D, A, $, C) => {
-            if (String(S.headers.upgrade ?? "").toLowerCase() === "websocket") {
-                D.hijack();
-                let x = D.raw.socket ?? S.raw.socket;
-                x && !x.destroyed && (x.write(`HTTP/1.1 ${A} ${$}\r
+        remoteApp = null,
+        allowedHostnames = new Set(["127.0.0.1", "localhost", "::1"]),
+        sendRejection = (request, reply, statusCode, statusText, payload) => {
+            if (String(request.headers.upgrade ?? "").toLowerCase() === "websocket") {
+                reply.hijack();
+                let socket = reply.raw.socket ?? request.raw.socket;
+                socket && !socket.destroyed && (socket.write(`HTTP/1.1 ${statusCode} ${statusText}\r
 Connection: close\r
 Content-Length: 0\r
 \r
-`), x.destroy());
+`), socket.destroy());
                 return
             }
-            return D.code(A).send(C)
+            return reply.code(statusCode).send(payload)
         },
-        s = (S, D, A) => o(S, D, 403, "Forbidden", {
+        sendForbidden = (request, reply, reason) => sendRejection(request, reply, 403, "Forbidden", {
             error: "forbidden",
-            reason: A
+            reason
         }),
-        a = (S, D) => o(S, D, 401, "Unauthorized", {
+        sendUnauthorized = (request, reply) => sendRejection(request, reply, 401, "Unauthorized", {
             error: "unauthorized"
         }),
         {
-            paths: u,
-            bus: l
-        } = e,
-        c = new Br(u),
-        d = e.sessionIndex ?? createEmptySessionIndex();
-    bce((S, D) => {
-        if (D === "removed") {
-            d.remove(S);
+            paths,
+            bus
+        } = options,
+        jobStore = new Br(paths),
+        sessionIndex = options.sessionIndex ?? createEmptySessionIndex();
+    bce((sessionKey, changeKind) => {
+        if (changeKind === "removed") {
+            sessionIndex.remove(sessionKey);
             return
         }
-        runWithSessionMutex(S, async () => {
-            if (!isSessionArchiving(S)) try {
-                let [A, $] = await Promise.all([readSessionRuntimeState(u, S), readSessionMetaFile(u, S)]);
-                replaceSessionIndexEntry(d, S, A, $)
+        runWithSessionMutex(sessionKey, async () => {
+            if (!isSessionArchiving(sessionKey)) try {
+                let [runtimeState, meta] = await Promise.all([readSessionRuntimeState(paths, sessionKey), readSessionMetaFile(paths, sessionKey)]);
+                replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta)
             } catch {}
         }).catch(() => {})
-    }), Rae(S => {
-        d.remove(S)
+    }), Rae(sessionKey => {
+        sessionIndex.remove(sessionKey)
     });
-    let m = {
+    let runtimeInfo = {
             version: jbt(import.meta.url)("../../package.json").version,
-            runtime_id: computeRuntimeId(u.runtimeDir),
+            runtime_id: computeRuntimeId(paths.runtimeDir),
             runtime_mode: "host",
-            runtime_dir: so.resolve(u.runtimeDir),
-            work_dir: so.resolve(u.workDir),
-            kernel_dir: so.resolve(u.kernelDir)
+            runtime_dir: so.resolve(paths.runtimeDir),
+            work_dir: so.resolve(paths.workDir),
+            kernel_dir: so.resolve(paths.kernelDir)
         },
-        h = e.subscriptions ?? createSessionSubscriptionRegistry();
-    h.start(l);
-    let g = 0,
-        y = !1,
-        v = null,
-        b = new Map,
-        _ = new Map,
-        E = new Set(["spine.tail", "system.status", "usage.get", "job.list"]);
-    async function R(S, D) {
-        (E.has(S.method) ? logTraceMessage : logDebugMessage)("[daemon] rpc request", {
-            id: S.id ?? null,
-            method: S.method,
-            session_key: typeof S.params == "object" && S.params !== null ? S.params.session_key : void 0,
-            ws: !!D?.wsSubscriberId
+        subscriptions = options.subscriptions ?? createSessionSubscriptionRegistry();
+    subscriptions.start(bus);
+    let wsSubscriberCounter = 0,
+        runtimeLockHeld = !1,
+        lockHeartbeatTimer = null,
+        map = new Map,
+        map2 = new Map,
+        traceLevelMethods = new Set(["spine.tail", "system.status", "usage.get", "job.list"]);
+    async function handleRpcRequest(request, rpcContext) {
+        (traceLevelMethods.has(request.method) ? logTraceMessage : logDebugMessage)("[daemon] rpc request", {
+            id: request.id ?? null,
+            method: request.method,
+            session_key: typeof request.params == "object" && request.params !== null ? request.params.session_key : void 0,
+            ws: !!rpcContext?.wsSubscriberId
         });
-        let $ = {
+        let response = {
                 jsonrpc: "2.0",
-                id: S.id ?? null
+                id: request.id ?? null
             },
-            C;
-        if (typeof S.params == "object" && S.params !== null && "worker_token" in S.params) {
+            piWorkerContext;
+        if (typeof request.params == "object" && request.params !== null && "worker_token" in request.params) {
             let {
-                worker_token: x,
-                ...M
-            } = S.params;
-            if (C = iye(x), !C) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
-                method: S.method
-            }), $.error = {
+                worker_token: workerToken,
+                ...restParams
+            } = request.params;
+            if (piWorkerContext = iye(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
+                method: request.method
+            }), response.error = {
                 code: -32001,
                 message: "invalid pi worker token"
-            }, $;
-            if (!rye.has(S.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
-                method: S.method,
-                session_key: C.session_key
-            }), $.error = {
+            }, response;
+            if (!rye.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
+                method: request.method,
+                session_key: piWorkerContext.session_key
+            }), response.error = {
                 code: -32601,
-                message: `Method not available to pi worker callers: ${S.method}`
-            }, $;
-            S.params = M
+                message: `Method not available to pi worker callers: ${request.method}`
+            }, response;
+            request.params = restParams
         }
-        let N = {
-            cancelSession: async x => {
-                if (!e.sessionManager) return {
+        let gatewayCommands = {
+            cancelSession: async sessionKey => {
+                if (!options.sessionManager) return {
                     interrupted: !1,
                     reason: "session_manager_unavailable"
                 };
-                let M = await e.sessionManager.interruptSession(x);
+                let interruptResult = await options.sessionManager.interruptSession(sessionKey);
                 return {
-                    interrupted: M.interrupted,
-                    reason: M.reason
+                    interrupted: interruptResult.interrupted,
+                    reason: interruptResult.reason
                 }
             },
-            clearSession: async x => e.sessionManager ? e.sessionManager.clearSdkSession(x) : {
+            clearSession: async sessionKey => options.sessionManager ? options.sessionManager.clearSdkSession(sessionKey) : {
                 cleared: !1,
                 reason: "session_manager_unavailable"
             },
             listActors: () => {
-                if (!e.sessionManager) return new Map;
-                let x = e.sessionManager.listActors(),
-                    M = new Map;
-                for (let [F, J] of x) M.set(F, {
-                    sessionKey: J.sessionKey,
-                    status: J.status,
-                    health: J.health,
-                    idleSince: J.idleSince,
-                    origin: J.origin
+                if (!options.sessionManager) return new Map;
+                let actors = options.sessionManager.listActors(),
+                    map = new Map;
+                for (let [actorKey, actor] of actors) map.set(actorKey, {
+                    sessionKey: actor.sessionKey,
+                    status: actor.status,
+                    health: actor.health,
+                    idleSince: actor.idleSince,
+                    origin: actor.origin
                 });
-                return M
+                return map
             },
-            listPersistentSessions: () => d.listUserVisible().map(x => ({
-                session_key: x.session_key,
-                cwd: x.cwd,
-                created_at: x.created_at,
-                last_event_at: x.last_event_at,
-                last_error: x.last_error
+            listPersistentSessions: () => sessionIndex.listUserVisible().map(entry => ({
+                session_key: entry.session_key,
+                cwd: entry.cwd,
+                created_at: entry.created_at,
+                last_event_at: entry.last_event_at,
+                last_error: entry.last_error
             })),
-            getSessionModel: async (x, M) => e.sessionManager ? e.sessionManager.getSessionModelView(x, M) : {
+            getSessionModel: async (sessionKey, viewOptions) => options.sessionManager ? options.sessionManager.getSessionModelView(sessionKey, viewOptions) : {
                 runtime: "claude",
                 hasLiveQuery: !1
             },
-            setSessionModel: async (x, M, F) => e.sessionManager ? e.sessionManager.setSessionModel(x, M, F) : {
+            setSessionModel: async (sessionKey, model, modelOptions) => options.sessionManager ? options.sessionManager.setSessionModel(sessionKey, model, modelOptions) : {
                 ok: !1,
                 reason: "not_running"
             },
-            getSessionEffort: async (x, M) => e.sessionManager ? e.sessionManager.getSessionEffortView(x, M) : {
+            getSessionEffort: async (sessionKey, viewOptions) => options.sessionManager ? options.sessionManager.getSessionEffortView(sessionKey, viewOptions) : {
                 runtime: "claude",
                 hasLiveQuery: !1
             },
-            setSessionEffort: async (x, M) => e.sessionManager ? e.sessionManager.setSessionEffort(x, M) : {
+            setSessionEffort: async (sessionKey, effort) => options.sessionManager ? options.sessionManager.setSessionEffort(sessionKey, effort) : {
                 ok: !1,
                 reason: "not_running"
             }
         };
         try {
-            if (S.method === "system.shutdown") $.result = {
+            if (request.method === "system.shutdown") response.result = {
                 ok: !0
-            }, $.__triggerShutdown = !0;
-            else if (S.method === "system.runtime.info") {
-                if (!isRuntimeInfoParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                if (!isSystemRuntimeInfo(m)) throw new Error("invalid runtime info");
-                let x = S.params ?? {};
-                if (x.source_kind) {
-                    let F = {
-                        new_session_workspace: (await resolveEffectiveChannelConfig(u, {
-                            channel_kind: x.source_kind
+            }, response.__triggerShutdown = !0;
+            else if (request.method === "system.runtime.info") {
+                if (!isRuntimeInfoParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                if (!isSystemRuntimeInfo(runtimeInfo)) throw new Error("invalid runtime info");
+                let runtimeInfoParams = request.params ?? {};
+                if (runtimeInfoParams.source_kind) {
+                    let channelDefaults = {
+                        new_session_workspace: (await resolveEffectiveChannelConfig(paths, {
+                            channel_kind: runtimeInfoParams.source_kind
                         }))?.new_session_workspace
                     };
-                    $.result = {
-                        ...m,
-                        channel_defaults: F
+                    response.result = {
+                        ...runtimeInfo,
+                        channel_defaults: channelDefaults
                     }
-                } else $.result = m
-            } else if (S.method === "channel.describe") {
-                if (!isChannelDescribeParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await describeChannelInstance(u, d, x)
-            } else if (S.method === "session.archive") {
-                if (!isSessionArchiveParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await archiveSessionIfQuiescent(u, e.sessionManager, d, x)
-            } else if (S.method === "session.list") {
-                if (!isSessionListParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params ?? {};
-                $.result = await listSessionIndexSummaries(d, c, x, u)
-            } else if (S.method === "session.set_alias") {
-                if (!isSessionSetAliasParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await setSessionAliasAndReindex(u, d, x)
-            } else if (S.method === "session.notify") {
-                if (!isSessionNotifyParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await deliverExternalSessionNotify(u, l, d, x)
-            } else if (S.method === "session.wake") {
-                if (!isSessionWakeParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                $.result = await scheduleSessionWakeRecord(u, d, S.params)
-            } else if (S.method === "job.manage" || S.method === "session.manage" || S.method === "notify.send" || S.method === "wake.set") {
-                if (!C) return $.error = {
+                } else response.result = runtimeInfo
+            } else if (request.method === "channel.describe") {
+                if (!isChannelDescribeParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await describeChannelInstance(paths, sessionIndex, params)
+            } else if (request.method === "session.archive") {
+                if (!isSessionArchiveParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await archiveSessionIfQuiescent(paths, options.sessionManager, sessionIndex, params)
+            } else if (request.method === "session.list") {
+                if (!isSessionListParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let listParams = request.params ?? {};
+                response.result = await listSessionIndexSummaries(sessionIndex, jobStore, listParams, paths)
+            } else if (request.method === "session.set_alias") {
+                if (!isSessionSetAliasParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await setSessionAliasAndReindex(paths, sessionIndex, params)
+            } else if (request.method === "session.notify") {
+                if (!isSessionNotifyParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await deliverExternalSessionNotify(paths, bus, sessionIndex, params)
+            } else if (request.method === "session.wake") {
+                if (!isSessionWakeParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                response.result = await scheduleSessionWakeRecord(paths, sessionIndex, request.params)
+            } else if (request.method === "job.manage" || request.method === "session.manage" || request.method === "notify.send" || request.method === "wake.set") {
+                if (!piWorkerContext) return response.error = {
                     code: -32001,
-                    message: `${S.method} requires a pi worker token`
-                }, $;
-                if (typeof S.params != "object" || S.params === null) throw new JsonRpcInvalidParamsError("Invalid params");
-                if (S.method === "job.manage") {
-                    let x = await runManageJobTool(S.params, {
-                        paths: u,
-                        sessionKey: C.session_key,
-                        callerJobCron: C.job_cron,
+                    message: `${request.method} requires a pi worker token`
+                }, response;
+                if (typeof request.params != "object" || request.params === null) throw new JsonRpcInvalidParamsError("Invalid params");
+                if (request.method === "job.manage") {
+                    let jobManageOutput = await runManageJobTool(request.params, {
+                        paths,
+                        sessionKey: piWorkerContext.session_key,
+                        callerJobCron: piWorkerContext.job_cron,
                         callerRuntime: "pi",
-                        bus: l
+                        bus
                     });
-                    $.result = {
-                        output: x
+                    response.result = {
+                        output: jobManageOutput
                     }
-                } else if (S.method === "notify.send") {
-                    let x = await runNotifyTool(S.params, {
-                        paths: u,
-                        bus: l,
-                        sessionKey: C.session_key,
-                        sessionContextKind: C.session_context_kind,
-                        jobScheduleType: C.job_schedule_type
+                } else if (request.method === "notify.send") {
+                    let notifyOutput = await runNotifyTool(request.params, {
+                        paths,
+                        bus,
+                        sessionKey: piWorkerContext.session_key,
+                        sessionContextKind: piWorkerContext.session_context_kind,
+                        jobScheduleType: piWorkerContext.job_schedule_type
                     });
-                    x.startsWith("Error:") || e.sessionManager?.markAgentNotified(C.session_key), $.result = {
-                        output: x
+                    notifyOutput.startsWith("Error:") || options.sessionManager?.markAgentNotified(piWorkerContext.session_key), response.result = {
+                        output: notifyOutput
                     }
-                } else if (S.method === "wake.set") {
-                    let x = await runRemindDuoduoTool(S.params, {
-                        paths: u,
-                        sessionKey: C.session_key,
-                        sessionContextKind: C.session_context_kind
+                } else if (request.method === "wake.set") {
+                    let wakeOutput = await runRemindDuoduoTool(request.params, {
+                        paths,
+                        sessionKey: piWorkerContext.session_key,
+                        sessionContextKind: piWorkerContext.session_context_kind
                     });
-                    $.result = {
-                        output: x
+                    response.result = {
+                        output: wakeOutput
                     }
                 } else {
-                    let x = await runViewSessionsTool(S.params, {
-                        paths: u,
-                        sessionKey: C.session_key,
-                        getSessionStatus: M => e.sessionManager?.listActors().get(M)?.status
+                    let viewSessionsOutput = await runViewSessionsTool(request.params, {
+                        paths,
+                        sessionKey: piWorkerContext.session_key,
+                        getSessionStatus: sessionKey => options.sessionManager?.listActors().get(sessionKey)?.status
                     });
-                    $.result = {
-                        output: x
+                    response.result = {
+                        output: viewSessionsOutput
                     }
                 }
-            } else if (S.method === "session.model") {
-                if (!isSessionModelParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await readOrSetSessionModel(d, N, x)
-            } else if (S.method === "session.effort") {
-                if (!isSessionEffortParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await readOrSetSessionEffort(d, N, x)
-            } else if (S.method === "session.compact") {
-                if (!isSessionCompactParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await enqueueSessionCompactCommand(u, l, d, N, x)
-            } else if (S.method === "session.config") {
-                if (!isSessionConfigParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await applySessionConfigVerb(u, d, x)
-            } else if (S.method === "channel.spawn") {
-                if (!isChannelSpawnParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                $.result = await upsertChannelSpawnDescriptor(u, d, x)
-            } else if (S.method === "channel.ingress") {
-                if (!isChannelIngressParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                if (assertWsChannelIdentityParams("channel.ingress", x, D), isSessionArchiving(x.session_key)) return $.error = {
+            } else if (request.method === "session.model") {
+                if (!isSessionModelParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await readOrSetSessionModel(sessionIndex, gatewayCommands, params)
+            } else if (request.method === "session.effort") {
+                if (!isSessionEffortParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await readOrSetSessionEffort(sessionIndex, gatewayCommands, params)
+            } else if (request.method === "session.compact") {
+                if (!isSessionCompactParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await enqueueSessionCompactCommand(paths, bus, sessionIndex, gatewayCommands, params)
+            } else if (request.method === "session.config") {
+                if (!isSessionConfigParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await applySessionConfigVerb(paths, sessionIndex, params)
+            } else if (request.method === "channel.spawn") {
+                if (!isChannelSpawnParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await upsertChannelSpawnDescriptor(paths, sessionIndex, params)
+            } else if (request.method === "channel.ingress") {
+                if (!isChannelIngressParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                if (assertWsChannelIdentityParams("channel.ingress", params, rpcContext), isSessionArchiving(params.session_key)) return response.error = {
                     code: -32011,
-                    message: `Session is being archived. Retry after session.archive completes. session_key=${x.session_key}`
-                }, $;
-                let M = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    F = await resolveIngressWorkspace({
-                        paths: u,
-                        sessionKey: x.session_key,
-                        cwdAbs: x.cwd_abs,
-                        channelKind: M,
-                        channelId: x.channel_id
+                    message: `Session is being archived. Retry after session.archive completes. session_key=${params.session_key}`
+                }, response;
+                let sourceKind = params.source_kind ?? (rpcContext?.wsSubscriberId ? "ws" : "rpc"),
+                    ingressWorkspace = await resolveIngressWorkspace({
+                        paths,
+                        sessionKey: params.session_key,
+                        cwdAbs: params.cwd_abs,
+                        channelKind: sourceKind,
+                        channelId: params.channel_id
                     });
-                if (!F.ok) return $.error = {
+                if (!ingressWorkspace.ok) return response.error = {
                     code: -32010,
-                    message: F.guidance
-                }, $;
-                await bindSessionSourceChannel(u, x.session_key, x.channel_id);
-                let J = await ingestChannelMessage(u, {
-                    sessionKey: x.session_key,
-                    sourceKind: M,
-                    sourceName: x.channel_id ?? D?.wsSubscriberId,
-                    sourceChannelId: x.channel_id,
-                    text: x.text ?? "",
-                    attachments: x.attachments,
-                    dedupSourceId: x.idempotency_key,
+                    message: ingressWorkspace.guidance
+                }, response;
+                await bindSessionSourceChannel(paths, params.session_key, params.channel_id);
+                let ingestResult = await ingestChannelMessage(paths, {
+                    sessionKey: params.session_key,
+                    sourceKind,
+                    sourceName: params.channel_id ?? rpcContext?.wsSubscriberId,
+                    sourceChannelId: params.channel_id,
+                    text: params.text ?? "",
+                    attachments: params.attachments,
+                    dedupSourceId: params.idempotency_key,
                     rawPayload: {
-                        jsonrpc: S.jsonrpc,
-                        method: S.method,
-                        params: S.params
+                        jsonrpc: request.jsonrpc,
+                        method: request.method,
+                        params: request.params
                     }
                 }, {
-                    bus: l,
-                    gatewayCommands: N
+                    bus,
+                    gatewayCommands
                 });
-                logLatencyStageTelemetry("ingress_received", J.event.id, {
-                    sessionKey: x.session_key
-                }), J.routing.enqueued && l.emit("session.wake", {
-                    sessionKey: x.session_key,
-                    displayName: x.display_name,
-                    preempt: resolvePreemptFromCommandText(x.text)
+                logLatencyStageTelemetry("ingress_received", ingestResult.event.id, {
+                    sessionKey: params.session_key
+                }), ingestResult.routing.enqueued && bus.emit("session.wake", {
+                    sessionKey: params.session_key,
+                    displayName: params.display_name,
+                    preempt: resolvePreemptFromCommandText(params.text)
                 });
-                let ce = isBusinessSourceKind(M) ? F.effectiveConfig?.kind_config : void 0,
-                    ie = {
-                        event_id: J.event.id,
-                        gateway_response: J.gatewayResponse,
-                        outbox_id: J.gatewayOutboxId,
-                        ...ce ? {
-                            kind_config: ce
+                let kindConfig = isBusinessSourceKind(sourceKind) ? ingressWorkspace.effectiveConfig?.kind_config : void 0,
+                    ingressResult = {
+                        event_id: ingestResult.event.id,
+                        gateway_response: ingestResult.gatewayResponse,
+                        outbox_id: ingestResult.gatewayOutboxId,
+                        ...kindConfig ? {
+                            kind_config: kindConfig
                         } : {}
                     };
-                $.result = ie
-            } else if (S.method === "channel.command") {
-                if (!isChannelCommandParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                if (assertWsChannelIdentityParams("channel.command", x, D), isSessionArchiving(x.session_key)) return $.error = {
+                response.result = ingressResult
+            } else if (request.method === "channel.command") {
+                if (!isChannelCommandParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                if (assertWsChannelIdentityParams("channel.command", params, rpcContext), isSessionArchiving(params.session_key)) return response.error = {
                     code: -32011,
-                    message: `Session is being archived. Retry after session.archive completes. session_key=${x.session_key}`
-                }, $;
-                let M = x.source_kind ?? (D?.wsSubscriberId ? "ws" : "rpc"),
-                    F = await resolveIngressWorkspace({
-                        paths: u,
-                        sessionKey: x.session_key,
-                        cwdAbs: x.cwd_abs,
-                        channelKind: M,
-                        channelId: x.channel_id
+                    message: `Session is being archived. Retry after session.archive completes. session_key=${params.session_key}`
+                }, response;
+                let sourceKind = params.source_kind ?? (rpcContext?.wsSubscriberId ? "ws" : "rpc"),
+                    ingressWorkspace = await resolveIngressWorkspace({
+                        paths,
+                        sessionKey: params.session_key,
+                        cwdAbs: params.cwd_abs,
+                        channelKind: sourceKind,
+                        channelId: params.channel_id
                     });
-                if (!F.ok) return $.error = {
+                if (!ingressWorkspace.ok) return response.error = {
                     code: -32010,
-                    message: F.guidance
-                }, $;
-                await bindSessionSourceChannel(u, x.session_key, x.channel_id);
-                let J = await ingestChannelCommand(u, {
-                    sessionKey: x.session_key,
-                    sourceKind: M,
-                    sourceName: x.channel_id ?? D?.wsSubscriberId,
-                    sourceChannelId: x.channel_id,
-                    command: x.command,
-                    dedupSourceId: x.idempotency_key,
+                    message: ingressWorkspace.guidance
+                }, response;
+                await bindSessionSourceChannel(paths, params.session_key, params.channel_id);
+                let commandResult = await ingestChannelCommand(paths, {
+                    sessionKey: params.session_key,
+                    sourceKind,
+                    sourceName: params.channel_id ?? rpcContext?.wsSubscriberId,
+                    sourceChannelId: params.channel_id,
+                    command: params.command,
+                    dedupSourceId: params.idempotency_key,
                     rawPayload: {
-                        jsonrpc: S.jsonrpc,
-                        method: S.method,
-                        params: S.params
+                        jsonrpc: request.jsonrpc,
+                        method: request.method,
+                        params: request.params
                     }
                 }, {
-                    bus: l,
-                    gatewayCommands: N
+                    bus,
+                    gatewayCommands
                 });
-                J.routing.enqueued && l.emit("session.wake", {
-                    sessionKey: x.session_key,
-                    preempt: resolvePreemptFromCommandText(x.command)
-                }), $.result = {
-                    event_id: J.event.id,
-                    gateway_response: J.gatewayResponse,
-                    outbox_id: J.gatewayOutboxId
+                commandResult.routing.enqueued && bus.emit("session.wake", {
+                    sessionKey: params.session_key,
+                    preempt: resolvePreemptFromCommandText(params.command)
+                }), response.result = {
+                    event_id: commandResult.event.id,
+                    gateway_response: commandResult.gatewayResponse,
+                    outbox_id: commandResult.gatewayOutboxId
                 }
-            } else if (S.method === "channel.file.upload") {
-                if (!isChannelFileUploadParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params,
-                    M = await saveChannelUploadToInbox(u, x.session_key, x.name, x.mime, x.content_base64, {
-                        receivedVia: D?.wsSubscriberId ? "ws" : "rpc",
-                        sourceName: D?.wsSubscriberId
+            } else if (request.method === "channel.file.upload") {
+                if (!isChannelFileUploadParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params,
+                    uploadResult = await saveChannelUploadToInbox(paths, params.session_key, params.name, params.mime, params.content_base64, {
+                        receivedVia: rpcContext?.wsSubscriberId ? "ws" : "rpc",
+                        sourceName: rpcContext?.wsSubscriberId
                     });
-                $.result = M
-            } else if (S.method === "channel.file.download") {
-                if (!isChannelFileDownloadParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params,
-                    M = await readFileAsBase64(x.path);
-                $.result = {
-                    content_base64: M
+                response.result = uploadResult
+            } else if (request.method === "channel.file.download") {
+                if (!isChannelFileDownloadParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params,
+                    fileAsBase64 = await readFileAsBase64(params.path);
+                response.result = {
+                    content_base64: fileAsBase64
                 }
-            } else if (S.method === "channel.pull") {
-                if (!isChannelPullParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params,
-                    M = x.consumer_id.trim(),
-                    F = normalizeReturnMask(x.return_mask),
-                    J = F.includes("final");
-                if (D?.wsSubscriberId) return await recordChannelCapabilityDeclaration({
-                    paths: u,
-                    sessionKey: x.session_key,
-                    declaredBy: M,
-                    capabilities: x.channel_capabilities
-                }), $.result = {
+            } else if (request.method === "channel.pull") {
+                if (!isChannelPullParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params,
+                    trimmed = params.consumer_id.trim(),
+                    returnMask = normalizeReturnMask(params.return_mask),
+                    wantsFinal = returnMask.includes("final");
+                if (rpcContext?.wsSubscriberId) return await recordChannelCapabilityDeclaration({
+                    paths,
+                    sessionKey: params.session_key,
+                    declaredBy: trimmed,
+                    capabilities: params.channel_capabilities
+                }), response.result = {
                     opened: !0,
-                    session_key: x.session_key,
-                    consumer_id: M,
-                    cursor: x.cursor,
-                    return_mask: F
-                }, $;
-                let ce = J ? await readOutboxRecordsPastCursor({
-                    paths: u,
-                    sessionKey: x.session_key,
-                    consumerId: M,
-                    limit: x.limit ?? Number(process.env.ALADUO_PULL_LIMIT ?? 50),
-                    cursorOverride: x.cursor
+                    session_key: params.session_key,
+                    consumer_id: trimmed,
+                    cursor: params.cursor,
+                    return_mask: returnMask
+                }, response;
+                let outboxRecords = wantsFinal ? await readOutboxRecordsPastCursor({
+                    paths,
+                    sessionKey: params.session_key,
+                    consumerId: trimmed,
+                    limit: params.limit ?? Number(process.env.ALADUO_PULL_LIMIT ?? 50),
+                    cursorOverride: params.cursor
                 }) : [];
-                $.result = {
-                    session_key: x.session_key,
-                    consumer_id: M,
-                    return_mask: F,
-                    records: ce,
-                    next_cursor: ce.length > 0 ? ce[ce.length - 1].id : void 0,
-                    idle: ce.length === 0
+                response.result = {
+                    session_key: params.session_key,
+                    consumer_id: trimmed,
+                    return_mask: returnMask,
+                    records: outboxRecords,
+                    next_cursor: outboxRecords.length > 0 ? outboxRecords[outboxRecords.length - 1].id : void 0,
+                    idle: outboxRecords.length === 0
                 }
-            } else if (S.method === "channel.ack") {
-                if (!isChannelAckParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                if (isSessionArchiving(x.session_key)) return $.error = {
+            } else if (request.method === "channel.ack") {
+                if (!isChannelAckParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                if (isSessionArchiving(params.session_key)) return response.error = {
                     code: -32002,
-                    message: `Session is being archived. Retry after session.archive completes. session_key=${x.session_key}`
-                }, $;
-                let M = x.consumer_id.trim(),
-                    F = x.cursor.trim(),
-                    J = x.session_key.indexOf(":"),
-                    ce = J > 0 ? x.session_key.slice(0, J) : null,
-                    ie = null;
-                if (ce && (ie = await readOutboxRecord(u, ce, F)), !ie || ie.session_key !== x.session_key) {
-                    let se = await $ce(u, x.session_key, F);
-                    return se ? (await L6(u, x.session_key, M, se), $.result = {
-                        session_key: x.session_key,
-                        consumer_id: M,
-                        committed_cursor: se.id,
+                    message: `Session is being archived. Retry after session.archive completes. session_key=${params.session_key}`
+                }, response;
+                let trimmed = params.consumer_id.trim(),
+                    trimmed2 = params.cursor.trim(),
+                    colonIndex = params.session_key.indexOf(":"),
+                    channelKind = colonIndex > 0 ? params.session_key.slice(0, colonIndex) : null,
+                    outboxRecord = null;
+                if (channelKind && (outboxRecord = await readOutboxRecord(paths, channelKind, trimmed2)), !outboxRecord || outboxRecord.session_key !== params.session_key) {
+                    let fallbackCursorRecord = await $ce(paths, params.session_key, trimmed2);
+                    return fallbackCursorRecord ? (await L6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
+                        session_key: params.session_key,
+                        consumer_id: trimmed,
+                        committed_cursor: fallbackCursorRecord.id,
                         committed: !0
-                    }, $) : ($.error = {
+                    }, response) : (response.error = {
                         code: -32602,
                         message: "Invalid cursor"
-                    }, $)
+                    }, response)
                 }
-                let Ce = await lookupOutboxByIdIndexEntry(u, F);
-                if (!Ce) try {
-                    await backfillOutboxByIdIndexFromReplay(u, x.session_key), Ce = await lookupOutboxByIdIndexEntry(u, F)
+                let outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, trimmed2);
+                if (!outboxByIdIndexEntry) try {
+                    await backfillOutboxByIdIndexFromReplay(paths, params.session_key), outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, trimmed2)
                 } catch {}
-                Ce ? await Fbe(u, x.session_key, M, Ce) : await L6(u, x.session_key, M, ie), $.result = {
-                    session_key: x.session_key,
-                    consumer_id: M,
-                    committed_cursor: ie.id,
+                outboxByIdIndexEntry ? await Fbe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await L6(paths, params.session_key, trimmed, outboxRecord), response.result = {
+                    session_key: params.session_key,
+                    consumer_id: trimmed,
+                    committed_cursor: outboxRecord.id,
                     committed: !0
                 }
-            } else if (S.method === "job.create") {
-                if (!isJobCreateParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                await c.init(), await c.createJob(x.id, {
-                    cron: x.cron,
-                    owner_session: x.owner_session,
-                    cwd_rel: x.cwd_rel,
+            } else if (request.method === "job.create") {
+                if (!isJobCreateParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                await jobStore.init(), await jobStore.createJob(params.id, {
+                    cron: params.cron,
+                    owner_session: params.owner_session,
+                    cwd_rel: params.cwd_rel,
                     runtime: resolveDefaultRuntime()
-                }, x.instruction);
-                let M = createSpineEvent({
+                }, params.instruction);
+                let spineEvent = createSpineEvent({
                     type: "job.spawn",
                     source: {
                         kind: "job",
-                        name: x.id
+                        name: params.id
                     },
                     payload: {
-                        job_id: x.id,
-                        cron: x.cron
+                        job_id: params.id,
+                        cron: params.cron
                     }
                 });
-                await atomicAppendEvent(u, M), $.result = {
-                    id: x.id,
-                    cron: x.cron
+                await atomicAppendEvent(paths, spineEvent), response.result = {
+                    id: params.id,
+                    cron: params.cron
                 }
-            } else if (S.method === "job.get") {
-                if (!isJobGetParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                await c.init();
-                let M = await c.getWakeRecord(x.id).catch(() => null);
-                if (M) return $.result = {
+            } else if (request.method === "job.get") {
+                if (!isJobGetParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                await jobStore.init();
+                let wakeRecord = await jobStore.getWakeRecord(params.id).catch(() => null);
+                if (wakeRecord) return response.result = {
                     kind: "active",
                     type: "wake",
-                    id: M.id,
-                    owner_session: M.frontmatter.owner_session,
-                    run_at: M.state.run_at ?? null,
-                    created_at: M.frontmatter.created_at,
-                    content: M.context
-                }, $;
-                let F = await c.classifyActiveJob(x.id);
-                if (F.kind === "active") $.result = {
-                    ...redactJobModelProfileTokens(F.job),
+                    id: wakeRecord.id,
+                    owner_session: wakeRecord.frontmatter.owner_session,
+                    run_at: wakeRecord.state.run_at ?? null,
+                    created_at: wakeRecord.frontmatter.created_at,
+                    content: wakeRecord.context
+                }, response;
+                let jobClassification = await jobStore.classifyActiveJob(params.id);
+                if (jobClassification.kind === "active") response.result = {
+                    ...redactJobModelProfileTokens(jobClassification.job),
                     kind: "active"
                 };
-                else if (F.kind === "invalid") $.error = {
+                else if (jobClassification.kind === "invalid") response.error = {
                     code: jm.INVALID_ACTIVE,
-                    message: `Job '${x.id}' active job file exists but is invalid: ${F.reason}`
+                    message: `Job '${params.id}' active job file exists but is invalid: ${jobClassification.reason}`
                 };
                 else {
-                    let J = await c.getArchivedJob(x.id);
-                    J ? $.result = {
-                        ...redactJobModelProfileTokens(J),
+                    let archivedJob = await jobStore.getArchivedJob(params.id);
+                    archivedJob ? response.result = {
+                        ...redactJobModelProfileTokens(archivedJob),
                         kind: "archived",
                         archived: !0
-                    } : $.error = {
+                    } : response.error = {
                         code: jm.NOT_FOUND,
                         message: "Job not found"
                     }
                 }
-            } else if (S.method === "job.list") {
-                if (!isJobListParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                await c.init();
-                let x = ibe(await c.listJobs()).map(J => ({
+            } else if (request.method === "job.list") {
+                if (!isJobListParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                await jobStore.init();
+                let jobs = ibe(await jobStore.listJobs()).map(job => ({
                         type: "job",
-                        ...J
+                        ...job
                     })),
-                    M = (await c.listWakeRecords()).map(J => ({
+                    wakes = (await jobStore.listWakeRecords()).map(wakeRecord => ({
                         type: "wake",
-                        id: J.id,
-                        owner_session: J.frontmatter.owner_session,
-                        run_at: J.state.run_at ?? null,
-                        created_at: J.frontmatter.created_at,
-                        content: J.context
+                        id: wakeRecord.id,
+                        owner_session: wakeRecord.frontmatter.owner_session,
+                        run_at: wakeRecord.state.run_at ?? null,
+                        created_at: wakeRecord.frontmatter.created_at,
+                        content: wakeRecord.context
                     }));
-                S.params?.summary ? $.result = {
-                    jobs: [...x.map(({
-                        content: J,
-                        path: ce,
-                        ...ie
-                    }) => ie), ...M]
-                } : $.result = {
-                    jobs: [...x, ...M]
+                request.params?.summary ? response.result = {
+                    jobs: [...jobs.map(({
+                        content,
+                        path,
+                        ...jobSummary
+                    }) => jobSummary), ...wakes]
+                } : response.result = {
+                    jobs: [...jobs, ...wakes]
                 }
-            } else if (S.method === "job.archive") {
-                if (!isJobArchiveParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params;
-                await c.init();
-                let M = await c.getJob(x.id),
-                    F = await c.archiveJob(x.id),
-                    J = M?.session_key ?? buildJobSessionKey({
-                        jobId: x.id,
-                        cron: M?.frontmatter.cron,
-                        cwdRel: M?.frontmatter.cwd_rel
+            } else if (request.method === "job.archive") {
+                if (!isJobArchiveParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                await jobStore.init();
+                let job = await jobStore.getJob(params.id),
+                    archiveResult = await jobStore.archiveJob(params.id),
+                    jobSessionKey = job?.session_key ?? buildJobSessionKey({
+                        jobId: params.id,
+                        cron: job?.frontmatter.cron,
+                        cwdRel: job?.frontmatter.cwd_rel
                     });
-                await moveSessionDirToArchive(u, J), $.result = {
-                    id: x.id,
+                await moveSessionDirToArchive(paths, jobSessionKey), response.result = {
+                    id: params.id,
                     archived: !0,
-                    session_key: J,
-                    sidecar_orphan_path: F.sidecarOrphanPath ?? null
+                    session_key: jobSessionKey,
+                    sidecar_orphan_path: archiveResult.sidecarOrphanPath ?? null
                 }
-            } else if (S.method === "job.reschedule") {
-                if (!isJobRescheduleParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params,
-                    M = x.when.trim();
-                if (!M) throw new JsonRpcInvalidParamsError("job.reschedule requires a non-empty 'when': '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone.");
-                await c.init();
-                let F = await c.getJob(x.id),
-                    J = await c.rescheduleJob(x.id, M);
-                $.result = {
-                    id: x.id,
-                    run_at: J,
-                    cron: F?.frontmatter.cron ?? null
+            } else if (request.method === "job.reschedule") {
+                if (!isJobRescheduleParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params,
+                    trimmed = params.when.trim();
+                if (!trimmed) throw new JsonRpcInvalidParamsError("job.reschedule requires a non-empty 'when': '@in <duration>' (e.g. '@in 30m') or a future ISO 8601 timestamp with an explicit zone.");
+                await jobStore.init();
+                let job = await jobStore.getJob(params.id),
+                    runAt = await jobStore.rescheduleJob(params.id, trimmed);
+                response.result = {
+                    id: params.id,
+                    run_at: runAt,
+                    cron: job?.frontmatter.cron ?? null
                 }
-            } else if (S.method === "job.interrupt") {
-                if (!isJobInterruptParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params,
-                    M = x.reason.trim();
-                if (!M) throw new JsonRpcInvalidParamsError("job.interrupt requires a non-empty 'reason' — it is what the interrupted session is told.");
-                await c.init();
-                let F = await c.getJob(x.id) ?? await c.getArchivedJob(x.id);
-                if (!F) $.error = {
+            } else if (request.method === "job.interrupt") {
+                if (!isJobInterruptParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params,
+                    trimmed = params.reason.trim();
+                if (!trimmed) throw new JsonRpcInvalidParamsError("job.interrupt requires a non-empty 'reason' — it is what the interrupted session is told.");
+                await jobStore.init();
+                let job = await jobStore.getJob(params.id) ?? await jobStore.getArchivedJob(params.id);
+                if (!job) response.error = {
                     code: jm.NOT_FOUND,
-                    message: `Job '${x.id}' not found`
+                    message: `Job '${params.id}' not found`
                 };
-                else if (!e.sessionManager) $.error = {
+                else if (!options.sessionManager) response.error = {
                     code: -32603,
                     message: "Internal error",
                     data: "session manager unavailable"
                 };
                 else {
-                    await patchSessionRuntimeState(u, F.session_key, {
+                    await patchSessionRuntimeState(paths, job.session_key, {
                         pending_gateway_notice: {
                             source: "gateway_command",
-                            command: `job interrupt ${x.id}`,
+                            command: `job interrupt ${params.id}`,
                             command_name: "interrupt",
-                            result_summary: M,
+                            result_summary: trimmed,
                             created_at: new Date().toISOString()
                         }
                     });
-                    let J = await e.sessionManager.interruptSession(F.session_key);
-                    J.interrupted || await clearSessionRuntimeStateField(u, F.session_key, "pending_gateway_notice").catch(() => {}), $.result = {
-                        id: x.id,
-                        session_key: F.session_key,
-                        interrupted: J.interrupted,
-                        outcome: J.reason
+                    let interruptResult = await options.sessionManager.interruptSession(job.session_key);
+                    interruptResult.interrupted || await clearSessionRuntimeStateField(paths, job.session_key, "pending_gateway_notice").catch(() => {}), response.result = {
+                        id: params.id,
+                        session_key: job.session_key,
+                        interrupted: interruptResult.interrupted,
+                        outcome: interruptResult.reason
                     }
                 }
-            } else if (S.method === "usage.get") {
-                let x = S.params,
-                    M = typeof x?.session_key == "string" ? x.session_key : void 0,
-                    F = typeof x?.mode == "string" ? x.mode : void 0,
-                    J;
-                if (x?.since !== void 0 && (J = new Date(x.since), isNaN(J.getTime()) && (J = void 0)), F === "totals") {
-                    let ce = await readGlobalUsageTotals(u, J);
-                    $.result = {
-                        totals: ce
+            } else if (request.method === "usage.get") {
+                let params = request.params,
+                    usageSessionKey = typeof params?.session_key == "string" ? params.session_key : void 0,
+                    mode = typeof params?.mode == "string" ? params.mode : void 0,
+                    since;
+                if (params?.since !== void 0 && (since = new Date(params.since), isNaN(since.getTime()) && (since = void 0)), mode === "totals") {
+                    let globalUsageTotals = await readGlobalUsageTotals(paths, since);
+                    response.result = {
+                        totals: globalUsageTotals
                     }
-                } else if (M) {
-                    let ce = await readDrainRecords(u, M, J),
-                        ie = summarizeDrainRecords(ce);
-                    $.result = {
+                } else if (usageSessionKey) {
+                    let drainRecords = await readDrainRecords(paths, usageSessionKey, since),
+                        summary = summarizeDrainRecords(drainRecords);
+                    response.result = {
                         sessions: {
-                            [M]: {
-                                summary: ie,
-                                records: ce
+                            [usageSessionKey]: {
+                                summary,
+                                records: drainRecords
                             }
                         }
                     }
                 } else {
-                    let ce = await readAllSessionSummaries(u, J),
-                        ie = {};
-                    for (let [Ce, se] of Object.entries(ce)) ie[Ce] = {
-                        summary: se
+                    let allSessionSummaries = await readAllSessionSummaries(paths, since),
+                        sessions = {};
+                    for (let [sessionKey, sessionSummary] of Object.entries(allSessionSummaries)) sessions[sessionKey] = {
+                        summary: sessionSummary
                     };
-                    $.result = {
-                        sessions: ie
+                    response.result = {
+                        sessions
                     }
                 }
-            } else if (S.method === "system.status") {
-                if (!isSystemStatusParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let [x, M] = await Promise.all([readStatus(u), readPlaylistRound(u)]), F = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, J = e.sessionManager?.listActors(), ce = new Set, ie = [], Ce = ne => {
-                    let K = ne?.last_served_model ?? null,
-                        te = ne?.model ?? null;
+            } else if (request.method === "system.status") {
+                if (!isSystemStatusParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let [status, playlistRound] = await Promise.all([readStatus(paths), readPlaylistRound(paths)]), cadenceIntervalMs = parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) || 222e4, actors = options.sessionManager?.listActors(), seenSessionKeys = new Set, sessions = [], describeModel = entry => {
+                    let servedModel = entry?.last_served_model ?? null,
+                        pendingModel = entry?.model ?? null;
                     return {
-                        served: K,
-                        pending: te !== null && te !== K ? te : null
+                        served: servedModel,
+                        pending: pendingModel !== null && pendingModel !== servedModel ? pendingModel : null
                     }
-                }, se = async ne => classifySessionKeyKind(ne) !== "channel" ? {} : {
-                    last_cursor_advance_at: await readLatestDeliveryCursorUpdate(u, ne),
-                    final_subscriber_count: h.finalSubscriberCount(ne)
+                }, readDeliveryInfo = async sessionKey => classifySessionKeyKind(sessionKey) !== "channel" ? {} : {
+                    last_cursor_advance_at: await readLatestDeliveryCursorUpdate(paths, sessionKey),
+                    final_subscriber_count: subscriptions.finalSubscriberCount(sessionKey)
                 };
-                if (J)
-                    for (let [ne, K] of J) {
-                        if (K.status === "ended" || !isUserVisibleSessionKey(ne)) continue;
-                        ce.add(ne);
-                        let te = d.get(ne);
-                        ie.push({
-                            session_key: ne,
-                            display_name: te?.display_name ?? null,
-                            status: K.status,
-                            health: te?.last_error ? "error" : K.health,
-                            last_event_at: te?.last_event_at ?? null,
-                            created_at: te?.created_at ?? null,
-                            cwd: te?.cwd ?? null,
-                            last_error: te?.last_error ?? null,
-                            runtime: K.runtime,
-                            model: Ce(te),
-                            in_flight_tools: K.activeToolCalls.length > 0 ? K.activeToolCalls.map(B => ({
-                                tool_name: B.toolName,
-                                started_at: new Date(B.startedAtMs).toISOString()
+                if (actors)
+                    for (let [sessionKey, actor] of actors) {
+                        if (actor.status === "ended" || !isUserVisibleSessionKey(sessionKey)) continue;
+                        seenSessionKeys.add(sessionKey);
+                        let indexEntry = sessionIndex.get(sessionKey);
+                        sessions.push({
+                            session_key: sessionKey,
+                            display_name: indexEntry?.display_name ?? null,
+                            status: actor.status,
+                            health: indexEntry?.last_error ? "error" : actor.health,
+                            last_event_at: indexEntry?.last_event_at ?? null,
+                            created_at: indexEntry?.created_at ?? null,
+                            cwd: indexEntry?.cwd ?? null,
+                            last_error: indexEntry?.last_error ?? null,
+                            runtime: actor.runtime,
+                            model: describeModel(indexEntry),
+                            in_flight_tools: actor.activeToolCalls.length > 0 ? actor.activeToolCalls.map(toolCall => ({
+                                tool_name: toolCall.toolName,
+                                started_at: new Date(toolCall.startedAtMs).toISOString()
                             })) : void 0,
-                            ...await se(ne)
+                            ...await readDeliveryInfo(sessionKey)
                         })
                     }
-                for (let ne of d.listUserVisible()) ce.has(ne.session_key) || ie.push({
-                    session_key: ne.session_key,
-                    display_name: ne.display_name ?? null,
+                for (let indexEntry of sessionIndex.listUserVisible()) seenSessionKeys.has(indexEntry.session_key) || sessions.push({
+                    session_key: indexEntry.session_key,
+                    display_name: indexEntry.display_name ?? null,
                     status: "idle",
-                    health: ne.last_error ? "error" : "ok",
-                    last_event_at: ne.last_event_at ?? null,
-                    created_at: ne.created_at ?? null,
-                    cwd: ne.cwd ?? null,
-                    last_error: ne.last_error ?? null,
-                    model: Ce(ne),
-                    ...await se(ne.session_key)
+                    health: indexEntry.last_error ? "error" : "ok",
+                    last_event_at: indexEntry.last_event_at ?? null,
+                    created_at: indexEntry.created_at ?? null,
+                    cwd: indexEntry.cwd ?? null,
+                    last_error: indexEntry.last_error ?? null,
+                    model: describeModel(indexEntry),
+                    ...await readDeliveryInfo(indexEntry.session_key)
                 });
-                let j = {
+                let statusResult = {
                     health: {
-                        gateway: x?.health?.gateway ?? "down",
-                        meta_session: x?.health?.meta_session ?? "down"
+                        gateway: status?.health?.gateway ?? "down",
+                        meta_session: status?.health?.meta_session ?? "down"
                     },
                     cadence: {
-                        mode: x?.cadence?.mode ?? "unknown",
-                        last_tick: x?.cadence?.last_tick ?? null,
-                        interval_ms: F
+                        mode: status?.cadence?.mode ?? "unknown",
+                        last_tick: status?.cadence?.last_tick ?? null,
+                        interval_ms: cadenceIntervalMs
                     },
-                    sessions: ie,
+                    sessions,
                     subconscious: {
-                        partitions: M.items.map(ne => ({
-                            name: ne.name,
-                            done: ne.done
+                        partitions: playlistRound.items.map(partition => ({
+                            name: partition.name,
+                            done: partition.done
                         }))
                     },
-                    memory_check: buildMemoryCheckStatus(u)
+                    memory_check: buildMemoryCheckStatus(paths)
                 };
-                $.result = j
-            } else if (S.method === "system.config") {
-                if (!isSystemConfigParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                $.result = await buildSystemConfigReport(u)
-            } else if (S.method === "spine.tail") {
-                if (!isSpineTailParams(S.params)) throw new JsonRpcInvalidParamsError("Invalid params");
-                let x = S.params ?? {},
-                    M = await readSpineTail(u, {
-                        limit: x.limit,
-                        after_id: x.after_id
+                response.result = statusResult
+            } else if (request.method === "system.config") {
+                if (!isSystemConfigParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                response.result = await buildSystemConfigReport(paths)
+            } else if (request.method === "spine.tail") {
+                if (!isSpineTailParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let tailParams = request.params ?? {},
+                    spineTail = await readSpineTail(paths, {
+                        limit: tailParams.limit,
+                        after_id: tailParams.after_id
                     });
-                $.result = M
-            } else S.method === "memory.read" ? $.result = await readMemoryFileForRpc(u, S.params) : S.method === "spine.cat" ? $.result = await runSpineCatRpc(u, S.params) : S.method === "spine.record" ? $.result = await recordExternalSpineEvent(u, S.params) : $.error = {
+                response.result = spineTail
+            } else request.method === "memory.read" ? response.result = await readMemoryFileForRpc(paths, request.params) : request.method === "spine.cat" ? response.result = await runSpineCatRpc(paths, request.params) : request.method === "spine.record" ? response.result = await recordExternalSpineEvent(paths, request.params) : response.error = {
                 code: -32601,
                 message: "Method not found"
             }
-        } catch (x) {
-            x instanceof JsonRpcInvalidParamsError ? $.error = {
-                code: x.code,
-                message: x.message
-            } : x instanceof MemoryReadRpcError || x instanceof SpineRpcParamsError ? $.error = {
+        } catch (err) {
+            err instanceof JsonRpcInvalidParamsError ? response.error = {
+                code: err.code,
+                message: err.message
+            } : err instanceof MemoryReadRpcError || err instanceof SpineRpcParamsError ? response.error = {
                 code: -32602,
-                message: x.message
-            } : x instanceof xb ? $.error = {
+                message: err.message
+            } : err instanceof xb ? response.error = {
                 code: -32603,
-                message: x.message
-            } : $.error = {
+                message: err.message
+            } : response.error = {
                 code: -32603,
                 message: "Internal error",
-                data: String(x)
+                data: String(err)
             }
         }
-        return $
+        return response
     }
-    let P = (S, {
-        hostGuard: D,
-        readOnly: A,
-        bearerToken: $
+    let registerRoutes = (app, {
+        hostGuard,
+        readOnly,
+        bearerToken
     }) => {
-        if ($) {
-            let C = x => AN.createHash("sha256").update(x).digest(),
-                N = C($);
-            S.addHook("onRequest", async (x, M) => {
-                let F = x.headers.authorization,
-                    J = typeof F == "string" && F.startsWith("Bearer ") ? F.slice(7).trim() : "";
-                if (!J) return logWarnMessage("[daemon] rejected request: missing/invalid bearer", {
-                    url: x.url
-                }), a(x, M);
-                if (!AN.timingSafeEqual(C(J), N)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
-                    url: x.url
-                }), a(x, M)
+        if (bearerToken) {
+            let sha256 = value => AN.createHash("sha256").update(value).digest(),
+                expectedTokenHash = sha256(bearerToken);
+            app.addHook("onRequest", async (request, reply) => {
+                let authorization = request.headers.authorization,
+                    presentedToken = typeof authorization == "string" && authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
+                if (!presentedToken) return logWarnMessage("[daemon] rejected request: missing/invalid bearer", {
+                    url: request.url
+                }), sendUnauthorized(request, reply);
+                if (!AN.timingSafeEqual(sha256(presentedToken), expectedTokenHash)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
+                    url: request.url
+                }), sendUnauthorized(request, reply)
             })
         }
-        D && S.addHook("onRequest", async (C, N) => {
-            let x = C.routeOptions.url;
-            if (x !== void 0 && Ubt.has(x)) return;
-            let M = C.url ?? "",
-                F = C.headers.host,
-                J = F ? parseHostHeaderHostname(F) : null;
-            if (!J || !i.has(J)) return logWarnMessage("[daemon] rejected request: Host header not allowed", {
-                url: M,
-                host: F ?? null
-            }), s(C, N, "Host header not allowed");
-            let ce = C.headers.origin;
-            if (ce !== void 0) {
-                let ie = parseOriginHostname(ce);
-                if (!ie || !i.has(ie)) return logWarnMessage("[daemon] rejected request: Origin not allowed", {
-                    url: M,
-                    origin: ce
-                }), s(C, N, "Origin not allowed")
+        hostGuard && app.addHook("onRequest", async (request, reply) => {
+            let url = request.routeOptions.url;
+            if (url !== void 0 && Ubt.has(url)) return;
+            let requestUrl = request.url ?? "",
+                host = request.headers.host,
+                hostname = host ? parseHostHeaderHostname(host) : null;
+            if (!hostname || !allowedHostnames.has(hostname)) return logWarnMessage("[daemon] rejected request: Host header not allowed", {
+                url: requestUrl,
+                host: host ?? null
+            }), sendForbidden(request, reply, "Host header not allowed");
+            let origin = request.headers.origin;
+            if (origin !== void 0) {
+                let originHostname = parseOriginHostname(origin);
+                if (!originHostname || !allowedHostnames.has(originHostname)) return logWarnMessage("[daemon] rejected request: Origin not allowed", {
+                    url: requestUrl,
+                    origin
+                }), sendForbidden(request, reply, "Origin not allowed")
             }
-        }), A ? S.get("/ws", async (C, N) => (logWarnMessage("[daemon] pre-hardening client dialed /ws on the read-only port", {
-            remote_address: C.ip,
-            user_agent: C.headers["user-agent"] ?? null
-        }), N.code(426).header("connection", "close").send({
+        }), readOnly ? app.get("/ws", async (request, reply) => (logWarnMessage("[daemon] pre-hardening client dialed /ws on the read-only port", {
+            remote_address: request.ip,
+            user_agent: request.headers["user-agent"] ?? null
+        }), reply.code(426).header("connection", "close").send({
             error: "upgrade_required",
             message: "This TCP port serves the daemon's read-only HTTP surface; it has no WebSocket endpoint and rejects all write methods. Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead. If a channel gateway is stuck retrying this port, reinstall/upgrade the channel and restart it (`duoduo channel <kind> stop`, then `start`) so it picks up the socket transport.",
-            socket_path: u.daemonSocketPath
-        }))) : S.register(vIe.default), S.get("/healthz", async () => bde()), S.get("/dashboard", async (C, N) => {
-            let x = so.join(u.bootstrapDir, "dashboard.html");
+            socket_path: paths.daemonSocketPath
+        }))) : app.register(vIe.default), app.get("/healthz", async () => bde()), app.get("/dashboard", async (request, reply) => {
+            let dashboardPath = so.join(paths.bootstrapDir, "dashboard.html");
             try {
-                let M = await zs.readFile(x, "utf8");
-                return N.type("text/html").send(M)
+                let content = await zs.readFile(dashboardPath, "utf8");
+                return reply.type("text/html").send(content)
             } catch {
-                return N.code(404).send("Dashboard not found")
+                return reply.code(404).send("Dashboard not found")
             }
-        }), S.get("/readyz", async (C, N) => await probeEventsAppendable(u) ? {
+        }), app.get("/readyz", async (request, reply) => await probeEventsAppendable(paths) ? {
             status: "ok"
-        } : N.code(503).send({
+        } : reply.code(503).send({
             status: "not_ready"
-        })), S.post("/rpc", async (C, N) => {
-            let x = C.body;
-            if (!isJsonRpcRequest(x)) return logWarnMessage("[daemon] invalid JSON-RPC request"), N.code(400).send({
+        })), app.post("/rpc", async (request, reply) => {
+            let body = request.body;
+            if (!isJsonRpcRequest(body)) return logWarnMessage("[daemon] invalid JSON-RPC request"), reply.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
-            if (A && !zbt.has(x.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
-                method: x.method,
-                id: x.id ?? null
-            }), N.code(200).send({
+            if (readOnly && !zbt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
+                method: body.method,
+                id: body.id ?? null
+            }), reply.code(200).send({
                 jsonrpc: "2.0",
-                id: x.id ?? null,
+                id: body.id ?? null,
                 error: {
                     code: -32601,
                     message: "Method not available on read-only endpoint"
                 }
             });
-            let M = await R(x),
-                F = M.__triggerShutdown;
-            F && delete M.__triggerShutdown, await N.code(200).send(M), F && setImmediate(() => process.kill(process.pid, "SIGTERM"))
-        }), A || S.register(async function(C) {
-            C.get("/ws", {
+            let response = await handleRpcRequest(body),
+                TriggerShutdown = response.__triggerShutdown;
+            TriggerShutdown && delete response.__triggerShutdown, await reply.code(200).send(response), TriggerShutdown && setImmediate(() => process.kill(process.pid, "SIGTERM"))
+        }), readOnly || app.register(async function(wsScope) {
+            wsScope.get("/ws", {
                 websocket: !0
-            }, N => {
-                let x = `ws_${++g}`,
-                    M = null,
-                    F = "",
-                    J = !1,
-                    ce = null;
+            }, ws => {
+                let subscriberId = `ws_${++wsSubscriberCounter}`,
+                    subscribedSessionKey = null,
+                    consumerId = "",
+                    ackAdvance = !1,
+                    sentRecordIds = null;
                 logInfoMessage("[daemon] ws connected", {
-                    subscriberId: x
+                    subscriberId
                 });
-                let ie = (j, ne = !0) => {
-                        let K = j.method === "session.output" ? j.params?.record?.id : void 0;
-                        if (!(ce && K && ce.has(K))) {
+                let sendMessage = (message, advanceCursor = !0) => {
+                        let recordId = message.method === "session.output" ? message.params?.record?.id : void 0;
+                        if (!(sentRecordIds && recordId && sentRecordIds.has(recordId))) {
                             try {
-                                N.send(JSON.stringify(j))
-                            } catch (te) {
-                                throw te instanceof Error ? te : new Error(String(te))
+                                ws.send(JSON.stringify(message))
+                            } catch (err) {
+                                throw err instanceof Error ? err : new Error(String(err))
                             }
-                            if (ce && K && ce.add(K), ne && !J && j.method === "session.output") {
+                            if (sentRecordIds && recordId && sentRecordIds.add(recordId), advanceCursor && !ackAdvance && message.method === "session.output") {
                                 let {
-                                    session_key: te,
-                                    record: B
-                                } = j.params;
-                                if (!F) return;
-                                let G = F,
-                                    q = (b.get(x) ?? Promise.resolve()).then(() => advanceOptimisticDeliveryCursor(u, te, G, B).catch(pe => {
+                                    session_key: sessionKey,
+                                    record
+                                } = message.params;
+                                if (!consumerId) return;
+                                let cursorConsumerId = consumerId,
+                                    cursorUpdate = (map.get(subscriberId) ?? Promise.resolve()).then(() => advanceOptimisticDeliveryCursor(paths, sessionKey, cursorConsumerId, record).catch(err => {
                                         logWarnMessage("[daemon] failed to advance delivery cursor", {
-                                            subscriberId: x,
-                                            sessionKey: te,
-                                            consumerId: G,
-                                            error: String(pe)
+                                            subscriberId,
+                                            sessionKey,
+                                            consumerId: cursorConsumerId,
+                                            error: String(err)
                                         })
                                     }));
-                                b.set(x, q), q.then(() => {
-                                    b.get(x) === q && b.delete(x)
+                                map.set(subscriberId, cursorUpdate), cursorUpdate.then(() => {
+                                    map.get(subscriberId) === cursorUpdate && map.delete(subscriberId)
                                 })
                             }
                         }
                     },
-                    Ce = async j => {
-                        let ne;
+                    handleWsMessage = async data => {
+                        let request;
                         try {
-                            ne = JSON.parse(j.toString())
+                            request = JSON.parse(data.toString())
                         } catch {
-                            N.send(JSON.stringify({
+                            ws.send(JSON.stringify({
                                 jsonrpc: "2.0",
                                 id: null,
                                 error: {
@@ -854,8 +855,8 @@ Content-Length: 0\r
                             }));
                             return
                         }
-                        if (!isJsonRpcRequest(ne)) {
-                            N.send(JSON.stringify({
+                        if (!isJsonRpcRequest(request)) {
+                            ws.send(JSON.stringify({
                                 jsonrpc: "2.0",
                                 id: null,
                                 error: {
@@ -865,182 +866,182 @@ Content-Length: 0\r
                             }));
                             return
                         }
-                        let K = await R(ne, {
-                                wsSubscriberId: x
+                        let response = await handleRpcRequest(request, {
+                                wsSubscriberId: subscriberId
                             }),
-                            te = null,
-                            B = "",
-                            G;
-                        if (ne.method === "channel.pull" && K.result && !K.error && isChannelPullParams(ne.params)) {
-                            let q = ne.params,
-                                pe = q.session_key,
-                                fe = q.consumer_id.trim(),
-                                Se = normalizeReturnMask(q.return_mask);
-                            M && h.unsubscribe(x), M = pe, F = fe, J = q.advance === "ack", te = pe, B = fe, G = q.cursor, logInfoMessage("[daemon] ws pull stream opened", {
-                                subscriberId: x,
-                                sessionKey: pe,
-                                consumerId: fe
-                            }), ce = new Set, h.subscribe({
-                                id: x,
-                                sessionKey: pe,
-                                returnMask: Se,
-                                acceptStreamEndReasons: q.channel_capabilities?.outbound?.accept_stream_end_reasons,
-                                send: w => ie(w),
+                            pullSessionKey = null,
+                            pullConsumerId = "",
+                            pullCursor;
+                        if (request.method === "channel.pull" && response.result && !response.error && isChannelPullParams(request.params)) {
+                            let params = request.params,
+                                sessionKey = params.session_key,
+                                trimmed = params.consumer_id.trim(),
+                                returnMask = normalizeReturnMask(params.return_mask);
+                            subscribedSessionKey && subscriptions.unsubscribe(subscriberId), subscribedSessionKey = sessionKey, consumerId = trimmed, ackAdvance = params.advance === "ack", pullSessionKey = sessionKey, pullConsumerId = trimmed, pullCursor = params.cursor, logInfoMessage("[daemon] ws pull stream opened", {
+                                subscriberId,
+                                sessionKey,
+                                consumerId: trimmed
+                            }), sentRecordIds = new Set, subscriptions.subscribe({
+                                id: subscriberId,
+                                sessionKey,
+                                returnMask,
+                                acceptStreamEndReasons: params.channel_capabilities?.outbound?.accept_stream_end_reasons,
+                                send: message => sendMessage(message),
                                 close: () => {
                                     try {
-                                        N.close()
+                                        ws.close()
                                     } catch {}
                                 }
                             })
                         }
-                        if (te) {
-                            let q = isChannelPullParams(ne.params) ? ne.params : void 0;
-                            if (!normalizeReturnMask(q?.return_mask).includes("final")) {
-                                ce = null, N.send(JSON.stringify(K));
+                        if (pullSessionKey) {
+                            let pullParams = isChannelPullParams(request.params) ? request.params : void 0;
+                            if (!normalizeReturnMask(pullParams?.return_mask).includes("final")) {
+                                sentRecordIds = null, ws.send(JSON.stringify(response));
                                 return
                             }
-                            let Se = te,
-                                w = q?.advance === "ack",
-                                T = Number(process.env.ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0),
-                                L = Number.isFinite(T) ? T : 0;
+                            let replaySessionKey = pullSessionKey,
+                                ackMode = pullParams?.advance === "ack",
+                                replayLimitRaw = Number(process.env.ALADUO_SUBSCRIBE_REPLAY_LIMIT ?? 0),
+                                replayLimit = Number.isFinite(replayLimitRaw) ? replayLimitRaw : 0;
                             try {
-                                let z = await replayOutboxBacklogToSubscriber({
-                                    paths: u,
-                                    sessionKey: Se,
-                                    consumerId: B,
-                                    limit: L,
-                                    cursorOverride: G,
-                                    send: U => ie(U, !1),
-                                    onDelivered: async U => {
-                                        w || await advanceOptimisticDeliveryCursor(u, Se, B, U);
-                                        let Y = await readOutboxRecord(u, U.channel_kind, U.id);
-                                        Y && Y.status !== "sent" && await recordOutboxDeliveryAttempt(u, Y, {
+                                let replayedCount = await replayOutboxBacklogToSubscriber({
+                                    paths,
+                                    sessionKey: replaySessionKey,
+                                    consumerId: pullConsumerId,
+                                    limit: replayLimit,
+                                    cursorOverride: pullCursor,
+                                    send: message => sendMessage(message, !1),
+                                    onDelivered: async deliveredRecord => {
+                                        ackMode || await advanceOptimisticDeliveryCursor(paths, replaySessionKey, pullConsumerId, deliveredRecord);
+                                        let outboxRecord = await readOutboxRecord(paths, deliveredRecord.channel_kind, deliveredRecord.id);
+                                        outboxRecord && outboxRecord.status !== "sent" && await recordOutboxDeliveryAttempt(paths, outboxRecord, {
                                             status: "sent"
-                                        }), await recordOutboxSentId(u, U.id)
+                                        }), await recordOutboxSentId(paths, deliveredRecord.id)
                                     }
                                 });
-                                z > 0 && logDebugMessage("[daemon] replayed outbox backlog", {
-                                    subscriberId: x,
-                                    sessionKey: Se,
-                                    consumerId: B,
-                                    replayed: z
+                                replayedCount > 0 && logDebugMessage("[daemon] replayed outbox backlog", {
+                                    subscriberId,
+                                    sessionKey: replaySessionKey,
+                                    consumerId: pullConsumerId,
+                                    replayed: replayedCount
                                 })
-                            } catch (z) {
+                            } catch (err) {
                                 logWarnMessage("[daemon] backlog replay failed", {
-                                    subscriberId: x,
-                                    sessionKey: Se,
-                                    consumerId: B,
-                                    error: String(z)
+                                    subscriberId,
+                                    sessionKey: replaySessionKey,
+                                    consumerId: pullConsumerId,
+                                    error: String(err)
                                 })
                             }
-                            ce = null
+                            sentRecordIds = null
                         }
-                        let H = K.__triggerShutdown;
-                        H && delete K.__triggerShutdown, N.send(JSON.stringify(K)), H && setImmediate(() => process.kill(process.pid, "SIGTERM"))
+                        let TriggerShutdown = response.__triggerShutdown;
+                        TriggerShutdown && delete response.__triggerShutdown, ws.send(JSON.stringify(response)), TriggerShutdown && setImmediate(() => process.kill(process.pid, "SIGTERM"))
                     };
-                N.on("message", j => {
-                    let ne = Ce(j).catch(B => {
+                ws.on("message", data => {
+                    let handled = handleWsMessage(data).catch(err => {
                             logWarnMessage("[daemon] ws message handler failed", {
-                                subscriberId: x,
-                                error: String(B)
+                                subscriberId,
+                                error: String(err)
                             })
                         }),
-                        K = _.get(x) ?? Promise.resolve(),
-                        te = Promise.all([K, ne]).then(() => {});
-                    _.set(x, te), te.then(() => {
-                        _.get(x) === te && _.delete(x)
+                        previous = map2.get(subscriberId) ?? Promise.resolve(),
+                        queued = Promise.all([previous, handled]).then(() => {});
+                    map2.set(subscriberId, queued), queued.then(() => {
+                        map2.get(subscriberId) === queued && map2.delete(subscriberId)
                     })
                 });
-                let se = () => {
-                    M && h.unsubscribe(x)
+                let unsubscribe = () => {
+                    subscribedSessionKey && subscriptions.unsubscribe(subscriberId)
                 };
-                N.on("close", () => {
-                    se(), logInfoMessage("[daemon] ws closed", {
-                        subscriberId: x,
-                        sessionKey: M
+                ws.on("close", () => {
+                    unsubscribe(), logInfoMessage("[daemon] ws closed", {
+                        subscriberId,
+                        sessionKey: subscribedSessionKey
                     })
-                }), N.on("error", () => {
-                    se(), logWarnMessage("[daemon] ws error", {
-                        subscriberId: x,
-                        sessionKey: M
+                }), ws.on("error", () => {
+                    unsubscribe(), logWarnMessage("[daemon] ws error", {
+                        subscriberId,
+                        sessionKey: subscribedSessionKey
                     })
                 })
             })
         })
     };
-    P(t, {
+    registerRoutes(readOnlyApp, {
         hostGuard: !0,
         readOnly: !0
-    }), P(n, {
+    }), registerRoutes(socketApp, {
         hostGuard: !1,
         readOnly: !1
     });
-    let k = u.daemonSocketPath;
+    let daemonSocketPath = paths.daemonSocketPath;
     return {
-        app: t,
-        socketApp: n,
+        app: readOnlyApp,
+        socketApp,
         get remoteApp() {
-            return r
+            return remoteApp
         },
-        bus: l,
-        subscriptions: h,
-        async start(S) {
-            let D = resolveRemoteListenerConfig(process.env, S);
-            if (!e.runtimeLockAlreadyHeld) {
-                let C = await acquireRuntimeWriterLock(u);
-                if (!C.acquired) throw new Error(`Runtime lock already held by pid=${C.lock?.pid??"unknown"} at ${C.lockPath}`)
+        bus,
+        subscriptions,
+        async start(port) {
+            let remoteListenerConfig = resolveRemoteListenerConfig(process.env, port);
+            if (!options.runtimeLockAlreadyHeld) {
+                let runtimeWriterLock = await acquireRuntimeWriterLock(paths);
+                if (!runtimeWriterLock.acquired) throw new Error(`Runtime lock already held by pid=${runtimeWriterLock.lock?.pid??"unknown"} at ${runtimeWriterLock.lockPath}`)
             }
-            y = !0;
-            let A = !1;
+            runtimeLockHeld = !0;
+            let socketListening = !1;
             try {
-                let N = Buffer.byteLength(k);
-                if (N > 104) throw new Error(`daemon socket path is too long (${N} bytes > 104-byte unix-socket limit): ${k}. Shorten it via a shorter ALADUO_RUNTIME_DIR or set ALADUO_DAEMON_SOCKET to a shorter absolute path.`);
-                let x = so.dirname(k),
-                    M;
+                let socketPathBytes = Buffer.byteLength(daemonSocketPath);
+                if (socketPathBytes > 104) throw new Error(`daemon socket path is too long (${socketPathBytes} bytes > 104-byte unix-socket limit): ${daemonSocketPath}. Shorten it via a shorter ALADUO_RUNTIME_DIR or set ALADUO_DAEMON_SOCKET to a shorter absolute path.`);
+                let socketDir = so.dirname(daemonSocketPath),
+                    socketDirStat;
                 try {
-                    M = await zs.stat(x)
-                } catch (ie) {
-                    throw new Error(`daemon socket directory is not accessible: ${x} (${String(ie)}). Point ALADUO_DAEMON_SOCKET at an absolute path inside a directory you own with mode 0700.`)
+                    socketDirStat = await zs.stat(socketDir)
+                } catch (err) {
+                    throw new Error(`daemon socket directory is not accessible: ${socketDir} (${String(err)}). Point ALADUO_DAEMON_SOCKET at an absolute path inside a directory you own with mode 0700.`)
                 }
-                let F = process.getuid?.(),
-                    J = M.mode & 511;
-                if (J !== 448 || F !== void 0 && M.uid !== F) throw new Error(`daemon socket directory must be owned by this user and mode 0700 (found mode 0${J.toString(8)}, uid ${M.uid}): ${x}. Use the default ALADUO_RUNTIME_DIR/run or point ALADUO_DAEMON_SOCKET at a 0700 directory you own.`);
-                let ce = null;
+                let uid = process.getuid?.(),
+                    dirMode = socketDirStat.mode & 511;
+                if (dirMode !== 448 || uid !== void 0 && socketDirStat.uid !== uid) throw new Error(`daemon socket directory must be owned by this user and mode 0700 (found mode 0${dirMode.toString(8)}, uid ${socketDirStat.uid}): ${socketDir}. Use the default ALADUO_RUNTIME_DIR/run or point ALADUO_DAEMON_SOCKET at a 0700 directory you own.`);
+                let existingStat = null;
                 try {
-                    ce = await zs.lstat(k)
+                    existingStat = await zs.lstat(daemonSocketPath)
                 } catch {
-                    ce = null
+                    existingStat = null
                 }
-                if (ce)
-                    if (ce.isSocket()) await zs.unlink(k);
-                    else throw new Error(`daemon socket path is occupied by a non-socket file: ${k}. Refusing to delete it — check ALADUO_DAEMON_SOCKET.`);
-                await n.listen({
-                    path: k
-                }), A = !0, await zs.chmod(k, 384), await t.listen({
-                    port: S,
+                if (existingStat)
+                    if (existingStat.isSocket()) await zs.unlink(daemonSocketPath);
+                    else throw new Error(`daemon socket path is occupied by a non-socket file: ${daemonSocketPath}. Refusing to delete it — check ALADUO_DAEMON_SOCKET.`);
+                await socketApp.listen({
+                    path: daemonSocketPath
+                }), socketListening = !0, await zs.chmod(daemonSocketPath, 384), await readOnlyApp.listen({
+                    port,
                     host: "127.0.0.1"
-                }), D.enabled && (r = (0, ON.default)({
+                }), remoteListenerConfig.enabled && (remoteApp = (0, ON.default)({
                     logger: !1
-                }), P(r, {
+                }), registerRoutes(remoteApp, {
                     hostGuard: !1,
                     readOnly: !1,
-                    bearerToken: D.token
-                }), await r.listen({
-                    port: D.port,
-                    host: D.host
-                }), logAlwaysAtLevel("info", `[daemon] remote full-access listener on ${D.host}:${D.port} (bearer-gated)`))
-            } catch (C) {
-                throw await t.close().catch(() => {}), await n.close().catch(() => {}), r && (await r.close().catch(() => {}), r = null), A && await zs.unlink(k).catch(() => {}), y && (await releaseRuntimeWriterLock(u), y = !1), C
+                    bearerToken: remoteListenerConfig.token
+                }), await remoteApp.listen({
+                    port: remoteListenerConfig.port,
+                    host: remoteListenerConfig.host
+                }), logAlwaysAtLevel("info", `[daemon] remote full-access listener on ${remoteListenerConfig.host}:${remoteListenerConfig.port} (bearer-gated)`))
+            } catch (err) {
+                throw await readOnlyApp.close().catch(() => {}), await socketApp.close().catch(() => {}), remoteApp && (await remoteApp.close().catch(() => {}), remoteApp = null), socketListening && await zs.unlink(daemonSocketPath).catch(() => {}), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1), err
             }
-            let $ = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
-            v = setInterval(() => {
-                refreshRuntimeWriterLockHeartbeat(u).catch(() => {})
-            }, $), v.unref?.()
+            let envIntegerOrFallback = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
+            lockHeartbeatTimer = setInterval(() => {
+                refreshRuntimeWriterLockHeartbeat(paths).catch(() => {})
+            }, envIntegerOrFallback), lockHeartbeatTimer.unref?.()
         },
         async stop() {
-            h.stop();
-            let S = [t.close(), n.close()];
-            r && S.push(r.close()), await Promise.all(S), r = null, await Promise.allSettled(_.values()), await Promise.allSettled(b.values()), await zs.unlink(k).catch(() => {}), v && (clearInterval(v), v = null), y && (await releaseRuntimeWriterLock(u), y = !1)
+            subscriptions.stop();
+            let closePromises = [readOnlyApp.close(), socketApp.close()];
+            remoteApp && closePromises.push(remoteApp.close()), await Promise.all(closePromises), remoteApp = null, await Promise.allSettled(map2.values()), await Promise.allSettled(map.values()), await zs.unlink(daemonSocketPath).catch(() => {}), lockHeartbeatTimer && (clearInterval(lockHeartbeatTimer), lockHeartbeatTimer = null), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1)
         }
     }
 }

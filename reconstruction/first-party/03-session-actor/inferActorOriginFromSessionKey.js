@@ -2,17 +2,18 @@
 // symbol: inferActorOriginFromSessionKey  (minified: aG, daemon.pretty.js:80549)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function inferActorOriginFromSessionKey(e) {
-    if (e.startsWith("job:")) return {
+function inferActorOriginFromSessionKey(sessionKey) {
+    if (sessionKey.startsWith("job:")) return {
         origin: "job"
     };
-    if (e.startsWith("meta:") || e.startsWith("cadence:")) return {
+    if (sessionKey.startsWith("meta:") || sessionKey.startsWith("cadence:")) return {
         origin: "system"
     };
-    if (e.startsWith("system:")) return {
+    if (sessionKey.startsWith("system:")) return {
         origin: "system"
     }
 }

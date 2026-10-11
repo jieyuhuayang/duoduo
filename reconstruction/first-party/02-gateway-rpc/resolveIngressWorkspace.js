@@ -2,73 +2,74 @@
 // symbol: resolveIngressWorkspace  (minified: hIe, daemon.pretty.js:90710)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.4.2, v0.5.0, v0.5.10, v0.6.0, v0.8.0 (maps/history_daemon.json)
+// locals: 18 renamed — 7 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function resolveIngressWorkspace(e) {
+async function resolveIngressWorkspace(options) {
     let {
-        paths: t,
-        sessionKey: n,
-        cwdAbs: r,
-        channelKind: i,
-        channelId: o
-    } = e, s = await readSessionRuntimeState(t, n), a = s?.plane ?? classifySessionPlaneByKey(n), u = s?.permission_profile ?? evt(a), l = i ? await resolveEffectiveChannelConfig(t, {
-        channel_kind: i,
-        channel_id: o
-    }) : null, c = async p => {
-        await patchSessionRuntimeState(t, n, {
-            session_key: n,
-            cwd: p,
-            plane: a,
-            permission_profile: u,
-            created_at: s?.created_at ?? new Date().toISOString()
+        paths,
+        sessionKey,
+        cwdAbs,
+        channelKind,
+        channelId
+    } = options, sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey), plane = sessionRuntimeState?.plane ?? classifySessionPlaneByKey(sessionKey), permissionProfile = sessionRuntimeState?.permission_profile ?? evt(plane), effectiveConfig = channelKind ? await resolveEffectiveChannelConfig(paths, {
+        channel_kind: channelKind,
+        channel_id: channelId
+    }) : null, bindCwd = async cwd => {
+        await patchSessionRuntimeState(paths, sessionKey, {
+            session_key: sessionKey,
+            cwd,
+            plane,
+            permission_profile: permissionProfile,
+            created_at: sessionRuntimeState?.created_at ?? new Date().toISOString()
         }, {
             create: !0
         })
     };
-    if (r !== void 0) {
+    if (cwdAbs !== void 0) {
         logWarnMessage("[daemon] channel.ingress/channel.command cwd_abs is deprecated; prefer descriptor-driven new_session_workspace (channel.spawn)", {
-            sessionKey: n,
-            cwd_abs: r,
-            channelKind: i,
-            channelId: o
+            sessionKey,
+            cwd_abs: cwdAbs,
+            channelKind,
+            channelId
         });
-        let p = await resolveExistingDirRealpath(r).catch(() => null);
-        return p ? (await c(p), {
+        let cwd = await resolveExistingDirRealpath(cwdAbs).catch(() => null);
+        return cwd ? (await bindCwd(cwd), {
             ok: !0,
-            cwd: p,
-            effectiveConfig: l
+            cwd,
+            effectiveConfig
         }) : {
             ok: !1,
-            guidance: `Workspace unavailable: '${r}'. Use an existing absolute directory path and retry.`
+            guidance: `Workspace unavailable: '${cwdAbs}'. Use an existing absolute directory path and retry.`
         }
     }
-    if (l?.new_session_workspace) {
-        let p = l.new_session_workspace,
-            m = await resolveExistingDirRealpath(p).catch(() => null) ?? void 0;
-        if (m || (m = await ensureAbsoluteWorkspaceDir(p).catch(() => null) ?? void 0, m && logInfoMessage(`[daemon] created missing new_session_workspace '${m}' for kind '${i}'`)), m) return await c(m), {
+    if (effectiveConfig?.new_session_workspace) {
+        let newSessionWorkspace = effectiveConfig.new_session_workspace,
+            workspaceDir = await resolveExistingDirRealpath(newSessionWorkspace).catch(() => null) ?? void 0;
+        if (workspaceDir || (workspaceDir = await ensureAbsoluteWorkspaceDir(newSessionWorkspace).catch(() => null) ?? void 0, workspaceDir && logInfoMessage(`[daemon] created missing new_session_workspace '${workspaceDir}' for kind '${channelKind}'`)), workspaceDir) return await bindCwd(workspaceDir), {
             ok: !0,
-            cwd: m,
-            effectiveConfig: l
+            cwd: workspaceDir,
+            effectiveConfig
         };
-        logWarnMessage(`[daemon] effective new_session_workspace '${p}' for kind '${i}' does not exist, could not be created, or is not accessible; falling back to session state / ALADUO_WORK_DIR`)
+        logWarnMessage(`[daemon] effective new_session_workspace '${newSessionWorkspace}' for kind '${channelKind}' does not exist, could not be created, or is not accessible; falling back to session state / ALADUO_WORK_DIR`)
     }
-    let d = s?.cwd?.trim() || void 0;
-    if (d) {
-        let p = await resolveExistingDirRealpath(d).catch(() => null);
-        return p ? {
+    let boundCwd = sessionRuntimeState?.cwd?.trim() || void 0;
+    if (boundCwd) {
+        let cwd = await resolveExistingDirRealpath(boundCwd).catch(() => null);
+        return cwd ? {
             ok: !0,
-            cwd: p,
-            effectiveConfig: l
+            cwd,
+            effectiveConfig
         } : {
             ok: !1,
-            guidance: `Workspace unavailable: '${d}' (bound session path does not exist).`
+            guidance: `Workspace unavailable: '${boundCwd}' (bound session path does not exist).`
         }
     }
-    let f = await resolveExistingDirRealpath(t.workDir).catch(() => null) ?? so.resolve(t.workDir);
-    return await c(f), {
+    let workDir = await resolveExistingDirRealpath(paths.workDir).catch(() => null) ?? so.resolve(paths.workDir);
+    return await bindCwd(workDir), {
         ok: !0,
-        cwd: f,
-        effectiveConfig: l
+        cwd: workDir,
+        effectiveConfig
     }
 }

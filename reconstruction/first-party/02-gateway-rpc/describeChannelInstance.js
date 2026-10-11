@@ -2,72 +2,73 @@
 // symbol: describeChannelInstance  (minified: tvt, daemon.pretty.js:90778)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.4, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
+// locals: 20 renamed — 10 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (high): descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins.
 // changelog v0.5.3 (medium): Setup cards only show runtime choices the daemon can actually run.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function describeChannelInstance(e, t, n) {
-    let r = n.channel_kind.trim(),
-        i = n.channel_id.trim(),
-        o = n.session_key?.trim(),
+async function describeChannelInstance(paths, actors, params) {
+    let trimmed = params.channel_kind.trim(),
+        trimmed2 = params.channel_id.trim(),
+        sessionKey = params.session_key?.trim(),
         {
-            isClaudeAvailable: s
+            isClaudeAvailable
         } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)),
         {
-            isCodexAvailable: a
+            isCodexAvailable
         } = await Promise.resolve().then(() => (initCodexAppServerModule(), $6)),
         {
-            isGrokAvailable: u
+            isGrokAvailable
         } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), D6)),
-        l = [];
-    s() && l.push("claude"), a() && l.push("codex"), u() && l.push("grok"), l.push("pi");
-    let c = l,
-        d = await loadChannelKindConfig(e.channelConfigDir, r),
-        f = {
-            cwd: d?.new_session_workspace,
-            runtime: d?.runtime
+        runtimes = [];
+    isClaudeAvailable() && runtimes.push("claude"), isCodexAvailable() && runtimes.push("codex"), isGrokAvailable() && runtimes.push("grok"), runtimes.push("pi");
+    let availableRuntimes = runtimes,
+        channelKindConfig = await loadChannelKindConfig(paths.channelConfigDir, trimmed),
+        kindDefaults = {
+            cwd: channelKindConfig?.new_session_workspace,
+            runtime: channelKindConfig?.runtime
         },
-        p = !1;
-    if (o && o.length > 0) {
-        let b = await readSessionRuntimeState(e, o);
-        p = !!(b?.cwd?.trim() || b?.session_key || t.get(o) !== void 0)
+        sessionExists = !1;
+    if (sessionKey && sessionKey.length > 0) {
+        let sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey);
+        sessionExists = !!(sessionRuntimeState?.cwd?.trim() || sessionRuntimeState?.session_key || actors.get(sessionKey) !== void 0)
     }
-    let m = resolveLayeredChannelRuntime(null, d);
-    if (!isValidChannelId(i)) {
-        if (!m.ok) throw new JsonRpcInvalidParamsError(m.reason);
+    let layeredChannelRuntime = resolveLayeredChannelRuntime(null, channelKindConfig);
+    if (!isValidChannelId(trimmed2)) {
+        if (!layeredChannelRuntime.ok) throw new JsonRpcInvalidParamsError(layeredChannelRuntime.reason);
         return {
             configured: !1,
-            session_exists: p,
-            available_runtimes: c,
-            kind_defaults: f
+            session_exists: sessionExists,
+            available_runtimes: availableRuntimes,
+            kind_defaults: kindDefaults
         }
     }
-    let h = await readChannelDescriptor(e, i);
-    if (!h) {
-        if (!m.ok) throw new JsonRpcInvalidParamsError(m.reason);
+    let channelDescriptor = await readChannelDescriptor(paths, trimmed2);
+    if (!channelDescriptor) {
+        if (!layeredChannelRuntime.ok) throw new JsonRpcInvalidParamsError(layeredChannelRuntime.reason);
         return {
             configured: !1,
-            session_exists: p,
-            available_runtimes: c,
-            kind_defaults: f
+            session_exists: sessionExists,
+            available_runtimes: availableRuntimes,
+            kind_defaults: kindDefaults
         }
     }
-    let g = resolveLayeredChannelRuntime(h, d);
-    if (!g.ok) throw new JsonRpcInvalidParamsError(g.reason);
-    let y = h.new_session_workspace ?? d?.new_session_workspace,
-        v;
-    return y && (v = await resolveExistingDirRealpath(y).catch(() => null) ?? so.resolve(y)), {
+    let layeredChannelRuntime2 = resolveLayeredChannelRuntime(channelDescriptor, channelKindConfig);
+    if (!layeredChannelRuntime2.ok) throw new JsonRpcInvalidParamsError(layeredChannelRuntime2.reason);
+    let workspace = channelDescriptor.new_session_workspace ?? channelKindConfig?.new_session_workspace,
+        cwd;
+    return workspace && (cwd = await resolveExistingDirRealpath(workspace).catch(() => null) ?? so.resolve(workspace)), {
         configured: !0,
-        session_exists: p,
+        session_exists: sessionExists,
         descriptor: {
-            cwd: v ?? so.resolve(e.workDir),
-            runtime: g.runtime ?? resolveDefaultRuntime(),
-            display_name: h.display_name,
-            bound_by: h.bound_by,
-            require_mention: h.require_mention
+            cwd: cwd ?? so.resolve(paths.workDir),
+            runtime: layeredChannelRuntime2.runtime ?? resolveDefaultRuntime(),
+            display_name: channelDescriptor.display_name,
+            bound_by: channelDescriptor.bound_by,
+            require_mention: channelDescriptor.require_mention
         },
-        available_runtimes: c,
-        kind_defaults: f
+        available_runtimes: availableRuntimes,
+        kind_defaults: kindDefaults
     }
 }

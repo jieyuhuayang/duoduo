@@ -2,44 +2,45 @@
 // symbol: copyBootstrapIntoKernel  (minified: umt, daemon.pretty.js:69796)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3 (maps/history_daemon.json)
+// locals: 17 renamed — 4 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function copyBootstrapIntoKernel(e, t = process.env) {
-    let n = e.bootstrapDir;
-    if (!n || !await pathExistsAsync(n)) return;
-    let r = sr.resolve(e.kernelDir),
-        i = sr.resolve(n);
-    if (r === i) return;
-    if (t.NODE_ENV === "development") {
-        let s = await or.readdir(n, {
+async function copyBootstrapIntoKernel(paths, env = process.env) {
+    let bootstrapDir = paths.bootstrapDir;
+    if (!bootstrapDir || !await pathExistsAsync(bootstrapDir)) return;
+    let resolvedKernelDir = sr.resolve(paths.kernelDir),
+        resolvedBootstrapDir = sr.resolve(bootstrapDir);
+    if (resolvedKernelDir === resolvedBootstrapDir) return;
+    if (env.NODE_ENV === "development") {
+        let dirEntries = await or.readdir(bootstrapDir, {
             withFileTypes: !0
         });
-        for (let a of s) {
-            if (gW.has(a.name) || a.isFile() && yW.has(a.name)) continue;
-            let u = sr.join(n, a.name),
-                l = sr.join(e.kernelDir, a.name);
-            a.isDirectory() ? smt.has(a.name) ? await copyDirTreeMissingOnly(u, l) : await copyDirTreeOverwrite(u, l) : a.isFile() && await or.copyFile(u, l)
+        for (let entry of dirEntries) {
+            if (gW.has(entry.name) || entry.isFile() && yW.has(entry.name)) continue;
+            let srcPath = sr.join(bootstrapDir, entry.name),
+                destPath = sr.join(paths.kernelDir, entry.name);
+            entry.isDirectory() ? smt.has(entry.name) ? await copyDirTreeMissingOnly(srcPath, destPath) : await copyDirTreeOverwrite(srcPath, destPath) : entry.isFile() && await or.copyFile(srcPath, destPath)
         }
-    } else if (await isDirEmptyOrMissing(e.kernelDir)) {
-        let s = await or.readdir(n, {
+    } else if (await isDirEmptyOrMissing(paths.kernelDir)) {
+        let dirEntries = await or.readdir(bootstrapDir, {
             withFileTypes: !0
         });
-        for (let a of s) {
-            if (gW.has(a.name) || a.isFile() && yW.has(a.name)) continue;
-            let u = sr.join(n, a.name),
-                l = sr.join(e.kernelDir, a.name);
-            a.isDirectory() ? await copyDirTreeOverwrite(u, l) : a.isFile() && await or.copyFile(u, l)
+        for (let entry of dirEntries) {
+            if (gW.has(entry.name) || entry.isFile() && yW.has(entry.name)) continue;
+            let srcPath = sr.join(bootstrapDir, entry.name),
+                destPath = sr.join(paths.kernelDir, entry.name);
+            entry.isDirectory() ? await copyDirTreeOverwrite(srcPath, destPath) : entry.isFile() && await or.copyFile(srcPath, destPath)
         }
     } else {
-        let s = await or.readdir(n, {
+        let dirEntries = await or.readdir(bootstrapDir, {
             withFileTypes: !0
         });
-        for (let a of s) {
-            if (gW.has(a.name) || a.isFile() && yW.has(a.name)) continue;
-            let u = sr.join(n, a.name),
-                l = sr.join(e.kernelDir, a.name);
-            a.isDirectory() ? await copyDirTreeMissingOnly(u, l) : a.isFile() && (await pathExistsAsync(l) || await or.copyFile(u, l))
+        for (let entry of dirEntries) {
+            if (gW.has(entry.name) || entry.isFile() && yW.has(entry.name)) continue;
+            let srcPath = sr.join(bootstrapDir, entry.name),
+                destPath = sr.join(paths.kernelDir, entry.name);
+            entry.isDirectory() ? await copyDirTreeMissingOnly(srcPath, destPath) : entry.isFile() && (await pathExistsAsync(destPath) || await or.copyFile(srcPath, destPath))
         }
     }
 }

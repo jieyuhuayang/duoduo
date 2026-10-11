@@ -2,59 +2,60 @@
 // symbol: fireDueWakeRecords  (minified: Obt, daemon.pretty.js:86938)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 13 renamed — 4 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.2 (medium): A session can schedule its own next turn.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function fireDueWakeRecords(e, t, n, r) {
-    let i = [],
-        o;
+async function fireDueWakeRecords(paths, jobManager, now, bus) {
+    let delivered = [],
+        wakeRecords;
     try {
-        o = await t.listWakeRecords()
-    } catch (s) {
+        wakeRecords = await jobManager.listWakeRecords()
+    } catch (err) {
         return logWarnMessage("[cadence] wake scan failed to list records", {
-            error: s instanceof Error ? s.message : String(s)
-        }), i
+            error: err instanceof Error ? err.message : String(err)
+        }), delivered
     }
-    for (let s of o) try {
-        let a = s.state.run_at;
-        if (typeof a != "string" || a.length === 0) continue;
-        let u = Date.parse(a);
-        if (!Number.isFinite(u) || n.getTime() < u) continue;
-        if (!r) {
+    for (let wakeRecord of wakeRecords) try {
+        let runAt = wakeRecord.state.run_at;
+        if (typeof runAt != "string" || runAt.length === 0) continue;
+        let runAtMs = Date.parse(runAt);
+        if (!Number.isFinite(runAtMs) || now.getTime() < runAtMs) continue;
+        if (!bus) {
             logWarnMessage("[cadence] wake due but no bus available to deliver it", {
-                wakeId: s.id,
-                owner: s.frontmatter.owner_session
+                wakeId: wakeRecord.id,
+                owner: wakeRecord.frontmatter.owner_session
             });
             continue
         }
         let {
-            outcome: l
-        } = await t.fireWakeRecord(s.id, n, c => deliverRouteEventToSession(e, r, {
-            traceId: `wake-${c.id}`,
-            routeId: `wake:${c.id}`,
+            outcome
+        } = await jobManager.fireWakeRecord(wakeRecord.id, now, record => deliverRouteEventToSession(paths, bus, {
+            traceId: `wake-${record.id}`,
+            routeId: `wake:${record.id}`,
             sourceName: "wake",
-            targetSessionKey: c.frontmatter.owner_session,
-            sourceSessionKey: c.frontmatter.owner_session,
+            targetSessionKey: record.frontmatter.owner_session,
+            sourceSessionKey: record.frontmatter.owner_session,
             eventType: "self-wake",
             preempt: "never",
             payload: {
-                wake_id: c.id,
-                context: c.context,
-                set_at: c.frontmatter.created_at,
-                due_at: c.state.run_at
+                wake_id: record.id,
+                context: record.context,
+                set_at: record.frontmatter.created_at,
+                due_at: record.state.run_at
             }
         }));
-        l === "delivered" && (i.push(s.id), logInfoMessage("[cadence] wake delivered", {
-            wakeId: s.id,
-            target: s.frontmatter.owner_session,
-            dueAt: a
+        outcome === "delivered" && (delivered.push(wakeRecord.id), logInfoMessage("[cadence] wake delivered", {
+            wakeId: wakeRecord.id,
+            target: wakeRecord.frontmatter.owner_session,
+            dueAt: runAt
         }))
-    } catch (a) {
+    } catch (err) {
         logWarnMessage("[cadence] wake fire failed; record left for the next scan", {
-            wakeId: s.id,
-            error: a instanceof Error ? a.message : String(a)
+            wakeId: wakeRecord.id,
+            error: err instanceof Error ? err.message : String(err)
         })
     }
-    return i
+    return delivered
 }

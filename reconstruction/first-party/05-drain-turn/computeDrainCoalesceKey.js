@@ -2,13 +2,14 @@
 // symbol: computeDrainCoalesceKey  (minified: Kmt, daemon.pretty.js:72211)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function computeDrainCoalesceKey(e, t, n) {
+function computeDrainCoalesceKey(item, event, sessionKey) {
     let {
-        primaryTargetSessionKey: r,
-        fanoutTargets: i
-    } = resolveReplyTargetSessionKeys(e, t, n);
-    return `${r}|${i.join(",")}|${resolveEventSourceChannelId(t)}`
+        primaryTargetSessionKey,
+        fanoutTargets
+    } = resolveReplyTargetSessionKeys(item, event, sessionKey);
+    return `${primaryTargetSessionKey}|${fanoutTargets.join(",")}|${resolveEventSourceChannelId(event)}`
 }
