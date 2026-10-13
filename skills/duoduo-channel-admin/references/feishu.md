@@ -240,10 +240,12 @@ message, so credentials must never be written there.
 
 What a turn looks like with the card on:
 
-- **Reactions per turn: `Get` → `THINKING` → removed.** Nothing else, so the
-  author's phone rings twice per turn instead of once per tool/typing switch.
+- **Reactions per turn: `Get` → removed.** Nothing else, so the author's phone
+  rings once per turn instead of once per tool/typing switch. The working
+  signal is the animated icon on the card's status line, not a reaction.
 - **Process card**, sent as a reply on the first model signal: a collapsed
-  panel titled 「工作中」 plus one status line (「思考中...」 at first). The
+  panel titled 「工作中」 plus one status line (an animated icon, blank until
+  the first line of text). The
   chat-list preview reads 「工作中」 too. Interim text streams into the status
   line one line at a time with the typewriter effect; each tool call (raw tool
   name plus a one-row summary, e.g. `Bash ls -la`) takes the panel title the
