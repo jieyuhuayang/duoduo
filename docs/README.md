@@ -92,7 +92,7 @@ esbuild 只为模块导出的符号留下原名，很多函数、模块初始化
 
 `name_symbol.mjs` 在写入任何文件之前做完全部检查，一批名字要么全部写入、要么全部拒绝。它确认：给它的 bundle 正是 `reconstruction/maps/` 描述的版本；短名是可以命名的顶层声明（函数、esbuild 的 `__esm` 模块初始化器，或只由字面量组成的常量）；这个短名还没有名字；它属于 duoduo 自己的代码，而不是随包的第三方库；名字的拼写与种类相符（函数用 lowerCamelCase，模块初始化器用 `init<名字>Module`，常量用带下划线的 UPPER_SNAKE，都至少 8 个字符，并且不与 bundle 里的任何变量名、也不与任何 bundle 的已有真名重复）；所属子系统是 `first-party/` 已有的目录之一。通过后它写入 `inferred_daemon.json`、`subsys_daemon.json`，并只为新名字在 `inferred_daemon.shape.json` 里加基线条目；归属没有代码证据、由人读过函数体后用 `--allow-unproven` 断言的名字，另记入 `inferred_daemon.asserted.json`。名字在下一次运行 `rebuild.sh` 时进入还原源码、`first-party/` 和符号索引，复核后用 `PROMOTE=1` 写入仓库；引用检查按符号索引核对，所以新名字要在这之后才能被引用。
 
-运行时的默认值常量通常在 esbuild 的模块初始化器里赋值。这时给初始化器命名，再用片段写法引用赋值语句，例如 Notify 拒投阈值的环境变量名与默认值：`z6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", eO = 1`（`initNotifyConsumerStalenessModule`）。
+运行时的默认值常量通常在 esbuild 的模块初始化器里赋值。这时给初始化器命名，再用片段写法引用赋值语句，例如 Notify 拒投阈值的环境变量名与默认值：`U6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", eO = 1`（`initNotifyConsumerStalenessModule`）。
 
 两种情况给不了代码引用。cli 里没有真名的函数要先用 `name_symbol.mjs --bundle cli` 登记推断名才能按名字引用，登记之前只引用它打印的字符串。一个无法命名的短名，如果包含它的已命名函数里有一句代码能证明主张，就用那句代码作片段引用；连这样的函数也没有时，不给代码引用，把主张降为 `未证实推测` 或删去。
 
