@@ -7,8 +7,8 @@
   "env": 41,
   "logPrefixes": 47,
   "dotted": 94,
-  "paths": 244,
-  "strings": 2710,
+  "paths": 246,
+  "strings": 2717,
   "unnamedUsed": 603
  },
  "symbols": {
@@ -30,17 +30,7 @@
    "logPrefixes": [],
    "dotted": [],
    "paths": [],
-   "strings": [
-    " aborted",
-    " signal=",
-    "') not found. Install it from https://github.com/openai/codex and run 'codex login'.",
-    "AbortError",
-    "Codex CLI ('",
-    "ENOENT",
-    "codex app-server exited (code=",
-    "exit",
-    "request "
-   ]
+   "strings": []
   },
   "AgentSdkPromptNotAcceptedAbortError": {
    "mangled": "Cr",
@@ -11264,8 +11254,13 @@
     "mcpServer/elicitation/request"
    ],
    "strings": [
+    " aborted",
+    " signal=",
+    "') not found. Install it from https://github.com/openai/codex and run 'codex login'.",
     "AbortError",
     "Approval",
+    "Codex CLI ('",
+    "ENOENT",
     "Error: ",
     "SIGTERM",
     "abort",
@@ -11275,6 +11270,7 @@
     "approval",
     "approve",
     "codex",
+    "codex app-server exited (code=",
     "codex app-server is not running",
     "codex app-server shut down",
     "codex rpc error: ",
@@ -11285,7 +11281,8 @@
     "inputText",
     "notification",
     "pipe",
-    "read-only"
+    "read-only",
+    "request "
    ]
   },
   "initEntityLintModule": {
@@ -11468,14 +11465,19 @@
     "x.ai/mcp/servers"
    ],
    "strings": [
+    " timed out after ",
     "2.0",
+    "MCP ",
     "_x.ai",
     "aladuo",
+    "aladuo MCP transport closed",
     "compact_conversation",
     "duoduo",
     "duoduo session",
     "id",
+    "method",
     "monitor",
+    "request",
     "scheduler_create",
     "scheduler_delete",
     "scheduler_list",
@@ -11715,6 +11717,12 @@
     "listFrontmatterKeyAliases",
     "logErrorMessage",
     "logInfoMessage",
+    "moveFileIntoDirectory",
+    "parseJobFileFrontmatter",
+    "parseJobRearmTime",
+    "prepareJobExecutionWorkspace",
+    "renderJobFileMarkdown",
+    "resolveJobExecutionWorkspace",
     "validateJobScheduleExpression",
     "writeFileAtomic",
     "writeJsonFileAtomic"
@@ -11755,7 +11763,9 @@
    "logPrefixes": [],
    "dotted": [],
    "paths": [
+    ".corrupt-",
     ".md",
+    ".orphan",
     ".state.json"
    ],
    "strings": [
@@ -11776,6 +11786,7 @@
     " — it cannot be delivered.",
     " — the other jobs still load",
     ", ",
+    "---",
     ": missing type=job",
     "; sidecar moved to ",
     "A wake record needs an owner session — the caller is always the target.",
@@ -11800,6 +11811,7 @@
     "[JobManager] sidecar archive retry also failed for job ",
     "[JobManager] sidecar-rename rollback failed for job ",
     "[JobManager] stale pre-existing sidecar quarantined at create for job ",
+    "\\\"",
     "active",
     "additionalDirectories",
     "allowedTools",
@@ -11812,6 +11824,7 @@
     "claudeModelProfiles",
     "claudeTools",
     "created_at",
+    "created_at: \"",
     "delivered",
     "disallowedTools",
     "expectedClaimCursor",
@@ -11824,14 +11837,17 @@
     "missing",
     "not_due",
     "owner_session",
+    "owner_session: \"",
     "prompt_mode",
     "stale",
     "string",
     "success",
+    "type: \"wake\"",
     "undeliverable",
     "unknown",
     "utf8",
-    "wake"
+    "wake",
+    "wake-"
    ]
   },
   "initJobSchedulerModule": {
@@ -17091,11 +17107,10 @@
    ],
    "refsUnnamed": [],
    "refBy": [
+    "initJobManagerModule",
     "mergeInboxIntoMailbox"
    ],
-   "refByUnnamed": [
-    "obe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -17847,10 +17862,10 @@
     "qi",
     "yut"
    ],
-   "refBy": [],
-   "refByUnnamed": [
-    "obe"
+   "refBy": [
+    "initJobManagerModule"
    ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -17876,11 +17891,10 @@
     "lut"
    ],
    "refBy": [
+    "initJobManagerModule",
     "scheduleSessionWakeRecord"
    ],
-   "refByUnnamed": [
-    "obe"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -18389,10 +18403,10 @@
     "X_e",
     "v6"
    ],
-   "refBy": [],
-   "refByUnnamed": [
-    "obe"
+   "refBy": [
+    "initJobManagerModule"
    ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -20883,10 +20897,10 @@
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
-   "refBy": [],
-   "refByUnnamed": [
-    "obe"
+   "refBy": [
+    "initJobManagerModule"
    ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -22649,10 +22663,10 @@
    "refsUnnamed": [
     "v6"
    ],
-   "refBy": [],
-   "refByUnnamed": [
-    "obe"
+   "refBy": [
+    "initJobManagerModule"
    ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -27474,6 +27488,9 @@
    "hostDotEnvPath",
    "initBoardTransclusionModule"
   ],
+  ".corrupt-": [
+   "initJobManagerModule"
+  ],
   ".cpp": [
    "initBoardTransclusionModule"
   ],
@@ -27738,6 +27755,9 @@
   ],
   ".org": [
    "initBoardTransclusionModule"
+  ],
+  ".orphan": [
+   "initJobManagerModule"
   ],
   ".patch": [
    "initBoardTransclusionModule"
@@ -28462,7 +28482,7 @@
    "renderParamsProblem"
   ],
   " aborted": [
-   "ALADUO_TOOL_NAMESPACE"
+   "initCodexAppServerModule"
   ],
   " across ": [
    "renderActivationReportHeader"
@@ -28736,7 +28756,7 @@
    "executeGatewayCommand"
   ],
   " signal=": [
-   "ALADUO_TOOL_NAMESPACE"
+   "initCodexAppServerModule"
   ],
   " since skip)": [
    "renderSkipRewindBlock"
@@ -28751,7 +28771,8 @@
    "formatForgetCommitMessage"
   ],
   " timed out after ": [
-   "createGrokAcpAdapter"
+   "createGrokAcpAdapter",
+   "initGrokAcpRuntimeModule"
   ],
   " tokens).": [
    "renderManualCompactNotice"
@@ -29091,7 +29112,7 @@
    "checkCodexAvailability"
   ],
   "') not found. Install it from https://github.com/openai/codex and run 'codex login'.": [
-   "ALADUO_TOOL_NAMESPACE"
+   "initCodexAppServerModule"
   ],
   "', sdk_session_id ": [
    "checkChannelRuntimeRebindConflict"
@@ -29611,7 +29632,8 @@
    "executeGatewayCommand"
   ],
   "---": [
-   "renderJobFileMarkdown"
+   "renderJobFileMarkdown",
+   "initJobManagerModule"
   ],
   "-->": [
    "stripBoardHtmlComments",
@@ -29777,6 +29799,9 @@
   ".config": [
    "hostDotEnvPath",
    "initBoardTransclusionModule"
+  ],
+  ".corrupt-": [
+   "initJobManagerModule"
   ],
   ".cpp": [
    "initBoardTransclusionModule"
@@ -30042,6 +30067,9 @@
   ],
   ".org": [
    "initBoardTransclusionModule"
+  ],
+  ".orphan": [
+   "initJobManagerModule"
   ],
   ".patch": [
    "initBoardTransclusionModule"
@@ -30644,7 +30672,6 @@
    "createAbortErrorWithCause",
    "isAbortLikeError",
    "createCodexAppServerAdapter",
-   "ALADUO_TOOL_NAMESPACE",
    "initCodexAppServerModule",
    "createClaudeStreamingSessionFactory"
   ],
@@ -30784,7 +30811,7 @@
   ],
   "Codex CLI ('": [
    "checkCodexAvailability",
-   "ALADUO_TOOL_NAMESPACE"
+   "initCodexAppServerModule"
   ],
   "Codex CLI is installed but not authenticated. Run 'codex login' to sign in.": [
    "checkCodexAvailability"
@@ -30867,7 +30894,7 @@
    "probeSessionPendingWork",
    "mergeInboxIntoMailbox",
    "initJobManagerModule",
-   "ALADUO_TOOL_NAMESPACE",
+   "initCodexAppServerModule",
    "recordUnreadableMemoryPath",
    "readPartitionContract",
    "readHostDaemonToken",
@@ -31127,6 +31154,9 @@
   ],
   "Levels:": [
    "executeGatewayCommand"
+  ],
+  "MCP ": [
+   "initGrokAcpRuntimeModule"
   ],
   "MCP tools this job may not call, written as 'mcp__server__Tool' or 'mcp__server'. Built-in tool names do not belong here: built-ins cannot be disallowed at all, because that surface is additive-only (…": [
    "initManageJobToolModule"
@@ -33372,6 +33402,9 @@
   "aladuo MCP server is not attached": [
    "createGrokAcpAdapter"
   ],
+  "aladuo MCP transport closed": [
+   "initGrokAcpRuntimeModule"
+  ],
   "aladuo-pi-catalog-": [
    "createSessionManager"
   ],
@@ -33838,7 +33871,7 @@
    "createCodexAppServerAdapter"
   ],
   "codex app-server exited (code=": [
-   "ALADUO_TOOL_NAMESPACE"
+   "initCodexAppServerModule"
   ],
   "codex app-server is not running": [
    "initCodexAppServerModule"
@@ -33993,7 +34026,8 @@
    "archiveLegacyRegistrySessionsDir"
   ],
   "created_at: \"": [
-   "renderJobFileMarkdown"
+   "renderJobFileMarkdown",
+   "initJobManagerModule"
   ],
   "criteria: every cross-run dependency the mission names has been persisted to": [
    "renderJobMissionBlock"
@@ -34357,7 +34391,6 @@
    "classifyGatewayCommandIntent"
   ],
   "exit": [
-   "ALADUO_TOOL_NAMESPACE",
    "initCodexAppServerModule",
    "createGrokAcpAdapter",
    "createPiWorkerAdapter"
@@ -35409,6 +35442,9 @@
   "meta_session": [
    "createMetaSession"
   ],
+  "method": [
+   "initGrokAcpRuntimeModule"
+  ],
   "metric": [
    "recordTelemetryMetric"
   ],
@@ -35749,7 +35785,8 @@
    "initJobManagerModule"
   ],
   "owner_session: \"": [
-   "renderJobFileMarkdown"
+   "renderJobFileMarkdown",
+   "initJobManagerModule"
   ],
   "params must be one JSON object": [
    "describeMemoryReadProblem",
@@ -36149,8 +36186,11 @@
   "reply_to_origin": [
    "emitDrainOutputRecords"
   ],
+  "request": [
+   "initGrokAcpRuntimeModule"
+  ],
   "request ": [
-   "ALADUO_TOOL_NAMESPACE"
+   "initCodexAppServerModule"
   ],
   "reschedule": [
    "runManageJobTool"
@@ -37091,6 +37131,9 @@
   "type: \"": [
    "renderJobFileMarkdown"
   ],
+  "type: \"wake\"": [
+   "initJobManagerModule"
+  ],
   "types": [
    "describeSpineCatProblem",
    "initProtocolSystemModule"
@@ -37277,6 +37320,7 @@
    "createDaemon"
   ],
   "wake-": [
+   "initJobManagerModule",
    "fireDueWakeRecords"
   ],
   "wake.set": [
