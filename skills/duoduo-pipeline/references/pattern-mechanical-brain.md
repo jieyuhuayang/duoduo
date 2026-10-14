@@ -71,6 +71,12 @@ cwd_rel: my-monitor   # working directory for state files
 ---
 ```
 
+`cwd_rel` is relative to the daemon work dir and must name an existing
+directory inside it that holds a `CLAUDE.md`, or job creation fails. A run
+fails the same way if that directory or its `CLAUDE.md` later disappears, or
+if the job file is edited to an absolute path or one outside the work dir. It
+never falls back to a scratch workspace.
+
 ### Optional SDK configuration keys
 
 A job file's frontmatter is that job's **instance** layer, and it can

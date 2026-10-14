@@ -568,6 +568,30 @@ Three changes need no action, only knowing:
   log. Extension behaviour changes are in the caveats of `pi-runtime.md` in
   `duoduo-runtime-admin`.
 
+## Changes landing in v0.8.5
+
+**Check job `cwd_rel` values before upgrading.** Up to v0.8.4 a job whose
+`cwd_rel` was an absolute path or pointed outside the work dir (possible
+only in a job file edited by hand) ran silently in a system scratch
+workspace, without its project `CLAUDE.md`. From v0.8.5 such a job fails
+each run with `invalid cwd_rel path`. List the values and fix any that is
+not a path inside the work dir:
+
+```bash
+grep -rn '^cwd_rel:' <runtime_dir>/var/jobs/active
+```
+
+Two changes need no action, only knowing:
+
+- **Feishu process card no longer adds a `THINKING` reaction.** The working
+  signal is an animated icon on the card's status line; reactions per turn
+  are `Get`, then removed. Needs channel-feishu 0.8.5 and a channel
+  stop + start (`duoduo upgrade` does both).
+- **The bundled pi moves to 1.2.0, with its companion packages pinned.**
+  This also fixes v0.8.4 installs whose pi runtime crashed on load. No
+  settings changes; own pi extensions that handle `before_agent_start`
+  should check pi 1.2.0's release notes.
+
 ## Stdio output behavior in v0.5.3
 
 The stdio terminal UI buffers assistant text more cleanly around status
