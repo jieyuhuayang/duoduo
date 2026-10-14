@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: runDrainQueryAndCollectOutboundAttachments  (minified: Dxe, daemon.pretty.js:72694)
+// symbol: runDrainQueryAndCollectOutboundAttachments  (minified: Lxe, daemon.pretty.js:72695)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.7, v0.6.0 (maps/history_daemon.json)
 // locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ async function runDrainQueryAndCollectOutboundAttachments(paths, sessionKey, sdk
     try {
         let sdkResult = await runDrainTurnWithResumeFallback(paths, sessionKey, sdk, request),
             pendingOutboundAttachments = await readPendingOutboundAttachments(paths, sessionKey),
-            resultAttachments = await bht(paths, sessionKey, sdkResult.attachments),
+            resultAttachments = await wht(paths, sessionKey, sdkResult.attachments),
             outboundAttachmentLists = mergeOutboundAttachmentLists(resultAttachments, pendingOutboundAttachments);
         return await clearPendingOutboundAttachments(paths, sessionKey), {
             sdkResult,

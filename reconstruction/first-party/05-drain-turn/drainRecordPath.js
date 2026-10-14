@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function drainRecordPath(paths, sessionKey) {
-    return Iet.join(paths.usageDir, `${Pet(sessionKey)}.jsonl`)
+    return $et.join(paths.usageDir, `${Oet(sessionKey)}.jsonl`)
 }

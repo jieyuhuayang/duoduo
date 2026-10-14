@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: mapGrokUsageToDrainUsage  (minified: qut, daemon.pretty.js:63378)
+// symbol: mapGrokUsageToDrainUsage  (minified: Vut, daemon.pretty.js:63379)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
 // locals: 12 renamed — 0 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

@@ -27,7 +27,7 @@ async function mergeInboxIntoMailbox(paths, sessionKey) {
             raw = await wr.readFile(filePath, "utf8")
         } catch (err) {
             let code = err.code,
-                quarantine = Pae(code);
+                quarantine = $ae(code);
             if (!quarantine && code === "ENOENT") try {
                 quarantine = (await wr.lstat(filePath)).isSymbolicLink()
             } catch (err) {
@@ -50,14 +50,14 @@ async function mergeInboxIntoMailbox(paths, sessionKey) {
             await wr.unlink(filePath);
             continue
         }
-        let eventId = Dae(trimmed) ?? void 0,
-            replySessionKey = Mae(trimmed) ?? void 0,
+        let eventId = Mae(trimmed) ?? void 0,
+            replySessionKey = jae(trimmed) ?? void 0,
             itemFileName = `${fileName.replace(/\.pending$/,"")}.item.json`,
             item = {
                 line: trimmed,
                 event_id: eventId,
                 reply_session_key: replySessionKey,
-                created_at: aYe(fileName) ?? new Date().toISOString()
+                created_at: cYe(fileName) ?? new Date().toISOString()
             };
         await writeFileAtomic(ea.join(sessionMailboxPendingDir, itemFileName), JSON.stringify(item) + `
 `), await wr.unlink(filePath), merged += 1

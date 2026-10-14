@@ -4,9 +4,9 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Kce, Yr, initChannelConfigLoaderModule = O(() => {
+var Yce, Yr, initChannelConfigLoaderModule = O(() => {
     "use strict";
-    Kce = yi(bs(), 1);
+    Yce = yi(bs(), 1);
     initLogLevelModule();
     Kr();
     Yr = "runtime"

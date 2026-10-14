@@ -7,9 +7,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function issueWorkerToolContextToken(context) {
-    let token = xot(32).toString("hex"),
-        previousToken = nye.get(context.session_key);
-    return previousToken && vV.delete(previousToken), nye.set(context.session_key, token), vV.set(token, {
+    let token = Iot(32).toString("hex"),
+        previousToken = rye.get(context.session_key);
+    return previousToken && vV.delete(previousToken), rye.set(context.session_key, token), vV.set(token, {
         ...context
     }), token
 }

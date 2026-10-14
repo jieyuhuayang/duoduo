@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: readRuntimeEffortSetting  (minified: lS, daemon.pretty.js:65780)
+// symbol: readRuntimeEffortSetting  (minified: lS, daemon.pretty.js:65781)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.1 (medium): Reasoning effort gets the same global → kind → instance layering as the model

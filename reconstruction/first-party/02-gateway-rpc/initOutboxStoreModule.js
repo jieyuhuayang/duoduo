@@ -5,14 +5,14 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var XU, Rce, QU, iq, pI, uh, fet, pet, initOutboxStoreModule = O(() => {
+var XU, Ice, QU, iq, pI, ah, het, get, initOutboxStoreModule = O(() => {
     "use strict";
     Ql();
     Tr();
     Kn();
     DR();
-    XU = new Map, Rce = new Map;
+    XU = new Map, Ice = new Map;
     QU = new Map, iq = new Map;
     pI = new Map;
-    uh = new Map, fet = 100, pet = .8
+    ah = new Map, het = 100, get = .8
 });

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: mergeGlobalModelConfigLayers  (minified: nu, daemon.pretty.js:65794)
+// symbol: mergeGlobalModelConfigLayers  (minified: nu, daemon.pretty.js:65795)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function mergeGlobalModelConfigLayers(globalConfig, instanceConfig) {
-    let globalProfiles = Sve([{
+    let globalProfiles = Eve([{
             source: "global",
             profiles: globalConfig?.claudeModelProfiles
         }]),
@@ -16,7 +16,7 @@ function mergeGlobalModelConfigLayers(globalConfig, instanceConfig) {
             source: "global",
             issues: globalConfig?.claudeModelProfileIssues
         }]),
-        globalAliases = kve([{
+        globalAliases = Rve([{
             source: "global",
             aliases: globalConfig?.claudeModelAliases
         }]),
@@ -30,7 +30,7 @@ function mergeGlobalModelConfigLayers(globalConfig, instanceConfig) {
             source: "instance"
         })),
         claudeModelProfileIssues: wO(globalProfileIssues, instanceConfig?.claudeModelProfileIssues),
-        claudeModelAliases: Rve(globalAliases, instanceConfig?.claudeModelAliases),
+        claudeModelAliases: Pve(globalAliases, instanceConfig?.claudeModelAliases),
         claudeModelAliasIssues: wO(globalAliasIssues, instanceConfig?.claudeModelAliasIssues),
         runtimeModels: mergeRuntimeModelLayers([{
             source: "global",

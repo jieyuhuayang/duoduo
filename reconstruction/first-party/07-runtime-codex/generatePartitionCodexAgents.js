@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: generatePartitionCodexAgents  (minified: Qpt, daemon.pretty.js:69536)
+// symbol: generatePartitionCodexAgents  (minified: tmt, daemon.pretty.js:69537)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 21 renamed — 5 from the code at the binding (rule), 16 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -15,7 +15,7 @@ async function generatePartitionCodexAgents(partitionDir, options = {}) {
             removed: [],
             errors: []
         },
-        existingTomlFiles = await emt(codexAgentsDir),
+        existingTomlFiles = await nmt(codexAgentsDir),
         sourceFiles;
     try {
         sourceFiles = (await lu.readdir(claudeAgentsDir, {
@@ -44,7 +44,7 @@ async function generatePartitionCodexAgents(partitionDir, options = {}) {
             agentToml = renderAgentToml(agentMarkdown);
         expectedPaths.add(pa.resolve(targetPath));
         let existingToml = await lu.readFile(targetPath, "utf8").catch(() => {});
-        if (existingToml !== void 0 && tmt(existingToml, agentToml)) {
+        if (existingToml !== void 0 && rmt(existingToml, agentToml)) {
             result.skipped.push({
                 sourcePath,
                 targetPath,

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: probeClaudeAvailability  (minified: Xge, daemon.pretty.js:55306)
+// symbol: probeClaudeAvailability  (minified: Qge, daemon.pretty.js:55306)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 3 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,8 +9,8 @@
 
 async function probeClaudeAvailability() {
     if (Sc) return Sc;
-    if (jf) return jf;
-    jf = (async () => {
+    if (Mf) return Mf;
+    Mf = (async () => {
         let promise = new Promise(resolve => {
                 try {
                     yV(), resolve({
@@ -27,12 +27,12 @@ async function probeClaudeAvailability() {
             promise2 = new Promise(resolve => {
                 setTimeout(() => resolve({
                     ok: !1,
-                    reason: `[agent-sdk] claude availability probe timed out after ${Jge}ms`
-                }), Jge)
+                    reason: `[agent-sdk] claude availability probe timed out after ${Gge}ms`
+                }), Gge)
             }),
             probeResult = await Promise.race([promise, promise2]);
         return Sc = probeResult, probeResult
     })();
-    let result = await jf;
-    return jf = void 0, result
+    let result = await Mf;
+    return Mf = void 0, result
 }

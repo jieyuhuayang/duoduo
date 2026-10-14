@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexDynamicTools  (minified: pN, daemon.pretty.js:80367)
+// symbol: buildCodexDynamicTools  (minified: pN, daemon.pretty.js:80413)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.4, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 18 renamed — 0 from the code at the binding (rule), 18 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -74,7 +74,7 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), ctx.sessionContextKind === "foreground" && (tools.push({
-        name: ip,
+        name: rp,
         description: wA,
         inputSchema: buildCodexStringInputSchema(SA),
         handler: async input => {
@@ -89,7 +89,7 @@ function buildCodexDynamicTools(ctx) {
         }
     }), tools.push({
         name: Es,
-        description: qge,
+        description: Bge,
         inputSchema: buildCodexStringInputSchema(q$),
         handler: async input => {
             let output = await runSkipTool(input, {

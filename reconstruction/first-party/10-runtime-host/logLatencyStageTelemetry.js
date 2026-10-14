@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function logLatencyStageTelemetry(stage, eventId, extra) {
-    bYe() && logDebugMessage("[telemetry]", {
+    SYe() && logDebugMessage("[telemetry]", {
         stage,
         eventId,
         ts: Date.now(),

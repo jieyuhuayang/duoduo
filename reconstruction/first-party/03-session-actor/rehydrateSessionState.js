@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: rehydrateSessionState  (minified: Tae, daemon.pretty.js:32443)
+// symbol: rehydrateSessionState  (minified: Pae, daemon.pretty.js:32443)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 12 renamed — 4 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,7 +17,7 @@ async function rehydrateSessionState(paths) {
     }
     for (let sessionHash of entries) {
         let sessionDir = Gr.join(paths.sessionsDir, sessionHash);
-        if (!(!(await No.stat(sessionDir).catch(() => null))?.isDirectory() || !await iYe(sessionDir))) {
+        if (!(!(await No.stat(sessionDir).catch(() => null))?.isDirectory() || !await aYe(sessionDir))) {
             try {
                 let content = await No.readFile(Gr.join(sessionDir, "state.json"), "utf8"),
                     parsed = JSON.parse(content);

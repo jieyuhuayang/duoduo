@@ -6,7 +6,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta) {
-    let entry = Ret(sessionKey, runtimeState, meta);
+    let entry = Pet(sessionKey, runtimeState, meta);
     if (entry === null) {
         sessionIndex.remove(sessionKey);
         return

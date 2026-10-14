@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverExternalSessionNotify  (minified: EIe, daemon.pretty.js:91037)
+// symbol: deliverExternalSessionNotify  (minified: TIe, daemon.pretty.js:91083)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.2, v0.8.4 (maps/history_daemon.json)
 // locals: 26 renamed — 3 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -88,7 +88,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
             ...callerSessionKey === null ? {
                 sourceName: sourceLabel,
                 sourceSessionKey: "external:session.notify",
-                eventType: dW
+                eventType: fW
             } : {
                 sourceName: "notify-tool",
                 sourceSessionKey: callerSessionKey,

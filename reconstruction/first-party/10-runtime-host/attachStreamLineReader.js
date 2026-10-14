@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function attachStreamLineReader(stream, onLine, options) {
-    let lineBuffer = gae(onLine),
+    let lineBuffer = yae(onLine),
         closed = !1,
         onData = chunk => {
             lineBuffer.write(chunk)

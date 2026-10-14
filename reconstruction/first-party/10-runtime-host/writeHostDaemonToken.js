@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: writeHostDaemonToken  (minified: Hft, daemon.pretty.js:69178)
+// symbol: writeHostDaemonToken  (minified: Jft, daemon.pretty.js:69179)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

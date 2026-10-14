@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: accumulateDrainRecordIntoSummary  (minified: ode, daemon.pretty.js:37128)
+// symbol: accumulateDrainRecordIntoSummary  (minified: sde, daemon.pretty.js:37128)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.5.0, v0.7.1, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

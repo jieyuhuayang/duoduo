@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: selectProfileIssuesForModel  (minified: Wg, daemon.pretty.js:70017)
+// symbol: selectProfileIssuesForModel  (minified: Wg, daemon.pretty.js:70018)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,6 +9,6 @@
 
 function selectProfileIssuesForModel(requirement, issues) {
     if (!issues || issues.length === 0) return [];
-    let model = mmt(requirement);
+    let model = gmt(requirement);
     return model === null ? [] : issues.filter(issue => issue.model === void 0 || issue.model === model)
 }

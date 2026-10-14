@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: resolvePartitionStatePath  (minified: Pwe, daemon.pretty.js:66689)
+// symbol: resolvePartitionStatePath  (minified: Owe, daemon.pretty.js:66690)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolvePartitionStatePath(paths, partitionName) {
-    return Zct.join(paths.partitionStateDir, `${partitionName}.json`)
+    return Yct.join(paths.partitionStateDir, `${partitionName}.json`)
 }

@@ -16,6 +16,6 @@ function validateKnownRuntimeValue(runtime, sourceLabel) {
         runtime
     } : {
         ok: !1,
-        reason: `${sourceLabel} sets runtime ${JSON.stringify(runtime)}, which is not a runtime this duoduo knows. Valid runtimes: ${hae(Lm)}.`
+        reason: `${sourceLabel} sets runtime ${JSON.stringify(runtime)}, which is not a runtime this duoduo knows. Valid runtimes: ${gae(jm)}.`
     }
 }

@@ -8,8 +8,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function loadGlobalRuntimeConfig(channelConfigDir) {
-    let filePath = Zce.join(channelConfigDir, `${Yr}.md`),
-        readResult = await Yce(filePath);
+    let filePath = Kce.join(channelConfigDir, `${Yr}.md`),
+        readResult = await Xce(filePath);
     if (readResult.status === "absent") return null;
     if (readResult.status === "unreadable") {
         let unparseableIssues = [{

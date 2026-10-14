@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createModelCommandResolvers  (minified: VRe, daemon.pretty.js:82955)
+// symbol: createModelCommandResolvers  (minified: JRe, daemon.pretty.js:83001)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 29 renamed — 7 from the code at the binding (rule), 22 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -39,7 +39,7 @@ function createModelCommandResolvers(deps) {
     }
     async function classifyModelTargetAgainstLiveGeneration(sessionKey, actor, model, source) {
         let liveContextToken = actor ? readLiveStreamContextToken(actor) : void 0,
-            liveProfileSignature = actor ? BRe(actor) : void 0,
+            liveProfileSignature = actor ? WRe(actor) : void 0,
             profileScope = await resolveModelProfileScope(sessionKey, source),
             cwd = model ? void 0 : buildSessionInfoFromState(paths, sessionKey, await readSessionRuntimeState(paths, sessionKey).catch(() => null) ?? void 0).cwd,
             claudeContextRequirement = await resolveClaudeContextRequirement({
@@ -55,7 +55,7 @@ function createModelCommandResolvers(deps) {
             outcome: "blocked",
             detail: cA(profileIssuesForModel)
         };
-        let contextWindow = Qke(claudeContextRequirement);
+        let contextWindow = nxe(claudeContextRequirement);
         return liveContextToken === void 0 || liveProfileSignature === void 0 ? {
             outcome: "unknown",
             requirementKind: claudeContextRequirement.kind,

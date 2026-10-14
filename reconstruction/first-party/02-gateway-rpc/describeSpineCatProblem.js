@@ -12,9 +12,9 @@ function describeSpineCatProblem(params) {
     let keyProblem = unknownKeyProblem(params, kb["spine.cat"]);
     if (keyProblem) return keyProblem;
     if (Object.hasOwn(params, "redact") && params.redact !== "external") return '"redact" must be "external" or left out';
-    for (let textKey of aae)
+    for (let textKey of uae)
         if (Object.hasOwn(params, textKey) && typeof params[textKey] != "string") return `"${textKey}" must be text`;
-    for (let booleanKey of uae)
+    for (let booleanKey of lae)
         if (Object.hasOwn(params, booleanKey) && typeof params[booleanKey] != "boolean") return `"${booleanKey}" must be true or false`;
     return Object.hasOwn(params, "types") && !(Array.isArray(params.types) && params.types.every(type => typeof type == "string")) ? '"types" must be an array of strings, for example ["channel.message"]' : Object.hasOwn(params, "show") && !Object.hasOwn(params, "date") ? '"date" is required with "show": no partition was read. Without a day, show scans every partition and blocks the duoduo host while it runs. Re-run duoduo spine show <id> --date <yyyy-mm-dd>; the day is in the header of the spine cat output the id came from.' : null
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: writeIngressSnapshot  (minified: zet, daemon.pretty.js:88165)
+// symbol: writeIngressSnapshot  (minified: Bet, daemon.pretty.js:88211)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0 (maps/history_daemon.json)
 // locals: 8 renamed — 1 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,8 +8,8 @@
 
 async function writeIngressSnapshot(paths, ingress, event) {
     let sessionKeyHash = hashSessionKey(ingress.sessionKey),
-        snapshotDir = mf.join(paths.varIngressDir, sessionKeyHash),
-        snapshotPath = mf.join(snapshotDir, `${event.id}.json`),
+        snapshotDir = pf.join(paths.varIngressDir, sessionKeyHash),
+        snapshotPath = pf.join(snapshotDir, `${event.id}.json`),
         snapshot = ingress.rawPayload ?? {
             session_key: ingress.sessionKey,
             source_kind: ingress.sourceKind,

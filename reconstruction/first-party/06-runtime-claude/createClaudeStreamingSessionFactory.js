@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createClaudeStreamingSessionFactory  (minified: KRe, daemon.pretty.js:83211)
+// symbol: createClaudeStreamingSessionFactory  (minified: QRe, daemon.pretty.js:83257)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 161 renamed — 50 from the code at the binding (rule), 111 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -393,7 +393,7 @@ function createClaudeStreamingSessionFactory(deps) {
                 try {
                     await appendDrainRecord(paths, {
                         origin: "cli-turn",
-                        id: cbt(),
+                        id: mbt(),
                         session_key: actor.sessionKey,
                         sdk_session_id: actor.sdkSessionId,
                         drain_started_at: new Date(settledAt - durationMs).toISOString(),

@@ -1,24 +1,24 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: GROK_MCP_SERVER_NAME  (minified: Rbe, daemon.pretty.js:63995)
+// symbol: GROK_MCP_SERVER_NAME  (minified: Pbe, daemon.pretty.js:63996)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var O6, A6, Mut, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, C6, initGrokAcpRuntimeModule = O(() => {
+var A6, N6, Lut, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, O6, initGrokAcpRuntimeModule = O(() => {
     "use strict";
     Ql();
     initLogLevelModule();
     initAgentSdkAdapterModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    Mut = 5e3;
+    Lut = 5e3;
     GROK_DISALLOWED_TOOLS = ["scheduler_create", "scheduler_list", "scheduler_delete", "monitor", "workflow", "update_goal"], GROK_AGENT_PROFILE = {
         name: "duoduo",
         description: "duoduo session",
         disallowedTools: [...GROK_DISALLOWED_TOOLS]
     }, GROK_ACP_EXT_PREFIX = "_x.ai";
     GROK_ACP_SDK_CALL = grokAcpExtMethod("mcp/sdk_call"), GROK_ACP_COMPACT = grokAcpExtMethod("compact_conversation"), GROK_MCP_SDK_META = "x.ai/mcp/sdk", GROK_MCP_SERVERS_META = "x.ai/mcp/servers", GROK_MCP_SERVER_NAME = "aladuo";
-    C6 = class {
+    O6 = class {
         onmessage;
         onclose;
         onerror;

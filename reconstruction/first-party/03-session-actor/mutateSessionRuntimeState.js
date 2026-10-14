@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: mutateSessionRuntimeState  (minified: uf, daemon.pretty.js:35727)
+// symbol: mutateSessionRuntimeState  (minified: af, daemon.pretty.js:35727)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.5.10 (maps/history_daemon.json)
 // locals: 14 renamed — 2 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

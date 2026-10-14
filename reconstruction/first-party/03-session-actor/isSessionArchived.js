@@ -6,5 +6,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isSessionArchived(paths, sessionKey) {
-    return Eae(resolveArchivedSessionDir(paths, sessionKey)) && !Eae(resolveSessionDir(paths, sessionKey))
+    return Rae(resolveArchivedSessionDir(paths, sessionKey)) && !Rae(resolveSessionDir(paths, sessionKey))
 }

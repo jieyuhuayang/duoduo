@@ -1,16 +1,16 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: initQueueOutboundAttachmentModule  (minified: AS, daemon.pretty.js:73608)
+// symbol: initQueueOutboundAttachmentModule  (minified: AS, daemon.pretty.js:73609)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.1, v0.8.2 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var dEe, Dht, ip, fEe, wA, SA, initQueueOutboundAttachmentModule = O(() => {
+var mEe, jht, rp, hEe, wA, SA, initQueueOutboundAttachmentModule = O(() => {
     "use strict";
     vc();
     initLogLevelModule();
     $r();
-    dEe = "application/octet-stream", Dht = {
+    mEe = "application/octet-stream", jht = {
         ".png": "image/png",
         ".jpg": "image/jpeg",
         ".jpeg": "image/jpeg",
@@ -34,7 +34,7 @@ var dEe, Dht, ip, fEe, wA, SA, initQueueOutboundAttachmentModule = O(() => {
         ".mov": "video/quicktime",
         ".webm": "video/webm",
         ".avi": "video/x-msvideo"
-    }, ip = "QueueOutboundAttachment", fEe = "mcp__aladuo__QueueOutboundAttachment", wA = `Queue a file to be sent to the user at the end of this turn.
+    }, rp = "QueueOutboundAttachment", hEe = "mcp__aladuo__QueueOutboundAttachment", wA = `Queue a file to be sent to the user at the end of this turn.
 
 You MUST call this before ending any turn where the user asked you to send a file, image, or document.
 The file is delivered automatically when the turn ends — no further action needed after this call succeeds.

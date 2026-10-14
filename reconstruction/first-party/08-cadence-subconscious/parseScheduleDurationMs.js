@@ -13,7 +13,7 @@ function parseScheduleDurationMs(durationText) {
         matchedLength = 0,
         match;
     for (;
-        (match = unitPattern.exec(durationText)) !== null;) matchedLength += match[0].length, totalMs += parseInt(match[1], 10) * out(match[2]);
+        (match = unitPattern.exec(durationText)) !== null;) matchedLength += match[0].length, totalMs += parseInt(match[1], 10) * uut(match[2]);
     if (matchedLength === 0 || matchedLength !== durationText.length) throw new Error(`Invalid duration format: ${durationText}`);
     return totalMs
 }

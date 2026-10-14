@@ -10,7 +10,7 @@ async function* eventToMessageGenerator(text, attachments, attachmentOptions) {
     let attachmentBlocks = [];
     if (attachments && attachments.length > 0)
         for (let attachment of attachments) {
-            let attachmentBlock = wot(attachment, attachmentOptions);
+            let attachmentBlock = xot(attachment, attachmentOptions);
             attachmentBlock && attachmentBlocks.push(attachmentBlock)
         }
     let textBlocks = typeof text == "string" ? text ? [{

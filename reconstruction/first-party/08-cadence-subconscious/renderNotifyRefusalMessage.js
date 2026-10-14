@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: renderNotifyRefusalMessage  (minified: rO, daemon.pretty.js:64819)
+// symbol: renderNotifyRefusalMessage  (minified: rO, daemon.pretty.js:64820)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 11 renamed — 1 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

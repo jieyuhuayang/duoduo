@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: recordChannelCapabilityDeclaration  (minified: Ybt, daemon.pretty.js:90658)
+// symbol: recordChannelCapabilityDeclaration  (minified: tvt, daemon.pretty.js:90704)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.3 (maps/history_daemon.json)
 // locals: 7 renamed — 2 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,8 +8,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function recordChannelCapabilityDeclaration(options) {
-    let consumerKey = Gbt(options.sessionKey),
-        capabilities = Zbt(options.capabilities),
+    let consumerKey = Xbt(options.sessionKey),
+        capabilities = Qbt(options.capabilities),
         declaredBy = options.declaredBy;
     await mutateSessionRuntimeState(options.paths, options.sessionKey, state => {
         let channelCapabilities = state.channel_capabilities ?? {},

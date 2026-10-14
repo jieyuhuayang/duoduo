@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: main  (minified: kvt, daemon.pretty.js:93073)
+// symbol: main  (minified: Ivt, daemon.pretty.js:93119)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.7, v0.3.0, v0.3.1, v0.3.3, v0.4.3, v0.5.0, v0.5.3, v0.5.4, v0.5.6, v0.5.10, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 49 renamed — 24 from the code at the binding (rule), 25 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,24 +10,24 @@
 async function main() {
     let {
         resolveRuntimePaths
-    } = await Promise.resolve().then(() => (Yf(), xwe)), {
+    } = await Promise.resolve().then(() => (Kf(), Iwe)), {
         initializeRuntime
-    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), Zke)), {
+    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), Xke)), {
         createAgentSdkAdapter
     } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)), {
         createSessionManager
-    } = await Promise.resolve().then(() => (eIe(), QRe)), {
+    } = await Promise.resolve().then(() => (rIe(), nIe)), {
         createMetaSession
-    } = await Promise.resolve().then(() => (initMetaSessionModule(), nIe)), {
+    } = await Promise.resolve().then(() => (initMetaSessionModule(), oIe)), {
         runCadenceTick
-    } = await Promise.resolve().then(() => ($G(), uIe)), {
+    } = await Promise.resolve().then(() => (CG(), dIe)), {
         createJobScheduler
-    } = await Promise.resolve().then(() => (initJobSchedulerModule(), lIe)), {
+    } = await Promise.resolve().then(() => (initJobSchedulerModule(), fIe)), {
         createOutboxDeliveryManager
-    } = await Promise.resolve().then(() => (fIe(), dIe)), {
+    } = await Promise.resolve().then(() => (hIe(), mIe)), {
         clearHostModelEnvVars,
         loadHostDotEnv
-    } = await Promise.resolve().then(() => (XH(), YSe));
+    } = await Promise.resolve().then(() => (QH(), eke));
     process.on("unhandledRejection", reason => {
         logErrorMessage("[pid0] unhandled promise rejection (contained, daemon survives)", reason)
     }), process.on("uncaughtException", err => {
@@ -48,26 +48,26 @@ async function main() {
         throw await releaseRuntimeWriterLock(paths), err
     }
     let sessionIndexFromDisk = await buildSessionIndexFromDisk(paths);
-    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await gve(_O(paths));
+    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await bve(_O(paths));
     let restartReason = await claimDaemonRestartReason(paths);
     setPendingRestartReason(restartReason), restartReason && logInfoMessage("[pid0] restart reason claimed", {
         requested_at: restartReason.requested_at,
         requested_by_agent: restartReason.requested_by_agent,
         wake_targets: restartReason.wake_targets
     });
-    let bus = _ve(),
+    let bus = wve(),
         {
             probeClaudeAvailability
         } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)),
         {
             primeCodexAvailability,
             isCodexAvailable
-        } = await Promise.resolve().then(() => (initCodexAppServerModule(), $6)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), C6)),
         {
             primeGrokAvailability,
             isGrokAvailable,
             grokUnavailableReason
-        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), D6)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), M6)),
         [claudeAvailability] = await Promise.all([probeClaudeAvailability(), primeCodexAvailability(), primeGrokAvailability()]),
         codexAvailable = isCodexAvailable(),
         grokAvailable = isGrokAvailable(),

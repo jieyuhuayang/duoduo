@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: createCodexAppServerAdapter  (minified: Bw, daemon.pretty.js:62293)
+// symbol: createCodexAppServerAdapter  (minified: Bw, daemon.pretty.js:62294)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.6.0, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2 (maps/history_daemon.json)
 // locals: 128 renamed — 32 from the code at the binding (rule), 96 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 
 function createCodexAppServerAdapter(options, instructionContext) {
     let config = {
-            ...Iut,
+            ...Put,
             ...options
         },
         transport = null,

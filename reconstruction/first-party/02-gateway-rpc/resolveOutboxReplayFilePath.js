@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveOutboxReplayFilePath(paths, sessionKey) {
-    return Lr.join(resolveOutboxReplayDir(paths), `${oet(sessionKey)}.jsonl`)
+    return Lr.join(resolveOutboxReplayDir(paths), `${uet(sessionKey)}.jsonl`)
 }

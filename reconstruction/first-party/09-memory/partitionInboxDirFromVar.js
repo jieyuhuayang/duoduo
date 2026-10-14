@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: partitionInboxDirFromVar  (minified: Mc, daemon.pretty.js:66451)
+// symbol: partitionInboxDirFromVar  (minified: Dc, daemon.pretty.js:66452)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in v0.5.6 (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

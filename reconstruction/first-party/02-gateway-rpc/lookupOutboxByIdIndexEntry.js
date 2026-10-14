@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function lookupOutboxByIdIndexEntry(paths, recordId) {
-    return (await uet(paths)).get(recordId)
+    return (await fet(paths)).get(recordId)
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: selectInterruptMarkerText  (minified: Tg, daemon.pretty.js:62099)
+// symbol: selectInterruptMarkerText  (minified: Tg, daemon.pretty.js:62100)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.2 (medium): The model is told when a human ended its turn
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function selectInterruptMarkerText(abortReason, interrupted) {
-    return abortReason === "user-cancel" ? yut : interrupted ? _ut : null
+    return abortReason === "user-cancel" ? but : interrupted ? vut : null
 }

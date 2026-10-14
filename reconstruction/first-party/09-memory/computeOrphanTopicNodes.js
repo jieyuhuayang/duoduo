@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: computeOrphanTopicNodes  (minified: $ft, daemon.pretty.js:68611)
+// symbol: computeOrphanTopicNodes  (minified: Oft, daemon.pretty.js:68612)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 13 renamed — 3 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -33,7 +33,7 @@ function computeOrphanTopicNodes(memoryDir, options = {}) {
             content = readMemoryFileSyncOrNull(topicPath) ?? "",
             mtimeMs = 0;
         try {
-            mtimeMs = $Se.statSync(topicPath).mtimeMs
+            mtimeMs = ASe.statSync(topicPath).mtimeMs
         } catch {
             mtimeMs = 0
         }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBroadcastBudgetLint  (minified: hSe, daemon.pretty.js:68121)
+// symbol: runBroadcastBudgetLint  (minified: _Se, daemon.pretty.js:68122)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 4 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 function runBroadcastBudgetLint(memoryDir) {
     let boardPath = resolveMemoryDirs(memoryDir).boardPath,
         memoryMaxLinesLimit = readMemoryMaxLinesLimit(),
-        maxLineCharsLimit = mSe("ALADUO_MEMORY_MAX_LINE_CHARS", Wdt),
+        maxLineCharsLimit = ySe("ALADUO_MEMORY_MAX_LINE_CHARS", Gdt),
         memoryFile = readMemoryFileSyncOrNull(boardPath);
     if (memoryFile === null) return {
         selected: [],
@@ -17,8 +17,8 @@ function runBroadcastBudgetLint(memoryDir) {
         lines: 0,
         maxLineChars: 0
     };
-    let lineCount = eft(memoryFile),
-        lineStats = Xdt(memoryFile, maxLineCharsLimit),
+    let lineCount = nft(memoryFile),
+        lineStats = eft(memoryFile, maxLineCharsLimit),
         maxLineChars = lineStats.maxLineChars;
     return lineCount > memoryMaxLinesLimit || maxLineChars > maxLineCharsLimit ? {
         overLimit: !0,
@@ -26,9 +26,9 @@ function runBroadcastBudgetLint(memoryDir) {
         maxLineChars,
         selected: [{
             kind: Vn.CLAUDE_COMPRESS,
-            partition: Gdt,
+            partition: Kdt,
             pendingFilename: "claude-compress.md.pending",
-            pendingBody: tft({
+            pendingBody: rft({
                 boardPath,
                 maxLinesThreshold: memoryMaxLinesLimit,
                 maxLineCharsThreshold: maxLineCharsLimit,

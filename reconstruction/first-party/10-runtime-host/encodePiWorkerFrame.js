@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: encodePiWorkerFrame  (minified: FW, daemon.pretty.js:72964)
+// symbol: encodePiWorkerFrame  (minified: zW, daemon.pretty.js:72965)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): pi joins Claude, Codex and Grok as a fourth agent runtime.

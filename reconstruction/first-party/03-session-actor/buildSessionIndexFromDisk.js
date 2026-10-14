@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: buildSessionIndexFromDisk  (minified: dh, daemon.pretty.js:36847)
+// symbol: buildSessionIndexFromDisk  (minified: ch, daemon.pretty.js:36847)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 3 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

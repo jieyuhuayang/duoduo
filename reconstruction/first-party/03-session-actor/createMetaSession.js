@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createMetaSession  (minified: Pbt, daemon.pretty.js:86170)
+// symbol: createMetaSession  (minified: Abt, daemon.pretty.js:86216)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.3.3, v0.5.0, v0.5.2, v0.5.3, v0.5.4, v0.5.7, v0.5.8, v0.5.10, v0.7.1, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
 // locals: 154 renamed — 44 from the code at the binding (rule), 110 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -31,7 +31,7 @@ function createMetaSession(options) {
                 settingsSeed,
                 defaultProjectTrust
             } = readPiAgentSettings(piAgentDir),
-            piSessionDir = _bt(Sy.join(vbt(), "aladuo-pi-partition-")),
+            piSessionDir = Sbt(Sy.join(xbt(), "aladuo-pi-partition-")),
             workerToolContext = {
                 session_context_kind: "system"
             },
@@ -71,7 +71,7 @@ function createMetaSession(options) {
                 try {
                     await piWorkerAdapter.shutdown()
                 } finally {
-                    bbt(piSessionDir, {
+                    kbt(piSessionDir, {
                         recursive: !0,
                         force: !0
                     })

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createSessionManager  (minified: gbt, daemon.pretty.js:83964)
+// symbol: createSessionManager  (minified: vbt, daemon.pretty.js:84010)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.3, v0.2.12, v0.3.0, v0.3.2, v0.3.4, v0.3.5, v0.3.6, v0.3.7, v0.4.0, v0.4.1, v0.4.2, v0.4.3, v0.4.4, v0.4.5, v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.1, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 413 renamed — 89 from the code at the binding (rule), 324 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -440,7 +440,7 @@ function createSessionManager(options) {
                     })), job) {
                     jobScheduleType = classifyJobScheduleType(job.frontmatter.cron), jobCron = job.frontmatter.cron;
                     let stateless = job.frontmatter.stateless === !0;
-                    if (stateless && job.frontmatter.cron === "keepalive") throw new Error(M6);
+                    if (stateless && job.frontmatter.cron === "keepalive") throw new Error(j6);
                     jobStateless = stateless, actor.jobStateless = jobStateless, jobModel = job.frontmatter.model, jobEffort = job.frontmatter.effort, jobPiConfig = {
                         piExtensions: job.frontmatter.piExtensions,
                         piSkills: job.frontmatter.piSkills,
@@ -554,8 +554,8 @@ function createSessionManager(options) {
                 actor.currentAbortController = abortController;
                 let drainResult;
                 try {
-                    let allowedTools = [...actor.origin === "system" ? [] : [Tbe, Xbe], Ybe, lve];
-                    actor.origin === "channel" && (allowedTools.push(fEe), allowedTools.push(wc));
+                    let allowedTools = [...actor.origin === "system" ? [] : [Cbe, tve], eve, fve];
+                    actor.origin === "channel" && (allowedTools.push(hEe), allowedTools.push(wc));
                     let sessionContextKind = actor.origin === "job" ? "job" : actor.origin === "system" ? "system" : "foreground",
                         notifyDepth = 0,
                         defaultClaudeToolNames = listDefaultClaudeToolNames();
@@ -567,8 +567,8 @@ function createSessionManager(options) {
                                 await renderSessionMailboxFile(paths, sessionKey, mailboxPendingItems);
                                 let perf = {},
                                     drainBatch = await batchDrainItems(paths, mailboxPendingItems, {
-                                        fallbackBatchSize: OW,
-                                        mergeWindowMs: AW,
+                                        fallbackBatchSize: AW,
+                                        mergeWindowMs: NW,
                                         perf
                                     }),
                                     sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey),
@@ -844,18 +844,18 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         if (!actor.adapter)
                             if (!piModel) runtimeUnavailableReason = "pi binds its model when the worker is built, and this session has none. Send `/model <provider>/<modelId>` (channel sessions), or set `model: <provider>/<modelId>` in the job frontmatter, then send the message again.";
                             else {
-                                let piSessionDir = Qc.join(resolveSessionDir(paths, sessionKey), "pi"),
+                                let piSessionDir = Xc.join(resolveSessionDir(paths, sessionKey), "pi"),
                                     toolContext = {
                                         session_context_kind: sessionContextKind
                                     };
                                 actor.adapter = piAdapterFactory({
                                     cwd: sessionState?.cwd ?? paths.workDir,
-                                    sdkSessionId: (jobStateless ? void 0 : sessionState?.sdk_session_id) ?? mbt(),
+                                    sdkSessionId: (jobStateless ? void 0 : sessionState?.sdk_session_id) ?? _bt(),
                                     sessionDir: piSessionDir,
                                     agentDir: piAgentDir,
-                                    authPath: Qc.join(piAgentDir, "auth.json"),
-                                    modelsPath: Qc.join(piAgentDir, "models.json"),
-                                    modelsStorePath: Qc.join(piSessionDir, "models-store.json"),
+                                    authPath: Xc.join(piAgentDir, "auth.json"),
+                                    modelsPath: Xc.join(piAgentDir, "models.json"),
+                                    modelsStorePath: Xc.join(piSessionDir, "models-store.json"),
                                     settingsSeed,
                                     resources: {
                                         extensions: piExtensions,
@@ -1209,7 +1209,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                     actor.status = "ended"
                 }
             } else actor.status = "ended";
-            if (actor.pendingWake = !1, running && dbt(resolveSessionDir(paths, sessionKey)) && !isSessionArchiving(sessionKey)) {
+            if (actor.pendingWake = !1, running && hbt(resolveSessionDir(paths, sessionKey)) && !isSessionArchiving(sessionKey)) {
                 let inboxVerdict = await sessionInboxFreshNameVerdict(sessionKey, inboxSnapshotNames);
                 inboxVerdict === "fresh" ? (actor.consecutiveConservativeRedrive = !1, logSessionLifecycleMessage("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
                     sessionKey,
@@ -1365,7 +1365,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
     async function fetchPiModelCatalog(sessionKey) {
         let tempDir;
         try {
-            tempDir = fbt(Qc.join(hbt(), "aladuo-pi-catalog-"));
+            tempDir = gbt(Xc.join(bbt(), "aladuo-pi-catalog-"));
             let piAgentDir = resolvePiAgentDir(),
                 {
                     settingsSeed,
@@ -1376,9 +1376,9 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                 catalog = await requestPiWorkerCatalog({
                     cwd: sessionState?.cwd ?? paths.workDir,
                     agentDir: piAgentDir,
-                    authPath: Qc.join(piAgentDir, "auth.json"),
-                    modelsPath: Qc.join(piAgentDir, "models.json"),
-                    modelsStorePath: Qc.join(tempDir, "models-store.json"),
+                    authPath: Xc.join(piAgentDir, "auth.json"),
+                    modelsPath: Xc.join(piAgentDir, "models.json"),
+                    modelsStorePath: Xc.join(tempDir, "models-store.json"),
                     settingsSeed,
                     resources: {
                         extensions: channelConfig?.piExtensions ?? "all",
@@ -1396,7 +1396,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
             return
         } finally {
             try {
-                tempDir && pbt(tempDir, {
+                tempDir && ybt(tempDir, {
                     recursive: !0,
                     force: !0
                 })

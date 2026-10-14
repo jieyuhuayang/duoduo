@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: describeChannelInstance  (minified: tvt, daemon.pretty.js:90778)
+// symbol: describeChannelInstance  (minified: ovt, daemon.pretty.js:90824)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.4, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 20 renamed — 10 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,10 +17,10 @@ async function describeChannelInstance(paths, actors, params) {
         } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)),
         {
             isCodexAvailable
-        } = await Promise.resolve().then(() => (initCodexAppServerModule(), $6)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), C6)),
         {
             isGrokAvailable
-        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), D6)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), M6)),
         runtimes = [];
     isClaudeAvailable() && runtimes.push("claude"), isCodexAvailable() && runtimes.push("codex"), isGrokAvailable() && runtimes.push("grok"), runtimes.push("pi");
     let availableRuntimes = runtimes,

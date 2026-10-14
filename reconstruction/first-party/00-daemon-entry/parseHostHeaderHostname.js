@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: parseHostHeaderHostname  (minified: _vt, daemon.pretty.js:91983)
+// symbol: parseHostHeaderHostname  (minified: Svt, daemon.pretty.js:92029)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ function parseHostHeaderHostname(hostHeader) {
     if (hostHeader.includes("@")) return null;
     try {
         let hostname = new URL(`http://${hostHeader}`).hostname;
-        return hostname ? MG(hostname) : null
+        return hostname ? jG(hostname) : null
     } catch {
         return null
     }

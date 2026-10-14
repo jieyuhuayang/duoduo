@@ -1,19 +1,19 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: initCodexAppServerModule  (minified: Gf, daemon.pretty.js:63038)
+// symbol: initCodexAppServerModule  (minified: Jf, daemon.pretty.js:63039)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.6.0, v0.7.1, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 49 renamed — 7 from the code at the binding (rule), 42 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule = O(() => {
+var ALADUO_TOOL_NAMESPACE, Eut, T6, P6, Put, BC, ube, initCodexAppServerModule = O(() => {
     "use strict";
     Ql();
     initLogLevelModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    ALADUO_TOOL_NAMESPACE = "aladuo", kut = "features.code_mode.direct_only_tool_namespaces";
-    Iut = {
+    ALADUO_TOOL_NAMESPACE = "aladuo", Eut = "features.code_mode.direct_only_tool_namespaces";
+    Put = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -22,7 +22,7 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, BC = class extends Sut {
+    }, BC = class extends xut {
         constructor(binary, cwd, env) {
             super();
             this.binary = binary;
@@ -38,7 +38,7 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = but(this.binary, ["app-server"], {
+            this.alive || (this.proc = wut(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -215,5 +215,5 @@ var ALADUO_TOOL_NAMESPACE, kut, I6, T6, Iut, BC, obe, initCodexAppServerModule =
             for (let [id, pendingRequest] of this.pending) pendingRequest.reject(error), this.pending.delete(id)
         }
     };
-    obe = new Set
+    ube = new Set
 });

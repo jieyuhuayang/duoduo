@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: forgetMemoryEntry  (minified: NSe, daemon.pretty.js:68692)
+// symbol: forgetMemoryEntry  (minified: jSe, daemon.pretty.js:68693)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 16 renamed — 1 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ function forgetMemoryEntry(states, kernelDir, options = {}) {
     if (relPaths.length === 0 || options.dryRun) return relPaths;
     let memoryDir = wS.join(kernelDir, "memory"),
         gitToplevel = resolveGitToplevelSync(memoryDir);
-    if (gitToplevel !== null && $Se.existsSync(wS.join(gitToplevel, ".git", "index.lock"))) return [];
+    if (gitToplevel !== null && ASe.existsSync(wS.join(gitToplevel, ".git", "index.lock"))) return [];
     try {
         let rmResult = Hg("git", ["rm", "--ignore-unmatch", "--", ...relPaths], {
             cwd: memoryDir,

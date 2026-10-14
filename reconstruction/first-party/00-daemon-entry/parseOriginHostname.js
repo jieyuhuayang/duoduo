@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: parseOriginHostname  (minified: bvt, daemon.pretty.js:91993)
+// symbol: parseOriginHostname  (minified: kvt, daemon.pretty.js:92039)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -8,7 +8,7 @@
 function parseOriginHostname(origin) {
     try {
         let hostname = new URL(origin).hostname;
-        return hostname ? MG(hostname) : null
+        return hostname ? jG(hostname) : null
     } catch {
         return null
     }

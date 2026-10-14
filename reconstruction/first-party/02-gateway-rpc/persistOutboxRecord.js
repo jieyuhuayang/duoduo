@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function persistOutboxRecord(paths, record) {
-    await eet(paths, record), record.in_reply_to_event_id && await indexOutboxRecordByEventId(paths, record.in_reply_to_event_id, record);
+    await ret(paths, record), record.in_reply_to_event_id && await indexOutboxRecordByEventId(paths, record.in_reply_to_event_id, record);
     try {
         await ensureOutboxRecordInReplay(paths, record)
     } catch {}

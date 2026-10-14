@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: claimDaemonRestartReason  (minified: iwe, daemon.pretty.js:66055)
+// symbol: claimDaemonRestartReason  (minified: awe, daemon.pretty.js:66056)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.6.2 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 9 renamed — 1 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,11 +11,11 @@ async function claimDaemonRestartReason(paths) {
     let reasonPath = daemonRestartReasonPath(paths),
         content;
     try {
-        content = await rwe.readFile(reasonPath, "utf8")
+        content = await swe.readFile(reasonPath, "utf8")
     } catch {
         return null
     }
-    await rwe.rm(reasonPath, {
+    await swe.rm(reasonPath, {
         force: !0
     }).catch(() => {});
     try {

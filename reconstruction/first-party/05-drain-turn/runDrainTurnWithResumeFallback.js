@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: runDrainTurnWithResumeFallback  (minified: vht, daemon.pretty.js:72785)
+// symbol: runDrainTurnWithResumeFallback  (minified: Sht, daemon.pretty.js:72786)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.5.7, v0.6.0, v0.7.0, v0.7.1, v0.8.0 (maps/history_daemon.json)
 // locals: 55 renamed — 16 from the code at the binding (rule), 39 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -53,7 +53,7 @@ async function runDrainTurnWithResumeFallback(paths, sessionKey, sdk, request) {
             thoughtSplitter?.flush();
             let text = result.text;
             if (text) {
-                let split = dxe(text);
+                let split = mxe(text);
                 if (text = split.text, !onStream && split.thoughts.length > 0 && onExecutionEvent)
                     for (let thought of split.thoughts) onExecutionEvent({
                         type: "thought_chunk",
@@ -72,7 +72,7 @@ async function runDrainTurnWithResumeFallback(paths, sessionKey, sdk, request) {
         isNonClaude = !isClaudeRuntimeOrDefault(runtime),
         claudeAttachments = isNonClaude ? void 0 : attachments,
         adapterAttachments = isNonClaude ? attachments : void 0,
-        buildPrompt = () => runtime === "pi" ? yht(prompt) : eventToMessageGenerator(prompt, claudeAttachments, messageOptions),
+        buildPrompt = () => runtime === "pi" ? bht(prompt) : eventToMessageGenerator(prompt, claudeAttachments, messageOptions),
         promptInput = buildPrompt(),
         buildRunRequest = (promptArg, resumeSessionId, forkFromSessionId) => {
             let resolvedMcpServers = mcpServersFactory ? mcpServersFactory() : mcpServers,

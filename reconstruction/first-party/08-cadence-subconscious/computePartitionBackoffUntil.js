@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: computePartitionBackoffUntil  (minified: _H, daemon.pretty.js:66723)
+// symbol: computePartitionBackoffUntil  (minified: bH, daemon.pretty.js:66724)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,10 +12,10 @@ function computePartitionBackoffUntil(result, consecutiveFailures, now, cadenceI
     let baseMs = cadenceIntervalMs ?? zg;
     if (result === "timeout") {
         if (consecutiveFailures <= 2) return null;
-        let delayMs = Math.min(consecutiveFailures * baseMs, Yct);
+        let delayMs = Math.min(consecutiveFailures * baseMs, Qct);
         return new Date(now.getTime() + delayMs).toISOString()
     }
     if (consecutiveFailures <= 1) return null;
-    let delayMs = Math.min(consecutiveFailures * 2 * baseMs, Xct);
+    let delayMs = Math.min(consecutiveFailures * 2 * baseMs, edt);
     return new Date(now.getTime() + delayMs).toISOString()
 }

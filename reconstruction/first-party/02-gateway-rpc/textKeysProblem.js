@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: textKeysProblem  (minified: lae, daemon.pretty.js:31609)
+// symbol: textKeysProblem  (minified: cae, daemon.pretty.js:31609)
 // name: INFERRED — upstream's own spelling, confirmed against the published source @openduo/protocol@0.8.4 system.ts (maps/published_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

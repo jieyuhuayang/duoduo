@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: listSessionIndexSummaries  (minified: oO, daemon.pretty.js:64866)
+// symbol: listSessionIndexSummaries  (minified: oO, daemon.pretty.js:64867)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
 // locals: 14 renamed — 0 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,7 +19,7 @@ async function listSessionIndexSummaries(sessionIndex, jobStore, filter, deliver
     let isOrphan = sessionKey => liveJobSessionKeys === null || !sessionKey.startsWith("job:") ? !1 : !liveJobSessionKeys.has(sessionKey),
         matched = sessionIndex.list().filter(entry => !(filter.kind && classifySessionKeyKind(entry.session_key) !== filter.kind || filter.named_only && !hasNonEmptyDisplayName(entry) || !filter.include_orphans && isOrphan(entry.session_key)));
     return (filter.deliverable ? await filterDeliverableSessions(deliverableDeps, matched) : matched).map(entry => {
-        let summary = Clt(entry);
+        let summary = Alt(entry);
         return filter.include_orphans && isOrphan(entry.session_key) ? {
             ...summary,
             orphan: !0

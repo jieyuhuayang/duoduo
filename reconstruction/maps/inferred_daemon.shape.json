@@ -1,7 +1,7 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-10-07",
-  "package": "v0.8.4",
+  "recorded": "2026-10-14",
+  "package": "v0.8.5",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -817,18 +817,6 @@
         "trim"
       ]
     },
-    "normalizeIncludePathKey": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "win32"
-      ],
-      "props": [
-        "platform",
-        "resolve",
-        "toLowerCase"
-      ]
-    },
     "realpathOrSelf": {
       "kind": "async function",
       "params": 1,
@@ -1093,14 +1081,6 @@
         "trim"
       ]
     },
-    "isEffortLevel": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": [
-        "includes"
-      ]
-    },
     "isJsonRpcRequest": {
       "kind": "function",
       "params": 1,
@@ -1128,16 +1108,6 @@
         "runtime_mode",
         "version",
         "work_dir"
-      ]
-    },
-    "isAgentRuntime": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "includes"
       ]
     },
     "initChannelProtocolModule": {
@@ -1169,12 +1139,6 @@
         "instruction",
         "owner_session"
       ]
-    },
-    "isSupportedRuntime": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": []
     },
     "resolveDefaultRuntime": {
       "kind": "function",
@@ -1298,15 +1262,6 @@
         "map"
       ]
     },
-    "getOrCreateEventIdIndexCache": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": [
-        "get",
-        "set"
-      ]
-    },
     "loadEventIdIndex": {
       "kind": "async function",
       "params": 1,
@@ -1328,18 +1283,6 @@
       "literals": [],
       "props": [
         "id"
-      ]
-    },
-    "hashSessionKey": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "sha256"
-      ],
-      "props": [
-        "createHash",
-        "digest",
-        "update"
       ]
     },
     "resolveSessionDir": {
@@ -1375,17 +1318,6 @@
       "params": 2,
       "literals": [],
       "props": []
-    },
-    "runWithSessionMutex": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [],
-      "props": [
-        "delete",
-        "get",
-        "resolve",
-        "set"
-      ]
     },
     "tryMarkSessionArchiving": {
       "kind": "function",
@@ -1534,6 +1466,26 @@
       "params": 3,
       "literals": [],
       "props": []
+    },
+    "statusPath": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "status.json"
+      ],
+      "props": [
+        "join",
+        "registryDir"
+      ]
+    },
+    "updateStatus": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "generated_at",
+        "toISOString"
+      ]
     },
     "normalizePromptMode": {
       "kind": "function",
@@ -2012,15 +1964,6 @@
         "prevTotalCostUsd",
         "total_cost_usd",
         "usage"
-      ]
-    },
-    "normalizeOptionalEnvString": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": [
-        "length",
-        "trim"
       ]
     },
     "initAgentSdkAdapterModule": {
@@ -4453,24 +4396,6 @@
         "tools"
       ]
     },
-    "classifySessionKeyOrUnknown": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "cadence:",
-        "channel",
-        "job:",
-        "meta",
-        "meta:",
-        "system",
-        "system:",
-        "unknown"
-      ],
-      "props": [
-        "includes",
-        "startsWith"
-      ]
-    },
     "renderJobCompleteReceiptGuidance": {
       "kind": "function",
       "params": 2,
@@ -4826,20 +4751,6 @@
         "workDir"
       ]
     },
-    "classifySessionPlane": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "cadence:",
-        "meta:",
-        "system",
-        "system:",
-        "work"
-      ],
-      "props": [
-        "startsWith"
-      ]
-    },
     "runDrainQueryAndCollectOutboundAttachments": {
       "kind": "async function",
       "params": 4,
@@ -5017,16 +4928,6 @@
         "sessionContextKind",
         "sessionKey",
         "startsWith"
-      ]
-    },
-    "stringifyExecutionToolInput": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "stringify"
       ]
     },
     "buildSessionExecutionPayload": {
@@ -5475,16 +5376,6 @@
         "then"
       ]
     },
-    "stringifyPartitionToolInput": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "stringify"
-      ]
-    },
     "detectEmptyRequiredPartitionOutput": {
       "kind": "function",
       "params": 2,
@@ -5927,14 +5818,6 @@
         "prop:trim"
       ]
     },
-    "writeInstanceModelAlias": {
-      "kind": "async function",
-      "params": 5,
-      "literals": [
-        "claude"
-      ],
-      "props": []
-    },
     "createIdleCompactSweeper": {
       "kind": "function",
       "params": 1,
@@ -6049,14 +5932,6 @@
       "props": [
         "join",
         "runLocksDir"
-      ]
-    },
-    "isProcessAliveByPid": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": [
-        "kill"
       ]
     },
     "computeHostBootId": {
@@ -6327,17 +6202,6 @@
         "trim"
       ]
     },
-    "normalizeChannelCapabilityDeclarations": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "declared_at",
-        "declared_by"
-      ]
-    },
     "recordChannelCapabilityDeclaration": {
       "kind": "async function",
       "params": 1,
@@ -6350,20 +6214,6 @@
         "paths",
         "sessionKey",
         "toISOString"
-      ]
-    },
-    "classifySessionPlaneByKey": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "cadence:",
-        "meta:",
-        "system",
-        "system:",
-        "work"
-      ],
-      "props": [
-        "startsWith"
       ]
     },
     "describeChannelInstance": {
@@ -7752,14 +7602,6 @@
         "trim"
       ]
     },
-    "pathExistsAsync": {
-      "kind": "async function",
-      "params": 1,
-      "literals": [],
-      "props": [
-        "access"
-      ]
-    },
     "runKernelGitCommand": {
       "kind": "async function",
       "params": 3,
@@ -8980,12 +8822,6 @@
         "runtime"
       ]
     },
-    "isKnownRuntimeValue": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": []
-    },
     "initRuntimeValidationModule": {
       "kind": "moduleInit",
       "params": 0,
@@ -9261,16 +9097,6 @@
       ],
       "props": []
     },
-    "isModelRuntime": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "includes"
-      ]
-    },
     "isChannelIngressParams": {
       "kind": "function",
       "params": 1,
@@ -9441,18 +9267,6 @@
         "length"
       ]
     },
-    "isSystemStatusParams": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": []
-    },
-    "isSystemConfigParams": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": []
-    },
     "isSpineTailParams": {
       "kind": "function",
       "params": 1,
@@ -9465,31 +9279,11 @@
         "limit"
       ]
     },
-    "isJobGetParams": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "id"
-      ]
-    },
     "isJobListParams": {
       "kind": "function",
       "params": 1,
       "literals": [],
       "props": []
-    },
-    "isJobArchiveParams": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "id"
-      ]
     },
     "isJobRescheduleParams": {
       "kind": "function",
@@ -10235,6 +10029,17 @@
         "toISOString"
       ]
     },
+    "readStatus": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "utf8"
+      ],
+      "props": [
+        "parse",
+        "readFile"
+      ]
+    },
     "assertValidChannelId": {
       "kind": "function",
       "params": 1,
@@ -10352,12 +10157,6 @@
         "trim"
       ]
     },
-    "SpineRpcParamsError": {
-      "kind": "class-expr",
-      "params": null,
-      "literals": [],
-      "props": []
-    },
     "JsonRpcInvalidParamsError": {
       "kind": "class-expr",
       "params": null,
@@ -10435,6 +10234,31 @@
       ]
     },
     "ensureSessionMailboxPendingDir": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": []
+    },
+    "buildInitialStatus": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        ".jsonl",
+        "layered",
+        "starting",
+        "unknown"
+      ],
+      "props": [
+        "eventsDir",
+        "join",
+        "kernelDir",
+        "kernelVersion",
+        "slice",
+        "toISOString",
+        "workDir"
+      ]
+    },
+    "writeStatus": {
       "kind": "async function",
       "params": 2,
       "literals": [],
@@ -10715,16 +10539,6 @@
         "frontmatter"
       ]
     },
-    "isCodexPlainObject": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "object"
-      ],
-      "props": [
-        "isArray"
-      ]
-    },
     "isImageGenerationItemType": {
       "kind": "function",
       "params": 1,
@@ -10771,24 +10585,6 @@
         "join",
         "push"
       ]
-    },
-    "renderJobSessionToolDescription": {
-      "kind": "function",
-      "params": 0,
-      "literals": [],
-      "props": []
-    },
-    "buildManageJobInputSchema": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": []
-    },
-    "buildJobSessionInputSchema": {
-      "kind": "function",
-      "params": 1,
-      "literals": [],
-      "props": []
     },
     "resolveDeliveryCursorPath": {
       "kind": "function",
@@ -11025,17 +10821,6 @@
         "model"
       ]
     },
-    "readDrainLockFile": {
-      "kind": "async function",
-      "params": 1,
-      "literals": [
-        "utf8"
-      ],
-      "props": [
-        "parse",
-        "readFile"
-      ]
-    },
     "prepareClaudeContextProfile": {
       "kind": "async function",
       "params": 2,
@@ -11200,17 +10985,6 @@
         "unknown"
       ]
     },
-    "channelKindFromSessionKey": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "unknown"
-      ],
-      "props": [
-        "indexOf",
-        "slice"
-      ]
-    },
     "readLiveStreamContextToken": {
       "kind": "function",
       "params": 1,
@@ -11239,12 +11013,6 @@
         "pid",
         "unlink"
       ]
-    },
-    "MemoryReadRpcError": {
-      "kind": "class-expr",
-      "params": null,
-      "literals": [],
-      "props": []
     },
     "resolveEnvConfigEntry": {
       "kind": "function",
@@ -11859,18 +11627,267 @@
         "trim"
       ]
     },
-    "statusPath": {
+    "normalizeIncludePathKey": {
       "kind": "function",
       "params": 1,
       "literals": [
-        "status.json"
+        "win32"
       ],
       "props": [
-        "join",
-        "registryDir"
+        "platform",
+        "resolve",
+        "toLowerCase"
       ]
     },
-    "readStatus": {
+    "isEffortLevel": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "includes"
+      ]
+    },
+    "isAgentRuntime": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "includes"
+      ]
+    },
+    "isSupportedRuntime": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "getOrCreateEventIdIndexCache": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "get",
+        "set"
+      ]
+    },
+    "hashSessionKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "sha256"
+      ],
+      "props": [
+        "createHash",
+        "digest",
+        "update"
+      ]
+    },
+    "runWithSessionMutex": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "delete",
+        "get",
+        "resolve",
+        "set"
+      ]
+    },
+    "normalizeOptionalEnvString": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "length",
+        "trim"
+      ]
+    },
+    "classifySessionKeyOrUnknown": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "channel",
+        "job:",
+        "meta",
+        "meta:",
+        "system",
+        "system:",
+        "unknown"
+      ],
+      "props": [
+        "includes",
+        "startsWith"
+      ]
+    },
+    "classifySessionPlane": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "meta:",
+        "system",
+        "system:",
+        "work"
+      ],
+      "props": [
+        "startsWith"
+      ]
+    },
+    "stringifyExecutionToolInput": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "stringify"
+      ]
+    },
+    "stringifyPartitionToolInput": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "stringify"
+      ]
+    },
+    "writeInstanceModelAlias": {
+      "kind": "async function",
+      "params": 5,
+      "literals": [
+        "claude"
+      ],
+      "props": []
+    },
+    "isProcessAliveByPid": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "kill"
+      ]
+    },
+    "normalizeChannelCapabilityDeclarations": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "declared_at",
+        "declared_by"
+      ]
+    },
+    "classifySessionPlaneByKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "meta:",
+        "system",
+        "system:",
+        "work"
+      ],
+      "props": [
+        "startsWith"
+      ]
+    },
+    "pathExistsAsync": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "access"
+      ]
+    },
+    "isKnownRuntimeValue": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isModelRuntime": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "includes"
+      ]
+    },
+    "isSystemStatusParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isSystemConfigParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isJobGetParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "id"
+      ]
+    },
+    "isJobArchiveParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "string"
+      ],
+      "props": [
+        "id"
+      ]
+    },
+    "SpineRpcParamsError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "isCodexPlainObject": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "renderJobSessionToolDescription": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": []
+    },
+    "buildManageJobInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "buildJobSessionInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "readDrainLockFile": {
       "kind": "async function",
       "params": 1,
       "literals": [
@@ -11881,38 +11898,88 @@
         "readFile"
       ]
     },
-    "writeStatus": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [],
-      "props": []
-    },
-    "updateStatus": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [],
-      "props": [
-        "generated_at",
-        "toISOString"
-      ]
-    },
-    "buildInitialStatus": {
+    "channelKindFromSessionKey": {
       "kind": "function",
-      "params": 3,
+      "params": 1,
       "literals": [
-        ".jsonl",
-        "layered",
-        "starting",
         "unknown"
       ],
       "props": [
-        "eventsDir",
+        "indexOf",
+        "slice"
+      ]
+    },
+    "MemoryReadRpcError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "resolveJobExecutionWorkspace": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        " has invalid cwd_rel path",
+        "system",
+        "workspace"
+      ],
+      "props": [
+        "cwd",
+        "cwdRel",
+        "trim"
+      ]
+    },
+    "prepareJobExecutionWorkspace": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " has invalid cwd_rel path",
+        "' does not exist. The directory must be created with a CLAUDE.md context file before creating the job.",
+        "' is missing CLAUDE.md. A CLAUDE.md context file is required so the job session has project-level instructions.",
+        ": cwd_rel '",
+        "CLAUDE.md",
+        "system",
+        "workspace"
+      ],
+      "props": [
+        "catch",
+        "cwd",
+        "cwdRel",
+        "isDirectory",
+        "isFile",
         "join",
-        "kernelDir",
-        "kernelVersion",
-        "slice",
-        "toISOString",
+        "stat",
+        "trim"
+      ]
+    },
+    "resolveJobCwdRel": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "isAbsolute",
+        "resolve",
         "workDir"
+      ]
+    },
+    "isPathWithinDir": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "isAbsolute",
+        "relative",
+        "sep",
+        "startsWith"
+      ]
+    },
+    "normalizeJobCwdRelText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "replace",
+        "trim"
       ]
     }
   }

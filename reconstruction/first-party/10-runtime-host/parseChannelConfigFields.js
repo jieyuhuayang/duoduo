@@ -8,13 +8,13 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseChannelConfigFields(frontmatter) {
-    let timeGapMinutes = zU(frontmatter, of.time_gap_minutes),
-        autoCompactIdleMinutes = zU(frontmatter, of.auto_compact_idle_minutes),
-        autoCompactMinContextTokens = zU(frontmatter, of.auto_compact_min_context_tokens),
+    let timeGapMinutes = zU(frontmatter, rf.time_gap_minutes),
+        autoCompactIdleMinutes = zU(frontmatter, rf.auto_compact_idle_minutes),
+        autoCompactMinContextTokens = zU(frontmatter, rf.auto_compact_min_context_tokens),
         stream = typeof frontmatter.stream == "boolean" ? frontmatter.stream : void 0,
         requireMention = typeof frontmatter.require_mention == "boolean" ? frontmatter.require_mention : void 0;
     return {
-        new_session_workspace: FQe(frontmatter.new_session_workspace),
+        new_session_workspace: qQe(frontmatter.new_session_workspace),
         prompt_mode: normalizePromptMode(frontmatter.prompt_mode),
         time_gap_minutes: timeGapMinutes,
         auto_compact_idle_minutes: autoCompactIdleMinutes,

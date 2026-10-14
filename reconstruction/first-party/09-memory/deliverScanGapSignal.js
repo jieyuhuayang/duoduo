@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: deliverScanGapSignal  (minified: cSe, daemon.pretty.js:68003)
+// symbol: deliverScanGapSignal  (minified: pSe, daemon.pretty.js:68004)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 12 renamed — 0 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function deliverScanGapSignal(eventsDir, memoryDir, nowMs, ctx, options) {
-    let pendingPath = zc.join(partitionInboxDirFromVar(ctx.varDir, "gradient-distiller"), aSe);
+    let pendingPath = Fc.join(partitionInboxDirFromVar(ctx.varDir, "gradient-distiller"), cSe);
     if (au.existsSync(pendingPath)) return {
         selected: [],
         span: null,

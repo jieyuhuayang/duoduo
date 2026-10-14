@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: releaseSessionDrainLock  (minified: uxe, daemon.pretty.js:70190)
+// symbol: releaseSessionDrainLock  (minified: dxe, daemon.pretty.js:70191)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.4, v0.3.5 (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,6 +10,6 @@
 async function releaseSessionDrainLock(paths, sessionRef) {
     let sessionDrainLockPath = resolveSessionDrainLockPath(paths, sessionRef);
     try {
-        await oxe.unlink(sessionDrainLockPath)
+        await uxe.unlink(sessionDrainLockPath)
     } catch {}
 }

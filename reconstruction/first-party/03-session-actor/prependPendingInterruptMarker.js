@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: prependPendingInterruptMarker  (minified: GRe, daemon.pretty.js:83115)
+// symbol: prependPendingInterruptMarker  (minified: YRe, daemon.pretty.js:83161)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 2 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -16,7 +16,7 @@ function prependPendingInterruptMarker(actor, queryInput) {
         let injected = !1;
         for await (let message of prompt) {
             if (!injected && actor.pendingInterruptMarker === marker) {
-                injected = !0, actor.pendingInterruptMarker = null, yield lbt(message, marker);
+                injected = !0, actor.pendingInterruptMarker = null, yield pbt(message, marker);
                 continue
             }
             yield message

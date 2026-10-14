@@ -14,7 +14,7 @@ function parseJobRearmTime(when, now = new Date) {
         let scheduleDurationMs = parseScheduleDurationMs(trimmed.substring(4).trim());
         return assertScheduleDurationRepresentable(scheduleDurationMs, trimmed), new Date(now.getTime() + scheduleDurationMs).toISOString()
     }
-    let targetMs = sut.test(trimmed) ? new Date(trimmed).getTime() : Number.NaN;
+    let targetMs = lut.test(trimmed) ? new Date(trimmed).getTime() : Number.NaN;
     if (!Number.isFinite(targetMs)) throw new Error(`Invalid reschedule time: ${when}. Expected "@in <duration>" (e.g. "@in 30m") or an ISO 8601 timestamp with an explicit timezone — "Z" or a ±hh:mm offset (e.g. "2026-06-13T02:00:00Z", "2026-06-13T10:00:00+08:00"). Zone-less datetimes are rejected because scheduling is pinned to UTC.`);
     if (targetMs <= now.getTime()) throw new Error(`Reschedule time is not in the future: ${when} (now: ${now.toISOString()}). A re-arm at or before now would be consumed as already spent at finalize, silently ending the loop. Accepted forms: "@in <duration>" (e.g. "@in 30m") or a FUTURE ISO 8601 timestamp with an explicit timezone.`);
     return new Date(targetMs).toISOString()

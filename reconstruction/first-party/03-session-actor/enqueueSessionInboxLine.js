@@ -10,7 +10,7 @@ async function enqueueSessionInboxLine(paths, sessionKey, line, now = new Date) 
     return assertSessionNotArchiving(sessionKey), runWithSessionMutex(sessionKey, async () => {
         let sessionInboxDir = resolveSessionInboxDir(paths, sessionKey);
         await ensureDirectoryExists(sessionInboxDir);
-        let fileName = `${now.toISOString().replace(/[:.]/g,"-")}_${Aae()}.pending`,
+        let fileName = `${now.toISOString().replace(/[:.]/g,"-")}_${Nae()}.pending`,
             filePath = ea.join(sessionInboxDir, fileName),
             content = `${line.trim()}
 `;

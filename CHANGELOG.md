@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.5] - 2026-10-13
+
+A maintenance release: dependency and security updates, two Feishu fixes, and
+a stricter job working-directory check. The published packages now carry a
+license.
+
+Upgrading means reinstalling core and protocol (0.8.5), the Feishu channel
+(0.8.5) and the ACP channel (0.8.3), then restarting the daemon and both
+channels. The ACP channel's only change is that it ships the license files.
+The bundled agent SDK moves to `^0.3.296` (Claude Code 2.1.296), and the
+bundled pi moves from 1.0.4 to 1.2.0.
+
+Behaviour changes to know about:
+
+- **An invalid job `cwd_rel` is refused.** Up to v0.8.4 a job whose
+  `cwd_rel` was an absolute path or pointed outside the work dir (possible
+  only in a job file edited by hand) ran silently in a system scratch
+  workspace, without its project `CLAUDE.md`. It now fails each run with
+  `invalid cwd_rel path`. The `duoduo-admin` skill's upgrade playbook has the
+  command that lists every job's `cwd_rel`.
+- **Feishu process card: the working signal is an animated icon.** The card's
+  status line carries an animated icon instead of 「思考中...」, and the
+  `THINKING` reaction is gone: reactions per turn are `Get` when the message
+  arrives, removed when the turn ends. One notification and two API calls
+  fewer per turn.
+
+### Highlights
+
+- **License.** Every published package (`@openduo/duoduo`,
+  `@openduo/protocol`, `@openduo/channel-feishu`, `@openduo/channel-acp`) now
+  ships `LICENSE` (FSL-1.1-Apache-2.0) and `LICENSE.agents.yaml`, an addendum
+  that states the terms for agents reading or modifying the installed bundle.
+  Earlier releases carried no license.
+- **Longer MCP tool descriptions reach the model.** With agent SDK 0.3.296,
+  Claude Code cuts an in-process MCP tool description at 4,096 characters
+  instead of 2,048, so duoduo's longer tool descriptions are no longer
+  truncated.
+- **pi 1.2.0.** No settings changes are needed. If you run your own pi
+  extensions, note that pi 1.2.0 also fires `before_agent_start` for runs an
+  extension starts; see pi's release notes.
+
+### Fixes
+
+- Fresh installs and reinstalls of v0.8.4 got a pi runtime that crashed on
+  load: pi's companion packages had moved to a newer release that the
+  bundled pi could not run with, so sessions, jobs and partitions on the
+  pi runtime failed to start. v0.8.5 pins those packages to the same release
+  as the bundled pi, so later pi releases can no longer be mixed in.
+- Feishu rich-text (`post`) messages keep their ordinary file attachments.
+  Files in the message's attachment zone were dropped, so the text arrived
+  without them; they are now downloaded and delivered with the text,
+  including when the message is the parent of a reply.
+- A job `cwd_rel` inside a directory whose name begins with two dots (such as
+  `..x`) was treated as outside the work dir. It is now accepted.
+- `@modelcontextprotocol/sdk` moves to 1.32.1, which clears the high-severity
+  advisory GHSA-6qxp-vccf-f47h.
+
 ## [v0.8.4] - 2026-10-06
 
 A runtime value duoduo does not know is now refused instead of silently

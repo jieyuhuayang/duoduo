@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: initAbortableAsyncQueueModule  (minified: JRe, daemon.pretty.js:83053)
+// symbol: initAbortableAsyncQueueModule  (minified: KRe, daemon.pretty.js:83099)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -20,7 +20,7 @@ var TN, initAbortableAsyncQueueModule = O(() => {
             this.items.push(item)
         }
         dequeue(signal) {
-            if (signal?.aborted) return Promise.reject(WRe());
+            if (signal?.aborted) return Promise.reject(ZRe());
             let item = this.items.shift();
             return item !== void 0 ? Promise.resolve(item) : new Promise((resolve, reject) => {
                 let waiter = {
@@ -30,7 +30,7 @@ var TN, initAbortableAsyncQueueModule = O(() => {
                 if (this.waiters.push(waiter), !signal) return;
                 let onAbort = () => {
                     let index = this.waiters.indexOf(waiter);
-                    index >= 0 && this.waiters.splice(index, 1), reject(WRe())
+                    index >= 0 && this.waiters.splice(index, 1), reject(ZRe())
                 };
                 signal.addEventListener("abort", onAbort, {
                     once: !0
