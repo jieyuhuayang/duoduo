@@ -16949,13 +16949,7 @@
       "src": "llm"
     },
     {
-      "ctx": "5faaf2d771b95c07",
-      "occ": 0,
-      "name": "cwdResolution",
-      "src": "llm"
-    },
-    {
-      "ctx": "c6f390d4c4bd07a6",
+      "ctx": "38f648aea280db70",
       "occ": 0,
       "name": "frontmatter",
       "src": "llm"
@@ -17321,13 +17315,7 @@
       "src": "llm"
     },
     {
-      "ctx": "99aa65259af79448",
-      "occ": 0,
-      "name": "executionInfo",
-      "src": "llm"
-    },
-    {
-      "ctx": "448af3dfe117116c",
+      "ctx": "2ef4288d7ff4f4aa",
       "occ": 0,
       "name": "frontmatter",
       "src": "llm"
@@ -18262,6 +18250,26 @@
       "ctx": "c7be04f286429988",
       "occ": 0,
       "name": "now",
+      "src": "llm"
+    }
+  ],
+  "isPathWithinDir": [
+    {
+      "ctx": "e7a810e0640e9396",
+      "occ": 0,
+      "name": "baseDir",
+      "src": "llm"
+    },
+    {
+      "ctx": "df19daf1a34ddb6d",
+      "occ": 0,
+      "name": "targetPath",
+      "src": "llm"
+    },
+    {
+      "ctx": "b5785a2cdc06c535",
+      "occ": 0,
+      "name": "relativePath",
       "src": "llm"
     }
   ],
@@ -20923,6 +20931,14 @@
       "src": "llm"
     }
   ],
+  "normalizeJobCwdRelText": [
+    {
+      "ctx": "efc2cdfc1df64d31",
+      "occ": 0,
+      "name": "cwdRelText",
+      "src": "llm"
+    }
+  ],
   "normalizeNotifyChannelTarget": [
     {
       "ctx": "4c04d1dbf870e50f",
@@ -22032,6 +22048,62 @@
       "ctx": "b32ff565a62ff3de",
       "occ": 0,
       "name": "timeGapConsumed",
+      "src": "llm"
+    }
+  ],
+  "prepareJobExecutionWorkspace": [
+    {
+      "ctx": "6b37f2152df0178c",
+      "occ": 0,
+      "name": "paths",
+      "src": "llm"
+    },
+    {
+      "ctx": "f0d4860dfb907b31",
+      "occ": 0,
+      "name": "jobId",
+      "src": "llm"
+    },
+    {
+      "ctx": "08a2621e6eb5bf5f",
+      "occ": 0,
+      "name": "cwdRelText",
+      "src": "llm"
+    },
+    {
+      "ctx": "993d108fa28d597e",
+      "occ": 0,
+      "name": "runtimeWorkspaceDir",
+      "src": "llm"
+    },
+    {
+      "ctx": "25de0542e4888543",
+      "occ": 0,
+      "name": "systemWorkspace",
+      "src": "llm"
+    },
+    {
+      "ctx": "3105eee206629e24",
+      "occ": 0,
+      "name": "cwdStat",
+      "src": "llm"
+    },
+    {
+      "ctx": "10b602a5edd68e0b",
+      "occ": 0,
+      "name": "claudeMdPath",
+      "src": "llm"
+    },
+    {
+      "ctx": "4238582145258c29",
+      "occ": 0,
+      "name": "claudeMdStat",
+      "src": "llm"
+    },
+    {
+      "ctx": "6a02e992e299df8e",
+      "occ": 0,
+      "name": "workspaceInfo",
       "src": "llm"
     }
   ],
@@ -26326,6 +26398,52 @@
       "ctx": "637613d93d57d475",
       "occ": 0,
       "name": "kind",
+      "src": "llm"
+    }
+  ],
+  "resolveJobCwdRel": [
+    {
+      "ctx": "a623a8ae9289c11f",
+      "occ": 0,
+      "name": "paths",
+      "src": "llm"
+    },
+    {
+      "ctx": "48acd2841de97e90",
+      "occ": 0,
+      "name": "cwdRelText",
+      "src": "llm"
+    },
+    {
+      "ctx": "db14ffc599a90fb2",
+      "occ": 0,
+      "name": "resolvedCwd",
+      "src": "llm"
+    }
+  ],
+  "resolveJobExecutionWorkspace": [
+    {
+      "ctx": "d7aadeaad09ae47b",
+      "occ": 0,
+      "name": "paths",
+      "src": "llm"
+    },
+    {
+      "ctx": "308b4d27eaf506ba",
+      "occ": 0,
+      "name": "jobId",
+      "src": "llm"
+    },
+    {
+      "ctx": "6142a4450a81b900",
+      "occ": 0,
+      "name": "cwdRelText",
+      "src": "llm"
+    },
+    {
+      "ctx": "62b293999a83d828",
+      "occ": 0,
+      "name": "runtimeWorkspaceDir",
       "src": "llm"
     }
   ],

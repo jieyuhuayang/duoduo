@@ -11914,6 +11914,73 @@
       "params": null,
       "literals": [],
       "props": []
+    },
+    "resolveJobExecutionWorkspace": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        " has invalid cwd_rel path",
+        "system",
+        "workspace"
+      ],
+      "props": [
+        "cwd",
+        "cwdRel",
+        "trim"
+      ]
+    },
+    "prepareJobExecutionWorkspace": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " has invalid cwd_rel path",
+        "' does not exist. The directory must be created with a CLAUDE.md context file before creating the job.",
+        "' is missing CLAUDE.md. A CLAUDE.md context file is required so the job session has project-level instructions.",
+        ": cwd_rel '",
+        "CLAUDE.md",
+        "system",
+        "workspace"
+      ],
+      "props": [
+        "catch",
+        "cwd",
+        "cwdRel",
+        "isDirectory",
+        "isFile",
+        "join",
+        "stat",
+        "trim"
+      ]
+    },
+    "resolveJobCwdRel": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "isAbsolute",
+        "resolve",
+        "workDir"
+      ]
+    },
+    "isPathWithinDir": {
+      "kind": "function",
+      "params": 2,
+      "literals": [],
+      "props": [
+        "isAbsolute",
+        "relative",
+        "sep",
+        "startsWith"
+      ]
+    },
+    "normalizeJobCwdRelText": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "replace",
+        "trim"
+      ]
     }
   }
 }

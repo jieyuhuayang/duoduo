@@ -726,5 +726,10 @@
   "KC": "buildJobSessionInputSchema",
   "fxe": "readDrainLockFile",
   "uk": "channelKindFromSessionKey",
-  "zc": "MemoryReadRpcError"
+  "zc": "MemoryReadRpcError",
+  "tbe": "resolveJobExecutionWorkspace",
+  "nbe": "prepareJobExecutionWorkspace",
+  "Q_e": "resolveJobCwdRel",
+  "K_e": "isPathWithinDir",
+  "fut": "normalizeJobCwdRelText"
 }
