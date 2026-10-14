@@ -31,11 +31,26 @@
 // (`ok:`) literal; pins on with keys as wildcards (`a ? b : c` reads like a
 // key); pins off (a local that happens to share an old top-level short name).
 //
+// Before those, with --old <bundle>=<old pretty.js>,<old symbols.json> (the
+// release the docs were written against: bump.sh's pretty_old and the
+// not-yet-promoted maps/symbols_<bundle>.json), a snippet whose declaration did
+// not change is rewritten exactly instead of by pattern. The declaration is
+// unchanged when its old and new token streams are equal with every identifier
+// that is not a member name spelled `_`; then token k of the old declaration
+// is token k of the new one. The snippet is located in the OLD declaration
+// (it held there, as written, exactly once), and each of its identifiers is
+// replaced by the token at the same position in the new declaration. This
+// needs no guessing about which local is which, so it settles the snippets
+// the pattern finds more than once in the declaration: at v0.8.4 -> v0.8.5
+// all 9 that the pattern left `ambiguous` quoted unchanged code, and were
+// rewritten by hand exactly this way.
+//
 // Usage:
 //   node retarget_snippets.mjs --index <symbols_daemon.json>[,<symbols_cli.json>]
 //        --bundle daemon=<new daemon.pretty.js> [--bundle cli=<new cli.pretty.js>]
 //        [--fp daemon=<fp_daemon.json>] [--fp cli=<fp_cli.json>]
 //        [--rename daemon=<old rename.json>,<new rename.json>] [--rename cli=...]
+//        [--old daemon=<old daemon.pretty.js>,<old symbols_daemon.json>] [--old cli=...]
 //        [--write] [--report <out.json>] <doc.md...>
 // The index and bundles are the NEW release's (the step-2 check-mode run's
 // .build); --fp is bump.sh's fingerprint match; --rename the old maps/ and new
@@ -118,6 +133,43 @@ export function rederive(code, span, migration) {
   return { status: counts.some((c) => c > 1) ? "ambiguous" : "no match" };
 }
 
+// The rewrite of a snippet from an unchanged declaration: token k of oldSpan is
+// token k of newSpan. Returns { status, to? }.
+export function fromUnchangedDecl(code, oldSpan, newSpan) {
+  const lex = (span) => [...span.matchAll(TOKEN)].map((m) => ({ text: m[0], at: m.index }));
+  const O = lex(oldSpan), N = lex(newSpan);
+  // a member name keeps its spelling; `...x` is a spread, not a member
+  const member = (toks, i) => toks[i - 1]?.text === "." && !(toks[i - 2]?.text === "." && toks[i - 3]?.text === ".");
+  const norm = (toks) => toks.map((t, i) => (isIdent(t.text) && !member(toks, i) ? "_" : t.text));
+  if (O.length !== N.length) return { status: "declaration changed" };
+  const no = norm(O), nn = norm(N);
+  for (let i = 0; i < no.length; i++) if (no[i] !== nn[i]) return { status: "declaration changed" };
+  const toks = tokenize(code);
+  let re = "", prevWord = false, afterGap = true, n = 0;
+  const groupOf = [];
+  for (const t of toks) {
+    if (t.role === "gap") { re += "[\\s\\S]*?"; prevWord = false; afterGap = true; continue; }
+    const word = /^[\w$]/.test(t.text);
+    if (!afterGap) re += word && prevWord ? "\\s+" : "\\s*";
+    afterGap = false; prevWord = word;
+    if (isIdent(t.text)) { const g = `i${n++}`; groupOf.push([t, g]); re += `(?<![\\w$])(?<${g}>${esc(t.text)})(?![\\w$])`; }
+    else re += esc(t.text);
+  }
+  if (!groupOf.length) return { status: "nothing to re-derive" };
+  let rx;
+  try { rx = new RegExp(re, "gd"); } catch { return { status: "pattern error" }; }
+  const hits = [...oldSpan.matchAll(rx)];
+  if (hits.length !== 1) return { status: hits.length ? "ambiguous in old declaration" : "not in old declaration" };
+  const idxAt = new Map(O.map((t, i) => [t.at, i]));
+  let out = "", from = 0;
+  for (const [t, g] of groupOf) {
+    const k = idxAt.get(hits[0].indices.groups[g][0]);
+    if (k === undefined || !isIdent(N[k].text)) return { status: "token mismatch" };
+    out += code.slice(from, t.at) + N[k].text;
+    from = t.at + t.text.length;
+  }
+  return { status: "rewritten", to: out + code.slice(from), how: "unchanged declaration" };
+}
 
 // Is the snippet's code in a span, whatever its identifiers of 1-4 characters
 // are called? (every such identifier a wildcard, the same one twice the same
@@ -137,6 +189,7 @@ function main() {
   const BUNDLES = Object.fromEntries(multi("--bundle").map((s) => s.split(/=(.*)/s).slice(0, 2)));
   const FPS = multi("--fp").map((s) => s.split(/=(.*)/s).slice(0, 2));
   const RENAMES = multi("--rename").map((s) => s.split(/=(.*)/s).slice(0, 2));
+  const OLDS = multi("--old").map((s) => s.split(/=(.*)/s).slice(0, 2));
   const REPORT = multi("--report")[0];
   const WRITE = flag("--write");
   const DOCS = argv;
@@ -163,6 +216,15 @@ function main() {
     if (!B[b] || !fs.existsSync(p)) continue;
     for (const [o, m] of Object.entries(readJSON(p).matched)) if (m.unique && typeof m.new === "string") B[b].migration.set(o, m.new);
   }
+  // the release the docs were written against, for snippets of unchanged declarations
+  for (const [b, pair] of OLDS) {
+    if (!B[b]) continue;
+    const [prettyP, indexP] = pair.split(",");
+    const ix = loadIndex(indexP);
+    const lines = fs.readFileSync(prettyP, "utf8").split("\n");
+    assertBundleMatchesIndex(lines, ix, prettyP);
+    B[b].old = { ix, lines };
+  }
   for (const [b, pair] of RENAMES) {
     if (!B[b]) continue;
     const [oldP, newP] = pair.split(",");
@@ -187,7 +249,16 @@ function main() {
       const escaped = raw.includes("\\|");
       const code = escaped ? raw.replace(/\\\|/g, "|") : raw;
       const span = b.lines.slice(e.line - 1, e.endLine).join("\n");
-      let r = rederive(code, span, b.migration);
+      let r = { status: "no old release given" };
+      const oe = b.old && own(b.old.ix.symbols, name) ? b.old.ix.symbols[name] : null;
+      if (oe) {
+        r = fromUnchangedDecl(code, b.old.lines.slice(oe.line - 1, oe.endLine).join("\n"), span);
+        if (r.status === "rewritten") {
+          const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
+          if (to === raw || to.includes("`") || !snippetHolds(to, b.lines, e.line, e.endLine, true)?.ok) r = { status: "exact rewrite refuted" };
+        }
+      }
+      if (r.status !== "rewritten") r = rederive(code, span, b.migration);
       if (r.status === "rewritten") {
         const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
         const ok = to !== raw && !to.includes("`") && snippetHolds(to, b.lines, e.line, e.endLine, true);

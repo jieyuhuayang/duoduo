@@ -154,7 +154,7 @@ for name in "${NAMES[@]}"; do
   echo "==== $name ===="
   # a previous run into the same $OUT must not leave diffs or carried names
   # behind for impact_report.mjs to read as this run's
-  rm -rf "$OUT/diff/$name" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/inferred_$name.json"
+  rm -rf "$OUT/diff/$name" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/align_$name.json" "$OUT/inferred_$name.json"
   if cmp -s "$OLD/$name.pretty.js" "$NEW/$name.pretty.js"; then
     echo "  unchanged between releases (byte-identical) — nothing to re-derive"
     continue
@@ -173,13 +173,18 @@ for name in "${NAMES[@]}"; do
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json"
   node --max-old-space-size=8192 "$HERE/pair_releases.mjs" \
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/pairing_$name.json"
+  # every top-level statement aligned in order: settles twin bodies by their
+  # neighbours (remap_inferred --align) and retarget_snippets reads it to
+  # rewrite snippets of declarations whose text did not change
+  node --max-old-space-size=8192 "$HERE/align_releases.mjs" \
+    "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/align_$name.json"
 
   INF="$MAPS/inferred_$name.json"
   NEW_INF="$OUT/inferred_$name.json"
   rm -f "$NEW_INF"
   if [ -f "$INF" ]; then
     echo "-- carry inferred names across the bump"
-    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
+    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" --align "$OUT/align_$name.json" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
     echo "   review $NEW_INF (and the PROPOSED entries in $OUT/inferred_$name.proposed.json), then, as the LAST step of the review: cp $NEW_INF $INF"
     echo "   (afterwards bump.sh refuses to run again until $INF is restored from origin/main)"
   fi
@@ -292,12 +297,13 @@ else
 fi
 echo "     node $HERE/retarget_symbols.mjs --bundle daemon $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/retarget_symbols.mjs --bundle cli $MAPS/rename_cli.json $R/rename_cli.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
-echo "     node $HERE/retarget_snippets.mjs --index $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fp daemon=$OUT/fp_daemon.json --fp cli=$OUT/fp_cli.json --rename daemon=$MAPS/rename_daemon.json,$R/rename_daemon.json --rename cli=$MAPS/rename_cli.json,$R/rename_cli.json --report $OUT/snippets.json --write $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
+echo "     node $HERE/retarget_snippets.mjs --index $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fp daemon=$OUT/fp_daemon.json --fp cli=$OUT/fp_cli.json --rename daemon=$MAPS/rename_daemon.json,$R/rename_daemon.json --rename cli=$MAPS/rename_cli.json,$R/rename_cli.json --old daemon=$OLD/daemon.pretty.js,$MAPS/symbols_daemon.json --old cli=$OLD/cli.pretty.js,$MAPS/symbols_cli.json --report $OUT/snippets.json --write $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     (each retarget_symbols run moves only the pairs its old map vouches for, and lists the"
-echo "     one-identifier spans it left for you to decide; retarget_snippets re-derives a stale"
-echo "     name-bound snippet only on a unique match that check_bare_anchors' rule accepts, and"
-echo "     lists the rest in snippets.json: those quote code that changed, so re-read them)"
+echo "     one-identifier spans it left for you to decide; retarget_snippets rewrites a snippet of an"
+echo "     unchanged declaration token for token from the old release (--old), re-derives the others"
+echo "     only on a unique match that check_bare_anchors' rule accepts, and lists the rest in"
+echo "     snippets.json: those quote code that changed, so re-read them)"
 echo "  3b. bring what the release changed in substance into the docs: impact.md's citations by"
 echo "     priority, its plain-text delta and what no doc covers yet. Split the docs into one file"
 echo "     per section, then run the upgrade-docs workflow (.claude/workflows/upgrade-docs.js), which"
