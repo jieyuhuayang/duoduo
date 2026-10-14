@@ -50,6 +50,25 @@
 // list can see: a claim that cites only a caller two calls away from a
 // change, and a claim with no citation at all.
 //
+// Tier 4 `keyword` is for the case no citation reaches: a changed declaration
+// that no doc cites at all, whose behaviour a paragraph nevertheless
+// describes while citing something else. At v0.8.4 -> v0.8.5 the one
+// first-party change (the job workspace resolver, unnamed until then, which
+// started refusing a cwd_rel outside the work dir) had no citation, and the
+// paragraph describing the old behaviour cited the job manager's initialiser:
+// tiers 1-3 and 2c were all empty. For each uncited change it takes the
+// distinctive words of its changed lines and literal delta that look like
+// code (snake_case, camelCase, 5+ characters, in at most GENERIC paragraphs,
+// not a member of a JavaScript or Node built-in: `startsWith` is not a
+// keyword) and its added or removed strings that read like a message, a key
+// or a path (8+ characters with a space or punctuation: "number" is a typeof
+// result), and lists every paragraph holding one. Only changes first-party
+// code reaches count: a real name, or an old short name some named
+// declaration refers to (the old xref, module initialisers excluded as in
+// tier 2c), so a vendored library's update (the MCP SDK's `sessionId`) does
+// not send a reader to every paragraph about sessions. Replayed on v0.8.4 ->
+// v0.8.5 it lists the eight paragraphs about cwd_rel, and nothing else.
+//
 // Also reported: what no doc covers yet (declarations with no old
 // counterpart; strings and properties the release added that no doc
 // mentions), inferred names that lost their anchor, with the candidates
@@ -68,6 +87,9 @@
 // the inferred names that were not carried across, and xref_<bundle>.json, the
 // old call graph tier 2c reads.
 import fs from "node:fs";
+import fsp from "node:fs/promises";
+import os from "node:os";
+import childProcess from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { namePair, nameBound, codeSpans, fencedRanges, snippetTokens, identRe, looksMangled } from "./anchor_forms.mjs";
@@ -344,6 +366,40 @@ for (const c of changes) {
   if (s.length || p.length) uncoveredLiterals.push({ change: c.id, real: c.names, diff: c.diffPath, strings: s, properties: p, cited: cited.has(c.id) });
 }
 
+// --- tier 4: paragraphs that share a keyword with an uncited change -------------
+const BUILTIN = new Set();
+for (const o of [Object, Array, String, Number, Boolean, Symbol, Promise, Map, Set, WeakMap, JSON, Math, Date, RegExp, Error, Buffer, Function, Reflect,
+  Object.prototype, Array.prototype, String.prototype, Number.prototype, Promise.prototype, Map.prototype, Set.prototype, Date.prototype,
+  RegExp.prototype, Error.prototype, Function.prototype, Buffer.prototype, path, fs, fsp, os, childProcess, process])
+  for (const k of Object.getOwnPropertyNames(o)) BUILTIN.add(k);
+// per bundle, the old short names a named declaration refers to (initialisers aside)
+const reached = new Map();
+for (const [bundle, g] of graphs) {
+  const r = new Set();
+  for (const sym of Object.values(g.xref.symbols)) for (const u of sym.refsUnnamed || []) if (!g.inits.has(u)) r.add(u);
+  reached.set(bundle, r);
+}
+const firstParty = (c) => c.names.length > 0 || !reached.has(c.bundle) || c.oldNames.some((x) => reached.get(c.bundle).has(x));
+const codeLike = (w) => !BUILTIN.has(w) && w.length >= 5 && /^[A-Za-z_$][\w$]*$/.test(w) && (/[a-z0-9]_[a-z0-9]/i.test(w) || /[a-z][A-Z]/.test(w));
+const keywordHits = [];
+for (const c of changes) {
+  if (cited.has(c.id) || !firstParty(c)) continue;
+  const words = [...new Set([...(c.changedTokens || []), ...c.propAdded, ...c.propRemoved])]
+    .filter((w) => codeLike(w) && df.get(w) && distinctive(w));
+  const strs = [...new Set([...c.strAdded, ...c.strRemoved])].filter((x) => x.length >= 8 && /[\s_:/.-]/.test(x) && allText.includes(x));
+  if (!words.length && !strs.length) continue;
+  const tests = [...words.map((w) => [w, ((re) => (t) => re.test(t))(identRe(w))]), ...strs.map((x) => [`"${x}"`, (t) => t.includes(x)])];
+  for (const d of docs) for (let l = 1; l <= d.lines.length; l++) {
+    const [a, b] = d.block(l);
+    if (a !== l || !d.lines[l - 1].trim()) continue;
+    const para = d.lines.slice(a - 1, b).join("\n");
+    const matched = tests.filter(([, f]) => f(para)).map(([w]) => w);
+    if (matched.length) keywordHits.push({ doc: d.rel, line: l, section: d.section[l - 1], sectionTitle: d.titles[d.section[l - 1]],
+      subsection: d.sub[l - 1], tier: 4, change: c.id, diff: c.diffPath, matched, paragraph: [a, b],
+      why: `uncited change shares ${matched.slice(0, 6).map((w) => "`" + w + "`").join(", ")}`, text: d.lines[l - 1].trim().slice(0, 240) });
+  }
+}
+
 // --- inferred names that lost their anchor ------------------------------------
 const reanchor = [];
 for (const bundle of ["daemon", "cli"]) {
@@ -395,6 +451,11 @@ const plaintext = readJSON(path.join(BUMP, "plaintext", "files.json"), []).map((
   return { ...f, diff: rel(path.join(BUMP, "plaintext", f.source === "package" ? "package.diff" : "upstream.diff")), docRefs: refs };
 });
 
+// --- the bundles outside the pipeline (bundle_literals.mjs) --------------------
+const otherBundles = fs.existsSync(path.join(BUMP, "literals"))
+  ? fs.readdirSync(path.join(BUMP, "literals")).filter((f) => f.endsWith(".json")).map((f) => readJSON(path.join(BUMP, "literals", f))).filter((r) => r && !r.unchanged)
+  : [];
+
 // --- work units and groups ----------------------------------------------------
 const units = new Map();
 const unitOf = (c) => {
@@ -405,6 +466,11 @@ const unitOf = (c) => {
 for (const c of citations) {
   const u = unitOf(c);
   u.tiers[c.tier - 1]++; u.changes.add(c.change); u.weight += [4, 2, 0.5][c.tier - 1];
+}
+// tier 4 weighs as tier 2: nothing else points a reader at that paragraph
+for (const c of keywordHits) {
+  const u = unitOf(c);
+  u.keyword = (u.keyword || 0) + 1; u.weight += 2; u.changes.add(c.change);
 }
 // tier 2c weighs as tier 2; its changes are the callees' (for group affinity)
 for (const c of calleeCitations) {
@@ -434,19 +500,22 @@ const report = {
     citations: { total: citations.length, reread: tierCount(1), check: tierCount(2), skim: tierCount(3),
       respelled: citations.filter((c) => c.respelled).length,
       calleeChanged: calleeCitations.length, calleeChangedCalleeCited: calleeCitations.filter((c) => c.calleeCited).length,
-      calleeChangedBundles: [...graphs.keys()] },
+      calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.length },
     uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length, plaintextFiles: plaintext.length,
   },
   changes: changes.map((c) => ({ id: c.id, bundle: c.bundle, real: c.names, oldNames: c.oldNames, newNames: c.newNames, diff: c.diffPath,
     changedLines: c.diff?.changedLines ?? null, hunks: c.diff?.hunks?.length ?? null, localOnly: c.localOnly,
     strAdded: c.strAdded, strRemoved: c.strRemoved, propAdded: c.propAdded, propRemoved: c.propRemoved,
     citations: citations.filter((x) => x.change === c.id).length })),
-  citations: [...citations, ...calleeCitations].map(({ d, hits, ...c }) => c),
+  citations: [...citations, ...calleeCitations, ...keywordHits].map(({ d, hits, ...c }) => c),
   uncovered: { declarations: uncoveredDecls, literals: uncoveredLiterals },
   reanchor, plaintext,
+  otherBundles: otherBundles.map((r) => ({ bundle: r.bundle, stringsAdded: r.stringsAdded.length, stringsRemoved: r.stringsRemoved.length,
+    namesAdded: r.namesAdded.length, namesRemoved: r.namesRemoved.length,
+    removedQuoted: [...r.stringsRemoved, ...r.namesRemoved].filter((e) => e.docs.length) })),
   units: unitList.map((u) => ({ ...u, changes: [...u.changes] })),
   groups: groups.map((g) => ({ id: g.id, weight: Math.round(g.weight * 10) / 10, changes: [...g.changes],
-    units: g.units.map((u) => ({ key: u.key, doc: u.doc, section: u.section, title: u.title, tiers: u.tiers, calleeChanged: u.calleeChanged })) })),
+    units: g.units.map((u) => ({ key: u.key, doc: u.doc, section: u.section, title: u.title, tiers: u.tiers, calleeChanged: u.calleeChanged, keyword: u.keyword || 0 })) })),
 };
 if (OUT) fs.writeFileSync(OUT, JSON.stringify(report, null, 1) + "\n");
 
@@ -458,19 +527,37 @@ if (MD) {
     `${s.citations.total} doc citations name changed code: ${s.citations.reread} to re-read, ${s.citations.check} to check, ${s.citations.skim} to skim ` +
     `(${s.citations.respelled} of them snippets whose quoted code is in both versions, only renamed: retarget_snippets.mjs rewrites those). ` +
     `${s.citations.calleeChanged} more cite unchanged code whose direct callee changed (tier 2c${graphs.size ? "" : ": no xref in --maps, not computed"}). ` +
+    `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4). ` +
     `${plaintext.length} plain-text files changed.`, "");
   if (plaintext.length) {
     L.push("## Plain text (read first: it states intent)", "", "| source | file | change | mentioned in |", "|---|---|---|---|");
     for (const f of plaintext) L.push(`| ${f.source} | \`${f.path}\` | ${f.status} +${f.added}/-${f.removed} | ${f.docRefs.slice(0, 6).map((r) => `${r.doc}:${r.line}`).join(", ") || "-"}${f.docRefs.length > 6 ? ` (+${f.docRefs.length - 6})` : ""} |`);
     L.push("");
   }
+  if (otherBundles.length) {
+    L.push("## Bundles outside the pipeline (literal delta; read with the plain text)", "",
+      "Not reconstructed, so no diff and no citations: what changed in their string literals and member names (bundle_literals.mjs). " +
+      `Full lists: \`${rel(path.join(BUMP, "literals", "literals.md"))}\`.`, "");
+    const show = (list) => list.slice(0, 12).map((e) => JSON.stringify(e.s.length > 60 ? e.s.slice(0, 59) + "…" : e.s)).join(", ").replace(/\|/g, "\\|") + (list.length > 12 ? ` (+${list.length - 12})` : "");
+    for (const r of otherBundles) {
+      L.push(`- **${r.bundle}**: strings +${r.stringsAdded.length}/-${r.stringsRemoved.length}, names +${r.namesAdded.length}/-${r.namesRemoved.length}`);
+      if (r.stringsRemoved.length) L.push(`  - strings removed: ${show(r.stringsRemoved)}`);
+      if (r.namesRemoved.length) L.push(`  - names removed: ${show(r.namesRemoved)}`);
+      if (r.stringsAdded.length) L.push(`  - strings added: ${show(r.stringsAdded)}`);
+      if (r.namesAdded.length) L.push(`  - names added: ${show(r.namesAdded)}`);
+      for (const e of [...r.stringsRemoved, ...r.namesRemoved].filter((x) => x.docs.length)) L.push(`  - removed ${JSON.stringify(e.s)} is quoted in ${e.docs.join(", ")}`);
+    }
+    L.push("");
+  }
   L.push("## Declaration diffs", "", "| declaration | diff | changed lines | added strings / properties | citations |", "|---|---|---|---|---|");
   for (const c of report.changes) L.push(`| ${c.real.join(", ") || c.newNames.join(", ")} (${c.bundle}) | \`${c.diff ?? "-"}\` | ${c.changedLines ?? "?"} in ${c.hunks ?? "?"} hunks${c.localOnly ? " (local names only)" : ""} | ${[...c.strAdded.map((x) => `"${clip(x, 60)}"`), ...c.propAdded].slice(0, 8).join(", ").replace(/\|/g, "\\|") || "-"} | ${c.citations} |`);
   L.push("");
-  for (const [t, title] of [[1, "Re-read"], [2, "Check"], ["2c", "Callee changed"], [3, "Skim"]]) {
+  for (const [t, title] of [[1, "Re-read"], [2, "Check"], ["2c", "Callee changed"], [3, "Skim"], [4, "Keyword (uncited changed code)"]]) {
     const list = report.citations.filter((c) => c.tier === t);
     L.push(`## Tier ${t}: ${title} (${list.length})`, "");
     if (t === "2c") L.push("Citations of a declaration that did not change but refers directly to one that changed or was removed (old call graph, one hop). Read the claim against the callee's diff.", "");
+    if (t === 4) L.push("Paragraphs that cite none of the changed code but share a distinctive word with a change no doc cites. Read the paragraph against the diff; a description of the old behaviour is often here.", "");
+    if (t === 4) { for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] ${c.why} -- \`${c.diff}\``); L.push(""); continue; }
     for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}: ${c.why}` +
       (c.callees ? ` -- ${[...new Set(c.callees.map((k) => k.diff).filter(Boolean))].map((x) => "`" + x + "`").join(", ")}` : ""));
     L.push("");
@@ -493,13 +580,13 @@ if (MD) {
     L.push("");
   }
   L.push(`## Work groups (${report.groups.length})`, "");
-  L.push("Each section: [re-read/check/skim/callee-changed].", "");
-  for (const g of report.groups) L.push(`- ${g.id} (weight ${g.weight}): ${g.units.map((u) => `${u.doc} § ${u.title} [${[...u.tiers, u.calleeChanged].join("/")}]`).join("; ")}`);
+  L.push("Each section: [re-read/check/skim/callee-changed/keyword].", "");
+  for (const g of report.groups) L.push(`- ${g.id} (weight ${g.weight}): ${g.units.map((u) => `${u.doc} § ${u.title} [${[...u.tiers, u.calleeChanged, u.keyword].join("/")}]`).join("; ")}`);
   fs.writeFileSync(MD, L.join("\n") + "\n");
 }
 const s = report.summary;
 console.error(`impact: ${s.changedDeclarations} declaration diffs (${s.changedLines} lines in ${s.hunks} hunks); ` +
   `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim} (${s.citations.respelled} only renamed); ` +
-  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}; ` +
+  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}; tier 4 keyword ${s.citations.keyword}; ` +
   `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor, ${plaintext.length} plain-text files; ` +
   `${report.groups.length} work groups` + (OUT ? ` -> ${OUT}` : ""));

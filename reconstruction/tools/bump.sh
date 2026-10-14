@@ -8,7 +8,9 @@
 #
 #   0. check that OLD is the release the committed maps describe
 #   1. structural fingerprint match between the two releases
-#   2. carry the inferred names across on structural identity, not on name
+#   2. carry the inferred names across on structural identity, not on name;
+#      a twin body (one signature, several declarations) by the in-order
+#      alignment of every top-level statement (align_releases.mjs)
 #   3. run the module gate on NEW and build NEW's own rename map, then list the
 #      first-party names that still need a subsystem
 #   4. pair the changed/added declarations so the delta is reviewable
@@ -18,7 +20,8 @@
 #      repository between the two release tags), and impact.md / impact.json:
 #      every doc citation of changed code by priority, what no doc covers yet,
 #      the candidates for each RE-ANCHOR name, ranked by callers, callees and
-#      strings (impact_report.mjs, anchor_candidates.mjs)
+#      strings (impact_report.mjs, anchor_candidates.mjs), and the literal delta
+#      of the four bundles rebuild.sh does not reconstruct (bundle_literals.mjs)
 #   6. hand off, printing the rest of the bump in the order the gates accept:
 #      record the inferred-name baseline, a check-mode rebuild.sh (with PKG, so
 #      the beautify-fidelity proof runs), retarget the docs against that run,
@@ -261,6 +264,14 @@ if git -C "$ROOT" rev-parse -q --verify "refs/tags/$COMMITTED_VERSION" >/dev/nul
 fi
 if [ "${#pt[@]}" -gt 0 ]; then node "$HERE/plaintext_delta.mjs" --out "$OUT/plaintext" "${pt[@]}"
 else echo "  skipped: needs PKG_OLD and PKG_NEW, or both release tags in this clone (git fetch upstream --tags)"; fi
+# the four bundles rebuild.sh does not reconstruct change too (v0.8.5: the
+# Feishu adapter's reactions and attachment zone); their literal delta is what
+# can be compared without names
+rm -rf "$OUT/literals"
+if [ -n "${PKG_OLD:-}" ] && [ -n "${PKG_NEW:-}" ]; then
+  echo "==== literal delta of the bundles outside the pipeline ===="
+  node --max-old-space-size=8192 "$HERE/bundle_literals.mjs" --old "$PKG_OLD" --new "$PKG_NEW" --out "$OUT/literals" "$DOCS"/*.md "$ROOT/CLAUDE.md" | sed 's/^/  /'
+fi
 echo "==== impact on the docs ===="
 node "$HERE/impact_report.mjs" --bump "$OUT" --old "$OLD" --new "$NEW" --maps "$MAPS" \
   --old-label "$COMMITTED_VERSION" --new-label "$NEW_LABEL" "$DOCS"/*.md "$ROOT/CLAUDE.md"
@@ -310,6 +321,9 @@ echo "     per section, then run the upgrade-docs workflow (.claude/workflows/up
 echo "     gives each agent its own sections and joins them back:"
 echo "     node $HERE/doc_sections.mjs split $OUT/chunks $DOCS/*.md $ROOT/CLAUDE.md"
 echo "     workflow args: {\"bump\": \"$OUT\", \"build\": \"$R\", \"pkg\": \"$P\", \"from\": \"$COMMITTED_VERSION\", \"to\": \"$V\"}"
+echo "  3c. after the last name_symbol.mjs of the bump, extend the release history from that run's"
+echo "     rename map, so the one PROMOTE below carries it into the first-party headers:"
+echo "     bash $HERE/history.sh --build $R --write"
 echo "  4. once the docs pass verify_citations and the line-anchor checks, promote. It runs every"
 echo "     gate against the candidate artifacts and writes nothing unless all of them pass:"
 echo "     PROMOTE=1 PKG=$P bash $HERE/rebuild.sh"

@@ -21,6 +21,9 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${OUT:-$HERE/../.build}"
+# node require()s the index files below by this path, which resolves a relative
+# one against the script, not the caller's directory
+OUT="$(cd "$OUT" 2>/dev/null && pwd)" || { echo "no directory ${OUT}: run rebuild.sh first"; exit 2; }
 ROOT="$HERE/.."
 MAPS="$ROOT/maps"
 DOCS="$ROOT/../docs"
