@@ -43,6 +43,11 @@
 //            merge answers {realName: {ordinal: name}} into LOCALS
 //   prune  TOP RENAME LOCALS
 //            drop the map entries that no longer locate their binding
+//   rekey  TOP RENAME LOCALS
+//            rewrite entries still keyed by the previous ctx scheme (ctx1,
+//            local_bindings.mjs) to the current one. apply resolves both, so
+//            this is housekeeping, not a precondition: it reports how many
+//            entries still use ctx1.
 import { parse } from "@babel/parser";
 import * as t from "@babel/types";
 import fs from "node:fs";
@@ -50,8 +55,8 @@ import path from "node:path";
 import { collectLocals } from "./local_bindings.mjs";
 
 const [CMD, TOP, RENAME, LOCALS, ...rest] = process.argv.slice(2);
-if (!["apply", "tasks", "record", "prune"].includes(CMD) || !TOP || !RENAME || !LOCALS) {
-  console.error("usage: node name_locals.mjs apply|tasks|record|prune <top.js> <rename.json> <locals.json> ...");
+if (!["apply", "tasks", "record", "prune", "rekey"].includes(CMD) || !TOP || !RENAME || !LOCALS) {
+  console.error("usage: node name_locals.mjs apply|tasks|record|prune|rekey <top.js> <rename.json> <locals.json> ...");
   process.exit(2);
 }
 
@@ -183,15 +188,32 @@ function assign(d, wants) {
   return { done, occOf };
 }
 
+// the binding a map entry names: by the current ctx, else by the previous
+// scheme (an entry written before it; `legacy`)
+const keysOf = new Map();
+function locate(d, m) {
+  if (!keysOf.has(d)) keysOf.set(d, {
+    v2: new Map(d.bindings.map(e => [`${e.ctx}/${e.occ}`, e])),
+    v1: new Map(d.bindings.map(e => [`${e.ctx1}/${e.occ1}`, e])),
+  });
+  const k = keysOf.get(d), key = `${m.ctx}/${m.occ}`;
+  if (k.v2.has(key)) return { e: k.v2.get(key), legacy: false };
+  if (k.v1.has(key)) return { e: k.v1.get(key), legacy: true };
+  return null;
+}
+let legacyCount = 0;
+
 function plan() {
   const all = [];
   const unresolved = [];
+  legacyCount = 0;
   for (const d of decls.values()) {
-    const byKey = new Map(d.bindings.map(e => [`${e.ctx}/${e.occ}`, e]));
     const wants = [];
     for (const m of localsMap[d.real] || []) {
-      const e = byKey.get(`${m.ctx}/${m.occ}`);
-      if (!e) { unresolved.push({ decl: d.real, ...m }); continue; }
+      const hit = locate(d, m);
+      if (!hit) { unresolved.push({ decl: d.real, ...m }); continue; }
+      const e = hit.e;
+      if (hit.legacy) legacyCount++;
       wants.push({ e, name: m.name, source: m.src || "map" });
     }
     for (const e of d.bindings) {
@@ -234,16 +256,21 @@ const writeJson = (f, o) => fs.writeFileSync(f, JSON.stringify(o, null, 2) + "\n
 // entries in the order of their bindings in the current code (an entry that no
 // longer finds its binding goes last); no ordinal or short name is stored,
 // because both change with every release while the entry stays valid
-const ordinalOf = (real, m) => decls.get(real)?.bindings.find(e => e.ctx === m.ctx && e.occ === m.occ)?.ordinal ?? Infinity;
+const ordinalOf = (real, m) => { const d = decls.get(real); return (d && locate(d, m)?.e.ordinal) ?? Infinity; };
 const sortMap = (m) => Object.fromEntries(Object.keys(m).sort().map(k => [k,
   m[k].map(x => ({ ctx: x.ctx, occ: x.occ, name: x.name, src: x.src })).sort((a, b) => ordinalOf(k, a) - ordinalOf(k, b) || a.ctx.localeCompare(b.ctx) || a.occ - b.occ)]));
 
 if (CMD === "apply") {
   const [OUT, APPLIED] = rest;
   const { all, unresolved } = plan();
-  let text = src;
+  // edits() is sorted by descending start and non-overlapping; join the pieces
+  // once instead of copying the whole bundle per edit (26k edits on 6 MB)
   const lines = src.split("\n").length;
-  for (const e of edits(all)) text = text.slice(0, e.start) + e.text + text.slice(e.end);
+  const parts = [];
+  let end = src.length;
+  for (const e of edits(all)) { parts.push(src.slice(e.end, end), e.text); end = e.start; }
+  parts.push(src.slice(0, end));
+  const text = parts.reverse().join("");
   if (text.split("\n").length !== lines) throw new Error("line count changed");
   fs.writeFileSync(OUT, text);
   const applied = {};
@@ -256,6 +283,7 @@ if (CMD === "apply") {
   stats.unnamed = stats.locals - stats.named;
   writeJson(APPLIED, { stats, unresolved, applied });
   console.log(`local names: ${stats.named} of ${stats.locals} locals in ${stats.declarations} declarations (${Object.entries(stats.bySource).map(([k, v]) => `${k} ${v}`).join(", ")}; ${stats.suffixed} suffixed)`);
+  if (legacyCount) console.log(`  ${legacyCount} entr${legacyCount === 1 ? "y" : "ies"} of ${LOCALS} still keyed by the previous ctx scheme (resolved; name_locals.mjs rekey rewrites them)`);
   if (unresolved.length) {
     console.log(`  ${unresolved.length} entr${unresolved.length === 1 ? "y" : "ies"} of ${LOCALS} no longer locate a binding (code next to it changed):`);
     for (const u of unresolved.slice(0, 20)) console.log(`    ${u.decl} ${u.name} (ctx ${u.ctx}/${u.occ}${u.why ? `, ${u.why}` : ""})`);
@@ -281,8 +309,11 @@ if (CMD === "apply") {
       for (const o of occOf.get(e.binding) || []) ed.push({ start: o.node.start, end: o.node.end, text: to });
     }
     ed.sort((a, b) => b.start - a.start);
-    let body = src.slice(d.start, d.end);
-    for (const x of ed) body = body.slice(0, x.start - d.start) + x.text + body.slice(x.end - d.start);
+    const parts = [];
+    let end = d.end;
+    for (const x of ed) { parts.push(src.slice(x.end, end), x.text); end = x.start; }
+    parts.push(src.slice(d.start, end));
+    const body = parts.reverse().join("");
     (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body });
   }
   for (const [dir, list] of Object.entries(groups)) {
@@ -304,7 +335,7 @@ if (CMD === "apply") {
         if (!e) { problems.push(`${f}: ${real} has no local #${ord}`); continue; }
         if (!validName(name)) { problems.push(`${f}: ${real} #${ord}: "${name}" is not a usable identifier`); continue; }
         const list = (localsMap[real] ??= []);
-        const i = list.findIndex(m => m.ctx === e.ctx && m.occ === e.occ);
+        const i = list.findIndex(m => locate(d, m)?.e === e);
         const entry = { ctx: e.ctx, occ: e.occ, name, src: "llm" };
         if (i >= 0) { list[i] = entry; replaced++; } else { list.push(entry); added++; }
       }
@@ -322,4 +353,16 @@ if (CMD === "apply") {
   }
   writeJson(LOCALS, sortMap(localsMap));
   console.log(`dropped ${drop.size} entries`);
+} else if (CMD === "rekey") {
+  let moved = 0, kept = 0, lost = 0;
+  for (const [real, list] of Object.entries(localsMap)) {
+    const d = decls.get(real);
+    for (const m of list) {
+      const hit = d && locate(d, m);
+      if (!hit) { lost++; continue; }
+      if (hit.legacy) { m.ctx = hit.e.ctx; m.occ = hit.e.occ; moved++; } else kept++;
+    }
+  }
+  writeJson(LOCALS, sortMap(localsMap));
+  console.log(`rekeyed ${moved} entries to the current ctx, ${kept} already current, ${lost} locate nothing (prune drops those) -> ${LOCALS}`);
 }

@@ -161,9 +161,15 @@ function stmtIndexOf(p) {
   if (!q || !q.parentPath) return -1;
   return q.key;
 }
+// the top-level declarator a node sits in, for a `var a, b, X = O(() => {...})`
+// statement. It must be the declarator whose declaration is a top-level
+// statement: stopping at the first declarator on the way up took a local
+// `let l = X_e(...)` inside a class method of initJobManagerModule, attributed
+// the reference to the statement's first binding, and lost it (v0.8.4: the job
+// workspace resolver had no first-party caller in the index).
 function ownerByDeclarator(p, owners) {
   let q = p;
-  while (q && !q.isVariableDeclarator()) {
+  while (q && !(q.isVariableDeclarator() && q.parentPath?.parentPath?.isProgram())) {
     if (q.parentPath && q.parentPath.isProgram()) break;
     q = q.parentPath;
   }

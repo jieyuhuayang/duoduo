@@ -228,6 +228,15 @@ const USAGE = "usage: node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] 
               "       node name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--historical <report.json>] [--dry-run] <bundle.js> --batch <list.tsv|list.json>";
 const [BUNDLE, ...rest] = argv;
 if (!BUNDLE || (BATCH ? rest.length : rest.length !== 3)) { console.error(USAGE); process.exit(2); }
+// an assertion is made per name, after reading that body: a batch marks each
+// entry (4th TSV column `allow-unproven`, or "allowUnproven": true). The flag
+// used to be accepted with --batch and ignored, so every entry was refused
+// with advice to pass the flag that had just been passed.
+if (BATCH && ALLOW_UNPROVEN) {
+  console.error("--allow-unproven applies to a single name; in a --batch list mark each entry you have read the body of:\n" +
+                "  TSV: short<TAB>realName<TAB>subsystem<TAB>allow-unproven     JSON: {\"short\", \"name\", \"subsystem\", \"allowUnproven\": true}");
+  process.exit(2);
+}
 
 // ---- the requested entries -------------------------------------------------
 let entries;
@@ -656,6 +665,10 @@ else {
     console.error(`  updated ${path.join(GEN, `rename_${B}.json`)} and symbols_${B}.json: the new names can be cited and checked now (check_docs.sh)`);
   }
   console.error("  next: rebuild.sh (PKG=...) regenerates recon/, first-party/ and the symbol index; PROMOTE=1 after review");
+  if (HAS_TREE) {
+    const dirs = [...new Set(planned.map((p) => p.subsystem).filter((x) => x && x !== "-"))].join(",");
+    console.error(`  the new declarations' locals are unnamed until named: after that rebuild, name_locals.mjs tasks <OUT>/daemon.recon.top.js <OUT>/rename_daemon.json maps/locals_daemon.json maps/subsys_daemon.json <dir> --only ${dirs}, then record`);
+  }
 }
 // the citation form, one per line on stdout
 for (const p of planned) console.log(`${p.name} (${p.short})`);

@@ -107,8 +107,12 @@ edits.sort((a, b) => b.start - a.start);
 for (let i = 1; i < edits.length; i++) {
   if (edits[i].end > edits[i - 1].start) { console.error(`overlapping edits at offset ${edits[i].start}`); process.exit(1); }
 }
-let out = src;
-for (const e of edits) out = out.slice(0, e.start) + e.text + out.slice(e.end);
+// join the pieces once: copying the 6 MB bundle per edit took most of this step
+const parts = [];
+let end = src.length;
+for (const e of edits) { parts.push(src.slice(e.end, end), e.text); end = e.start; }
+parts.push(src.slice(0, end));
+const out = parts.reverse().join("");
 fs.writeFileSync(OUT, out);
 
 const report = {

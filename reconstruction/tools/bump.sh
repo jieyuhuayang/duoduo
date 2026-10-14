@@ -8,7 +8,9 @@
 #
 #   0. check that OLD is the release the committed maps describe
 #   1. structural fingerprint match between the two releases
-#   2. carry the inferred names across on structural identity, not on name
+#   2. carry the inferred names across on structural identity, not on name;
+#      a twin body (one signature, several declarations) by the in-order
+#      alignment of every top-level statement (align_releases.mjs)
 #   3. run the module gate on NEW and build NEW's own rename map, then list the
 #      first-party names that still need a subsystem
 #   4. pair the changed/added declarations so the delta is reviewable
@@ -18,7 +20,8 @@
 #      repository between the two release tags), and impact.md / impact.json:
 #      every doc citation of changed code by priority, what no doc covers yet,
 #      the candidates for each RE-ANCHOR name, ranked by callers, callees and
-#      strings (impact_report.mjs, anchor_candidates.mjs)
+#      strings (impact_report.mjs, anchor_candidates.mjs), and the literal delta
+#      of the four bundles rebuild.sh does not reconstruct (bundle_literals.mjs)
 #   6. hand off, printing the rest of the bump in the order the gates accept:
 #      record the inferred-name baseline, a check-mode rebuild.sh (with PKG, so
 #      the beautify-fidelity proof runs), retarget the docs against that run,
@@ -154,7 +157,7 @@ for name in "${NAMES[@]}"; do
   echo "==== $name ===="
   # a previous run into the same $OUT must not leave diffs or carried names
   # behind for impact_report.mjs to read as this run's
-  rm -rf "$OUT/diff/$name" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/inferred_$name.json"
+  rm -rf "$OUT/diff/$name" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/align_$name.json" "$OUT/inferred_$name.json"
   if cmp -s "$OLD/$name.pretty.js" "$NEW/$name.pretty.js"; then
     echo "  unchanged between releases (byte-identical) — nothing to re-derive"
     continue
@@ -173,13 +176,18 @@ for name in "${NAMES[@]}"; do
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json"
   node --max-old-space-size=8192 "$HERE/pair_releases.mjs" \
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/fp_$name.json" "$OUT/pairs_$name.json" "$OUT/pairing_$name.json"
+  # every top-level statement aligned in order: settles twin bodies by their
+  # neighbours (remap_inferred --align) and retarget_snippets reads it to
+  # rewrite snippets of declarations whose text did not change
+  node --max-old-space-size=8192 "$HERE/align_releases.mjs" \
+    "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/align_$name.json"
 
   INF="$MAPS/inferred_$name.json"
   NEW_INF="$OUT/inferred_$name.json"
   rm -f "$NEW_INF"
   if [ -f "$INF" ]; then
     echo "-- carry inferred names across the bump"
-    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
+    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" --align "$OUT/align_$name.json" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
     echo "   review $NEW_INF (and the PROPOSED entries in $OUT/inferred_$name.proposed.json), then, as the LAST step of the review: cp $NEW_INF $INF"
     echo "   (afterwards bump.sh refuses to run again until $INF is restored from origin/main)"
   fi
@@ -256,6 +264,14 @@ if git -C "$ROOT" rev-parse -q --verify "refs/tags/$COMMITTED_VERSION" >/dev/nul
 fi
 if [ "${#pt[@]}" -gt 0 ]; then node "$HERE/plaintext_delta.mjs" --out "$OUT/plaintext" "${pt[@]}"
 else echo "  skipped: needs PKG_OLD and PKG_NEW, or both release tags in this clone (git fetch upstream --tags)"; fi
+# the four bundles rebuild.sh does not reconstruct change too (v0.8.5: the
+# Feishu adapter's reactions and attachment zone); their literal delta is what
+# can be compared without names
+rm -rf "$OUT/literals"
+if [ -n "${PKG_OLD:-}" ] && [ -n "${PKG_NEW:-}" ]; then
+  echo "==== literal delta of the bundles outside the pipeline ===="
+  node --max-old-space-size=8192 "$HERE/bundle_literals.mjs" --old "$PKG_OLD" --new "$PKG_NEW" --out "$OUT/literals" "$DOCS"/*.md "$ROOT/CLAUDE.md" | sed 's/^/  /'
+fi
 echo "==== impact on the docs ===="
 node "$HERE/impact_report.mjs" --bump "$OUT" --old "$OLD" --new "$NEW" --maps "$MAPS" \
   --old-label "$COMMITTED_VERSION" --new-label "$NEW_LABEL" "$DOCS"/*.md "$ROOT/CLAUDE.md"
@@ -292,18 +308,22 @@ else
 fi
 echo "     node $HERE/retarget_symbols.mjs --bundle daemon $MAPS/rename_daemon.json $R/rename_daemon.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/retarget_symbols.mjs --bundle cli $MAPS/rename_cli.json $R/rename_cli.json $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
-echo "     node $HERE/retarget_snippets.mjs --index $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fp daemon=$OUT/fp_daemon.json --fp cli=$OUT/fp_cli.json --rename daemon=$MAPS/rename_daemon.json,$R/rename_daemon.json --rename cli=$MAPS/rename_cli.json,$R/rename_cli.json --report $OUT/snippets.json --write $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
+echo "     node $HERE/retarget_snippets.mjs --index $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fp daemon=$OUT/fp_daemon.json --fp cli=$OUT/fp_cli.json --rename daemon=$MAPS/rename_daemon.json,$R/rename_daemon.json --rename cli=$MAPS/rename_cli.json,$R/rename_cli.json --old daemon=$OLD/daemon.pretty.js,$MAPS/symbols_daemon.json --old cli=$OLD/cli.pretty.js,$MAPS/symbols_cli.json --report $OUT/snippets.json --write $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     node $HERE/verify_citations.mjs $R/symbols_daemon.json,$R/symbols_cli.json --bundle daemon=$R/beautified/$V/daemon.pretty.js --bundle cli=$R/beautified/$V/cli.pretty.js --fix $DOCS/*.md $DOCS/../CLAUDE.md $HERE/../*.md"
 echo "     (each retarget_symbols run moves only the pairs its old map vouches for, and lists the"
-echo "     one-identifier spans it left for you to decide; retarget_snippets re-derives a stale"
-echo "     name-bound snippet only on a unique match that check_bare_anchors' rule accepts, and"
-echo "     lists the rest in snippets.json: those quote code that changed, so re-read them)"
+echo "     one-identifier spans it left for you to decide; retarget_snippets rewrites a snippet of an"
+echo "     unchanged declaration token for token from the old release (--old), re-derives the others"
+echo "     only on a unique match that check_bare_anchors' rule accepts, and lists the rest in"
+echo "     snippets.json: those quote code that changed, so re-read them)"
 echo "  3b. bring what the release changed in substance into the docs: impact.md's citations by"
 echo "     priority, its plain-text delta and what no doc covers yet. Split the docs into one file"
 echo "     per section, then run the upgrade-docs workflow (.claude/workflows/upgrade-docs.js), which"
 echo "     gives each agent its own sections and joins them back:"
 echo "     node $HERE/doc_sections.mjs split $OUT/chunks $DOCS/*.md $ROOT/CLAUDE.md"
 echo "     workflow args: {\"bump\": \"$OUT\", \"build\": \"$R\", \"pkg\": \"$P\", \"from\": \"$COMMITTED_VERSION\", \"to\": \"$V\"}"
+echo "  3c. after the last name_symbol.mjs of the bump, extend the release history from that run's"
+echo "     rename map, so the one PROMOTE below carries it into the first-party headers:"
+echo "     bash $HERE/history.sh --build $R --write"
 echo "  4. once the docs pass verify_citations and the line-anchor checks, promote. It runs every"
 echo "     gate against the candidate artifacts and writes nothing unless all of them pass:"
 echo "     PROMOTE=1 PKG=$P bash $HERE/rebuild.sh"

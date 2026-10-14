@@ -169,8 +169,10 @@ var __duoTrace = (() => {
 // applied from the end; at the same offset (an empty body `{}`) the closing
 // text must be inserted first so the opening text lands before it
 splices.sort((a, b) => b.at - a.at || (a.close ? -1 : 1) - (b.close ? -1 : 1));
-let out = src;
-for (const s of splices) out = out.slice(0, s.at) + s.text + out.slice(s.at);
-out = prelude + out;
+const parts = [];
+let end = src.length;
+for (const s of splices) { parts.push(src.slice(s.at, end), s.text); end = s.at; }
+parts.push(src.slice(0, end), prelude);
+const out = parts.reverse().join("");
 fs.writeFileSync(OUT, out);
 console.log(`instrumented ${wrapped} function bodies (${ALL ? "all top-level" : "first-party"}${INNER ? " + inner" : ""}) -> ${OUT}`);
