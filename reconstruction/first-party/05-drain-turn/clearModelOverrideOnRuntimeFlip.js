@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: clearModelOverrideOnRuntimeFlip  (minified: lht, daemon.pretty.js:72595)
+// symbol: clearModelOverrideOnRuntimeFlip  (minified: dht, daemon.pretty.js:72596)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 7 renamed — 3 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

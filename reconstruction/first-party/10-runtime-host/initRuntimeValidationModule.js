@@ -7,13 +7,13 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Lm, AR, xb, hae, initRuntimeValidationModule = O(() => {
+var jm, AR, xb, gae, initRuntimeValidationModule = O(() => {
     "use strict";
     hs();
-    Lm = mR, AR = hR;
+    jm = mR, AR = hR;
     xb = class extends Error {
         constructor(message) {
             super(message), this.name = "InvalidRuntimeError"
         }
-    }, hae = values => values.map(value => `"${value}"`).join(", ")
+    }, gae = values => values.map(value => `"${value}"`).join(", ")
 });

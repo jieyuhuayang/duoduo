@@ -8,7 +8,7 @@
 
 async function readStatus(paths) {
     try {
-        let content = await RYe.readFile(statusPath(paths), "utf8");
+        let content = await PYe.readFile(statusPath(paths), "utf8");
         return JSON.parse(content)
     } catch {
         return null

@@ -15,7 +15,7 @@ async function readChannelDescriptor(paths, channelId) {
     }
     let content;
     try {
-        content = await oh.readFile(descriptorPath, "utf8")
+        content = await ih.readFile(descriptorPath, "utf8")
     } catch {
         return null
     }
@@ -26,7 +26,7 @@ async function readChannelDescriptor(paths, channelId) {
     if (!ZU(fm, channelId)) return null;
     let frontMatter = fm,
         channelConfigFields = parseChannelConfigFields(frontMatter),
-        extraFields = yce(frontMatter);
+        extraFields = _ce(frontMatter);
     return {
         schema_version: fm.schema_version,
         revision: fm.revision,

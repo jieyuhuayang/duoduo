@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAladuoMcpServer  (minified: by, daemon.pretty.js:80220)
+// symbol: createAladuoMcpServer  (minified: by, daemon.pretty.js:80266)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.0, v0.4.4, v0.5.2, v0.5.4, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 12 renamed — 0 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -63,8 +63,8 @@ function createAladuoMcpServer(paths, options = {}) {
                 getSessionStatus: options.getSessionStatus
             })
         }]
-    })), options.sessionContextKind === "foreground" && (server.registerTool(ip, {
-        title: ip,
+    })), options.sessionContextKind === "foreground" && (server.registerTool(rp, {
+        title: rp,
         description: wA,
         inputSchema: SA,
         _meta: toolMeta

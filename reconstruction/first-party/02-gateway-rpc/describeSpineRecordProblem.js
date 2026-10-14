@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function describeSpineRecordProblem(params) {
-    return isRecord(params) ? unknownKeyProblem(params, kb["spine.record"]) ?? textKeysProblem(params, ["source", "conversation"], ["dedup_key"]) ?? (sae.test(params.source) ? null : `"source" must be lowercase letters, digits and '-', starting with a letter`) ?? describeConversationProblem("conversation", params.conversation) ?? (isRecord(params.payload) ? null : '"payload" must be one JSON object') : "params must be one JSON object"
+    return isRecord(params) ? unknownKeyProblem(params, kb["spine.record"]) ?? textKeysProblem(params, ["source", "conversation"], ["dedup_key"]) ?? (aae.test(params.source) ? null : `"source" must be lowercase letters, digits and '-', starting with a letter`) ?? describeConversationProblem("conversation", params.conversation) ?? (isRecord(params.payload) ? null : '"payload" must be one JSON object') : "params must be one JSON object"
 }

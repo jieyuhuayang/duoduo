@@ -10,5 +10,5 @@
 function parsePositiveMsEnv(rawValue, fallback) {
     if (rawValue === void 0) return fallback;
     let parsed = Number(rawValue);
-    return Number.isInteger(parsed) && parsed >= 1 && parsed <= Sot ? parsed : fallback
+    return Number.isInteger(parsed) && parsed >= 1 && parsed <= Eot ? parsed : fallback
 }

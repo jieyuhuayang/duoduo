@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: countCompactGapIntervals  (minified: Axe, daemon.pretty.js:72356)
+// symbol: countCompactGapIntervals  (minified: Mxe, daemon.pretty.js:72357)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 15 renamed — 1 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -22,7 +22,7 @@ async function countCompactGapIntervals(paths, sessionKey, since) {
         gapsFiveMinToHour = 0;
     for (let i = 1; i < startTimes.length; i++) {
         let gapMs = startTimes[i] - startTimes[i - 1];
-        gapMs > iht ? gapsOverHour += 1 : gapMs >= oht && (gapsFiveMinToHour += 1)
+        gapMs > sht ? gapsOverHour += 1 : gapMs >= aht && (gapsFiveMinToHour += 1)
     }
     return {
         g_gt1h_since_prev_compact: gapsOverHour,

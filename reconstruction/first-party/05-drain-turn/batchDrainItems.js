@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: batchDrainItems  (minified: jW, daemon.pretty.js:72109)
+// symbol: batchDrainItems  (minified: LW, daemon.pretty.js:72110)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.5, v0.8.0, v0.8.1 (maps/history_daemon.json)
 // locals: 12 renamed — 2 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -15,8 +15,8 @@ async function batchDrainItems(paths, items, options) {
         batch = [],
         lastTs = null,
         timestampsKnown = !0,
-        batchClass = CW,
-        maxBatchSize = () => Zmt(batchClass) ? Number.POSITIVE_INFINITY : options.fallbackBatchSize;
+        batchClass = OW,
+        maxBatchSize = () => Ymt(batchClass) ? Number.POSITIVE_INFINITY : options.fallbackBatchSize;
     for (let item of items) {
         if (batch.length >= maxBatchSize()) break;
         let drainItemEvent = await loadDrainItemEventCached(paths, item, map, options.perf);

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: normalizeReturnMask  (minified: CG, daemon.pretty.js:90618)
+// symbol: normalizeReturnMask  (minified: OG, daemon.pretty.js:90664)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.3 (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

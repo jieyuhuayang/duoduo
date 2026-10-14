@@ -223,7 +223,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 每个符号还记录 `inner`：声明内部的具名闭包及其行号，名字写成 `外层>名字`，与插桩 trace 里的名字相同（两者共用 `closure_names.mjs`），所以 `createDaemon` 这样的工厂函数也有一份可读的提纲。`symbol_card.mjs` 把这些加上子系统、名字来源、首见版本与 CHANGELOG 条目、文档引用位置，打印成一张卡片，也接受 `env:`、`log:`、`dotted:`、`path:`、`string:` 的反向查询；`doc_coverage.mjs` 列出每个子系统里没有任何文档引用的符号和每节引用的不同符号数，让分析投入有依据。索引随每次运行生成，经 PROMOTE 提交为 `maps/xref_<bundle>.json`。
 
-**发行历史给每个符号一个首见版本，上游的 CHANGELOG 由此成为第五类证据。** `@openduo/duoduo` 在 npm 上有 49 个正式发行版，从 0.2.0 到 0.8.4，每版的 `CHANGELOG.md` 条目由作者写成。`tools/history.sh` 取回每个发行版的 `daemon.js`，用锁定版本的 js-beautify 美化，再对相邻版本做三层配对。第一层 `fingerprint_match.mjs` 按结构签名找函数体完全相同的声明；第二层 `pair_changes.mjs` 把改动过的声明按它在两个相邻的相同声明之间的位置配对；第三层在前两层都没有结果时使用：`decl_features.mjs` 提取压缩器改不了的特征（属性名、字符串、数字、全局名、参数个数、在 bundle 里的位置），`release_pairing.mjs` 在相邻相同声明划出的窗口里按这些特征的加权 Jaccard 取领先的候选，函数体大幅增长时改用重合系数。
+**发行历史给每个符号一个首见版本，上游的 CHANGELOG 由此成为第五类证据。** `@openduo/duoduo` 在 npm 上有 50 个正式发行版，从 0.2.0 到 0.8.5，每版的 `CHANGELOG.md` 条目由作者写成。`tools/history.sh` 取回每个发行版的 `daemon.js`，用锁定版本的 js-beautify 美化，再对相邻版本做三层配对。第一层 `fingerprint_match.mjs` 按结构签名找函数体完全相同的声明；第二层 `pair_changes.mjs` 把改动过的声明按它在两个相邻的相同声明之间的位置配对；第三层在前两层都没有结果时使用：`decl_features.mjs` 提取压缩器改不了的特征（属性名、字符串、数字、全局名、参数个数、在 bundle 里的位置），`release_pairing.mjs` 在相邻相同声明划出的窗口里按这些特征的加权 Jaccard 取领先的候选，函数体大幅增长时改用重合系数。
 
 `history_chain.mjs` 用这三层配对从当前版本的每个符号出发逐版本回溯（`bump.sh` 调用的 `pair_releases.mjs` 用的是同一份实现），回溯停住的版本记为首见版本，每一步靠位置或相似配对的版本记为改动版本；特征太少的声明（未初始化的 `var`、`e => X.includes(e)` 这样的单行谓词）无法跟随，记为 `untraceable` 而不是记成当前版本新增。最近一步可以独立核对：v0.8.3 的改名表是升级时人工承接的，与回溯结果重合的 125 个符号全部一致，没有一个不一致。已知的误差是被大幅重写、或从别的函数里抽出成为独立函数的声明，回溯在重写处停住，首见版本偏晚。
 

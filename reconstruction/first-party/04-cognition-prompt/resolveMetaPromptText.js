@@ -12,7 +12,7 @@ function resolveMetaPromptText() {
         candidatePaths = [optionalEnvString, optionalEnvString2 ? mV.join(optionalEnvString2, "meta-prompt.md") : void 0].filter(candidate => !!candidate);
     for (let candidatePath of candidatePaths) try {
         if (!pV(candidatePath)) continue;
-        let trimmed = Gge(candidatePath, "utf8").trim();
+        let trimmed = Zge(candidatePath, "utf8").trim();
         if (trimmed.length > 0) return trimmed
     } catch {}
 }

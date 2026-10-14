@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: initGrokAcpRuntimeModule  (minified: Og, daemon.pretty.js:63995)
+// symbol: initGrokAcpRuntimeModule  (minified: Og, daemon.pretty.js:63996)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 13 renamed — 1 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,21 +7,21 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var O6, A6, Mut, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, C6, initGrokAcpRuntimeModule = O(() => {
+var A6, N6, Lut, GROK_DISALLOWED_TOOLS, GROK_AGENT_PROFILE, GROK_ACP_EXT_PREFIX, GROK_ACP_SDK_CALL, GROK_ACP_COMPACT, GROK_MCP_SDK_META, GROK_MCP_SERVERS_META, GROK_MCP_SERVER_NAME, O6, initGrokAcpRuntimeModule = O(() => {
     "use strict";
     Ql();
     initLogLevelModule();
     initAgentSdkAdapterModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    Mut = 5e3;
+    Lut = 5e3;
     GROK_DISALLOWED_TOOLS = ["scheduler_create", "scheduler_list", "scheduler_delete", "monitor", "workflow", "update_goal"], GROK_AGENT_PROFILE = {
         name: "duoduo",
         description: "duoduo session",
         disallowedTools: [...GROK_DISALLOWED_TOOLS]
     }, GROK_ACP_EXT_PREFIX = "_x.ai";
     GROK_ACP_SDK_CALL = grokAcpExtMethod("mcp/sdk_call"), GROK_ACP_COMPACT = grokAcpExtMethod("compact_conversation"), GROK_MCP_SDK_META = "x.ai/mcp/sdk", GROK_MCP_SERVERS_META = "x.ai/mcp/servers", GROK_MCP_SERVER_NAME = "aladuo";
-    C6 = class {
+    O6 = class {
         onmessage;
         onclose;
         onerror;

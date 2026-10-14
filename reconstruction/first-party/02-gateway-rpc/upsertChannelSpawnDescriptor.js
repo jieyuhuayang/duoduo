@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: upsertChannelSpawnDescriptor  (minified: yvt, daemon.pretty.js:91873)
+// symbol: upsertChannelSpawnDescriptor  (minified: wvt, daemon.pretty.js:91919)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.7.0, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 20 renamed — 5 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -41,9 +41,9 @@ async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
         ok: !1,
         reason: "runtime is required on first-time channel.spawn (no prior descriptor to inherit from)."
     };
-    if (!gIe.includes(runtime)) return {
+    if (!bIe.includes(runtime)) return {
         ok: !1,
-        reason: `Unsupported runtime "${runtime}". Must be one of: ${gIe.join(", ")}.`
+        reason: `Unsupported runtime "${runtime}". Must be one of: ${bIe.join(", ")}.`
     };
     if (channelDescriptor && runtime !== channelDescriptor.runtime) {
         let conflict = await checkChannelRuntimeRebindConflict(paths, sessionIndex, trimmed, runtime);
@@ -71,7 +71,7 @@ async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
         boundBy = params.bound_by?.trim() || channelDescriptor?.bound_by,
         boundAt = new Date().toISOString();
     try {
-        await xce(paths, {
+        await Ece(paths, {
             channel_id: trimmed,
             channel_kind: channelKind,
             display_name: displayName,

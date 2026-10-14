@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: resolveSessionMailboxPendingDir  (minified: Zd, daemon.pretty.js:32392)
+// symbol: resolveSessionMailboxPendingDir  (minified: Gd, daemon.pretty.js:32392)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: handlePiToolEndObservation  (minified: hEe, daemon.pretty.js:73657)
+// symbol: handlePiToolEndObservation  (minified: _Ee, daemon.pretty.js:73658)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 1 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -20,7 +20,7 @@ async function handlePiToolEndObservation(paths, sessionKey, toolEnd) {
             });
             return
         }
-        if (toolEnd.tool_name === ip) {
+        if (toolEnd.tool_name === rp) {
             let piToolResultDetails = parsePiToolResultDetails(toolEnd.result_json),
                 attachmentPath = piToolResultDetails?.path;
             if (typeof attachmentPath != "string" || attachmentPath.trim().length === 0) return;

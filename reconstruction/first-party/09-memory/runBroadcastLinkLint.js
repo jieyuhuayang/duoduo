@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBroadcastLinkLint  (minified: RSe, daemon.pretty.js:68519)
+// symbol: runBroadcastLinkLint  (minified: PSe, daemon.pretty.js:68520)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ function runBroadcastLinkLint(memoryDir) {
         selected: [],
         brokenLinks: []
     };
-    let brokenLinks = extractBoardSlugLinks(memoryFile).filter(link => !bft(memoryDirs, link.slug));
+    let brokenLinks = extractBoardSlugLinks(memoryFile).filter(link => !wft(memoryDirs, link.slug));
     return brokenLinks.length === 0 ? {
         selected: [],
         brokenLinks
@@ -21,9 +21,9 @@ function runBroadcastLinkLint(memoryDir) {
         brokenLinks,
         selected: [{
             kind: Vn.CLAUDE_LINT,
-            partition: hft,
+            partition: yft,
             pendingFilename: "claude-lint.md.pending",
-            pendingBody: Sft(memoryDirs.boardPath, brokenLinks)
+            pendingBody: xft(memoryDirs.boardPath, brokenLinks)
         }]
     }
 }

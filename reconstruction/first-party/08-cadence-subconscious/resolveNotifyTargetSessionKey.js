@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: resolveNotifyTargetSessionKey  (minified: Ylt, daemon.pretty.js:65437)
+// symbol: resolveNotifyTargetSessionKey  (minified: Qlt, daemon.pretty.js:65438)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.0, v0.5.0, v0.6.2 (maps/history_daemon.json)
 // locals: 20 renamed — 2 from the code at the binding (rule), 18 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,15 +12,15 @@ async function resolveNotifyTargetSessionKey(paths, target) {
         allSessionStateFiles = await readAllSessionStateFiles(paths),
         keys = Object.keys(allSessionStateFiles);
     if (!trimmed) {
-        let sessionDetails = await tve(paths, keys),
-            displayNames = await nve(paths, keys, sessionDetails),
+        let sessionDetails = await ive(paths, keys),
+            displayNames = await ove(paths, keys, sessionDetails),
             groups = groupNotifyTargetCandidates(void 0, allSessionStateFiles, displayNames, sessionDetails);
         throw new Error(["target_session_key is required in this session.", "The target must be a foreground working session.", ...renderNotifyTargetCandidateLines(groups)].join(`
 `))
     }
     if (trimmed in allSessionStateFiles) return trimmed;
-    let sessionDetails = await tve(paths, keys),
-        displayNames = await nve(paths, keys, sessionDetails),
+    let sessionDetails = await ive(paths, keys),
+        displayNames = await ove(paths, keys, sessionDetails),
         aliasMatches = [...displayNames.entries()].filter(([, displayName]) => displayName === trimmed).map(([sessionKey]) => sessionKey);
     if (aliasMatches.length === 1) return aliasMatches[0];
     if (aliasMatches.length > 1) {

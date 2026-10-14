@@ -14,7 +14,7 @@ async function renderSessionMailboxFile(paths, sessionKey, items) {
     let sessionMailboxNotesPath = resolveSessionMailboxNotesPath(paths, sessionKey);
     try {
         let noteLines = (await wr.readFile(sessionMailboxNotesPath, "utf8")).trim().split(`
-`).filter(Boolean).slice(-uYe);
+`).filter(Boolean).slice(-dYe);
         for (let noteLine of noteLines) try {
             let parsed = JSON.parse(noteLine);
             lines.push(`- ${parsed.ts} ${parsed.note}`)

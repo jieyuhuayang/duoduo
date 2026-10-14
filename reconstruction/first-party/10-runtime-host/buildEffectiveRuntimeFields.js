@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: buildEffectiveRuntimeFields  (minified: fct, daemon.pretty.js:65708)
+// symbol: buildEffectiveRuntimeFields  (minified: mct, daemon.pretty.js:65709)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

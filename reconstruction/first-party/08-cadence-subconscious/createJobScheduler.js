@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createJobScheduler  (minified: Nbt, daemon.pretty.js:87008)
+// symbol: createJobScheduler  (minified: Lbt, daemon.pretty.js:87054)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 14 renamed — 5 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ function createJobScheduler(options) {
         paths,
         sessionManager,
         bus
-    } = options, intervalMs = options.intervalMs ?? Abt, intervalTimer = null, scanning = !1, scanPromise = null, stopped = !1;
+    } = options, intervalMs = options.intervalMs ?? jbt, intervalTimer = null, scanning = !1, scanPromise = null, stopped = !1;
     async function runScan() {
         if (scanning || stopped) {
             scanning && logDebugMessage("[job-scheduler] scan skipped: previous scan still running");

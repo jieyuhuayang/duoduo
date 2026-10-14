@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: createDaemon  (minified: Svt, daemon.pretty.js:92035)
+// symbol: createDaemon  (minified: Rvt, daemon.pretty.js:92081)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10, v0.3.0, v0.3.2, v0.3.3, v0.3.4, v0.3.6, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.4, v0.5.0, v0.5.4, v0.5.5, v0.5.6, v0.5.8, v0.5.10, v0.6.0, v0.7.0, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 257 renamed — 72 from the code at the binding (rule), 185 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -42,7 +42,7 @@ Content-Length: 0\r
         } = options,
         jobStore = new Br(paths),
         sessionIndex = options.sessionIndex ?? createEmptySessionIndex();
-    bce((sessionKey, changeKind) => {
+    vce((sessionKey, changeKind) => {
         if (changeKind === "removed") {
             sessionIndex.remove(sessionKey);
             return
@@ -53,11 +53,11 @@ Content-Length: 0\r
                 replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta)
             } catch {}
         }).catch(() => {})
-    }), Rae(sessionKey => {
+    }), Iae(sessionKey => {
         sessionIndex.remove(sessionKey)
     });
     let runtimeInfo = {
-            version: jbt(import.meta.url)("../../package.json").version,
+            version: Ubt(import.meta.url)("../../package.json").version,
             runtime_id: computeRuntimeId(paths.runtimeDir),
             runtime_mode: "host",
             runtime_dir: so.resolve(paths.runtimeDir),
@@ -89,13 +89,13 @@ Content-Length: 0\r
                 worker_token: workerToken,
                 ...restParams
             } = request.params;
-            if (piWorkerContext = iye(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
+            if (piWorkerContext = oye(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
                 method: request.method
             }), response.error = {
                 code: -32001,
                 message: "invalid pi worker token"
             }, response;
-            if (!rye.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
+            if (!iye.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
                 method: request.method,
                 session_key: piWorkerContext.session_key
             }), response.error = {
@@ -425,8 +425,8 @@ Content-Length: 0\r
                     channelKind = colonIndex > 0 ? params.session_key.slice(0, colonIndex) : null,
                     outboxRecord = null;
                 if (channelKind && (outboxRecord = await readOutboxRecord(paths, channelKind, trimmed2)), !outboxRecord || outboxRecord.session_key !== params.session_key) {
-                    let fallbackCursorRecord = await $ce(paths, params.session_key, trimmed2);
-                    return fallbackCursorRecord ? (await L6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
+                    let fallbackCursorRecord = await Cce(paths, params.session_key, trimmed2);
+                    return fallbackCursorRecord ? (await F6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
                         session_key: params.session_key,
                         consumer_id: trimmed,
                         committed_cursor: fallbackCursorRecord.id,
@@ -440,7 +440,7 @@ Content-Length: 0\r
                 if (!outboxByIdIndexEntry) try {
                     await backfillOutboxByIdIndexFromReplay(paths, params.session_key), outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, trimmed2)
                 } catch {}
-                outboxByIdIndexEntry ? await Fbe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await L6(paths, params.session_key, trimmed, outboxRecord), response.result = {
+                outboxByIdIndexEntry ? await qbe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await F6(paths, params.session_key, trimmed, outboxRecord), response.result = {
                     session_key: params.session_key,
                     consumer_id: trimmed,
                     committed_cursor: outboxRecord.id,
@@ -490,7 +490,7 @@ Content-Length: 0\r
                     kind: "active"
                 };
                 else if (jobClassification.kind === "invalid") response.error = {
-                    code: jm.INVALID_ACTIVE,
+                    code: Mm.INVALID_ACTIVE,
                     message: `Job '${params.id}' active job file exists but is invalid: ${jobClassification.reason}`
                 };
                 else {
@@ -500,14 +500,14 @@ Content-Length: 0\r
                         kind: "archived",
                         archived: !0
                     } : response.error = {
-                        code: jm.NOT_FOUND,
+                        code: Mm.NOT_FOUND,
                         message: "Job not found"
                     }
                 }
             } else if (request.method === "job.list") {
                 if (!isJobListParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 await jobStore.init();
-                let jobs = ibe(await jobStore.listJobs()).map(job => ({
+                let jobs = abe(await jobStore.listJobs()).map(job => ({
                         type: "job",
                         ...job
                     })),
@@ -566,7 +566,7 @@ Content-Length: 0\r
                 await jobStore.init();
                 let job = await jobStore.getJob(params.id) ?? await jobStore.getArchivedJob(params.id);
                 if (!job) response.error = {
-                    code: jm.NOT_FOUND,
+                    code: Mm.NOT_FOUND,
                     message: `Job '${params.id}' not found`
                 };
                 else if (!options.sessionManager) response.error = {
@@ -745,7 +745,7 @@ Content-Length: 0\r
         }
         hostGuard && app.addHook("onRequest", async (request, reply) => {
             let url = request.routeOptions.url;
-            if (url !== void 0 && Ubt.has(url)) return;
+            if (url !== void 0 && Hbt.has(url)) return;
             let requestUrl = request.url ?? "",
                 host = request.headers.host,
                 hostname = host ? parseHostHeaderHostname(host) : null;
@@ -768,7 +768,7 @@ Content-Length: 0\r
             error: "upgrade_required",
             message: "This TCP port serves the daemon's read-only HTTP surface; it has no WebSocket endpoint and rejects all write methods. Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead. If a channel gateway is stuck retrying this port, reinstall/upgrade the channel and restart it (`duoduo channel <kind> stop`, then `start`) so it picks up the socket transport.",
             socket_path: paths.daemonSocketPath
-        }))) : app.register(vIe.default), app.get("/healthz", async () => bde()), app.get("/dashboard", async (request, reply) => {
+        }))) : app.register(kIe.default), app.get("/healthz", async () => vde()), app.get("/dashboard", async (request, reply) => {
             let dashboardPath = so.join(paths.bootstrapDir, "dashboard.html");
             try {
                 let content = await zs.readFile(dashboardPath, "utf8");
@@ -785,7 +785,7 @@ Content-Length: 0\r
             if (!isJsonRpcRequest(body)) return logWarnMessage("[daemon] invalid JSON-RPC request"), reply.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
-            if (readOnly && !zbt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
+            if (readOnly && !Vbt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
                 method: body.method,
                 id: body.id ?? null
             }), reply.code(200).send({

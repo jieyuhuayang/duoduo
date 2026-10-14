@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function statusPath(paths) {
-    return Lae.join(paths.registryDir, "status.json")
+    return Fae.join(paths.registryDir, "status.json")
 }

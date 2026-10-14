@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function hashSessionKey(sessionKey) {
-    return tYe.createHash("sha256").update(sessionKey).digest("hex")
+    return iYe.createHash("sha256").update(sessionKey).digest("hex")
 }

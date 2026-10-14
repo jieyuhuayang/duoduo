@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderPromptLayers  (minified: tye, daemon.pretty.js:55409)
+// symbol: renderPromptLayers  (minified: nye, daemon.pretty.js:55409)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 12 renamed — 2 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,11 +19,11 @@ The channel through which this session receives and delivers messages, and the r
         boardSection;
     if (board && board.content.trim().length > 0) {
         let trimmed = board.content.trim();
-        boardSection = mot.test(trimmed) ? `${Hge}
+        boardSection = yot.test(trimmed) ? `${Wge}
 
 ${trimmed}
 
-${pot}` : `${Hge}
+${got}` : `${Wge}
 
 ${trimmed}`
     }

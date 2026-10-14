@@ -21,7 +21,7 @@ async function listAllOutboxRecords(paths) {
         } catch {
             continue
         }
-        let channelRecords = await Pce(paths, channelKind);
+        let channelRecords = await $ce(paths, channelKind);
         records.push(...channelRecords)
     }
     return records

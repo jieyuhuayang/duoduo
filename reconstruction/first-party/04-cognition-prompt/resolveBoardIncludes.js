@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: resolveBoardIncludes  (minified: jRe, daemon.pretty.js:82514)
+// symbol: resolveBoardIncludes  (minified: zRe, daemon.pretty.js:82560)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 14 renamed — 4 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,15 +8,15 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function resolveBoardIncludes(filePath, visited, depth = 0, parentPath) {
-    if (depth >= Z_t) return [];
+    if (depth >= Q_t) return [];
     let resolvedPath = ba.resolve(filePath),
         includePathKey = normalizeIncludePathKey(resolvedPath);
     if (visited.has(includePathKey)) return [];
     let extension = ba.extname(resolvedPath).toLowerCase();
-    if (extension && !K_t.has(extension)) return [];
+    if (extension && !ebt.has(extension)) return [];
     let realPath = await realpathOrSelf(resolvedPath);
     visited.add(includePathKey), visited.add(normalizeIncludePathKey(realPath));
-    let rawContent = await Q_t(resolvedPath);
+    let rawContent = await rbt(resolvedPath);
     if (rawContent === void 0) return [];
     let {
         content,

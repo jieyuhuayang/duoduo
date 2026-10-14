@@ -11,7 +11,7 @@ async function writeFileAtomic(filePath, data, options = {}) {
     await MR.mkdir(dir, {
         recursive: !0
     });
-    let tempName = `.${cU.basename(filePath)}.${process.pid}.${Date.now()}.${M8e.randomUUID()}.tmp`,
+    let tempName = `.${cU.basename(filePath)}.${process.pid}.${Date.now()}.${F8e.randomUUID()}.tmp`,
         tempPath = cU.join(dir, tempName);
     try {
         await MR.writeFile(tempPath, data, options), await MR.rename(tempPath, filePath)

@@ -1,14 +1,14 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: initJobManagerModule  (minified: ol, daemon.pretty.js:61640)
+// symbol: initJobManagerModule  (minified: ol, daemon.pretty.js:61641)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1, v0.4.0, v0.5.6, v0.6.1, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.2 (maps/history_daemon.json)
-// locals: 137 renamed — 30 from the code at the binding (rule), 107 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// locals: 137 renamed — 32 from the code at the binding (rule), 105 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
+var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
     "use strict";
-    nbe = yi(bs(), 1);
+    obe = yi(bs(), 1);
     hs();
     Tr();
     Kn();
@@ -16,33 +16,33 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
     initLogLevelModule();
     Kr();
     Fw();
-    v6();
+    w6();
     zw();
     $r();
-    hut = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
+    yut = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
     UC = new Map;
-    S6 = "gone", k6 = "stale", Br = class {
+    k6 = "gone", x6 = "stale", Br = class {
         constructor(paths) {
             this.paths = paths
         }
         paths;
         get activeDir() {
-            return Hf.join(this.paths.varDir, "jobs", "active")
+            return Vf.join(this.paths.varDir, "jobs", "active")
         }
         get archiveDir() {
-            return Hf.join(this.paths.varDir, "jobs", "archive")
+            return Vf.join(this.paths.varDir, "jobs", "archive")
         }
         getJobPath(jobId) {
-            return Hf.join(this.activeDir, `${Ig(jobId)}.md`)
+            return Vf.join(this.activeDir, `${Ig(jobId)}.md`)
         }
         getStatePath(jobId) {
-            return Hf.join(this.activeDir, `${Ig(jobId)}.state.json`)
+            return Vf.join(this.activeDir, `${Ig(jobId)}.state.json`)
         }
         getArchiveJobPath(jobId) {
-            return Hf.join(this.archiveDir, `${Ig(jobId)}.md`)
+            return Vf.join(this.archiveDir, `${Ig(jobId)}.md`)
         }
         getArchiveStatePath(jobId) {
-            return Hf.join(this.archiveDir, `${Ig(jobId)}.state.json`)
+            return Vf.join(this.archiveDir, `${Ig(jobId)}.state.json`)
         }
         async init() {
             await ensureDirectoryExists(this.activeDir), await ensureDirectoryExists(this.archiveDir)
@@ -56,24 +56,24 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 let message = err instanceof Error ? err.message : String(err);
                 throw new Error(`Job ${jobId} has an unparsable cron schedule "${frontmatterInput.cron}": ${message}`)
             }
-            let cwdResolution = await Q_e(this.paths, jobId, frontmatterInput.cwd_rel),
+            let jobExecutionWorkspace = await prepareJobExecutionWorkspace(this.paths, jobId, frontmatterInput.cwd_rel),
                 frontmatter = {
                     type: "job",
                     created_at: new Date().toISOString(),
                     ...frontmatterInput,
                     cron: trimmed,
-                    cwd_rel: cwdResolution.cwdRel ?? void 0
+                    cwd_rel: jobExecutionWorkspace.cwdRel ?? void 0
                 },
                 sessionKey = this.buildSessionKey(jobId, frontmatter),
                 jobFileMarkdown = renderJobFileMarkdown(frontmatter, body),
                 staleSidecarQuarantined;
-            return await Oc(jobId, async () => {
+            return await Cc(jobId, async () => {
                 if (await this.exists(jobId)) throw new Error(`Job ${jobId} already exists`);
                 if (await this.pathExists(this.getStatePath(jobId))) {
                     let quarantinedPath = await moveFileIntoDirectory(this.getStatePath(jobId), this.archiveDir, ".orphan");
                     staleSidecarQuarantined = quarantinedPath, logErrorMessage(`[JobManager] stale pre-existing sidecar quarantined at create for job ${jobId}: ${quarantinedPath}`)
                 }
-                await writeFileAtomic(this.getJobPath(jobId), jobFileMarkdown, lce(frontmatter.claudeModelProfiles) ? {
+                await writeFileAtomic(this.getJobPath(jobId), jobFileMarkdown, cce(frontmatter.claudeModelProfiles) ? {
                     mode: rc
                 } : {}), await writeJsonFileAtomic(this.getStatePath(jobId), qC())
             }), await ensureSessionDescriptorAndStateFiles(this.paths, {
@@ -89,7 +89,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
         }
         async rescheduleJob(jobId, when, now = new Date) {
             let jobRearmTime = parseJobRearmTime(when, now);
-            return Oc(jobId, async () => {
+            return Cc(jobId, async () => {
                 if (!await this.exists(jobId)) throw await this.pathExists(this.getArchiveJobPath(jobId)) ? new Error(`Job ${jobId} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${jobId} not found`);
                 let statePath = this.getStatePath(jobId),
                     state = await this.readStateStrict(statePath);
@@ -102,7 +102,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             })
         }
         async archiveJob(jobId) {
-            return Oc(jobId, () => this.archiveJobHoldingLock(jobId))
+            return Cc(jobId, () => this.archiveJobHoldingLock(jobId))
         }
         async archiveJobHoldingLock(jobId) {
             if (!await this.exists(jobId)) throw await this.pathExists(this.getArchiveJobPath(jobId)) ? new Error(`Job ${jobId} is archived — no longer active. It is already off the schedule.`) : new Error(`Job ${jobId} not found`);
@@ -143,7 +143,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             }
         }
         async archiveJobIfNotRearmed(jobId) {
-            return Oc(jobId, async () => {
+            return Cc(jobId, async () => {
                 if (!await this.exists(jobId)) throw new Error(`Job ${jobId} not found`);
                 let state = await this.readStateStrict(this.getStatePath(jobId));
                 return typeof state.run_at == "string" && state.run_at.length > 0 ? {
@@ -171,7 +171,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
 `);
             for (let attempt = 0;; attempt++) {
                 let wakeId = attempt === 0 ? baseId : `${baseId}-${attempt}`;
-                if (Ig(wakeId), await Oc(wakeId, async () => await this.exists(wakeId) ? !1 : (await writeFileAtomic(this.getJobPath(wakeId), markdown), await writeJsonFileAtomic(this.getStatePath(wakeId), {
+                if (Ig(wakeId), await Cc(wakeId, async () => await this.exists(wakeId) ? !1 : (await writeFileAtomic(this.getJobPath(wakeId), markdown), await writeJsonFileAtomic(this.getStatePath(wakeId), {
                         ...qC(),
                         run_at: jobRearmTime
                     }), !0))) return logInfoMessage(`[JobManager] Created wake record ${wakeId}`, {
@@ -236,7 +236,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             return records
         }
         async fireWakeRecord(wakeId, now, deliver) {
-            return Oc(wakeId, async () => {
+            return Cc(wakeId, async () => {
                 let record = await this.getWakeRecord(wakeId);
                 if (!record) return {
                     outcome: "cancelled"
@@ -315,7 +315,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                     run_count: 0
                 }
             }
-            let executionInfo = X_e(this.paths, jobId, data.cwd_rel),
+            let jobExecutionWorkspace = resolveJobExecutionWorkspace(this.paths, jobId, data.cwd_rel),
                 frontmatter = {
                     ...data
                 };
@@ -326,9 +326,9 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 content,
                 state,
                 session_key: this.buildSessionKey(jobId, frontmatter),
-                execution_context: executionInfo.context,
-                execution_cwd: executionInfo.cwd,
-                runtime_workspace_dir: executionInfo.runtimeWorkspaceDir
+                execution_context: jobExecutionWorkspace.context,
+                execution_cwd: jobExecutionWorkspace.cwd,
+                runtime_workspace_dir: jobExecutionWorkspace.runtimeWorkspaceDir
             }
         }
         async listJobs() {
@@ -356,7 +356,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             return failedJobIds.length > 0 && logErrorMessage(`[JobManager] ${failedJobIds.length} job file(s) failed to parse and are NOT scheduled: ${failedJobIds.join(", ")}`), jobs
         }
         async updateState(jobId, patch, options) {
-            await Oc(jobId, async () => {
+            await Cc(jobId, async () => {
                 if (!await this.exists(jobId)) throw await this.quarantineOrphanSidecarIfPresent(jobId), new Error(`Job ${jobId} is not active (archived or removed) — state writes are active-only`);
                 let statePath = this.getStatePath(jobId),
                     state = await this.readStateStrict(statePath);
@@ -372,14 +372,14 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
             })
         }
         async finalizeJobState(jobId, patch, options) {
-            return Oc(jobId, async () => {
-                if (!await this.exists(jobId)) return await this.quarantineOrphanSidecarIfPresent(jobId), S6;
+            return Cc(jobId, async () => {
+                if (!await this.exists(jobId)) return await this.quarantineOrphanSidecarIfPresent(jobId), k6;
                 let statePath = this.getStatePath(jobId),
                     state = await this.readStateStrict(statePath);
                 if (options && "expectedClaimCursor" in options) {
                     let currentCursor = state.last_scheduled_at ?? null,
                         expectedCursor = options.expectedClaimCursor ?? null;
-                    if (currentCursor !== expectedCursor) return k6
+                    if (currentCursor !== expectedCursor) return x6
                 }
                 let nextState = {
                     ...state,
@@ -416,7 +416,7 @@ var nbe, hut, UC, S6, k6, Br, initJobManagerModule = O(() => {
                 return JSON.parse(source)
             } catch (err) {
                 try {
-                    let quarantinedPath = await moveFileIntoDirectory(statePath, Hf.dirname(statePath), `.corrupt-${Date.now()}`);
+                    let quarantinedPath = await moveFileIntoDirectory(statePath, Vf.dirname(statePath), `.corrupt-${Date.now()}`);
                     logErrorMessage(`[JobManager] corrupt state sidecar quarantined: ${statePath} → ${quarantinedPath}`, err)
                 } catch (err) {
                     logErrorMessage(`[JobManager] failed to quarantine corrupt sidecar: ${statePath}`, err)

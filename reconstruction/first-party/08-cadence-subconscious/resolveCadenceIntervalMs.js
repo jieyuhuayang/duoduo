@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: resolveCadenceIntervalMs  (minified: FSe, daemon.pretty.js:68843)
+// symbol: resolveCadenceIntervalMs  (minified: qSe, daemon.pretty.js:68844)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: prepareDrainTurnContext  (minified: NW, daemon.pretty.js:70575)
+// symbol: prepareDrainTurnContext  (minified: DW, daemon.pretty.js:70576)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.7 — first release whose bundle holds this declaration; body changed in v0.4.5, v0.5.1, v0.5.2, v0.5.4, v0.5.5, v0.5.10, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
 // locals: 27 renamed — 6 from the code at the binding (rule), 21 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

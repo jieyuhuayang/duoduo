@@ -9,13 +9,13 @@
 
 async function loadChannelKindConfig(channelConfigDir, channelKind) {
     let normalizedKind = channelKind.trim().toLowerCase();
-    if (!ket(normalizedKind)) return logWarnMessage(`[channel-config] invalid channel kind "${channelKind}"`), null;
-    let filePath = Zce.join(channelConfigDir, `${normalizedKind}.md`),
-        readResult = await Yce(filePath);
+    if (!Ret(normalizedKind)) return logWarnMessage(`[channel-config] invalid channel kind "${channelKind}"`), null;
+    let filePath = Kce.join(channelConfigDir, `${normalizedKind}.md`),
+        readResult = await Xce(filePath);
     if (readResult.status !== "ok") return null;
     let channelConfigFields = parseChannelConfigFields(readResult.data);
     yI(filePath, channelConfigFields.claudeModelProfileIssues), yI(filePath, channelConfigFields.claudeModelAliasIssues, "claude.model_aliases");
-    let channelPrompt = xet(readResult.body);
+    let channelPrompt = Iet(readResult.body);
     return {
         channel_kind: normalizedKind,
         ...channelConfigFields,

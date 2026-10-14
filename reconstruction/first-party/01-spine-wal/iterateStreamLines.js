@@ -16,7 +16,7 @@ async function* iterateStreamLines(stream, options) {
             let wakeFn = pendingWake;
             pendingWake = null, wakeFn?.()
         },
-        lineSplitter = gae(line => lines.push(line)),
+        lineSplitter = yae(line => lines.push(line)),
         onData = chunk => {
             lineSplitter.write(chunk), hasOnEof || stream.pause(), wake()
         },

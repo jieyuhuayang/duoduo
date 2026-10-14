@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexTurnInput  (minified: R6, daemon.pretty.js:62280)
+// symbol: buildCodexTurnInput  (minified: I6, daemon.pretty.js:62281)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ function buildCodexTurnInput(text, attachments) {
         text,
         text_elements: []
     }];
-    for (let attachment of attachments ?? []) attachment.mime?.startsWith("image/") && (!attachment.path || !wut.isAbsolute(attachment.path) || vut(attachment.path) && input.push({
+    for (let attachment of attachments ?? []) attachment.mime?.startsWith("image/") && (!attachment.path || !kut.isAbsolute(attachment.path) || Sut(attachment.path) && input.push({
         type: "localImage",
         path: attachment.path
     }));

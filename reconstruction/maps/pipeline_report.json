@@ -1,10 +1,10 @@
 {
   "generatedBy": "reconstruction/tools/rebuild.sh",
-  "package": "v0.8.4",
+  "package": "v0.8.5",
   "note": "Generated. Do not hand-edit, and do not restate these numbers in prose — cite this file.",
   "bundles": {
     "daemon": {
-      "prettyLines": 93233,
+      "prettyLines": 93279,
       "exportBlocks": 24,
       "firstPartyBlocks": 15,
       "vendorBlocks": 9,
@@ -12,18 +12,18 @@
       "distinctNamesInBlocks": 800,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
-      "inferredNames": 728,
-      "renameEntries": 840,
-      "renamesApplied": 840,
-      "referencesRewritten": 3879,
+      "inferredNames": 733,
+      "renameEntries": 845,
+      "renamesApplied": 845,
+      "referencesRewritten": 3890,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 840,
-      "localBindings": 6203,
-      "localNamesApplied": 6199,
+      "indexedSymbols": 845,
+      "localBindings": 6226,
+      "localNamesApplied": 6222,
       "localNamesBySource": {
-        "llm": 4956,
-        "rule:callee": 514,
+        "llm": 4974,
+        "rule:callee": 519,
         "rule:member": 234,
         "rule:catch": 153,
         "rule:destructure": 276,
@@ -50,8 +50,8 @@
   },
   "sha256": {
     "daemon": {
-      "shipped": "57c582f97c1ffa02748e40a05fe9d435e752f8f0e97a820a2fb365b800a4d317",
-      "pretty": "fbc15b2082f1f43c4de7132f51d7555d3bcbe0a78485d86565be7fd2d1ca2b1b"
+      "shipped": "e742ebd6d2337233bf17d0298d04de6ec788f54b1ce31f6e0e179139e9cd03ed",
+      "pretty": "343a294bf32aac407260854eded4b3775ab17323c9e4912617773e5cb1162438"
     },
     "cli": {
       "shipped": "d151e3aa163df1c9c74051add8c08373e1833f56c413679edb8cfa2f69d9c170",
@@ -59,7 +59,7 @@
     }
   },
   "firstPartyTree": {
-    "files": 840,
+    "files": 845,
     "subsystems": 12,
     "bySubsystem": {
       "00-daemon-entry": 27,
@@ -70,7 +70,7 @@
       "05-drain-turn": 76,
       "06-runtime-claude": 55,
       "07-runtime-codex": 30,
-      "08-cadence-subconscious": 87,
+      "08-cadence-subconscious": 92,
       "09-memory": 113,
       "10-runtime-host": 93,
       "11-runtime-grok": 20
@@ -96,13 +96,13 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.23.3",
+    "node": "v22.22.0",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 901
+    "firstPartySymbols": 906
   }
 }

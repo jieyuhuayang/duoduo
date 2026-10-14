@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function ensureSessionMailboxPendingDir(paths, sessionKey) {
-    return await lYe(paths, sessionKey), resolveSessionMailboxPendingDir(paths, sessionKey)
+    return await fYe(paths, sessionKey), resolveSessionMailboxPendingDir(paths, sessionKey)
 }

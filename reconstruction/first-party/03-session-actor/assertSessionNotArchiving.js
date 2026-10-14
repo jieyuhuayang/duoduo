@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function assertSessionNotArchiving(sessionKey) {
-    if (Ab.has(sessionKey)) throw new qm(sessionKey)
+    if (Ab.has(sessionKey)) throw new Um(sessionKey)
 }

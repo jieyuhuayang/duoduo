@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: detectOrphanMemory  (minified: OSe, daemon.pretty.js:68660)
+// symbol: detectOrphanMemory  (minified: DSe, daemon.pretty.js:68661)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 1 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,7 +19,7 @@ function detectOrphanMemory(memoryDir, options) {
     return {
         missing: !1,
         states: orphanTopicNodes.orphans.map(orphan => {
-            let ageHours = orphan.mtimeMs > 0 ? (options.refTimestampMs - orphan.mtimeMs) / CSe : Number.POSITIVE_INFINITY,
+            let ageHours = orphan.mtimeMs > 0 ? (options.refTimestampMs - orphan.mtimeMs) / NSe : Number.POSITIVE_INFINITY,
                 state = orphan.indeg >= 1 ? "ISLAND" : ageHours < newbornHours ? "NEWBORN" : "STALE";
             return {
                 ...orphan,

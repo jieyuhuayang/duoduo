@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: markPlaylistItemExecuted  (minified: IO, daemon.pretty.js:66564)
+// symbol: markPlaylistItemExecuted  (minified: IO, daemon.pretty.js:66565)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 10 renamed — 1 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

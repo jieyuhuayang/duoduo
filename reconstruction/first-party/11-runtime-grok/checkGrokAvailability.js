@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: checkGrokAvailability  (minified: Nc, daemon.pretty.js:63292)
+// symbol: checkGrokAvailability  (minified: Ac, daemon.pretty.js:63293)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 4 renamed — 2 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -15,7 +15,7 @@ async function checkGrokAvailability(grokBinary = "grok") {
     } = await import("node:util"), execFileAsync = promisify(execFile);
     try {
         await execFileAsync(grokBinary, ["--version"], {
-            timeout: Mut
+            timeout: Lut
         })
     } catch {
         return {

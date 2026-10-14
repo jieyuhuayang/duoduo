@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: reconcileMemorySignalInboxes  (minified: Xwe, daemon.pretty.js:67665)
+// symbol: reconcileMemorySignalInboxes  (minified: tSe, daemon.pretty.js:67666)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 17 renamed — 3 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,14 +13,14 @@ function reconcileMemorySignalInboxes(signals, postedPaths, ctx) {
             errors: []
         },
         map = new Map;
-    for (let partition of $H) map.set(partition, new Set);
+    for (let partition of CH) map.set(partition, new Set);
     for (let signal of signals) try {
         if (!ctx.force && enforceContractGate(signal.kind, getCachedPartitionContract(ctx, signal.partition), ctx.flagFallback) !== null) continue;
-        CH(signal.pendingFilename) && map.get(signal.partition)?.add(signal.pendingFilename)
+        OH(signal.pendingFilename) && map.get(signal.partition)?.add(signal.pendingFilename)
     } catch (err) {
         result.errors.push(`${signal.kind} → ${signal.partition}: ${String(err)}`)
     }
-    for (let partition of $H) try {
+    for (let partition of CH) try {
         let expected = map.get(partition) ?? new Set,
             inboxDir = partitionInboxDirFromVar(ctx.varDir, partition);
         if (expected.size === 0 && !su.existsSync(inboxDir)) continue;
@@ -28,9 +28,9 @@ function reconcileMemorySignalInboxes(signals, postedPaths, ctx) {
         for (let postedPath of postedPaths) {
             if (Vg.dirname(postedPath) !== inboxDir) continue;
             let fileName = Vg.basename(postedPath);
-            CH(fileName) && keep.add(fileName)
+            OH(fileName) && keep.add(fileName)
         }
-        for (let pendingName of Odt(ctx.varDir, partition)) {
+        for (let pendingName of Ndt(ctx.varDir, partition)) {
             if (expected.has(pendingName)) {
                 keep.add(pendingName);
                 continue
@@ -42,7 +42,7 @@ function reconcileMemorySignalInboxes(signals, postedPaths, ctx) {
         }
         su.mkdirSync(inboxDir, {
             recursive: !0
-        }), su.writeFileSync(Ywe(ctx.varDir, partition), `${JSON.stringify([...keep].sort())}
+        }), su.writeFileSync(eSe(ctx.varDir, partition), `${JSON.stringify([...keep].sort())}
 `, "utf8")
     } catch (err) {
         result.errors.push(`${partition}: ${String(err)}`)

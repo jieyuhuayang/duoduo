@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: runInstructionsFingerprintGuard  (minified: xN, daemon.pretty.js:82704)
+// symbol: runInstructionsFingerprintGuard  (minified: xN, daemon.pretty.js:82750)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.5 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.1, v0.5.2, v0.5.10, v0.7.1, v0.8.0, v0.8.3 (maps/history_daemon.json)
 // locals: 14 renamed — 4 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

@@ -22,7 +22,7 @@ function buildInitialStatus(paths, now = new Date, options = {}) {
             last_tick: null
         },
         spine: {
-            event_log: Lae.join(paths.eventsDir, `${now.toISOString().slice(0,10)}.jsonl`)
+            event_log: Fae.join(paths.eventsDir, `${now.toISOString().slice(0,10)}.jsonl`)
         },
         health: {
             gateway: "starting",

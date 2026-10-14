@@ -7,10 +7,10 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Ab, UR, qm, initSessionLockAndArchivingModule = O(() => {
+var Ab, UR, Um, initSessionLockAndArchivingModule = O(() => {
     "use strict";
     Ab = new Set, UR = new Map;
-    qm = class extends Error {
+    Um = class extends Error {
         kind = "session_archiving";
         sessionKey;
         constructor(sessionKey) {

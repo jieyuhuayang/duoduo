@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: countNewlineChars  (minified: AO, daemon.pretty.js:66807)
+// symbol: countNewlineChars  (minified: AO, daemon.pretty.js:66808)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level

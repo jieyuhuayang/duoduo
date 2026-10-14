@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: createSessionSubscriptionRegistry  (minified: uH, daemon.pretty.js:89020)
+// symbol: createSessionSubscriptionRegistry  (minified: lH, daemon.pretty.js:89066)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.7, v0.5.0, v0.5.6, v0.5.7, v0.5.10, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 69 renamed — 16 from the code at the binding (rule), 53 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

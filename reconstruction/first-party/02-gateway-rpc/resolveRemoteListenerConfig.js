@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveRemoteListenerConfig  (minified: wvt, daemon.pretty.js:92009)
+// symbol: resolveRemoteListenerConfig  (minified: Evt, daemon.pretty.js:92055)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

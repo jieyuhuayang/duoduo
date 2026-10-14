@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: primeCodexAvailability  (minified: Eut, daemon.pretty.js:62156)
+// symbol: primeCodexAvailability  (minified: Iut, daemon.pretty.js:62157)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,5 +9,5 @@
 
 async function primeCodexAvailability(codexBinary = "codex") {
     let availability = await checkCodexAvailability(codexBinary);
-    I6 = availability.ok, T6 = availability.ok ? void 0 : availability.reason
+    T6 = availability.ok, P6 = availability.ok ? void 0 : availability.reason
 }

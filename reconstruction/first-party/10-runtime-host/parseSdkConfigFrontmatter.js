@@ -9,13 +9,13 @@
 
 function parseSdkConfigFrontmatter(frontmatter) {
     return {
-        allowedTools: FU(frontmatter, of.allowedTools),
-        disallowedTools: FU(frontmatter, of.disallowedTools),
-        additionalDirectories: FU(frontmatter, of.additionalDirectories, {
+        allowedTools: FU(frontmatter, rf.allowedTools),
+        disallowedTools: FU(frontmatter, rf.disallowedTools),
+        additionalDirectories: FU(frontmatter, rf.additionalDirectories, {
             expandPaths: !0
         }),
         ...parseClaudeFrontmatterBlock(frontmatter),
-        ...BQe(frontmatter),
+        ...WQe(frontmatter),
         ...BU(frontmatter),
         ...VU(frontmatter)
     }

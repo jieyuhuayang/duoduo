@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: createOutboxDeliveryManager  (minified: Mbt, daemon.pretty.js:87079)
+// symbol: createOutboxDeliveryManager  (minified: zbt, daemon.pretty.js:87125)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1, v0.5.0, v0.5.6, v0.6.0, v0.8.0 (maps/history_daemon.json)
 // locals: 28 renamed — 8 from the code at the binding (rule), 20 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -42,7 +42,7 @@ function createOutboxDeliveryManager(options) {
         inFlightIds.add(record.id);
         try {
             if (record = await readOutboxRecord(paths, record.channel_kind, record.id) ?? record, record.status === "sent") return await recordOutboxSentId(paths, record.id), !0;
-            if (await Ace(paths, record.id)) return await recordOutboxDeliveryAttempt(paths, record, {
+            if (await Nce(paths, record.id)) return await recordOutboxDeliveryAttempt(paths, record, {
                 status: "sent"
             }), !0;
             if (isJobOrMetaOutboxRecord(record)) {

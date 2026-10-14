@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: listMemoryFragmentDates  (minified: Mdt, daemon.pretty.js:67767)
+// symbol: listMemoryFragmentDates  (minified: Ldt, daemon.pretty.js:67768)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 function listMemoryFragmentDates(memoryDir) {
     let entries;
     try {
-        entries = au.readdirSync(zc.join(memoryDir, "fragments"), {
+        entries = au.readdirSync(Fc.join(memoryDir, "fragments"), {
             withFileTypes: !0
         })
     } catch (err) {

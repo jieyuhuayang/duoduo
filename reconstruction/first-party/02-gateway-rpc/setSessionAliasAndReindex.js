@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: setSessionAliasAndReindex  (minified: rvt, daemon.pretty.js:90919)
+// symbol: setSessionAliasAndReindex  (minified: avt, daemon.pretty.js:90965)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

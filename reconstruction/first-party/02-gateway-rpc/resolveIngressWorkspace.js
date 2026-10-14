@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveIngressWorkspace  (minified: hIe, daemon.pretty.js:90710)
+// symbol: resolveIngressWorkspace  (minified: _Ie, daemon.pretty.js:90756)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.4.2, v0.5.0, v0.5.10, v0.6.0, v0.8.0 (maps/history_daemon.json)
 // locals: 18 renamed — 7 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ async function resolveIngressWorkspace(options) {
         cwdAbs,
         channelKind,
         channelId
-    } = options, sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey), plane = sessionRuntimeState?.plane ?? classifySessionPlaneByKey(sessionKey), permissionProfile = sessionRuntimeState?.permission_profile ?? evt(plane), effectiveConfig = channelKind ? await resolveEffectiveChannelConfig(paths, {
+    } = options, sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey), plane = sessionRuntimeState?.plane ?? classifySessionPlaneByKey(sessionKey), permissionProfile = sessionRuntimeState?.permission_profile ?? ivt(plane), effectiveConfig = channelKind ? await resolveEffectiveChannelConfig(paths, {
         channel_kind: channelKind,
         channel_id: channelId
     }) : null, bindCwd = async cwd => {

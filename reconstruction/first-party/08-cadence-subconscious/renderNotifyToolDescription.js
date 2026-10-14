@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: renderNotifyToolDescription  (minified: hO, daemon.pretty.js:65247)
+// symbol: renderNotifyToolDescription  (minified: hO, daemon.pretty.js:65248)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0 (maps/history_daemon.json)
 // locals: 3 renamed — 2 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,14 +13,14 @@ function renderNotifyToolDescription(ctx) {
     } = ctx;
     switch (sessionContextKind ?? (isJobSessionKeyKind(sessionKey) ? "job" : "foreground")) {
         case "job":
-            return qlt();
-        case "meta":
-            return Blt();
-        case "foreground":
-            return Qbe();
-        case "system":
             return Vlt();
+        case "meta":
+            return Hlt();
+        case "foreground":
+            return nve();
+        case "system":
+            return Wlt();
         default:
-            return Qbe()
+            return nve()
     }
 }

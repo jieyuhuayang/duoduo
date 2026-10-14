@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: collectBoardIncludePaths  (minified: ibt, daemon.pretty.js:82597)
+// symbol: collectBoardIncludePaths  (minified: ubt, daemon.pretty.js:82643)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 13 renamed — 1 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,10 +10,10 @@
 function collectBoardIncludePaths(tokens, filePath) {
     let includePaths = new Set,
         scanText = text => {
-            CRe.lastIndex = 0;
+            NRe.lastIndex = 0;
             let match;
             for (;
-                (match = CRe.exec(text)) !== null;) {
+                (match = NRe.exec(text)) !== null;) {
                 let boardIncludeToken = normalizeBoardIncludeToken(match[1]);
                 !boardIncludeToken || !isBoardIncludePathCandidate(boardIncludeToken) || includePaths.add(resolveBoardIncludePath(boardIncludeToken, ba.dirname(filePath)))
             }
@@ -25,7 +25,7 @@ function collectBoardIncludePaths(tokens, filePath) {
                         let raw = token.raw ?? "",
                             trimmed = raw.trimStart();
                         if (trimmed.startsWith("<!--") && trimmed.includes("-->")) {
-                            let stripped = raw.replace(DRe, "");
+                            let stripped = raw.replace(LRe, "");
                             stripped.trim() && scanText(stripped)
                         }
                         continue

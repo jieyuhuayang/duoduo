@@ -19,13 +19,13 @@ function parseClaudeFrontmatterBlock(frontmatter) {
         {
             profiles,
             issues
-        } = qQe(claudeBlock.model_profiles),
+        } = HQe(claudeBlock.model_profiles),
         {
             aliases,
             issues: issues2
         } = qU(claudeBlock.model_aliases);
     return {
-        claudeTools: pce(claudeBlock.tools),
+        claudeTools: mce(claudeBlock.tools),
         claudeModelProfiles: profiles,
         claudeModelProfileIssues: issues.length > 0 ? issues : void 0,
         claudeModelAliases: aliases,
