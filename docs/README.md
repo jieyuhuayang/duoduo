@@ -1,6 +1,6 @@
 # duoduo 分析文档
 
-**duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。本目录是这个运行时（npm 包 `@openduo/duoduo`）的分析文档：五篇文档里，四篇分别写给产品经理、核对代码的工程师、部署运维的人和做框架选型的人，第五篇说明代码证据本身为什么可信。**
+**duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。本目录是这个运行时（npm 包 `@openduo/duoduo`）的分析文档：六篇文档里，四篇分别写给产品经理、核对代码的工程师、部署运维的人和做框架选型的人，一篇对比 duoduo 与 botmux 驱动 Claude Code / Codex 的方式，一篇说明代码证据本身为什么可信。**
 
 证据来自三处：把 npm 包里的压缩运行时还原成的可读源码（在改名映射下与出厂 bundle 的 AST 全等，产物在 [`../reconstruction/`](../reconstruction/)，方法见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)）；同一版本 npm 包内的提示词原文，以及本仓库的 [`../subconscious/`](../subconscious/) 与 [`../skills/`](../skills/)；运行观测，只在注明之处使用：一类是早期版本在本机部署上的实测，另一类是 `reconstruction/scenarios/` 在隔离环境里驱动插桩后的还原 daemon 所做的可重复实验，结论记在 `reconstruction/scenarios/findings/`。
 
@@ -19,6 +19,7 @@
 | 要查落库的事件类型或控制面 RPC 方法 | [INTERNALS](./AGENT_INTERNALS_ANALYSIS.md) 附录 B |
 | 要部署或运维 | [ARCHITECTURE](./ARCHITECTURE_ANALYSIS.md) §2（安装、认证来源、引擎选择、环境变量与配置文件的位置）、§5（日常运维命令）、§8（运维风险）；命令速查在附录 A |
 | 做技术选型，比较 duoduo、hermes-agent、pi | [COMPARISON](./AGENT_FRAMEWORKS_COMPARISON.md) §0 的结论与三项目速览、§4 的十维度对比、§6 的融合架构建议 |
+| 想知道 duoduo 与 botmux 在驱动 Claude Code、Codex 上的差异与优劣 | [DUODUO_VS_BOTMUX](./DUODUO_VS_BOTMUX.md) 第 0 节的结论与速览 |
 | 想知道还原源码为什么可信、文档里的代码引用怎样被核对 | [SOURCE_RECONSTRUCTION](./SOURCE_RECONSTRUCTION.md) 的"结论"与"5 文档引用按符号名核对，不按行号"一节；各产物的位置见它的"产物地图" |
 | 要写或核对某个机制，先查一个符号的调用方、被调用方、读取的环境变量、携带的字符串和已经引用它的文档节 | `node reconstruction/tools/symbol_card.mjs <真名>`，以及 `env:`、`dotted:`、`string:` 等反向查询；工具说明见 SOURCE_RECONSTRUCTION 第 6 节 |
 | 要修改这些文档 | 本文末尾的"维护约定" |
@@ -51,6 +52,7 @@ GUIDE 与 INTERNALS 整篇对齐 v0.8.5；ARCHITECTURE 有一部分对齐 v0.8.5
 | [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | 写给工程师的证据文档。第 1 至 13 节各讲一个子系统：端到端路径、系统提示装配、引擎、自操作工具、事件日志、网关与控制面、Drain 与 turn 控制、会话 actor 与并发池、渠道适配器、job 调度、心跳与后台分区、记忆系统、指令指纹与改动生效；第 14 节汇总未证实与待实测的项；附录 B 列出落库事件类型、控制面 RPC 方法与只读 TCP 端口放行的方法 | v0.8.5 |
 | [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 部署与运维：分发形态；安装与首次配置（认证来源、引擎选择、环境变量与配置文件的位置）；内核目录 `~/aladuo` 与运行时目录 `~/.aladuo` 的内容、三种锁与配置生效时机；控制面的只读 TCP 端口、完整控制 unix socket 与可选的远程监听；日常运维命令；渠道适配器的安装与运维；本机部署的实测记录；运维风险 | §1–§6 与 §8 对齐 v0.8.5；§7 的实测记录逐条注明测量时的版本（v0.6.1 或 v0.7.1），未在 v0.8.4 或 v0.8.5 上重测 |
 | [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | duoduo、hermes-agent、pi 三个框架的设计哲学、十个维度的横向对比与优劣总评，以及面向"充分运用贝叶斯第一性原理、可持续自我迭代、擅长 long-horizon 金融预测任务的 agent"的融合架构建议与落地路线 | 关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 v0.8.3，已对照还原源码与出厂分区提示词核实；标"实测"的 duoduo 运行行为来自早期版本的部署，未在 v0.8.3 上重测；hermes-agent 与 pi 的事实来自调研时的源码快照（见其附录），未随两者的上游更新 |
+| [DUODUO_VS_BOTMUX.md](./DUODUO_VS_BOTMUX.md) | duoduo 与 botmux 驱动 Claude Code、Codex 的方式对比：集成边界（Agent SDK 与 app-server RPC，对比 tmux 里的交互式 CLI）、输入与 turn 结束的判断方式、两条路线各自的长处与代价，以及对 duoduo 的借鉴 | duoduo 的陈述对齐 v0.8.5，按名字引用；botmux 的陈述对齐 2026-10-16 的 master 快照（commit `f77f32e`），未随其上游更新 |
 | [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 还原方法：排版与拆包不改变语义；导出名从 esbuild 的 `__export` 块读出，推断名逐个登记并在每次构建时核对；改名按作用域进行并由 AST 全等证明；上游升级时按结构签名迁移推断名；文档引用按符号身份核对；第 6 节说明交叉引用索引、运行场景与发行历史。末尾有产物地图 | 不绑定版本；产物对应的版本、各项计数与每道检查的结论以 [`reconstruction/maps/pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 为准 |
 
 ## 维护约定
