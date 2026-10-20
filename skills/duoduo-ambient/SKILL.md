@@ -77,8 +77,10 @@ If the channel is installed and a room is served already, this is not a setup: g
 
 ```bash
 duoduo channel install @openduo/channel-ambient
-duoduo channel list                        # shows ambient and its version
+duoduo channel list                        # shows ambient and its version, 0.3.0 or later
 ```
+
+Device pairing (step 6) needs channel 0.3.0 or later.
 
 The install also copies the kind config (`config/ambient.md`) into the daemon's kernel config
 directory when none is there. Do not edit its `bridge:` block: every key is required and the
@@ -190,7 +192,10 @@ duoduo channel ambient device add <device name> --room <room_id> --scope <scope>
   --url https://<node>.<tailnet>.ts.net
 ```
 
-Send the owner the app link and the QR image it prints, to them only. In the app: log in to
+Send the owner the app link and the QR image it prints, to them only. In a chat message (Feishu/Lark
+and others), send the link as a Markdown link, for example
+`[在多多随身中配对](duoduopocket://pair?...)`, never the bare address: those apps do not make a
+bare `duoduopocket://` address tappable. `device add` prints both links in that form too. In the app: log in to
 Tailscale (it appears as node `duoduo-pocket`), then tap the link, scan the QR code, or paste the
 link; the app shows 已配对 · 房间「<room_id>」. The link works once and expires (ten minutes as
 shipped). Pairing, scopes, browsers, revoking and upgrades: [references/devices.md](references/devices.md).

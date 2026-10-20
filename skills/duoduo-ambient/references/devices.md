@@ -40,19 +40,32 @@ duoduo channel ambient device add <name> --room <room_id> [--scope room|sessions
   per device so revoking one does not guess.
 - `--url` defaults to the first `AMBIENT_HTTP_ORIGINS` entry. Pass it when that is not the address
   the device uses.
-- It prints three things: an app link `duoduopocket://pair?host=…&port=…&tls=…&code=…`, a browser
-  link `https://<node>…/#pair=<code>`, and the path of a PNG QR code of the app link.
+- It prints an app link `duoduopocket://pair?host=…&port=…&tls=…&code=…`, a browser link
+  `https://<node>…/#pair=<code>`, the same two as Markdown links (`[Pair DuoDuo Pocket](…)`,
+  `[Pair this browser](…)`), and the path of a PNG QR code of the app link.
 - The code works once and expires after `pairing.code_ttl_ms` in the kind config (ten minutes as
   shipped). An expired or used code needs a new `device add`.
 - The verb talks to the running channel over a unix socket beside its device file, so the channel
   must be running and the verb must run as the channel's user.
-- `device` is an unknown verb on a channel without device tokens (published 0.2.x and older):
-  there is nothing to pair; upgrade first ([operations.md](operations.md), Upgrade).
+- `device` is an unknown verb on a channel without device tokens (0.2.x and older; devices arrive
+  in 0.3.0): there is nothing to pair; upgrade first ([operations.md](operations.md), Upgrade).
 
 ## Hand the link over
 
 The link and the QR image are short-lived credentials. Send them only to the owner, in the chat the
 owner asked from, and never paste them into notes, handoffs or logs.
+
+In a chat message, send each link as a Markdown link, never as a bare address: Feishu/Lark and
+other chat apps do not make a bare `duoduopocket://` address tappable. Write the label in the
+owner's language, for example:
+
+```markdown
+[在多多随身中配对](duoduopocket://pair?host=…&port=…&tls=…&code=…)
+[在这个浏览器中配对](https://<node>.<tailnet>.ts.net/#pair=<code>)
+```
+
+Send only the link the owner needs. Attach the QR image as an image, for a phone that scans it from
+another screen.
 
 | Device              | What the owner does                                                                                                                                                                                                            |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -123,11 +136,12 @@ Passport is short plain text. Nothing to configure.
 
 ## Troubleshooting
 
-| Symptom                                                       | Cause and fix                                                                                                    |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `device add: no address to put in the links`                  | No `--url` and no `AMBIENT_HTTP_ORIGINS`. Pass `--url https://<node>.<tailnet>.ts.net`                           |
-| The verb cannot reach the admin socket                        | The channel is not running, or the verb runs as another user. `duoduo channel ambient status`                    |
-| The app says the link expired, was used, or does not exist    | Issue a new one; a code works once and for ten minutes as shipped                                                |
-| The app says the home ambient must be upgraded before pairing | The channel predates devices: upgrade the channel (and the cerebellum first if its wire major changed)           |
-| A browser paired but asks again on every visit                | It is on plain `http://` over the LAN, or it was a chat app's built-in browser. Use the `https://` serve address |
-| Every request `401 unauthorized`, `/live` closes 4401         | Not paired, or revoked. Issue a link                                                                             |
+| Symptom                                                       | Cause and fix                                                                                                          |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `device add: no address to put in the links`                  | No `--url` and no `AMBIENT_HTTP_ORIGINS`. Pass `--url https://<node>.<tailnet>.ts.net`                                 |
+| The verb cannot reach the admin socket                        | The channel is not running, or the verb runs as another user. `duoduo channel ambient status`                          |
+| The owner cannot tap the app link in the chat                 | It was sent as a bare `duoduopocket://` address. Send it again as a Markdown link, or use the QR image or 粘贴配对链接 |
+| The app says the link expired, was used, or does not exist    | Issue a new one; a code works once and for ten minutes as shipped                                                      |
+| The app says the home ambient must be upgraded before pairing | The channel predates devices: upgrade the channel (and the cerebellum first if its wire major changed)                 |
+| A browser paired but asks again on every visit                | It is on plain `http://` over the LAN, or it was a chat app's built-in browser. Use the `https://` serve address       |
+| Every request `401 unauthorized`, `/live` closes 4401         | Not paired, or revoked. Issue a link                                                                                   |

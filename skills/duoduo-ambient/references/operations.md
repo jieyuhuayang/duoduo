@@ -19,10 +19,15 @@ Contents:
 
 ```bash
 duoduo channel ambient status
-curl -s http://127.0.0.1:<port>/healthz
-curl -s "http://127.0.0.1:<port>/api/state?room=<room_id>"     # daemon_ok, cerebellum_ok, config_issues
+curl -s http://127.0.0.1:<port>/healthz                        # {"ok":true,"rooms":<n>}
+duoduo channel ambient logs                                    # cerebellum connected, no halt
+duoduo channel ambient device list                             # who can reach the rooms
 tailscale serve status                                         # the entry to 127.0.0.1:<port> is there
 ```
+
+`/api/state` (`daemon_ok`, `cerebellum_ok`, `config_issues`) answers only a paired device, so
+`curl` from the host gets `401`. Read it through the paired app or page: the app's banners
+([pocket-app.md](pocket-app.md), Banners) show `daemon_ok` and `cerebellum_ok`.
 
 ## Restart
 
@@ -47,7 +52,17 @@ duoduo channel ambient stop && duoduo channel ambient start
   out until paired. Straight after the restart, issue a link per device
   ([devices.md](devices.md), After an upgrade). An app older than device tokens must update first.
 - If the cerebellum is run by someone else, ask first which wire version it serves. A channel
-  newer or older than the cerebellum supports halts with `unsupportedProtocol`.
+  newer or older than the cerebellum supports halts with `cerebellum_halt`
+  `{"reason":"protocol",…}`. Channel 0.3.0 speaks wire major 2, like 0.2.0; a 0.1.x cerebellum
+  speaks 1 and must be upgraded first.
+- New kind config keys in 0.3.0 (`auth`, `pairing`, `sessions`) are optional; an existing copy
+  without them runs with the shipped defaults (pairing on, ten-minute codes).
+- 0.3.0 rewrote the kind prompt (the body of `config/ambient.md`, below the frontmatter): it follows
+  the reply surface each device reports and allows speech directions such as `[轻声]`. The install
+  keeps the existing copy, so an upgraded host still runs the old prompt. Show the owner the
+  difference; with their yes, back up the installed file and replace only its body with the
+  package's, keeping the `bridge:` block. Do it only when the cerebellum is 0.3.0 or later: an
+  older one does not remove the speech directions before synthesis and speaks them aloud.
 
 ## Add a room
 
