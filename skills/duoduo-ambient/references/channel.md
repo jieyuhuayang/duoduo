@@ -41,15 +41,18 @@ set in its own environment. A key exported in the shell that runs `duoduo channe
 wins over the file. The plugin receives only keys on its manifest allowlist; a misspelled key never
 arrives, and an `AMBIENT_*` key outside the list is reported as `env-knob-ignored`.
 
-| Key                        | Required  | Meaning                                                                                                |
-| -------------------------- | --------- | ------------------------------------------------------------------------------------------------------ |
-| `AMBIENT_HTTP_PORT`        | yes       | The loopback port of the page and API. No default: two instances on one default port collide silently. |
-| `AMBIENT_CEREBELLUM_URL`   | yes       | The cerebellum's WebSocket URL. `wss://`; `ws://` only to a loopback host for local debugging.         |
-| `AMBIENT_CEREBELLUM_TOKEN` | yes       | The Bearer token the cerebellum expects. Secret: the owner writes it (`SKILL.md` step 2).              |
-| `AMBIENT_HTTP_HOSTS`       | for serve | Comma-separated extra hostnames admitted in the `Host` header: the `<node>.<tailnet>.ts.net` name.     |
-| `AMBIENT_HTTP_ORIGINS`     | for serve | Comma-separated extra browser origins: `https://<node>.<tailnet>.ts.net`.                              |
-| `ALADUO_LOG_LEVEL`         | no        | `debug`, `info`, `warn` or `error`.                                                                    |
-| `ALADUO_DAEMON_SOCKET`     | no        | Absolute daemon socket path, when the runtime directory is not `~/.aladuo`.                            |
+| Key                        | Required     | Meaning                                                                                                                                                             |
+| -------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AMBIENT_HTTP_PORT`        | yes          | The loopback port of the page and API. No default: two instances on one default port collide silently.                                                              |
+| `AMBIENT_CEREBELLUM_URL`   | yes          | The cerebellum's WebSocket URL. `wss://`; `ws://` only to a loopback host for local debugging.                                                                      |
+| `AMBIENT_CEREBELLUM_TOKEN` | yes          | The Bearer token the cerebellum expects. Secret: the owner writes it (`SKILL.md` step 2).                                                                           |
+| `AMBIENT_HTTP_HOSTS`       | for serve    | Comma-separated extra hostnames admitted in the `Host` header: the `<node>.<tailnet>.ts.net` name.                                                                  |
+| `AMBIENT_HTTP_ORIGINS`     | for serve    | Comma-separated extra browser origins: `https://<node>.<tailnet>.ts.net`. Also the default `device add --url`                                                       |
+| `AMBIENT_TRANSCRIBE_URL`   | no           | An OpenAI-compatible transcription endpoint that transcribes voice messages instead of the cerebellum. `https://`, or `http://` to loopback. Voice audio goes there |
+| `AMBIENT_TRANSCRIBE_MODEL` | with the URL | The `model` field sent to that endpoint                                                                                                                             |
+| `AMBIENT_TRANSCRIBE_TOKEN` | no           | Bearer token for that endpoint. Secret: the owner writes it the way they wrote the cerebellum token                                                                 |
+| `ALADUO_LOG_LEVEL`         | no           | `debug`, `info`, `warn` or `error`.                                                                                                                                 |
+| `ALADUO_DAEMON_SOCKET`     | no           | Absolute daemon socket path, when the runtime directory is not `~/.aladuo`.                                                                                         |
 
 There is no listen-host key: the channel always binds `127.0.0.1`. Room behaviour and transport
 timing are not environment keys either; they live in the kind config and the room's descriptor.
@@ -58,14 +61,15 @@ A change to `.env` takes effect at the next `stop` and `start`.
 
 ## Verbs
 
-| Command                             | What it does                                                          |
-| ----------------------------------- | --------------------------------------------------------------------- |
-| `duoduo channel ambient start`      | Starts the channel. Refuses with zero rooms or a missing required key |
-| `duoduo channel ambient stop`       | Stops it: closes rooms, then the page server, then the daemon links   |
-| `duoduo channel ambient status`     | Running or not, and the process                                       |
-| `duoduo channel ambient logs`       | The channel's log, without looking for its path                       |
-| `duoduo channel ambient room add …` | Creates a room (below)                                                |
-| `duoduo channel ambient room list`  | Lists rooms                                                           |
+| Command                             | What it does                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `duoduo channel ambient start`      | Starts the channel. Refuses with zero rooms or a missing required key                                |
+| `duoduo channel ambient stop`       | Stops it: closes rooms, then the page server, then the daemon links                                  |
+| `duoduo channel ambient status`     | Running or not, and the process                                                                      |
+| `duoduo channel ambient logs`       | The channel's log, without looking for its path                                                      |
+| `duoduo channel ambient room add …` | Creates a room (below)                                                                               |
+| `duoduo channel ambient room list`  | Lists rooms                                                                                          |
+| `duoduo channel ambient device …`   | Pairs, lists, revokes devices ([devices.md](devices.md)). 0.3.0 and later; needs the running channel |
 
 ## Rooms
 
@@ -104,16 +108,21 @@ arguments, 3 room exists, 4 daemon unreachable or refused.
 ## Endpoints
 
 All on `http://127.0.0.1:<AMBIENT_HTTP_PORT>`, and through serve on `https://<node>.<tailnet>.ts.net`.
+Every `/api/` route except `/api/pair` needs a paired device's token and serves that device's room
+(`?room=` is ignored); without one it answers `401 {"error":"unauthorized"}`. Only `/healthz`, the
+page and `/api/pair` are open.
 
-| Path                                  | Use                                                                                                                                                               |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /healthz`                        | `{"ok":true,"rooms":<n>}`                                                                                                                                         |
-| `GET /api/state?room=<id>`            | `daemon_ok`, `cerebellum_ok`, `cerebellum_halt`, `config_issues`, `capture`, `ws_clients`, `limits`. Without `room` and more than one room: 400 listing the rooms |
-| `/?room=<id>`                         | The browser page. `&embed=app` hides the room menu                                                                                                                |
-| `/live`                               | WebSocket: conversation frames; with `hello`, the capture seat (ambient mode)                                                                                     |
-| `GET /api/imlog`                      | The room's history                                                                                                                                                |
-| `POST /api/voice?room=<id>`           | A voice note (phone hold-to-talk or a Passport press)                                                                                                             |
-| `POST /api/upload?room=<id>&name=<f>` | A file attachment. Over `limits.upload_max_bytes`: 413                                                                                                            |
+| Path                             | Use                                                                                                                           |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `GET /healthz`                   | `{"ok":true,"rooms":<n>}`                                                                                                     |
+| `GET /api/state`                 | `daemon_ok`, `cerebellum_ok`, `cerebellum_halt`, `config_issues`, `capture`, `ws_clients`, `limits`, and the device's `scope` |
+| `/?room=<id>`                    | The browser page. `&embed=app` hides the room menu                                                                            |
+| `/live`                          | WebSocket: conversation frames; with `hello`, the capture seat (ambient mode). Closes 4401 without a device token             |
+| `POST /api/pair`                 | Redeems a pairing code for a device token (the app and the page call it)                                                      |
+| `POST /api/messages`             | A typed message or a voice note (phone hold-to-talk or a Passport press)                                                      |
+| `GET /api/imlog`                 | The room's history                                                                                                            |
+| `POST /api/upload?name=<f>`      | A file attachment. Over `limits.upload_max_bytes`: 413                                                                        |
+| `POST /api/voice`, `/api/inject` | Retired: `410 {"error":"update_required"}`. An app that calls them must be updated                                            |
 
 ## State and logs
 
@@ -134,11 +143,11 @@ live on the cerebellum's host.
 **The channel stopped redialing the cerebellum.** `cerebellum_ok` is false, `/api/state` has a
 `cerebellum_halt`, and the log says `cerebellum link halted; not redialing until restart`.
 
-| `cerebellum_halt`            | Cause                                                                     | Fix                                                                                                                    |
-| ---------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `unauthorized`               | The cerebellum answered HTTP 401: the token is wrong or was revoked       | The owner rewrites the token line (`SKILL.md` step 2; remove the old line first), then restart                         |
-| `superseded` (4001)          | Another connection opened this room on the same cerebellum after this one | Find the second channel serving the same room (another host, a dev copy) and stop one; then restart the one that stays |
-| `unsupportedProtocol` (4002) | The cerebellum does not serve this channel's wire major version           | Install the channel version that matches the cerebellum; ask whoever runs the cerebellum which                         |
+| `cerebellum_halt`                      | Cause                                                                                                                           | Fix                                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `unauthorized`                         | The cerebellum answered HTTP 401: the token is wrong or was revoked                                                             | The owner rewrites the token line (`SKILL.md` step 2; remove the old line first), then restart                         |
+| `superseded` (4001)                    | Another connection opened this room on the same cerebellum after this one                                                       | Find the second channel serving the same room (another host, a dev copy) and stop one; then restart the one that stays |
+| `{"reason":"protocol",…}` (close 4002) | The cerebellum does not serve this channel's wire major version (`channel` names it, `cerebellum` the one it serves when known) | Install the channel version that matches the cerebellum; ask whoever runs the cerebellum which                         |
 
 A refusal with any other HTTP status is logged as `cerebellum refused the connection` with its
 status, and the channel keeps redialing: the cerebellum is down or unreachable. Check the URL, and
@@ -178,5 +187,6 @@ cerebellum host. Tell whoever runs it; nothing on this host fixes it.
 | Env keys and allowlist, loopback bind, host gate ranges (no `100.64/10`, no `*.ts.net`) | Verified in the channel's source                                                                                                 |
 | Close codes 4001 superseded, 4002 unsupportedProtocol; 401 halts redialing              | Verified in the protocol and channel source                                                                                      |
 | `room add` / `room list` verbs                                                          | Specified for the channel release that ships them; check `duoduo channel ambient room list` exists, else use the fallback script |
+| `device` verbs, their output (including the Markdown links), open routes                | Verified in the 0.3.0 channel source                                                                                             |
 | `scripts/create-room.sh`                                                                | Argument validation tested without a daemon; the spawn call itself is not run in tests                                           |
 | `ws_clients` counts the app's conversation socket                                       | Inferred from the channel's state handler; not measured with the app                                                             |
