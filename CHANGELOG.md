@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.6] - 2026-10-23
+
+A security release: every open dependency advisory is cleared, the bundled
+agent SDK and pi move to their latest releases, and the install no longer
+pulls an unreviewed major version of a transitive package.
+
+Upgrading means reinstalling core (0.8.6) and the Feishu channel (0.8.6),
+then restarting the daemon and the Feishu channel. Protocol (0.8.5) and the
+ACP channel (0.8.3) are unchanged. The bundled agent SDK moves to `^0.3.309`
+(Claude Code 2.1.309), and the bundled pi moves from 1.2.0 to 1.4.0.
+
+Behaviour changes to know about:
+
+- **Fork subagents stay off.** Agent SDK 0.3.302 started offering "fork"
+  subagents by default: a subagent that inherits the whole conversation and
+  always runs on the parent session's model. duoduo turns them off for every
+  Claude session in this release, so the tool surface and per-turn cost are
+  the same as in v0.8.5. Enabling them is planned once their cost and
+  delivery behaviour have been measured.
+
+### Security
+
+- **Feishu channel: credential headers on cross-origin redirects.** The
+  HTTP redirect library bundled into the Feishu gateway moves to 1.16.1,
+  which fixes two high-severity advisories (GHSA-q3jh-wrc6-jgq8,
+  GHSA-8r9p-f939-6h3c) where authorization headers could survive a redirect
+  to another origin. Exploiting it needed the Feishu API itself to redirect
+  elsewhere.
+- **Agent SDK 0.3.309** extracts its embedded Claude Code binary into a
+  per-user temporary directory and reuses an extracted copy only when its
+  bytes match, instead of a temporary directory shared with other users.
+- **Bounded `@anthropic-ai/sdk` on npm installs.** The agent SDK declares
+  this package as an open-ended peer dependency, so `npm install -g` pulled
+  whatever release was newest, including a new major. duoduo now declares it
+  directly with a bounded range.
+- Fastify moves to 5.12.7 (a low-severity header validation advisory; no
+  duoduo route used the affected feature). The remaining advisories
+  `npm audit` reported were in development tooling or in code paths that are
+  not part of the published packages; those dependencies are updated too.
+- The release pipeline pins its third-party build steps to exact commits and
+  no longer requests a package-registry write permission it did not use.
+
+### Updates
+
+- **pi 1.4.0.** No settings changes are needed. Notable upstream fixes:
+  sessions recover after a response is cut off at the output limit, and
+  compaction summaries no longer fail on long reasoning. See pi's release
+  notes.
+
 ## [v0.8.5] - 2026-10-13
 
 A maintenance release: dependency and security updates, two Feishu fixes, and
