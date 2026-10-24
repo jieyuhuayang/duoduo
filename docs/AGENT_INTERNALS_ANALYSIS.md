@@ -1,6 +1,6 @@
-# duoduo 运行时内部机制（v0.8.5 证据文档）
+# duoduo 运行时内部机制（v0.8.6 证据文档）
 
-> **对齐版本**：`@openduo/duoduo` v0.8.5（npm 运行时）。场景实测（标"在 v0.8.4 的还原 daemon 上实测"）是在 v0.8.4 上做的；v0.8.5 的 daemon 与 v0.8.4 相比只改了 job 工作目录的解析（10.1）和随包的 MCP SDK，cli 打包文件逐字节相同。
+> **对齐版本**：`@openduo/duoduo` v0.8.6（npm 运行时）。场景实测（标"在 v0.8.4 的还原 daemon 上实测"）是在 v0.8.4 上做的；v0.8.5 的 daemon 与 v0.8.4 相比只改了 job 工作目录的解析（10.1）和随包的 MCP SDK，v0.8.6 的 daemon 与 v0.8.5 相比自研代码只改了 Claude 子进程环境里的一个变量（7.3），其余改动都在内联的第三方库（fastify 及其依赖、pino 等）；cli 打包文件从 v0.8.4 到 v0.8.6 逐字节相同。
 > **证据来源**：还原源码 [`reconstruction/recon/daemon.recon.js`](../reconstruction/recon/daemon.recon.js) 及其符号索引；同一版本 npm 包内的 `bootstrap/` 提示词与仓库里的 `subconscious/`、`skills/`；少数注明之处来自运行中 daemon 的观测。取证方法与置信标注见"证据约定"。
 > **姊妹文档**：[`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md) 是写给产品经理的入门，节的顺序与本文一致，它的附录 C 把每一节对应到本文的证据节；[`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) 讲部署与运维；[`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 讲压缩 bundle 如何还原成可证明等价的源码；还原产物、符号索引与改名表在 [`../reconstruction/`](../reconstruction/)。
 

@@ -2,7 +2,7 @@
 
 > 调研日期：2026-10-16。
 > 调研问题：duoduo 怎样把 Claude Code 和 Codex 当作推理引擎来使用，[botmux](https://github.com/deepcoldy/botmux) 怎样使用同样两个工具，两种做法各自的长处与代价是什么。
-> 版本对齐：duoduo 的陈述对齐 `@openduo/duoduo` **v0.8.5**，证据是本仓库的还原源码，按名字引用（`真名 (短名)`）；机制细节见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 第 2、3、7 节，本文只引用结论所需的部分。botmux 的陈述对齐调研当天的 master 快照（commit `f77f32e`，2026-10-16），证据是该快照的源码路径；botmux 是 MIT 许可的 TypeScript 开源项目，不需要还原。
+> 版本对齐：duoduo 的陈述对齐 `@openduo/duoduo` **v0.8.6**，证据是本仓库的还原源码，按名字引用（`真名 (短名)`）；机制细节见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 第 2、3、7 节，本文只引用结论所需的部分。botmux 的陈述对齐调研当天的 master 快照（commit `f77f32e`，2026-10-16），证据是该快照的源码路径；botmux 是 MIT 许可的 TypeScript 开源项目，不需要还原。
 > 置信标记：每条机制主张标 `confirmed`（读过对应代码）或 `未证实推测`（写明缺什么证据）。本文没有运行任何一方的 daemon，所有结论来自静态阅读。
 
 ---
@@ -38,7 +38,7 @@
 
 ### 1.1 Claude Code
 
-duoduo 不启动 `claude` 命令，而是在 daemon 进程内调用 Agent SDK（confirmed）。`createAgentSdkAdapter (Hf)` 把会话的运行配置转换成 SDK `query()` 的参数，提供一次性的 `run()` 和常驻的流式调用两种方式；渠道会话使用后者，由 `createClaudeStreamingSessionFactory (VTe)` 在多个 turn 之间复用同一个 query，`includePartialMessages: !0`（`createAgentSdkAdapter`）让常驻连接总是收到增量输出。常驻连接的复用条件是配置签名不变，签名由 `computeStreamingConfigSignature (oZ)` 计算，签名一变就关闭旧连接、建立新连接（`teardownStreamingSession (gp)`）。适配器构造引擎子进程的环境时删掉 `CLAUDECODE` 并设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`（`delete s.CLAUDECODE`（`createAgentSdkAdapter`）），所以 Claude Code 自带的 auto memory 在 duoduo 里不工作，记忆只走 duoduo 自己的记忆目录。SDK 内部怎样运行 Claude Code 二进制不在 duoduo 的 bundle 里（未证实推测，缺 SDK 源码）。
+duoduo 不启动 `claude` 命令，而是在 daemon 进程内调用 Agent SDK（confirmed）。`createAgentSdkAdapter (Hf)` 把会话的运行配置转换成 SDK `query()` 的参数，提供一次性的 `run()` 和常驻的流式调用两种方式；渠道会话使用后者，由 `createClaudeStreamingSessionFactory (VTe)` 在多个 turn 之间复用同一个 query，`includePartialMessages: !0`（`createAgentSdkAdapter`）让常驻连接总是收到增量输出。常驻连接的复用条件是配置签名不变，签名由 `computeStreamingConfigSignature (oZ)` 计算，签名一变就关闭旧连接、建立新连接（`teardownStreamingSession (gp)`）。适配器构造引擎子进程的环境时删掉 `CLAUDECODE` 并设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`（`delete s.CLAUDECODE`（`createAgentSdkAdapter`）），所以 Claude Code 自带的 auto memory 在 duoduo 里不工作，记忆只走 duoduo 自己的记忆目录；v0.8.6 起还设置 `CLAUDE_CODE_FORK_SUBAGENT=0`（`s.CLAUDE_CODE_FORK_SUBAGENT = "0"`（`createAgentSdkAdapter`）），按上游 CHANGELOG 是为了关掉 SDK 默认提供的 fork 子代理。SDK 内部怎样运行 Claude Code 二进制不在 duoduo 的 bundle 里（未证实推测，缺 SDK 源码）。
 
 botmux 在 tmux 窗格里启动交互式 `claude` 命令（confirmed，`src/adapters/cli/claude-code.ts` 的 `buildArgs`）。启动参数包括：新会话用 `--session-id`，续接用 `--resume`；默认加 `--dangerously-skip-permissions`，并在内联 settings 里写 `permissions.defaultMode: 'bypassPermissions'`；用 `--disallowed-tools` 禁用 `EnterPlanMode` 与 `ExitPlanMode`；用 `--plugin-dir` 挂载只对本会话生效的 botmux skill 插件；用 `--append-system-prompt` 追加 botmux 的说明文字。会话后端默认是 tmux 这类持久后端，裸 PTY 只在显式配置时使用（confirmed，`src/adapters/backend/session-backend-selector.ts` 的注释“PTY 退役”）。Claude Code 自己的 memory、hooks、MCP、项目 `CLAUDE.md` 与 `/` 命令都保留。
 

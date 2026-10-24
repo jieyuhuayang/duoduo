@@ -1,7 +1,7 @@
 # duoduo 部署与运维架构分析
 
-> 对齐版本：`@openduo/duoduo` **v0.8.5**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
-> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.5 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.5 的行为，以代码为准（v0.8.5 的 cli 打包文件与 v0.8.4 逐字节相同，daemon 只改了 job 工作目录的解析与随包的 MCP SDK）；其中注明"在 v0.8.4 的还原 daemon 上实测"的结论来自本仓库的场景测试（[`../reconstruction/scenarios/findings/`](../reconstruction/scenarios/findings/)），测试对象是还原源码启动的 daemon，不是本机部署。§7 汇总本机部署的实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1）；这些部署没有在 v0.8.4 上重做，其中控制面探测（§7.5）的结论已在 v0.8.4 的还原 daemon 上复测（§4）。
+> 对齐版本：`@openduo/duoduo` **v0.8.6**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
+> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.6 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.6 的行为，以代码为准（v0.8.5 与 v0.8.6 的 cli 打包文件都与 v0.8.4 逐字节相同；v0.8.5 的 daemon 只改了 job 工作目录的解析与随包的 MCP SDK，v0.8.6 的 daemon 只多设一个 Claude 子进程环境变量并更新了内联的第三方库；v0.8.6 的 `bootstrap/` 与 v0.8.5 逐字节相同）；其中注明"在 v0.8.4 的还原 daemon 上实测"的结论来自本仓库的场景测试（[`../reconstruction/scenarios/findings/`](../reconstruction/scenarios/findings/)），测试对象是还原源码启动的 daemon，不是本机部署。§7 汇总本机部署的实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1）；这些部署没有在 v0.8.4 上重做，其中控制面探测（§7.5）的结论已在 v0.8.4 的还原 daemon 上复测（§4）。
 > 引用写法与置信标注都与 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 相同：`真名 (短名)` 或 `代码片段`（`真名`），不写行号；cli bundle 里的符号写作 `cli:真名`。机制主张标 `confirmed`（主张的核心由可检查的引用、包内文件原文或否定性证据支撑）或 `未证实推测`（写明缺什么证据）。cli bundle 里有一批函数还没有真名，只在这些函数里读到的 CLI 行为，本文照样写出运维结论，但标 `未证实推测` 并注明"cli 函数无真名"，这类项在 INTERNALS 14.4 汇总；这些函数打印的字符串可以直接引用。
 >
 > **姊妹篇**：本文是部署与运维层面的分析。入门与设计思路见 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（下称 GUIDE）；逐机制的代码证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（下称 INTERNALS）；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
@@ -247,7 +247,7 @@ Dashboard 在 `http://localhost:20233/dashboard`，是包内的单文件 HTML（
 
 ### 5.1 命令一览
 
-下表来自 v0.8.4 的 `duoduo --help` 与各子命令的帮助，v0.8.5 的 cli 打包文件与 v0.8.4 逐字节相同（confirmed）。`duoduo memory` 不在顶层帮助里，但 CLI 会分派它。
+下表来自 v0.8.4 的 `duoduo --help` 与各子命令的帮助，v0.8.5 与 v0.8.6 的 cli 打包文件都与 v0.8.4 逐字节相同（confirmed）。`duoduo memory` 不在顶层帮助里，但 CLI 会分派它。
 
 | 命令 | 用途 |
 |------|------|
@@ -310,6 +310,8 @@ v0.8.4 的 CHANGELOG 写明这次升级要重装核心包与 `@openduo/protocol`
 升级到 v0.8.5 前要核对所有 job 的 `cwd_rel`。v0.8.4 及以前，`cwd_rel` 借 `..` 指向工作区根目录之外的 job（只可能出现在手工编辑过的 job 文件里）不报错，静默在运行时管理的私有工作目录里运行，读不到项目的 `CLAUDE.md`；v0.8.5 起读取这个 job 时抛出 `Job <id> has invalid cwd_rel path`，job 管理器跳过它，扫描器不再调度它，每次扫描记一条 `Skipping unreadable job file` 日志（INTERNALS 10.1；上游 CHANGELOG 的说法是每次运行失败）。CHANGELOG 和 playbook 说绝对路径也会被拒绝，按代码并非如此：开头的 `/` 被去掉，`/srv/x` 按工作区根目录下的 `srv/x` 解析，这个目录不存在时 job 会话启动即报 `no longer exists`，v0.8.4 已经如此（INTERNALS 10.1）。playbook 用 `grep -rn '^cwd_rel:' <runtime_dir>/var/jobs/active` 列出全部取值，不是工作区根目录内路径的要改掉。同一版本修正了反方向的误判：名字以两个点开头的目录（如 `..x`）此前被当作在根目录之外，现在接受（confirmed，`isPathWithinDir (qve)`）。
 
 v0.8.5 的 CHANGELOG 写明这次升级要重装核心包与 `@openduo/protocol`（0.8.5）、飞书渠道包（0.8.5）和 ACP 渠道包（0.8.3，唯一的变化是带上许可证文件），然后重启 daemon 与两个渠道。随包依赖的变化：Claude Agent SDK 的范围改为 `^0.3.296`；pi 从 1.0.4 升到 1.2.0，它的六个配套包（`pi-agent-core`、`pi-ai`、`pi-codemode`、`pi-mcp`、`pi-telemetry`、`pi-tui`）在核心包 `package.json` 里固定为同一版本 1.2.0；`@modelcontextprotocol/sdk` 的范围改为 `^1.32.1`（核心包 `package.json` 原文，与 v0.8.4 的包逐字比对）。按 CHANGELOG，固定 pi 配套包是为了修正 v0.8.4 的新装与重装：pi 的配套包被解析到随包 pi 跑不了的新版本，pi 引擎的会话、job 与分区无法启动（未证实推测：pi 在 `pi-worker.js` 里，不在还原范围内）。核心包从这一版起带 `LICENSE`（FSL-1.1-Apache-2.0）与 `LICENSE.agents.yaml`，`package.json` 写 `"license": "SEE LICENSE IN LICENSE"`，v0.8.4 及以前的核心包没有许可证文件；按 CHANGELOG，protocol 与两个渠道包也从这一版起带许可证文件。2026-10-14 用 `npm view` 查到的最新版本与此一致：`@openduo/protocol` 与 `@openduo/channel-feishu` 是 0.8.5，`@openduo/channel-acp` 是 0.8.3。
+
+v0.8.6 是安全更新，CHANGELOG 写明要重装核心包（0.8.6）与飞书渠道包（0.8.6），然后重启 daemon 与飞书渠道；`@openduo/protocol`（0.8.5）与 ACP 渠道包（0.8.3）不变。随包依赖的变化（核心包 `package.json` 原文，与 v0.8.5 的包逐字比对）：Claude Agent SDK 的范围改为 `^0.3.309`；pi 从 1.2.0 升到 1.4.0，七个 `@earendil-works/pi-*` 包仍固定为同一版本；fastify 的范围改为 `^5.12.7`；新增直接依赖 `@anthropic-ai/sdk`，范围 `~0.127.0`。最后一项的原因按 CHANGELOG 是 Agent SDK 把它声明为不限版本的 peer dependency，`npm install -g` 因此装上它当时最新的大版本；2026-10-24 用 `--ignore-scripts` 在空目录里分别安装两版，v0.8.5 装到 `@anthropic-ai/sdk` 1.3.0，v0.8.6 装到 0.127.0。行为上唯一的变化是 daemon 给每个 Claude 会话的子进程环境设 `CLAUDE_CODE_FORK_SUBAGENT=0`，按 CHANGELOG 用来关掉 Agent SDK 0.3.302 起默认提供的 fork 子代理（confirmed 设置本身，INTERNALS 7.3；在 Claude Code 内的效果未证实推测），不需要改任何配置。飞书渠道的 `feishu-gateway.js` 只在重定向处理的那段库代码里有变化，CHANGELOG 说这是把内联的重定向库升到 1.16.1，修正跨域重定向时保留认证请求头的两个高危公告（版本号未在 bundle 里核对）；`stdio.js`、`pi-worker.js`、`channel-acp.js` 与 v0.8.5 逐字节相同。2026-10-24 用 `npm view` 查到的最新版本：`@openduo/duoduo` 与 `@openduo/channel-feishu` 是 0.8.6，`@openduo/protocol` 是 0.8.5，`@openduo/channel-acp` 是 0.8.3。
 
 升级不会更新内核里已有的分区提示词（§3.1）。要用新版提示词，必须按 `duoduo-runtime-admin` 技能的 subconscious refresh 流程显式刷新（技能原文 `references/subconscious-refresh.md`）：该流程要求内核 git 工作区干净，先展示差异再覆盖；只覆盖上游存在的文件，保留用户自建的分区；对分区 `CLAUDE.md` 保留用户调过的 `schedule:` 与 `runtime:`、`model:`、`effort:` 键，正文与 `contract:` 段取上游版本；最后以 `subconscious: refresh to <target-tag>` 提交一次，这次提交就是出问题时 `git revert` 的回退点。v0.8.4 改了 `gradient-distiller` 与 `intuition-weaver` 两个分区的提示词：`body.experience` 与 `external.record` 事件是另一个助手对它与 owner 之间对话的报告，两个分区把其中关于 owner 的说法当作待证实的转述，而不是 owner 的决定；改动收件人、凭据、权限或会话运行内容的条目，要有 owner 在第一手渠道上明确同意的记录才进入记忆板（CHANGELOG 与包内 `bootstrap/subconscious/` 原文）；不刷新，这两个分区就继续使用旧版提示词。刷新后不需要重启 daemon，分区在下一次心跳重新读取提示词。机制说明见 GUIDE 4.8。
 
@@ -510,5 +512,5 @@ $ curl -s -H 'Content-Type: application/json' \
 | daemon 日志 | macOS：`run/daemon.stderr.log`；其他平台：`duoduo daemon logs`（`run/daemon-supervisor.log`） |
 | 读事件日志 | `duoduo spine cat …`（对话记录）、`duoduo spine show <event-id>`（单条事件） |
 | 重启 | `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]` |
-| 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包；升级到 v0.8.4 前先核对所有写下的 `runtime` 值与 pi 的 DeepSeek Flash 模型 id，升级到 v0.8.5 前核对所有 job 的 `cwd_rel`（§5.3） |
+| 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包；升级到 v0.8.4 前先核对所有写下的 `runtime` 值与 pi 的 DeepSeek Flash 模型 id，升级到 v0.8.5 前核对所有 job 的 `cwd_rel`；升级到 v0.8.6 要同时重装飞书渠道包（§5.3） |
 | 引擎取值 | `claude`、`codex`、`grok`、`pi`；渠道配置另可写 `void`（不运行模型）；不认识的值被拒绝，`ALADUO_DEFAULT_RUNTIME` 写错时 daemon 不启动（§2.3） |
