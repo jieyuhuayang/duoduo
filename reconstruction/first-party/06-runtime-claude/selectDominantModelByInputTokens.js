@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: selectDominantModelByInputTokens  (minified: pot, daemon.pretty.js:55154)
+// symbol: selectDominantModelByInputTokens  (minified: llt, daemon.pretty.js:57236)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

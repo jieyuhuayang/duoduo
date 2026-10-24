@@ -1,7 +1,7 @@
 {
  "bundle": "cli",
- "version": "v0.8.5",
- "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.5/cli.pretty.js",
+ "version": "v0.8.6",
+ "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.6/cli.pretty.js",
  "symbolCount": 61,
  "counts": {
   "env": 6,

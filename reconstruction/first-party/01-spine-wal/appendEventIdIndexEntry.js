@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: appendEventIdIndexEntry  (minified: K8e, daemon.pretty.js:32137)
+// symbol: appendEventIdIndexEntry  (minified: WQe, daemon.pretty.js:34219)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,7 +12,7 @@ async function appendEventIdIndexEntry(paths, entry) {
     let line = `${stringifyJsonlRecord(entry)}
 `,
         eventIdIndexPath = resolveEventIdIndexPath(paths);
-    await LR.appendFile(eventIdIndexPath, line);
-    let cache = jR.get(eventIdIndexPath);
+    await eI.appendFile(eventIdIndexPath, line);
+    let cache = QR.get(eventIdIndexPath);
     cache && await isIndexLoadStillCurrent(cache) && cache.map.set(entry.event_id, entry)
 }

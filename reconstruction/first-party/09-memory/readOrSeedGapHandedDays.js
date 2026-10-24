@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: readOrSeedGapHandedDays  (minified: qdt, daemon.pretty.js:67825)
+// symbol: readOrSeedGapHandedDays  (minified: Lht, daemon.pretty.js:69907)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 3 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,14 +8,14 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function readOrSeedGapHandedDays(memoryDir, varDir, dryRun) {
-    let handedPath = Fc.join(varDir, "memory", dSe);
+    let handedPath = qc.join(varDir, "memory", rxe);
     try {
         return {
-            coverage: _S(au.readFileSync(handedPath, "utf8")),
+            coverage: $S(lu.readFileSync(handedPath, "utf8")),
             readFault: !1
         }
     } catch (err) {
-        if (!fSe(err)) return recordUnreadableMemoryPath(err), {
+        if (!ixe(err)) return recordUnreadableMemoryPath(err), {
             coverage: new Map,
             readFault: !0
         }
@@ -29,22 +29,22 @@ function readOrSeedGapHandedDays(memoryDir, varDir, dryRun) {
 `)}
 ` : "";
     if (dryRun) return {
-        coverage: _S(seedText),
+        coverage: $S(seedText),
         readFault: !1
     };
-    au.mkdirSync(Fc.dirname(handedPath), {
+    lu.mkdirSync(qc.dirname(handedPath), {
         recursive: !0
     });
     try {
-        return au.writeFileSync(handedPath, seedText, {
+        return lu.writeFileSync(handedPath, seedText, {
             encoding: "utf8",
             flag: "wx"
         }), {
-            coverage: _S(seedText),
+            coverage: $S(seedText),
             readFault: !1
         }
     } catch (err) {
         if (err?.code !== "EEXIST") throw err;
-        return Udt(handedPath)
+        return jht(handedPath)
     }
 }

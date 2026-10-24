@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: recordExternalSpineEvent  (minified: Tke, daemon.pretty.js:90475)
+// symbol: recordExternalSpineEvent  (minified: v0e, daemon.pretty.js:92557)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,7 +14,7 @@ async function recordExternalSpineEvent(paths, params) {
         reservedRefusal = checkReservedRecordSource(recordParams.source);
     if (reservedRefusal !== null) return reservedRefusal;
     let spineEvent = createSpineEvent({
-            type: tA,
+            type: yA,
             source: {
                 kind: recordParams.source
             },

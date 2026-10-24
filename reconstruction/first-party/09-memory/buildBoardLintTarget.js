@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: buildBoardLintTarget  (minified: fdt, daemon.pretty.js:67074)
+// symbol: buildBoardLintTarget  (minified: uht, daemon.pretty.js:69156)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 14 renamed — 2 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,9 +7,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function buildBoardLintTarget(slug, boardText, memoryDirs, topicPath) {
-    let boardLine = Nwe(boardText, slug),
+    let boardLine = Rke(boardText, slug),
         topicText = readMemoryFileSyncOrNull(topicPath) ?? "",
-        effectivenessPath = SH.join(memoryDirs.effectivenessDir, `${slug}.md`),
+        effectivenessPath = nW.join(memoryDirs.effectivenessDir, `${slug}.md`),
         memoryFile = readMemoryFileSyncOrNull(effectivenessPath),
         trajectory = "NO-EFF",
         strengthening = 0,
@@ -33,6 +33,6 @@ function buildBoardLintTarget(slug, boardText, memoryDirs, topicPath) {
         verdict,
         fmt: classifyTopicNodeFormat(topicText),
         cls: classifyTopicNodeType(topicText),
-        dual: isMemoryPathFile(SH.join(memoryDirs.entitiesDir, `${slug}.md`))
+        dual: isMemoryPathFile(nW.join(memoryDirs.entitiesDir, `${slug}.md`))
     }
 }

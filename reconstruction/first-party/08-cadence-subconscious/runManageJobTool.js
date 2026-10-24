@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runManageJobTool  (minified: Ag, daemon.pretty.js:64122)
+// symbol: runManageJobTool  (minified: qg, daemon.pretty.js:66204)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.4.0, v0.4.4, v0.4.5, v0.5.0, v0.5.4, v0.5.6, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 30 renamed — 9 from the code at the binding (rule), 21 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function runManageJobTool(input, ctx) {
-    let jobManager = new Br(ctx.paths);
+    let jobManager = new Hr(ctx.paths);
     await jobManager.init();
     try {
         let action = input.action;
@@ -19,24 +19,24 @@ async function runManageJobTool(input, ctx) {
         switch (input.action) {
             case "create": {
                 if (ctx.sessionKey?.startsWith("job:") === !0) {
-                    if (ctx.callerJobCron !== "keepalive") throw new Error(ylt);
-                    if (input.cron === "keepalive") throw new Error(_lt)
+                    if (ctx.callerJobCron !== "keepalive") throw new Error(ppt);
+                    if (input.cron === "keepalive") throw new Error(mpt)
                 }
                 if (!input.id || !input.cron || !input.instruction) throw new Error("Missing required arguments for 'create' action (id, cron, instruction)");
-                if (input.stateless === !0 && input.cron === "keepalive") throw new Error(j6);
+                if (input.stateless === !0 && input.cron === "keepalive") throw new Error(y6);
                 let runtimeCheck = validateRunnableRuntimeValue(input.runtime, "This job");
                 if (!runtimeCheck.ok) throw new Error(runtimeCheck.reason);
                 let runtime = runtimeCheck.runtime ?? ctx.callerRuntime ?? resolveDefaultRuntime(),
                     model = input.model;
-                if (model === void 0 || model.trim().length === 0) throw new Error(hlt);
+                if (model === void 0 || model.trim().length === 0) throw new Error(dpt);
                 if (containsWhitespaceChar(model)) throw new Error(`Invalid model id: ${JSON.stringify(model)}. A model id must not contain whitespace.`);
                 if (runtime === "pi" && !isProviderQualifiedModelId(model)) throw new Error(`Invalid pi model id: ${JSON.stringify(model)}. Pi model ids use the canonical "provider/modelId" form. List what this host serves with a pi channel session's \`/model\`, or \`duoduo session model <pi-channel-session>\`.`);
                 let effort = input.effort;
-                if (effort !== void 0 && !isEffortLevel(effort)) throw new Error(`Invalid effort: ${JSON.stringify(effort)}. Accepted values are ${qi.join(", ")}.`);
+                if (effort !== void 0 && !isEffortLevel(effort)) throw new Error(`Invalid effort: ${JSON.stringify(effort)}. Accepted values are ${Hi.join(", ")}.`);
                 let acceptance = input.acceptance;
-                if (acceptance === void 0 || acceptance.trim().length === 0) throw new Error(glt);
+                if (acceptance === void 0 || acceptance.trim().length === 0) throw new Error(fpt);
                 let promptMode = input.prompt_mode;
-                if (promptMode !== void 0 && runtime === "codex") throw new Error(Kut);
+                if (promptMode !== void 0 && runtime === "codex") throw new Error(Wft);
                 if (runtime === "codex") {
                     let codexAvailability = await checkCodexAvailability();
                     if (!codexAvailability.ok) throw new Error(codexAvailability.reason)
@@ -64,7 +64,7 @@ async function runManageJobTool(input, ctx) {
                     message = `Job '${input.id}' created successfully. Scheduled: ${input.cron}, Runtime: ${runtime}, Model: ${model}, Reports to: ${ctx.sessionKey??"(no owner)"}, Session: ${createdJob?.session_key??"unknown"}, CWD: ${createdJob?.execution_cwd??"unknown"}`;
                 return createResult.staleSidecarQuarantined && (message += `
 Warning: a stale state sidecar from a previous job with this id was found and quarantined at ${createResult.staleSidecarQuarantined}. The new job starts from fresh state (the old scheduling fields were not carried over).`), message += `
-${Zut}`, ctx.bus?.emit("job.created", {
+${Vft}`, ctx.bus?.emit("job.created", {
                     jobId: input.id
                 }), message
             }
@@ -136,13 +136,13 @@ ${Zut}`, ctx.bus?.emit("job.created", {
                         last_result: job.state.last_result,
                         session_key: job.session_key
                     };
-                    return job.frontmatter.cron === "keepalive" && (entry.note = Gut), entry
+                    return job.frontmatter.cron === "keepalive" && (entry.note = Hft), entry
                 });
                 return JSON.stringify([...jobEntries, ...wakeEntries], null, 2)
             }
             default: {
                 let action = input.action;
-                throw action === "archive" ? new Error(blt) : action === "reschedule" ? new Error(vlt) : new Error(`Unknown action: ${action??"unknown"}`)
+                throw action === "archive" ? new Error(hpt) : action === "reschedule" ? new Error(gpt) : new Error(`Unknown action: ${action??"unknown"}`)
             }
         }
     } catch (err) {

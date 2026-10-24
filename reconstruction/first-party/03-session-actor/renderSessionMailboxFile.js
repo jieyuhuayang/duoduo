@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: renderSessionMailboxFile  (minified: WR, daemon.pretty.js:32808)
+// symbol: renderSessionMailboxFile  (minified: uI, daemon.pretty.js:34890)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 10 renamed — 3 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,8 +13,8 @@ async function renderSessionMailboxFile(paths, sessionKey, items) {
     lines.push("", "## Notes", "");
     let sessionMailboxNotesPath = resolveSessionMailboxNotesPath(paths, sessionKey);
     try {
-        let noteLines = (await wr.readFile(sessionMailboxNotesPath, "utf8")).trim().split(`
-`).filter(Boolean).slice(-dYe);
+        let noteLines = (await Sr.readFile(sessionMailboxNotesPath, "utf8")).trim().split(`
+`).filter(Boolean).slice(-aet);
         for (let noteLine of noteLines) try {
             let parsed = JSON.parse(noteLine);
             lines.push(`- ${parsed.ts} ${parsed.note}`)

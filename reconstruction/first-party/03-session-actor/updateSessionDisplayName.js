@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: updateSessionDisplayName  (minified: Sce, daemon.pretty.js:35640)
+// symbol: updateSessionDisplayName  (minified: mfe, daemon.pretty.js:37722)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.4, v0.7.0 (maps/history_daemon.json)
 // locals: 10 renamed — 2 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,11 +14,11 @@ async function updateSessionDisplayName(paths, sessionKey, displayName) {
         let sessionMetaPath = resolveSessionMetaPath(paths, sessionKey),
             raw;
         try {
-            raw = await qa.readFile(sessionMetaPath, "utf8")
+            raw = await Ha.readFile(sessionMetaPath, "utf8")
         } catch {
             return
         }
-        let parsedMatter = (0, Gb.default)(raw, Sr),
+        let parsedMatter = (0, sv.default)(raw, kr),
             data = parsedMatter.data;
         if (data.session_key !== sessionKey || typeof data.kind != "string" || data.display_name !== void 0 && typeof data.display_name != "string") return;
         let trimmedName = displayName === null ? "" : displayName.trim(),
@@ -28,6 +28,6 @@ async function updateSessionDisplayName(paths, sessionKey, displayName) {
                 kind: data.kind,
                 display_name: trimmedName.length > 0 ? trimmedName : void 0
             };
-        await writeFileAtomic(sessionMetaPath, Gb.default.stringify(parsedMatter.content, stripUndefinedFieldsDeep(nextMeta))), updatedMeta = stripUndefinedFieldsDeep(nextMeta)
+        await writeFileAtomic(sessionMetaPath, sv.default.stringify(parsedMatter.content, stripUndefinedFieldsDeep(nextMeta))), updatedMeta = stripUndefinedFieldsDeep(nextMeta)
     }), updatedMeta && notifySessionFileChanged(sessionKey, "meta"), updatedMeta
 }

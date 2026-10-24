@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: describeContextProfileSource  (minified: aA, daemon.pretty.js:69908)
+// symbol: describeContextProfileSource  (minified: kA, daemon.pretty.js:71990)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ function describeContextProfileSource(requirement) {
     if (!requirement) return null;
     switch (requirement.kind) {
         case "profiled-external":
-            return requirement.modelOrigin ? hmt(requirement.modelOrigin) : requirement.source;
+            return requirement.modelOrigin ? d_t(requirement.modelOrigin) : requirement.source;
         case "unprofiled":
             return requirement.source;
         case "native-claude":

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: initSessionLockAndArchivingModule  (minified: Fa, daemon.pretty.js:32541)
+// symbol: initSessionLockAndArchivingModule  (minified: Ua, daemon.pretty.js:34623)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,10 +7,10 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Ab, UR, Um, initSessionLockAndArchivingModule = O(() => {
+var Vb, rI, Km, initSessionLockAndArchivingModule = N(() => {
     "use strict";
-    Ab = new Set, UR = new Map;
-    Um = class extends Error {
+    Vb = new Set, rI = new Map;
+    Km = class extends Error {
         kind = "session_archiving";
         sessionKey;
         constructor(sessionKey) {

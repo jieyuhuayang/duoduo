@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexStringInputSchema  (minified: vy, daemon.pretty.js:80393)
+// symbol: buildCodexStringInputSchema  (minified: Py, daemon.pretty.js:82475)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.2 (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

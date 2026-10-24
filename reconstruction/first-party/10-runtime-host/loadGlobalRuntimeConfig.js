@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: loadGlobalRuntimeConfig  (minified: li, daemon.pretty.js:36772)
+// symbol: loadGlobalRuntimeConfig  (minified: di, daemon.pretty.js:38854)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
 // locals: 8 renamed — 4 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,8 +8,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function loadGlobalRuntimeConfig(channelConfigDir) {
-    let filePath = Kce.join(channelConfigDir, `${Yr}.md`),
-        readResult = await Xce(filePath);
+    let filePath = qfe.join(channelConfigDir, `${Xr}.md`),
+        readResult = await Hfe(filePath);
     if (readResult.status === "absent") return null;
     if (readResult.status === "unreadable") {
         let unparseableIssues = [{
@@ -26,12 +26,12 @@ async function loadGlobalRuntimeConfig(channelConfigDir) {
         claudeModelAliases,
         claudeModelAliasIssues
     } = parseClaudeFrontmatterBlock(readResult.data);
-    return yI(filePath, claudeModelProfileIssues), yI(filePath, claudeModelAliasIssues, "claude.model_aliases"), {
+    return AI(filePath, claudeModelProfileIssues), AI(filePath, claudeModelAliasIssues, "claude.model_aliases"), {
         claudeModelProfiles,
         claudeModelProfileIssues,
         claudeModelAliases,
         claudeModelAliasIssues,
-        ...BU(readResult.data),
-        ...VU(readResult.data)
+        ...kq(readResult.data),
+        ...xq(readResult.data)
     }
 }

@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAgentSdkAdapter  (minified: jf, daemon.pretty.js:55529)
+// symbol: createAgentSdkAdapter  (minified: Hf, daemon.pretty.js:57611)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
+// since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.4, v0.8.6 (maps/history_daemon.json)
 // locals: 104 renamed — 25 from the code at the binding (rule), 79 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.4 (high): **Claude Code's own auto memory is off** in every Claude session duoduo starts, because it would keep a second memory store beside duoduo's.
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -48,7 +48,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
         let env = {
             ...process.env
         };
-        delete env.CLAUDECODE, (input.additionalDirectories?.length ?? 0) > 0 && input.autoloadAdditionalDirectoryClaudeMd !== !1 ? env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1" : input.autoloadAdditionalDirectoryClaudeMd === !1 && delete env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD, env.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", input.callerSession ? env[tl] = input.callerSession : delete env[tl], options.env = env, "claudeSettingsPath" in input && input.claudeSettingsPath && (options.settings = input.claudeSettingsPath);
+        delete env.CLAUDECODE, (input.additionalDirectories?.length ?? 0) > 0 && input.autoloadAdditionalDirectoryClaudeMd !== !1 ? env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1" : input.autoloadAdditionalDirectoryClaudeMd === !1 && delete env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD, env.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", env.CLAUDE_CODE_FORK_SUBAGENT = "0", input.callerSession ? env[tl] = input.callerSession : delete env[tl], options.env = env, "claudeSettingsPath" in input && input.claudeSettingsPath && (options.settings = input.claudeSettingsPath);
         let CLAUDECODEEXECUTABLE = process.env.CLAUDE_CODE_EXECUTABLE;
         if (CLAUDECODEEXECUTABLE && CLAUDECODEEXECUTABLE.trim().length > 0 && (options.pathToClaudeCodeExecutable = CLAUDECODEEXECUTABLE), "hooks" in input && input.hooks && (options.hooks = input.hooks), queryFlags?.includePartialMessages && (options.includePartialMessages = !0), sdkDebug) {
             let debugOptions = {
@@ -67,7 +67,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
     };
     return {
         async run(runInput) {
-            Jge();
+            F_e();
             let sessionId = runInput.sessionId,
                 resultText, structured, streamedText = "",
                 turnStreamedText = "",
@@ -85,7 +85,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
                 let hooks = queryOptions.hooks ?? {},
                     preToolUseHooks = hooks.PreToolUse ?? [];
                 preToolUseHooks.push({
-                    matcher: wc,
+                    matcher: xc,
                     hooks: [async hookInput => (hookInput?.agent_id !== void 0 || (skipCalled = !0, skipActive = !0, logInfoMessage("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
                         continue: !1,
                         stopReason: "The agent intentionally ended this turn silently by calling Skip."
@@ -177,7 +177,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
                 for await (let promptMessage of promptStream) yield promptMessage;
                 await inputHoldPromise
             }
-            let query = Hge({
+            let query = j_e({
                     prompt: holdInputOpen ? heldPromptGenerator() : runInput.prompt,
                     options: queryOptions
                 }),
@@ -301,8 +301,8 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
             }
         },
         createStreamingQuery(streamInput) {
-            return Jge(), {
-                query: Hge({
+            return F_e(), {
+                query: j_e({
                     prompt: streamInput.prompt,
                     options: buildQueryOptions(streamInput, {
                         includePartialMessages: !0

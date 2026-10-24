@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: extractStreamThinkingText  (minified: J$, daemon.pretty.js:55093)
+// symbol: extractStreamThinkingText  (minified: lC, daemon.pretty.js:57175)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 9 renamed — 7 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

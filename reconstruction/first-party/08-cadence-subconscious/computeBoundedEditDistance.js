@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: computeBoundedEditDistance  (minified: Zlt, daemon.pretty.js:65330)
+// symbol: computeBoundedEditDistance  (minified: Vpt, daemon.pretty.js:67412)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 11 renamed — 2 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

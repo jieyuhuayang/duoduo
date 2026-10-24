@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderMailboxEventPrompt  (minified: _A, daemon.pretty.js:71794)
+// symbol: renderMailboxEventPrompt  (minified: NA, daemon.pretty.js:73876)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.0, v0.5.1, v0.5.3, v0.5.4, v0.6.0, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 40 renamed — 12 from the code at the binding (rule), 28 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -40,7 +40,7 @@ ${escapeXmlText(resultText)}
                     sessionKind = classifySessionKeyOrUnknown(sessionKey),
                     deliveredAt = new Date().toISOString(),
                     attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
-                    guidance = Amt(sessionKind, scheduleType, stringProperty);
+                    guidance = P_t(sessionKind, scheduleType, stringProperty);
                 return [`<job-status event="job.fail" ${attributes}>`, guidance, `
 <job-error>
 ${escapeXmlText(errorText)}
@@ -67,7 +67,7 @@ ${escapeXmlText(errorText)}
                 sessionKind = classifySessionKeyOrUnknown(sessionKey),
                 hasTaskId = !!readStringProperty(innerPayload, "task_id"),
                 attributes = [sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", sourceKind ? `source_kind="${escapeXmlText(sourceKind)}"` : "", stringProperty ? `source_label="${escapeXmlText(stringProperty)}"` : "", stringProperty3 ? `correlation_id="${escapeXmlText(stringProperty3)}"` : "", stringProperty4 ? `reply_to="${escapeXmlText(stringProperty4)}"` : ""].filter(Boolean).join(" ");
-            return Nmt(sessionKind, sourceKind, stringProperty2 ?? void 0, notifyContent, attributes, {
+            return $_t(sessionKind, sourceKind, stringProperty2 ?? void 0, notifyContent, attributes, {
                 sentAt: event.ts,
                 deliveredAt: new Date().toISOString()
             }, stringProperty4 ?? void 0, hasTaskId)
@@ -81,7 +81,7 @@ ${escapeXmlText(errorText)}
     }
     if (eventPayload) {
         let stringProperty = readStringProperty(eventPayload, "text"),
-            extraLines = $mt(eventPayload);
+            extraLines = R_t(eventPayload);
         if (stringProperty && stringProperty.startsWith("/") || stringProperty && extraLines.length === 0) return stringProperty;
         if (!stringProperty && extraLines.length > 0) return extraLines.join(`
 `);

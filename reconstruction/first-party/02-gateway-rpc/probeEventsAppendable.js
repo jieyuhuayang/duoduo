@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: probeEventsAppendable  (minified: bde, daemon.pretty.js:87765)
+// symbol: probeEventsAppendable  (minified: dpe, daemon.pretty.js:89847)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,9 +8,9 @@
 
 async function probeEventsAppendable(paths, now = new Date) {
     let eventPartitionName = formatEventPartitionName(now),
-        partitionPath = pf.join(paths.eventsDir, eventPartitionName);
+        partitionPath = vf.join(paths.eventsDir, eventPartitionName);
     try {
-        return await (await Net.open(partitionPath, "a")).close(), !0
+        return await (await $it.open(partitionPath, "a")).close(), !0
     } catch {
         return !1
     }

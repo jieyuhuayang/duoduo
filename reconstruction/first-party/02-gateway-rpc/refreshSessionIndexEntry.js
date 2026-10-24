@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: refreshSessionIndexEntry  (minified: RIe, daemon.pretty.js:90961)
+// symbol: refreshSessionIndexEntry  (minified: _Pe, daemon.pretty.js:93043)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (medium): give a session a human label so it is legible in `list`

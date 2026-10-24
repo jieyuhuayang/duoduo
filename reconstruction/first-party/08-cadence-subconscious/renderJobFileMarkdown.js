@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: renderJobFileMarkdown  (minified: _ut, daemon.pretty.js:61577)
+// symbol: renderJobFileMarkdown  (minified: mft, daemon.pretty.js:63659)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.4, v0.5.4, v0.5.6, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

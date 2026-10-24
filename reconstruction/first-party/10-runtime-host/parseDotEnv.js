@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: parseDotEnv  (minified: GO, daemon.pretty.js:69046)
+// symbol: parseDotEnv  (minified: cA, daemon.pretty.js:71128)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.3.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 3 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

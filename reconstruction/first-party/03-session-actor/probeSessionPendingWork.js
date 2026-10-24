@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: probeSessionPendingWork  (minified: Cb, daemon.pretty.js:32429)
+// symbol: probeSessionPendingWork  (minified: Bb, daemon.pretty.js:34511)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.6.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,9 +10,9 @@
 async function probeSessionPendingWork(paths, sessionKey) {
     let sessionDir = resolveSessionDir(paths, sessionKey);
     try {
-        if ((await listPendingInboxFiles(Gr.join(sessionDir, "inbox"))).length > 0) return "pending";
+        if ((await listPendingInboxFiles(Zr.join(sessionDir, "inbox"))).length > 0) return "pending";
         try {
-            if ((await No.readdir(Gr.join(sessionDir, "mailbox", "pending"))).some(fileName => fileName.endsWith(".item.json"))) return "pending"
+            if ((await Mo.readdir(Zr.join(sessionDir, "mailbox", "pending"))).some(fileName => fileName.endsWith(".item.json"))) return "pending"
         } catch (err) {
             if (err.code !== "ENOENT") throw err
         }

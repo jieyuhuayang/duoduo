@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: computeStreamingConfigSignature  (minified: EG, daemon.pretty.js:82949)
+// symbol: computeStreamingConfigSignature  (minified: oZ, daemon.pretty.js:85031)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,7 +19,7 @@ function computeStreamingConfigSignature(options, boardHash) {
         tools: options.tools ?? [],
         additionalDirectories: options.additionalDirectories ?? [],
         autoloadAdditionalDirectoryClaudeMd: options.autoloadAdditionalDirectoryClaudeMd,
-        [SN]: boardHash,
-        [BRe]: contextModel
+        [LN]: boardHash,
+        [DTe]: contextModel
     })
 }

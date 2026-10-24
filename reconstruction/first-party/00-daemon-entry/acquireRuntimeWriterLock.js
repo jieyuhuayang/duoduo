@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: acquireRuntimeWriterLock  (minified: pH, daemon.pretty.js:89305)
+// symbol: acquireRuntimeWriterLock  (minified: J6, daemon.pretty.js:91387)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.8.0 (maps/history_daemon.json)
 // locals: 11 renamed — 2 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -18,21 +18,21 @@ async function acquireRuntimeWriterLock(paths, options = {}) {
             started_at: now.toISOString(),
             last_heartbeat_at: now.toISOString()
         };
-    await pS.mkdir(paths.runLocksDir, {
+    await ES.mkdir(paths.runLocksDir, {
         recursive: !0
     });
-    let tempPath = `${runtimeWriterLockPath}.${pid}-${Mct.randomUUID()}`,
+    let tempPath = `${runtimeWriterLockPath}.${pid}-${Omt.randomUUID()}`,
         linked = !1;
     try {
         await writeJsonFileAtomic(tempPath, lock);
         try {
-            await pS.link(tempPath, runtimeWriterLockPath), linked = !0
+            await ES.link(tempPath, runtimeWriterLockPath), linked = !0
         } catch (err) {
             if (err.code !== "EEXIST") throw err
         }
     } finally {
         try {
-            await pS.unlink(tempPath)
+            await ES.unlink(tempPath)
         } catch {}
     }
     if (linked) return {
@@ -41,7 +41,7 @@ async function acquireRuntimeWriterLock(paths, options = {}) {
         lock,
         lockPath: runtimeWriterLockPath
     };
-    let existingLock = await fH(runtimeWriterLockPath);
+    let existingLock = await W6(runtimeWriterLockPath);
     return existingLock && !isRuntimeWriterLockStale(existingLock, now, ttlMs) ? {
         acquired: !1,
         stale: !1,

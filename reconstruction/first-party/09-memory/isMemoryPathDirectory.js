@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: isMemoryPathDirectory  (minified: Ug, daemon.pretty.js:66858)
+// symbol: isMemoryPathDirectory  (minified: Kg, daemon.pretty.js:68940)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.7.1 (maps/history_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 
 function isMemoryPathDirectory(dirPath) {
     try {
-        return CO.statSync(dirPath).isDirectory()
+        return JO.statSync(dirPath).isDirectory()
     } catch (err) {
         return recordUnreadableMemoryPath(err), !1
     }

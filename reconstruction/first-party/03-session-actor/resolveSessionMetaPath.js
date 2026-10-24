@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: resolveSessionMetaPath  (minified: La, daemon.pretty.js:32400)
+// symbol: resolveSessionMetaPath  (minified: za, daemon.pretty.js:34482)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveSessionMetaPath(paths, sessionKey) {
-    return Gr.join(resolveSessionDir(paths, sessionKey), "meta.md")
+    return Zr.join(resolveSessionDir(paths, sessionKey), "meta.md")
 }

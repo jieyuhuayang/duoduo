@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: describeChannelInstance  (minified: ovt, daemon.pretty.js:90824)
+// symbol: describeChannelInstance  (minified: txt, daemon.pretty.js:92906)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.4, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 20 renamed — 10 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,13 +14,13 @@ async function describeChannelInstance(paths, actors, params) {
         sessionKey = params.session_key?.trim(),
         {
             isClaudeAvailable
-        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)),
+        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), yC)),
         {
             isCodexAvailable
-        } = await Promise.resolve().then(() => (initCodexAppServerModule(), C6)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), d6)),
         {
             isGrokAvailable
-        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), M6)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), g6)),
         runtimes = [];
     isClaudeAvailable() && runtimes.push("claude"), isCodexAvailable() && runtimes.push("codex"), isGrokAvailable() && runtimes.push("grok"), runtimes.push("pi");
     let availableRuntimes = runtimes,
@@ -58,11 +58,11 @@ async function describeChannelInstance(paths, actors, params) {
     if (!layeredChannelRuntime2.ok) throw new JsonRpcInvalidParamsError(layeredChannelRuntime2.reason);
     let workspace = channelDescriptor.new_session_workspace ?? channelKindConfig?.new_session_workspace,
         cwd;
-    return workspace && (cwd = await resolveExistingDirRealpath(workspace).catch(() => null) ?? so.resolve(workspace)), {
+    return workspace && (cwd = await resolveExistingDirRealpath(workspace).catch(() => null) ?? uo.resolve(workspace)), {
         configured: !0,
         session_exists: sessionExists,
         descriptor: {
-            cwd: cwd ?? so.resolve(paths.workDir),
+            cwd: cwd ?? uo.resolve(paths.workDir),
             runtime: layeredChannelRuntime2.runtime ?? resolveDefaultRuntime(),
             display_name: channelDescriptor.display_name,
             bound_by: channelDescriptor.bound_by,

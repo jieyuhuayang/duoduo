@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: readStateSourceChannelId  (minified: mwe, daemon.pretty.js:66296)
+// symbol: readStateSourceChannelId  (minified: ske, daemon.pretty.js:68378)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 2 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 
 async function readStateSourceChannelId(statePath) {
     try {
-        let content = await Ai.readFile(statePath, "utf8"),
+        let content = await Di.readFile(statePath, "utf8"),
             parsed = JSON.parse(content);
         if (typeof parsed.source_channel_id == "string" && parsed.source_channel_id.length > 0) return parsed.source_channel_id
     } catch {}

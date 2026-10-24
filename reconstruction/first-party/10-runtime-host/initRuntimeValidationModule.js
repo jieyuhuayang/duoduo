@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: initRuntimeValidationModule  (minified: Fu, daemon.pretty.js:31837)
+// symbol: initRuntimeValidationModule  (minified: Fu, daemon.pretty.js:33919)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,13 +7,13 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var jm, AR, xb, gae, initRuntimeValidationModule = O(() => {
+var Wm, ZR, Mb, ule, initRuntimeValidationModule = N(() => {
     "use strict";
-    hs();
-    jm = mR, AR = hR;
-    xb = class extends Error {
+    gs();
+    Wm = $R, ZR = CR;
+    Mb = class extends Error {
         constructor(message) {
             super(message), this.name = "InvalidRuntimeError"
         }
-    }, gae = values => values.map(value => `"${value}"`).join(", ")
+    }, ule = values => values.map(value => `"${value}"`).join(", ")
 });

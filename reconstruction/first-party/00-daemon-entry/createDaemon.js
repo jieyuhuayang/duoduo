@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: createDaemon  (minified: Rvt, daemon.pretty.js:92081)
+// symbol: createDaemon  (minified: Sxt, daemon.pretty.js:94163)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10, v0.3.0, v0.3.2, v0.3.3, v0.3.4, v0.3.6, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.4, v0.5.0, v0.5.4, v0.5.5, v0.5.6, v0.5.8, v0.5.10, v0.6.0, v0.7.0, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 257 renamed — 72 from the code at the binding (rule), 185 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,10 +8,10 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createDaemon(options) {
-    let readOnlyApp = (0, ON.default)({
+    let readOnlyApp = (0, GN.default)({
             logger: !1
         }),
-        socketApp = (0, ON.default)({
+        socketApp = (0, GN.default)({
             logger: !1
         }),
         remoteApp = null,
@@ -40,9 +40,9 @@ Content-Length: 0\r
             paths,
             bus
         } = options,
-        jobStore = new Br(paths),
+        jobStore = new Hr(paths),
         sessionIndex = options.sessionIndex ?? createEmptySessionIndex();
-    vce((sessionKey, changeKind) => {
+    ffe((sessionKey, changeKind) => {
         if (changeKind === "removed") {
             sessionIndex.remove(sessionKey);
             return
@@ -53,16 +53,16 @@ Content-Length: 0\r
                 replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta)
             } catch {}
         }).catch(() => {})
-    }), Iae(sessionKey => {
+    }), ble(sessionKey => {
         sessionIndex.remove(sessionKey)
     });
     let runtimeInfo = {
-            version: Ubt(import.meta.url)("../../package.json").version,
+            version: jkt(import.meta.url)("../../package.json").version,
             runtime_id: computeRuntimeId(paths.runtimeDir),
             runtime_mode: "host",
-            runtime_dir: so.resolve(paths.runtimeDir),
-            work_dir: so.resolve(paths.workDir),
-            kernel_dir: so.resolve(paths.kernelDir)
+            runtime_dir: uo.resolve(paths.runtimeDir),
+            work_dir: uo.resolve(paths.workDir),
+            kernel_dir: uo.resolve(paths.kernelDir)
         },
         subscriptions = options.subscriptions ?? createSessionSubscriptionRegistry();
     subscriptions.start(bus);
@@ -89,13 +89,13 @@ Content-Length: 0\r
                 worker_token: workerToken,
                 ...restParams
             } = request.params;
-            if (piWorkerContext = oye(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
+            if (piWorkerContext = Y_e(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
                 method: request.method
             }), response.error = {
                 code: -32001,
                 message: "invalid pi worker token"
             }, response;
-            if (!iye.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
+            if (!K_e.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
                 method: request.method,
                 session_key: piWorkerContext.session_key
             }), response.error = {
@@ -425,8 +425,8 @@ Content-Length: 0\r
                     channelKind = colonIndex > 0 ? params.session_key.slice(0, colonIndex) : null,
                     outboxRecord = null;
                 if (channelKind && (outboxRecord = await readOutboxRecord(paths, channelKind, trimmed2)), !outboxRecord || outboxRecord.session_key !== params.session_key) {
-                    let fallbackCursorRecord = await Cce(paths, params.session_key, trimmed2);
-                    return fallbackCursorRecord ? (await F6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
+                    let fallbackCursorRecord = await kfe(paths, params.session_key, trimmed2);
+                    return fallbackCursorRecord ? (await b6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
                         session_key: params.session_key,
                         consumer_id: trimmed,
                         committed_cursor: fallbackCursorRecord.id,
@@ -440,7 +440,7 @@ Content-Length: 0\r
                 if (!outboxByIdIndexEntry) try {
                     await backfillOutboxByIdIndexFromReplay(paths, params.session_key), outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, trimmed2)
                 } catch {}
-                outboxByIdIndexEntry ? await qbe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await F6(paths, params.session_key, trimmed, outboxRecord), response.result = {
+                outboxByIdIndexEntry ? await Nwe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await b6(paths, params.session_key, trimmed, outboxRecord), response.result = {
                     session_key: params.session_key,
                     consumer_id: trimmed,
                     committed_cursor: outboxRecord.id,
@@ -490,7 +490,7 @@ Content-Length: 0\r
                     kind: "active"
                 };
                 else if (jobClassification.kind === "invalid") response.error = {
-                    code: Mm.INVALID_ACTIVE,
+                    code: Vm.INVALID_ACTIVE,
                     message: `Job '${params.id}' active job file exists but is invalid: ${jobClassification.reason}`
                 };
                 else {
@@ -500,14 +500,14 @@ Content-Length: 0\r
                         kind: "archived",
                         archived: !0
                     } : response.error = {
-                        code: Mm.NOT_FOUND,
+                        code: Vm.NOT_FOUND,
                         message: "Job not found"
                     }
                 }
             } else if (request.method === "job.list") {
                 if (!isJobListParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 await jobStore.init();
-                let jobs = abe(await jobStore.listJobs()).map(job => ({
+                let jobs = Qve(await jobStore.listJobs()).map(job => ({
                         type: "job",
                         ...job
                     })),
@@ -566,7 +566,7 @@ Content-Length: 0\r
                 await jobStore.init();
                 let job = await jobStore.getJob(params.id) ?? await jobStore.getArchivedJob(params.id);
                 if (!job) response.error = {
-                    code: Mm.NOT_FOUND,
+                    code: Vm.NOT_FOUND,
                     message: `Job '${params.id}' not found`
                 };
                 else if (!options.sessionManager) response.error = {
@@ -713,7 +713,7 @@ Content-Length: 0\r
             } : err instanceof MemoryReadRpcError || err instanceof SpineRpcParamsError ? response.error = {
                 code: -32602,
                 message: err.message
-            } : err instanceof xb ? response.error = {
+            } : err instanceof Mb ? response.error = {
                 code: -32603,
                 message: err.message
             } : response.error = {
@@ -730,7 +730,7 @@ Content-Length: 0\r
         bearerToken
     }) => {
         if (bearerToken) {
-            let sha256 = value => AN.createHash("sha256").update(value).digest(),
+            let sha256 = value => ZN.createHash("sha256").update(value).digest(),
                 expectedTokenHash = sha256(bearerToken);
             app.addHook("onRequest", async (request, reply) => {
                 let authorization = request.headers.authorization,
@@ -738,14 +738,14 @@ Content-Length: 0\r
                 if (!presentedToken) return logWarnMessage("[daemon] rejected request: missing/invalid bearer", {
                     url: request.url
                 }), sendUnauthorized(request, reply);
-                if (!AN.timingSafeEqual(sha256(presentedToken), expectedTokenHash)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
+                if (!ZN.timingSafeEqual(sha256(presentedToken), expectedTokenHash)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
                     url: request.url
                 }), sendUnauthorized(request, reply)
             })
         }
         hostGuard && app.addHook("onRequest", async (request, reply) => {
             let url = request.routeOptions.url;
-            if (url !== void 0 && Hbt.has(url)) return;
+            if (url !== void 0 && Ukt.has(url)) return;
             let requestUrl = request.url ?? "",
                 host = request.headers.host,
                 hostname = host ? parseHostHeaderHostname(host) : null;
@@ -768,10 +768,10 @@ Content-Length: 0\r
             error: "upgrade_required",
             message: "This TCP port serves the daemon's read-only HTTP surface; it has no WebSocket endpoint and rejects all write methods. Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead. If a channel gateway is stuck retrying this port, reinstall/upgrade the channel and restart it (`duoduo channel <kind> stop`, then `start`) so it picks up the socket transport.",
             socket_path: paths.daemonSocketPath
-        }))) : app.register(kIe.default), app.get("/healthz", async () => vde()), app.get("/dashboard", async (request, reply) => {
-            let dashboardPath = so.join(paths.bootstrapDir, "dashboard.html");
+        }))) : app.register(hPe.default), app.get("/healthz", async () => fpe()), app.get("/dashboard", async (request, reply) => {
+            let dashboardPath = uo.join(paths.bootstrapDir, "dashboard.html");
             try {
-                let content = await zs.readFile(dashboardPath, "utf8");
+                let content = await Us.readFile(dashboardPath, "utf8");
                 return reply.type("text/html").send(content)
             } catch {
                 return reply.code(404).send("Dashboard not found")
@@ -785,7 +785,7 @@ Content-Length: 0\r
             if (!isJsonRpcRequest(body)) return logWarnMessage("[daemon] invalid JSON-RPC request"), reply.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
-            if (readOnly && !Vbt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
+            if (readOnly && !zkt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
                 method: body.method,
                 id: body.id ?? null
             }), reply.code(200).send({
@@ -996,10 +996,10 @@ Content-Length: 0\r
             try {
                 let socketPathBytes = Buffer.byteLength(daemonSocketPath);
                 if (socketPathBytes > 104) throw new Error(`daemon socket path is too long (${socketPathBytes} bytes > 104-byte unix-socket limit): ${daemonSocketPath}. Shorten it via a shorter ALADUO_RUNTIME_DIR or set ALADUO_DAEMON_SOCKET to a shorter absolute path.`);
-                let socketDir = so.dirname(daemonSocketPath),
+                let socketDir = uo.dirname(daemonSocketPath),
                     socketDirStat;
                 try {
-                    socketDirStat = await zs.stat(socketDir)
+                    socketDirStat = await Us.stat(socketDir)
                 } catch (err) {
                     throw new Error(`daemon socket directory is not accessible: ${socketDir} (${String(err)}). Point ALADUO_DAEMON_SOCKET at an absolute path inside a directory you own with mode 0700.`)
                 }
@@ -1008,19 +1008,19 @@ Content-Length: 0\r
                 if (dirMode !== 448 || uid !== void 0 && socketDirStat.uid !== uid) throw new Error(`daemon socket directory must be owned by this user and mode 0700 (found mode 0${dirMode.toString(8)}, uid ${socketDirStat.uid}): ${socketDir}. Use the default ALADUO_RUNTIME_DIR/run or point ALADUO_DAEMON_SOCKET at a 0700 directory you own.`);
                 let existingStat = null;
                 try {
-                    existingStat = await zs.lstat(daemonSocketPath)
+                    existingStat = await Us.lstat(daemonSocketPath)
                 } catch {
                     existingStat = null
                 }
                 if (existingStat)
-                    if (existingStat.isSocket()) await zs.unlink(daemonSocketPath);
+                    if (existingStat.isSocket()) await Us.unlink(daemonSocketPath);
                     else throw new Error(`daemon socket path is occupied by a non-socket file: ${daemonSocketPath}. Refusing to delete it — check ALADUO_DAEMON_SOCKET.`);
                 await socketApp.listen({
                     path: daemonSocketPath
-                }), socketListening = !0, await zs.chmod(daemonSocketPath, 384), await readOnlyApp.listen({
+                }), socketListening = !0, await Us.chmod(daemonSocketPath, 384), await readOnlyApp.listen({
                     port,
                     host: "127.0.0.1"
-                }), remoteListenerConfig.enabled && (remoteApp = (0, ON.default)({
+                }), remoteListenerConfig.enabled && (remoteApp = (0, GN.default)({
                     logger: !1
                 }), registerRoutes(remoteApp, {
                     hostGuard: !1,
@@ -1031,7 +1031,7 @@ Content-Length: 0\r
                     host: remoteListenerConfig.host
                 }), logAlwaysAtLevel("info", `[daemon] remote full-access listener on ${remoteListenerConfig.host}:${remoteListenerConfig.port} (bearer-gated)`))
             } catch (err) {
-                throw await readOnlyApp.close().catch(() => {}), await socketApp.close().catch(() => {}), remoteApp && (await remoteApp.close().catch(() => {}), remoteApp = null), socketListening && await zs.unlink(daemonSocketPath).catch(() => {}), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1), err
+                throw await readOnlyApp.close().catch(() => {}), await socketApp.close().catch(() => {}), remoteApp && (await remoteApp.close().catch(() => {}), remoteApp = null), socketListening && await Us.unlink(daemonSocketPath).catch(() => {}), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1), err
             }
             let envIntegerOrFallback = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
             lockHeartbeatTimer = setInterval(() => {
@@ -1041,7 +1041,7 @@ Content-Length: 0\r
         async stop() {
             subscriptions.stop();
             let closePromises = [readOnlyApp.close(), socketApp.close()];
-            remoteApp && closePromises.push(remoteApp.close()), await Promise.all(closePromises), remoteApp = null, await Promise.allSettled(map2.values()), await Promise.allSettled(map.values()), await zs.unlink(daemonSocketPath).catch(() => {}), lockHeartbeatTimer && (clearInterval(lockHeartbeatTimer), lockHeartbeatTimer = null), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1)
+            remoteApp && closePromises.push(remoteApp.close()), await Promise.all(closePromises), remoteApp = null, await Promise.allSettled(map2.values()), await Promise.allSettled(map.values()), await Us.unlink(daemonSocketPath).catch(() => {}), lockHeartbeatTimer && (clearInterval(lockHeartbeatTimer), lockHeartbeatTimer = null), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1)
         }
     }
 }

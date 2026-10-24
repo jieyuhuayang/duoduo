@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: enqueueSessionCompactCommand  (minified: mvt, daemon.pretty.js:91333)
+// symbol: enqueueSessionCompactCommand  (minified: cxt, daemon.pretty.js:93415)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.8 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

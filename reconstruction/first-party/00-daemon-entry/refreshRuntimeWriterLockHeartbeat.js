@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: refreshRuntimeWriterLockHeartbeat  (minified: Swe, daemon.pretty.js:89353)
+// symbol: refreshRuntimeWriterLockHeartbeat  (minified: mke, daemon.pretty.js:91435)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,6 +8,6 @@
 
 async function refreshRuntimeWriterLockHeartbeat(paths, now = new Date) {
     let runtimeWriterLockPath = resolveRuntimeWriterLockPath(paths),
-        lock = await fH(runtimeWriterLockPath);
+        lock = await W6(runtimeWriterLockPath);
     !lock || lock.pid !== process.pid || (lock.last_heartbeat_at = now.toISOString(), await writeJsonFileAtomic(runtimeWriterLockPath, lock))
 }

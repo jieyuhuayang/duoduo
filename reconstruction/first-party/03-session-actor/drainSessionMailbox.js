@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: drainSessionMailbox  (minified: Bxe, daemon.pretty.js:70663)
+// symbol: drainSessionMailbox  (minified: DEe, daemon.pretty.js:72745)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.3.4, v0.3.5, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.5, v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 239 renamed — 64 from the code at the binding (rule), 175 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -48,7 +48,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
             let currentStreamGeneration = options.getStreamGeneration?.(),
                 inProcessBreak = detectInProcessBreak(usageTotals, initialStreamGeneration !== void 0 && currentStreamGeneration !== void 0 && currentStreamGeneration !== initialStreamGeneration);
             await appendDrainRecord(paths, {
-                id: Fxe.randomUUID(),
+                id: CEe.randomUUID(),
                 session_key: sessionKey,
                 sdk_session_id: sdkSessionId,
                 drain_started_at: new Date(now).toISOString(),
@@ -110,7 +110,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
         try {
             await runTimedDrainPhase(perf, "mailbox_merge_ms", async () => mergeInboxIntoMailbox(paths, sessionKey))
         } catch (err) {
-            if (Aae(err)) return {
+            if (Ele(err)) return {
                 processed: 0,
                 skipped: 0,
                 lockAcquired: !0,
@@ -141,8 +141,8 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
             }
         }
         await runTimedDrainPhase(perf, "mailbox_render_ms", async () => renderSessionMailboxFile(paths, sessionKey, pendingItems));
-        let batchSize = options.batchSize ?? AW,
-            mergeWindowMs = options.mergeWindowMs ?? NW,
+        let batchSize = options.batchSize ?? pJ,
+            mergeWindowMs = options.mergeWindowMs ?? mJ,
             sdk = options.sdk ?? createAgentSdkAdapter(),
             batch = await batchDrainItems(paths, pendingItems, {
                 fallbackBatchSize: batchSize,
@@ -199,7 +199,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
                 lastOutboxRecord,
                 outboxRecords
             }), sessionState = await runTimedDrainPhase(perf, "session_state_ms", async () => readSessionRuntimeState(paths, sessionKey)), sessionInfoFromState = buildSessionInfoFromState(paths, sessionKey, sessionState ?? void 0), statelessJob = options.jobContext?.stateless === !0, pendingGatewayNotice = sessionState?.pending_gateway_notice, pendingInterruptedContext = sessionState?.pending_interrupted_context, pendingSkipRewind = sessionState?.pending_skip_rewind, gatewayNoticeCleared = !1, interruptedContextCleared = !1, skipRewindCleared = !1, costBaseline = sessionState?.claude_cost_baseline, timeGapConsumed = !1, pendingCompactNotice = resolvePendingCompactNotice(sessionState), compactNoticeInjected = !1, restartHintDecision = decideRestartHintInjection({
-                currentDaemonStartedAt: TW,
+                currentDaemonStartedAt: uJ,
                 sessionKey,
                 lastEventAt: sessionState?.last_event_at,
                 lastSeenDaemonStartedAt: sessionState?.last_seen_daemon_started_at
@@ -208,7 +208,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
             last_seen_daemon_started_at: restartHintDecision.writeLastSeenAtEntry
         }).catch(() => {});
         let daemonRestartHint = restartHintDecision.inject ? {
-                startedAt: TW
+                startedAt: uJ
             } : void 0,
             writeLastSeenOnInjectSuccess = restartHintDecision.writeLastSeenOnInjectSuccess,
             daemonRestartHintInjected = !1,
@@ -446,7 +446,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
                     systemPrompt,
                     sdkRunConfig
                 } = drainTurnContext,
-                kindlessConfig = await Txe(paths, drainTurnContext.anchorChannelConfig, options.jobContext?.sdkConfig),
+                kindlessConfig = await vEe(paths, drainTurnContext.anchorChannelConfig, options.jobContext?.sdkConfig),
                 turnModelWithLayer = resolveTurnModelWithLayer({
                     jobModel: options.jobContext?.model,
                     sessionModel: sessionInfoFromState.model,
@@ -710,7 +710,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
                     eventPayload = isNonNullObject(resolvedItem.event.payload) ? resolvedItem.event.payload : void 0,
                     payloadMediaRefs = extractPayloadMediaRefs(resolvedItem.event.payload),
                     effectiveConfig = applyJobSdkConfigOverride(await runTimedDrainPhase(perf, "effective_config_ms", async () => resolveEffectiveChannelConfigForEvent(paths, resolvedItem.event)), options.jobContext?.sdkConfig),
-                    kindlessConfig = await Txe(paths, effectiveConfig, options.jobContext?.sdkConfig),
+                    kindlessConfig = await vEe(paths, effectiveConfig, options.jobContext?.sdkConfig),
                     turnModelWithLayer = resolveTurnModelWithLayer({
                         jobModel: options.jobContext?.model,
                         sessionModel: sessionInfoFromState.model,
@@ -765,7 +765,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
                             cron: options.jobContext.cron
                         })
                     }
-                    jobTick && (prompt = zmt)
+                    jobTick && (prompt = M_t)
                 }
                 let daemonRestartHintForTurn = !daemonRestartHintInjected && daemonRestartHint ? daemonRestartHint : void 0,
                     compactNoticeForTurn = (effectiveConfig?.auto_compact_idle_minutes ?? 0) > 0 && !compactNoticeInjected && pendingCompactNotice ? pendingCompactNotice : void 0,

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: daemonRestartReasonPath  (minified: Ict, daemon.pretty.js:66053)
+// symbol: daemonRestartReasonPath  (minified: kmt, daemon.pretty.js:68135)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.6.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function daemonRestartReasonPath(paths) {
-    return Rct.join(paths.varDir, "daemon-restart-reason.json")
+    return Smt.join(paths.varDir, "daemon-restart-reason.json")
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: listMemorySlugReferrers  (minified: Mft, daemon.pretty.js:68781)
+// symbol: listMemorySlugReferrers  (minified: Ogt, daemon.pretty.js:70863)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,7 +17,7 @@ function listMemorySlugReferrers(slug, memoryDirs) {
         ])
         for (let otherSlug of listMarkdownSlugsSync(dir)) {
             if (otherSlug === slug) continue;
-            let memoryFile = readMemoryFileSyncOrNull(wS.join(dir, `${otherSlug}.md`));
+            let memoryFile = readMemoryFileSyncOrNull(AS.join(dir, `${otherSlug}.md`));
             memoryFile !== null && memoryFile.includes(needle) && referrers.push(`${tree}/${otherSlug}.md`)
         }
     return referrers.sort(compareStringsAscending), referrers

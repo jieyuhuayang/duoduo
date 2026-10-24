@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: buildNotifyInputSchema  (minified: gO, daemon.pretty.js:65267)
+// symbol: buildNotifyInputSchema  (minified: OO, daemon.pretty.js:67349)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.5.4, v0.8.0, v0.8.2, v0.8.4 (maps/history_daemon.json)
 // locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,7 +12,7 @@ function buildNotifyInputSchema(ctx) {
         sessionKey,
         sessionContextKind
     } = ctx, contextKind = sessionContextKind ?? (isJobSessionKeyKind(sessionKey) ? "job" : "foreground"), schema = {
-        notify_content: mt.string().describe(Blt())
+        notify_content: mt.string().describe(Fpt())
     };
     return contextKind === "job" ? schema.target_session_key = mt.string().optional().describe(["Optional: override this job's default Notify target.", "If omitted, the target is the job's owner — the session that created it.", "If provided, delivers to this specific session instead.", "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery, unless that session runs no model."].join(`
 `)) : schema.target_session_key = mt.string().describe(["Target to receive this internal notification: either a session key or a session's display-name alias (resolved server-side).", "Call ViewSessions with no argument to see the sessions you can target (prefer active sessions).", "This tool wakes the target session after delivery, unless that session runs no model."].join(`

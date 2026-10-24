@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: listArchivedCopiesNewestFirst  (minified: gwe, daemon.pretty.js:66317)
+// symbol: listArchivedCopiesNewestFirst  (minified: uke, daemon.pretty.js:68399)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 11 renamed — 1 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 async function listArchivedCopiesNewestFirst(dir, baseName) {
     let entries;
     try {
-        entries = await Ai.readdir(dir)
+        entries = await Di.readdir(dir)
     } catch {
         return []
     }
@@ -19,7 +19,7 @@ async function listArchivedCopiesNewestFirst(dir, baseName) {
     if (matches.length === 0) return [];
     let candidates = await Promise.all(matches.map(async entryName => {
         try {
-            let stats = await Ai.stat(er.join(dir, entryName));
+            let stats = await Di.stat(er.join(dir, entryName));
             return {
                 name: entryName,
                 mtimeMs: stats.mtimeMs,

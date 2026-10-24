@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: readGlobalUsageTotals  (minified: fq, daemon.pretty.js:37167)
+// symbol: readGlobalUsageTotals  (minified: Wq, daemon.pretty.js:39249)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ async function readGlobalUsageTotals(paths, since) {
     await ensureDirectoryExists(paths.usageDir);
     let fileNames;
     try {
-        fileNames = await SI.readdir(paths.usageDir)
+        fileNames = await LI.readdir(paths.usageDir)
     } catch {
         return summarizeDrainRecords([])
     }

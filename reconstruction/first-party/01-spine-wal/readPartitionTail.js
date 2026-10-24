@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: readPartitionTail  (minified: kwe, daemon.pretty.js:89411)
+// symbol: readPartitionTail  (minified: hke, daemon.pretty.js:91493)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 16 renamed — 2 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 async function readPartitionTail(paths, partition, limit, cursorId, scanToCursor = !1) {
     let handle;
     try {
-        handle = await qct.open(Bct.join(paths.eventsDir, partition), "r");
+        handle = await Lmt.open(Fmt.join(paths.eventsDir, partition), "r");
         let {
             size,
             blksize

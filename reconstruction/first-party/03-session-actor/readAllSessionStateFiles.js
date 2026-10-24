@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: readAllSessionStateFiles  (minified: nh, daemon.pretty.js:35672)
+// symbol: readAllSessionStateFiles  (minified: dh, daemon.pretty.js:37754)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 2 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,14 +11,14 @@ async function readAllSessionStateFiles(paths) {
     let statesByKey = {},
         entries;
     try {
-        entries = await qa.readdir(paths.sessionsDir)
+        entries = await Ha.readdir(paths.sessionsDir)
     } catch {
         return statesByKey
     }
     for (let sessionHash of entries) {
-        let statePath = KQe.join(paths.sessionsDir, sessionHash, "state.json");
+        let statePath = Grt.join(paths.sessionsDir, sessionHash, "state.json");
         try {
-            let content = await qa.readFile(statePath, "utf8"),
+            let content = await Ha.readFile(statePath, "utf8"),
                 parsed = JSON.parse(content);
             parsed.session_key && (statesByKey[parsed.session_key] = parsed)
         } catch {}

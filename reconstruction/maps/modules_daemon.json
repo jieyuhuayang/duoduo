@@ -290,6 +290,15 @@
       ],
       "names": 258,
       "note": "zod classic/external (public surface)"
+    },
+    {
+      "marker": [
+        "parseCookie",
+        "parseSetCookie",
+        "stringifyCookie"
+      ],
+      "names": 4,
+      "note": "cookie 2.x (dependency of light-my-request, which fastify uses for inject); first emitted as a block in v0.8.6"
     }
   ],
   "firstParty": [

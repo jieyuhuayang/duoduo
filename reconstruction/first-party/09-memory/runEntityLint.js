@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runEntityLint  (minified: Vwe, daemon.pretty.js:67205)
+// symbol: runEntityLint  (minified: Mke, daemon.pretty.js:69287)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.0 (maps/history_daemon.json)
 // locals: 15 renamed — 2 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -18,8 +18,8 @@ function runEntityLint(memoryDir, limit, options) {
         reachable = walkReachableMemory(boardText, createMemorySlugReader(memoryDirs)),
         rows = [];
     for (let slug of listMarkdownSlugsSync(memoryDirs.entitiesDir)) {
-        let memoryFile = readMemoryFileSyncOrNull(mdt.join(memoryDirs.entitiesDir, `${slug}.md`));
-        if (memoryFile === null || hdt(memoryFile)) continue;
+        let memoryFile = readMemoryFileSyncOrNull(cht.join(memoryDirs.entitiesDir, `${slug}.md`));
+        if (memoryFile === null || dht(memoryFile)) continue;
         let kb = bytesToKibCeil(measureUtf8ByteLength(memoryFile)),
             lineCount = countNewlineChars(memoryFile),
             datedCount = countDatedStampLines(memoryFile),
@@ -33,7 +33,7 @@ function runEntityLint(memoryDir, limit, options) {
             score
         })
     }
-    rows.sort(Uwe);
+    rows.sort(Ake);
     let selected = (Number.isFinite(limit) && limit > 0 ? rows.slice(0, limit) : []).map(row => ({
         row,
         kind: Vn.ENTITY_CONVERGE,

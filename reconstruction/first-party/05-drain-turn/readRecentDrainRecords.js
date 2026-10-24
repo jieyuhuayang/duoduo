@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: readRecentDrainRecords  (minified: Aet, daemon.pretty.js:37184)
+// symbol: readRecentDrainRecords  (minified: Pit, daemon.pretty.js:39266)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 9 renamed — 0 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ async function readRecentDrainRecords(paths, limit) {
     await ensureDirectoryExists(paths.usageDir);
     let fileNames;
     try {
-        fileNames = await SI.readdir(paths.usageDir)
+        fileNames = await LI.readdir(paths.usageDir)
     } catch {
         return []
     }

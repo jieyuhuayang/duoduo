@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: deliverDaemonRestartWakes  (minified: dvt, daemon.pretty.js:91248)
+// symbol: deliverDaemonRestartWakes  (minified: axt, daemon.pretty.js:93330)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

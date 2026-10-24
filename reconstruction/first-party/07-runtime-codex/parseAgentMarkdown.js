@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: parseAgentMarkdown  (minified: Jke, daemon.pretty.js:69611)
+// symbol: parseAgentMarkdown  (minified: F0e, daemon.pretty.js:71693)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in v0.7.0 (maps/history_daemon.json)
 // locals: 8 renamed — 0 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,9 +7,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function parseAgentMarkdown(filePath, content) {
-    let parsed = (0, Wke.default)(content, Sr),
+    let parsed = (0, L0e.default)(content, kr),
         frontmatter = parsed.data ?? {},
-        baseName = pa.basename(filePath, ".md"),
+        baseName = ma.basename(filePath, ".md"),
         name = (typeof frontmatter.name == "string" && frontmatter.name.trim().length > 0 ? frontmatter.name.trim() : void 0) ?? baseName,
         description = typeof frontmatter.description == "string" && frontmatter.description.trim().length > 0 ? frontmatter.description.trim() : `Agent ${name}`,
         body = parsed.content.replace(/^\s+/, "").replace(/\s+$/, "");

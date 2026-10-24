@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverRouteEventToSession  (minified: As, daemon.pretty.js:65039)
+// symbol: deliverRouteEventToSession  (minified: Ns, daemon.pretty.js:67121)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.4 (maps/history_daemon.json)
 // locals: 21 renamed — 14 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -83,7 +83,7 @@ async function deliverRouteEventToSession(paths, bus, delivery) {
             eventTs: spineEvent.ts
         };
         if (await isVoidRuntimeSession(paths, targetSessionKey)) {
-            let payloadRecord = qlt(payload) ? payload : {},
+            let payloadRecord = Lpt(payload) ? payload : {},
                 outboxRecord = await writeVoidSessionOutboxRecord(paths, bus, {
                     sessionKey: targetSessionKey,
                     text: typeof payloadRecord.text == "string" ? payloadRecord.text : "",
