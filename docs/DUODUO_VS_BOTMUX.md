@@ -38,13 +38,13 @@
 
 ### 1.1 Claude Code
 
-duoduo 不启动 `claude` 命令，而是在 daemon 进程内调用 Agent SDK（confirmed）。`createAgentSdkAdapter (jf)` 把会话的运行配置转换成 SDK `query()` 的参数，提供一次性的 `run()` 和常驻的流式调用两种方式；渠道会话使用后者，由 `createClaudeStreamingSessionFactory (QRe)` 在多个 turn 之间复用同一个 query，`includePartialMessages: !0`（`createAgentSdkAdapter`）让常驻连接总是收到增量输出。常驻连接的复用条件是配置签名不变，签名由 `computeStreamingConfigSignature (EG)` 计算，签名一变就关闭旧连接、建立新连接（`teardownStreamingSession (lp)`）。适配器构造引擎子进程的环境时删掉 `CLAUDECODE` 并设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`（`delete s.CLAUDECODE`（`createAgentSdkAdapter`）），所以 Claude Code 自带的 auto memory 在 duoduo 里不工作，记忆只走 duoduo 自己的记忆目录。SDK 内部怎样运行 Claude Code 二进制不在 duoduo 的 bundle 里（未证实推测，缺 SDK 源码）。
+duoduo 不启动 `claude` 命令，而是在 daemon 进程内调用 Agent SDK（confirmed）。`createAgentSdkAdapter (Hf)` 把会话的运行配置转换成 SDK `query()` 的参数，提供一次性的 `run()` 和常驻的流式调用两种方式；渠道会话使用后者，由 `createClaudeStreamingSessionFactory (VTe)` 在多个 turn 之间复用同一个 query，`includePartialMessages: !0`（`createAgentSdkAdapter`）让常驻连接总是收到增量输出。常驻连接的复用条件是配置签名不变，签名由 `computeStreamingConfigSignature (oZ)` 计算，签名一变就关闭旧连接、建立新连接（`teardownStreamingSession (gp)`）。适配器构造引擎子进程的环境时删掉 `CLAUDECODE` 并设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`（`delete s.CLAUDECODE`（`createAgentSdkAdapter`）），所以 Claude Code 自带的 auto memory 在 duoduo 里不工作，记忆只走 duoduo 自己的记忆目录。SDK 内部怎样运行 Claude Code 二进制不在 duoduo 的 bundle 里（未证实推测，缺 SDK 源码）。
 
 botmux 在 tmux 窗格里启动交互式 `claude` 命令（confirmed，`src/adapters/cli/claude-code.ts` 的 `buildArgs`）。启动参数包括：新会话用 `--session-id`，续接用 `--resume`；默认加 `--dangerously-skip-permissions`，并在内联 settings 里写 `permissions.defaultMode: 'bypassPermissions'`；用 `--disallowed-tools` 禁用 `EnterPlanMode` 与 `ExitPlanMode`；用 `--plugin-dir` 挂载只对本会话生效的 botmux skill 插件；用 `--append-system-prompt` 追加 botmux 的说明文字。会话后端默认是 tmux 这类持久后端，裸 PTY 只在显式配置时使用（confirmed，`src/adapters/backend/session-backend-selector.ts` 的注释“PTY 退役”）。Claude Code 自己的 memory、hooks、MCP、项目 `CLAUDE.md` 与 `/` 命令都保留。
 
 ### 1.2 Codex
 
-duoduo 对 Codex 只用一种方式：一个常驻的 `codex app-server` 子进程，以 detached 方式启动，在 stdin/stdout 上走 JSON-RPC（confirmed，`this.proc = wut(this.binary, ["app-server"]`（`initCodexAppServerModule`），适配器为 `createCodexAppServerAdapter (Bw)`）。可用性探测运行 `codex --version` 与 `codex login status`，后者输出须含 `"logged in"`（`checkCodexAvailability`）。duoduo 的自操作工具以 `dynamicTools` 挂在 `ALADUO_TOOL_NAMESPACE (VC)` 命名空间下，`buildCodexDirectOnlyToolConfig (R6)` 让它们保持为模型可直接调用的工具；审批策略固定为 `"never"`，沙箱级别由 `resolveCodexSandbox ($g)` 从 `ALADUO_CODEX_SANDBOX` 读出。`/model` 切换不立即生效，而是由 `resolvePendingModelFork (fht)` 记下当前线程，下一次 drain 用 `thread/fork` 从它派生新线程（confirmed）。
+duoduo 对 Codex 只用一种方式：一个常驻的 `codex app-server` 子进程，以 detached 方式启动，在 stdin/stdout 上走 JSON-RPC（confirmed，`this.proc = yft(this.binary, ["app-server"]`（`initCodexAppServerModule`），适配器为 `createCodexAppServerAdapter (tS)`）。可用性探测运行 `codex --version` 与 `codex login status`，后者输出须含 `"logged in"`（`checkCodexAvailability`）。duoduo 的自操作工具以 `dynamicTools` 挂在 `ALADUO_TOOL_NAMESPACE (sO)` 命名空间下，`buildCodexDirectOnlyToolConfig (s6)` 让它们保持为模型可直接调用的工具；审批策略固定为 `"never"`，沙箱级别由 `resolveCodexSandbox (Fg)` 从 `ALADUO_CODEX_SANDBOX` 读出。`/model` 切换不立即生效，而是由 `resolvePendingModelFork (ubt)` 记下当前线程，下一次 drain 用 `thread/fork` 从它派生新线程（confirmed）。
 
 botmux 对 Codex 有三种方式（confirmed）：
 
@@ -57,17 +57,17 @@ botmux 对 Codex 有三种方式（confirmed）：
 | 环节 | duoduo | botmux |
 |---|---|---|
 | 输入怎样送达 | Claude：放进常驻 query 的输入队列，由一个 async generator 每次只放行一个 turn；Codex：JSON-RPC 请求 | Claude：`tmux send-keys -l` 逐字输入，每个换行写成 `\` 加 Enter，最后一个 Enter 提交；Codex 默认括号粘贴，实验模式下走 `turn/start` |
-| 怎样确认输入被接纳 | SDK 发出 `system/init` 时把 turn 标记为已接纳；另一个 turn 进行中时新 turn 以 `AgentSdkPromptNotAcceptedAbortError (Cr)` 被拒 | 读 Claude 的转写 JSONL，确认出现了新的用户消息行，没出现就重按 Enter；Claude 在 resume 时轮换会话 id，botmux 读 `~/.claude/sessions/<pid>.json` 跟踪当前 id |
+| 怎样确认输入被接纳 | SDK 发出 `system/init` 时把 turn 标记为已接纳；另一个 turn 进行中时新 turn 以 `AgentSdkPromptNotAcceptedAbortError (Or)` 被拒 | 读 Claude 的转写 JSONL，确认出现了新的用户消息行，没出现就重按 Enter；Claude 在 resume 时轮换会话 id，botmux 读 `~/.claude/sessions/<pid>.json` 跟踪当前 id |
 | 怎样判断 turn 结束 | SDK 的结果消息、app-server 的 turn 完成通知 | 屏幕正则（Claude 的输入提示符 `❯`、忙碌页脚 `esc to interrupt`）、OSC 7501 程序状态序列、Claude hooks（SessionStart、UserPromptSubmit、statusline），再加上转写文件（`src/utils/idle-detector.ts`） |
 | turn 进行中来了新消息 | Claude：暂存为 `pendingSteer`，下一次工具调用完成后由 PostToolUse hook 插入当前 turn，没有机会就留到下一个 turn | 进入 botmux 的输入队列，等 CLI 空闲后再输入 |
 | 回复怎样回到渠道 | runtime 收集模型输出，经出站队列发给渠道 | 两种模式：模型自己执行 `botmux send` 发送卡片（`replyDelivery: 'send'`），或 botmux 从转写文件取出最终回答自动转发（`'transcript'`） |
-| resume 失败 | `runDrainTurnWithResumeFallback (Sht)` 去掉 resume 重试一次，并在结果上标记 | 由各适配器自己处理会话 id 与转写文件的对应关系 |
+| resume 失败 | `runDrainTurnWithResumeFallback (_bt)` 去掉 resume 重试一次，并在结果上标记 | 由各适配器自己处理会话 id 与转写文件的对应关系 |
 
 以上 duoduo 一列 confirmed（证据见 INTERNALS 7.3、7.4）；botmux 一列 confirmed，证据为表中所列源码路径与 `src/adapters/cli/types.ts` 中 `PtyHandle` 的字段说明。
 
 ## 2 duoduo 路线的长处与代价
 
-duoduo 路线的长处是 runtime 对执行过程有完整的控制，这正是无人值守运行所需要的。turn 的准入、插话和抢占都是 runtime 里的确定性逻辑，不依赖识别屏幕；没有人盯着终端时，卡住或误判都无法由人发现，所以这一点在后台分区和定时 job 上是必要条件。系统提示由 `renderPromptLayers (nye)` 按固定顺序拼接六层，每轮变化的信息由 `buildTransientUserBlocks (Jxe)` 放进用户消息前的瞬时块，因此同一会话的连续 turn 发送完全相同的系统提示，引擎的 prompt cache 可以稳定命中；常驻连接因配置变化而重建时，`diffStreamingConfigSignature (kN)` 会把差异写进审计日志（confirmed）。工具集也由 runtime 决定：Claude 的内置工具是 `CLAUDE_CORE_TOOLS (pg)` 列出的 15 个，渠道与 job 配置只能追加；四个引擎读同一段系统提示，拿到同一组自操作工具（confirmed，INTERNALS 2.4、3.7）。
+duoduo 路线的长处是 runtime 对执行过程有完整的控制，这正是无人值守运行所需要的。turn 的准入、插话和抢占都是 runtime 里的确定性逻辑，不依赖识别屏幕；没有人盯着终端时，卡住或误判都无法由人发现，所以这一点在后台分区和定时 job 上是必要条件。系统提示由 `renderPromptLayers (G_e)` 按固定顺序拼接六层，每轮变化的信息由 `buildTransientUserBlocks (FEe)` 放进用户消息前的瞬时块，因此同一会话的连续 turn 发送完全相同的系统提示，引擎的 prompt cache 可以稳定命中；常驻连接因配置变化而重建时，`diffStreamingConfigSignature (FN)` 会把差异写进审计日志（confirmed）。工具集也由 runtime 决定：Claude 的内置工具是 `CLAUDE_CORE_TOOLS (Sg)` 列出的 15 个，渠道与 job 配置只能追加；四个引擎读同一段系统提示，拿到同一组自操作工具（confirmed，INTERNALS 2.4、3.7）。
 
 duoduo 路线的代价是只能使用 SDK 和 app-server 暴露出来的能力。Claude 的 `/compact` 只在渠道会话里交给 SDK 处理；Codex 的内置工具无法关闭，duoduo 收到的 `disallowedTools` 只记一条 debug 级日志；同名命令 `/model`、`/effort` 在四个引擎上生效时机不同，需要 runtime 维护 `pending_model_fork` 这类状态（confirmed，INTERNALS 3.6、3.7）。duoduo 主动关闭了 Claude Code 的 auto memory 和交互式审批，用户在本机 CLI 里积累的记忆和习惯不会进入 duoduo。每加一个引擎都要写进程模型、可用性探测、命令实现和权限映射一整套代码，所以 duoduo 只支持四个引擎；对 Codex 也只有 app-server 一种形态，没有可供人观察或接管的终端。
 
