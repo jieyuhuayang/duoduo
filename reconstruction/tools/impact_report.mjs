@@ -95,6 +95,7 @@ import { fileURLToPath } from "node:url";
 import { namePair, nameBound, codeSpans, fencedRanges, snippetTokens, identRe, looksMangled } from "./anchor_forms.mjs";
 import { rankAnchors, describeRanking } from "./anchor_candidates.mjs";
 import { skeletonIn } from "./retarget_snippets.mjs";
+import { classifyDiff, importAliases } from "./change_kind.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
@@ -194,13 +195,28 @@ for (const bundle of ["daemon", "cli"]) {
   }
   graphs.set(bundle, { xref, gone, inits });
 }
+// what kind of change each declaration diff shows (change_kind.mjs): tier 2c
+// weighs a citation less when every callee it reaches changed only by literal
+// assignments to members (`s.CLAUDE_CODE_FORK_SUBAGENT = "0"`)
+for (const bundle of ["daemon", "cli"]) {
+  const mine = changes.filter((c) => c.bundle === bundle && c.diff?.file);
+  if (!mine.length) continue;
+  const fp = readJSON(path.join(BUMP, `fp_${bundle}.json`), { matched: {}, unmatchedNew: [] });
+  const top = new Set([...Object.values(fp.matched || {}).map((m) => m.new).filter((x) => typeof x === "string"), ...(fp.unmatchedNew || [])]);
+  for (const p of [path.join(BUMP, `rename_${bundle}.new.json`), path.join(MAPS, `rename_${bundle}.json`)]) for (const r of Object.values(readJSON(p, {}))) top.add(r);
+  for (const c of changes) for (const r of c.names) top.add(r);
+  const ctx = { top, oldImports: importAliases(linesOf("old", bundle)), newImports: importAliases(linesOf("new", bundle)) };
+  for (const c of mine) c.kind = classifyDiff(fs.readFileSync(path.join(BUMP, "diff", bundle, c.diff.file), "utf8"), ctx);
+}
+const QUIET = new Set(["member-literal-assignments", "none"]);
+
 // a cited real name that did not change, with the changed callees it refers to
 function calleeChanged(qual, real) {
   for (const bundle of qual ? [qual] : ["daemon", "cli"]) {
     const g = graphs.get(bundle), sym = g?.xref.symbols[real];
     if (!sym) continue;
     if (g.gone.has(sym.mangled)) return null;
-    const callee = (name, short) => { const c = g.gone.get(short); return { real: name, short, change: c?.id ?? null, diff: c?.diffPath ?? null }; };
+    const callee = (name, short) => { const c = g.gone.get(short); return { real: name, short, change: c?.id ?? null, diff: c?.diffPath ?? null, kind: c?.kind?.kind ?? "code" }; };
     const hit = [
       ...(sym.refs || []).map((r) => [r, g.xref.symbols[r]?.mangled]).filter(([, s]) => g.gone.has(s) && !g.inits.has(s)).map(([r, s]) => callee(r, s)),
       ...(sym.refsUnnamed || []).filter((s) => g.gone.has(s) && !g.inits.has(s)).map((s) => callee(null, s)),
@@ -349,8 +365,11 @@ for (const ct of calleeCitations) {
   ct.change = null;
   ct.calleeCited = ct.callees.some((c) => c.real && identRe(c.real).test(para));
   const named = ct.callees.map((c) => "`" + (c.real ? `${c.real} (${c.short})` : c.short) + "`");
+  // every callee changed only by literal assignments to members (or only in spelling)
+  ct.quiet = ct.callees.every((c) => QUIET.has(c.kind));
   ct.why = `unchanged; calls changed ${named.slice(0, 6).join(", ")}${named.length > 6 ? ` (+${named.length - 6})` : ""}` +
-    (ct.calleeCited ? "; the paragraph cites a changed callee too" : "");
+    (ct.calleeCited ? "; the paragraph cites a changed callee too" : "") +
+    (ct.quiet ? "; the callee's change only adds or removes literal assignments to members" : "");
 }
 
 // --- what no doc covers yet ---------------------------------------------------
@@ -472,10 +491,12 @@ for (const c of keywordHits) {
   const u = unitOf(c);
   u.keyword = (u.keyword || 0) + 1; u.weight += 2; u.changes.add(c.change);
 }
-// tier 2c weighs as tier 2; its changes are the callees' (for group affinity)
+// tier 2c weighs as tier 2, or as tier 3 when every callee it reaches changed
+// only by literal assignments to members; its changes are the callees' (for
+// group affinity)
 for (const c of calleeCitations) {
   const u = unitOf(c);
-  u.calleeChanged++; u.weight += 2;
+  u.calleeChanged++; u.weight += c.quiet ? 0.5 : 2;
   for (const k of c.callees) if (k.change) u.changes.add(k.change);
 }
 const unitList = [...units.values()].sort((a, b) => b.weight - a.weight);
@@ -500,11 +521,13 @@ const report = {
     citations: { total: citations.length, reread: tierCount(1), check: tierCount(2), skim: tierCount(3),
       respelled: citations.filter((c) => c.respelled).length,
       calleeChanged: calleeCitations.length, calleeChangedCalleeCited: calleeCitations.filter((c) => c.calleeCited).length,
+      calleeChangedQuiet: calleeCitations.filter((c) => c.quiet).length,
       calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.length },
     uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length, plaintextFiles: plaintext.length,
   },
   changes: changes.map((c) => ({ id: c.id, bundle: c.bundle, real: c.names, oldNames: c.oldNames, newNames: c.newNames, diff: c.diffPath,
     changedLines: c.diff?.changedLines ?? null, hunks: c.diff?.hunks?.length ?? null, localOnly: c.localOnly,
+    kind: c.kind?.kind ?? null, assignmentsAdded: c.kind?.added ?? [], assignmentsRemoved: c.kind?.removed ?? [],
     strAdded: c.strAdded, strRemoved: c.strRemoved, propAdded: c.propAdded, propRemoved: c.propRemoved,
     citations: citations.filter((x) => x.change === c.id).length })),
   citations: [...citations, ...calleeCitations, ...keywordHits].map(({ d, hits, ...c }) => c),
@@ -526,7 +549,8 @@ if (MD) {
   L.push(`${s.changedDeclarations} declaration diffs (a changed declaration, or a block of them), ${s.changedLines} changed lines in ${s.hunks} hunks (readable diffs, local-name churn removed). ` +
     `${s.citations.total} doc citations name changed code: ${s.citations.reread} to re-read, ${s.citations.check} to check, ${s.citations.skim} to skim ` +
     `(${s.citations.respelled} of them snippets whose quoted code is in both versions, only renamed: retarget_snippets.mjs rewrites those). ` +
-    `${s.citations.calleeChanged} more cite unchanged code whose direct callee changed (tier 2c${graphs.size ? "" : ": no xref in --maps, not computed"}). ` +
+    `${s.citations.calleeChanged} more cite unchanged code whose direct callee changed (tier 2c${graphs.size ? "" : ": no xref in --maps, not computed"}` +
+    `${s.citations.calleeChangedQuiet ? `; ${s.citations.calleeChangedQuiet} of them only through callees whose change is literal assignments to members` : ""}). ` +
     `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4). ` +
     `${plaintext.length} plain-text files changed.`, "");
   if (plaintext.length) {
@@ -550,12 +574,34 @@ if (MD) {
     L.push("");
   }
   L.push("## Declaration diffs", "", "| declaration | diff | changed lines | added strings / properties | citations |", "|---|---|---|---|---|");
-  for (const c of report.changes) L.push(`| ${c.real.join(", ") || c.newNames.join(", ")} (${c.bundle}) | \`${c.diff ?? "-"}\` | ${c.changedLines ?? "?"} in ${c.hunks ?? "?"} hunks${c.localOnly ? " (local names only)" : ""} | ${[...c.strAdded.map((x) => `"${clip(x, 60)}"`), ...c.propAdded].slice(0, 8).join(", ").replace(/\|/g, "\\|") || "-"} | ${c.citations} |`);
+  const kindNote = (c) => (c.kind === "member-literal-assignments" ? ` (only literal assignments to members: ${[...c.assignmentsAdded.map((x) => "+`" + x + "`"), ...c.assignmentsRemoved.map((x) => "-`" + x + "`")].join(", ").replace(/\|/g, "\\|")})` : c.kind === "none" ? " (spelling only)" : "");
+  for (const c of report.changes) L.push(`| ${c.real.join(", ") || c.newNames.join(", ")} (${c.bundle}) | \`${c.diff ?? "-"}\` | ${c.changedLines ?? "?"} in ${c.hunks ?? "?"} hunks${c.localOnly ? " (local names only)" : ""}${kindNote(c)} | ${[...c.strAdded.map((x) => `"${clip(x, 60)}"`), ...c.propAdded].slice(0, 8).join(", ").replace(/\|/g, "\\|") || "-"} | ${c.citations} |`);
   L.push("");
   for (const [t, title] of [[1, "Re-read"], [2, "Check"], ["2c", "Callee changed"], [3, "Skim"], [4, "Keyword (uncited changed code)"]]) {
     const list = report.citations.filter((c) => c.tier === t);
     L.push(`## Tier ${t}: ${title} (${list.length})`, "");
-    if (t === "2c") L.push("Citations of a declaration that did not change but refers directly to one that changed or was removed (old call graph, one hop). Read the claim against the callee's diff.", "");
+    if (t === "2c") {
+      // folded by the changed callees an entry reaches: one diff to read per group
+      L.push("Citations of a declaration that did not change but refers directly to one that changed or was removed (old call graph, one hop), " +
+        "grouped by those callees: read the callee's diff once, then the claims that depend on what it changed. " +
+        "A group marked *literal assignments only* reaches callees whose change only adds or removes literal assignments to members; it weighs as tier 3.", "");
+      const folds = new Map();
+      for (const c of list) {
+        const key = [...new Set(c.callees.map((k) => (k.real ? `${k.real} (${k.short})` : k.short)))].sort().join(", ");
+        if (!folds.has(key)) folds.set(key, { key, list: [], callees: c.callees, quiet: c.quiet });
+        folds.get(key).list.push(c);
+      }
+      for (const f of [...folds.values()].sort((a, b) => a.quiet - b.quiet || b.list.length - a.list.length)) {
+        const diffs = [...new Set(f.callees.map((k) => k.diff).filter(Boolean))].map((x) => "`" + x + "`").join(", ");
+        const what = f.callees.map((k) => report.changes.find((x) => x.id === k.change)).filter(Boolean).map(kindNote).filter(Boolean);
+        const sections = new Set(f.list.map((c) => `${c.doc} § ${c.sectionTitle}`));
+        L.push(`### via ${f.key}: ${f.list.length} citation(s) in ${sections.size} section(s)${f.quiet ? " -- *literal assignments only*" : ""}`, "");
+        L.push(`Diff: ${diffs || "(removed, no diff)"}${what.length ? `; ${[...new Set(what)].join("; ").trim()}` : ""}.`, "");
+        for (const c of f.list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}${c.calleeCited ? " (the paragraph cites the callee too)" : ""}`);
+        L.push("");
+      }
+      continue;
+    }
     if (t === 4) L.push("Paragraphs that cite none of the changed code but share a distinctive word with a change no doc cites. Read the paragraph against the diff; a description of the old behaviour is often here.", "");
     if (t === 4) { for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] ${c.why} -- \`${c.diff}\``); L.push(""); continue; }
     for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}: ${c.why}` +
@@ -587,6 +633,6 @@ if (MD) {
 const s = report.summary;
 console.error(`impact: ${s.changedDeclarations} declaration diffs (${s.changedLines} lines in ${s.hunks} hunks); ` +
   `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim} (${s.citations.respelled} only renamed); ` +
-  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}; tier 4 keyword ${s.citations.keyword}; ` +
+  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}${s.citations.calleeChangedQuiet ? ` (${s.citations.calleeChangedQuiet} through literal assignments only)` : ""}; tier 4 keyword ${s.citations.keyword}; ` +
   `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor, ${plaintext.length} plain-text files; ` +
   `${report.groups.length} work groups` + (OUT ? ` -> ${OUT}` : ""));

@@ -29,12 +29,19 @@
 // the build. That is one decision per new upstream module instead of N unknown
 // names, and it is the check a new subsystem trips.
 //
-// Usage: node build_rename.mjs <blocks.json> <modules.json> <inferred.json> <out.json>
+// Usage: node build_rename.mjs [--unmatched <o.json>] <blocks.json> <modules.json> <inferred.json> <out.json>
+//   --unmatched: on a gate failure, also write the failing blocks and the
+//   first-party bindings known so far (mangled -> real) for module_owner_hint.mjs,
+//   which bump.sh runs to say which installed package exports the block's names
+//   and whether its code refers to first-party bindings.
 import fs from "node:fs";
 
-const [BLOCKS, MODULES, INFERRED, OUT] = process.argv.slice(2);
+const ARGS = process.argv.slice(2);
+const ui = ARGS.indexOf("--unmatched");
+const UNMATCHED = ui >= 0 ? ARGS.splice(ui, 2)[1] : null;
+const [BLOCKS, MODULES, INFERRED, OUT] = ARGS;
 if (!BLOCKS || !MODULES || !OUT) {
-  console.error("usage: node build_rename.mjs <blocks.json> <modules.json> <inferred.json> <out.json>");
+  console.error("usage: node build_rename.mjs [--unmatched <o.json>] <blocks.json> <modules.json> <inferred.json> <out.json>");
   process.exit(2);
 }
 
@@ -88,6 +95,25 @@ for (const b of blocksReport.blocks) {
   (c.kind === "firstParty" ? fpBlocks : vendorBlocks).push({ ...b, note: c.note });
   for (const r of c.records) { if (!usage.has(r)) usage.set(r, []); usage.get(r).push(b); }
 }
+
+// the gate's failure, for module_owner_hint.mjs: each failing block, and every
+// binding this run already counts as first-party (the evidence that a block is
+// ours is that its code refers to one of them)
+function writeUnmatched() {
+  if (!UNMATCHED) return;
+  const firstParty = {};
+  for (const b of fpBlocks) b.names.forEach((n, i) => { firstParty[b.mangled[i]] = n; });
+  for (const [orig, mangled] of Object.entries(blocksReport.entryExports || {})) firstParty[mangled] ??= orig;
+  for (const [mangled, orig] of Object.entries(inferred)) firstParty[mangled] ??= orig;
+  const pick = (b, kind, records) => ({ kind, line: b.line, names: b.names, mangled: b.mangled, marker: b.marker, ...(records ? { records } : {}) });
+  fs.writeFileSync(UNMATCHED, JSON.stringify({
+    bundle: blocksReport.bundle,
+    blocks: [...ambiguous.map(({ b, records }) => pick(b, "ambiguous", records)), ...unknown.map((b) => pick(b, "unknown"))],
+    firstParty,
+  }, null, 2) + "\n");
+}
+if (UNMATCHED) fs.rmSync(UNMATCHED, { force: true });
+if (ambiguous.length || unknown.length) writeUnmatched();
 
 if (ambiguous.length) {
   console.error(`\nMODULE GATE FAILED: ${ambiguous.length} export block(s) in ${blocksReport.bundle} match a first-party AND a vendor record equally well.`);

@@ -38,8 +38,9 @@
 // unchanged when its old and new token streams are equal with every identifier
 // that is not a member name spelled `_`; then token k of the old declaration
 // is token k of the new one. The snippet is located in the OLD declaration
-// (it held there, as written, exactly once), and each of its identifiers is
-// replaced by the token at the same position in the new declaration. This
+// (it held there, as written), and each of its identifiers is replaced by the
+// token at the same position in the new declaration; a snippet that occurs
+// more than once is rewritten when every occurrence gives the same text. This
 // needs no guessing about which local is which, so it settles the snippets
 // the pattern finds more than once in the declaration: at v0.8.4 -> v0.8.5
 // all 9 that the pattern left `ambiguous` quoted unchanged code, and were
@@ -56,6 +57,7 @@
 // .build); --fp is bump.sh's fingerprint match; --rename the old maps/ and new
 // .build rename maps. Without --write it changes nothing.
 import fs from "node:fs";
+import { parse } from "@babel/parser";
 import { fileURLToPath } from "node:url";
 import { nameBound, snippetHolds } from "./anchor_forms.mjs";
 import { assertBundleMatchesIndex, loadIndex } from "./bundle_guard.mjs";
@@ -135,40 +137,140 @@ export function rederive(code, span, migration) {
 
 // The rewrite of a snippet from an unchanged declaration: token k of oldSpan is
 // token k of newSpan. Returns { status, to? }.
+//
+// Both spans are tokenized by @babel/parser, not by TOKEN: TOKEN reads a
+// template literal as one token, so a local inside `${...}`, which esbuild
+// renames like any other, made the two streams differ and the declaration read
+// as changed. At v0.8.5 -> v0.8.6 that sent 27 snippets of unchanged
+// declarations (drainSessionMailbox, createSessionManager, createDaemon, ...)
+// back to the pattern, which found each more than once (`ambiguous`). The
+// snippet is read by lexSnippet, which splits a template the same way.
 export function fromUnchangedDecl(code, oldSpan, newSpan) {
-  const lex = (span) => [...span.matchAll(TOKEN)].map((m) => ({ text: m[0], at: m.index }));
-  const O = lex(oldSpan), N = lex(newSpan);
-  // a member name keeps its spelling; `...x` is a spread, not a member
-  const member = (toks, i) => toks[i - 1]?.text === "." && !(toks[i - 2]?.text === "." && toks[i - 3]?.text === ".");
-  const norm = (toks) => toks.map((t, i) => (isIdent(t.text) && !member(toks, i) ? "_" : t.text));
+  const O = lexSpan(oldSpan), N = lexSpan(newSpan);
+  const norm = (toks) => toks.map((t) => (t.name && !t.member ? "_" : t.text));
   if (O.length !== N.length) return { status: "declaration changed" };
   const no = norm(O), nn = norm(N);
   for (let i = 0; i < no.length; i++) if (no[i] !== nn[i]) return { status: "declaration changed" };
-  const toks = tokenize(code);
+  const toks = lexSnippet(code);
   let re = "", prevWord = false, afterGap = true, n = 0;
   const groupOf = [];
   for (const t of toks) {
-    if (t.role === "gap") { re += "[\\s\\S]*?"; prevWord = false; afterGap = true; continue; }
+    if (t.text === "…") { re += "[\\s\\S]*?"; prevWord = false; afterGap = true; continue; }
     const word = /^[\w$]/.test(t.text);
     if (!afterGap) re += word && prevWord ? "\\s+" : "\\s*";
     afterGap = false; prevWord = word;
-    if (isIdent(t.text)) { const g = `i${n++}`; groupOf.push([t, g]); re += `(?<![\\w$])(?<${g}>${esc(t.text)})(?![\\w$])`; }
+    if (t.ident) { const g = `i${n++}`; groupOf.push([t, g]); re += `(?<![\\w$])(?<${g}>${esc(t.text)})(?![\\w$])`; }
     else re += esc(t.text);
   }
   if (!groupOf.length) return { status: "nothing to re-derive" };
   let rx;
   try { rx = new RegExp(re, "gd"); } catch { return { status: "pattern error" }; }
   const hits = [...oldSpan.matchAll(rx)];
-  if (hits.length !== 1) return { status: hits.length ? "ambiguous in old declaration" : "not in old declaration" };
-  const idxAt = new Map(O.map((t, i) => [t.at, i]));
-  let out = "", from = 0;
-  for (const [t, g] of groupOf) {
-    const k = idxAt.get(hits[0].indices.groups[g][0]);
-    if (k === undefined || !isIdent(N[k].text)) return { status: "token mismatch" };
-    out += code.slice(from, t.at) + N[k].text;
-    from = t.at + t.text.length;
+  if (!hits.length) return { status: "not in old declaration" };
+  // the token whose text holds an offset (the last one starting at or before it)
+  const holding = (at) => {
+    let lo = 0, hi = O.length - 1, k = -1;
+    while (lo <= hi) { const mid = (lo + hi) >> 1; if (O[mid].at <= at) { k = mid; lo = mid + 1; } else hi = mid - 1; }
+    return k;
+  };
+  // the snippet may occur more than once (`w.agentNotifiedThisDrain = !0` is set
+  // in three places); it is rewritten when every occurrence gives the same text
+  const outs = new Set();
+  for (const hit of hits) {
+    let out = "", from = 0;
+    for (const [t, g] of groupOf) {
+      const at = hit.indices.groups[g][0], k = holding(at);
+      if (k < 0 || at >= O[k].at + O[k].text.length) return { status: "token mismatch" };
+      // an identifier token of the old release is the one at the same index in the
+      // new; anything else (a keyword, a word inside a template chunk or a string,
+      // the `$` of `${`) was compared verbatim above, so it is the same in both
+      const to = O[k].name && O[k].at === at && O[k].text === t.text ? N[k].text : t.text;
+      out += code.slice(from, t.at) + to;
+      from = t.at + t.text.length;
+    }
+    outs.add(out + code.slice(from));
   }
-  return { status: "rewritten", to: out + code.slice(from), how: "unchanged declaration" };
+  if (outs.size > 1) return { status: "ambiguous in old declaration" };
+  return { status: "rewritten", to: [...outs][0], how: "unchanged declaration" };
+}
+
+// A declaration span's tokens -> [{ text, at, name, member }]: comments, eof and
+// empty template chunks dropped; an identifier token (Babel's `name`, which
+// includes contextual keywords such as `let` and `of`) is `name`, and one right
+// after `.` or `?.` is also `member`. Falls back to TOKEN when the span does not
+// parse.
+const spanCache = new Map();
+function lexSpan(span) {
+  if (spanCache.has(span)) return spanCache.get(span);
+  let toks;
+  try {
+    const ast = parse(span, { tokens: true, errorRecovery: true, sourceType: "script", allowReturnOutsideFunction: true,
+                              allowAwaitOutsideFunction: true, allowSuperOutsideMethod: true, allowNewTargetOutsideFunction: true });
+    toks = [];
+    for (const t of ast.tokens) {
+      if (typeof t.type === "string" || t.end === t.start) continue;  // CommentLine / CommentBlock, eof, empty chunk
+      const name = t.type.label === "name", prev = toks[toks.length - 1]?.text;
+      toks.push({ text: span.slice(t.start, t.end), at: t.start, name, member: name && (prev === "." || prev === "?.") });
+    }
+  } catch {
+    const raw = [...span.matchAll(TOKEN)].map((m) => ({ text: m[0], at: m.index }));
+    const member = (i) => raw[i - 1]?.text === "." && !(raw[i - 2]?.text === "." && raw[i - 3]?.text === ".");
+    toks = raw.map((t, i) => ({ ...t, name: isIdent(t.text), member: isIdent(t.text) && member(i) }));
+  }
+  spanCache.set(span, toks);
+  return toks;
+}
+
+// A snippet's tokens -> [{ text, at, ident }], as TOKEN reads them except that a
+// template literal is split: its text pieces ("`a=${", "}b`") are literal tokens
+// and the code inside each `${...}` is read again, so the identifiers there are
+// rewritten like any others. An unterminated template (the snippet stops inside
+// one) is literal to its end. A snippet that starts inside a template has no
+// backtick to see; fromUnchangedDecl keeps the words it then reads as
+// identifiers as written, because they fall inside a template chunk token.
+export function lexSnippet(code) {
+  const out = [];
+  const one = /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|[A-Za-z_$][A-Za-z0-9_$]*|\d[\w.]*|…|\S/y;
+  const push = (text, at, ident = false) => out.push({ text, at, ident });
+  const plain = (i) => { one.lastIndex = i; const m = one.exec(code); push(m[0], i, isIdent(m[0])); return m[0]; };
+  // i is just past a backtick; -> the index past the closing one
+  const template = (i) => {
+    let piece = i - 1;
+    while (i < code.length) {
+      if (code[i] === "\\") { i += 2; continue; }
+      if (code[i] === "`") { push(code.slice(piece, i + 1), piece); return i + 1; }
+      if (code[i] === "$" && code[i + 1] === "{") {
+        push(code.slice(piece, i + 2), piece);
+        i = expr(i + 2);
+        if (i >= code.length) return i;
+        piece = i++;  // the closing `}` opens the next piece
+        continue;
+      }
+      i++;
+    }
+    push(code.slice(piece), piece);
+    return i;
+  };
+  // the code inside `${`; -> the index of its closing `}`
+  const expr = (i) => {
+    let depth = 0;
+    while (i < code.length) {
+      if (/\s/.test(code[i])) { i++; continue; }
+      if (code[i] === "`") { i = template(i + 1); continue; }
+      if (code[i] === "}" && depth === 0) return i;
+      const t = plain(i);
+      if (t === "{") depth++;
+      if (t === "}") depth--;
+      i += t.length;
+    }
+    return i;
+  };
+  for (let i = 0; i < code.length;) {
+    if (/\s/.test(code[i])) { i++; continue; }
+    if (code[i] === "`") { i = template(i + 1); continue; }
+    i += plain(i).length;
+  }
+  return out;
 }
 
 // Is the snippet's code in a span, whatever its identifiers of 1-4 characters
@@ -249,7 +351,7 @@ function main() {
       const escaped = raw.includes("\\|");
       const code = escaped ? raw.replace(/\\\|/g, "|") : raw;
       const span = b.lines.slice(e.line - 1, e.endLine).join("\n");
-      let r = { status: "no old release given" };
+      let r = { status: "no old release given" }, viaOld = null;
       const oe = b.old && own(b.old.ix.symbols, name) ? b.old.ix.symbols[name] : null;
       if (oe) {
         r = fromUnchangedDecl(code, b.old.lines.slice(oe.line - 1, oe.endLine).join("\n"), span);
@@ -257,6 +359,7 @@ function main() {
           const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
           if (to === raw || to.includes("`") || !snippetHolds(to, b.lines, e.line, e.endLine, true)?.ok) r = { status: "exact rewrite refuted" };
         }
+        viaOld = r.status;  // why the exact rewrite did not apply, kept for the report
       }
       if (r.status !== "rewritten") r = rederive(code, span, b.migration);
       if (r.status === "rewritten") {
@@ -271,8 +374,9 @@ function main() {
       }
       const line = text.slice(0, m.index).split("\n").length;
       tally.set(r.status, (tally.get(r.status) || 0) + 1);
-      report.push({ doc, line, symbol: (qual ? qual + ":" : "") + name, from: raw, ...(r.to ? { to: r.to } : {}), status: r.status });
-      if (r.status !== "rewritten") console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）`);
+      report.push({ doc, line, symbol: (qual ? qual + ":" : "") + name, from: raw, ...(r.to ? { to: r.to } : {}), status: r.status,
+                   ...(viaOld && r.status !== "rewritten" ? { old: viaOld } : {}) });
+      if (r.status !== "rewritten") console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）` + (viaOld ? `  [--old: ${viaOld}]` : ""));
       else console.log(`  rewritten              ${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 50)}\``);
     }
     if (WRITE && edits.length) {
