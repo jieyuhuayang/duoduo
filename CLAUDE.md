@@ -215,7 +215,9 @@ cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # after reviewin
 #    v0.8.3 → v0.8.4 the top pick was the hand-confirmed one for 46 of 47 names,
 #    and the one miss (a function split in two) was marked CLOSE. Every name bump.sh lists under "need a subsystem"
 #    goes into maps/subsys_daemon.json, and a module-gate failure needs a decision in
-#    maps/modules_<bundle>.json.
+#    maps/modules_<bundle>.json; bump.sh prints module_owner_hint.mjs's evidence for it
+#    (at v0.8.6: the block's four names are all cookie@2.0.1's exports, and it refers
+#    to no first-party binding).
 # 1. record the reviewed inferred names as the shape baseline
 PKG_VERSION=v<new> node tools/verify_inferred.mjs record \
   .build/bump/pretty_new/daemon.pretty.js maps/inferred_daemon.json maps/inferred_daemon.shape.json
@@ -257,7 +259,10 @@ drops nothing; the tier orders the reading. A fourth list, tier 2c (`callee-chan
 the citations of a declaration that did not change but refers directly to one that changed or
 was removed, by the OLD release's call graph (`maps/xref_<bundle>.json` in `--maps`; a module
 initialiser does not count as a callee); each entry names the changed callees and their diffs,
-and it is packed into work groups with the weight of tier 2. It looks one call deep only:
+and it is packed into work groups with the weight of tier 2, or of tier 3 when every callee the entry reaches
+changed only by adding or removing literal assignments to members (`change_kind.mjs`; impact.md folds tier
+2c by callee, so such a group is one diff to read: at v0.8.6 all 467 entries went through
+`createAgentSdkAdapter`, whose change was `s.CLAUDE_CODE_FORK_SUBAGENT = "0"`). It looks one call deep only:
 replayed on v0.8.3 → v0.8.4 it listed 96 citations in 66 paragraphs, 33 of them reached by no
 tier 1–3 entry, and one of those 33 (`runGapLint`, whose callee `readGapLintDayEvents` changed
 which events end a gap interval) was rewritten by hand at v0.8.4. A claim that cites only a
@@ -323,7 +328,11 @@ v0.8.4 docs were fixed by hand; the rest, which it lists in `snippets.json`, quo
 changed and need re-reading. With `--old <bundle>=<old pretty.js>,<old symbols.json>` (bump.sh
 prints it) a snippet of a declaration whose normalised token stream did not change is rewritten
 token for token from the old release before any pattern is tried; replayed on the v0.8.4 docs that
-left none of the 369 refuted snippets for a person, byte-identical to the hand-fixed v0.8.5 docs. Step 9 of `rebuild.sh` checks
+left none of the 369 refuted snippets for a person, byte-identical to the hand-fixed v0.8.5 docs. Both
+declarations are compared as `@babel/parser` tokens: the earlier regex lexer read a template literal as one
+token, so a renamed local inside `${...}` made an unchanged declaration look changed, and at v0.8.6 that left
+27 snippets ambiguous; replayed with Babel tokens, 786 of the 787 refuted snippets are rewritten exactly as
+the v0.8.6 docs were fixed by hand, and the one left quotes the line v0.8.6 changed. Step 9 of `rebuild.sh` checks
 `CLAUDE.md` and `reconstruction/*.md` as well, so pass them to `retarget_symbols.mjs` and
 `verify_citations.mjs` too.
 
@@ -352,7 +361,10 @@ block matches a record when `min(2, markers)` of them are present, and among sev
 matching records the one with the highest share of its markers present wins, then the one
 whose recorded size is closest (`build_rename.mjs`). A block that matches no record, or
 matches a first-party and a vendor record equally well, stops the build — one decision per
-new upstream module, not per unknown name.
+new upstream module, not per unknown name. On such a failure `bump.sh` runs `module_owner_hint.mjs`, which lists the
+installed packages (under `PKG_NEW`'s `node_modules`, the release's own bundles excluded) whose source holds
+every name of the block, and the first-party bindings the block's exported declarations refer to, resolved
+through Babel scopes. It is evidence for the decision, not the decision: a block with neither is read by hand.
 
 This replaced a per-name keyword allowlist that failed in both directions at v0.8.1: it
 missed 8 first-party symbols living in our own modules (`diffStreamingConfigSignature`,
@@ -373,7 +385,8 @@ manifest under the given dir names; it refuses a doc changed since the split).
 node tools/split.mjs <pretty.js> <outdir>            # AST byte-slice de-bundle → modules/ + manifest.json
 node tools/reassemble.mjs <splitdir> <out.js>        # concat back; must cmp-match original
 node tools/export_blocks.mjs <pretty.js> --json <o>  # __export names GROUPED BY SOURCE MODULE + entry exports
-node tools/build_rename.mjs <blocks> <modules> <inferred> <out>   # module gate → mangled→real map
+node tools/build_rename.mjs [--unmatched <o.json>] <blocks> <modules> <inferred> <out>   # module gate → mangled→real map; --unmatched: the failing blocks, for module_owner_hint
+node tools/module_owner_hint.mjs <unmatched.json> <pretty.js> <node_modules dir>...   # evidence for a gate failure: installed packages exporting the block's names, first-party bindings it refers to
 node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>  # inferred names on code of their kind and shape; exit 0 pass, 3 warn, 1 fail
 node tools/rename.mjs <pretty.js> <rename.json> <out.js> [report] # scope-safe, formatting-preserving rename
 node tools/name_locals.mjs apply <top.js> <rename.json> maps/locals_daemon.json <out.js> <applied.json>   # local names (rules + map), rebuild step 3b; top.js = $OUT/daemon.recon.top.js

@@ -200,9 +200,17 @@ for name in "${NAMES[@]}"; do
   NEW_MAP="$OUT/rename_$name.new.json"
   rm -f "$NEW_MAP"
   node --max-old-space-size=8192 "$HERE/export_blocks.mjs" "$NEW/$name.pretty.js" --json "$OUT/blocks_$name.new.json"
-  if ! node "$HERE/build_rename.mjs" "$OUT/blocks_$name.new.json" "$MAPS/modules_$name.json" "$NEW_INF" "$NEW_MAP"; then
+  if ! node "$HERE/build_rename.mjs" --unmatched "$OUT/unmatched_$name.json" "$OUT/blocks_$name.new.json" "$MAPS/modules_$name.json" "$NEW_INF" "$NEW_MAP"; then
     gate_failed+=("$name")
     rm -f "$NEW_MAP"
+    # the evidence for the decision: which installed package exports the block's
+    # names, and whether its code refers to first-party bindings. The package's
+    # own node_modules, the one bundled in dist/release, and the install prefix's
+    # (where npm hoists dependencies), when PKG_NEW says where the release is.
+    if [ -n "${PKG_NEW:-}" ] && [ -f "$OUT/unmatched_$name.json" ]; then
+      node --max-old-space-size=8192 "$HERE/module_owner_hint.mjs" "$OUT/unmatched_$name.json" "$NEW/$name.pretty.js" \
+        "$PKG_NEW/node_modules" "$PKG_NEW/../../node_modules" "$PKG_NEW/../../../.." || true
+    fi
     echo "   module gate FAILED on NEW: decide the block(s) above in maps/modules_$name.json; NEW-side diff labels are omitted"
   fi
 
