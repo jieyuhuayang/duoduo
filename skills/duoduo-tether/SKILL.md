@@ -121,7 +121,9 @@ The playbook's section 2 gives what the owner does in the client, with the URL
 `sdk-listen.md` and some `generic.md` kinds) needs its handoff prompt first: do step 5 now, and the
 agent prints the authorization link for the owner. A CLI agent (`cli-agent.md`) is the same: its
 prompt has it run `duoduo-tether login https://<host name> --name <name>` itself; the owner opens the
-link it prints, or the browser it opens, and approves.
+link it prints, or the browser it opens, and approves. A CLI agent whose machine cannot reach the
+public URL but shares a tailnet with this host: `cli-agent.md`, The agent cannot reach the public
+URL.
 
 ### 4. The owner approves; you check
 
