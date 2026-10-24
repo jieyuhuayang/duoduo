@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: redactSpineEventForExternal  (minified: Mpt, daemon.pretty.js:90419)
+// symbol: redactSpineEventForExternal  (minified: Oyt, daemon.pretty.js:92501)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,9 +8,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function redactSpineEventForExternal(event, sessionKeys = new Set) {
-    if (event.type === Rke) return event;
+    if (event.type === _0e) return event;
     if (event.session_key === void 0 || classifySessionKeyKind(event.session_key) !== "channel") return null;
-    if (Npt.has(event.type) || shouldKeepRouteDeliverEvent(event, sessionKeys)) return event;
+    if ($yt.has(event.type) || shouldKeepRouteDeliverEvent(event, sessionKeys)) return event;
     if (event.type === "agent.tool_use" || event.type === "agent.tool_result") {
         let payload = isRecord(event.payload) ? event.payload : {};
         return {

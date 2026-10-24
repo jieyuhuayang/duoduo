@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: classifyModelContextRequirement  (minified: SW, daemon.pretty.js:69992)
+// symbol: classifyModelContextRequirement  (minified: nJ, daemon.pretty.js:72074)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 3 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,19 +12,19 @@ function classifyModelContextRequirement({
     mergedCatalog,
     hostMaxContextTokens
 }) {
-    if (!model) return txe(null, hostMaxContextTokens);
-    if (model.startsWith(UU)) return {
+    if (!model) return J0e(null, hostMaxContextTokens);
+    if (model.startsWith(wq)) return {
         kind: "native-claude",
         model,
         requiredMaxContextTokens: void 0
     };
-    if (model.endsWith(Xm)) {
-        let baseModel = wW(model);
+    if (model.endsWith(ah)) {
+        let baseModel = tJ(model);
         return Object.hasOwn(mergedCatalog, baseModel) ? buildProfiledExternalRequirement(model, mergedCatalog[baseModel]) : {
             kind: "explicit-1m",
             model,
             requiredMaxContextTokens: void 0
         }
     }
-    return Object.hasOwn(mergedCatalog, model) ? buildProfiledExternalRequirement(model, mergedCatalog[model]) : txe(model, hostMaxContextTokens)
+    return Object.hasOwn(mergedCatalog, model) ? buildProfiledExternalRequirement(model, mergedCatalog[model]) : J0e(model, hostMaxContextTokens)
 }

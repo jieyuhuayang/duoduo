@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: parseGatewayCommandText  (minified: tv, daemon.pretty.js:87526)
+// symbol: parseGatewayCommandText  (minified: pv, daemon.pretty.js:89608)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ function parseGatewayCommandText(text) {
     if (!text) return;
     let trimmed = text.trim();
     if (!trimmed) return;
-    let commandToken = mde(trimmed);
+    let commandToken = spe(trimmed);
     if (!commandToken) return;
     let name = canonicalizeGatewayCommand(commandToken);
     if (!name) return;

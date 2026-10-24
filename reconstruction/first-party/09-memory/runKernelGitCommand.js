@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runKernelGitCommand  (minified: mW, daemon.pretty.js:69241)
+// symbol: runKernelGitCommand  (minified: GW, daemon.pretty.js:71323)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.2 (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 
 async function runKernelGitCommand(kernelDir, args, options) {
     try {
-        return await $ke("git", buildSafeDirectoryGitArgs(kernelDir, args), {
+        return await S0e("git", buildSafeDirectoryGitArgs(kernelDir, args), {
             cwd: kernelDir,
             env: buildKernelGitEnv()
         })

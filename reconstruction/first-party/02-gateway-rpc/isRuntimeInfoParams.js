@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: isRuntimeInfoParams  (minified: rR, daemon.pretty.js:31545)
+// symbol: isRuntimeInfoParams  (minified: bR, daemon.pretty.js:33627)
 // name: INFERRED — upstream's own spelling, confirmed against the published source @openduo/protocol@0.8.4 system.ts (maps/published_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10 (maps/history_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

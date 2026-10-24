@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: mergeGlobalModelConfigLayers  (minified: nu, daemon.pretty.js:65795)
+// symbol: mergeGlobalModelConfigLayers  (minified: iu, daemon.pretty.js:67877)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,19 +8,19 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function mergeGlobalModelConfigLayers(globalConfig, instanceConfig) {
-    let globalProfiles = Eve([{
+    let globalProfiles = ySe([{
             source: "global",
             profiles: globalConfig?.claudeModelProfiles
         }]),
-        globalProfileIssues = vO([{
+        globalProfileIssues = MO([{
             source: "global",
             issues: globalConfig?.claudeModelProfileIssues
         }]),
-        globalAliases = Rve([{
+        globalAliases = _Se([{
             source: "global",
             aliases: globalConfig?.claudeModelAliases
         }]),
-        globalAliasIssues = vO([{
+        globalAliasIssues = MO([{
             source: "global",
             issues: globalConfig?.claudeModelAliasIssues
         }]);
@@ -29,9 +29,9 @@ function mergeGlobalModelConfigLayers(globalConfig, instanceConfig) {
             ...profile,
             source: "instance"
         })),
-        claudeModelProfileIssues: wO(globalProfileIssues, instanceConfig?.claudeModelProfileIssues),
-        claudeModelAliases: Pve(globalAliases, instanceConfig?.claudeModelAliases),
-        claudeModelAliasIssues: wO(globalAliasIssues, instanceConfig?.claudeModelAliasIssues),
+        claudeModelProfileIssues: jO(globalProfileIssues, instanceConfig?.claudeModelProfileIssues),
+        claudeModelAliases: wSe(globalAliases, instanceConfig?.claudeModelAliases),
+        claudeModelAliasIssues: jO(globalAliasIssues, instanceConfig?.claudeModelAliasIssues),
         runtimeModels: mergeRuntimeModelLayers([{
             source: "global",
             models: globalConfig?.runtimeModels

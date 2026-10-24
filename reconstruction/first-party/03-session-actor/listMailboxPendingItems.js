@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: listMailboxPendingItems  (minified: Nb, daemon.pretty.js:32720)
+// symbol: listMailboxPendingItems  (minified: Wb, daemon.pretty.js:34802)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,13 +11,13 @@ async function listMailboxPendingItems(paths, sessionKey) {
     let sessionMailboxPendingDir = resolveSessionMailboxPendingDir(paths, sessionKey),
         itemFiles;
     try {
-        itemFiles = (await wr.readdir(sessionMailboxPendingDir)).filter(fileName => fileName.endsWith(".item.json")).sort()
+        itemFiles = (await Sr.readdir(sessionMailboxPendingDir)).filter(fileName => fileName.endsWith(".item.json")).sort()
     } catch {
         return []
     }
     let items = [];
     for (let fileName of itemFiles) try {
-        let content = await wr.readFile(ea.join(sessionMailboxPendingDir, fileName), "utf8"),
+        let content = await Sr.readFile(ta.join(sessionMailboxPendingDir, fileName), "utf8"),
             parsed = JSON.parse(content);
         items.push({
             line: parsed.line,

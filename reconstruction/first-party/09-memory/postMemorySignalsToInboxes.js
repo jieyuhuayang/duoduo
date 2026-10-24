@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: postMemorySignalsToInboxes  (minified: zO, daemon.pretty.js:67582)
+// symbol: postMemorySignalsToInboxes  (minified: nA, daemon.pretty.js:69664)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.5.8, v0.8.0 (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -26,11 +26,11 @@ function postMemorySignalsToInboxes(signals, ctx) {
             }
         }
         let inboxDir = partitionInboxDirFromVar(ctx.varDir, signal.partition);
-        su.mkdirSync(inboxDir, {
+        uu.mkdirSync(inboxDir, {
             recursive: !0
         });
-        let pendingPath = Vg.join(inboxDir, signal.pendingFilename);
-        if (!ctx.force && su.existsSync(pendingPath)) {
+        let pendingPath = Qg.join(inboxDir, signal.pendingFilename);
+        if (!ctx.force && uu.existsSync(pendingPath)) {
             result.withheld.push({
                 kind: signal.kind,
                 partition: signal.partition,
@@ -38,9 +38,9 @@ function postMemorySignalsToInboxes(signals, ctx) {
             });
             continue
         }
-        if (ctx.force) su.writeFileSync(pendingPath, signal.pendingBody, "utf8");
+        if (ctx.force) uu.writeFileSync(pendingPath, signal.pendingBody, "utf8");
         else try {
-            su.writeFileSync(pendingPath, signal.pendingBody, {
+            uu.writeFileSync(pendingPath, signal.pendingBody, {
                 encoding: "utf8",
                 flag: "wx"
             })

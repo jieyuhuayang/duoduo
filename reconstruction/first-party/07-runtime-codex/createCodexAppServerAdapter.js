@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: createCodexAppServerAdapter  (minified: Bw, daemon.pretty.js:62294)
+// symbol: createCodexAppServerAdapter  (minified: tS, daemon.pretty.js:64376)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.6.0, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2 (maps/history_daemon.json)
 // locals: 128 renamed — 32 from the code at the binding (rule), 96 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 
 function createCodexAppServerAdapter(options, instructionContext) {
     let config = {
-            ...Put,
+            ...Eft,
             ...options
         },
         transport = null,
@@ -22,12 +22,12 @@ function createCodexAppServerAdapter(options, instructionContext) {
             return pendingInterrupt = null, interrupt ? selectInterruptMarkerText(interrupt.reason, interrupt.toolInFlight) : null
         },
         activeTurn = null,
-        onToolCallObserved = toolName => (toolName === Es && activeTurn && (activeTurn.skipObserved = !0), activeTurn?.turnId),
+        onToolCallObserved = toolName => (toolName === Rs && activeTurn && (activeTurn.skipObserved = !0), activeTurn?.turnId),
         onToolCallSettled = (toolName, success, observedTurnId) => {
-            toolName === Es && !success && activeTurn && observedTurnId !== void 0 && observedTurnId === activeTurn.turnId && (activeTurn.skipObserved = !1)
+            toolName === Rs && !success && activeTurn && observedTurnId !== void 0 && observedTurnId === activeTurn.turnId && (activeTurn.skipObserved = !1)
         };
     async function attachToThread(targetThreadId, cwd, signal) {
-        if ((!transport || !transport.isAlive) && (transport = new BC(config.codexBinary, cwd, config.env), transport.start(), transport.setToolCallObserved(onToolCallObserved), transport.setToolCallSettled(onToolCallSettled), initialized = !1, attachedThreadId = null), !initialized) {
+        if ((!transport || !transport.isAlive) && (transport = new oO(config.codexBinary, cwd, config.env), transport.start(), transport.setToolCallObserved(onToolCallObserved), transport.setToolCallSettled(onToolCallSettled), initialized = !1, attachedThreadId = null), !initialized) {
             if (await transport.request("initialize", {
                     clientInfo: {
                         title: "duoduo-runtime",
@@ -67,7 +67,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
                 usage: void 0
             };
             let cwd = runOptions.cwd || process.cwd();
-            if ((!transport || !transport.isAlive) && (transport = new BC(config.codexBinary, cwd, config.env), transport.start(), transport.setToolCallObserved(onToolCallObserved), transport.setToolCallSettled(onToolCallSettled), initialized = !1), !initialized) {
+            if ((!transport || !transport.isAlive) && (transport = new oO(config.codexBinary, cwd, config.env), transport.start(), transport.setToolCallObserved(onToolCallObserved), transport.setToolCallSettled(onToolCallSettled), initialized = !1), !initialized) {
                 if (await transport.request("initialize", {
                         clientInfo: {
                             title: "duoduo-runtime",

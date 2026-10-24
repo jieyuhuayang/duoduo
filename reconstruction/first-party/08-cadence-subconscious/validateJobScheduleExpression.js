@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: validateJobScheduleExpression  (minified: G_e, daemon.pretty.js:61327)
+// symbol: validateJobScheduleExpression  (minified: zve, daemon.pretty.js:63409)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.6.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -18,7 +18,7 @@ function validateJobScheduleExpression(schedule) {
             assertScheduleDurationRepresentable(parseScheduleDurationMs(schedule.substring(7).trim()), schedule);
             return
         }
-        Mw.CronExpressionParser.parse(schedule, {
+        Gw.CronExpressionParser.parse(schedule, {
             tz: "UTC"
         })
     }

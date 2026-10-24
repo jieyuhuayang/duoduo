@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: buildOrphanIslandsSignal  (minified: FSe, daemon.pretty.js:68761)
+// symbol: buildOrphanIslandsSignal  (minified: Cxe, daemon.pretty.js:70843)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.0 (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,7 +7,7 @@
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-function buildOrphanIslandsSignal(islands, nowMs, scope = "topics", newbornHours = WO, touchWindow) {
+function buildOrphanIslandsSignal(islands, nowMs, scope = "topics", newbornHours = uA, touchWindow) {
     return islands.length === 0 ? null : {
         kind: Vn.ORPHAN_ISLANDS,
         partition: "intuition-weaver",

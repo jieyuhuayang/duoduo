@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBoardLint  (minified: pdt, daemon.pretty.js:67105)
+// symbol: runBoardLint  (minified: lht, daemon.pretty.js:69187)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.0 (maps/history_daemon.json)
 // locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,7 +17,7 @@ function runBoardLint(ranked, limit) {
         kind: Vn.REVISE,
         partition: "pattern-tracker",
         pendingFilename: `${reviseTarget.slug}.md.pending`,
-        pendingBody: udt(reviseTarget)
+        pendingBody: iht(reviseTarget)
     });
     let mergeTargets = ranked.filter(candidate => candidate.trajectory !== "NO-EFF" && candidate.dual && candidate.cls !== "domain").slice(0, maxCount);
     for (let mergeTarget of mergeTargets) selections.push({
@@ -25,7 +25,7 @@ function runBoardLint(ranked, limit) {
         kind: Vn.MERGE,
         partition: "intuition-weaver",
         pendingFilename: `merge-${mergeTarget.slug}.md.pending`,
-        pendingBody: ldt(mergeTarget)
+        pendingBody: oht(mergeTarget)
     });
     return selections
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: main  (minified: Ivt, daemon.pretty.js:93119)
+// symbol: main  (minified: kxt, daemon.pretty.js:95201)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.7, v0.3.0, v0.3.1, v0.3.3, v0.4.3, v0.5.0, v0.5.3, v0.5.4, v0.5.6, v0.5.10, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 49 renamed — 24 from the code at the binding (rule), 25 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,24 +10,24 @@
 async function main() {
     let {
         resolveRuntimePaths
-    } = await Promise.resolve().then(() => (Kf(), Iwe)), {
+    } = await Promise.resolve().then(() => (rp(), bke)), {
         initializeRuntime
-    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), Xke)), {
+    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), H0e)), {
         createAgentSdkAdapter
-    } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)), {
+    } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), yC)), {
         createSessionManager
-    } = await Promise.resolve().then(() => (rIe(), nIe)), {
+    } = await Promise.resolve().then(() => (ZTe(), GTe)), {
         createMetaSession
-    } = await Promise.resolve().then(() => (initMetaSessionModule(), oIe)), {
+    } = await Promise.resolve().then(() => (initMetaSessionModule(), YTe)), {
         runCadenceTick
-    } = await Promise.resolve().then(() => (CG(), dIe)), {
+    } = await Promise.resolve().then(() => (dZ(), rPe)), {
         createJobScheduler
-    } = await Promise.resolve().then(() => (initJobSchedulerModule(), fIe)), {
+    } = await Promise.resolve().then(() => (initJobSchedulerModule(), iPe)), {
         createOutboxDeliveryManager
-    } = await Promise.resolve().then(() => (hIe(), mIe)), {
+    } = await Promise.resolve().then(() => (aPe(), sPe)), {
         clearHostModelEnvVars,
         loadHostDotEnv
-    } = await Promise.resolve().then(() => (QH(), eke));
+    } = await Promise.resolve().then(() => (AW(), Wxe));
     process.on("unhandledRejection", reason => {
         logErrorMessage("[pid0] unhandled promise rejection (contained, daemon survives)", reason)
     }), process.on("uncaughtException", err => {
@@ -48,26 +48,26 @@ async function main() {
         throw await releaseRuntimeWriterLock(paths), err
     }
     let sessionIndexFromDisk = await buildSessionIndexFromDisk(paths);
-    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await bve(_O(paths));
+    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await dSe(NO(paths));
     let restartReason = await claimDaemonRestartReason(paths);
     setPendingRestartReason(restartReason), restartReason && logInfoMessage("[pid0] restart reason claimed", {
         requested_at: restartReason.requested_at,
         requested_by_agent: restartReason.requested_by_agent,
         wake_targets: restartReason.wake_targets
     });
-    let bus = wve(),
+    let bus = pSe(),
         {
             probeClaudeAvailability
-        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), tC)),
+        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), yC)),
         {
             primeCodexAvailability,
             isCodexAvailable
-        } = await Promise.resolve().then(() => (initCodexAppServerModule(), C6)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), d6)),
         {
             primeGrokAvailability,
             isGrokAvailable,
             grokUnavailableReason
-        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), M6)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), g6)),
         [claudeAvailability] = await Promise.all([probeClaudeAvailability(), primeCodexAvailability(), primeGrokAvailability()]),
         codexAvailable = isCodexAvailable(),
         grokAvailable = isGrokAvailable(),

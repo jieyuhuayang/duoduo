@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: copyBootstrapIntoKernel  (minified: cmt, daemon.pretty.js:69797)
+// symbol: copyBootstrapIntoKernel  (minified: s_t, daemon.pretty.js:71879)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3 (maps/history_daemon.json)
 // locals: 17 renamed — 4 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,17 +17,17 @@ async function copyBootstrapIntoKernel(paths, env = process.env) {
             withFileTypes: !0
         });
         for (let entry of dirEntries) {
-            if (yW.has(entry.name) || entry.isFile() && _W.has(entry.name)) continue;
+            if (YW.has(entry.name) || entry.isFile() && XW.has(entry.name)) continue;
             let srcPath = sr.join(bootstrapDir, entry.name),
                 destPath = sr.join(paths.kernelDir, entry.name);
-            entry.isDirectory() ? umt.has(entry.name) ? await copyDirTreeMissingOnly(srcPath, destPath) : await copyDirTreeOverwrite(srcPath, destPath) : entry.isFile() && await or.copyFile(srcPath, destPath)
+            entry.isDirectory() ? i_t.has(entry.name) ? await copyDirTreeMissingOnly(srcPath, destPath) : await copyDirTreeOverwrite(srcPath, destPath) : entry.isFile() && await or.copyFile(srcPath, destPath)
         }
     } else if (await isDirEmptyOrMissing(paths.kernelDir)) {
         let dirEntries = await or.readdir(bootstrapDir, {
             withFileTypes: !0
         });
         for (let entry of dirEntries) {
-            if (yW.has(entry.name) || entry.isFile() && _W.has(entry.name)) continue;
+            if (YW.has(entry.name) || entry.isFile() && XW.has(entry.name)) continue;
             let srcPath = sr.join(bootstrapDir, entry.name),
                 destPath = sr.join(paths.kernelDir, entry.name);
             entry.isDirectory() ? await copyDirTreeOverwrite(srcPath, destPath) : entry.isFile() && await or.copyFile(srcPath, destPath)
@@ -37,7 +37,7 @@ async function copyBootstrapIntoKernel(paths, env = process.env) {
             withFileTypes: !0
         });
         for (let entry of dirEntries) {
-            if (yW.has(entry.name) || entry.isFile() && _W.has(entry.name)) continue;
+            if (YW.has(entry.name) || entry.isFile() && XW.has(entry.name)) continue;
             let srcPath = sr.join(bootstrapDir, entry.name),
                 destPath = sr.join(paths.kernelDir, entry.name);
             entry.isDirectory() ? await copyDirTreeMissingOnly(srcPath, destPath) : entry.isFile() && (await pathExistsAsync(destPath) || await or.copyFile(srcPath, destPath))

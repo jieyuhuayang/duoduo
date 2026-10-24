@@ -1,54 +1,54 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: initJobManagerModule  (minified: ol, daemon.pretty.js:61641)
+// symbol: initJobManagerModule  (minified: ol, daemon.pretty.js:63723)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1, v0.4.0, v0.5.6, v0.6.1, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.2 (maps/history_daemon.json)
 // locals: 137 renamed — 32 from the code at the binding (rule), 105 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
+var Yve, pft, rO, r6, i6, Hr, initJobManagerModule = N(() => {
     "use strict";
-    obe = yi(bs(), 1);
-    hs();
-    Tr();
+    Yve = bi(vs(), 1);
+    gs();
+    Pr();
     Kn();
-    yU();
+    YU();
     initLogLevelModule();
-    Kr();
-    Fw();
-    w6();
-    zw();
-    $r();
-    yut = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
-    UC = new Map;
-    k6 = "gone", x6 = "stale", Br = class {
+    Yr();
+    Yw();
+    t6();
+    Xw();
+    Cr();
+    pft = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
+    rO = new Map;
+    r6 = "gone", i6 = "stale", Hr = class {
         constructor(paths) {
             this.paths = paths
         }
         paths;
         get activeDir() {
-            return Vf.join(this.paths.varDir, "jobs", "active")
+            return Yf.join(this.paths.varDir, "jobs", "active")
         }
         get archiveDir() {
-            return Vf.join(this.paths.varDir, "jobs", "archive")
+            return Yf.join(this.paths.varDir, "jobs", "archive")
         }
         getJobPath(jobId) {
-            return Vf.join(this.activeDir, `${Ig(jobId)}.md`)
+            return Yf.join(this.activeDir, `${Mg(jobId)}.md`)
         }
         getStatePath(jobId) {
-            return Vf.join(this.activeDir, `${Ig(jobId)}.state.json`)
+            return Yf.join(this.activeDir, `${Mg(jobId)}.state.json`)
         }
         getArchiveJobPath(jobId) {
-            return Vf.join(this.archiveDir, `${Ig(jobId)}.md`)
+            return Yf.join(this.archiveDir, `${Mg(jobId)}.md`)
         }
         getArchiveStatePath(jobId) {
-            return Vf.join(this.archiveDir, `${Ig(jobId)}.state.json`)
+            return Yf.join(this.archiveDir, `${Mg(jobId)}.state.json`)
         }
         async init() {
             await ensureDirectoryExists(this.activeDir), await ensureDirectoryExists(this.archiveDir)
         }
         async createJob(jobId, frontmatterInput, body) {
-            if (await this.init(), Ig(jobId), !frontmatterInput.cron || !frontmatterInput.cron.trim()) throw new Error(`Job ${jobId} has invalid cron schedule`);
+            if (await this.init(), Mg(jobId), !frontmatterInput.cron || !frontmatterInput.cron.trim()) throw new Error(`Job ${jobId} has invalid cron schedule`);
             let trimmed = frontmatterInput.cron.trim();
             try {
                 validateJobScheduleExpression(trimmed)
@@ -67,15 +67,15 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
                 sessionKey = this.buildSessionKey(jobId, frontmatter),
                 jobFileMarkdown = renderJobFileMarkdown(frontmatter, body),
                 staleSidecarQuarantined;
-            return await Cc(jobId, async () => {
+            return await Nc(jobId, async () => {
                 if (await this.exists(jobId)) throw new Error(`Job ${jobId} already exists`);
                 if (await this.pathExists(this.getStatePath(jobId))) {
                     let quarantinedPath = await moveFileIntoDirectory(this.getStatePath(jobId), this.archiveDir, ".orphan");
                     staleSidecarQuarantined = quarantinedPath, logErrorMessage(`[JobManager] stale pre-existing sidecar quarantined at create for job ${jobId}: ${quarantinedPath}`)
                 }
-                await writeFileAtomic(this.getJobPath(jobId), jobFileMarkdown, cce(frontmatter.claudeModelProfiles) ? {
-                    mode: rc
-                } : {}), await writeJsonFileAtomic(this.getStatePath(jobId), qC())
+                await writeFileAtomic(this.getJobPath(jobId), jobFileMarkdown, nfe(frontmatter.claudeModelProfiles) ? {
+                    mode: sc
+                } : {}), await writeJsonFileAtomic(this.getStatePath(jobId), iO())
             }), await ensureSessionDescriptorAndStateFiles(this.paths, {
                 session_key: sessionKey,
                 display_name: jobId,
@@ -89,7 +89,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
         }
         async rescheduleJob(jobId, when, now = new Date) {
             let jobRearmTime = parseJobRearmTime(when, now);
-            return Cc(jobId, async () => {
+            return Nc(jobId, async () => {
                 if (!await this.exists(jobId)) throw await this.pathExists(this.getArchiveJobPath(jobId)) ? new Error(`Job ${jobId} is archived — no longer active. Reschedule only applies to active jobs.`) : new Error(`Job ${jobId} not found`);
                 let statePath = this.getStatePath(jobId),
                     state = await this.readStateStrict(statePath);
@@ -102,7 +102,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             })
         }
         async archiveJob(jobId) {
-            return Cc(jobId, () => this.archiveJobHoldingLock(jobId))
+            return Nc(jobId, () => this.archiveJobHoldingLock(jobId))
         }
         async archiveJobHoldingLock(jobId) {
             if (!await this.exists(jobId)) throw await this.pathExists(this.getArchiveJobPath(jobId)) ? new Error(`Job ${jobId} is archived — no longer active. It is already off the schedule.`) : new Error(`Job ${jobId} not found`);
@@ -110,9 +110,9 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
                 statePath = this.getStatePath(jobId),
                 archiveJobPath = this.getArchiveJobPath(jobId),
                 archiveStatePath = this.getArchiveStatePath(jobId);
-            await Wo.rename(jobPath, archiveJobPath);
+            await Go.rename(jobPath, archiveJobPath);
             try {
-                await Wo.rename(statePath, archiveStatePath)
+                await Go.rename(statePath, archiveStatePath)
             } catch (err) {
                 if (err.code !== "ENOENT") {
                     try {
@@ -131,11 +131,11 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
         }
         async renameSidecarOrRollback(jobId, fromPath, toPath, rollbackFromPath, rollbackToPath) {
             try {
-                await Wo.rename(fromPath, toPath)
+                await Go.rename(fromPath, toPath)
             } catch (err) {
                 if (err.code === "ENOENT") return;
                 try {
-                    await Wo.rename(rollbackFromPath, rollbackToPath)
+                    await Go.rename(rollbackFromPath, rollbackToPath)
                 } catch (err) {
                     logErrorMessage(`[JobManager] sidecar-rename rollback failed for job ${jobId}`, err)
                 }
@@ -143,13 +143,13 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             }
         }
         async archiveJobIfNotRearmed(jobId) {
-            return Cc(jobId, async () => {
+            return Nc(jobId, async () => {
                 if (!await this.exists(jobId)) throw new Error(`Job ${jobId} not found`);
                 let state = await this.readStateStrict(this.getStatePath(jobId));
                 return typeof state.run_at == "string" && state.run_at.length > 0 ? {
                     archived: !1,
                     runAt: state.run_at
-                } : (await Wo.rename(this.getJobPath(jobId), this.getArchiveJobPath(jobId)), await this.renameSidecarOrRollback(jobId, this.getStatePath(jobId), this.getArchiveStatePath(jobId), this.getArchiveJobPath(jobId), this.getJobPath(jobId)), logInfoMessage(`[JobManager] Archived job ${jobId} (finalize auto-archive, not re-armed)`), {
+                } : (await Go.rename(this.getJobPath(jobId), this.getArchiveJobPath(jobId)), await this.renameSidecarOrRollback(jobId, this.getStatePath(jobId), this.getArchiveStatePath(jobId), this.getArchiveJobPath(jobId), this.getJobPath(jobId)), logInfoMessage(`[JobManager] Archived job ${jobId} (finalize auto-archive, not re-armed)`), {
                     archived: !0,
                     runAt: null
                 })
@@ -171,8 +171,8 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
 `);
             for (let attempt = 0;; attempt++) {
                 let wakeId = attempt === 0 ? baseId : `${baseId}-${attempt}`;
-                if (Ig(wakeId), await Cc(wakeId, async () => await this.exists(wakeId) ? !1 : (await writeFileAtomic(this.getJobPath(wakeId), markdown), await writeJsonFileAtomic(this.getStatePath(wakeId), {
-                        ...qC(),
+                if (Mg(wakeId), await Nc(wakeId, async () => await this.exists(wakeId) ? !1 : (await writeFileAtomic(this.getJobPath(wakeId), markdown), await writeJsonFileAtomic(this.getStatePath(wakeId), {
+                        ...iO(),
                         run_at: jobRearmTime
                     }), !0))) return logInfoMessage(`[JobManager] Created wake record ${wakeId}`, {
                     owner: trimmed,
@@ -187,7 +187,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             let jobPath = this.getJobPath(wakeId),
                 source;
             try {
-                source = await Wo.readFile(jobPath, "utf8")
+                source = await Go.readFile(jobPath, "utf8")
             } catch (err) {
                 if (err.code === "ENOENT") return null;
                 throw err
@@ -216,7 +216,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             await this.init();
             let fileNames;
             try {
-                fileNames = (await Wo.readdir(this.activeDir)).filter(fileName => fileName.endsWith(".md"))
+                fileNames = (await Go.readdir(this.activeDir)).filter(fileName => fileName.endsWith(".md"))
             } catch (err) {
                 return logErrorMessage("[JobManager] Failed to list wake records", err), []
             }
@@ -236,7 +236,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             return records
         }
         async fireWakeRecord(wakeId, now, deliver) {
-            return Cc(wakeId, async () => {
+            return Nc(wakeId, async () => {
                 let record = await this.getWakeRecord(wakeId);
                 if (!record) return {
                     outcome: "cancelled"
@@ -264,7 +264,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
         async classifyActiveJob(jobId) {
             let source;
             try {
-                source = await Wo.readFile(this.getJobPath(jobId), "utf8")
+                source = await Go.readFile(this.getJobPath(jobId), "utf8")
             } catch (err) {
                 if (err.code === "ENOENT") return {
                     kind: "missing"
@@ -290,7 +290,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
         }
         async readJobByPath(jobId, jobPath, statePath) {
             try {
-                let content = await Wo.readFile(jobPath, "utf8");
+                let content = await Go.readFile(jobPath, "utf8");
                 return await this.buildJobDefinition(jobId, jobPath, statePath, content)
             } catch (err) {
                 if (err.code === "ENOENT") return null;
@@ -306,7 +306,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             if (!data.type || data.type !== "job") return logErrorMessage(`[JobManager] Invalid job file ${jobId}: missing type=job`), null;
             let state;
             try {
-                let content = await Wo.readFile(statePath, "utf8");
+                let content = await Go.readFile(statePath, "utf8");
                 state = JSON.parse(content)
             } catch {
                 state = {
@@ -335,7 +335,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             await this.init();
             let fileNames;
             try {
-                fileNames = (await Wo.readdir(this.activeDir)).filter(fileName => fileName.endsWith(".md"))
+                fileNames = (await Go.readdir(this.activeDir)).filter(fileName => fileName.endsWith(".md"))
             } catch (err) {
                 return logErrorMessage("[JobManager] Failed to list jobs", err), []
             }
@@ -356,7 +356,7 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             return failedJobIds.length > 0 && logErrorMessage(`[JobManager] ${failedJobIds.length} job file(s) failed to parse and are NOT scheduled: ${failedJobIds.join(", ")}`), jobs
         }
         async updateState(jobId, patch, options) {
-            await Cc(jobId, async () => {
+            await Nc(jobId, async () => {
                 if (!await this.exists(jobId)) throw await this.quarantineOrphanSidecarIfPresent(jobId), new Error(`Job ${jobId} is not active (archived or removed) — state writes are active-only`);
                 let statePath = this.getStatePath(jobId),
                     state = await this.readStateStrict(statePath);
@@ -372,14 +372,14 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
             })
         }
         async finalizeJobState(jobId, patch, options) {
-            return Cc(jobId, async () => {
-                if (!await this.exists(jobId)) return await this.quarantineOrphanSidecarIfPresent(jobId), k6;
+            return Nc(jobId, async () => {
+                if (!await this.exists(jobId)) return await this.quarantineOrphanSidecarIfPresent(jobId), r6;
                 let statePath = this.getStatePath(jobId),
                     state = await this.readStateStrict(statePath);
                 if (options && "expectedClaimCursor" in options) {
                     let currentCursor = state.last_scheduled_at ?? null,
                         expectedCursor = options.expectedClaimCursor ?? null;
-                    if (currentCursor !== expectedCursor) return x6
+                    if (currentCursor !== expectedCursor) return i6
                 }
                 let nextState = {
                     ...state,
@@ -407,26 +407,26 @@ var obe, yut, UC, k6, x6, Br, initJobManagerModule = O(() => {
         async readStateStrict(statePath) {
             let source;
             try {
-                source = await Wo.readFile(statePath, "utf8")
+                source = await Go.readFile(statePath, "utf8")
             } catch (err) {
-                if (err.code === "ENOENT") return qC();
+                if (err.code === "ENOENT") return iO();
                 throw err
             }
             try {
                 return JSON.parse(source)
             } catch (err) {
                 try {
-                    let quarantinedPath = await moveFileIntoDirectory(statePath, Vf.dirname(statePath), `.corrupt-${Date.now()}`);
+                    let quarantinedPath = await moveFileIntoDirectory(statePath, Yf.dirname(statePath), `.corrupt-${Date.now()}`);
                     logErrorMessage(`[JobManager] corrupt state sidecar quarantined: ${statePath} → ${quarantinedPath}`, err)
                 } catch (err) {
                     logErrorMessage(`[JobManager] failed to quarantine corrupt sidecar: ${statePath}`, err)
                 }
-                return qC()
+                return iO()
             }
         }
         async pathExists(filePath) {
             try {
-                return await Wo.access(filePath), !0
+                return await Go.access(filePath), !0
             } catch (err) {
                 if (err.code === "ENOENT") return !1;
                 throw err

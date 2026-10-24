@@ -1,15 +1,15 @@
 {
   "generatedBy": "reconstruction/tools/rebuild.sh",
-  "package": "v0.8.5",
+  "package": "v0.8.6",
   "note": "Generated. Do not hand-edit, and do not restate these numbers in prose — cite this file.",
   "bundles": {
     "daemon": {
-      "prettyLines": 93279,
-      "exportBlocks": 24,
+      "prettyLines": 95361,
+      "exportBlocks": 25,
       "firstPartyBlocks": 15,
-      "vendorBlocks": 9,
-      "namesInBlocks": 1098,
-      "distinctNamesInBlocks": 800,
+      "vendorBlocks": 10,
+      "namesInBlocks": 1102,
+      "distinctNamesInBlocks": 804,
       "firstPartyNamesFromBlocks": 107,
       "namesFromEntryExports": 5,
       "inferredNames": 733,
@@ -50,8 +50,8 @@
   },
   "sha256": {
     "daemon": {
-      "shipped": "e742ebd6d2337233bf17d0298d04de6ec788f54b1ce31f6e0e179139e9cd03ed",
-      "pretty": "343a294bf32aac407260854eded4b3775ab17323c9e4912617773e5cb1162438"
+      "shipped": "e6e7bed29c41e890e8e011ed8eaf067bb2758ffec54c295feb0024feb44f8dd2",
+      "pretty": "ec2f82c8a72ca35e450c5d17db3ca6e603daa8898aee5a93a7aa1c3f8eea808f"
     },
     "cli": {
       "shipped": "d151e3aa163df1c9c74051add8c08373e1833f56c413679edb8cfa2f69d9c170",

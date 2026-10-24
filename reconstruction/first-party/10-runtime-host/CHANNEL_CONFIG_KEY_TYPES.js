@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: CHANNEL_CONFIG_KEY_TYPES  (minified: tH, daemon.pretty.js:88348)
+// symbol: CHANNEL_CONFIG_KEY_TYPES  (minified: D6, daemon.pretty.js:90430)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // changelog v0.5.10 (high): enable and tune per conversation with `duoduo session config <session> set auto_compact_idle_minutes=50 auto_compact_min_context_tokens=100000`.
 // NOTE: readable extract from daemon.recon.js; references other top-level

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: moveFileIntoDirectory  (minified: Jd, daemon.pretty.js:32340)
+// symbol: moveFileIntoDirectory  (minified: ef, daemon.pretty.js:34422)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,6 +8,6 @@
 
 async function moveFileIntoDirectory(filePath, targetDir, suffix = "") {
     await ensureDirectoryExists(targetDir);
-    let destinationPath = Eae.join(targetDir, Eae.basename(filePath) + suffix);
-    return await rYe.rename(filePath, destinationPath), destinationPath
+    let destinationPath = yle.join(targetDir, yle.basename(filePath) + suffix);
+    return await QQe.rename(filePath, destinationPath), destinationPath
 }

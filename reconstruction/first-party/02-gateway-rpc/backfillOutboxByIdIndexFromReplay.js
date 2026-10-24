@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: backfillOutboxByIdIndexFromReplay  (minified: hI, daemon.pretty.js:36545)
+// symbol: backfillOutboxByIdIndexFromReplay  (minified: CI, daemon.pretty.js:38627)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 2 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ async function backfillOutboxByIdIndexFromReplay(paths, sessionKey) {
     let outboxReplayFilePath = resolveOutboxReplayFilePath(paths, sessionKey),
         content;
     try {
-        content = await Rn.readFile(outboxReplayFilePath, "utf8")
+        content = await In.readFile(outboxReplayFilePath, "utf8")
     } catch {
         return
     }
@@ -27,7 +27,7 @@ async function backfillOutboxByIdIndexFromReplay(paths, sessionKey) {
             let parsed = JSON.parse(line),
                 byteLength = Buffer.byteLength(line + `
 `, "utf8");
-            await lookupOutboxByIdIndexEntry(paths, parsed.record_id) || await sq(paths, {
+            await lookupOutboxByIdIndexEntry(paths, parsed.record_id) || await zq(paths, {
                 record_id: parsed.record_id,
                 session_key: parsed.session_key,
                 channel_kind: parsed.channel_kind,

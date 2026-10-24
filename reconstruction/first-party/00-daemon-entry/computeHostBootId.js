@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: computeHostBootId  (minified: zct, daemon.pretty.js:89272)
+// symbol: computeHostBootId  (minified: Mmt, daemon.pretty.js:91354)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,18 +7,18 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function computeHostBootId() {
-    let hostname = vwe.hostname();
+    let hostname = fke.hostname();
     try {
-        let trimmed = jct("/proc/sys/kernel/random/boot_id", "utf8").trim();
+        let trimmed = Amt("/proc/sys/kernel/random/boot_id", "utf8").trim();
         if (trimmed) return `${hostname}:${trimmed}`
     } catch {}
     try {
-        let bootTimeMatch = Dct("sysctl", ["-n", "kern.boottime"], {
+        let bootTimeMatch = Cmt("sysctl", ["-n", "kern.boottime"], {
             encoding: "utf8",
             stdio: ["ignore", "pipe", "ignore"]
         }).trim().match(/sec = (\d+)/);
         if (bootTimeMatch?.[1]) return `${hostname}:${bootTimeMatch[1]}`
     } catch {}
-    let bootMinute = Math.floor((Date.now() - vwe.uptime() * 1e3) / 6e4);
+    let bootMinute = Math.floor((Date.now() - fke.uptime() * 1e3) / 6e4);
     return `${hostname}:fallback-${bootMinute}`
 }

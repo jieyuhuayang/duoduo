@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runRemindDuoduoTool  (minified: Mg, daemon.pretty.js:64974)
+// symbol: runRemindDuoduoTool  (minified: Vg, daemon.pretty.js:67056)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 10 renamed — 3 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,12 +12,12 @@ async function runRemindDuoduoTool(input, ctx) {
         let when = typeof input?.when == "string" ? input.when.trim() : "";
         if (!when) return 'Error: when is required (e.g. "@in 30m").';
         let sessionKey = ctx.sessionKey?.trim() ?? "";
-        if (ctx.sessionContextKind === "job" || sessionKey.startsWith("job:")) return await zlt(when, ctx.paths, sessionKey);
+        if (ctx.sessionContextKind === "job" || sessionKey.startsWith("job:")) return await Mpt(when, ctx.paths, sessionKey);
         let context = typeof input?.context == "string" ? input.context.trim() : "";
         if (!context) return "Error: context is required. The woken turn receives nothing else — say what to inspect and where the current evidence lives.";
         let ownerSession = ctx.sessionKey?.trim();
         if (!ownerSession) return "Error: no calling session is bound, so there is no session to wake.";
-        let jobManager = new Br(ctx.paths),
+        let jobManager = new Hr(ctx.paths),
             {
                 id,
                 runAt

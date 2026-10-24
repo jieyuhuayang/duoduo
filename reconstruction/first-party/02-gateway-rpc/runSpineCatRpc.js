@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: runSpineCatRpc  (minified: Ike, daemon.pretty.js:90439)
+// symbol: runSpineCatRpc  (minified: b0e, daemon.pretty.js:92521)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.4 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 9 renamed — 1 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -16,16 +16,16 @@ async function runSpineCatRpc(paths, params) {
             stderr: ""
         };
     try {
-        let catArgs = gke(_ke(catParams)),
+        let catArgs = u0e(c0e(catParams)),
             voidSessionKeys = catParams.redact === "external" ? await listVoidChannelSessions(paths) : null;
-        await yke(paths, catArgs, new Date, output, {
+        await l0e(paths, catArgs, new Date, output, {
             overRpc: !0,
             ...voidSessionKeys !== null ? {
                 redact: event => redactSpineEventForExternal(event, voidSessionKeys)
             } : {}
         })
     } catch (err) {
-        throw err instanceof xS && err.isUsage ? new SpineRpcParamsError(err.message) : err
+        throw err instanceof MS && err.isUsage ? new SpineRpcParamsError(err.message) : err
     }
     return {
         text: output.stdout

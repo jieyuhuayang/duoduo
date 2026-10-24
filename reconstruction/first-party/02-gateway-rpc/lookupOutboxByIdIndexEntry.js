@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: lookupOutboxByIdIndexEntry  (minified: ia, daemon.pretty.js:36320)
+// symbol: lookupOutboxByIdIndexEntry  (minified: oa, daemon.pretty.js:38402)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.0 (medium): **replay**: Harden session-local cursor fallback and recovery when replay indexes are incomplete or stale.
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function lookupOutboxByIdIndexEntry(paths, recordId) {
-    return (await fet(paths)).get(recordId)
+    return (await lit(paths)).get(recordId)
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: appendOutboxByEventIndexEntry  (minified: aet, daemon.pretty.js:36213)
+// symbol: appendOutboxByEventIndexEntry  (minified: oit, daemon.pretty.js:38295)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,8 +8,8 @@
 
 async function appendOutboxByEventIndexEntry(paths, entry) {
     let outboxByEventIndexPath = resolveOutboxByEventIndexPath(paths);
-    await ensureDirectoryExists(Lr.dirname(outboxByEventIndexPath)), await Rn.appendFile(outboxByEventIndexPath, `${stringifyJsonlRecord(entry)}
+    await ensureDirectoryExists(Fr.dirname(outboxByEventIndexPath)), await In.appendFile(outboxByEventIndexPath, `${stringifyJsonlRecord(entry)}
 `);
-    let indexCache = XU.get(outboxByEventIndexPath);
+    let indexCache = Oq.get(outboxByEventIndexPath);
     indexCache && await isIndexLoadStillCurrent(indexCache) && indexCache.map.set(entry.event_id, entry)
 }

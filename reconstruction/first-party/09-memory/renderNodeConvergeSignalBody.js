@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: renderNodeConvergeSignalBody  (minified: vdt, daemon.pretty.js:67270)
+// symbol: renderNodeConvergeSignalBody  (minified: ght, daemon.pretty.js:69352)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 function renderNodeConvergeSignalBody(row) {
     let nodeSignalKey = buildNodeSignalKey(row),
         lines = [`[node-converge] [[${nodeSignalKey}]]`, `node: topics/${nodeSignalKey}.md`];
-    if (row.lines > EH && lines.push(`lines: ${row.lines} (over ${EH})`), row.unexpectedSectionCount > 0) {
+    if (row.lines > oW && lines.push(`lines: ${row.lines} (over ${oW})`), row.unexpectedSectionCount > 0) {
         lines.push(`unexpected-sections: ${row.unexpectedSectionCount}`);
         for (let section of row.unexpectedSections) lines.push(`  - ## ${section}`)
     }

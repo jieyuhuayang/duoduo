@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverExternalSessionNotify  (minified: TIe, daemon.pretty.js:91083)
+// symbol: deliverExternalSessionNotify  (minified: vPe, daemon.pretty.js:93165)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.2, v0.8.4 (maps/history_daemon.json)
 // locals: 26 renamed — 3 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -58,7 +58,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
         error: `The calling session ${callerSessionKey} (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.`
     };
     let sourceLabel = params.source?.trim() || "session.notify",
-        routeId = `session-notify-${AN.randomUUID()}`,
+        routeId = `session-notify-${ZN.randomUUID()}`,
         basePayload = {
             notify_content: params.message,
             text: params.message,
@@ -88,7 +88,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
             ...callerSessionKey === null ? {
                 sourceName: sourceLabel,
                 sourceSessionKey: "external:session.notify",
-                eventType: fW
+                eventType: WW
             } : {
                 sourceName: "notify-tool",
                 sourceSessionKey: callerSessionKey,

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderJobCompleteReceiptGuidance  (minified: Omt, daemon.pretty.js:71751)
+// symbol: renderJobCompleteReceiptGuidance  (minified: T_t, daemon.pretty.js:73833)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.8.0 (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

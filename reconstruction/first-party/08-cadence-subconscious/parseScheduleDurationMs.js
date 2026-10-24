@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: parseScheduleDurationMs  (minified: jw, daemon.pretty.js:61308)
+// symbol: parseScheduleDurationMs  (minified: Zw, daemon.pretty.js:63390)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.6.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ function parseScheduleDurationMs(durationText) {
         matchedLength = 0,
         match;
     for (;
-        (match = unitPattern.exec(durationText)) !== null;) matchedLength += match[0].length, totalMs += parseInt(match[1], 10) * uut(match[2]);
+        (match = unitPattern.exec(durationText)) !== null;) matchedLength += match[0].length, totalMs += parseInt(match[1], 10) * ift(match[2]);
     if (matchedLength === 0 || matchedLength !== durationText.length) throw new Error(`Invalid duration format: ${durationText}`);
     return totalMs
 }

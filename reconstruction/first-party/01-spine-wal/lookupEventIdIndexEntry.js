@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: lookupEventIdIndexEntry  (minified: Ib, daemon.pretty.js:32198)
+// symbol: lookupEventIdIndexEntry  (minified: Fb, daemon.pretty.js:34280)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 
 async function lookupEventIdIndexEntry(paths, eventId, options) {
     if (options?.load === !1) {
-        let cache = jR.get(resolveEventIdIndexPath(paths));
+        let cache = QR.get(resolveEventIdIndexPath(paths));
         return !cache || !await isIndexLoadStillCurrent(cache) ? null : cache.map.get(eventId) ?? null
     }
     let index;

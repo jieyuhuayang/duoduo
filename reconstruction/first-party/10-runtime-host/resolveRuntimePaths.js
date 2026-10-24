@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: resolveRuntimePaths  (minified: Rwe, daemon.pretty.js:66363)
+// symbol: resolveRuntimePaths  (minified: _ke, daemon.pretty.js:68445)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.3 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.3, v0.5.7, v0.6.0, v0.7.0, v0.8.0 (maps/history_daemon.json)
 // locals: 42 renamed — 0 from the code at the binding (rule), 42 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,11 +8,11 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveRuntimePaths(overrides = {}, env = process.env) {
-    let homeDir = overrides.homeDir ?? env.ALADUO_HOME ?? Wct.homedir(),
+    let homeDir = overrides.homeDir ?? env.ALADUO_HOME ?? qmt.homedir(),
         runtimeDir = overrides.runtimeDir ?? env.ALADUO_RUNTIME_DIR ?? St.join(homeDir, ".aladuo"),
         kernelDir = overrides.kernelDir ?? env.ALADUO_KERNEL_DIR ?? St.join(homeDir, "aladuo"),
         workDir = overrides.workDir ?? env.ALADUO_WORK_DIR ?? process.cwd(),
-        bootstrapDir = overrides.bootstrapDir ?? env.ALADUO_BOOTSTRAP_DIR ?? St.join(Ewe, "bootstrap"),
+        bootstrapDir = overrides.bootstrapDir ?? env.ALADUO_BOOTSTRAP_DIR ?? St.join(yke, "bootstrap"),
         channelConfigDir = St.join(kernelDir, "config"),
         varDir = St.join(runtimeDir, "var"),
         runDir = St.join(runtimeDir, "run"),
@@ -48,7 +48,7 @@ function resolveRuntimePaths(overrides = {}, env = process.env) {
         daemonStderrLogPath = St.join(runDir, "daemon.stderr.log"),
         metaPromptSrcPath = St.join(bootstrapDir, "meta-prompt.md"),
         metaPromptDstPath = St.join(homeDir, ".claude", "CLAUDE.md"),
-        cliEntryPath = St.join(Ewe, "bin", "duoduo");
+        cliEntryPath = St.join(yke, "bin", "duoduo");
     return {
         homeDir,
         runtimeDir,

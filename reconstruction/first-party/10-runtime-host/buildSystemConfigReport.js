@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: buildSystemConfigReport  (minified: Ybt, daemon.pretty.js:90614)
+// symbol: buildSystemConfigReport  (minified: Jkt, daemon.pretty.js:92696)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.3 — first release whose bundle holds this declaration; body changed in v0.4.3, v0.4.5, v0.5.0, v0.5.3, v0.6.0, v0.8.0, v0.8.2, v0.8.4 (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -27,9 +27,9 @@ async function buildSystemConfigReport(paths) {
             },
             transfer: {
                 pull_limit: resolveEnvConfigEntry("ALADUO_PULL_LIMIT", 50),
-                pull_wait_ms: resolveEnvConfigEntry("ALADUO_PULL_WAIT_MS", aU),
+                pull_wait_ms: resolveEnvConfigEntry("ALADUO_PULL_WAIT_MS", UU),
                 subscribe_replay_limit: resolveEnvConfigEntry("ALADUO_SUBSCRIBE_REPLAY_LIMIT", 0),
-                notify_unconsumed_hours: resolveEnvConfigEntry(U6, eO)
+                notify_unconsumed_hours: resolveEnvConfigEntry(w6, gO)
             },
             logging: {
                 log_level: resolveEnvConfigEntry("ALADUO_LOG_LEVEL", "info"),

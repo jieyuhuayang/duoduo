@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: archiveLegacyRegistrySessionsDir  (minified: Yke, daemon.pretty.js:69663)
+// symbol: archiveLegacyRegistrySessionsDir  (minified: B0e, daemon.pretty.js:71745)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 26 renamed — 2 from the code at the binding (rule), 24 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -51,7 +51,7 @@ async function archiveLegacyRegistrySessionsDir(paths) {
             let value = legacyRecord[field];
             typeof value == "string" && value.length > 0 && (seed[field] = value)
         }
-        let sessionHash = imt.createHash("sha256").update(sessionKey).digest("hex"),
+        let sessionHash = e_t.createHash("sha256").update(sessionKey).digest("hex"),
             sessionDir = sr.join(paths.sessionsDir, sessionHash),
             statePath = sr.join(sessionDir, "state.json"),
             archiveRoot = sr.join(paths.varDir, "sessions-archive"),

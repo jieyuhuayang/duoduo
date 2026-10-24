@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: pruneEventIdIndexByRetention  (minified: xae, daemon.pretty.js:32282)
+// symbol: pruneEventIdIndexByRetention  (minified: gle, daemon.pretty.js:34364)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 13 renamed — 4 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -15,7 +15,7 @@ async function pruneEventIdIndexByRetention(paths, options) {
         keptLines = [],
         droppedCount = 0;
     try {
-        let stream = gU(eventIdIndexPath);
+        let stream = KU(eventIdIndexPath);
         for await (let line of iterateStreamLines(stream)) {
             if (!line) continue;
             let partition;

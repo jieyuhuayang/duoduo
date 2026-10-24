@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: sweepTombstonedSessionRecords  (minified: Nbt, daemon.pretty.js:86802)
+// symbol: sweepTombstonedSessionRecords  (minified: $kt, daemon.pretty.js:88884)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 14 renamed — 4 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -20,7 +20,7 @@ async function sweepTombstonedSessionRecords(paths) {
     }
     for (let record of records)
         if (record.status !== "pending" && isSessionArchived(paths, record.session_key)) try {
-            await uIe.unlink(resolveOutboxRecordPath(paths, record.channel_kind, record.id)), outboxRemoved += 1
+            await ePe.unlink(resolveOutboxRecordPath(paths, record.channel_kind, record.id)), outboxRemoved += 1
         } catch (err) {
             err.code !== "ENOENT" && logWarnMessage("[housekeeping] failed to remove tombstoned outbox record", {
                 sessionKey: record.session_key,
@@ -29,12 +29,12 @@ async function sweepTombstonedSessionRecords(paths) {
             })
         }
     let sessionKeys = new Set(records.map(record => record.session_key));
-    for (let sessionKey of await Dce(paths)) sessionKeys.add(sessionKey), !aIe(resolveSessionDir(paths, sessionKey)) && !aIe(resolveArchivedSessionDir(paths, sessionKey)) && (replayLogsWithoutSessionDir += 1);
+    for (let sessionKey of await Ife(paths)) sessionKeys.add(sessionKey), !QTe(resolveSessionDir(paths, sessionKey)) && !QTe(resolveArchivedSessionDir(paths, sessionKey)) && (replayLogsWithoutSessionDir += 1);
     for (let sessionKey of sessionKeys) {
         if (!isSessionArchived(paths, sessionKey)) continue;
         let outboxReplayFilePath = resolveOutboxReplayFilePath(paths, sessionKey);
         try {
-            await uIe.unlink(outboxReplayFilePath), replayLogsRemoved += 1
+            await ePe.unlink(outboxReplayFilePath), replayLogsRemoved += 1
         } catch (err) {
             err.code !== "ENOENT" && logWarnMessage("[housekeeping] failed to remove tombstoned replay log", {
                 sessionKey,

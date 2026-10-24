@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: retireListedPartitions  (minified: qke, daemon.pretty.js:69443)
+// symbol: retireListedPartitions  (minified: N0e, daemon.pretty.js:71525)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 
 async function retireListedPartitions(paths) {
     let results = [];
-    for (let partition of Zpt) try {
+    for (let partition of Vyt) try {
         results.push(await retirePartitionOnce(paths, partition))
     } catch (err) {
         logWarnMessage(`[init] retiring partition '${partition.name}' failed: ${formatYamlErrorMessage(err)}`), results.push({

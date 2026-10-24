@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: spineEventDedupStore  (minified: JR, daemon.pretty.js:87246)
+// symbol: spineEventDedupStore  (minified: lI, daemon.pretty.js:89328)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
 // locals: 12 renamed — 1 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,7 +19,7 @@ var spineEventDedupStore = class {
     async load() {
         let skippedCount = 0;
         try {
-            let stream = kYe(this.filePath);
+            let stream = vet(this.filePath);
             for await (let line of iterateStreamLines(stream)) {
                 if (!line.trim()) continue;
                 let entry;
@@ -48,10 +48,10 @@ var spineEventDedupStore = class {
         return this.entries.get(key)
     }
     async record(entry) {
-        this.entries.set(entry.key, entry), await ensureDirectoryExists(EYe.dirname(this.filePath));
+        this.entries.set(entry.key, entry), await ensureDirectoryExists(ket.dirname(this.filePath));
         let line = `${JSON.stringify(entry)}
 `;
-        await xYe.appendFile(this.filePath, line)
+        await wet.appendFile(this.filePath, line)
     }
     async checkAndRecord(entry) {
         return (await this.checkAndRecordDetailed(entry)).duplicate

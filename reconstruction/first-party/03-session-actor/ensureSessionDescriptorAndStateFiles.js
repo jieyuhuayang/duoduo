@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: ensureSessionDescriptorAndStateFiles  (minified: th, daemon.pretty.js:35600)
+// symbol: ensureSessionDescriptorAndStateFiles  (minified: ch, daemon.pretty.js:37682)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.5.0, v0.5.4 (maps/history_daemon.json)
 // locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -21,15 +21,15 @@ async function ensureSessionDescriptorAndStateFiles(paths, descriptor) {
         await ensureDirectoryExists(sessionDir);
         let sessionMetaPath = resolveSessionMetaPath(paths, meta.session_key);
         try {
-            await qa.access(sessionMetaPath)
+            await Ha.access(sessionMetaPath)
         } catch {
-            let metaContent = Gb.default.stringify(["# Session Descriptor", "", "This file describes declarative metadata for this session.", "High-churn runtime state is stored in state.json."].join(`
+            let metaContent = sv.default.stringify(["# Session Descriptor", "", "This file describes declarative metadata for this session.", "High-churn runtime state is stored in state.json."].join(`
 `), stripUndefinedFieldsDeep(meta));
             await writeFileAtomic(sessionMetaPath, metaContent), metaCreated = !0
         }
         let sessionStatePath = resolveSessionStatePath(paths, meta.session_key);
         try {
-            await qa.access(sessionStatePath)
+            await Ha.access(sessionStatePath)
         } catch {
             await writeJsonFileAtomic(sessionStatePath, {
                 updated_at: new Date().toISOString()

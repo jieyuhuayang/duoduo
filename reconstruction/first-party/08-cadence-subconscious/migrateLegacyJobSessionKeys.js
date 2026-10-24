@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: migrateLegacyJobSessionKeys  (minified: Lke, daemon.pretty.js:69391)
+// symbol: migrateLegacyJobSessionKeys  (minified: $0e, daemon.pretty.js:71473)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 11 renamed — 3 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,10 +14,10 @@ async function migrateLegacyJobSessionKeys(paths) {
         errors: 0
     };
     for (let scope of ["active", "archive"]) {
-        let dir = Mke.join(paths.jobsDir, scope),
+        let dir = T0e.join(paths.jobsDir, scope),
             fileNames;
         try {
-            fileNames = await oA.readdir(dir)
+            fileNames = await wA.readdir(dir)
         } catch {
             continue
         }
@@ -25,9 +25,9 @@ async function migrateLegacyJobSessionKeys(paths) {
             if (!fileName.endsWith(".md")) continue;
             let jobId = fileName.slice(0, -3);
             try {
-                let content = await oA.readFile(Mke.join(dir, fileName), "utf8"),
-                    data = (0, sA.default)(content).data,
-                    outcome = await Jpt(paths, jobId, data, scope);
+                let content = await wA.readFile(T0e.join(dir, fileName), "utf8"),
+                    data = (0, SA.default)(content).data,
+                    outcome = await Byt(paths, jobId, data, scope);
                 outcome === "migrated" ? summary.migrated++ : outcome === "collision" ? summary.collisions++ : summary.skipped++
             } catch (err) {
                 summary.errors++, logWarnMessage("[job-key-migration] failed to migrate job session key", {

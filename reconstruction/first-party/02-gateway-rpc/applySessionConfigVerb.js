@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: applySessionConfigVerb  (minified: gvt, daemon.pretty.js:91453)
+// symbol: applySessionConfigVerb  (minified: fxt, daemon.pretty.js:93535)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.7.0, v0.8.1, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 36 renamed — 8 from the code at the binding (rule), 28 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 
 async function applySessionConfigVerb(paths, sessionIndex, params) {
     let verb = params.verb;
-    if (verb === "profile_get" || verb === "profile_set" || verb === "profile_unset" || verb === "profile_alias_set" || verb === "profile_alias_unset") return vvt(paths, sessionIndex, params);
+    if (verb === "profile_get" || verb === "profile_set" || verb === "profile_unset" || verb === "profile_alias_set" || verb === "profile_alias_unset") return gxt(paths, sessionIndex, params);
     let patch = {},
         changedKeys = [];
     if (verb === "set") {
@@ -18,7 +18,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
             reason: "invalid",
             errors: ["set requires at least one key=value"]
         };
-        let setResult = Dve(params.set);
+        let setResult = ISe(params.set);
         if (!setResult.ok) return {
             ok: !1,
             reason: "invalid",
@@ -31,7 +31,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
             reason: "invalid",
             errors: ["unset requires at least one key"]
         };
-        let unsetResult = Mve(params.unset);
+        let unsetResult = TSe(params.unset);
         if (!unsetResult.ok) return {
             ok: !1,
             reason: "invalid",
@@ -42,14 +42,14 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
         changedKeys = unsetResult.keys
     }
     if (params.global) {
-        let unsupportedKeys = changedKeys.filter(key => fS(key) === null);
+        let unsupportedKeys = changedKeys.filter(key => xS(key) === null);
         if (unsupportedKeys.length > 0) return {
             ok: !1,
             reason: "invalid",
-            errors: unsupportedKeys.map(key => `--global does not support "${key}" (${Yr}.md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)`)
+            errors: unsupportedKeys.map(key => `--global does not support "${key}" (${Xr}.md holds model profiles and the <runtime>.model / <runtime>.effort defaults only)`)
         };
         if (verb !== "get") {
-            let writeResult = await Bve(paths, patch);
+            let writeResult = await DSe(paths, patch);
             if (!writeResult.ok) return {
                 ok: !1,
                 reason: "write_failed",
@@ -57,7 +57,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
             }
         }
         let globalRuntimeConfig = await loadGlobalRuntimeConfig(paths.channelConfigDir),
-            globalConfig = AG(null, null, globalRuntimeConfig),
+            globalConfig = pZ(null, null, globalRuntimeConfig),
             globalEventId = verb === "get" ? void 0 : await appendConfigChangedEvent(paths, {
                 scope: "global",
                 changed: changedKeys
@@ -74,7 +74,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
     if (params.kind) {
         let channelKind = params.kind.trim().toLowerCase();
         if (verb !== "get") {
-            let writeResult = await qve(paths, channelKind, patch);
+            let writeResult = await NSe(paths, channelKind, patch);
             if (!writeResult.ok) return {
                 ok: !1,
                 reason: "write_failed",
@@ -82,7 +82,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
             }
         }
         let channelKindConfig = await loadChannelKindConfig(paths.channelConfigDir, channelKind),
-            kindConfig = AG(null, channelKindConfig),
+            kindConfig = pZ(null, channelKindConfig),
             kindEventId = verb === "get" ? void 0 : await appendConfigChangedEvent(paths, {
                 scope: "kind",
                 kind: channelKind,
@@ -94,7 +94,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
             scope: "kind",
             kind: channelKind,
             config: kindConfig,
-            claude_tools: vIe(resolveLayeredChannelRuntime(null, channelKindConfig), channelKindConfig?.claudeTools, void 0),
+            claude_tools: fPe(resolveLayeredChannelRuntime(null, channelKindConfig), channelKindConfig?.claudeTools, void 0),
             changed: changedKeys,
             event_id: kindEventId
         }
@@ -142,7 +142,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
                 errors: [conflict]
             }
         }
-        let writeResult = await zve(paths, channelId, patch);
+        let writeResult = await OSe(paths, channelId, patch);
         if (!writeResult.ok) return {
             ok: !1,
             reason: "write_failed",
@@ -152,8 +152,8 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
     let channelDescriptor = channelId ? await readChannelDescriptor(paths, channelId) : null,
         instanceKindConfig = channelDescriptor?.channel_kind ? await loadChannelKindConfig(paths.channelConfigDir, channelDescriptor.channel_kind) : null,
         globalRuntimeConfig = await loadGlobalRuntimeConfig(paths.channelConfigDir),
-        effectiveConfig = AG(channelDescriptor, instanceKindConfig, globalRuntimeConfig),
-        compactStats = hvt(sessionRuntimeState?.compact_stats, sessionRuntimeState?.last_compact_at),
+        effectiveConfig = pZ(channelDescriptor, instanceKindConfig, globalRuntimeConfig),
+        compactStats = dxt(sessionRuntimeState?.compact_stats, sessionRuntimeState?.last_compact_at),
         eventId = verb === "get" ? void 0 : await appendConfigChangedEvent(paths, {
             scope: "instance",
             sessionKey,
@@ -167,7 +167,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
         session_key: sessionKey,
         display_name: sessionByKeyOrAlias.display_name ?? null,
         config: effectiveConfig,
-        claude_tools: vIe(resolveLayeredChannelRuntime(channelDescriptor, instanceKindConfig), instanceKindConfig?.claudeTools, channelDescriptor?.claudeTools),
+        claude_tools: fPe(resolveLayeredChannelRuntime(channelDescriptor, instanceKindConfig), instanceKindConfig?.claudeTools, channelDescriptor?.claudeTools),
         stats: compactStats,
         changed: changedKeys,
         event_id: eventId
