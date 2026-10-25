@@ -11,6 +11,7 @@ Contents:
 - 1. What duoduo does on the host
 - 2. What the owner does
 - Already connected through your own MCP client
+- The agent cannot reach the public URL
 - 3. Choose the wake
 - 4. Executor rules
 - 5. Handoff prompt
@@ -56,6 +57,72 @@ token with no refresh, so it works whichever client obtained it.
 The alternative is `duoduo-tether login` (section 2). Under the old connection's name it replaces
 that grant: the old token stops working and its open listens end. Under another name it adds a
 second connection.
+
+## The agent cannot reach the public URL
+
+For an agent whose machine cannot reach `https://<host name>` (the name is blocked or filtered on
+its network) but shares a tailnet with this host. `duoduo-tether login --via <private origin>` sends
+every request (`/token`, `/mcp`, `/revoke`) to the private origin instead. The token, its
+resource, the client and the issuer stay bound to the public URL, and the authorize page stays on
+it. It needs `duoduo-tether` at `0.2.4` or later on the agent's machine; the host's channel
+needs nothing new.
+
+**First, check whether it is needed.** On R1 (Funnel on the existing node, `routes/tailscale.md`)
+the public URL is the node's own `*.ts.net` name. A tailnet client with MagicDNS on resolves it to
+the node and reaches it over the tailnet, so no `--via` is needed. Test before adding anything: an
+agent that is already logged in runs `duoduo-tether status`; one that is not runs
+`curl -sS -o /dev/null -w '%{http_code}\n' -X POST https://<host name>/mcp`, which must print
+`401`. On R2 the tagged node is hidden from the tailnet by design (`routes/tailscale.md`, R2): the
+private route never goes there. It goes on the host's existing node, on every route.
+
+**Host side, done by you.** On macOS `tailscale` is the app's CLI by full path (`routes/setup.md`,
+Discovery checklist).
+
+1. Read `tailscale serve status` and `tailscale funnel status` on the existing node. Pick a port
+   with no entry in either. Never move or replace an entry to free a port (`SKILL.md` policy 2).
+2. Ask the owner for the grant (`SKILL.md` policy 3), in the one-to-one chat: "This adds a tailnet
+   path to the tether channel at `https://<node>.<tailnet>.ts.net:<port>`. Every device your
+   tailnet policy lets reach this machine can reach it; every request still needs a token. May I
+   add it?" Wait for yes. Narrowing who reaches the port is the owner's own policy choice; you do
+   not edit the policy.
+3. Serve the channel on that port, inside the tailnet only:
+
+   ```bash
+   tailscale serve --bg --https=<port> http://127.0.0.1:<ALADUO_TETHER_PORT>
+   tailscale serve status
+   ```
+
+   `serve`, never `funnel`: Funnel publishes the port on the internet, a second public origin
+   beside the public URL. `serve status` must show the new entry and every entry that was there
+   before, unchanged. The channel stays bound to loopback; `serve` reaches it there.
+
+**Agent side.**
+
+1. The name `<node>.<tailnet>.ts.net` must resolve on the agent's machine: MagicDNS on, or a
+   hosts-file entry mapping it to the node's Tailscale IP (`tailscale ip -4` on the host). The
+   certificate is issued for the name, so the URL always carries the name, never the IP.
+2. In the handoff prompt (section 5), step 1 asks for `0.2.4` or later, and step 2's login
+   becomes:
+
+   ```bash
+   duoduo-tether login https://<host name> --name <name> --via https://<node>.<tailnet>.ts.net:<port>
+   ```
+
+   `--via` takes an `https:` origin only (any port, no path). The owner still approves on the
+   public URL, in the owner's own browser.
+
+3. `duoduo-tether status` must print `Requests go to https://<node>.<tailnet>.ts.net:<port>.` and
+   find the token working.
+
+There is no fallback: when the private origin cannot be reached, every command exits 4 and names
+it, and the public URL is not tried. To change or drop the route, the agent logs in again with
+another `--via` or without it; under the same name that replaces the connection. Once the route
+works, remove any proxy or tunnel that stood in for it on the agent's machine.
+
+**Persistence and rollback.** `--bg` keeps the entry in the node's state, and the existing node
+already starts at boot. Rollback: `tailscale serve --https=<port> off`, touching no other entry;
+the agent then logs in again without `--via`. Record the port and the `--via` origin in the
+handoff note (`SKILL.md` step 7). What is measured: `routes/tailscale.md`, What is measured.
 
 ## 3. Choose the wake
 
@@ -152,16 +219,19 @@ Wake blocks:
 ```text
 A: Run `duoduo-tether listen` with Bash in the background now. When it exits 0, mail is waiting:
 follow the every-wake steps, then start it again in the background. Keep exactly one running.
+Exit 4: the host cannot be reached; tell me, and do not start it again at once.
 ```
 
 ```text
 B: Start `duoduo-tether listen --follow` with the Monitor tool now. Each output line is one new
 mail; on a line, follow the every-wake steps. It keeps running across mails; keep exactly one.
+If it ends with exit 4, the host cannot be reached; tell me, and do not start it again at once.
 ```
 
 ```text
 C: Make `duoduo-tether listen` the waiting step of your loop. Exit 0: follow the every-wake steps,
-then wait again. Exit 3: stop and tell me. Any other exit: report it as a fault.
+then wait again. Exit 3: stop and tell me. Exit 4: the host cannot be reached; tell me, and do not
+wait again at once. Any other exit: report it as a fault.
 ```
 
 ```text
@@ -177,6 +247,7 @@ anything:
       case $? in
         0) ;;
         3) echo "tether connection is gone; log in again with duoduo-tether login" >&2; exit 0 ;;
+        4) echo "duoduo host cannot be reached; the supervisor retries after its delay" >&2; exit 1 ;;
         *) exit 1 ;;
       esac
       claude -p "You have duoduo mail. Read it with duoduo-tether mail, handle it as CLAUDE.md says, and answer with duoduo-tether send." \
@@ -193,7 +264,8 @@ Do not also keep a listen running in this session: one listener per connection.
 ```text
 E: Run `duoduo-tether listen` as the foreground process of a session your runtime tracks, so its
 exit wakes you. Never nohup or & it: an orphan wakes nobody. Exit 0: follow the every-wake steps,
-then relaunch it the same way. Exit 3: stop and tell me. Keep exactly one: count instances before
+then relaunch it the same way. Exit 3: stop and tell me. Exit 4: the host cannot be reached; tell
+me, and do not relaunch it at once. Keep exactly one: count instances before
 every relaunch. A watchdog outside it wakes you only when the listener process is missing; listen
 prints nothing while healthy, so silence is normal. Not a systemd service: your runtime cannot see
 its exit, so a wake would become a silent restart.

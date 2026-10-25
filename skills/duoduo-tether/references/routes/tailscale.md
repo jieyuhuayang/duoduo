@@ -33,7 +33,9 @@ tailscale funnel status
   background, hand the URL to the owner (`setup.md`, Hand a grant to the owner), wait for "done".
 - `funnel status` must show the new entry, `https://<node>.<tailnet>.ts.net` →
   `http://127.0.0.1:<ALADUO_TETHER_PORT>`, and every entry that was there before, unchanged.
-- R1 adds no tailnet path: the node's tailnet exposure is what it was, and not yours to change.
+- A Funnel entry is a serve entry with Funnel switched on, so the entry on :443 also answers
+  tailnet peers that the policy lets reach this node; their requests still need a token. The rest
+  of the node's tailnet exposure is what it was, and not yours to change.
 
 ## R2: a second Tailscale node, tagged and isolated
 
@@ -221,6 +223,7 @@ Hand each to the owner as `setup.md` (Hand a grant to the owner) says.
 | Funnel publishes every path of a host:port, not one path                                    | Verified in Tailscale source: `ipn/serve.go` (`AllowFunnel` keyed by host:port), `ipn/ipnlocal/serve.go` (path handlers looked up after the per-host:port check)                                                   |
 | `tailscale funnel` prints a consent URL when Funnel is off for the tailnet                  | Verified in Tailscale source: `cmd/tailscale/cli/funnel.go` (`enableFeatureInteractive`)                                                                                                                           |
 | A userspace node forwards inbound tailnet TCP to every host loopback port                   | Verified in Tailscale source (v1.102.4): `cmd/tailscaled/netstack.go`, `wgengine/netstack/netstack.go` (`acceptTCP`)                                                                                               |
+| A Funnel entry also answers tailnet peers the policy lets reach the node                    | Verified in Tailscale source (v1.102.4): `ipn/ipnlocal/netstack.go` (`TCPHandlerForDst` hands peer TCP to serve), `ipn/ipnlocal/serve.go` (`tcpHandlerForServe` looks up the port with no Funnel check)            |
 | Shields-up and Funnel exclude each other                                                    | Verified in Tailscale source (v1.102.4): `ipn/ipnlocal/serve.go`, `ipn/ipnlocal/local.go`                                                                                                                          |
 | The packet filter runs before netstack, so ACL-denied peers never reach loopback forwarding | Verified in Tailscale source (v1.102.4): `net/tstun/wrap.go`, `wgengine/netstack/netstack.go`                                                                                                                      |
 | Funnel traffic arrives through the peer API, gated by the ingress capability                | Verified in Tailscale source (v1.102.4): `ipn/ipnlocal/serve.go` (`/v0/ingress`), `ipn/ipnlocal/peerapi.go` (`canIngress`)                                                                                         |
@@ -233,3 +236,6 @@ Hand each to the owner as `setup.md` (Hand a grant to the owner) says.
 | Funnel recovery after a home-DERP change                                                    | Measured: about a minute                                                                                                                                                                                           |
 | The host's MagicDNS cannot resolve a node the policy hides                                  | Measured: `ENOTFOUND` on the host while the name resolved through a public resolver                                                                                                                                |
 | Whether vendor clouds or mainland China networks reach `ts.net`                             | Unmeasured                                                                                                                                                                                                         |
+| Whether mainland China networks reach a tailnet peer                                        | Measured: a mainland China Linux agent reached a macOS host over the tailnet while the host's `workers.dev` URL was blocked                                                                                        |
+| A CLI agent's `--via` through `tailscale serve` on the existing node (`cli-agent.md`)       | Measured on a macOS host: `serve` on a free port, login, wake by mail                                                                                                                                              |
+| `tailscale serve` passes a server-sent event stream without buffering                       | Measured once: a mail woke `listen` promptly. Long-run behaviour unmeasured                                                                                                                                        |
