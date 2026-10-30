@@ -229,8 +229,9 @@ if [ "$do_plugin" -eq 1 ]; then
   if [ ! -f "$WATCHED" ]; then
     log "no $WATCHED — plugin has not cached any sessions yet, nothing to prune"
   else
-    # Extract the chat OpenID portion of the channel_id (strip "feishu-" prefix).
-    CHAT_ID="${CHANNEL_ID#feishu-}"
+    # The chat id is the channel id's last "-" segment: feishu-<chat_id> on the
+    # default instance, feishu-<instance>-<chat_id> on a named one.
+    CHAT_ID="${CHANNEL_ID##*-}"
     log "pruning session_keys containing $CHAT_ID from watched-sessions.json"
     if [ "$DRY_RUN" -eq 1 ]; then
       python3 - "$WATCHED" "$CHAT_ID" <<'PY'

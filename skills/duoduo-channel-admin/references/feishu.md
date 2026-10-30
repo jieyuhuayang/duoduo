@@ -10,7 +10,8 @@ card behavior, owner DM, `/setup` routing, 200340 errors, reset, or any
 - Install and start
 - Credentials
 - v0.5 `/setup` routing matrix (owner DM / secondary DM / group)
-- Main session contract (owner DM auto-spawn)
+- Owner DM contract (auto-spawn, automatic `main` claim)
+- A second app, forwarding chats, `send` (separate references)
 - `FEISHU_BOT_OWNER` + security hygiene
 - 200340 error triage
 - Reset a bound channel (when descriptor or session is stale)
@@ -30,6 +31,12 @@ duoduo channel feishu start
 Lifecycle: `status | stop | logs | start`. There is no `restart`
 subcommand — use `stop && start` when a full cycle is needed.
 
+A second Feishu or Lark app runs as a named instance of the same package
+(`--instance <name>` on every verb): read
+[feishu-second-app.md](feishu-second-app.md). To have a chat served by a
+session that already exists — across apps or within one — read
+[feishu-forward.md](feishu-forward.md).
+
 ## Credentials
 
 Put `FEISHU_APP_ID` and `FEISHU_APP_SECRET` in `~/.config/duoduo/.env`.
@@ -40,8 +47,11 @@ from:
 The standard manual path is the Feishu developer console:
 `https://open.feishu.cn/app`.
 
-If the user pastes credentials directly in chat, warn them about
-leakage risk once, then proceed to write them.
+Prefer that the owner writes the secret into the file from their own
+terminal (the handover in [feishu-second-app.md](feishu-second-app.md)
+works for `.env` too). If the user pastes credentials directly in chat,
+warn them about leakage risk once, write them to the file, and never
+repeat the value in any output.
 
 ## v0.5 `/setup` routing matrix
 
@@ -55,16 +65,16 @@ operator identity). Read the matrix top-to-bottom; the first match wins.
 | group    | yes         | bound_by present  | other              | plain-text refusal                                              |
 | group    | yes         | no bound_by       | allowlisted        | compact rebind card                                             |
 | group    | yes         | no bound_by       | not allowlisted    | plain-text refusal                                              |
-| p2p      | no          | —                 | owner (or zero-config) | auto-spawn to defaultWorkDir (main session; see below)       |
+| p2p      | no          | —                 | owner (or zero-config) | auto-spawn to defaultWorkDir (owner DM; see below)           |
 | p2p      | no          | —                 | non-owner          | setup card (no ⌂)                                              |
-| p2p      | yes         | bound_by==owner   | owner              | plain-text refusal — "main session is locked"                   |
+| p2p      | yes         | bound_by==owner   | owner              | plain-text refusal — "This is the owner's DM, bound to …"       |
 | p2p      | yes         | bound_by≠owner   | owner              | setup card (no ⌂) — descriptor drifted, let owner reassign      |
 | p2p      | yes         | bound_by present  | non-owner          | setup card (no ⌂) — secondary DM flow                           |
 | p2p      | yes         | no bound_by       | any                | setup card (no ⌂) — re-setup allowed                        |
 
 The **⌂** ("workspace root") dropdown entry:
 
-- **Owner main DM** — bound automatically via auto-spawn (no card).
+- **Owner DM** — bound automatically via auto-spawn (no card).
 - **First-time group setup card** — shown AND pre-selected as the
   default project. A group whose workspace has no discovered
   sub-projects would otherwise present an empty dropdown, so clicking
@@ -75,7 +85,7 @@ The **⌂** ("workspace root") dropdown entry:
 - **Secondary (non-owner) DMs** — hidden. These are guest accesses;
   exposing the root workspace would leak the whole project tree.
 
-## Main session contract (owner DM)
+## Owner DM contract
 
 The bot owner's DM is the **zero-prerequisite control surface**:
 
@@ -99,11 +109,16 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → undefined.
 - When undefined (zero-config), ANY first DM sender triggers auto-spawn
   but `bound_by` is NOT persisted — see "Security hygiene" below.
+- **Main claim.** A configured owner's DM on the default instance also
+  claims the main role when nobody holds it (checked again at every start).
+  Zero-config and named instances never claim. Role details:
+  `duoduo-runtime-admin` → `references/main-session.md`.
 
 After auto-spawn, `/setup` on the owner DM is refused. The DM is
 locked to `defaultWorkDir` so the operator always has a working
-control channel even if other bots/config break. To relocate the
-main session, run the reset script.
+control channel even if other bots/config break. To rebind the
+owner DM, run the reset script. Moving the main role elsewhere does not
+need a reset: `duoduo session alias <key> main --move`.
 
 ## Security hygiene
 
@@ -113,7 +128,7 @@ Zero-config defaults are meant for bootstrap only.
 Production `~/.config/duoduo/.env` should have:
 
 ```bash
-FEISHU_BOT_OWNER=ou_yourOpenId       # explicit owner — locks main session
+FEISHU_BOT_OWNER=ou_yourOpenId       # explicit owner — locks the owner DM, lets it claim main
 FEISHU_ALLOW_FROM=ou_you,ou_friend,… # additional DMs allowed as secondary
 FEISHU_DM_POLICY=allowlist           # refuse DMs from users not in ALLOW_FROM
 FEISHU_GROUP_POLICY=allowlist        # same for groups (see FEISHU_ALLOW_GROUPS)
@@ -123,8 +138,8 @@ FEISHU_GROUP_CMD_USERS=ou_you,…      # grants /setup in groups whose descripto
 When the user reports "strangers can DM my bot", check `dmPolicy`
 first. When the user reports "/setup does nothing on my bot's DM",
 check whether their open_id matches `FEISHU_BOT_OWNER` (the refusal
-message says "main session is locked", which is the intended
-behavior).
+message says "This is the owner's DM, bound to …", which is the
+intended behavior).
 
 ## 200340 error triage
 
@@ -366,7 +381,7 @@ reset + intentional re-bind.
 The owner-DM refusal gate requires `cfg.botOwnerOpenId !== undefined`
 (resolved once at plugin startup). If the operator accidentally
 unsets `FEISHU_BOT_OWNER` in `.env` (typo, deletion) and restarts,
-the main-session lock lifts — their own `/setup` falls through to
+the owner-DM lock lifts — their own `/setup` falls through to
 the secondary card and can reassign the DM.
 
 This requires shell access, `.env` edit, and a restart — equivalent
