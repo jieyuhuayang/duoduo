@@ -94,7 +94,9 @@ Every running instance of a channel is handled the same way: a second
 Feishu or Lark app (`--instance <name>`) is stopped before the daemon
 restart and started after it; instances that were stopped stay stopped.
 
-A host that already aliased a channel session `main` keeps it as main; two such sessions are reported, not merged — see `duoduo-runtime-admin` → `references/main-session.md`.
+A host that already aliased a channel session `main` keeps it as main;
+two such sessions are reported, not merged — see `duoduo-runtime-admin`
+→ `references/main-session.md`.
 
 If a session was mid-turn and should be told, the same flag applies:
 

@@ -55,7 +55,6 @@ This IS the live route table — prefer it over any hand-maintained id↔name ma
 duoduo session alias <session_key> "<name>"     # set a name
 duoduo session alias <session_key> --clear       # unset, back to —
 duoduo session alias <session_key>               # show current name
-duoduo session alias <session_key> main --move   # make this channel session the main session
 ```
 
 Sets a human label on a session (stored in the session's `meta.md`). The name is
@@ -66,8 +65,7 @@ Typical use: the user says "name this session X" / "把这个会话叫 X" → re
 the current session_key (the user's session, or one from `list`) → run
 `alias <key> "X"`.
 
-**`main` is reserved** for the main session; writes that touch it are refused unless the caller is the owner's terminal or the current main (`main_held` / `not_main` / `no_caller`).
-Rules and handover: [main-session.md](main-session.md).
+**`main` is reserved** for the main session: setting, moving or clearing it, and who may, is in [main-session.md](main-session.md).
 
 Returns `not_found` (exit 2) if the session_key doesn't exist. Note: a session
 that exists but has no `meta.md` yet can't be named until it has run at least

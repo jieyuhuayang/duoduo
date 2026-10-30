@@ -38,7 +38,7 @@ This is owner-DM refusal by design. Check:
    `FEISHU_ALLOW_FROM[0]` when `FEISHU_BOT_OWNER` unset), it's the
    locked owner DM. To rebind it, run the reset script —
    there's no in-chat path. (Moving the main role is separate and
-   needs no reset: `duoduo session alias <key> main --move`.)
+   needs no reset: `duoduo-runtime-admin` → `references/main-session.md`.)
 3. If `bound_by` does NOT match the current owner, the descriptor
    drifted (zero-config era or stale env). The owner's `/setup`
    should already route to the secondary card — verify by having

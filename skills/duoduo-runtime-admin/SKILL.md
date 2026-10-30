@@ -221,7 +221,7 @@ external script — one entry point):
 - `duoduo session alias <key> "<name>"` — give a session a human label, so it
   is legible in `list` and usable as a `notify` target. Unnamed sessions show
   `—` (they are NOT auto-labelled with their key). The name `main` is
-  reserved for the main session: `duoduo session alias <key> main --move`.
+  reserved for the main session (below).
 - `duoduo session notify <target> -m "<msg>" [--force]` — reach a session by
   key OR alias now and deliver a source-tagged notification. Only
   `channel`/`job` targets are allowed; the subconscious/kernel plane is

@@ -105,9 +105,9 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   a pi session refuses every message until one is set. The bind
   confirmation carries the next step (`/model <provider>/<modelId>`);
   see [pi-runtime.md](../../duoduo-runtime-admin/references/pi-runtime.md).
-- Owner is resolved from `cfg.botOwnerOpenId`:
-  `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → undefined.
-- When undefined (zero-config), ANY first DM sender triggers auto-spawn
+- The owner is the open_id the plugin reads at startup:
+  `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → none.
+- When there is none (zero-config), ANY first DM sender triggers auto-spawn
   but `bound_by` is NOT persisted — see "Security hygiene" below.
 - **Main claim.** A configured owner's DM on the default instance also
   claims the main role when nobody holds it (checked again at every start).
@@ -117,8 +117,8 @@ The bot owner's DM is the **zero-prerequisite control surface**:
 After auto-spawn, `/setup` on the owner DM is refused. The DM is
 locked to `defaultWorkDir` so the operator always has a working
 control channel even if other bots/config break. To rebind the
-owner DM, run the reset script. Moving the main role elsewhere does not
-need a reset: `duoduo session alias <key> main --move`.
+owner DM, run the reset script. Moving the main role elsewhere needs no
+reset: `duoduo-runtime-admin` → `references/main-session.md`.
 
 ## Security hygiene
 
@@ -378,8 +378,9 @@ reset + intentional re-bind.
 
 ### Limit 2 — `FEISHU_BOT_OWNER` hygiene
 
-The owner-DM refusal gate requires `cfg.botOwnerOpenId !== undefined`
-(resolved once at plugin startup). If the operator accidentally
+The owner-DM refusal gate requires a configured owner
+(`FEISHU_BOT_OWNER`, or the first `FEISHU_ALLOW_FROM` entry), read once at
+plugin startup. If the operator accidentally
 unsets `FEISHU_BOT_OWNER` in `.env` (typo, deletion) and restarts,
 the owner-DM lock lifts — their own `/setup` falls through to
 the secondary card and can reassign the DM.

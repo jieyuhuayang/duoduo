@@ -101,9 +101,8 @@ bot.
    stop and ask the owner.
 2. Rotating the app secret means updating both the instance's env file
    (then `stop` + `start` the instance) and the lark-cli profile.
-3. Messages into a forwarded chat still go through
-   `duoduo channel feishu send`, not lark-cli: only `send` adds them to
-   the chat's imlog ([feishu-forward.md](feishu-forward.md)).
+3. Messages into a forwarded chat are not API work: see
+   [feishu-forward.md](feishu-forward.md), "Answer a forwarded chat".
 
 ## What the instance shares and what it keeps
 
@@ -147,6 +146,6 @@ works for a named instance with `--channel-id feishu-<name>-<chat_id>` and
 | Same people meet in a Feishu group and a Lark group, owner wants one context | Second instance for Lark, then forward the Lark group to the Feishu group's session ([feishu-forward.md](feishu-forward.md)) |
 | A second company's bot should only serve its own chats | Second instance; its chats get their own sessions through the setup card, as on the default app |
 | The owner wants to talk to duoduo through the new app's DM | Forward that DM to `main` before its first message; a DM that already has a session keeps it until `forward --clear` (the role stays on the default app's DM) |
-| The gateway runs on another host than the daemon | The instance runs, but `forward` and `send` do not work there; run the instance on the daemon's host if chats must be forwarded |
-| A session needs the Lark/Feishu API as the new app's bot | lark-cli profile for the instance, secret piped from the env file (above); never for messages into a forwarded chat |
+| The gateway runs on another host than the daemon | [feishu-forward.md](feishu-forward.md), "Diagnose" |
+| A session needs the Lark/Feishu API as the new app's bot | lark-cli profile for the instance, secret piped from the env file (above); messages into a forwarded chat: [feishu-forward.md](feishu-forward.md) |
 | Owner pasted the secret into chat anyway | Write it to the env file immediately, never repeat it in any output, and suggest rotating it in the developer console |
