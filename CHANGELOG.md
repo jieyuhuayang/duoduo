@@ -2,6 +2,101 @@
 
 All notable changes to this project will be documented here.
 
+## [v0.8.7] - 2026-10-30
+
+One duoduo, several faces: a host now has a main session where everything
+without another home converges, the Feishu channel can run a second app (a
+second enterprise, or Feishu and Lark side by side), and any chat can be
+forwarded to an existing session instead of getting a session of its own.
+
+Upgrading means reinstalling core (0.8.7), protocol (0.8.6) and the Feishu
+channel (0.8.7), then restarting the daemon and every Feishu instance. The
+ACP channel (0.8.3) is unchanged. The bundled agent SDK moves to `^0.3.312`
+(Claude Code 2.1.312); pi stays at 1.4.0.
+
+Behaviour changes to know about:
+
+- **Every channel session gets a role.** The session aliased `main` reads a
+  short main-role text, every other channel session a member-role text. The
+  first turn after the upgrade pays a one-time cost, as a system-prompt change
+  does: Claude sessions restart their process, Codex threads fork once, pi
+  recycles its worker. A warm Grok session keeps its old role text until its
+  next cold start.
+- **Notify to a connected channel is no longer refused for slow reading.** A
+  channel session whose plugin holds a live connection counts as reachable,
+  however long its last reply has waited unread. This is what lets a tether
+  assistant that reads its mail once a day receive mail without `--force`. A
+  session with no live connection is judged as before.
+- **Long foreground `sleep` is blocked in more places.** Claude Code 2.1.310
+  refuses a standalone `sleep` also when telemetry or non-essential traffic is
+  off, which duoduo sets on hosts with a configured model endpoint. Sessions
+  there now see the refusal; `run_in_background` is the way to wait.
+- **Automatic model switch after a flagged message now covers custom model
+  names** (Claude Code 2.1.312), such as gateway deployment names. duoduo keeps
+  this upstream behaviour; set `CLAUDE_CODE_DISABLE_REFUSAL_FALLBACK=1` in the
+  daemon environment to turn it off.
+
+### Features
+
+- **Main session.** One channel session holds the alias `main`; Notify takes
+  `main` as an explicit target and resolves it at each delivery. A job outcome
+  whose owner cannot take it goes to main, marked as a stand-in delivery. On a
+  Feishu host the owner — `FEISHU_BOT_OWNER`, or the first entry of
+  `FEISHU_ALLOW_FROM` — claims an empty main role with their first DM; an
+  existing owner DM is also recognized as main when the default instance
+  starts and main is empty. A named instance never claims main. Elsewhere
+  `duoduo session alias <key> main --move` sets or moves it. `duoduo session
+  list` marks it, and `--json` rows carry `main` and `main_since`; `duoduo
+  daemon status` lists the sessions when more than one is aliased `main`. A
+  channel session can no longer take `main` as its display name any other
+  way. The session is told when it becomes main and tells its owner in its own
+  words.
+- **A second Feishu or Lark app.** `duoduo channel feishu <verb> --instance
+  <name>` runs another app beside the default one, with its own credentials in
+  `~/.config/duoduo/feishu.<name>.env` (mode 0600) and its own state.
+- **Forwarded chats.** `duoduo channel feishu forward --chat <chat_id> --to
+  <session|main>` hands a chat to an existing session; `--clear` gives it back.
+  Each forwarded chat keeps an append-only log the session reads itself, with a
+  short id per message. A mention wakes the session with the addressed message,
+  the log's path and the unread range. The bot marks an addressed message as
+  received; if the session cannot be reached, the bot says so in the chat.
+- **Answering a forwarded chat.** `duoduo channel feishu send --chat <chat_id>
+  --reply-to <id|none> (--text <t> | --file <path>)` posts as the bot. Text
+  renders as Markdown like a normal reply; a message id quotes that message and
+  clears its received mark; `none` posts a new message. Only the session the
+  chat is forwarded to, or an operator, can send there. `send --help` explains
+  the rest.
+- **Hand a group to an existing session from its setup card.** The setup card
+  gains a choice that asks the main session to take the chat; the owner decides
+  where it goes.
+
+### Security
+
+- **Dependency advisories cleared in duoduo's own dependencies.** undici moves
+  to 8.12 (high-severity advisories including a TLS certificate validation
+  bypass and cache poisoning), zod to 4.6.7 (memory exhaustion), and the MCP SDK
+  to 1.32.2, which brings body-parser, qs, fast-uri and the Hono server adapter
+  past their advisories. pi 1.4.0 pins undici 8.10.2 for itself; an npm install
+  still places that copy under pi until pi publishes a fixed pin.
+- **Forward and send are bound to the forward.** A forwarded message's text
+  never authorizes moving the main role, changing a forward, or sending into
+  any chat other than the one it came from; `send` resolves message ids only
+  within the chat it is sending to.
+
+### Updates
+
+- **Agent SDK 0.3.312** (Claude Code 2.1.312). See the behaviour changes above.
+- **Skip texts name what was withheld.** The Skip tool and the notice after a
+  skipped turn now say that the turn's text reply was not delivered, rather
+  than everything the turn did; tool calls before Skip, such as a `send`,
+  still take effect.
+- **Uploads over `/rpc` match WebSocket.** The full-access HTTP `/rpc` body
+  limit now equals the WebSocket message limit, so an upload that works over
+  WebSocket also works over `/rpc`.
+- The tether channel 0.2.5, released alongside this version, tells the main
+  session about each newly connected assistant and returns its full text to
+  clients that read only a tool result's structured part.
+
 ## [v0.8.6] - 2026-10-23
 
 A security release: every open dependency advisory is cleared, the bundled
