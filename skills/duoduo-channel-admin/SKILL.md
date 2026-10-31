@@ -1,6 +1,6 @@
 ---
 name: duoduo-channel-admin
-description: "Install, start, stop, inspect, reset, and configure duoduo host-mode channels. Use when the request involves: channel lifecycle (install/list/start/stop/status/logs), Feishu setup card or /setup command, Feishu owner DM / main session / FEISHU_BOT_OWNER configuration, the 'main session is locked' refusal, stale card error, resetting a bound Feishu chat, ACP editor integration, channel descriptor editing (kind vs instance). Also trigger for Chinese: 拉起 feishu 通道, 配置 channel 提示词, 改 stdio 的 workspace, 查看 channel 状态, 飞书机器人怎么配, 设置 owner, 清除 session, 重置 channel."
+description: "Install, start, stop, inspect, reset, and configure duoduo host-mode channels. Use when the request involves: channel lifecycle (install/list/start/stop/status/logs), Feishu setup card or /setup command, Feishu owner DM / FEISHU_BOT_OWNER configuration, the owner-DM rebind refusal, a second Feishu or Lark app (--instance), a chat forwarded to an existing session (forward / send), stale card error, resetting a bound Feishu chat, ACP editor integration, channel descriptor editing (kind vs instance). Also trigger for Chinese: 拉起 feishu 通道, 配置 channel 提示词, 改 stdio 的 workspace, 查看 channel 状态, 飞书机器人怎么配, 设置 owner, 清除 session, 重置 channel, 加一个 Lark 应用, 第二个飞书应用, 把群转给已有会话, 回复转发的群."
 ---
 
 # Duoduo Channel Admin
@@ -32,10 +32,20 @@ Each channel kind has its own reference. Load only the one that
 matches the request to avoid polluting context with unrelated detail.
 
 - **Feishu** (飞书) → read [references/feishu.md](references/feishu.md).
-  Covers install, credentials, v0.5 `/setup` routing matrix, main
-  session contract (owner DM auto-spawn), `FEISHU_BOT_OWNER` security
-  hygiene, 200340 triage, reset walkthrough, stale-card guard,
+  Covers install, credentials, v0.5 `/setup` routing matrix, owner DM
+  contract (auto-spawn, automatic main-session claim), `FEISHU_BOT_OWNER`
+  security hygiene, 200340 triage, reset walkthrough, stale-card guard,
   accepted v0.5 limits.
+- **A second Feishu or Lark app** (another tenant, company, or the
+  international domain) → read
+  [references/feishu-second-app.md](references/feishu-second-app.md):
+  named instances, the per-instance env file and secret handover,
+  per-instance lifecycle and upgrade.
+- **One context across chats and bots** — a chat should be served by a
+  session that already exists, a setup-card "Hand to an existing session"
+  request reached the main session, or a session must answer a forwarded
+  message → read [references/feishu-forward.md](references/feishu-forward.md):
+  `forward`, `send`, who may run them, the cold-start flow.
 - **ACP** (编辑器) → read [references/acp.md](references/acp.md).
   Covers install, editor integration semantics.
 

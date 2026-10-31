@@ -41,6 +41,12 @@ whose definition was deleted. These linger in the index but aren't live work, so
 they're noise in the default view. Pass `--all` to see them; with `--all` an
 orphan row is marked `job (orphan)` (and `orphan: true` in `--json`).
 
+When any session holds the main role, the table gains a `MAIN` column:
+`main since <ISO time>` on the main session, `main? (ambiguous)` on each
+candidate when more than one channel session is aliased `main` (a hint below
+the table names the fix). `--json` rows carry `main: "held" | "candidate"` and
+`main_since`. See [main-session.md](main-session.md).
+
 This IS the live route table — prefer it over any hand-maintained id↔name map.
 
 ## `duoduo session alias`
@@ -59,6 +65,8 @@ Typical use: the user says "name this session X" / "把这个会话叫 X" → re
 the current session_key (the user's session, or one from `list`) → run
 `alias <key> "X"`.
 
+**`main` is reserved** for the main session: setting, moving or clearing it, and who may, is in [main-session.md](main-session.md).
+
 Returns `not_found` (exit 2) if the session_key doesn't exist. Note: a session
 that exists but has no `meta.md` yet can't be named until it has run at least
 once — `set_alias` failing does NOT remove it from `list`.
@@ -71,6 +79,9 @@ duoduo session notify <target> -m "<message>" [--source <label>] [--force]
 
 Wakes a session and delivers a message to it. `<target>` is a **session_key OR a
 display-name alias** (so `notify "Journal" -m "…"` works once Journal is named).
+`main` always means the main session, resolved at delivery; it is never
+matched against a job named `main`, and with no main (or two candidates) the
+call is refused.
 
 The message arrives as a **source-tagged notification**, not a user message —
 the woken session decides for itself whether to act on it (it will not blindly

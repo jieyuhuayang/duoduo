@@ -52,6 +52,11 @@ duoduo channel <kind> logs
 There is no `restart` subcommand. When a full cycle is required
 (after reset, after env change), use `stop && start`.
 
+The feishu channel can run several apps from one install. Each extra app
+is a named instance, and every verb above (plus `doctor`) takes
+`--instance <name>`; `status` without it lists every instance. See
+[feishu-second-app.md](feishu-second-app.md).
+
 ## `doctor` subcommand
 
 Optional per-plugin self-diagnosis. Not every plugin exposes it — run

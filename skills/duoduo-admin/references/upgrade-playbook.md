@@ -90,6 +90,14 @@ upgrading by hand. Note it cannot help the upgrade that *introduces*
 it: an upgrade run from a pre-0.7.0 CLI executes the old code, so
 crossing into v0.7.0 still needs the channels reinstalled manually.
 
+Every running instance of a channel is handled the same way: a second
+Feishu or Lark app (`--instance <name>`) is stopped before the daemon
+restart and started after it; instances that were stopped stay stopped.
+
+A host that already aliased a channel session `main` keeps it as main;
+two such sessions are reported, not merged — see `duoduo-runtime-admin`
+→ `references/main-session.md`.
+
 If a session was mid-turn and should be told, the same flag applies:
 
 ```bash
@@ -188,7 +196,7 @@ Safe to proceed. The agent should:
    ```
 4. Brief the user on the two new /setup behaviors they'll observe:
    - Owner DM (their personal DM with the bot): first message
-     auto-spawns the main session; no setup card.
+     auto-spawns the owner DM session; no setup card.
    - Groups: already-configured groups now show a compact "current
      configuration" card (mention toggle only) on `/setup`.
 
@@ -199,8 +207,8 @@ full behavior matrix if the user wants to see every case.
 
 ⚠️ **Discuss with the user BEFORE running the upgrade.** After
 upgrade, zero-config mode means any first DM sender triggers
-auto-spawn into the owner's main session. With `dmPolicy=open` (the
-default), strangers who reach the bot become the bot's main session.
+auto-spawn into an owner-style DM session. With `dmPolicy=open` (the
+default), strangers who reach the bot get that unrestricted DM session.
 
 Walk the user through:
 
