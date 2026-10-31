@@ -2,7 +2,7 @@
  "generatedBy": "tools/history_chain.mjs (tools/history.sh)",
  "method": "release to release: identical body (fingerprint_match.mjs), else positional pair (pair_changes.mjs), else feature similarity (decl_features.mjs, min 0.5, lead 0.1); firstSeen is where the walk ends",
  "package": "@openduo/duoduo",
- "current": "0.8.6",
+ "current": "0.8.7",
  "versions": [
   "0.2.0",
   "0.2.1",
@@ -54,30 +54,31 @@
   "0.8.3",
   "0.8.4",
   "0.8.5",
-  "0.8.6"
+  "0.8.6",
+  "0.8.7"
  ],
- "symbolCount": 845,
+ "symbolCount": 863,
  "symbols": {
   "ALADUO_TOOL_NAMESPACE": {
-   "mangled": "sO",
+   "mangled": "uO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "AgentSdkPromptNotAcceptedAbortError": {
-   "mangled": "Or",
+   "mangled": "Ar",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "AgentSdkTurnInterruptedError": {
-   "mangled": "qr",
+   "mangled": "Hr",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "CHANNEL_CONFIG_KEY_TYPES": {
-   "mangled": "D6",
+   "mangled": "T6",
    "firstSeen": null,
    "changedIn": [
     "0.8.1"
@@ -85,138 +86,144 @@
    "untraceable": "var with too few features to follow past v0.5.10"
   },
   "CLAUDE_CODE_EXECUTABLE_ENV_KEY": {
-   "mangled": "$W",
+   "mangled": "xW",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "CLAUDE_CORE_TOOLS": {
-   "mangled": "Sg",
+   "mangled": "Eg",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "DAEMON_TOKEN_ENV_KEY": {
-   "mangled": "lA",
+   "mangled": "fA",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_ACP_COMPACT": {
-   "mangled": "_we",
+   "mangled": "qve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_ACP_EXT_PREFIX": {
-   "mangled": "gwe",
+   "mangled": "zve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_ACP_SDK_CALL": {
-   "mangled": "ywe",
+   "mangled": "Uve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_AGENT_PROFILE": {
-   "mangled": "hwe",
+   "mangled": "Fve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_DISALLOWED_TOOLS": {
-   "mangled": "mwe",
+   "mangled": "Lve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_MCP_SDK_META": {
-   "mangled": "bwe",
+   "mangled": "Bve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_MCP_SERVERS_META": {
-   "mangled": "vwe",
+   "mangled": "Vve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "GROK_MCP_SERVER_NAME": {
-   "mangled": "wwe",
+   "mangled": "Hve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "HOST_MODEL_ENV_KEYS": {
-   "mangled": "CW",
+   "mangled": "EW",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
-   "mangled": "Kfe",
+   "mangled": "wfe",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "JsonRpcInvalidParamsError": {
-   "mangled": "Tt",
+   "mangled": "It",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "MemoryReadRpcError": {
-   "mangled": "Bc",
+   "mangled": "Jc",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "class-expr with too few features to follow past v0.8.4"
   },
   "PARTITION_CORE_TOOLS": {
-   "mangled": "KH",
+   "mangled": "FV",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "SESSION_SCHEMA_VERSION": {
-   "mangled": "$y",
+   "mangled": "Oy",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.6"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+  },
+  "SUN_PATH_MAX_BYTES": {
+   "mangled": "yR",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
   },
   "SpineRpcParamsError": {
-   "mangled": "ap",
+   "mangled": "up",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "class-expr with too few features to follow past v0.8.4"
   },
   "__resetClaudeProbeCacheForTest": {
-   "mangled": "hlt",
+   "mangled": "Nat",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.3"
   },
   "__setClaudeVerifierForTest": {
-   "mangled": "glt",
+   "mangled": "Dat",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.3"
   },
   "__setCodexAvailabilityForTests": {
-   "mangled": "xft",
+   "mangled": "Bct",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
   },
   "__setGrokAvailabilityForTests": {
-   "mangled": "Aft",
+   "mangled": "Xct",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "accumulateDrainRecordIntoSummary": {
-   "mangled": "Xfe",
+   "mangled": "kfe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -231,7 +238,7 @@
    ]
   },
   "acquireRuntimeWriterLock": {
-   "mangled": "J6",
+   "mangled": "U6",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -242,7 +249,7 @@
    ]
   },
   "acquireSessionDrainLock": {
-   "mangled": "tEe",
+   "mangled": "xEe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.4",
@@ -250,18 +257,18 @@
    ]
   },
   "addToNumericField": {
-   "mangled": "cJ",
+   "mangled": "oJ",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.0"
   },
   "advanceConsumerWatermark": {
-   "mangled": "Bu",
+   "mangled": "Vu",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "advanceOptimisticDeliveryCursor": {
-   "mangled": "_6",
+   "mangled": "u6",
    "firstSeen": "0.3.0",
    "changedIn": [
     "0.5.6",
@@ -272,13 +279,18 @@
    ]
   },
   "aggregateSessionDrainSummary": {
-   "mangled": "Qfe",
+   "mangled": "xfe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.2"
   },
+  "announceMainSessionChange": {
+   "mangled": "wSe",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "appendBeforeExecuteGateway": {
-   "mangled": "cpe",
+   "mangled": "Dfe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.6",
@@ -288,7 +300,7 @@
    ]
   },
   "appendConfigChangedEvent": {
-   "mangled": "Oy",
+   "mangled": "Ny",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.7.0"
@@ -298,66 +310,66 @@
    ]
   },
   "appendDrainRecord": {
-   "mangled": "bf",
+   "mangled": "Sf",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "appendEventIdIndexEntry": {
-   "mangled": "WQe",
+   "mangled": "uXe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "appendEventToPartition": {
-   "mangled": "VQe",
+   "mangled": "aXe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "appendGapHandedSpan": {
-   "mangled": "Yke",
+   "mangled": "vke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "appendOutboxByEventIndexEntry": {
-   "mangled": "oit",
+   "mangled": "wnt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "appendPartitionToolEvent": {
-   "mangled": "xkt",
+   "mangled": "Wwt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "appendPiConfigIssues": {
-   "mangled": "SSe",
+   "mangled": "qwe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "appendSessionMailboxNote": {
-   "mangled": "Jb",
+   "mangled": "Zb",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "appendTelemetryRecord": {
-   "mangled": "yet",
+   "mangled": "OXe",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "applyHostModelEnvVars": {
-   "mangled": "Uxe",
+   "mangled": "cxe",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "applyJobSdkConfigOverride": {
-   "mangled": "$6",
+   "mangled": "k6",
    "firstSeen": "0.6.2",
    "changedIn": [
     "0.7.0",
@@ -369,7 +381,7 @@
    ]
   },
   "applySessionConfigVerb": {
-   "mangled": "fxt",
+   "mangled": "MSt",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.7.0",
@@ -383,41 +395,41 @@
    ]
   },
   "archiveLegacyRegistrySessionsDir": {
-   "mangled": "B0e",
+   "mangled": "fEe",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "archiveSessionAndArtifacts": {
-   "mangled": "cke",
+   "mangled": "MSe",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.6.0"
    ]
   },
   "archiveSessionDirUnlessAlreadyArchiving": {
-   "mangled": "lke",
+   "mangled": "DSe",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "archiveSessionIfQuiescent": {
-   "mangled": "nxt",
+   "mangled": "xSt",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.6.0"
    ]
   },
   "assertJobWorkspaceUsable": {
-   "mangled": "Wve",
+   "mangled": "gve",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "assertScheduleDurationRepresentable": {
-   "mangled": "XV",
+   "mangled": "qH",
    "firstSeen": "0.6.1",
    "changedIn": []
   },
   "assertSessionNotArchiving": {
-   "mangled": "rc",
+   "mangled": "oc",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
@@ -428,12 +440,12 @@
    "changedIn": []
   },
   "assertWsChannelIdentityParams": {
-   "mangled": "lPe",
+   "mangled": "ATe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "atomicAppendEvent": {
-   "mangled": "nn",
+   "mangled": "rn",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.1",
@@ -444,17 +456,17 @@
    ]
   },
   "attachStreamLineReader": {
-   "mangled": "tc",
+   "mangled": "rc",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "backfillOutboxByIdIndexFromReplay": {
-   "mangled": "CI",
+   "mangled": "OI",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "batchDrainItems": {
-   "mangled": "_J",
+   "mangled": "gJ",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -464,20 +476,20 @@
    ]
   },
   "bindSessionSourceChannel": {
-   "mangled": "uPe",
+   "mangled": "OTe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.4"
   },
   "buildBaseInstructions": {
-   "mangled": "iwe",
+   "mangled": "Tve",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.5.1"
    ]
   },
   "buildBoardLintTarget": {
-   "mangled": "uht",
+   "mangled": "$pt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
@@ -487,55 +499,56 @@
    "changedIn": []
   },
   "buildClaudeSettingsEnvOverrides": {
-   "mangled": "tmt",
+   "mangled": "vft",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "buildCodexDirectOnlyToolConfig": {
-   "mangled": "s6",
+   "mangled": "ZH",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "buildCodexDynamicTools": {
-   "mangled": "PN",
+   "mangled": "ON",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.5.1",
     "0.5.4",
     "0.8.0",
-    "0.8.2"
+    "0.8.2",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.0:0.683"
    ]
   },
   "buildCodexStringInputSchema": {
-   "mangled": "Py",
+   "mangled": "Cy",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.5.2"
    ]
   },
   "buildCodexTurnInput": {
-   "mangled": "a6",
+   "mangled": "YH",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "buildCompactStatsRecord": {
-   "mangled": "PEe",
+   "mangled": "XEe",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "buildDeveloperInstructions": {
-   "mangled": "owe",
+   "mangled": "Pve",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.7.1"
    ]
   },
   "buildEffectiveChannelConfig": {
-   "mangled": "kSe",
+   "mangled": "Bwe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -554,27 +567,27 @@
    ]
   },
   "buildEffectiveRuntimeFields": {
-   "mangled": "cmt",
+   "mangled": "Pft",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "buildGapReadFaultResult": {
-   "mangled": "oA",
+   "mangled": "uA",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "buildInitialStatus": {
-   "mangled": "tq",
+   "mangled": "qU",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "buildJobPromptModeExtraToolsSchema": {
-   "mangled": "Rwe",
+   "mangled": "Zve",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "buildJobRuntimeSchemaField": {
-   "mangled": "Twe",
+   "mangled": "Xve",
    "firstSeen": "0.5.4",
    "changedIn": [
     "0.7.1",
@@ -586,13 +599,13 @@
    ]
   },
   "buildJobSessionInputSchema": {
-   "mangled": "fO",
+   "mangled": "mO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "buildJobSessionKey": {
-   "mangled": "Ac",
+   "mangled": "Mc",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
@@ -602,7 +615,7 @@
    ]
   },
   "buildKernelGitEnv": {
-   "mangled": "x0e",
+   "mangled": "Jxe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2"
@@ -611,25 +624,30 @@
     "0.5.2:0.708"
    ]
   },
+  "buildMainRoleContext": {
+   "mangled": "qTe",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "buildManageJobInputSchema": {
-   "mangled": "dO",
+   "mangled": "pO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "buildMemoryCheckStatus": {
-   "mangled": "TW",
+   "mangled": "SW",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "buildNodeSignalKey": {
-   "mangled": "YO",
+   "mangled": "eA",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.5"
   },
   "buildNotifyInputSchema": {
-   "mangled": "OO",
+   "mangled": "NO",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -637,14 +655,15 @@
     "0.5.4",
     "0.8.0",
     "0.8.2",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.3.0:0.469 (overlap 0.793)"
    ]
   },
   "buildOrphanIslandsSignal": {
-   "mangled": "Cxe",
+   "mangled": "exe",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -652,7 +671,7 @@
    ]
   },
   "buildOrphanNewbornSignals": {
-   "mangled": "Txe",
+   "mangled": "Yke",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -660,52 +679,53 @@
    ]
   },
   "buildPiConfigSignature": {
-   "mangled": "oRe",
+   "mangled": "T0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "buildPiSystemPromptSpec": {
-   "mangled": "kbt",
+   "mangled": "Hyt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "buildProfiledExternalRequirement": {
-   "mangled": "W0e",
+   "mangled": "hEe",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "buildSafeDirectoryGitArgs": {
-   "mangled": "E0e",
+   "mangled": "Gxe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.2"
   },
   "buildScanGapSignal": {
-   "mangled": "Uht",
+   "mangled": "lmt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "buildSdkConfigReport": {
-   "mangled": "Wkt",
+   "mangled": "mSt",
    "firstSeen": "0.4.3",
    "changedIn": [
     "0.6.0"
    ]
   },
   "buildSessionExecutionPayload": {
-   "mangled": "tTe",
+   "mangled": "xIe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.2"
    ]
   },
   "buildSessionIndexEntry": {
-   "mangled": "Wfe",
+   "mangled": "yfe",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.2",
     "0.5.10",
-    "0.8.1"
+    "0.8.1",
+    "0.8.7"
    ]
   },
   "buildSessionIndexFromDisk": {
@@ -714,7 +734,7 @@
    "changedIn": []
   },
   "buildSessionInfoFromState": {
-   "mangled": "iy",
+   "mangled": "sy",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.0",
@@ -732,7 +752,7 @@
    ]
   },
   "buildSystemConfigReport": {
-   "mangled": "Jkt",
+   "mangled": "hSt",
    "firstSeen": "0.3.3",
    "changedIn": [
     "0.4.3",
@@ -749,7 +769,7 @@
    ]
   },
   "buildSystemPromptForChannelConfig": {
-   "mangled": "xg",
+   "mangled": "Ig",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.5",
@@ -758,7 +778,8 @@
     "0.5.4",
     "0.5.5",
     "0.7.1",
-    "0.8.0"
+    "0.8.0",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.0:1",
@@ -767,7 +788,7 @@
    ]
   },
   "buildTransientUserBlocks": {
-   "mangled": "FEe",
+   "mangled": "l0e",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -786,7 +807,7 @@
    ]
   },
   "buildTurnSdkRunConfig": {
-   "mangled": "NEe",
+   "mangled": "r0e",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.10",
@@ -797,12 +818,12 @@
    ]
   },
   "bytesToKibCeil": {
-   "mangled": "GO",
+   "mangled": "YO",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "canonicalizeGatewayCommand": {
-   "mangled": "ape",
+   "mangled": "Ofe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2",
@@ -817,62 +838,67 @@
    ]
   },
   "canonicalizeJsonValue": {
-   "mangled": "kJ",
+   "mangled": "wJ",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "capitalizeFirstChar": {
-   "mangled": "lwe",
+   "mangled": "Ave",
    "firstSeen": "0.6.0",
    "changedIn": []
   },
   "channelKindFromSessionKey": {
-   "mangled": "vk",
+   "mangled": "xk",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "checkChannelRuntimeRebindConflict": {
-   "mangled": "wPe",
+   "mangled": "VTe",
    "firstSeen": "0.8.3",
    "changedIn": []
   },
   "checkCodexAvailability": {
-   "mangled": "Dc",
+   "mangled": "Lc",
    "firstSeen": "0.4.4",
    "changedIn": []
   },
   "checkGrokAvailability": {
-   "mangled": "Mc",
+   "mangled": "Fc",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.0"
    ]
   },
+  "checkMainAliasCallerAuthority": {
+   "mangled": "qft",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "checkReservedRecordSource": {
-   "mangled": "Ayt",
+   "mangled": "tgt",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "claimDaemonRestartReason": {
-   "mangled": "QSe",
+   "mangled": "ESe",
    "firstSeen": "0.6.2",
    "changedIn": [
     "0.8.0"
    ]
   },
   "classifyConsumerStaleness": {
-   "mangled": "Bwe",
+   "mangled": "pwe",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "classifyDrainBatchClass": {
-   "mangled": "REe",
+   "mangled": "KEe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.1"
   },
   "classifyGatewayCommandIntent": {
-   "mangled": "Gq",
+   "mangled": "Mq",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2",
@@ -883,91 +909,91 @@
    ]
   },
   "classifyJobScheduleType": {
-   "mangled": "wk",
+   "mangled": "Ek",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.4.0"
   },
   "classifyModelContextRequirement": {
-   "mangled": "nJ",
+   "mangled": "ZW",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "classifySessionKeyKind": {
-   "mangled": "bn",
+   "mangled": "Nt",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "classifySessionKeyOrUnknown": {
-   "mangled": "io",
+   "mangled": "uo",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "classifySessionPlane": {
-   "mangled": "pbt",
+   "mangled": "Dyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "classifySessionPlaneByKey": {
-   "mangled": "Qkt",
+   "mangled": "wSt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "classifySessionPoolKind": {
-   "mangled": "oTe",
+   "mangled": "TIe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "classifyTopicNodeFormat": {
-   "mangled": "tht",
+   "mangled": "kpt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "classifyTopicNodeType": {
-   "mangled": "nht",
+   "mangled": "xpt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "claudeUnavailableReason": {
-   "mangled": "Dw",
+   "mangled": "Fw",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "clearHostModelEnvConfig": {
-   "mangled": "Hxe",
+   "mangled": "pxe",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "clearHostModelEnvVars": {
-   "mangled": "OW",
+   "mangled": "RW",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.4.3"
   },
   "clearModelOverrideOnRuntimeFlip": {
-   "mangled": "abt",
+   "mangled": "Pyt",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.8.0"
    ]
   },
   "clearPendingGatewayNotice": {
-   "mangled": "F_t",
+   "mangled": "ayt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "clearPendingInterruptedContext": {
-   "mangled": "U_t",
+   "mangled": "lyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "clearPendingOutboundAttachments": {
-   "mangled": "OA",
+   "mangled": "DA",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "clearPendingSkipRewind": {
-   "mangled": "q_t",
+   "mangled": "cyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
@@ -978,92 +1004,99 @@
    "untraceable": "function with too few features to follow past v0.5.0"
   },
   "clearSessionRuntimeStateField": {
-   "mangled": "ia",
+   "mangled": "ua",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.10"
    ]
   },
   "codexNotificationFilterDecision": {
-   "mangled": "twe",
+   "mangled": "Eve",
    "firstSeen": "0.5.4",
    "changedIn": []
   },
   "codexUnavailableReason": {
-   "mangled": "Sft",
+   "mangled": "Uct",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "coerceToPlainObject": {
-   "mangled": "Ni",
+   "mangled": "ji",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "collectBoardIncludePaths": {
-   "mangled": "ikt",
+   "mangled": "Rwt",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "collectBoardLintReport": {
-   "mangled": "Cke",
+   "mangled": "eke",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "collectGrokToolCallNames": {
-   "mangled": "Swe",
+   "mangled": "Wve",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "collectInstructionsInputs": {
-   "mangled": "jTe",
+   "mangled": "aTe",
    "firstSeen": "0.5.1",
    "changedIn": [
     "0.5.2",
     "0.5.6",
-    "0.8.0"
+    "0.8.0",
+    "0.8.7"
    ],
    "similarSteps": [
+    "0.8.7:1",
     "0.8.0:0.893"
    ]
   },
   "collectJobCompletionReceipts": {
-   "mangled": "Y_t",
+   "mangled": "byt",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "compareBoardLintTargets": {
-   "mangled": "rht",
+   "mangled": "Ept",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "compareStringsAscending": {
-   "mangled": "Nr",
+   "mangled": "Dr",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.5"
   },
+  "composeIdentityLayer": {
+   "mangled": "yC",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "computeBoardLayerHash": {
-   "mangled": "nZ",
+   "mangled": "eK",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "computeBoundedEditDistance": {
-   "mangled": "Vpt",
+   "mangled": "cft",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "computeCacheHitRate": {
-   "mangled": "lEe",
+   "mangled": "OEe",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "computeCodexTurnUsage": {
-   "mangled": "nwe",
+   "mangled": "Rve",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "computeContextProfileSignature": {
-   "mangled": "_S",
+   "mangled": "kS",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
@@ -1079,17 +1112,17 @@
    ]
   },
   "computeDrainCoalesceKey": {
-   "mangled": "G_t",
+   "mangled": "gyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "computeHostBootId": {
-   "mangled": "Mmt",
+   "mangled": "spt",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "computeInstructionsFingerprint": {
-   "mangled": "Rk",
+   "mangled": "$k",
    "firstSeen": "0.4.5",
    "changedIn": [
     "0.5.1",
@@ -1101,108 +1134,108 @@
    ]
   },
   "computeLegacyJobSessionKey": {
-   "mangled": "Uyt",
+   "mangled": "lgt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "computeMemoryLinkIndegree": {
-   "mangled": "Cgt",
+   "mangled": "Qmt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "computeMissionFingerprint": {
-   "mangled": "MTe",
+   "mangled": "oTe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.1"
   },
   "computeNonBoardInstructionsFingerprint": {
-   "mangled": "rZ",
+   "mangled": "tK",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.10"
   },
   "computeOrphanTopicNodes": {
-   "mangled": "Tgt",
+   "mangled": "Zmt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "computePartitionBackoffUntil": {
-   "mangled": "Q6",
+   "mangled": "J6",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "computeRuntimeId": {
-   "mangled": "Xkt",
+   "mangled": "vSt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "computeStreamEventDedupKey": {
-   "mangled": "eTe",
+   "mangled": "kIe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.2"
    ]
   },
   "computeStreamingConfigSignature": {
-   "mangled": "oZ",
+   "mangled": "rK",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.1"
    ]
   },
   "computeTimeGapContext": {
-   "mangled": "LEe",
+   "mangled": "u0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "containsWhitespaceChar": {
-   "mangled": "NI",
+   "mangled": "DI",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.6"
   },
   "copyBootstrapIntoKernel": {
-   "mangled": "s_t",
+   "mangled": "Tgt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.3"
    ]
   },
   "copyDirTreeMissingOnly": {
-   "mangled": "eJ",
+   "mangled": "GW",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "copyDirTreeOverwrite": {
-   "mangled": "QW",
+   "mangled": "JW",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "countCompactGapIntervals": {
-   "mangled": "TEe",
+   "mangled": "YEe",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "countDatedStampLines": {
-   "mangled": "Eke",
+   "mangled": "GSe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.5"
   },
   "countNewlineChars": {
-   "mangled": "ZO",
+   "mangled": "XO",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.5"
   },
   "createAbortErrorWithCause": {
-   "mangled": "vg",
+   "mangled": "Sg",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "createAgentSdkAdapter": {
-   "mangled": "Hf",
+   "mangled": "Jf",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.6.0",
@@ -1219,7 +1252,7 @@
    ]
   },
   "createAladuoMcpServer": {
-   "mangled": "Ty",
+   "mangled": "$y",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -1228,7 +1261,8 @@
     "0.5.2",
     "0.5.4",
     "0.8.0",
-    "0.8.2"
+    "0.8.2",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.2:1",
@@ -1236,7 +1270,7 @@
    ]
   },
   "createClaudeStreamingSessionFactory": {
-   "mangled": "VTe",
+   "mangled": "hTe",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.1",
@@ -1249,7 +1283,7 @@
    ]
   },
   "createCodexAppServerAdapter": {
-   "mangled": "tS",
+   "mangled": "oS",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.5.0",
@@ -1273,7 +1307,7 @@
    ]
   },
   "createDaemon": {
-   "mangled": "Sxt",
+   "mangled": "JSt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.10",
@@ -1299,15 +1333,17 @@
     "0.8.1",
     "0.8.2",
     "0.8.3",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
+    "0.8.7:0.984",
     "0.7.0:0.781",
     "0.5.0:0.939"
    ]
   },
   "createDrainExecutionEventRecorder": {
-   "mangled": "WEe",
+   "mangled": "h0e",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.2",
@@ -1319,18 +1355,18 @@
    ]
   },
   "createEmptySessionIndex": {
-   "mangled": "Vfe",
+   "mangled": "gfe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
   },
   "createEmptyUsageSummary": {
-   "mangled": "FI",
+   "mangled": "zI",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "createGrokAcpAdapter": {
-   "mangled": "iS",
+   "mangled": "uS",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.0",
@@ -1341,14 +1377,14 @@
    ]
   },
   "createIdleCompactSweeper": {
-   "mangled": "dke",
+   "mangled": "jSe",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.8.4"
    ]
   },
   "createJobScheduler": {
-   "mangled": "Nkt",
+   "mangled": "nSt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0",
@@ -1360,24 +1396,28 @@
    ]
   },
   "createJobSessionFinalizer": {
-   "mangled": "aTe",
+   "mangled": "$Ie",
    "firstSeen": "0.8.0",
    "changedIn": [
-    "0.8.1"
+    "0.8.1",
+    "0.8.7"
+   ],
+   "similarSteps": [
+    "0.8.7:0.889"
    ]
   },
   "createMapBackedSessionIndex": {
-   "mangled": "Jfe",
+   "mangled": "_fe",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "createMemorySlugReader": {
-   "mangled": "zc",
+   "mangled": "Vc",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "createMetaSession": {
-   "mangled": "Pkt",
+   "mangled": "Ywt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -1393,7 +1433,8 @@
     "0.7.1",
     "0.8.0",
     "0.8.1",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.0:0.843",
@@ -1402,7 +1443,7 @@
    ]
   },
   "createModelCommandResolvers": {
-   "mangled": "FTe",
+   "mangled": "lTe",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.3",
@@ -1410,7 +1451,7 @@
    ]
   },
   "createOutboxDeliveryManager": {
-   "mangled": "Mkt",
+   "mangled": "iSt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.1",
@@ -1424,12 +1465,12 @@
    ]
   },
   "createOutboxRecord": {
-   "mangled": "Va",
+   "mangled": "Ga",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "createPiWorkerAdapter": {
-   "mangled": "MA",
+   "mangled": "FA",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.1",
@@ -1437,7 +1478,7 @@
    ]
   },
   "createSessionManager": {
-   "mangled": "gkt",
+   "mangled": "Lwt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.3",
@@ -1473,7 +1514,8 @@
     "0.8.1",
     "0.8.2",
     "0.8.3",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.3:0.97",
@@ -1481,7 +1523,7 @@
    ]
   },
   "createSessionSubscriptionRegistry": {
-   "mangled": "B6",
+   "mangled": "j6",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.7",
@@ -1501,53 +1543,55 @@
    ]
   },
   "createSpineEvent": {
-   "mangled": "tn",
+   "mangled": "nn",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "createVoidAwareAttachmentCallbacks": {
-   "mangled": "Gfe",
+   "mangled": "bfe",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "daemonRestartReasonPath": {
-   "mangled": "kmt",
+   "mangled": "Jft",
    "firstSeen": "0.6.2",
    "changedIn": []
   },
   "decideBoardUpdatedInjection": {
-   "mangled": "pEe",
+   "mangled": "MEe",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "decideRestartHintInjection": {
-   "mangled": "nke",
+   "mangled": "TSe",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "deleteMailboxPendingItemsByEventIds": {
-   "mangled": "Lo",
+   "mangled": "Uo",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.5.4"
    ]
   },
   "deliverDaemonRestartWakes": {
-   "mangled": "axt",
+   "mangled": "CSt",
    "firstSeen": "0.8.0",
    "changedIn": [
-    "0.8.2"
+    "0.8.2",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.2:0.955"
    ]
   },
   "deliverExternalSessionNotify": {
-   "mangled": "vPe",
+   "mangled": "hK",
    "firstSeen": "0.5.4",
    "changedIn": [
     "0.8.2",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.4:0.675",
@@ -1555,7 +1599,7 @@
    ]
   },
   "deliverRouteEventToSession": {
-   "mangled": "Ns",
+   "mangled": "Ls",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.1",
@@ -1566,12 +1610,12 @@
    ]
   },
   "deliverScanGapSignal": {
-   "mangled": "oxe",
+   "mangled": "Tke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "describeChannelInstance": {
-   "mangled": "txt",
+   "mangled": "kSt",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.3",
@@ -1586,7 +1630,7 @@
    ]
   },
   "describeContextProfileSource": {
-   "mangled": "kA",
+   "mangled": "RA",
    "firstSeen": "0.7.0",
    "changedIn": [
     "0.8.1"
@@ -1596,34 +1640,39 @@
    ]
   },
   "describeConversationProblem": {
-   "mangled": "rle",
+   "mangled": "Pue",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.4"
   },
   "describeMemoryReadProblem": {
-   "mangled": "MU",
+   "mangled": "kU",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.4"
   },
   "describeSpineCatProblem": {
-   "mangled": "jU",
+   "mangled": "xU",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "describeSpineRecordProblem": {
-   "mangled": "LU",
+   "mangled": "EU",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
+  "describeStandInJobOwner": {
+   "mangled": "s0e",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "describeWorkspaceProblem": {
-   "mangled": "lbt",
+   "mangled": "Cyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "detectEmptyRequiredPartitionOutput": {
-   "mangled": "kkt",
+   "mangled": "Hwt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.8",
@@ -1631,32 +1680,32 @@
    ]
   },
   "detectInProcessBreak": {
-   "mangled": "Hq",
+   "mangled": "Oq",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "detectOrphanMemory": {
-   "mangled": "Ixe",
+   "mangled": "Zke",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "diffStreamingConfigSignature": {
-   "mangled": "FN",
+   "mangled": "qN",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "disableSystemPromptSnapshot": {
-   "mangled": "Slt",
+   "mangled": "Uat",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "drainRecordPath": {
-   "mangled": "Ya",
+   "mangled": "Qa",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "drainSessionMailbox": {
-   "mangled": "DEe",
+   "mangled": "i0e",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -1686,44 +1735,45 @@
     "0.8.1",
     "0.8.2",
     "0.8.3",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.7.0:0.971"
    ]
   },
   "emitDrainOutputRecords": {
-   "mangled": "Vc",
+   "mangled": "Kc",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.5"
    ]
   },
   "encodePiWorkerFrame": {
-   "mangled": "vJ",
+   "mangled": "_J",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "enforceContractGate": {
-   "mangled": "rA",
+   "mangled": "sA",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "enqueuePartitionAppend": {
-   "mangled": "qQe",
+   "mangled": "iXe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "enqueueSessionCompactCommand": {
-   "mangled": "cxt",
+   "mangled": "NSt",
    "firstSeen": "0.5.8",
    "changedIn": [
     "0.8.4"
    ]
   },
   "enqueueSessionInboxLine": {
-   "mangled": "na",
+   "mangled": "aa",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.0",
@@ -1731,12 +1781,12 @@
    ]
   },
   "ensureAbsoluteWorkspaceDir": {
-   "mangled": "yPe",
+   "mangled": "UTe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "ensureAgentsMdSymlink": {
-   "mangled": "c6",
+   "mangled": "e6",
    "firstSeen": "0.4.4",
    "changedIn": []
   },
@@ -1746,7 +1796,7 @@
    "changedIn": []
   },
   "ensureKernelGitRepo": {
-   "mangled": "R0e",
+   "mangled": "Kxe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.4",
@@ -1757,7 +1807,7 @@
    ]
   },
   "ensureOutboxRecordInReplay": {
-   "mangled": "dit",
+   "mangled": "Int",
    "firstSeen": "0.3.0",
    "changedIn": [
     "0.3.1"
@@ -1769,43 +1819,47 @@
    "changedIn": [
     "0.4.0",
     "0.5.0",
-    "0.5.4"
+    "0.5.4",
+    "0.8.7"
    ],
    "similarSteps": [
+    "0.8.7:0.932",
     "0.5.4:1"
    ]
   },
   "ensureSessionMailboxPendingDir": {
-   "mangled": "QU",
+   "mangled": "zU",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.1"
   },
   "escapeXmlText": {
-   "mangled": "Ut",
+   "mangled": "jt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "evaluateNotifyConsumerRefusal": {
-   "mangled": "Bg",
+   "mangled": "al",
    "firstSeen": "0.8.2",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "evaluatePredicateOrFalse": {
-   "mangled": "Mgt",
+   "mangled": "iht",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.6"
   },
   "eventToMessageGenerator": {
-   "mangled": "QH",
+   "mangled": "BV",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0"
    ]
   },
   "executeGatewayCommand": {
-   "mangled": "Lit",
+   "mangled": "ert",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.0",
@@ -1828,17 +1882,17 @@
    ]
   },
   "expandInjectionPromptCommand": {
-   "mangled": "upe",
+   "mangled": "Afe",
    "firstSeen": "0.5.7",
    "changedIn": []
   },
   "extractBoardSlugLinks": {
-   "mangled": "hgt",
+   "mangled": "jmt",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "extractCodexGeneratedImageAttachment": {
-   "mangled": "uwe",
+   "mangled": "Ove",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.7"
@@ -1848,31 +1902,31 @@
    ]
   },
   "extractJobCompletePayload": {
-   "mangled": "BEe",
+   "mangled": "cJ",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "extractJobCompletionJobId": {
-   "mangled": "HEe",
+   "mangled": "p0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "extractJobSdkConfig": {
-   "mangled": "Xve",
+   "mangled": "Sve",
    "firstSeen": "0.6.2",
    "changedIn": [
     "0.7.0"
    ]
   },
   "extractPayloadMediaRefs": {
-   "mangled": "gJ",
+   "mangled": "mJ",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "extractProfiledEndpointFields": {
-   "mangled": "xA",
+   "mangled": "IA",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
@@ -1882,7 +1936,7 @@
    "changedIn": []
   },
   "extractServedModelFromUsage": {
-   "mangled": "wEe",
+   "mangled": "VEe",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
@@ -1897,44 +1951,46 @@
    "changedIn": []
   },
   "extractSystemPromptAppend": {
-   "mangled": "rwe",
+   "mangled": "Ive",
    "firstSeen": "0.4.4",
    "changedIn": []
   },
   "extractUrlHost": {
-   "mangled": "Z0e",
+   "mangled": "_Ee",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.0"
   },
   "filterDeliverableSessions": {
-   "mangled": "$pt",
+   "mangled": "Kdt",
    "firstSeen": "0.8.4",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "filterOrphanIslands": {
-   "mangled": "$xe",
+   "mangled": "Qke",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "findBoardHeadingLines": {
-   "mangled": "Egt",
+   "mangled": "Jmt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "findDeadAllowedToolEntries": {
-   "mangled": "q_e",
+   "mangled": "f_e",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "findEventInPartitionFile": {
-   "mangled": "mle",
+   "mangled": "zue",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "findNewestFragmentMtimeMs": {
-   "mangled": "cgt",
+   "mangled": "Omt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
@@ -1946,27 +2002,27 @@
    ]
   },
   "fireDueWakeRecords": {
-   "mangled": "Okt",
+   "mangled": "eSt",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "flagStreamRecreationOnModelReject": {
-   "mangled": "qN",
+   "mangled": "HN",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "foldConfigLayersByKey": {
-   "mangled": "LO",
+   "mangled": "zO",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "forgetMemoryEntry": {
-   "mangled": "Pxe",
+   "mangled": "Xke",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "formatElapsedDuration": {
-   "mangled": "jEe",
+   "mangled": "a0e",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
@@ -1976,111 +2032,111 @@
    "changedIn": []
   },
   "formatForgetCommitMessage": {
-   "mangled": "Ngt",
+   "mangled": "nht",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "formatLayerModelAliases": {
-   "mangled": "mPe",
+   "mangled": "LTe",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "formatLocalTimestampWithZone": {
-   "mangled": "CA",
+   "mangled": "NA",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.6.0"
    ]
   },
   "formatLogPrefix": {
-   "mangled": "FQe",
+   "mangled": "tXe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "formatModelConfigIssues": {
-   "mangled": "hZ",
+   "mangled": "pK",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "formatSlugLinkLocations": {
-   "mangled": "_gt",
+   "mangled": "zmt",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "formatViewSessionsListLine": {
-   "mangled": "Vwe",
+   "mangled": "hwe",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "formatYamlErrorMessage": {
-   "mangled": "Gi",
+   "mangled": "Xi",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "generateAllPartitionCodexAgents": {
-   "mangled": "u_t",
+   "mangled": "$gt",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "generateOutboxRecordId": {
-   "mangled": "eit",
+   "mangled": "gnt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "generatePartitionCodexAgents": {
-   "mangled": "Yyt",
+   "mangled": "bgt",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "generateSpineEventId": {
-   "mangled": "BQe",
+   "mangled": "oXe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "getCachedHostBootId": {
-   "mangled": "pke",
+   "mangled": "FSe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.0"
   },
   "getCachedPartitionContract": {
-   "mangled": "tA",
+   "mangled": "iA",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "getOrCreateEventIdIndexCache": {
-   "mangled": "ZQe",
+   "mangled": "dXe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "getPendingRestartReason": {
-   "mangled": "tke",
+   "mangled": "ISe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "grokAcpExtMethod": {
-   "mangled": "rS",
+   "mangled": "aS",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "grokUnavailableReason": {
-   "mangled": "Cft",
+   "mangled": "Zct",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "groupNotifyTargetCandidates": {
-   "mangled": "tSe",
+   "mangled": "_6",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.6.2"
    ]
   },
   "handleDrainError": {
-   "mangled": "zS",
+   "mangled": "VS",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.4",
@@ -2093,72 +2149,72 @@
    ]
   },
   "handlePiToolEndObservation": {
-   "mangled": "cRe",
+   "mangled": "A0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "hasAnyMemorySignalConsumer": {
-   "mangled": "Gke",
+   "mangled": "yke",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "hasImageGenerationRecord": {
-   "mangled": "awe",
+   "mangled": "Cve",
    "firstSeen": "0.5.7",
    "changedIn": []
   },
   "hasNonEmptyDisplayName": {
-   "mangled": "tp",
+   "mangled": "zc",
    "firstSeen": "0.5.4",
    "changedIn": []
   },
   "hasParentToolUseId": {
-   "mangled": "qf",
+   "mangled": "Vf",
    "firstSeen": "0.5.7",
    "changedIn": []
   },
   "hasSkipRewindRecordSince": {
-   "mangled": "B_t",
+   "mangled": "dyt",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "hasUniformDrainCoalesceKey": {
-   "mangled": "UEe",
+   "mangled": "d0e",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "hasUnqueuedPendingOutboxRecords": {
-   "mangled": "mit",
+   "mangled": "$nt",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "hashActivityFingerprint": {
-   "mangled": "Ekt",
+   "mangled": "Jwt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "hashSessionKey": {
-   "mangled": "jo",
+   "mangled": "Fo",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "hostDotEnvPath": {
-   "mangled": "ll",
+   "mangled": "dl",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "indexOutboxRecordByEventId": {
-   "mangled": "Dq",
+   "mangled": "kq",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "inferActorOriginFromSessionKey": {
-   "mangled": "qG",
+   "mangled": "zG",
    "firstSeen": "0.4.0",
    "changedIn": []
   },
   "ingestChannelCommand": {
-   "mangled": "hv",
+   "mangled": "bv",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2",
@@ -2168,7 +2224,7 @@
    ]
   },
   "ingestChannelMessage": {
-   "mangled": "lpe",
+   "mangled": "Nfe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.6",
@@ -2176,17 +2232,17 @@
    ]
   },
   "initAbortableAsyncQueueModule": {
-   "mangled": "qTe",
+   "mangled": "fTe",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "initActivationLintModule": {
-   "mangled": "SW",
+   "mangled": "gW",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "initAgentSdkAdapterModule": {
-   "mangled": "Eo",
+   "mangled": "To",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.6.0",
@@ -2199,7 +2255,7 @@
    ]
   },
   "initBoardLintModule": {
-   "mangled": "Oke",
+   "mangled": "tke",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6"
@@ -2209,14 +2265,14 @@
    ]
   },
   "initBoardTransclusionModule": {
-   "mangled": "ATe",
+   "mangled": "nTe",
    "firstSeen": "0.5.2",
    "changedIn": [
     "0.7.0"
    ]
   },
   "initBroadcastBudgetLintModule": {
-   "mangled": "gW",
+   "mangled": "cW",
    "firstSeen": "0.5.3",
    "changedIn": [
     "0.8.0"
@@ -2226,13 +2282,13 @@
    ]
   },
   "initBroadcastFlattenLintModule": {
-   "mangled": "xxe",
+   "mangled": "Jke",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "module-init with too few features to follow past v0.8.0"
   },
   "initBroadcastLinkLintModule": {
-   "mangled": "Sxe",
+   "mangled": "Hke",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "module-init with too few features to follow past v0.8.0"
@@ -2244,13 +2300,13 @@
    "untraceable": "module-init with too few features to follow past v0.8.4"
   },
   "initChannelConfigLoaderModule": {
-   "mangled": "Za",
+   "mangled": "Xa",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "module-init with too few features to follow past v0.7.0"
   },
   "initChannelProtocolModule": {
-   "mangled": "ile",
+   "mangled": "$ue",
    "firstSeen": null,
    "changedIn": [
     "0.7.1",
@@ -2263,7 +2319,7 @@
    ]
   },
   "initCodexAppServerModule": {
-   "mangled": "ep",
+   "mangled": "rp",
    "firstSeen": "0.5.3",
    "changedIn": [
     "0.5.6",
@@ -2278,7 +2334,7 @@
    ]
   },
   "initEntityLintModule": {
-   "mangled": "jke",
+   "mangled": "ske",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -2289,25 +2345,25 @@
    ]
   },
   "initFoldGapLintModule": {
-   "mangled": "vxe",
+   "mangled": "Bke",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "module-init with too few features to follow past v0.8.0"
   },
   "initGapLintModule": {
-   "mangled": "sxe",
+   "mangled": "Pke",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.4"
    ]
   },
   "initGapSpanModule": {
-   "mangled": "CS",
+   "mangled": "DS",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "initGrokAcpRuntimeModule": {
-   "mangled": "Ug",
+   "mangled": "Vg",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.0",
@@ -2318,19 +2374,19 @@
    ]
   },
   "initInstructionsFingerprintModule": {
-   "mangled": "Ik",
+   "mangled": "Ck",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.0"
+   "untraceable": "module-init with too few features to follow past v0.8.7"
   },
   "initInterruptMarkerTextModule": {
-   "mangled": "Qw",
+   "mangled": "rS",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "module-init with too few features to follow past v0.8.2"
   },
   "initJobManagerModule": {
-   "mangled": "ol",
+   "mangled": "sl",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.1",
@@ -2349,12 +2405,12 @@
    ]
   },
   "initJobSchedulerModule": {
-   "mangled": "oPe",
+   "mangled": "PTe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "initKernelGitModule": {
-   "mangled": "I0e",
+   "mangled": "Zxe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.3",
@@ -2366,7 +2422,7 @@
    ]
   },
   "initLogLevelModule": {
-   "mangled": "pt",
+   "mangled": "mt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.3",
@@ -2374,7 +2430,7 @@
    ]
   },
   "initMailboxDrainRunnerModule": {
-   "mangled": "US",
+   "mangled": "HS",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -2394,8 +2450,14 @@
     "0.5.3:1"
    ]
   },
+  "initMainSessionAliasModule": {
+   "mangled": "bU",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "module-init with too few features to follow past v0.8.7"
+  },
   "initManageJobToolModule": {
-   "mangled": "sS",
+   "mangled": "cS",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.1",
@@ -2404,12 +2466,12 @@
    ]
   },
   "initMaterializedClaudeSettingsModule": {
-   "mangled": "bS",
+   "mangled": "xS",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "initMemoryCheckTickModule": {
-   "mangled": "PW",
+   "mangled": "kW",
    "firstSeen": null,
    "changedIn": [
     "0.5.8",
@@ -2419,7 +2481,7 @@
    "untraceable": "module-init with too few features to follow past v0.5.6"
   },
   "initMemorySignalDeliveryModule": {
-   "mangled": "pW",
+   "mangled": "aW",
    "firstSeen": null,
    "changedIn": [
     "0.7.1",
@@ -2431,7 +2493,7 @@
    ]
   },
   "initMemorySignalKindsModule": {
-   "mangled": "Ko",
+   "mangled": "es",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.5.8",
@@ -2439,14 +2501,14 @@
    ]
   },
   "initMetaSessionModule": {
-   "mangled": "XTe",
+   "mangled": "STe",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.1"
    ]
   },
   "initNodeLintModule": {
-   "mangled": "Fke",
+   "mangled": "uke",
    "firstSeen": null,
    "changedIn": [
     "0.5.6"
@@ -2454,22 +2516,23 @@
    "untraceable": "module-init with too few features to follow past v0.5.5"
   },
   "initNotifyConsumerStalenessModule": {
-   "mangled": "k6",
+   "mangled": "p6",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "initNotifyToolModule": {
-   "mangled": "yS",
+   "mangled": "SS",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
     "0.4.0",
     "0.5.0",
-    "0.8.2"
+    "0.8.2",
+    "0.8.7"
    ]
   },
   "initOrphanMemoryModule": {
-   "mangled": "Oxe",
+   "mangled": "txe",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -2481,49 +2544,50 @@
    ]
   },
   "initOutboxStoreModule": {
-   "mangled": "Fo",
+   "mangled": "Bo",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.8.0"
    ]
   },
   "initPartitionRetirementModule": {
-   "mangled": "D0e",
+   "mangled": "iEe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "initPartitionRunStateModule": {
-   "mangled": "VO",
+   "mangled": "GO",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.5.0"
    ]
   },
   "initProtocolEffortModule": {
-   "mangled": "AU",
+   "mangled": "vU",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.3"
    ]
   },
   "initProtocolJobModule": {
-   "mangled": "sle",
+   "mangled": "Oue",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "initProtocolSystemModule": {
-   "mangled": "FU",
+   "mangled": "RU",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.0",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.4:0.353 (overlap 1)"
    ]
   },
   "initQueueOutboundAttachmentModule": {
-   "mangled": "VS",
+   "mangled": "KS",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.0",
@@ -2532,12 +2596,12 @@
    ]
   },
   "initRemindDuoduoToolModule": {
-   "mangled": "mS",
+   "mangled": "bS",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "initRuntimeInitializationModule": {
-   "mangled": "V0e",
+   "mangled": "mEe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.11",
@@ -2545,36 +2609,38 @@
     "0.5.1",
     "0.5.3",
     "0.6.0",
-    "0.8.0"
+    "0.8.0",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.5.3:0.76"
    ]
   },
   "initRuntimeValidationModule": {
-   "mangled": "Fu",
+   "mangled": "zu",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "initSessionLockAndArchivingModule": {
-   "mangled": "Ua",
+   "mangled": "oa",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "initSkipToolModule": {
-   "mangled": "el",
+   "mangled": "tl",
    "firstSeen": "0.2.0",
    "changedIn": [
-    "0.5.6"
+    "0.5.6",
+    "0.8.7"
    ]
   },
   "initSpineEventLogModule": {
-   "mangled": "Do",
+   "mangled": "jo",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "initSubconsciousPlaylistModule": {
-   "mangled": "HO",
+   "mangled": "JO",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.1",
@@ -2590,18 +2656,18 @@
    ]
   },
   "initViewSessionsToolModule": {
-   "mangled": "fS",
+   "mangled": "yS",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "initVoidRuntimeModule": {
-   "mangled": "_f",
+   "mangled": "wf",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "module-init with too few features to follow past v0.8.4"
   },
   "initializeRuntime": {
-   "mangled": "a_t",
+   "mangled": "Pgt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.5",
@@ -2622,12 +2688,12 @@
    ]
   },
   "interruptActorQuery": {
-   "mangled": "VN",
+   "mangled": "GN",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "isAbortLikeError": {
-   "mangled": "kg",
+   "mangled": "Rg",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
@@ -2635,47 +2701,47 @@
    "mangled": "OR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isAgentSdkPromptNotAcceptedAbortError": {
-   "mangled": "Nw",
+   "mangled": "Lw",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isAgentSdkTurnInterruptedError": {
-   "mangled": "Aw",
+   "mangled": "jw",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isAllowedNodeSection": {
-   "mangled": "mht",
+   "mangled": "Mpt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "isAttachmentArray": {
-   "mangled": "CQe",
+   "mangled": "J7e",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isAutoArchivedJobSchedule": {
-   "mangled": "rTe",
+   "mangled": "RIe",
    "firstSeen": "0.4.0",
    "changedIn": []
   },
   "isAvailableWorkspacePath": {
-   "mangled": "sTe",
+   "mangled": "PIe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isBoardIncludePathCandidate": {
-   "mangled": "skt",
+   "mangled": "Twt",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "isBusinessSourceKind": {
-   "mangled": "SS",
+   "mangled": "IS",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.0"
@@ -2686,7 +2752,7 @@
    "changedIn": []
   },
   "isChannelCapabilities": {
-   "mangled": "OQe",
+   "mangled": "G7e",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.6"
@@ -2720,12 +2786,12 @@
    ]
   },
   "isChannelMessageEvent": {
-   "mangled": "AA",
+   "mangled": "MA",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "isChannelPullParams": {
-   "mangled": "Hm",
+   "mangled": "Vm",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.7",
@@ -2741,63 +2807,63 @@
    ]
   },
   "isClaudeAuthSource": {
-   "mangled": "Vgt",
+   "mangled": "pht",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "isClaudeAvailable": {
-   "mangled": "XH",
+   "mangled": "UV",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.3"
   },
   "isClaudeRuntimeOrDefault": {
-   "mangled": "FS",
+   "mangled": "BS",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "isCodexAvailable": {
-   "mangled": "Qf",
+   "mangled": "np",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
   },
   "isCodexPlainObject": {
-   "mangled": "eS",
+   "mangled": "iS",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "isDirEmptyOrMissing": {
-   "mangled": "r_t",
+   "mangled": "Egt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isEffortLevel": {
-   "mangled": "Pi",
+   "mangled": "Oi",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "isGrokAvailable": {
-   "mangled": "h6",
+   "mangled": "o6",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "isGrokSkipToolCall": {
-   "mangled": "Fft",
+   "mangled": "idt",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "isImageGenerationItemType": {
-   "mangled": "swe",
+   "mangled": "$ve",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "isIndexLoadStillCurrent": {
-   "mangled": "Uu",
+   "mangled": "qu",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
@@ -2823,7 +2889,7 @@
    "changedIn": []
   },
   "isJobInterruptParams": {
-   "mangled": "VR",
+   "mangled": "HR",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
@@ -2833,32 +2899,32 @@
    "changedIn": []
   },
   "isJobOrMetaOutboxRecord": {
-   "mangled": "Dkt",
+   "mangled": "rSt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isJobRescheduleParams": {
-   "mangled": "HR",
+   "mangled": "VR",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "isJobScheduleDue": {
-   "mangled": "Uve",
+   "mangled": "dve",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "isJobSessionKeyKind": {
-   "mangled": "sSe",
+   "mangled": "Rwe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isJsonRpcRequest": {
-   "mangled": "Nb",
+   "mangled": "jb",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isKernelGitToplevel": {
-   "mangled": "Fyt",
+   "mangled": "agt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2"
@@ -2868,31 +2934,36 @@
    ]
   },
   "isKnownRuntimeValue": {
-   "mangled": "KR",
+   "mangled": "ZR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isLiveStreamRebuildRequired": {
-   "mangled": "sZ",
+   "mangled": "iK",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.2"
    ]
   },
   "isLogLevelEnabled": {
-   "mangled": "LQe",
+   "mangled": "eXe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.3"
   },
   "isLoopbackBindHost": {
-   "mangled": "vxt",
+   "mangled": "VSt",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
+  "isMainAliasedChannelSession": {
+   "mangled": "xue",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "isMemoryPathDirectory": {
-   "mangled": "Kg",
+   "mangled": "Xg",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.7.1"
@@ -2902,7 +2973,7 @@
    ]
   },
   "isMemoryPathFile": {
-   "mangled": "Fc",
+   "mangled": "Bc",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.7.1"
@@ -2912,7 +2983,7 @@
    ]
   },
   "isMergeableChannelMessageBatch": {
-   "mangled": "W_t",
+   "mangled": "myt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.5"
@@ -2922,75 +2993,80 @@
    ]
   },
   "isMergeableDrainBatch": {
-   "mangled": "V_t",
+   "mangled": "pyt",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "isMimePattern": {
-   "mangled": "AQe",
+   "mangled": "K7e",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isModelRuntime": {
-   "mangled": "zU",
+   "mangled": "IU",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isNonEmptyText": {
-   "mangled": "PQe",
+   "mangled": "H7e",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "isNonNullObject": {
-   "mangled": "ro",
+   "mangled": "ao",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isOneShotJobSchedule": {
-   "mangled": "tO",
+   "mangled": "rO",
    "firstSeen": "0.4.5",
    "changedIn": []
   },
   "isOptionalString": {
-   "mangled": "Ti",
+   "mangled": "Ci",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isOrphanJobSessionKey": {
-   "mangled": "aSe",
+   "mangled": "Iwe",
    "firstSeen": "0.6.2",
    "changedIn": []
   },
   "isOrphanWarningDeliverable": {
-   "mangled": "Zke",
+   "mangled": "_ke",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.6"
   },
   "isPartitionBackedOff": {
-   "mangled": "X6",
+   "mangled": "W6",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "isPathWithinDir": {
-   "mangled": "qve",
+   "mangled": "fve",
    "firstSeen": "0.8.5",
    "changedIn": []
   },
   "isProcessAliveByPid": {
-   "mangled": "Dmt",
+   "mangled": "opt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isProviderQualifiedModelId": {
-   "mangled": "DI",
+   "mangled": "MI",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "isRecord": {
-   "mangled": "at",
+   "mangled": "lt",
    "firstSeen": "0.2.0",
+   "changedIn": []
+  },
+  "isReservedMainAliasChange": {
+   "mangled": "cv",
+   "firstSeen": "0.8.7",
    "changedIn": []
   },
   "isRuntimeInfoParams": {
@@ -3001,12 +3077,12 @@
    ]
   },
   "isRuntimeWriterLockStale": {
-   "mangled": "jmt",
+   "mangled": "apt",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "isSafeMemorySlug": {
-   "mangled": "iW",
+   "mangled": "X6",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
@@ -3016,13 +3092,13 @@
    "changedIn": []
   },
   "isSessionArchived": {
-   "mangled": "ea",
+   "mangled": "zo",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.6"
   },
   "isSessionArchiving": {
-   "mangled": "dr",
+   "mangled": "er",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
@@ -3048,12 +3124,12 @@
    "changedIn": []
   },
   "isSessionLifecycleLoggingEnabled": {
-   "mangled": "zQe",
+   "mangled": "nXe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "isSessionListKind": {
-   "mangled": "NU",
+   "mangled": "wU",
    "firstSeen": "0.5.4",
    "changedIn": []
   },
@@ -3083,7 +3159,9 @@
   "isSessionSetAliasParams": {
    "mangled": "SR",
    "firstSeen": "0.5.4",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "isSessionWakeParams": {
    "mangled": "kR",
@@ -3096,21 +3174,21 @@
    "changedIn": []
   },
   "isStaleIdleCompactEvent": {
-   "mangled": "tbt",
+   "mangled": "kyt",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "isSupportedRuntime": {
-   "mangled": "jb",
+   "mangled": "zb",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isSystemConfigParams": {
    "mangled": "JR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isSystemRuntimeInfo": {
    "mangled": "_R",
@@ -3125,25 +3203,25 @@
    "mangled": "WR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "isTelemetryEnabled": {
-   "mangled": "_et",
+   "mangled": "AXe",
    "firstSeen": "0.4.5",
    "changedIn": []
   },
   "isTruthyEnvFlag": {
-   "mangled": "EW",
+   "mangled": "bW",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "isUsableEventIndexEntry": {
-   "mangled": "KQe",
+   "mangled": "fXe",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "isUserVisibleSessionKey": {
-   "mangled": "qq",
+   "mangled": "$q",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
@@ -3154,47 +3232,47 @@
    "changedIn": []
   },
   "isVoidRuntimeSession": {
-   "mangled": "Gu",
+   "mangled": "Ku",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "isWorkerTaskNotifyDelivery": {
-   "mangled": "qEe",
+   "mangled": "f0e",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "issueWorkerToolContextToken": {
-   "mangled": "wC",
+   "mangled": "kC",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "iteratePartitionLinesBackward": {
-   "mangled": "zmt",
+   "mangled": "cpt",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "iterateStreamLines": {
-   "mangled": "ys",
+   "mangled": "ws",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "listAllOutboxRecords": {
-   "mangled": "dv",
+   "mangled": "hv",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "listArchivedCopiesNewestFirst": {
-   "mangled": "uke",
+   "mangled": "NSe",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "listDefaultClaudeToolNames": {
-   "mangled": "iTe",
+   "mangled": "IIe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "listEventPartitionDates": {
-   "mangled": "rgt",
+   "mangled": "Emt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
@@ -3205,14 +3283,14 @@
    "untraceable": "function with too few features to follow past v0.5.10"
   },
   "listMailboxPendingItems": {
-   "mangled": "Wb",
+   "mangled": "Kb",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.8.0"
    ]
   },
   "listMarkdownSlugsSync": {
-   "mangled": "au",
+   "mangled": "lu",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.7.1"
@@ -3222,29 +3300,29 @@
    ]
   },
   "listMemoryFragmentDates": {
-   "mangled": "Nht",
+   "mangled": "nmt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "listMemorySlugReferrers": {
-   "mangled": "Ogt",
+   "mangled": "eht",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "listPendingInboxFiles": {
-   "mangled": "qb",
+   "mangled": "Hb",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "listRetryableOutboxRecords": {
-   "mangled": "Mfe",
+   "mangled": "afe",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.8.0"
    ]
   },
   "listSelectableJobRuntimes": {
-   "mangled": "apt",
+   "mangled": "Rdt",
    "firstSeen": "0.5.4",
    "changedIn": [
     "0.7.1",
@@ -3255,39 +3333,42 @@
    ]
   },
   "listSessionIndexSummaries": {
-   "mangled": "wO",
+   "mangled": "SO",
    "firstSeen": "0.5.4",
    "changedIn": [
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.4:0.95"
    ]
   },
   "listSessionsWithRecentConsumer": {
-   "mangled": "Tpt",
+   "mangled": "Jdt",
    "firstSeen": "0.8.2",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "listSortedAliasKeys": {
-   "mangled": "EA",
+   "mangled": "TA",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "listVoidChannelSessions": {
-   "mangled": "Zfe",
+   "mangled": "vfe",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "loadChannelKindConfig": {
-   "mangled": "Ga",
+   "mangled": "Ya",
    "firstSeen": "0.7.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "loadDrainItemEventCached": {
-   "mangled": "zEe",
+   "mangled": "c0e",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -3296,7 +3377,7 @@
    ]
   },
   "loadEventIdIndex": {
-   "mangled": "YQe",
+   "mangled": "pXe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0",
@@ -3307,28 +3388,28 @@
    ]
   },
   "loadGlobalRuntimeConfig": {
-   "mangled": "di",
+   "mangled": "gi",
    "firstSeen": "0.7.0",
    "changedIn": [
     "0.8.1"
    ]
   },
   "loadHostDotEnv": {
-   "mangled": "Hgt",
+   "mangled": "fht",
    "firstSeen": "0.4.3",
    "changedIn": [
     "0.6.0"
    ]
   },
   "loadOutboxByEventIndex": {
-   "mangled": "iit",
+   "mangled": "vnt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "loadRegistryDedupStore": {
-   "mangled": "mv",
+   "mangled": "_v",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.2"
@@ -3338,7 +3419,7 @@
    ]
   },
   "loadSubconsciousPartitions": {
-   "mangled": "IS",
+   "mangled": "CS",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.1",
@@ -3346,7 +3427,7 @@
    ]
   },
   "logAlwaysAtLevel": {
-   "mangled": "vt",
+   "mangled": "wt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
@@ -3356,17 +3437,17 @@
    "changedIn": []
   },
   "logErrorMessage": {
-   "mangled": "Ue",
+   "mangled": "ze",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "logInfoMessage": {
-   "mangled": "ie",
+   "mangled": "oe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "logLatencyStageTelemetry": {
-   "mangled": "_o",
+   "mangled": "wo",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
@@ -3376,23 +3457,23 @@
    ]
   },
   "logSessionLifecycleMessage": {
-   "mangled": "ut",
+   "mangled": "ct",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "logTraceMessage": {
-   "mangled": "dle",
+   "mangled": "jue",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.6"
   },
   "logWarnMessage": {
-   "mangled": "Z",
+   "mangled": "Y",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "lookupEventIdIndexEntry": {
-   "mangled": "Fb",
+   "mangled": "qb",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0",
@@ -3403,18 +3484,18 @@
    ]
   },
   "lookupInjectionPrompt": {
-   "mangled": "Ffe",
+   "mangled": "cfe",
    "firstSeen": "0.5.7",
    "changedIn": []
   },
   "lookupOutboxByIdIndexEntry": {
-   "mangled": "oa",
+   "mangled": "la",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.0"
   },
   "main": {
-   "mangled": "kxt",
+   "mangled": "GSt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.7",
@@ -3431,15 +3512,17 @@
     "0.7.0",
     "0.7.1",
     "0.8.0",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
+    "0.8.7:0.975",
     "0.7.0:0.992",
     "0.5.0:0.921"
    ]
   },
   "mapClaudeResultToDrainUsage": {
-   "mangled": "wg",
+   "mangled": "kg",
    "firstSeen": "0.3.0",
    "changedIn": [
     "0.5.0",
@@ -3453,14 +3536,14 @@
    ]
   },
   "mapGrokUsageToDrainUsage": {
-   "mangled": "zft",
+   "mangled": "odt",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.2"
    ]
   },
   "mapItemCompletedToExecEvent": {
-   "mangled": "fwe",
+   "mangled": "Mve",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.6.0",
@@ -3471,7 +3554,7 @@
    ]
   },
   "mapItemStartedToExecEvent": {
-   "mangled": "dwe",
+   "mangled": "Dve",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.6.0",
@@ -3482,54 +3565,54 @@
    ]
   },
   "markPlaylistItemExecuted": {
-   "mangled": "BO",
+   "mangled": "WO",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "markTurnSkippedFromSkipRecord": {
-   "mangled": "xEe",
+   "mangled": "JEe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "matchNearMissSessionKey": {
-   "mangled": "Wpt",
+   "mangled": "dft",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "materializeClaudeSettingsFile": {
-   "mangled": "fSe",
+   "mangled": "Owe",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "measureUtf8ByteLength": {
-   "mangled": "KO",
+   "mangled": "QO",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "memoizeAvailabilityProbeUntilOk": {
-   "mangled": "JTe",
+   "mangled": "yTe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.3"
   },
   "memoizeIndexLoad": {
-   "mangled": "zu",
+   "mangled": "Uu",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "mergeClaudeToolLists": {
-   "mangled": "gSe",
+   "mangled": "Mwe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.10"
   },
   "mergeContiguousHourRanges": {
-   "mangled": "exe",
+   "mangled": "kke",
    "firstSeen": "0.5.8",
    "changedIn": []
   },
   "mergeGlobalModelConfigLayers": {
-   "mangled": "iu",
+   "mangled": "su",
    "firstSeen": "0.7.0",
    "changedIn": [
     "0.8.1"
@@ -3549,17 +3632,17 @@
    ]
   },
   "mergeInterruptedContextTexts": {
-   "mangled": "L_t",
+   "mangled": "syt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "mergeKernelGitignoreEntries": {
-   "mangled": "zyt",
+   "mangled": "ugt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "mergeOutboundAttachmentLists": {
-   "mangled": "GEe",
+   "mangled": "y0e",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.8.0"
@@ -3569,27 +3652,27 @@
    ]
   },
   "mergeRuntimeEffortLayers": {
-   "mangled": "vSe",
+   "mangled": "zwe",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "mergeRuntimeModelLayers": {
-   "mangled": "bSe",
+   "mangled": "Fwe",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "migrateLegacyJobSessionKeys": {
-   "mangled": "$0e",
+   "mangled": "Qxe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "moveFileIntoDirectory": {
-   "mangled": "ef",
+   "mangled": "rf",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "moveSessionDirToArchive": {
-   "mangled": "Hb",
+   "mangled": "Jb",
    "firstSeen": "0.4.5",
    "changedIn": [
     "0.5.0"
@@ -3599,7 +3682,7 @@
    ]
   },
   "mutateSessionRuntimeState": {
-   "mangled": "mf",
+   "mangled": "yf",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.6",
@@ -3607,28 +3690,28 @@
    ]
   },
   "narrowToModelSettableAdapter": {
-   "mangled": "iZ",
+   "mangled": "nK",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "normalizeBoardIncludeToken": {
-   "mangled": "okt",
+   "mangled": "Iwt",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.2"
   },
   "normalizeChannelCapabilityDeclarations": {
-   "mangled": "Kkt",
+   "mangled": "_St",
    "firstSeen": "0.3.3",
    "changedIn": []
   },
   "normalizeIncludePathKey": {
-   "mangled": "ITe",
+   "mangled": "ZIe",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "normalizeInputTokenTotals": {
-   "mangled": "uEe",
+   "mangled": "CEe",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.7.1",
@@ -3639,32 +3722,32 @@
    ]
   },
   "normalizeJobCwdRelText": {
-   "mangled": "uft",
+   "mangled": "Ict",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "normalizeNotifyChannelTarget": {
-   "mangled": "TO",
+   "mangled": "$O",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "normalizeOptionalEnvString": {
-   "mangled": "Ow",
+   "mangled": "Wf",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "normalizePartitionOutputText": {
-   "mangled": "KTe",
+   "mangled": "vTe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "normalizePromptMode": {
-   "mangled": "iv",
+   "mangled": "av",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "normalizeReturnMask": {
-   "mangled": "fZ",
+   "mangled": "cK",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.3"
@@ -3674,12 +3757,12 @@
    ]
   },
   "normalizeSignalKindVersion": {
-   "mangled": "Pke",
+   "mangled": "XSe",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "normalizeTurnAbortReason": {
-   "mangled": "Lg",
+   "mangled": "Ug",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
@@ -3690,20 +3773,20 @@
    "untraceable": "function with too few features to follow past v0.5.0"
   },
   "overlayConfigEntriesByKey": {
-   "mangled": "P6",
+   "mangled": "S6",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.0"
   },
   "parseAgentMarkdown": {
-   "mangled": "F0e",
+   "mangled": "uEe",
    "firstSeen": "0.5.3",
    "changedIn": [
     "0.7.0"
    ]
   },
   "parseBoardFileContent": {
-   "mangled": "nkt",
+   "mangled": "xwt",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
@@ -3723,12 +3806,12 @@
    ]
   },
   "parseChannelRuntimeField": {
-   "mangled": "Jrt",
+   "mangled": "lnt",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "parseClaudeFrontmatterBlock": {
-   "mangled": "ov",
+   "mangled": "uv",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.7.0"
@@ -3738,17 +3821,17 @@
    ]
   },
   "parseDotEnv": {
-   "mangled": "cA",
+   "mangled": "pA",
    "firstSeen": "0.3.3",
    "changedIn": []
   },
   "parseEffectivenessCounts": {
-   "mangled": "Qmt",
+   "mangled": "wpt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "parseEffectivenessTrajectory": {
-   "mangled": "Xmt",
+   "mangled": "vpt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
@@ -3758,22 +3841,22 @@
    "changedIn": []
   },
   "parseEventTimestampMs": {
-   "mangled": "EEe",
+   "mangled": "GEe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "parseGatewayCommandText": {
-   "mangled": "pv",
+   "mangled": "yv",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "parseHostHeaderHostname": {
-   "mangled": "_xt",
+   "mangled": "qSt",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "parseInjectionPromptCommand": {
-   "mangled": "zI",
+   "mangled": "UI",
    "firstSeen": "0.5.7",
    "changedIn": []
   },
@@ -3783,7 +3866,7 @@
    "changedIn": []
   },
   "parseJobFileFrontmatter": {
-   "mangled": "Kve",
+   "mangled": "vve",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.6.2",
@@ -3795,7 +3878,7 @@
    ]
   },
   "parseJobRearmTime": {
-   "mangled": "Kw",
+   "mangled": "eS",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.6.1"
@@ -3805,18 +3888,18 @@
    ]
   },
   "parseLogLevelName": {
-   "mangled": "cle",
+   "mangled": "Mue",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "parseOriginHostname": {
-   "mangled": "bxt",
+   "mangled": "BSt",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.0"
   },
   "parsePartitionDefinition": {
-   "mangled": "Hmt",
+   "mangled": "fpt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.3",
@@ -3828,27 +3911,27 @@
    ]
   },
   "parsePiToolResultDetails": {
-   "mangled": "lRe",
+   "mangled": "O0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "parsePlaylistCurrentRound": {
-   "mangled": "Vmt",
+   "mangled": "ppt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "parsePositiveMsEnv": {
-   "mangled": "ZH",
+   "mangled": "jV",
    "firstSeen": "0.5.8",
    "changedIn": []
   },
   "parseScheduleDurationMs": {
-   "mangled": "Zw",
+   "mangled": "Qw",
    "firstSeen": "0.6.1",
    "changedIn": []
   },
   "parseSdkConfigFrontmatter": {
-   "mangled": "Eq",
+   "mangled": "fq",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.10",
@@ -3865,18 +3948,18 @@
    "changedIn": []
   },
   "parseUpdaterGuidanceVerdict": {
-   "mangled": "eht",
+   "mangled": "Spt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "partitionInboxDir": {
-   "mangled": "RS",
+   "mangled": "Db",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.6"
   },
   "partitionInboxDirFromVar": {
-   "mangled": "Lc",
+   "mangled": "tc",
    "firstSeen": "0.5.3",
    "changedIn": [
     "0.5.6"
@@ -3886,7 +3969,7 @@
    ]
   },
   "patchSessionRuntimeState": {
-   "mangled": "et",
+   "mangled": "Ye",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.5",
@@ -3898,19 +3981,19 @@
    ]
   },
   "pathExistsAsync": {
-   "mangled": "Ms",
+   "mangled": "zs",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "persistOutboxRecord": {
-   "mangled": "Wa",
+   "mangled": "Ka",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0"
    ]
   },
   "postMemorySignalsToInboxes": {
-   "mangled": "nA",
+   "mangled": "oA",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.5.8",
@@ -3918,7 +4001,7 @@
    ]
   },
   "prepareClaudeContextProfile": {
-   "mangled": "TA",
+   "mangled": "CA",
    "firstSeen": "0.7.0",
    "changedIn": [
     "0.7.1",
@@ -3931,7 +4014,7 @@
    ]
   },
   "prepareDrainTurnContext": {
-   "mangled": "hJ",
+   "mangled": "pJ",
    "firstSeen": "0.3.7",
    "changedIn": [
     "0.4.5",
@@ -3942,7 +4025,8 @@
     "0.5.10",
     "0.6.2",
     "0.8.0",
-    "0.8.1"
+    "0.8.1",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.1:0.943",
@@ -3951,58 +4035,58 @@
    ]
   },
   "prepareJobExecutionWorkspace": {
-   "mangled": "Gve",
+   "mangled": "_ve",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "prependPendingInterruptMarker": {
-   "mangled": "BTe",
+   "mangled": "pTe",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "primeClaudeAvailability": {
-   "mangled": "mlt",
+   "mangled": "Aat",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.3"
   },
   "primeCodexAvailability": {
-   "mangled": "kft",
+   "mangled": "qct",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "primeGrokAvailability": {
-   "mangled": "Oft",
+   "mangled": "Yct",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "probeClaudeAvailability": {
-   "mangled": "V_e",
+   "mangled": "h_e",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "probeEventsAppendable": {
-   "mangled": "dpe",
+   "mangled": "Mfe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "probeSessionPendingWork": {
-   "mangled": "Bb",
+   "mangled": "Wb",
    "firstSeen": "0.6.0",
    "changedIn": []
   },
   "projectJobPromptContext": {
-   "mangled": "AEe",
+   "mangled": "n0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "pruneEventIdIndexByRetention": {
-   "mangled": "gle",
+   "mangled": "que",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "rankEffectivenessTrajectory": {
-   "mangled": "$ke",
+   "mangled": "QSe",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
@@ -4012,7 +4096,7 @@
    "changedIn": []
   },
   "readAllSessionSummaries": {
-   "mangled": "Vq",
+   "mangled": "Aq",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.2"
@@ -4022,7 +4106,7 @@
    ]
   },
   "readChannelDescriptor": {
-   "mangled": "ws",
+   "mangled": "Es",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.0",
@@ -4030,12 +4114,12 @@
    ]
   },
   "readClaudeAuthSourceEnv": {
-   "mangled": "NW",
+   "mangled": "TW",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "readDeliveryCursorFile": {
-   "mangled": "Awe",
+   "mangled": "rwe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -4047,7 +4131,7 @@
    ]
   },
   "readDrainLockFile": {
-   "mangled": "iEe",
+   "mangled": "IEe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.4",
@@ -4059,44 +4143,44 @@
    ]
   },
   "readDrainRecords": {
-   "mangled": "wh",
+   "mangled": "Sh",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.2"
   },
   "readEnvIntegerOrFallback": {
-   "mangled": "gPe",
+   "mangled": "zTe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "readEventAtIndexedOffset": {
-   "mangled": "JQe",
+   "mangled": "lXe",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.8.0"
    ]
   },
   "readEventById": {
-   "mangled": "No",
+   "mangled": "Mo",
    "firstSeen": "0.3.1",
    "changedIn": [
     "0.8.0"
    ]
   },
   "readFileAsBase64": {
-   "mangled": "hSe",
+   "mangled": "Dwe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "readGapLintDayEvents": {
-   "mangled": "Xke",
+   "mangled": "wke",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.4"
    ]
   },
   "readGlobalUsageTotals": {
-   "mangled": "Wq",
+   "mangled": "Nq",
    "firstSeen": "0.4.4",
    "changedIn": [
     "0.5.0",
@@ -4108,85 +4192,85 @@
    ]
   },
   "readHostDaemonToken": {
-   "mangled": "qgt",
+   "mangled": "cht",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "readHostDotEnvFile": {
-   "mangled": "Vxe",
+   "mangled": "mxe",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "readIntuitionWeaverLastFinishedMs": {
-   "mangled": "_xe",
+   "mangled": "Uke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readLatestDeliveryCursorUpdate": {
-   "mangled": "yO",
+   "mangled": "bO",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.2"
   },
   "readLatestExternalEventId": {
-   "mangled": "Rkt",
+   "mangled": "Gwt",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "readLiveStreamContextToken": {
-   "mangled": "UN",
+   "mangled": "VN",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readMemoryFileForRpc": {
-   "mangled": "Gxe",
+   "mangled": "yxe",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "readMemoryFileSyncOrNull": {
-   "mangled": "Pn",
+   "mangled": "$n",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
   "readMemoryMaxLinesLimit": {
-   "mangled": "hW",
+   "mangled": "lW",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "readNewestMtimeRecursive": {
-   "mangled": "JN",
+   "mangled": "ZN",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "readNonNegativeNumberField": {
-   "mangled": "lJ",
+   "mangled": "rJ",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "readOrSeedGapHandedDays": {
-   "mangled": "Lht",
+   "mangled": "smt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readOrSetSessionEffort": {
-   "mangled": "lxt",
+   "mangled": "ASt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readOrSetSessionModel": {
-   "mangled": "uxt",
+   "mangled": "OSt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readOutboxRecord": {
-   "mangled": "Ja",
+   "mangled": "Za",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "readOutboxRecordsPastCursor": {
-   "mangled": "lS",
+   "mangled": "pS",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0"
@@ -4196,19 +4280,19 @@
    ]
   },
   "readPartitionByteRange": {
-   "mangled": "G6",
+   "mangled": "q6",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "readPartitionContract": {
-   "mangled": "OS",
+   "mangled": "MS",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.7.0"
    ]
   },
   "readPartitionInboxEntries": {
-   "mangled": "Ske",
+   "mangled": "HSe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.3",
@@ -4219,59 +4303,63 @@
    ]
   },
   "readPartitionRunState": {
-   "mangled": "ip",
+   "mangled": "op",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "readPartitionTail": {
-   "mangled": "hke",
+   "mangled": "USe",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "readPendingOutboundAttachments": {
-   "mangled": "yJ",
+   "mangled": "hJ",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "readPiAgentSettings": {
-   "mangled": "HS",
+   "mangled": "GS",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readPlaylistRound": {
-   "mangled": "Gg",
+   "mangled": "Zg",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "readRecentDrainRecords": {
-   "mangled": "Pit",
+   "mangled": "Hnt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "readRoutingTarget": {
-   "mangled": "npe",
+   "mangled": "Ife",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "readRuntimeEffortSetting": {
-   "mangled": "wS",
+   "mangled": "RS",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.1"
   },
   "readRuntimeModelSetting": {
-   "mangled": "vS",
+   "mangled": "ES",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.1"
   },
   "readSessionMetaFile": {
-   "mangled": "ra",
-   "firstSeen": "0.5.4",
+   "mangled": "qo",
+   "firstSeen": "0.2.0",
    "changedIn": [
+    "0.5.4",
     "0.7.0"
+   ],
+   "similarSteps": [
+    "0.5.4:1"
    ]
   },
   "readSessionRuntimeState": {
@@ -4280,12 +4368,12 @@
    "changedIn": []
   },
   "readSpineIndexRetentionDays": {
-   "mangled": "hle",
+   "mangled": "Uue",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "readSpineTail": {
-   "mangled": "gke",
+   "mangled": "qSe",
    "firstSeen": "0.3.2",
    "changedIn": [
     "0.8.2"
@@ -4295,42 +4383,53 @@
    ]
   },
   "readStateSourceChannelId": {
-   "mangled": "ske",
+   "mangled": "OSe",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "readStatus": {
-   "mangled": "Gb",
+   "mangled": "Yb",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.0"
    ]
   },
   "readStringProperty": {
-   "mangled": "sn",
+   "mangled": "Xt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "realpathOrSelf": {
-   "mangled": "ekt",
+   "mangled": "Swt",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.2"
   },
   "rebuildPlaylistRound": {
-   "mangled": "wke",
+   "mangled": "VSe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
+  "reconcileMainSession": {
+   "mangled": "ISt",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.8.7"
+  },
+  "reconcileMainSessionAtBoot": {
+   "mangled": "kSe",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "reconcileMemorySignalInboxes": {
-   "mangled": "Jke",
+   "mangled": "gke",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.0"
    ]
   },
   "recordChannelCapabilityDeclaration": {
-   "mangled": "Ykt",
+   "mangled": "bSt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.3"
@@ -4340,17 +4439,17 @@
    ]
   },
   "recordExternalSpineEvent": {
-   "mangled": "v0e",
+   "mangled": "Bxe",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "recordIdleCompactFireMetric": {
-   "mangled": "ibt",
+   "mangled": "Ryt",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "recordOutboxDeliveryAttempt": {
-   "mangled": "yf",
+   "mangled": "vf",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.1"
@@ -4362,12 +4461,12 @@
    "changedIn": []
   },
   "recordPendingInterruptMarker": {
-   "mangled": "ukt",
+   "mangled": "$wt",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "recordTelemetryMetric": {
-   "mangled": "bs",
+   "mangled": "ks",
    "firstSeen": "0.3.0",
    "changedIn": [
     "0.4.5",
@@ -4378,60 +4477,60 @@
    ]
   },
   "recordUnreadableMemoryPath": {
-   "mangled": "To",
+   "mangled": "Co",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "recordUnreadableUnlessMissing": {
-   "mangled": "sA",
+   "mangled": "lA",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "redactJobModelProfileTokens": {
-   "mangled": "Xf",
+   "mangled": "tp",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.0"
   },
   "redactSpineEventForExternal": {
-   "mangled": "Oyt",
+   "mangled": "egt",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "refreshBootstrapDuoduoMdFiles": {
-   "mangled": "o_t",
+   "mangled": "Igt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "refreshRuntimeWriterLockHeartbeat": {
-   "mangled": "mke",
+   "mangled": "zSe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "refreshSessionDrainLockHeartbeat": {
-   "mangled": "nEe",
+   "mangled": "EEe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "refreshSessionIndexEntry": {
-   "mangled": "_Pe",
+   "mangled": "vh",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.4"
   },
   "rehydrateSessionState": {
-   "mangled": "wle",
+   "mangled": "Jue",
    "firstSeen": "0.4.0",
    "changedIn": []
   },
   "releaseRuntimeWriterLock": {
-   "mangled": "UO",
+   "mangled": "VO",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "releaseSessionDrainLock": {
-   "mangled": "rEe",
+   "mangled": "REe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.4",
@@ -4439,55 +4538,55 @@
    ]
   },
   "removeDotEnvKeyLines": {
-   "mangled": "zxe",
+   "mangled": "lxe",
    "firstSeen": "0.5.1",
    "changedIn": []
   },
   "removeHostModelEnvLines": {
-   "mangled": "Fxe",
+   "mangled": "uxe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.4.3"
   },
   "removeOrphanMailboxItemFiles": {
-   "mangled": "Ile",
+   "mangled": "Que",
    "firstSeen": "0.4.2",
    "changedIn": []
   },
   "renderActivationReportBody": {
-   "mangled": "lgt",
+   "mangled": "Cmt",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "renderActivationReportHeader": {
-   "mangled": "sgt",
+   "mangled": "Tmt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderAgentToml": {
-   "mangled": "z0e",
+   "mangled": "lEe",
    "firstSeen": "0.5.3",
    "changedIn": []
   },
   "renderBoardTemperatureSection": {
-   "mangled": "agt",
+   "mangled": "Pmt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderBoardUpdatedHint": {
-   "mangled": "mEe",
+   "mangled": "jEe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.10"
   },
   "renderCoalescedDrainPrompt": {
-   "mangled": "X_t",
+   "mangled": "vyt",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "renderDaemonRestartHint": {
-   "mangled": "rke",
+   "mangled": "PSe",
    "firstSeen": null,
    "changedIn": [
     "0.6.2"
@@ -4495,7 +4594,7 @@
    "untraceable": "function with too few features to follow past v0.5.2"
   },
   "renderDrainErrorRuntimeHint": {
-   "mangled": "sbt",
+   "mangled": "Tyt",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.6.0",
@@ -4505,42 +4604,46 @@
    ]
   },
   "renderEntityConvergeSignalBody": {
-   "mangled": "fht",
+   "mangled": "Npt",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.8.0"
    ]
   },
   "renderFoldGapBody": {
-   "mangled": "dgt",
+   "mangled": "Amt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderHotOrphansSection": {
-   "mangled": "ugt",
+   "mangled": "$mt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderJobAcceptanceBlock": {
-   "mangled": "ylt",
+   "mangled": "Mat",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderJobCompleteReceiptGuidance": {
-   "mangled": "T_t",
+   "mangled": "Zgt",
    "firstSeen": "0.4.0",
    "changedIn": [
     "0.5.1",
-    "0.8.0"
+    "0.8.0",
+    "0.8.7"
+   ],
+   "similarSteps": [
+    "0.8.7:0.78"
    ]
   },
   "renderJobExtraToolsDescription": {
-   "mangled": "rpt",
+   "mangled": "Sdt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderJobFileMarkdown": {
-   "mangled": "mft",
+   "mangled": "Act",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.4",
@@ -4556,7 +4659,7 @@
    ]
   },
   "renderJobMissionBlock": {
-   "mangled": "J_e",
+   "mangled": "y_e",
    "firstSeen": "0.4.5",
    "changedIn": [
     "0.5.4",
@@ -4567,25 +4670,25 @@
    ]
   },
   "renderJobPromptModeDescription": {
-   "mangled": "npt",
+   "mangled": "wdt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderJobSessionToolDescription": {
-   "mangled": "cO",
+   "mangled": "fO",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.0"
   },
   "renderJobTickBlock": {
-   "mangled": "j_t",
+   "mangled": "oyt",
    "firstSeen": "0.4.5",
    "changedIn": [
     "0.5.0"
    ]
   },
   "renderMailboxEventPrompt": {
-   "mangled": "NA",
+   "mangled": "jA",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -4595,14 +4698,15 @@
     "0.5.4",
     "0.6.0",
     "0.8.0",
-    "0.8.2"
+    "0.8.2",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.3.0:0.658"
    ]
   },
   "renderManageJobToolDescription": {
-   "mangled": "lO",
+   "mangled": "dO",
    "firstSeen": null,
    "changedIn": [
     "0.8.2"
@@ -4610,34 +4714,36 @@
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "renderManualCompactNotice": {
-   "mangled": "ebt",
+   "mangled": "Syt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "renderNodeConvergeSignalBody": {
-   "mangled": "ght",
+   "mangled": "Lpt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "renderNotifyDeliveryReport": {
-   "mangled": "rSe",
+   "mangled": "kwe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.2"
    ]
   },
   "renderNotifyRefusalMessage": {
-   "mangled": "bO",
+   "mangled": "wO",
    "firstSeen": "0.8.2",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "renderNotifyTargetCandidateLines": {
-   "mangled": "nSe",
+   "mangled": "b6",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "renderNotifyToolDescription": {
-   "mangled": "CO",
+   "mangled": "AO",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0"
@@ -4647,7 +4753,7 @@
    ]
   },
   "renderOrphanIslandsBody": {
-   "mangled": "$gt",
+   "mangled": "Xmt",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.8.0"
@@ -4659,7 +4765,7 @@
    "changedIn": []
   },
   "renderPartitionInboxSection": {
-   "mangled": "Tkt",
+   "mangled": "Zwt",
    "firstSeen": "0.5.3",
    "changedIn": [
     "0.5.8",
@@ -4670,7 +4776,7 @@
    ]
   },
   "renderPartitionRuntimeContext": {
-   "mangled": "Ikt",
+   "mangled": "Kwt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.3",
@@ -4684,27 +4790,28 @@
    ]
   },
   "renderPromptLayers": {
-   "mangled": "G_e",
+   "mangled": "__e",
    "firstSeen": "0.7.1",
    "changedIn": [
-    "0.8.0"
+    "0.8.0",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.8.0:0.921"
    ]
   },
   "renderRestartWakeMessage": {
-   "mangled": "ike",
+   "mangled": "$Se",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "renderRuntimeMismatchGuidance": {
-   "mangled": "fbt",
+   "mangled": "Nyt",
    "firstSeen": "0.8.3",
    "changedIn": []
   },
   "renderRuntimeUnavailableGuidance": {
-   "mangled": "dbt",
+   "mangled": "Ayt",
    "firstSeen": "0.5.4",
    "changedIn": [
     "0.7.1",
@@ -4716,7 +4823,7 @@
    ]
   },
   "renderScanGapSignalBody": {
-   "mangled": "zht",
+   "mangled": "umt",
    "firstSeen": "0.5.8",
    "changedIn": [
     "0.8.0"
@@ -4731,58 +4838,59 @@
    "changedIn": []
   },
   "renderSkipRewindBlock": {
-   "mangled": "C_t",
+   "mangled": "Qgt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.0",
-    "0.5.5"
+    "0.5.5",
+    "0.8.7"
    ]
   },
   "renderSmartCompactNoticeBlock": {
-   "mangled": "N_t",
+   "mangled": "nyt",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "renderTimeGapContextBlock": {
-   "mangled": "D_t",
+   "mangled": "ryt",
    "firstSeen": "0.3.0",
    "changedIn": [
     "0.5.0"
    ]
   },
   "renderTranscludedFiles": {
-   "mangled": "XSt",
+   "mangled": "vwt",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "renderTurnOutputText": {
-   "mangled": "IEe",
+   "mangled": "ZEe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "renderWorkspaceUnavailableNotice": {
-   "mangled": "cbt",
+   "mangled": "Oyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "replaceSessionIndexEntry": {
-   "mangled": "Bq",
+   "mangled": "Cq",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.4"
   },
   "replayIdempotentSessionNotify": {
-   "mangled": "sxt",
+   "mangled": "$St",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "replayOutboxBacklogToSubscriber": {
-   "mangled": "Mwe",
+   "mangled": "swe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "replyToGatewayCommandEvent": {
-   "mangled": "Ait",
+   "mangled": "Knt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.6.0",
@@ -4791,50 +4899,50 @@
    ]
   },
   "requestBoundaryAwarePreempt": {
-   "mangled": "Tk",
+   "mangled": "Ok",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.2"
    ]
   },
   "requestPiWorkerCatalog": {
-   "mangled": "eRe",
+   "mangled": "k0e",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "resolveAdditionalDirClaudeMdAutoload": {
-   "mangled": "yEe",
+   "mangled": "zEe",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "resolveArchivedSessionDir": {
-   "mangled": "Zm",
+   "mangled": "Km",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.4.5"
   },
   "resolveBoardIncludePath": {
-   "mangled": "akt",
+   "mangled": "Pwt",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "resolveBoardIncludes": {
-   "mangled": "OTe",
+   "mangled": "tTe",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "resolveCadenceIntervalMs": {
-   "mangled": "Nxe",
+   "mangled": "rxe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "resolveChannelConfigBySession": {
-   "mangled": "su",
+   "mangled": "uu",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "resolveClaudeContextRequirement": {
-   "mangled": "ny",
+   "mangled": "iy",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
@@ -4844,27 +4952,27 @@
    "changedIn": []
   },
   "resolveCodexSandbox": {
-   "mangled": "Fg",
+   "mangled": "qg",
    "firstSeen": "0.4.4",
    "changedIn": []
   },
   "resolveCodexSandboxForPermissionMode": {
-   "mangled": "Rft",
+   "mangled": "Hct",
    "firstSeen": "0.4.4",
    "changedIn": []
   },
   "resolveConsumerOffsetPath": {
-   "mangled": "Eet",
+   "mangled": "FXe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveContextCapToken": {
-   "mangled": "up",
+   "mangled": "lp",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "resolveDefaultRuntime": {
-   "mangled": "yo",
+   "mangled": "vo",
    "firstSeen": "0.7.1",
    "changedIn": [
     "0.8.4"
@@ -4874,17 +4982,17 @@
    ]
   },
   "resolveDeliveryCursorPath": {
-   "mangled": "Owe",
+   "mangled": "nwe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveDrainContextProfileOrRefuse": {
-   "mangled": "SEe",
+   "mangled": "HEe",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "resolveEffectiveChannelConfig": {
-   "mangled": "ou",
+   "mangled": "au",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.7.0",
@@ -4896,7 +5004,7 @@
    ]
   },
   "resolveEffectiveChannelConfigForEvent": {
-   "mangled": "C6",
+   "mangled": "x6",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.10",
@@ -4907,32 +5015,32 @@
    ]
   },
   "resolveEnvConfigEntry": {
-   "mangled": "Wn",
+   "mangled": "Gn",
    "firstSeen": "0.3.3",
    "changedIn": []
   },
   "resolveEventIdIndexPath": {
-   "mangled": "Lb",
+   "mangled": "Ub",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveEventSourceChannelId": {
-   "mangled": "Z_t",
+   "mangled": "yyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveExistingDirRealpath": {
-   "mangled": "yp",
+   "mangled": "_p",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveGitToplevelSync": {
-   "mangled": "Pgt",
+   "mangled": "Ymt",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "resolveIngressWorkspace": {
-   "mangled": "cPe",
+   "mangled": "NTe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.4.0",
@@ -4947,25 +5055,25 @@
    ]
   },
   "resolveIsolatedPlaneKind": {
-   "mangled": "bPe",
+   "mangled": "BTe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.2"
   },
   "resolveJobCwdRel": {
-   "mangled": "Vve",
+   "mangled": "hve",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveJobExecutionWorkspace": {
-   "mangled": "Jve",
+   "mangled": "yve",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.5"
    ]
   },
   "resolveJobOwnerNotifyTarget": {
-   "mangled": "Gpt",
+   "mangled": "pft",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -4973,128 +5081,145 @@
    ]
   },
   "resolveLayeredChannelRuntime": {
-   "mangled": "Ba",
+   "mangled": "Wa",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "resolveLogLevel": {
-   "mangled": "jQe",
+   "mangled": "Q7e",
    "firstSeen": "0.3.3",
    "changedIn": []
   },
+  "resolveMainSessionFromIndex": {
+   "mangled": "qc",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.8.7"
+  },
+  "resolveMainSessionHolder": {
+   "mangled": "Mb",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "resolveMemoryCheckFlags": {
-   "mangled": "IW",
+   "mangled": "wW",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "resolveMemoryDirs": {
-   "mangled": "Mi",
+   "mangled": "Fi",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "resolveMemoryLinkTargets": {
-   "mangled": "sp",
+   "mangled": "ap",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "resolveMetaPromptText": {
-   "mangled": "Mw",
+   "mangled": "zw",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveNotifyTargetSessionKey": {
-   "mangled": "Zpt",
+   "mangled": "mft",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
     "0.4.0",
     "0.5.0",
-    "0.6.2"
+    "0.6.2",
+    "0.8.7"
    ]
   },
   "resolveNotifyUnconsumedHours": {
-   "mangled": "S6",
+   "mangled": "f6",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "resolveOutboxByEventIndexPath": {
-   "mangled": "Mq",
+   "mangled": "xq",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveOutboxByIdIndexPath": {
-   "mangled": "jq",
+   "mangled": "Eq",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "resolveOutboxPendingQueuePath": {
-   "mangled": "ac",
+   "mangled": "lc",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "resolveOutboxRecordPath": {
-   "mangled": "cv",
+   "mangled": "mv",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveOutboxReplayDir": {
-   "mangled": "$I",
+   "mangled": "CI",
    "firstSeen": "0.3.0",
    "changedIn": []
   },
   "resolveOutboxReplayFilePath": {
-   "mangled": "Ss",
+   "mangled": "Rs",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.0"
   },
   "resolveOutboxSentIdsPath": {
-   "mangled": "xfe",
+   "mangled": "Kde",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolvePartitionStatePath": {
-   "mangled": "xke",
+   "mangled": "JSe",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "resolvePendingCompactNotice": {
-   "mangled": "A_t",
+   "mangled": "tyt",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "resolvePendingModelFork": {
-   "mangled": "ubt",
+   "mangled": "$yt",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "resolvePiAgentDir": {
-   "mangled": "BS",
+   "mangled": "JS",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "resolvePiWorkerCommand": {
-   "mangled": "qS",
+   "mangled": "WS",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "resolvePreemptFromCommandText": {
-   "mangled": "gZ",
+   "mangled": "mK",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveRemoteListenerConfig": {
-   "mangled": "wxt",
+   "mangled": "HSt",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
   "resolveReplyTargetSessionKeys": {
-   "mangled": "JEe",
+   "mangled": "g0e",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
+  "resolveRolePromptText": {
+   "mangled": "qV",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "resolveRoutingTarget": {
-   "mangled": "Oit",
+   "mangled": "Gnt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2",
@@ -5104,7 +5229,7 @@
    ]
   },
   "resolveRuntimePaths": {
-   "mangled": "_ke",
+   "mangled": "Sue",
    "firstSeen": "0.4.3",
    "changedIn": [
     "0.5.1",
@@ -5121,42 +5246,44 @@
    ]
   },
   "resolveRuntimeWriterLockPath": {
-   "mangled": "V6",
+   "mangled": "F6",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveSessionByExactKey": {
-   "mangled": "ixt",
+   "mangled": "TSt",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "resolveSessionByKeyOrAlias": {
-   "mangled": "_p",
+   "mangled": "bp",
    "firstSeen": "0.5.4",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "resolveSessionChannelRuntime": {
-   "mangled": "vh",
+   "mangled": "wh",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "resolveSessionDir": {
-   "mangled": "Yn",
+   "mangled": "Qn",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveSessionDrainLockPath": {
-   "mangled": "oJ",
+   "mangled": "QW",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveSessionInboxDir": {
-   "mangled": "zb",
+   "mangled": "Bb",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveSessionMailboxDir": {
-   "mangled": "vle",
+   "mangled": "Wue",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.1"
@@ -5167,74 +5294,74 @@
    "changedIn": []
   },
   "resolveSessionMailboxNotesPath": {
-   "mangled": "Ub",
+   "mangled": "Vb",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "resolveSessionMailboxPendingDir": {
-   "mangled": "tf",
+   "mangled": "of",
    "firstSeen": "0.3.1",
    "changedIn": []
   },
   "resolveSessionMetaPath": {
-   "mangled": "za",
+   "mangled": "Va",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveSessionStatePath": {
-   "mangled": "_s",
+   "mangled": "Ss",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "resolveSessionsArchiveRoot": {
-   "mangled": "tet",
+   "mangled": "yXe",
    "firstSeen": "0.4.5",
    "changedIn": []
   },
   "resolveTailCursorEndOffset": {
-   "mangled": "Umt",
+   "mangled": "dpt",
    "firstSeen": "0.8.2",
    "changedIn": []
   },
   "resolveTurnEffortWithLayer": {
-   "mangled": "bEe",
+   "mangled": "qEe",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "resolveTurnModelWithLayer": {
-   "mangled": "_Ee",
+   "mangled": "UEe",
    "firstSeen": "0.8.1",
    "changedIn": []
   },
   "retireListedPartitions": {
-   "mangled": "N0e",
+   "mangled": "rEe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "retirePartitionOnce": {
-   "mangled": "Jyt",
+   "mangled": "hgt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "rewriteSessionKeyInStateAndMeta": {
-   "mangled": "qyt",
+   "mangled": "cgt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "routeContractDecision": {
-   "mangled": "kW",
+   "mangled": "yW",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.8.0"
    ]
   },
   "runActivationLint": {
-   "mangled": "mxe",
+   "mangled": "jke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "runBoardLint": {
-   "mangled": "lht",
+   "mangled": "Cpt",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -5245,22 +5372,22 @@
    ]
   },
   "runBroadcastBudgetLint": {
-   "mangled": "cxe",
+   "mangled": "Ake",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "runBroadcastFlattenLint": {
-   "mangled": "kxe",
+   "mangled": "Wke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "runBroadcastLinkLint": {
-   "mangled": "wxe",
+   "mangled": "Vke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "runCadenceTick": {
-   "mangled": "Ckt",
+   "mangled": "Qwt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.3",
@@ -5273,7 +5400,7 @@
    ]
   },
   "runDrainQueryAndCollectOutboundAttachments": {
-   "mangled": "$Ee",
+   "mangled": "QEe",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.5.7",
@@ -5284,7 +5411,7 @@
    ]
   },
   "runDrainTurnWithResumeFallback": {
-   "mangled": "_bt",
+   "mangled": "zyt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
@@ -5300,7 +5427,7 @@
    ]
   },
   "runEntityLint": {
-   "mangled": "Mke",
+   "mangled": "oke",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -5311,24 +5438,24 @@
    ]
   },
   "runFoldGapLint": {
-   "mangled": "bxe",
+   "mangled": "qke",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "runGapLint": {
-   "mangled": "qht",
+   "mangled": "cmt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "runHistoryControlCommand": {
-   "mangled": "obt",
+   "mangled": "Iyt",
    "firstSeen": "0.5.2",
    "changedIn": [
     "0.8.0"
    ]
   },
   "runInstructionsFingerprintGuard": {
-   "mangled": "zN",
+   "mangled": "BN",
    "firstSeen": "0.4.5",
    "changedIn": [
     "0.5.0",
@@ -5345,7 +5472,7 @@
    ]
   },
   "runKernelGitCommand": {
-   "mangled": "GW",
+   "mangled": "qW",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.5.2"
@@ -5355,7 +5482,7 @@
    ]
   },
   "runManageJobTool": {
-   "mangled": "qg",
+   "mangled": "Hg",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.12",
@@ -5382,12 +5509,12 @@
    ]
   },
   "runMemoryCheckSubStep": {
-   "mangled": "RW",
+   "mangled": "vW",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "runMemoryCheckTick": {
-   "mangled": "Dgt",
+   "mangled": "rht",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6",
@@ -5401,7 +5528,7 @@
    ]
   },
   "runNodeLint": {
-   "mangled": "Lke",
+   "mangled": "ake",
    "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6"
@@ -5411,18 +5538,19 @@
    ]
   },
   "runNotifyTool": {
-   "mangled": "Jg",
+   "mangled": "Kg",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0",
     "0.5.1",
     "0.8.0",
     "0.8.2",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ]
   },
   "runQueueOutboundAttachmentTool": {
-   "mangled": "sy",
+   "mangled": "uy",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.3",
@@ -5433,14 +5561,20 @@
    ]
   },
   "runReadAuditedMemoryCheckStep": {
-   "mangled": "pa",
+   "mangled": "_a",
    "firstSeen": "0.7.1",
    "changedIn": []
   },
   "runRemindDuoduoTool": {
-   "mangled": "Vg",
+   "mangled": "Jg",
    "firstSeen": "0.8.2",
    "changedIn": []
+  },
+  "runSessionSetAliasRpc": {
+   "mangled": "RSt",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "runSkipTool": {
    "mangled": "oC",
@@ -5452,47 +5586,49 @@
    ]
   },
   "runSpineCatRpc": {
-   "mangled": "b0e",
+   "mangled": "qxe",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "runTimedDrainPhase": {
-   "mangled": "Po",
+   "mangled": "Oo",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.0"
   },
   "runViewSessionsTool": {
-   "mangled": "Hg",
+   "mangled": "Wg",
    "firstSeen": "0.8.2",
-   "changedIn": []
+   "changedIn": [
+    "0.8.7"
+   ]
   },
   "runWithSessionMutex": {
-   "mangled": "Wi",
+   "mangled": "Zi",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "sanitizeUploadFileName": {
-   "mangled": "amt",
+   "mangled": "Rft",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.7.0"
    ]
   },
   "saveChannelUploadToInbox": {
-   "mangled": "mSe",
+   "mangled": "Nwe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.7.0"
    ]
   },
   "scanActivationWindowTouches": {
-   "mangled": "ogt",
+   "mangled": "Imt",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "scanAndSpawnDueJobs": {
-   "mangled": "cZ",
+   "mangled": "uK",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.2.12",
@@ -5509,19 +5645,19 @@
    ]
   },
   "scanPartitionsForEventId": {
-   "mangled": "GQe",
+   "mangled": "cXe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.8.0"
    ]
   },
   "scanWikiLinkOccurrences": {
-   "mangled": "op",
+   "mangled": "sp",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "scheduleSessionWakeRecord": {
-   "mangled": "oxt",
+   "mangled": "PSt",
    "firstSeen": "0.8.2",
    "changedIn": [
     "0.8.4"
@@ -5531,55 +5667,65 @@
    ]
   },
   "selectDominantModelByInputTokens": {
-   "mangled": "llt",
+   "mangled": "Tat",
    "firstSeen": "0.5.6",
    "changedIn": []
   },
   "selectInstructionsFingerprint": {
-   "mangled": "iRe",
+   "mangled": "I0e",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.0"
   },
   "selectInterruptMarkerText": {
-   "mangled": "jg",
+   "mangled": "zg",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.2"
   },
   "selectProfileIssuesForModel": {
-   "mangled": "ty",
+   "mangled": "ry",
    "firstSeen": "0.7.0",
    "changedIn": []
   },
+  "selectSessionRolePrompt": {
+   "mangled": "sTe",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "setPendingInterruptedContext": {
-   "mangled": "z_t",
+   "mangled": "uyt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "setPendingRestartReason": {
-   "mangled": "eke",
+   "mangled": "RSe",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.6.2"
   },
   "setSessionAliasAndReindex": {
-   "mangled": "rxt",
-   "firstSeen": "0.5.4",
+   "mangled": "qO",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
+  "setSessionAliasWithMainRole": {
+   "mangled": "SSe",
+   "firstSeen": "0.8.7",
    "changedIn": []
   },
   "shouldKeepRouteDeliverEvent": {
-   "mangled": "Cyt",
+   "mangled": "Qht",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "shutdownActorRuntimeAdapter": {
-   "mangled": "WN",
+   "mangled": "KN",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "snapshotInflightEventIds": {
-   "mangled": "HTe",
+   "mangled": "mTe",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
@@ -5591,12 +5737,12 @@
    ]
   },
   "splitDisallowedToolsForClaude": {
-   "mangled": "B_e",
+   "mangled": "p_e",
    "firstSeen": "0.5.10",
    "changedIn": []
   },
   "splitLinesDropTrailingEmpty": {
-   "mangled": "Zo",
+   "mangled": "Qo",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
@@ -5606,24 +5752,24 @@
    "changedIn": []
   },
   "stringToMessageGenerator": {
-   "mangled": "gC",
+   "mangled": "_C",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "stringifyExecutionToolInput": {
-   "mangled": "QIe",
+   "mangled": "SIe",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.3"
    ]
   },
   "stringifyJsonlRecord": {
-   "mangled": "Vi",
+   "mangled": "Ki",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "stringifyPartitionToolInput": {
-   "mangled": "wkt",
+   "mangled": "Bwt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.3"
@@ -5635,35 +5781,35 @@
    "changedIn": []
   },
   "stripBoardHtmlComments": {
-   "mangled": "rkt",
+   "mangled": "Ewt",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "stripBoardIncludeFrontmatter": {
-   "mangled": "tkt",
+   "mangled": "kwt",
    "firstSeen": "0.5.2",
    "changedIn": [
     "0.7.0"
    ]
   },
   "stripSpineEventToEnvelope": {
-   "mangled": "y0e",
+   "mangled": "zxe",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "stripUndefinedFieldsDeep": {
-   "mangled": "pf",
+   "mangled": "gf",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "summarizeDrainRecords": {
-   "mangled": "fv",
+   "mangled": "gv",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.2"
   },
   "sweepTombstonedSessionRecords": {
-   "mangled": "$kt",
+   "mangled": "Xwt",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.8.0"
@@ -5673,24 +5819,24 @@
    ]
   },
   "teardownStreamingSession": {
-   "mangled": "gp",
+   "mangled": "yp",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.2"
    ]
   },
   "textKeysProblem": {
-   "mangled": "nle",
+   "mangled": "Tue",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "transcludeBroadcastBoard": {
-   "mangled": "CTe",
+   "mangled": "eTe",
    "firstSeen": "0.5.2",
    "changedIn": []
   },
   "triggerDeferredPreempt": {
-   "mangled": "aZ",
+   "mangled": "oK",
    "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.2"
@@ -5702,12 +5848,12 @@
    "changedIn": []
   },
   "unknownKeyProblem": {
-   "mangled": "DU",
+   "mangled": "SU",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "updateDeliveryCursorFile": {
-   "mangled": "$we",
+   "mangled": "ewe",
    "firstSeen": "0.5.6",
    "changedIn": [
     "0.8.0"
@@ -5717,14 +5863,11 @@
    ]
   },
   "updateSessionDisplayName": {
-   "mangled": "mfe",
-   "firstSeen": "0.2.0",
+   "mangled": "pq",
+   "firstSeen": "0.5.4",
    "changedIn": [
-    "0.5.4",
-    "0.7.0"
-   ],
-   "similarSteps": [
-    "0.5.4:0.633"
+    "0.7.0",
+    "0.8.7"
    ]
   },
   "updateStatus": {
@@ -5733,20 +5876,21 @@
    "changedIn": []
   },
   "upsertChannelSpawnDescriptor": {
-   "mangled": "yxt",
+   "mangled": "USt",
    "firstSeen": "0.5.0",
    "changedIn": [
     "0.6.0",
     "0.7.0",
     "0.8.3",
-    "0.8.4"
+    "0.8.4",
+    "0.8.7"
    ],
    "similarSteps": [
     "0.7.0:0.912"
    ]
   },
   "validateConfigValue": {
-   "mangled": "gmt",
+   "mangled": "Dft",
    "firstSeen": "0.5.10",
    "changedIn": [
     "0.8.0",
@@ -5754,42 +5898,42 @@
    ]
   },
   "validateJobScheduleExpression": {
-   "mangled": "zve",
+   "mangled": "cve",
    "firstSeen": "0.6.1",
    "changedIn": []
   },
   "validateKnownRuntimeValue": {
-   "mangled": "qU",
+   "mangled": "PU",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "validateRunnableRuntimeValue": {
-   "mangled": "Xd",
+   "mangled": "tf",
    "firstSeen": "0.8.4",
    "changedIn": []
   },
   "verifyClaudeCodeRuntimeAvailable": {
-   "mangled": "W_e",
+   "mangled": "g_e",
    "firstSeen": "0.5.0",
    "changedIn": []
   },
   "waitForWakeOrIdleTimeout": {
-   "mangled": "uZ",
+   "mangled": "sK",
    "firstSeen": "0.8.0",
    "changedIn": []
   },
   "walkReachableMemory": {
-   "mangled": "Uc",
+   "mangled": "Hc",
    "firstSeen": "0.5.5",
    "changedIn": []
   },
   "warnUnmappedCodexItemOnce": {
-   "mangled": "cwe",
+   "mangled": "Nve",
    "firstSeen": "0.6.0",
    "changedIn": []
   },
   "writeConsumerOffsetFile": {
-   "mangled": "Ret",
+   "mangled": "zXe",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
@@ -5799,19 +5943,19 @@
    "changedIn": []
   },
   "writeHostClaudeCodeExecutableEnvConfig": {
-   "mangled": "Bxe",
+   "mangled": "fxe",
    "firstSeen": "0.5.1",
    "changedIn": []
   },
   "writeHostDaemonToken": {
-   "mangled": "Bgt",
+   "mangled": "dht",
    "firstSeen": "0.7.0",
    "changedIn": [
     "0.8.2"
    ]
   },
   "writeHostDotEnvLines": {
-   "mangled": "dA",
+   "mangled": "mA",
    "firstSeen": "0.4.3",
    "changedIn": [
     "0.7.0",
@@ -5819,22 +5963,22 @@
    ]
   },
   "writeHostModelEnvConfig": {
-   "mangled": "qxe",
+   "mangled": "dxe",
    "firstSeen": "0.4.3",
    "changedIn": []
   },
   "writeIngressSnapshot": {
-   "mangled": "Fit",
+   "mangled": "trt",
    "firstSeen": "0.2.0",
    "changedIn": [
     "0.3.0"
    ]
   },
   "writeInstanceModelAlias": {
-   "mangled": "YSe",
+   "mangled": "ySe",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.6"
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "writeJsonFileAtomic": {
    "mangled": "Bt",
@@ -5842,24 +5986,29 @@
    "changedIn": []
   },
   "writeLogLine": {
-   "mangled": "Qd",
+   "mangled": "nf",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "writePartitionRunState": {
-   "mangled": "Y6",
+   "mangled": "H6",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.1"
   },
   "writeStatus": {
-   "mangled": "nq",
+   "mangled": "BU",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
   "writeVoidSessionOutboxRecord": {
-   "mangled": "jI",
+   "mangled": "LI",
    "firstSeen": "0.8.4",
+   "changedIn": []
+  },
+  "wsDefaultMaxPayload": {
+   "mangled": "WSt",
+   "firstSeen": "0.8.7",
    "changedIn": []
   }
  },
@@ -6036,6 +6185,7 @@
     "readPlaylistRound",
     "readRecentDrainRecords",
     "readRoutingTarget",
+    "readSessionMetaFile",
     "readSessionRuntimeState",
     "readStatus",
     "readStringProperty",
@@ -6102,7 +6252,6 @@
     "stringifyExecutionToolInput",
     "stringifyPartitionToolInput",
     "stripUndefinedFieldsDeep",
-    "updateSessionDisplayName",
     "updateStatus",
     "writeConsumerOffsetFile",
     "writeFileAtomic",
@@ -6667,10 +6816,9 @@
     "isSessionSetAliasParams",
     "listSelectableJobRuntimes",
     "listSessionIndexSummaries",
-    "readSessionMetaFile",
     "renderRuntimeUnavailableGuidance",
     "resolveSessionByKeyOrAlias",
-    "setSessionAliasAndReindex"
+    "updateSessionDisplayName"
    ],
    "changed": [
     "buildCodexDynamicTools",
@@ -6690,11 +6838,11 @@
     "main",
     "mergeInboxIntoMailbox",
     "prepareDrainTurnContext",
+    "readSessionMetaFile",
     "renderJobFileMarkdown",
     "renderJobMissionBlock",
     "renderMailboxEventPrompt",
-    "runManageJobTool",
-    "updateSessionDisplayName"
+    "runManageJobTool"
    ]
   },
   "0.5.5": {
@@ -7601,6 +7749,62 @@
    "changed": [
     "createAgentSdkAdapter"
    ]
+  },
+  "0.8.7": {
+   "born": [
+    "announceMainSessionChange",
+    "buildMainRoleContext",
+    "checkMainAliasCallerAuthority",
+    "composeIdentityLayer",
+    "describeStandInJobOwner",
+    "isMainAliasedChannelSession",
+    "isReservedMainAliasChange",
+    "reconcileMainSessionAtBoot",
+    "resolveMainSessionHolder",
+    "resolveRolePromptText",
+    "selectSessionRolePrompt",
+    "setSessionAliasAndReindex",
+    "setSessionAliasWithMainRole",
+    "wsDefaultMaxPayload"
+   ],
+   "changed": [
+    "buildCodexDynamicTools",
+    "buildNotifyInputSchema",
+    "buildSessionIndexEntry",
+    "buildSystemPromptForChannelConfig",
+    "collectInstructionsInputs",
+    "createAladuoMcpServer",
+    "createDaemon",
+    "createJobSessionFinalizer",
+    "createMetaSession",
+    "createSessionManager",
+    "deliverDaemonRestartWakes",
+    "deliverExternalSessionNotify",
+    "drainSessionMailbox",
+    "ensureSessionDescriptorAndStateFiles",
+    "evaluateNotifyConsumerRefusal",
+    "filterDeliverableSessions",
+    "initNotifyToolModule",
+    "initProtocolSystemModule",
+    "initRuntimeInitializationModule",
+    "initSkipToolModule",
+    "isSessionSetAliasParams",
+    "listSessionIndexSummaries",
+    "listSessionsWithRecentConsumer",
+    "main",
+    "prepareDrainTurnContext",
+    "renderJobCompleteReceiptGuidance",
+    "renderMailboxEventPrompt",
+    "renderNotifyRefusalMessage",
+    "renderPromptLayers",
+    "renderSkipRewindBlock",
+    "resolveNotifyTargetSessionKey",
+    "resolveSessionByKeyOrAlias",
+    "runNotifyTool",
+    "runViewSessionsTool",
+    "updateSessionDisplayName",
+    "upsertChannelSpawnDescriptor"
+   ]
   }
  },
  "untraceable": [
@@ -7624,6 +7828,7 @@
   "MemoryReadRpcError",
   "PARTITION_CORE_TOOLS",
   "SESSION_SCHEMA_VERSION",
+  "SUN_PATH_MAX_BYTES",
   "SpineRpcParamsError",
   "__resetClaudeProbeCacheForTest",
   "__setClaudeVerifierForTest",
@@ -7668,6 +7873,7 @@
   "initFoldGapLintModule",
   "initInstructionsFingerprintModule",
   "initInterruptMarkerTextModule",
+  "initMainSessionAliasModule",
   "initMemoryCheckTickModule",
   "initMemorySignalDeliveryModule",
   "initNodeLintModule",
@@ -7711,6 +7917,7 @@
   "readRuntimeEffortSetting",
   "readRuntimeModelSetting",
   "realpathOrSelf",
+  "reconcileMainSession",
   "recordUnreadableUnlessMissing",
   "redactJobModelProfileTokens",
   "refreshSessionIndexEntry",
@@ -7723,8 +7930,10 @@
   "replaceSessionIndexEntry",
   "resolveArchivedSessionDir",
   "resolveIsolatedPlaneKind",
+  "resolveMainSessionFromIndex",
   "resolveOutboxReplayFilePath",
   "resolveSessionMailboxDir",
+  "runSessionSetAliasRpc",
   "runTimedDrainPhase",
   "selectInstructionsFingerprint",
   "selectInterruptMarkerText",

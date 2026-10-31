@@ -2311,6 +2311,8 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 6. **void 会话在适配器一侧的呈现（6.3、4.3）。** void 会话在 daemon 一侧的流转已在v0.8.4 的还原 daemon 上实测（6.2、6.3，场景 03-void-session）。渠道适配器收到这类出站记录后怎样呈现，以及 `notify_in_reply_to` 由谁读取，要在装有声明 `void` 的渠道插件的实例上观察。
 7. **`spine.cat` 脱敏对需要模型才能产生的事件（6.1）。** `redact: "external"` 对 `channel.message`、`agent.result`、`external.record`、`route.deliver` 和只留事件头的类型的处理已在v0.8.4 的还原 daemon 上实测（场景 09-spine-redaction）。`body.experience`、`body.mail` 与工具事件需要模型才能写出，它们的保留规则仍只来自静态阅读。验证方法：在能调用模型的实例上产生这几类事件，再比较 `spine.cat` 带与不带 `redact: "external"` 的输出。
 
+8. **主会话的端到端流转（8.6、10.3）。** 设置与转移 `main` 时的调用方检查、新旧主会话收到的通知、启动时的核对、owner 收不了时 job 结果改投主会话，以及飞书 owner 私聊认领主会话，都只来自 v0.8.7 的代码与上游 CHANGELOG，还没有写成场景在还原 daemon 上运行；飞书一侧的认领在 feishu-gateway bundle 里，不在还原范围内。
+
 ### 14.3 由静态阅读推出、尚未复现的后果
 
 这一类是按代码路径推出的具体后果，其中几项是缺陷，需要构造场景复现。
