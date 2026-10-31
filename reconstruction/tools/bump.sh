@@ -284,6 +284,16 @@ echo "==== impact on the docs ===="
 node "$HERE/impact_report.mjs" --bump "$OUT" --old "$OLD" --new "$NEW" --maps "$MAPS" \
   --old-label "$COMMITTED_VERSION" --new-label "$NEW_LABEL" "$DOCS"/*.md "$ROOT/CLAUDE.md"
 
+# witnesses for every RE-ANCHOR candidate (string literals only the old body had),
+# and the bodies of the ones nothing witnesses, for the review below
+echo "==== RE-ANCHOR confirmation ===="
+for name in daemon cli; do
+  [ -f "$OUT/inferred_$name.json" ] || continue
+  node --max-old-space-size=8192 "$HERE/confirm_reanchor.mjs" --impact "$OUT/impact.json" --bundle "$name" \
+    --proposed "$OUT/inferred_$name.proposed.json" --md "$OUT/reanchor_$name.md" --json "$OUT/reanchor_$name.json" \
+    "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" | sed 's/^/  /'
+done
+
 # 6. the hand-off, in the only order the gates accept (header)
 if [ -n "${PKG_NEW:-}" ]; then P="$PKG_NEW" V="v$(pkg_version "$PKG_NEW")"
 else P="<the new release's dist/release dir>" V="<vX.Y.Z>"; fi
@@ -293,6 +303,12 @@ echo "read $OUT/impact.md first: the plain-text delta, the changed declarations 
 echo "readable diffs, every doc citation of changed code by priority, and a suggested declaration"
 echo "for each RE-ANCHOR name. Relocate every RE-ANCHOR name, copy the reviewed inferred map(s)"
 echo "into maps/, file new first-party names under a subsystem, then, in this order:"
+echo "  0. RE-ANCHOR: $OUT/reanchor_<bundle>.md lists each candidate with its witnesses; read the"
+echo "     two bodies printed there for every one that is not 'confirmed', then write the confirmed"
+echo "     ones and those you accepted into the bump's map (a dropped or moved name: leave it out):"
+for name in daemon cli; do
+  [ -f "$OUT/inferred_$name.json" ] && echo "     node $HERE/confirm_reanchor.mjs --impact $OUT/impact.json --bundle $name --proposed $OUT/inferred_$name.proposed.json --write $OUT/inferred_$name.json [--accept <oldShort>[=<newShort>]]... $OLD/$name.pretty.js $NEW/$name.pretty.js"
+done
 echo "  1. record the reviewed inferred names as the shape baseline (an unrecorded one is"
 echo "     inferredNames=warn, which promote.mjs refuses):"
 echo "     PKG_VERSION=$V node $HERE/verify_inferred.mjs record $NEW/daemon.pretty.js $MAPS/inferred_daemon.json $MAPS/inferred_daemon.shape.json"

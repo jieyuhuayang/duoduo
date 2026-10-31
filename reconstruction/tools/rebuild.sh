@@ -484,5 +484,15 @@ else
   report
 fi
 
+# every gate's verdict in one line, the ones that are not `pass` spelled out, so a
+# FAILED run says which gate without opening pipeline_report.json
+node -e '
+const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+const out = [];
+(function walk(o, p) { for (const [k, v] of Object.entries(o)) { if (v && typeof v === "object") walk(v, p + k + "."); else if (typeof v === "string") out.push([p + k, v]); } })(r.verdicts || {}, "");
+const other = out.filter(([, v]) => v !== "pass");
+console.log(`==== verdicts: ${out.length - other.length} pass` + (other.length ? `, ${other.length} not: ${other.map(([k, v]) => `${k}=${v}`).join(" ")}` : ""));
+' "$OUT/pipeline_report.json" 2> /dev/null || true
+
 [ "$rc" -eq 0 ] || { echo "FAILED"; exit 1; }
 echo "DONE -> $OUT"
