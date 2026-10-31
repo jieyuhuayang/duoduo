@@ -128,11 +128,11 @@
 
 ### 2.1 六层拼接与 prompt_mode
 
-`renderPromptLayers (__e)` 按身份、种类、实例、记忆板、运行上下文、任务书的顺序拼接非空层，层与层之间用一个空行连接；这段文本在每一轮 turn 开始前重算（confirmed）。`prompt_mode` 只决定是否把结果包成 Claude Code 预设（见本小节末尾）。`drainSessionMailbox (i0e)` 处理合并窗口时经 `prepareDrainTurnContext (pJ)` 调用 `buildSystemPromptForChannelConfig (Ig)`，逐条处理时在 `drainSessionMailbox (i0e)` 内直接调用它，两处传入的参数相同（effective config、会话键、job 上下文、记忆板、引擎名）。会话管理器的插话路径（7.4）也调用 `prepareDrainTurnContext (pJ)`，但只取用其中合并后的用户文本、附件、批次事件 id 和"这一批是否只含通知"的标志，算出的系统提示与瞬时块都不使用（confirmed）。
+`renderPromptLayers (__e)` 按身份、种类、实例、记忆板、运行上下文、任务书的顺序拼接非空层，层与层之间用一个空行连接；这段文本在每一轮 turn 开始前重算（confirmed）。`prompt_mode` 只决定是否把结果包成 Claude Code 预设（见本小节末尾）。`drainSessionMailbox (i0e)` 处理合并窗口时经 `prepareDrainTurnContext (pJ)` 调用 `buildSystemPromptForChannelConfig (Ig)`，逐条处理时在 `drainSessionMailbox (i0e)` 内直接调用它，两处传入的参数相同（effective config、会话键、job 上下文、记忆板、引擎名、角色提示）。会话管理器的插话路径（7.4）也调用 `prepareDrainTurnContext (pJ)`，但只取用其中合并后的用户文本、附件、批次事件 id 和"这一批是否只含通知"的标志，算出的系统提示与瞬时块都不使用（confirmed）。
 
 | 顺序 | 层 | 内容 | 出现条件 |
 |---|---|---|---|
-| 1 | 身份 | 身份提示 `meta-prompt.md` 的全文 | `resolveMetaPromptText (zw)` 读到非空文件 |
+| 1 | 身份 | 身份提示 `meta-prompt.md` 的全文；渠道会话之后再接一个空行和角色提示 `roles/main.md` 或 `roles/member.md` 的全文 | 两者至少有一个非空 |
 | 2 | 种类 | 渠道种类描述的 `channel_prompt`（effective config 的 `kind_prompt`） | 非空 |
 | 3 | 实例 | 渠道实例描述的 `channel_prompt`（effective config 的 `instance_prompt`） | 非空 |
 | 4 | 记忆板 | `memory/CLAUDE.md` 展开 `@include` 后的文本，外加固定包装（2.2） | 展开后非空 |
@@ -140,6 +140,8 @@
 | 6 | 任务书 | `## Job Mission` 块（任务书正文、Job ID、调度规则，以及可选的验收标准） | job 会话 |
 
 身份层只从环境变量定位文件。`resolveMetaPromptText (zw)` 先读 `ALADUO_META_PROMPT_PATH` 指向的文件，再读 `ALADUO_BOOTSTRAP_DIR` 下的 `meta-prompt.md`，返回第一个去掉首尾空白后非空的内容；两个变量都没有设置时返回空，身份层缺省。daemon 在 `resolveRuntimePaths (Sue)` 里按包位置推出的 bootstrap 目录和 `metaPromptSrcPath` 字段不参与这次查找，daemon 代码里也没有给这两个变量赋值的语句（confirmed）。变量可以来自启动 daemon 的进程环境，也可以写在 `~/.config/duoduo/.env`：daemon 启动时 `loadHostDotEnv (fht)` 从 `hostDotEnvPath (dl)` 指向的这个文件补上进程环境里未设置或值为空串的键（confirmed）。部署后的 daemon 实际带着哪个变量运行，本文没有实测，列入第 14 节。包内 `bootstrap/meta-prompt.md` 为 14301 字节、287 行（confirmed）。
+
+v0.8.7 起身份层由两段组成：`composeIdentityLayer (yC)` 把身份提示和角色提示用一个空行连起来，两段都空时身份层缺省（confirmed）。角色提示只给渠道会话：会话管理器每次 drain 前调用 `selectSessionRolePrompt (sTe)`，当前主会话（8.6）读 `main` 角色，其他渠道会话读 `member` 角色，job、meta、system 会话没有角色提示（`r = n.state === "held" && n.session_key === e ? "main" : "member"`（`selectSessionRolePrompt`））（confirmed）。`resolveRolePromptText (qV)` 定位文件的方式与身份提示相同，只看环境变量：先找 `ALADUO_META_PROMPT_PATH` 所在目录下的 `roles/<角色>.md`，再找 `ALADUO_BOOTSTRAP_DIR` 下的 `roles/<角色>.md`，取第一个非空的（`"roles"`（`resolveRolePromptText`））（confirmed）。初始化内核时 `roles` 目录和 `var` 一样不复制进内核（`HW = new Set(["var", "roles"])`（`initRuntimeInitializationModule`）），所以角色文本不能在 `~/aladuo` 里改，只能改出厂目录或环境变量指向的目录（confirmed）。包内 `bootstrap/roles/main.md` 为 1992 字节、36 行，说明本会话是 owner 自己的对话、也是别处放不下的投递的落点；`bootstrap/roles/member.md` 为 497 字节、10 行，说明本会话只面对一个对话，属于 owner 而又不在这个对话里的事用 Notify 发给 `main`（confirmed，包内文件原文）。会话成为或不再是主会话时角色提示随之改变，系统提示与指令指纹也随之改变（第 13 节），所以引擎会话按指纹变化的规则重建。
 
 第 5 层只写会话键、渠道种类（缺省写 `unknown`）和引擎名，不含时间戳；六层的拼接函数体内也没有读取当前时间的调用。时间流逝、job 触发时间这类每轮不同的信息全部放进 2.3 的每轮瞬时块（confirmed）。
 
@@ -233,6 +235,7 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 | 系统提示每轮重算，合并批与逐条两条路径都调用同一函数 | `S = Ig(h, t, n0e(n.jobContext), n.memoryBoard, n.runtime, n.rolePrompt)`（`prepareDrainTurnContext`）；`let _l = Ig(Ge, t, n0e(n.jobContext), n.memoryBoard, n.runtime, n.rolePrompt)`（`drainSessionMailbox`） | confirmed |
 | 插话路径只取用合并后的用户文本、附件、批次事件 id 与只含通知的标志 | `yn = An.coalescedPromptText.trim()`（`createSessionManager`）；`!An.isNotifyOnly && !v.liveTurnNotifyOnly`（`createSessionManager`）；`let _l = An.batchEventIds.filter(Zr => !v.inflightEventIds.has(Zr))`（`createSessionManager`）；`await He(yn, Ft, An.attachments)`（`createSessionManager`） | confirmed |
 | 身份层只从两个环境变量定位文件，取第一个非空 | `Wf(process.env.ALADUO_META_PROMPT_PATH)`（`resolveMetaPromptText`）；`"meta-prompt.md"`（`resolveMetaPromptText`） | confirmed |
+| 身份层是身份提示加角色提示；角色只给渠道会话，主会话为 main、其余为 member；角色文件在两个环境变量指向的目录的 `roles/` 下，不复制进内核 | `let s = __e(e, t, n, r, i, o);`（`buildSystemPromptForChannelConfig`）；`r = n.state === "held" && n.session_key === e ? "main" : "member"`（`selectSessionRolePrompt`）；`if (Nt(e) !== "channel") return;`（`selectSessionRolePrompt`）；`"roles"`（`resolveRolePromptText`）；`HW = new Set(["var", "roles"])`（`initRuntimeInitializationModule`）；`rolePrompt: jr,`（`createSessionManager`） | confirmed |
 | 按包位置推出的 bootstrap 目录不参与身份提示查找 | `metaPromptSrcPath: z`（`resolveRuntimePaths`） | confirmed（否定性证据：该字段在 daemon 中没有读取方；daemon 中也没有给 `ALADUO_BOOTSTRAP_DIR` 或 `ALADUO_META_PROMPT_PATH` 赋值的语句） |
 | `~/.config/duoduo/.env` 只补上进程环境中未设置或值为空串的键 | `oxe.join(t, ".config", "duoduo", ".env")`（`hostDotEnvPath`）；`Object.entries(r))(e[o] === void 0 \|\| e[o] === "") && (e[o] = s, i++)`（`loadHostDotEnv`） | confirmed |
 | 任务书分无状态与有状态两种写法，由 `acceptance` 生成的文本可选追加 | `d = n ? y_e(n, n.stateless === !0) : void 0`（`renderPromptLayers`）；`"FRESH context"`（`renderJobMissionBlock`）；`let n = Mat(e.acceptance)`（`renderJobMissionBlock`）；`"</mission>", ...n ? ["", n] : []`（`renderJobMissionBlock`） | confirmed |
@@ -614,9 +617,9 @@ Notify 把 `notify_content` 作为一条 `route.deliver` 事件追加进事件�
 
 投递由 `deliverRouteEventToSession (Ls)` 完成（confirmed）。目标正在归档或已归档时返回 `session_archiving` 或 `session_archived`，不写事件；否则追加 `route.deliver` 事件。之后目标会话的渠道 runtime 解析为 `void` 时（`isVoidRuntimeSession (Ku)`，只有绑定到 void 渠道的渠道会话会得到这个结果），由 `writeVoidSessionOutboxRecord (LI)` 把负载里的 `text` 和整个负载（另加事件 id、时间与来源会话）写成该会话的一条出站记录，发出 `session.output` 总线事件，然后返回成功，不写邮箱指针、不唤醒（`"[route] delivered to void session outbox (no mailbox, no wake)"`（`deliverRouteEventToSession`））；其余目标写邮箱指针并发出唤醒，事件类型为 notify 时抢占级别固定为 `never`。两个 Notify 参数描述因此都写明唤醒目标"unless that session runs no model"（`buildNotifyInputSchema`）。返回文字由 `renderNotifyDeliveryReport (kwe)` 生成，逐个目标写明成功、拒绝或出错；只要有一个目标没投成，工具体就把这份报告作为错误抛出，调用方收到以 `Error:` 开头的文字。
 
-"没有读者"的判断由 `evaluateNotifyConsumerRefusal (al)` 做，只对渠道会话生效，job、system、meta 目标不受影响（confirmed）。判断用的是目标会话的投递游标：渠道适配器每取走一批输出就推进自己的游标（6.3），函数取推进得最远的那个消费者，数出它之后还有几条未读输出，并取最近一次游标推进的时间；从来没有消费者时，全部输出都算未读，时间从最早一条未读输出算起。未读输出多于 0 条、且距那个时间超过阈值小时数时，判为没有读者。阈值读环境变量 `ALADUO_NOTIFY_UNCONSUMED_HOURS`，未设置或不是数字时取默认值 1 小时（`d6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", _O = 1`（`initNotifyConsumerStalenessModule`））；设为 0 或负数关闭这项检查。只要没有未读输出，无论多久没有消费者都照常投递。当前阈值显示在 `system.config` 报告的 `notify_unconsumed_hours` 字段。
+"没有读者"的判断由 `evaluateNotifyConsumerRefusal (al)` 做，只对渠道会话生效，job、system、meta 目标不受影响（confirmed）。目标会话此刻只要有一个连接订阅了它的 final 输出（daemon 订阅表的 `finalSubscriberCount`，调用方把它作为第三个参数传入），就直接判为有读者，不再看未读积压，所以渠道插件保持着连接、但用户很久才读一次的会话照常收到通知（`if (n(t) > 0) return {`（`evaluateNotifyConsumerRefusal`））（confirmed）。没有这样的连接时，判断用的是目标会话的投递游标：渠道适配器每取走一批输出就推进自己的游标（6.3），函数取推进得最远的那个消费者，数出它之后还有几条未读输出，并取最近一次游标推进的时间；从来没有消费者时，全部输出都算未读，时间从最早一条未读输出算起。未读输出多于 0 条、且距那个时间超过阈值小时数时，判为没有读者。阈值读环境变量 `ALADUO_NOTIFY_UNCONSUMED_HOURS`，未设置或不是数字时取默认值 1 小时（`d6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", _O = 1`（`initNotifyConsumerStalenessModule`））；设为 0 或负数关闭这项检查。只要没有未读输出，无论多久没有消费者都照常投递。当前阈值显示在 `system.config` 报告的 `notify_unconsumed_hours` 字段。
 
-判为没有读者时，事件仍追加进事件日志，但只写日志、不写邮箱指针、不唤醒，负载里带 `notify_refused_reason`；工具返回的错误文字由 `renderNotifyRefusalMessage (wO)` 生成，写明已等待多久、积压几条，声明 "Nothing was delivered. This call will not be retried."，再列出同一时限内有消费者取过输出的其他渠道会话（`listSessionsWithRecentConsumer (Jdt)`，按最近取走时间排序），建议必要时改投给其中一个，并在正文开头说明这条消息原本发给谁；一个这样的会话都没有时，文字要求不要重发（confirmed）。
+判为没有读者时，事件仍追加进事件日志，但只写日志、不写邮箱指针、不唤醒，负载里带 `notify_refused_reason`；工具返回的错误文字由 `renderNotifyRefusalMessage (wO)` 生成，写明已等待多久、积压几条，声明 "Nothing was delivered. This call will not be retried."，再列出此刻有连接订阅、或同一时限内有消费者取过输出的其他渠道会话（`listSessionsWithRecentConsumer (Jdt)`，按最近取走时间排序；有连接的会话标为 `"consumer attached now"`（`renderNotifyRefusalMessage`）），建议必要时改投给其中一个，并在正文开头说明这条消息原本发给谁；一个这样的会话都没有时，文字要求不要重发（confirmed）。
 
 从 shell 投递的通知走另一条路径（confirmed）。RPC `session.notify`（CLI `duoduo session notify`）由 `deliverExternalSessionNotify (hK)` 处理：目标默认由 `resolveSessionByKeyOrAlias (bp)` 按会话键或显示名精确解析；参数 `exact_key` 为真时改由 `resolveSessionByExactKey (TSt)` 只按会话键原样查找，不做显示名别名解析（`s = r.exact_key ? TSt(n, o) : bp(n, o);`（`deliverExternalSessionNotify`））。两种解析都没有工具端的相近会话键候选，也不做 orphan 过滤，只接受渠道会话和 job 会话（8.5）；同样做"没有读者"的检查，参数 `force` 为真时跳过（`if (!r.force) {`（`deliverExternalSessionNotify`）），被拒时返回 `no_consumer`；抢占级别同样是 `never`，最终也经 `deliverRouteEventToSession` 投递，所以 void 目标同样只得到出站记录。
 
@@ -721,12 +724,12 @@ pi 上这个工具的检查时机与其他引擎不同（confirmed，静态阅�
 | 深度在构造工具集时按值复制，多数路径不逐批更新；pi 回调不传深度 | `notifyDepth: t.notifyDepth,`（`createAladuoMcpServer`）；`x = l.mcpServersFactory ? l.mcpServersFactory() : l.mcpServers`（`createClaudeStreamingSessionFactory`）；`notifyDepth: Qt,`（`createSessionManager`）；`let a = t.notifyDepth ?? 0;`（`runNotifyTool`） | confirmed（静态阅读）；对真实循环的效果为未证实推测 |
 | 目标是 void 会话时写出站记录，不写指针、不唤醒；参数描述随之改写 | `"[route] delivered to void session outbox (no mailbox, no wake)"`（`deliverRouteEventToSession`）；`return r.ok && r.runtime === "void"`（`isVoidRuntimeSession`）；`t?.emit("session.output", {`（`writeVoidSessionOutboxRecord`）；`unless that session runs no model`（`buildNotifyInputSchema`） | confirmed |
 | 投递报告逐个目标写结果，有目标未投成时整份报告作为错误返回 | `i === r.length ? "Notify delivered." : "Notify partially delivered."`（`renderNotifyDeliveryReport`）；`if (y.filter(b => !b.success).length > 0) throw new Error(kwe(i, u, d, y));`（`runNotifyTool`） | confirmed |
-| 没有读者的判断只对渠道会话生效 | `if (Nt(t) !== "channel") return {`（`evaluateNotifyConsumerRefusal`） | confirmed |
+| 没有读者的判断只对渠道会话生效；有连接订阅 final 输出的会话一律算有读者 | `if (Nt(t) !== "channel") return {`（`evaluateNotifyConsumerRefusal`）；`if (n(t) > 0) return {`（`evaluateNotifyConsumerRefusal`）；`let y = k => g.finalSubscriberCount(k)`（`createDaemon`）；`attached: !0`（`listSessionsWithRecentConsumer`） | confirmed |
 | 判据：有未读输出且超过阈值无人取走 | `unconsumed: e.records_past_cursor > 0 && o !== void 0 && o > t * Bdt`（`classifyConsumerStaleness`）；`let r = e.last_cursor_advance_at ?? e.oldest_waiting_created_at`（`classifyConsumerStaleness`） | confirmed |
 | 阈值默认 1 小时，0 或负数关闭 | `d6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", _O = 1`（`initNotifyConsumerStalenessModule`）；`Bdt = 36e5`（`initNotifyConsumerStalenessModule`）；`return Number.isFinite(n) ? n : _O`（`resolveNotifyUnconsumedHours`）；`return t <= 0 ? {`（`classifyConsumerStaleness`） | confirmed（上游 CHANGELOG 把默认值写成"未设置即关闭"，与代码不一致，以代码为准） |
 | 阈值显示在配置报告里 | `notify_unconsumed_hours: Gn(d6, _O)`（`buildSystemConfigReport`） | confirmed |
 | 被拒的通知只写日志，并返回有读者的候选会话 | `"[route] wal-only route event (no mailbox, no wake)"`（`deliverRouteEventToSession`）；`notify_refused_reason: R`（`deliverExternalSessionNotify`）；`"Nothing was delivered. This call will not be retried."`（`renderNotifyRefusalMessage`）；`for (let l of s.listByKind("channel")) {`（`listSessionsWithRecentConsumer`） | confirmed |
-| shell 路径按会话键或别名精确解析，exact_key 只按会话键；可用 force 跳过检查；无调用方会话时事件类型为 external.notify | `s = r.exact_key ? TSt(n, o) : bp(n, o);`（`deliverExternalSessionNotify`）；`let n = e.get(t);`（`resolveSessionByExactKey`）；`if (!r.force) {`（`deliverExternalSessionNotify`）；`reason: "no_consumer"`（`deliverExternalSessionNotify`）；`sourceSessionKey: "external:session.notify"`（`deliverExternalSessionNotify`）；`notify_source_kind: "external"`（`deliverExternalSessionNotify`）；`eventType: zW`（`deliverExternalSessionNotify`） | confirmed（`dW` 的值 `"external.notify"` 在一个没有真名的模块顶层赋值，静态阅读） |
+| shell 路径按会话键或别名精确解析，exact_key 只按会话键；可用 force 跳过检查；无调用方会话时事件类型为 external.notify | `s = r.exact_key ? TSt(n, o) : bp(n, o);`（`deliverExternalSessionNotify`）；`let n = e.get(t);`（`resolveSessionByExactKey`）；`if (!r.force) {`（`deliverExternalSessionNotify`）；`reason: "no_consumer"`（`deliverExternalSessionNotify`）；`sourceSessionKey: "external:session.notify"`（`deliverExternalSessionNotify`）；`notify_source_kind: "external"`（`deliverExternalSessionNotify`）；`eventType: zW`（`deliverExternalSessionNotify`） | confirmed（事件类型常量的值 `"external.notify"` 在一个没有真名的模块顶层赋值，静态阅读） |
 | 有调用方会话时按 notify-tool 记录；调用方不存在时拒绝；引擎进程带会话键环境变量，daemon 自身删除它 | `reason: "unknown_caller"`（`deliverExternalSessionNotify`）；`sourceName: "notify-tool"`（`deliverExternalSessionNotify`）；`eventType: "notify"`（`deliverExternalSessionNotify`）；`notify_source_session_key: p`（`deliverExternalSessionNotify`）；`nl = "ALADUO_CALLER_SESSION"`（`initCallerSessionEnvModule`）；`t.callerSession ? s[nl] = t.callerSession : delete s[nl]`（`createAgentSdkAdapter`）；`callerSession: t,`（`drainSessionMailbox`）；`env: { [nl]: P }`（`createSessionManager`）；`delete process.env[nl], vo()`（`main`） | confirmed（CLI 发送 `caller_session` 的函数没有真名，静态阅读） |
 | idempotency_key 的去重与重放 | `idempotency_key: u`（`deliverExternalSessionNotify`）；`if (R) return $St(R, {`（`deliverExternalSessionNotify`）；`reason: "idempotency_conflict"`（`replayIdempotentSessionNotify`）；`typeof r.notify_refused_reason == "string" ? {`（`replayIdempotentSessionNotify`）；`duplicate: !0`（`replayIdempotentSessionNotify`）；`duplicate: !1`（`deliverExternalSessionNotify`） | confirmed |
 | job 调用 Notify 后不再自动投递成功回执 | `suppresses that run's automatic success delivery`（`initManageJobToolModule`）；`v.agentNotifiedThisDrain = !0`（`createSessionManager`）；`e.sessionManager?.markAgentNotified(D.session_key)`（`createDaemon`） | confirmed |
@@ -1349,7 +1352,7 @@ duoduo 按会话类型处理 Claude 后台子代理的迟到结果：非渠道�
 
 ## 8 会话 actor、锁与并发池
 
-每个会话键在会话管理器的内存里至多对应一个 actor；进程写锁保证一个数据目录只有一个 daemon 在写，按会话键的异步互斥保证同一会话的状态文件改动串行执行；渠道与 job 两个并发池分别限流；空闲的 actor 先释放池位，超时后再回收引擎进程；对外的会话 RPC 按会话键前缀拒绝越界操作，actor 结束时再检查一次 inbox，避免漏掉结束前到达的消息。这些机制都在 `createSessionManager (Lwt)` 与少数几个锁函数里实现，全部运行在同一个 daemon 进程内。8.1 讲会话键、会话目录与 actor 的对应关系，8.2 讲锁，8.3 与 8.4 讲池与生命周期，8.5 讲隔离与收尾检查；turn 内的插话与抢占见第 7 节。
+每个会话键在会话管理器的内存里至多对应一个 actor；进程写锁保证一个数据目录只有一个 daemon 在写，按会话键的异步互斥保证同一会话的状态文件改动串行执行；渠道与 job 两个并发池分别限流；空闲的 actor 先释放池位，超时后再回收引擎进程；对外的会话 RPC 按会话键前缀拒绝越界操作，actor 结束时再检查一次 inbox，避免漏掉结束前到达的消息。这些机制都在 `createSessionManager (Lwt)` 与少数几个锁函数里实现，全部运行在同一个 daemon 进程内。8.1 讲会话键、会话目录与 actor 的对应关系，8.2 讲锁，8.3 与 8.4 讲池与生命周期，8.5 讲隔离与收尾检查，8.6 讲主会话；turn 内的插话与抢占见第 7 节。
 
 ### 8.1 会话键与 actor
 
@@ -1472,6 +1475,22 @@ actor 有 active、idle、ended 三个状态，转换如下（confirmed）。唤
 
 `conservative`，以及最后一次 drain 合并 inbox 时遇到暂时性读取失败的情况，最多只重新唤醒一次（confirmed）。布尔字段 `consecutiveConservativeRedrive` 记录这次机会是否已经用掉，它随 actor 记录继承；已用掉时只记日志，等外部唤醒（`"[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake"`（`createSessionManager`））；结果为 `fresh` 或 `none` 时这个字段清零。这样一次读取失败最多引起一次重试，不会让会话反复自我唤醒。
 
+### 8.6 主会话
+
+v0.8.7 起，一个宿主上至多有一个渠道会话担任主会话：别的地方都不收的投递（owner 收不了的 job 结果、目标写 `main` 的 Notify）都转给它，它的系统提示也和其他渠道会话不同（2.1）。主会话不是单独的状态字段，而是显示名：显示名恰好是 `main`（`Hn = "main"`（`initMainSessionAliasModule`））的渠道会话就是主会话候选，`resolveMainSessionHolder (Mb)` 扫描会话索引，按候选数量给出三种状态：没有候选为 `absent`，恰好一个为 `held`，多于一个为 `ambiguous`（confirmed）。只有渠道会话能成为候选（`isMainAliasedChannelSession (xue)`）；`ambiguous` 时没有任何一个候选被当作主会话，投递按没有主会话处理（confirmed）。
+
+`main` 这个显示名只能经 RPC `session.set_alias` 设上或去掉（confirmed）。其他写显示名的路径都拒绝它：`updateSessionDisplayName (pq)` 在新名或旧名是 `main` 且调用方没有带 `mainAuthorized` 时抛出 `ReservedMainAliasError`（`!r.mainAuthorized && cv(t, n)) throw new TI(t)`（`updateSessionDisplayName`）），判断由 `isReservedMainAliasChange (cv)` 做，只对渠道会话生效；会话创建时带来的显示名是 `main` 时，`ensureSessionDescriptorAndStateFiles (ch)` 丢掉它并记一条警告（`"[session] refused the reserved main alias on session creation"`（`ensureSessionDescriptorAndStateFiles`））（confirmed）。`session.set_alias` 由 `runSessionSetAliasRpc (RSt)` 交给 `setSessionAliasWithMainRole (SSe)`，后者在一把全局互斥下处理涉及 `main` 的改动（confirmed）：
+
+- 调用来自某个会话内部（参数带 `caller_in_session` 或 `caller_session`）时，只有当前主会话自己可以改；认不出调用方会话时以 `no_caller` 拒绝，调用方不是当前主会话时以 `not_main` 拒绝，两种拒绝都附上让 owner 在自己终端里执行的命令（`checkMainAliasCallerAuthority (qft)`；`reason: "not_main"`（`checkMainAliasCallerAuthority`））。CLI 的 `duoduo session alias` 总是带上 `caller_in_session`：环境里有 `ALADUO_CALLER_SESSION`（4.3）时判为在会话内，否则看自己是不是 daemon 进程的后代，判断不了时也按在会话内处理（`caller_in_session: i !== "outside"`（`cli:runSessionAliasCommand`））；所以从会话里改不了主会话，只有在 daemon 进程树之外的终端里才能改（confirmed）。
+- 已有别的会话叫 `main`、又没带 `move` 时以 `main_held` 拒绝（`reason: "main_held"`（`setSessionAliasWithMainRole`））；带 `move` 时先把其他候选的显示名清空，再把目标设为 `main`。
+- 设置成功后，`announceMainSessionChange (wSe)` 给被取代的会话各发一条通知说明主会话已转到哪里、应当把哪些事交接过去，给新的主会话发一条说明它现在负责哪些投递，并在它的 `state.json` 写入 `main_since` 时间戳（`main_since: new Date().toISOString()`（`announceMainSessionChange`））。这些通知走 shell 通知的同一个投递函数，`force` 为真、来源记为 `main-role`（`source: "main-role"`（`buildMainRoleContext`））。
+
+daemon 启动后调用 `reconcileMainSession (ISt)`（`"[pid0] main session reconciliation error"`（`main`）），由 `reconcileMainSessionAtBoot (kSe)` 检查一次：`ambiguous` 时给每个候选发一条说明有多个 `main`、请 owner 只留一个的通知；`held` 但没有 `main_since` 时补发成为主会话的通知并写入时间戳（`"[main-role] stamping an existing main session"`（`reconcileMainSessionAtBoot`））（confirmed）。会话索引条目带 `main_since`（`main_since: t.main_since`（`buildSessionIndexEntry`）），`session.list` 给主会话标 `main: "held"`、给多个候选标 `main: "candidate"`（`main: "held"`（`listSessionIndexSummaries`）），`system.status` 只在 `ambiguous` 时带上 `main_session` 字段列出候选（`main_session: ESt(f)`（`createDaemon`））（confirmed）。
+
+`main` 也是一个可以写的目标名。`resolveSessionByKeyOrAlias (bp)` 在给定名字恰好是 `main` 时不按显示名列表匹配，而是取当时的主会话状态：`held` 解析为那个会话，`ambiguous` 返回全部候选，`absent` 为 `not_found`（`state === "ambiguous" ? {`（`resolveSessionByKeyOrAlias`））；Notify 工具的解析函数在每次投递时同样这样取（4.3）（confirmed）。所以目标写 `main` 的通知在主会话转移之后自动发给新的主会话。
+
+上游 CHANGELOG 还写明：飞书宿主上 bot owner（`FEISHU_BOT_OWNER`，或 `FEISHU_ALLOW_FROM` 的第一项）的第一条私聊会认领空缺的主会话，默认实例启动时已有的 owner 私聊也会被认作主会话，具名实例从不认领（未证实推测：这些逻辑在 feishu-gateway bundle 里，不在还原范围内；daemon 侧只能确认认领最终都经过 `session.set_alias` 这一条可以设置 `main` 的路径）。
+
 ### 证据表
 
 | 机制主张 | 代码证据 | 置信 |
@@ -1530,6 +1549,13 @@ actor 有 active、idle、ended 三个状态，转换如下（confirmed）。唤
 | 用户可见列表只含 channel 与 job | `Nt(e) === "job"`（`isUserVisibleSessionKey`）；`for (let n of e.values()) $q(n.session_key) && t.push(n);`（`createMapBackedSessionIndex`） | confirmed |
 | 收尾时比较 inbox 快照，新到消息触发重新唤醒 | `"[session-manager] drain-start inbox snapshot read failed — empty snapshot (everything fresh)"`（`createSessionManager`）；`if (!g.has(_)) return "fresh";`（`createJobSessionFinalizer`）；`"[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path"`（`createSessionManager`） | confirmed |
 | 读取失败最多重新唤醒一次 | `"[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)"`（`createJobSessionFinalizer`）；`consecutiveConservativeRedrive: j?.consecutiveConservativeRedrive ?? !1`（`createSessionManager`）；`Oe = ne.mergeTransientFailure === !0`（`createSessionManager`）；`"[session-manager] post-finalize conservative re-drive suppressed (cap spent) — parking for external wake"`（`createSessionManager`） | confirmed |
+| 主会话由显示名 `main` 决定，只有渠道会话能成为候选，多个候选时为 ambiguous | `Hn = "main"`（`initMainSessionAliasModule`）；`state: "ambiguous",`（`resolveMainSessionHolder`）；`e.display_name.trim() === Hn`（`isMainAliasedChannelSession`） | confirmed |
+| `main` 只能经 session.set_alias 设置，其他路径拒绝或丢弃 | `!r.mainAuthorized && cv(t, n)) throw new TI(t)`（`updateSessionDisplayName`）；`"[session] refused the reserved main alias on session creation"`（`ensureSessionDescriptorAndStateFiles`）；`C.result = await RSt(l, c, f, I, y)`（`createDaemon`） | confirmed |
+| 会话内部只有当前主会话可以改动 main；已有主会话时须 move | `reason: "no_caller"`（`checkMainAliasCallerAuthority`）；`reason: "not_main"`（`checkMainAliasCallerAuthority`）；`reason: "main_held"`（`setSessionAliasWithMainRole`）；`mainAuthorized: !0`（`setSessionAliasWithMainRole`） | confirmed |
+| 设置成功后通知新旧主会话并写 main_since | `"[main-role] main session set"`（`setSessionAliasWithMainRole`）；`main_since: new Date().toISOString()`（`announceMainSessionChange`）；`source: "main-role"`（`buildMainRoleContext`） | confirmed |
+| 启动时核对主会话：多个候选时通知，缺 main_since 时补写 | `await ISt(d, h, p, k).catch(re => {`（`main`）；`"[main-role] ambiguous main session at boot"`（`reconcileMainSessionAtBoot`）；`"[main-role] stamping an existing main session"`（`reconcileMainSessionAtBoot`） | confirmed |
+| 会话列表与状态报告标出主会话 | `main_since: t.main_since`（`buildSessionIndexEntry`）；`main: "candidate"`（`listSessionIndexSummaries`）；`main_session: ESt(f)`（`createDaemon`） | confirmed |
+| 目标名 `main` 解析为当时的主会话 | `i.state === "held" ? {`（`resolveSessionByKeyOrAlias`）；`if (c.state === "held") return c.session_key;`（`resolveNotifyTargetSessionKey`） | confirmed |
 
 ## 9 渠道适配器
 
@@ -2174,7 +2200,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 ## 13 指令指纹与改动生效
 
-每次 drain 开始前，运行时对身份提示、种类提示、实例提示、记忆板、任务书与验收标准算一个 sha256 指纹，另外单独算记忆板哈希和"去掉记忆板后的指纹"，再与会话状态里存的值比较，据此决定已经建立的引擎会话要不要换上新指令。只有记忆板变化时，Claude 的常驻流式进程不重建、Codex 渠道会话沿用原线程，模型通过 2.3 的 `board-updated` 瞬时块得知记忆板已变；记忆板以外的指令变化时，Claude 标记流式进程重建并续接原会话，Codex fork 一条携带新指令的线程；Grok 与 pi 只更新存档的指纹，新文本何时到达引擎由各自适配器决定（2.4）。系统提示每轮重算，但 Claude 常驻流式进程和 Codex 线程只在建立时接收它，指纹比较的结果决定这两者何时换上新文本（2.4）。本节对应 GUIDE 4.6。
+每次 drain 开始前，运行时对身份提示（含渠道会话的角色提示）、种类提示、实例提示、记忆板、任务书与验收标准算一个 sha256 指纹，另外单独算记忆板哈希和"去掉记忆板后的指纹"，再与会话状态里存的值比较，据此决定已经建立的引擎会话要不要换上新指令。只有记忆板变化时，Claude 的常驻流式进程不重建、Codex 渠道会话沿用原线程，模型通过 2.3 的 `board-updated` 瞬时块得知记忆板已变；记忆板以外的指令变化时，Claude 标记流式进程重建并续接原会话，Codex fork 一条携带新指令的线程；Grok 与 pi 只更新存档的指纹，新文本何时到达引擎由各自适配器决定（2.4）。系统提示每轮重算，但 Claude 常驻流式进程和 Codex 线程只在建立时接收它，指纹比较的结果决定这两者何时换上新文本（2.4）。本节对应 GUIDE 4.6。
 
 ### 13.1 指纹覆盖范围
 
@@ -2182,7 +2208,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 | 输入 | 取自 | 哪些会话有 |
 |---|---|---|
-| `identity` | `resolveMetaPromptText (zw)` 读到的身份提示（2.1） | 全部 |
+| `identity` | 身份层的完整文本：`resolveMetaPromptText (zw)` 读到的身份提示，渠道会话再接上 `selectSessionRolePrompt (sTe)` 选出的角色提示（2.1） | 全部（角色部分只有渠道会话有） |
 | `kindPrompt`、`instancePrompt` | 会话状态中 `source_channel_id` 指向的渠道描述，经 `buildEffectiveChannelConfig (Bwe)` 合并后的种类提示与实例提示 | 渠道会话 |
 | `memoryBoard` | `transcludeBroadcastBoard (eTe)` 展开后的记忆板全文（不含 2.2 的包装语） | 全部，记忆板为空时为空串 |
 | `mission`、`missionAcceptance` | 当次读取的 job 文件正文与 frontmatter 的 `acceptance` | job 会话 |
@@ -2194,6 +2220,8 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 - `computeNonBoardInstructionsFingerprint (tK)`：把记忆板置空后调用 `computeInstructionsFingerprint ($k)`，存为 `instructions_nonboard_fingerprint`。
 
 全量指纹变了、记忆板哈希也变了、去掉记忆板后的指纹却没变，就判定为"只有记忆板变化"（`boardOnlyDrift`）；存档里还没有后两个值时不做这个判定，按记忆板以外的变化处理（confirmed）。
+
+角色提示在 `identity` 里，所以一个渠道会话成为或不再是主会话时，它的指纹在下一次 drain 前就变了，按记忆板以外的变化处理：Claude 重建常驻进程，Codex fork 一次线程；v0.8.7 升级后的第一轮，所有渠道会话的身份层都多出 member 或 main 角色文本，因此各重建一次（`collectInstructionsInputs (aTe)` 用 `composeIdentityLayer (yC)` 把 `resolveMetaPromptText (zw)` 与角色提示组合；角色由 `createSessionManager (Lwt)` 调用 `selectSessionRolePrompt (sTe)` 选出后传入）（confirmed；升级后一次性重建是上游 CHANGELOG 的说法，与代码推出的结果一致，未实测）。
 
 指纹之外的系统提示内容变化不会触发 13.2 的处理。`prompt_mode`、第 5 层运行上下文（会话键、渠道种类、引擎名）、任务书块里的 `Job ID` 与 `Schedule:` 行、无状态标志都不在输入里（confirmed）。非渠道会话按锚点事件来源读到的种类层与实例层也不在输入里：系统提示由 `resolveEffectiveChannelConfigForEvent (x6)` 按锚点事件解析 effective config，job 按调度规则触发时种类层取自 `cadence` 种类描述（3.5），而 `collectInstructionsInputs (aTe)` 只为渠道会话收集种类提示与实例提示（confirmed）。由此有三个后果，都由上面的代码直接推出：只改 job 的 cron 时，系统提示文本变了而指纹不变，Codex 的有状态 job 线程继续使用带旧 `Schedule:` 行的指令，模型仍能从每次运行的 `job-tick` 块读到当前 cron；修改 job 锚点来源对应的种类描述时，Codex 的有状态 job 线程同样继续使用旧的种类层；只改渠道的 `prompt_mode` 时，Claude 渠道会话的常驻流式进程不重建，新的包装形式要等进程下一次启动才生效。工具、权限、工作目录这类会话配置不属于指令指纹，Claude 流式进程另用配置签名 `computeStreamingConfigSignature (rK)` 判断是否重建，见 7.4。
 

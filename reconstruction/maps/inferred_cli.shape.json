@@ -426,6 +426,44 @@
         "77f65f21e6961ff3",
         "ed42723f70e4771b"
       ]
+    },
+    "runSessionAliasCommand": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "\nUsage: duoduo session alias <session_key> [<name>|--clear|main --move]\n",
+        "SESSION_KEY",
+        "STATUS",
+        "error",
+        "error: daemon rejected session.list: ",
+        "error: daemon rejected session.set_alias: ",
+        "error: daemon returned an empty response\n",
+        "json",
+        "not_found",
+        "outside",
+        "session.list",
+        "session.set_alias",
+        "undecidable"
+      ],
+      "props": [
+        "displayName",
+        "env",
+        "error",
+        "exit",
+        "find",
+        "isArray",
+        "move",
+        "ok",
+        "reason",
+        "result",
+        "sessionKey",
+        "session_key",
+        "stderr",
+        "stdout",
+        "stringify",
+        "trim",
+        "write"
+      ]
     }
   }
 }

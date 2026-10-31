@@ -13,5 +13,6 @@
   "zR": "createStdioDaemonClient",
   "not": "runUpgradeCommand",
   "rot": "runChannelCommand",
-  "Gm": "initCliHostEnvKeysModule"
+  "Gm": "initCliHostEnvKeysModule",
+  "c8e": "runSessionAliasCommand"
 }
