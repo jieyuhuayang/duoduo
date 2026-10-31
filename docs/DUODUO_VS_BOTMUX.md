@@ -2,7 +2,7 @@
 
 > 调研日期：2026-10-16。
 > 调研问题：duoduo 怎样把 Claude Code 和 Codex 当作推理引擎来使用，[botmux](https://github.com/deepcoldy/botmux) 怎样使用同样两个工具，两种做法各自的长处与代价是什么。
-> 版本对齐：duoduo 的陈述对齐 `@openduo/duoduo` **v0.8.6**，证据是本仓库的还原源码，按名字引用（`真名 (短名)`）；机制细节见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 第 2、3、7 节，本文只引用结论所需的部分。botmux 的陈述对齐调研当天的 master 快照（commit `f77f32e`，2026-10-16），证据是该快照的源码路径；botmux 是 MIT 许可的 TypeScript 开源项目，不需要还原。
+> 版本对齐：duoduo 的陈述对齐 `@openduo/duoduo` **v0.8.7**，证据是本仓库的还原源码，按名字引用（`真名 (短名)`）；机制细节见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 第 2、3、7 节，本文只引用结论所需的部分。botmux 的陈述对齐调研当天的 master 快照（commit `f77f32e`，2026-10-16），证据是该快照的源码路径；botmux 是 MIT 许可的 TypeScript 开源项目，不需要还原。
 > 置信标记：每条机制主张标 `confirmed`（读过对应代码）或 `未证实推测`（写明缺什么证据）。本文没有运行任何一方的 daemon，所有结论来自静态阅读。
 
 ---
@@ -67,7 +67,7 @@ botmux 对 Codex 有三种方式（confirmed）：
 
 ## 2 duoduo 路线的长处与代价
 
-duoduo 路线的长处是 runtime 对执行过程有完整的控制，这正是无人值守运行所需要的。turn 的准入、插话和抢占都是 runtime 里的确定性逻辑，不依赖识别屏幕；没有人盯着终端时，卡住或误判都无法由人发现，所以这一点在后台分区和定时 job 上是必要条件。系统提示由 `renderPromptLayers (__e)` 按固定顺序拼接六层，每轮变化的信息由 `buildTransientUserBlocks (l0e)` 放进用户消息前的瞬时块，因此同一会话的连续 turn 发送完全相同的系统提示，引擎的 prompt cache 可以稳定命中；常驻连接因配置变化而重建时，`diffStreamingConfigSignature (qN)` 会把差异写进审计日志（confirmed）。工具集也由 runtime 决定：Claude 的内置工具是 `CLAUDE_CORE_TOOLS (Eg)` 列出的 15 个，渠道与 job 配置只能追加；四个引擎读同一段系统提示，拿到同一组自操作工具（confirmed，INTERNALS 2.4、3.7）。
+duoduo 路线的长处是 runtime 对执行过程有完整的控制，这正是无人值守运行所需要的。turn 的准入、插话和抢占都是 runtime 里的确定性逻辑，不依赖识别屏幕；没有人盯着终端时，卡住或误判都无法由人发现，所以这一点在后台分区和定时 job 上是必要条件。系统提示由 `renderPromptLayers (__e)` 按固定顺序拼接六层，每轮变化的信息由 `buildTransientUserBlocks (l0e)` 放进用户消息前的瞬时块，因此同一会话的连续 turn 发送完全相同的系统提示（v0.8.7 起渠道会话的身份层带主会话或成员的角色文本，只在会话成为或不再是主会话时变），引擎的 prompt cache 可以稳定命中；常驻连接因配置变化而重建时，`diffStreamingConfigSignature (qN)` 会把差异写进审计日志（confirmed）。工具集也由 runtime 决定：Claude 的内置工具是 `CLAUDE_CORE_TOOLS (Eg)` 列出的 15 个，渠道与 job 配置只能追加；四个引擎读同一段系统提示，拿到同一组自操作工具（confirmed，INTERNALS 2.4、3.7）。
 
 duoduo 路线的代价是只能使用 SDK 和 app-server 暴露出来的能力。Claude 的 `/compact` 只在渠道会话里交给 SDK 处理；Codex 的内置工具无法关闭，duoduo 收到的 `disallowedTools` 只记一条 debug 级日志；同名命令 `/model`、`/effort` 在四个引擎上生效时机不同，需要 runtime 维护 `pending_model_fork` 这类状态（confirmed，INTERNALS 3.6、3.7）。duoduo 主动关闭了 Claude Code 的 auto memory 和交互式审批，用户在本机 CLI 里积累的记忆和习惯不会进入 duoduo。每加一个引擎都要写进程模型、可用性探测、命令实现和权限映射一整套代码，所以 duoduo 只支持四个引擎；对 Codex 也只有 app-server 一种形态，没有可供人观察或接管的终端。
 
