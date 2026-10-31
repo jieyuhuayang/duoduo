@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: resolveSessionDir  (minified: Yn, daemon.pretty.js:34446)
+// symbol: resolveSessionDir  (minified: Qn, daemon.pretty.js:33562)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveSessionDir(paths, sessionKey) {
-    return Zr.join(paths.sessionsDir, hashSessionKey(sessionKey))
+    return ei.join(paths.sessionsDir, hashSessionKey(sessionKey))
 }

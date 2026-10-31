@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: iterateStreamLines  (minified: ys, daemon.pretty.js:33980)
+// symbol: iterateStreamLines  (minified: ws, daemon.pretty.js:33096)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 17 renamed — 0 from the code at the binding (rule), 17 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -16,7 +16,7 @@ async function* iterateStreamLines(stream, options) {
             let wakeFn = pendingWake;
             pendingWake = null, wakeFn?.()
         },
-        lineSplitter = lle(line => lines.push(line)),
+        lineSplitter = Due(line => lines.push(line)),
         onData = chunk => {
             lineSplitter.write(chunk), hasOnEof || stream.pause(), wake()
         },

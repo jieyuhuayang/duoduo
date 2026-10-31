@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: createPiWorkerAdapter  (minified: MA, daemon.pretty.js:75153)
+// symbol: createPiWorkerAdapter  (minified: FA, daemon.pretty.js:74293)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.2 (maps/history_daemon.json)
 // locals: 101 renamed — 9 from the code at the binding (rule), 92 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -109,7 +109,7 @@ function createPiWorkerAdapter(options) {
                     logDebug(`pi adapter: orphan_run ${frame.phase}`);
                     return;
                 default: {
-                    if (!Rbt.has(frame.type)) {
+                    if (!Gyt.has(frame.type)) {
                         logDebug(`pi adapter: unknown frame type ignored: ${String(frame.type)}`);
                         return
                     }
@@ -125,7 +125,7 @@ function createPiWorkerAdapter(options) {
         connectWorker = async isCurrent => {
             let pendingShutdown = shutdownPromise;
             if (pendingShutdown && (await pendingShutdown, !isCurrent())) throw new Error("pi adapter: connect cancelled by shutdown");
-            let child = QEe(options.workerCommand.command, options.workerCommand.args, {
+            let child = S0e(options.workerCommand.command, options.workerCommand.args, {
                 cwd: options.cwd,
                 env: {
                     ...process.env,
@@ -139,7 +139,7 @@ function createPiWorkerAdapter(options) {
                 worker === child && handleWorkerGone(new Error(`pi worker exited (code ${String(exitCode)})`))
             }), attachStreamLineReader(child.stdout, line => {
                 if (worker !== child) return;
-                let parsedFrame = bJ(line);
+                let parsedFrame = yJ(line);
                 if (!parsedFrame) {
                     line.trim() && logDebug("pi adapter: non-frame stdout line skipped");
                     return
@@ -211,8 +211,8 @@ function createPiWorkerAdapter(options) {
                 once: !0
             });
             try {
-                let excludedTools = xbt(input.disallowedTools);
-                !worker && !connectPromise ? (excludeTools = excludedTools, systemPromptSpec = buildPiSystemPromptSpec(input.systemPrompt)) : Ebt(appliedExcludeTools ?? excludeTools, excludedTools) || logDebug("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
+                let excludedTools = Wyt(input.disallowedTools);
+                !worker && !connectPromise ? (excludeTools = excludedTools, systemPromptSpec = buildPiSystemPromptSpec(input.systemPrompt)) : Jyt(appliedExcludeTools ?? excludeTools, excludedTools) || logDebug("pi adapter: disallowedTools changed after worker init — exclusions apply after the worker recycles");
                 let abortSignal = input.abortController?.signal;
                 if (abortSignal) {
                     let detachAbortListener, promise = new Promise((resolve, reject) => {
@@ -231,7 +231,7 @@ function createPiWorkerAdapter(options) {
                     }
                 } else await connect();
                 if (input.abortController?.signal.aborted) throw new AgentSdkPromptNotAcceptedAbortError;
-                let images = XEe(input.attachments),
+                let images = w0e(input.attachments),
                     ackWaiter = waitForFrame(frame => frame.type === "run_ack" && frame.turn_id === turnId),
                     settledWaiter = waitForFrame(frame => frame.type === "settled" && frame.turn_id === turnId);
                 settledWaiter.promise.catch(() => {}), sendFrame({
@@ -249,7 +249,7 @@ function createPiWorkerAdapter(options) {
                         sessionId,
                         text: promise2.text,
                         structured: void 0,
-                        usage: YEe(promise2.usage, options.model),
+                        usage: v0e(promise2.usage, options.model),
                         firstTokenLatencyMs: promise2.first_token_latency_ms,
                         skipped: !0
                     };
@@ -260,7 +260,7 @@ function createPiWorkerAdapter(options) {
                     sessionId,
                     text: promise2.text,
                     structured: void 0,
-                    usage: YEe(promise2.usage, options.model),
+                    usage: v0e(promise2.usage, options.model),
                     firstTokenLatencyMs: promise2.first_token_latency_ms,
                     skipped: turn.skipObserved
                 }
@@ -269,7 +269,7 @@ function createPiWorkerAdapter(options) {
             }
         }, steerActiveTurn = async (text, turnId, attachments) => {
             if (!worker || !activeTurn?.acceptedAt || activeTurn.turnId !== turnId) return !1;
-            let images = XEe(attachments),
+            let images = w0e(attachments),
                 steerWaiter = waitForFrame(frame => frame.type === "steer_result" && frame.turn_id === turnId);
             return sendFrame({
                 type: "steer",
@@ -295,25 +295,25 @@ function createPiWorkerAdapter(options) {
                 let outcome = (await compactWaiter.promise).outcome;
                 return outcome.kind === "succeeded" ? {
                     kind: "succeeded",
-                    runtime: DA,
+                    runtime: LA,
                     pre_input_tokens: outcome.pre_input_tokens,
                     summary_excerpt: outcome.summary_excerpt,
                     triggered_at: triggeredAt
                 } : outcome.kind === "noop" ? {
                     kind: "noop",
-                    runtime: DA,
+                    runtime: LA,
                     reason: outcome.reason,
                     triggered_at: triggeredAt
                 } : {
                     kind: "failed",
-                    runtime: DA,
+                    runtime: LA,
                     error: outcome.error,
                     triggered_at: triggeredAt
                 }
             } catch (err) {
                 return {
                     kind: "failed",
-                    runtime: DA,
+                    runtime: LA,
                     error: String(err.message ?? err),
                     triggered_at: triggeredAt
                 }
@@ -331,7 +331,7 @@ function createPiWorkerAdapter(options) {
                         clearTimeout(timer), resolveWait(!0)
                     })
                 });
-            child.stdin.end(), !await waitForExit(KEe) && (child.kill("SIGTERM"), !await waitForExit(KEe) && (child.kill("SIGKILL"), await promise))
+            child.stdin.end(), !await waitForExit(b0e) && (child.kill("SIGTERM"), !await waitForExit(b0e) && (child.kill("SIGKILL"), await promise))
         }, shutdown = () => {
             if (connectPromise = null, shutdownPromise) return shutdownPromise;
             let child = worker;

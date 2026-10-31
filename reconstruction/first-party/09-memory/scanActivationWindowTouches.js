@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: scanActivationWindowTouches  (minified: ogt, daemon.pretty.js:70283)
+// symbol: scanActivationWindowTouches  (minified: Imt, daemon.pretty.js:69399)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 22 renamed — 3 from the code at the binding (rule), 19 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,9 +8,9 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
-    let entitiesPrefix = cu.join(memoryDir, "entities") + cu.sep,
-        topicsPrefix = cu.join(memoryDir, "topics") + cu.sep,
-        regExp = new RegExp(`${dxe(memoryDir+cu.sep)}(?:entities|topics)${dxe(cu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
+    let entitiesPrefix = fu.join(memoryDir, "entities") + fu.sep,
+        topicsPrefix = fu.join(memoryDir, "topics") + fu.sep,
+        regExp = new RegExp(`${Nke(memoryDir+fu.sep)}(?:entities|topics)${Nke(fu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
         result = {
             dates: [],
             interactionDays: 0,
@@ -26,7 +26,7 @@ function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
         result.dates.push(date);
         let content;
         try {
-            content = vW.readFileSync(cu.join(eventsDir, `${date}.jsonl`), "utf8")
+            content = mW.readFileSync(fu.join(eventsDir, `${date}.jsonl`), "utf8")
         } catch (err) {
             recordUnreadableMemoryPath(err);
             continue
@@ -34,7 +34,7 @@ function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
         let hasInteraction = !1;
         for (let line of content.split(`
 `)) {
-            if (!hasInteraction && line.includes('"channel.message"') && igt(line) && (hasInteraction = !0), !line.includes('"agent.tool_use"') || !line.includes('"kind":"runner"') || (result.foregroundToolEvents += 1, !line.includes(entitiesPrefix) && !line.includes(topicsPrefix))) continue;
+            if (!hasInteraction && line.includes('"channel.message"') && Rmt(line) && (hasInteraction = !0), !line.includes('"agent.tool_use"') || !line.includes('"kind":"runner"') || (result.foregroundToolEvents += 1, !line.includes(entitiesPrefix) && !line.includes(topicsPrefix))) continue;
             let event;
             try {
                 event = JSON.parse(line)
@@ -46,15 +46,15 @@ function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
             let matches = inputSummary.match(regExp);
             if (matches === null) continue;
             let relPaths = new Set;
-            for (let matchPath of matches) relPaths.add(cu.relative(memoryDir, matchPath));
+            for (let matchPath of matches) relPaths.add(fu.relative(memoryDir, matchPath));
             let toolName = event.payload?.tool_name;
-            if (typeof toolName == "string" && ngt.has(toolName)) {
+            if (typeof toolName == "string" && xmt.has(toolName)) {
                 result.foregroundWrites += 1;
                 continue
             }
             for (let relPath of relPaths) result.touches.set(relPath, (result.touches.get(relPath) ?? 0) + 1)
         }
-        if (hasInteraction && (result.interactionDays += 1, result.interactionDays >= bW)) break
+        if (hasInteraction && (result.interactionDays += 1, result.interactionDays >= pW)) break
     }
     return result.dates.reverse(), result
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: recordOutboxSentId  (minified: _h, daemon.pretty.js:38325)
+// symbol: recordOutboxSentId  (minified: _h, daemon.pretty.js:37456)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function recordOutboxSentId(paths, recordId) {
-    let sentIds = await Efe(paths);
-    sentIds.has(recordId) || (await ensureDirectoryExists(paths.outboxDir), await In.appendFile(resolveOutboxSentIdsPath(paths), `${recordId}
+    let sentIds = await Zde(paths);
+    sentIds.has(recordId) || (await ensureDirectoryExists(paths.outboxDir), await Tn.appendFile(resolveOutboxSentIdsPath(paths), `${recordId}
 `), sentIds.add(recordId))
 }

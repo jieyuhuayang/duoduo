@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: readOrSeedGapHandedDays  (minified: Lht, daemon.pretty.js:69907)
+// symbol: readOrSeedGapHandedDays  (minified: smt, daemon.pretty.js:69023)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 3 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,14 +8,14 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function readOrSeedGapHandedDays(memoryDir, varDir, dryRun) {
-    let handedPath = qc.join(varDir, "memory", rxe);
+    let handedPath = Wc.join(varDir, "memory", Rke);
     try {
         return {
-            coverage: $S(lu.readFileSync(handedPath, "utf8")),
+            coverage: NS(du.readFileSync(handedPath, "utf8")),
             readFault: !1
         }
     } catch (err) {
-        if (!ixe(err)) return recordUnreadableMemoryPath(err), {
+        if (!Ike(err)) return recordUnreadableMemoryPath(err), {
             coverage: new Map,
             readFault: !0
         }
@@ -29,22 +29,22 @@ function readOrSeedGapHandedDays(memoryDir, varDir, dryRun) {
 `)}
 ` : "";
     if (dryRun) return {
-        coverage: $S(seedText),
+        coverage: NS(seedText),
         readFault: !1
     };
-    lu.mkdirSync(qc.dirname(handedPath), {
+    du.mkdirSync(Wc.dirname(handedPath), {
         recursive: !0
     });
     try {
-        return lu.writeFileSync(handedPath, seedText, {
+        return du.writeFileSync(handedPath, seedText, {
             encoding: "utf8",
             flag: "wx"
         }), {
-            coverage: $S(seedText),
+            coverage: NS(seedText),
             readFault: !1
         }
     } catch (err) {
         if (err?.code !== "EEXIST") throw err;
-        return jht(handedPath)
+        return omt(handedPath)
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: resolveMemoryDirs  (minified: Mi, daemon.pretty.js:68834)
+// symbol: resolveMemoryDirs  (minified: Fi, daemon.pretty.js:67950)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,9 +9,9 @@
 function resolveMemoryDirs(memoryDir) {
     return {
         memoryDir,
-        boardPath: WO.join(memoryDir, "CLAUDE.md"),
-        entitiesDir: WO.join(memoryDir, "entities"),
-        topicsDir: WO.join(memoryDir, "topics"),
-        effectivenessDir: WO.join(memoryDir, "effectiveness")
+        boardPath: KO.join(memoryDir, "CLAUDE.md"),
+        entitiesDir: KO.join(memoryDir, "entities"),
+        topicsDir: KO.join(memoryDir, "topics"),
+        effectivenessDir: KO.join(memoryDir, "effectiveness")
     }
 }

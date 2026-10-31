@@ -1,8 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createSessionManager  (minified: gkt, daemon.pretty.js:86092)
+// symbol: createSessionManager  (minified: Lwt, daemon.pretty.js:85263)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.3, v0.2.12, v0.3.0, v0.3.2, v0.3.4, v0.3.5, v0.3.6, v0.3.7, v0.4.0, v0.4.1, v0.4.2, v0.4.3, v0.4.4, v0.4.5, v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.1, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4 (maps/history_daemon.json)
-// locals: 413 renamed — 89 from the code at the binding (rule), 324 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.3, v0.2.12, v0.3.0, v0.3.2, v0.3.4, v0.3.5, v0.3.6, v0.3.7, v0.4.0, v0.4.1, v0.4.2, v0.4.3, v0.4.4, v0.4.5, v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.1, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4, v0.8.7 (maps/history_daemon.json)
+// locals: 414 renamed — 89 from the code at the binding (rule), 325 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
@@ -13,14 +13,16 @@ function createSessionManager(options) {
         sdk,
         idleTimeoutMs = 36e5,
         heartbeatIntervalMs = 3e4
-    } = options, resolvedSdk = sdk ?? createAgentSdkAdapter(), jobManager = new Hr(paths), {
+    } = options, resolvedSdk = sdk ?? createAgentSdkAdapter(), jobManager = new Jr(paths), {
         listSessionInboxPendingNames,
         sessionInboxFreshNameVerdict,
         finalizeJobSession
     } = createJobSessionFinalizer({
         paths,
         bus,
-        jobManager
+        jobManager,
+        resolveMain: options.resolveMain,
+        finalSubscriberCount: options.finalSubscriberCount
     }), codexAvailability = options.codexAvailability ?? checkCodexAvailability, codexAdapterFactory = options.codexAdapterFactory ?? createCodexAppServerAdapter, probeCodexAvailability = memoizeAvailabilityProbeUntilOk(codexAvailability), grokAvailability = options.grokAvailability ?? checkGrokAvailability, grokAdapterFactory = options.grokAdapterFactory ?? createGrokAcpAdapter, piAdapterFactory = options.piAdapterFactory ?? createPiWorkerAdapter, probeGrokAvailability = memoizeAvailabilityProbeUntilOk(grokAvailability), probeRuntimeAvailability = runtime => runtime === "codex" ? probeCodexAvailability() : runtime === "grok" ? probeGrokAvailability() : void 0, {
         toModelOptions,
         resolveRuntimeForModelCommand,
@@ -440,7 +442,7 @@ function createSessionManager(options) {
                     })), job) {
                     jobScheduleType = classifyJobScheduleType(job.frontmatter.cron), jobCron = job.frontmatter.cron;
                     let stateless = job.frontmatter.stateless === !0;
-                    if (stateless && job.frontmatter.cron === "keepalive") throw new Error(y6);
+                    if (stateless && job.frontmatter.cron === "keepalive") throw new Error(a6);
                     jobStateless = stateless, actor.jobStateless = jobStateless, jobModel = job.frontmatter.model, jobEffort = job.frontmatter.effort, jobPiConfig = {
                         piExtensions: job.frontmatter.piExtensions,
                         piSkills: job.frontmatter.piSkills,
@@ -473,7 +475,7 @@ function createSessionManager(options) {
                         sessionKey,
                         sourceChannelId,
                         reason: sessionChannelRuntime.reason
-                    })), sessionChannelRuntime.ok && sessionChannelRuntime.runtime === "void" && (runtimeRefusal = `${Ju} A message queued before it became void was not run.`);
+                    })), sessionChannelRuntime.ok && sessionChannelRuntime.runtime === "void" && (runtimeRefusal = `${Gu} A message queued before it became void was not run.`);
                     let runtime = sessionChannelRuntime.ok ? sessionChannelRuntime.runtime ?? resolveDefaultRuntime() : actor.runtime,
                         runtimeSource = sessionChannelRuntime.ok ? sessionChannelRuntime.source : "explicit";
                     actor.runtime = runtime;
@@ -513,19 +515,22 @@ function createSessionManager(options) {
                 }).catch(() => {}));
                 let jobContext, loopJobSnapshot = null;
                 actor.origin === "job" && actor.jobId && (jobSnapshotConsumed ? loopJobSnapshot = await jobManager.getJob(actor.jobId).catch(() => null) : (jobSnapshotConsumed = !0, loopJobSnapshot = jobSnapshot));
-                let {
-                    instructions,
-                    missionContent
-                } = await collectInstructionsInputs(paths, sessionKey, actor, loopJobSnapshot), sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey), fingerprintGuard = await runInstructionsFingerprintGuard(paths, sessionKey, instructions, actor.runtime, {
-                    instructions_fingerprint: sessionRuntimeState?.instructions_fingerprint,
-                    mission_fingerprint: sessionRuntimeState?.mission_fingerprint,
-                    schema_version: sessionRuntimeState?.schema_version,
-                    sdk_session_id: sessionRuntimeState?.sdk_session_id,
-                    board_layer_hash: sessionRuntimeState?.board_layer_hash,
-                    instructions_nonboard_fingerprint: sessionRuntimeState?.instructions_nonboard_fingerprint
-                }, actor.origin === "job" && actor.jobId ? {
-                    jobId: actor.jobId
-                } : void 0);
+                let rolePrompt = selectSessionRolePrompt(sessionKey, options.resolveMain),
+                    {
+                        instructions,
+                        missionContent
+                    } = await collectInstructionsInputs(paths, sessionKey, actor, loopJobSnapshot, rolePrompt),
+                    sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey),
+                    fingerprintGuard = await runInstructionsFingerprintGuard(paths, sessionKey, instructions, actor.runtime, {
+                        instructions_fingerprint: sessionRuntimeState?.instructions_fingerprint,
+                        mission_fingerprint: sessionRuntimeState?.mission_fingerprint,
+                        schema_version: sessionRuntimeState?.schema_version,
+                        sdk_session_id: sessionRuntimeState?.sdk_session_id,
+                        board_layer_hash: sessionRuntimeState?.board_layer_hash,
+                        instructions_nonboard_fingerprint: sessionRuntimeState?.instructions_nonboard_fingerprint
+                    }, actor.origin === "job" && actor.jobId ? {
+                        jobId: actor.jobId
+                    } : void 0);
                 fingerprintGuard.clearedSdkSessionId && (actor.sdkSessionId = void 0), fingerprintGuard.gate2Fired && actor.runtime === "claude" && (fingerprintGuard.boardOnlyDrift ? actor.streamingState && !actor.streamingState.closed ? logInfoMessage("[session-manager] board-only drift — pinning streaming prefix (no teardown)", {
                     sessionKey,
                     board_layer_hash: fingerprintGuard.boardLayerHash
@@ -554,8 +559,8 @@ function createSessionManager(options) {
                 actor.currentAbortController = abortController;
                 let drainResult;
                 try {
-                    let allowedTools = [...actor.origin === "system" ? [] : [kwe, Jwe], Wwe, iSe];
-                    actor.origin === "channel" && (allowedTools.push(aRe), allowedTools.push(xc));
+                    let allowedTools = [...actor.origin === "system" ? [] : [Jve, ywe], gwe, xwe];
+                    actor.origin === "channel" && (allowedTools.push($0e), allowedTools.push(Ic));
                     let sessionContextKind = actor.origin === "job" ? "job" : actor.origin === "system" ? "system" : "foreground",
                         notifyDepth = 0,
                         defaultClaudeToolNames = listDefaultClaudeToolNames();
@@ -567,8 +572,8 @@ function createSessionManager(options) {
                                 await renderSessionMailboxFile(paths, sessionKey, mailboxPendingItems);
                                 let perf = {},
                                     drainBatch = await batchDrainItems(paths, mailboxPendingItems, {
-                                        fallbackBatchSize: pJ,
-                                        mergeWindowMs: mJ,
+                                        fallbackBatchSize: dJ,
+                                        mergeWindowMs: fJ,
                                         perf
                                     }),
                                     sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey),
@@ -746,7 +751,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         sessionCwd && await ensureAgentsMdSymlink(sessionCwd).catch(() => {}), actor.adapter = codexAdapterFactory({
                             sandbox: resolveCodexSandbox(),
                             env: {
-                                [tl]: sessionKey
+                                [nl]: sessionKey
                             },
                             ephemeral: !1,
                             model: jobModel,
@@ -758,7 +763,9 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                                 notifyDepth,
                                 jobScheduleType,
                                 callerJobCron: jobCron,
-                                getSessionStatus: targetSessionKey => map.get(targetSessionKey)?.status,
+                                getSessionStatus: statusSessionKey => map.get(statusSessionKey)?.status,
+                                resolveMain: options.resolveMain,
+                                finalSubscriberCount: options.finalSubscriberCount,
                                 onNotifyCalled: () => {
                                     actor.agentNotifiedThisDrain = !0
                                 }
@@ -770,7 +777,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         actor.adapter = grokAdapterFactory({
                             cwd: sessionState?.cwd ?? paths.workDir,
                             env: {
-                                [tl]: sessionKey
+                                [nl]: sessionKey
                             },
                             sdkSessionId: jobStateless ? void 0 : sessionState?.sdk_session_id,
                             mcpServerFactory: () => createAladuoMcpServer(paths, {
@@ -781,7 +788,9 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                                 jobScheduleType,
                                 callerRuntime: actor.runtime,
                                 callerJobCron: jobCron,
-                                getSessionStatus: targetSessionKey => map.get(targetSessionKey)?.status,
+                                getSessionStatus: drainStatusSessionKey => map.get(drainStatusSessionKey)?.status,
+                                resolveMain: options.resolveMain,
+                                finalSubscriberCount: options.finalSubscriberCount,
                                 onNotifyCalled: () => {
                                     actor.agentNotifiedThisDrain = !0
                                 }
@@ -844,18 +853,18 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         if (!actor.adapter)
                             if (!piModel) runtimeUnavailableReason = "pi binds its model when the worker is built, and this session has none. Send `/model <provider>/<modelId>` (channel sessions), or set `model: <provider>/<modelId>` in the job frontmatter, then send the message again.";
                             else {
-                                let piSessionDir = td.join(resolveSessionDir(paths, sessionKey), "pi"),
+                                let piSessionDir = od.join(resolveSessionDir(paths, sessionKey), "pi"),
                                     toolContext = {
                                         session_context_kind: sessionContextKind
                                     };
                                 actor.adapter = piAdapterFactory({
                                     cwd: sessionState?.cwd ?? paths.workDir,
-                                    sdkSessionId: (jobStateless ? void 0 : sessionState?.sdk_session_id) ?? mkt(),
+                                    sdkSessionId: (jobStateless ? void 0 : sessionState?.sdk_session_id) ?? Mwt(),
                                     sessionDir: piSessionDir,
                                     agentDir: piAgentDir,
-                                    authPath: td.join(piAgentDir, "auth.json"),
-                                    modelsPath: td.join(piAgentDir, "models.json"),
-                                    modelsStorePath: td.join(piSessionDir, "models-store.json"),
+                                    authPath: od.join(piAgentDir, "auth.json"),
+                                    modelsPath: od.join(piAgentDir, "models.json"),
+                                    modelsStorePath: od.join(piSessionDir, "models-store.json"),
                                     settingsSeed,
                                     resources: {
                                         extensions: piExtensions,
@@ -866,15 +875,15 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                                     thinkingLevel,
                                     workerCommand: resolvePiWorkerCommand(),
                                     env: {
-                                        [tl]: sessionKey,
-                                        [_C]: paths.daemonSocketPath,
-                                        [bC]: issueWorkerToolContextToken({
+                                        [nl]: sessionKey,
+                                        [vC]: paths.daemonSocketPath,
+                                        [wC]: issueWorkerToolContextToken({
                                             session_key: sessionKey,
                                             job_cron: jobCron,
                                             job_schedule_type: jobScheduleType,
                                             ...toolContext
                                         }),
-                                        [vC]: JSON.stringify(toolContext)
+                                        [SC]: JSON.stringify(toolContext)
                                     },
                                     onToolEnd: observation => handlePiToolEndObservation(paths, sessionKey, observation),
                                     logDebug: message => logDebugMessage(message, {
@@ -906,6 +915,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                             path: paths.memoryBroadcastPath,
                             content: instructions.memoryBoard
                         } : void 0,
+                        rolePrompt,
                         boardHash: instructions.memoryBoard ? fingerprintGuard.boardLayerHash : void 0,
                         onBatchContext: batchContext => {
                             if (notifyDepth = batchContext.maxNotifyDepth, batchContext.eventIds)
@@ -920,7 +930,9 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                                 jobScheduleType,
                                 callerRuntime: actor.runtime,
                                 callerJobCron: jobCron,
-                                getSessionStatus: targetSessionKey => map.get(targetSessionKey)?.status,
+                                getSessionStatus: turnStatusSessionKey => map.get(turnStatusSessionKey)?.status,
+                                resolveMain: options.resolveMain,
+                                finalSubscriberCount: options.finalSubscriberCount,
                                 onNotifyCalled: () => {
                                     actor.agentNotifiedThisDrain = !0
                                 }
@@ -1209,7 +1221,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                     actor.status = "ended"
                 }
             } else actor.status = "ended";
-            if (actor.pendingWake = !1, running && dkt(resolveSessionDir(paths, sessionKey)) && !isSessionArchiving(sessionKey)) {
+            if (actor.pendingWake = !1, running && Awt(resolveSessionDir(paths, sessionKey)) && !isSessionArchiving(sessionKey)) {
                 let inboxVerdict = await sessionInboxFreshNameVerdict(sessionKey, inboxSnapshotNames);
                 inboxVerdict === "fresh" ? (actor.consecutiveConservativeRedrive = !1, logSessionLifecycleMessage("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
                     sessionKey,
@@ -1365,7 +1377,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
     async function fetchPiModelCatalog(sessionKey) {
         let tempDir;
         try {
-            tempDir = fkt(td.join(hkt(), "aladuo-pi-catalog-"));
+            tempDir = Nwt(od.join(jwt(), "aladuo-pi-catalog-"));
             let piAgentDir = resolvePiAgentDir(),
                 {
                     settingsSeed,
@@ -1376,9 +1388,9 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                 catalog = await requestPiWorkerCatalog({
                     cwd: sessionState?.cwd ?? paths.workDir,
                     agentDir: piAgentDir,
-                    authPath: td.join(piAgentDir, "auth.json"),
-                    modelsPath: td.join(piAgentDir, "models.json"),
-                    modelsStorePath: td.join(tempDir, "models-store.json"),
+                    authPath: od.join(piAgentDir, "auth.json"),
+                    modelsPath: od.join(piAgentDir, "models.json"),
+                    modelsStorePath: od.join(tempDir, "models-store.json"),
                     settingsSeed,
                     resources: {
                         extensions: channelConfig?.piExtensions ?? "all",
@@ -1396,7 +1408,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
             return
         } finally {
             try {
-                tempDir && pkt(tempDir, {
+                tempDir && Dwt(tempDir, {
                     recursive: !0,
                     force: !0
                 })

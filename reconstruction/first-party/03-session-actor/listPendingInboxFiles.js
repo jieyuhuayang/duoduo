@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: listPendingInboxFiles  (minified: qb, daemon.pretty.js:34496)
+// symbol: listPendingInboxFiles  (minified: Hb, daemon.pretty.js:33612)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 
 async function listPendingInboxFiles(inboxDir) {
     try {
-        return (await Mo.readdir(inboxDir)).filter(fileName => fileName.endsWith(".pending"))
+        return (await Lo.readdir(inboxDir)).filter(fileName => fileName.endsWith(".pending"))
     } catch (err) {
         if (err.code === "ENOENT") return [];
         throw err

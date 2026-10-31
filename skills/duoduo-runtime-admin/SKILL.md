@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon settings, diagnostics, and the `duoduo session` / `duoduo job` / `duoduo spine` CLIs. Use for: daemon status, config, logs; runtime selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious prompts; the `duoduo memory` CLI; reading the Spine log; pruning the usage ledger; model profiles for third-party models (context caps, routing, subagent tiers); codex tool trimming; pi compaction sizing; session management (list, alias, notify or wake by name, archive); job lifecycle from the CLI (list, read, archive, interrupt, reschedule). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 读 spine, 清理 usage, 给会话起名, 唤醒/通知 session, 归档会话, 归档任务, 打断任务, 让任务再跑一次, 模型 profile, 裁剪 codex 工具, pi 只回一个字. Does NOT handle channel-kind settings (Feishu/ACP) — see duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon settings, diagnostics, and the `duoduo session` / `duoduo job` / `duoduo spine` CLIs. Use for: daemon status, config, logs; runtime selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious prompts; the `duoduo memory` CLI; reading the Spine log; pruning the usage ledger; model profiles for third-party models (context caps, routing, subagent tiers); codex tool trimming; pi compaction sizing; session management (list, alias, notify or wake by name, archive); the main session (find, set, move, duplicates); job lifecycle from the CLI (list, read, archive, interrupt, reschedule). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 读 spine, 清理 usage, 给会话起名, 设置/迁移主会话, 唤醒/通知 session, 归档会话, 归档任务, 打断任务, 让任务再跑一次, 模型 profile, 裁剪 codex 工具, pi 只回一个字. Does NOT handle channel-kind settings (Feishu/ACP) — see duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -220,7 +220,8 @@ external script — one entry point):
 - `duoduo session list [--kind …] [--named] [--json]` — the live route table.
 - `duoduo session alias <key> "<name>"` — give a session a human label, so it
   is legible in `list` and usable as a `notify` target. Unnamed sessions show
-  `—` (they are NOT auto-labelled with their key).
+  `—` (they are NOT auto-labelled with their key). The name `main` is
+  reserved for the main session (below).
 - `duoduo session notify <target> -m "<msg>" [--force]` — reach a session by
   key OR alias now and deliver a source-tagged notification. Only
   `channel`/`job` targets are allowed; the subconscious/kernel plane is
@@ -239,6 +240,10 @@ external script — one entry point):
   model / reasoning effort from the CLI, same knobs as in-chat `/model` and
   `/effort`, without entering the session's chat. Channel sessions only.
 - `duoduo session archive <key>` — move (never delete) a session's artifacts.
+
+**The main session** is the channel session aliased `main`: the fallback sink for job outcomes, Notify `main`, forwarded chats and setup-card requests.
+To find, set or move it, or resolve two sessions aliased `main`, read
+[references/main-session.md](references/main-session.md).
 
 When the user says "name this session X" / "把这个会话叫 X", or wants to wake
 one session from another by name, this is the surface. Read

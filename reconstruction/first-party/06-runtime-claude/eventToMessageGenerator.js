@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: eventToMessageGenerator  (minified: QH, daemon.pretty.js:57556)
+// symbol: eventToMessageGenerator  (minified: BV, daemon.pretty.js:56744)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0 (maps/history_daemon.json)
 // locals: 9 renamed — 0 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ async function* eventToMessageGenerator(text, attachments, attachmentOptions) {
     let attachmentBlocks = [];
     if (attachments && attachments.length > 0)
         for (let attachment of attachments) {
-            let attachmentBlock = vlt(attachment, attachmentOptions);
+            let attachmentBlock = Fat(attachment, attachmentOptions);
             attachmentBlock && attachmentBlocks.push(attachmentBlock)
         }
     let textBlocks = typeof text == "string" ? text ? [{

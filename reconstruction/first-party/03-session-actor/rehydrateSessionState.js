@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: rehydrateSessionState  (minified: wle, daemon.pretty.js:34525)
+// symbol: rehydrateSessionState  (minified: Jue, daemon.pretty.js:33641)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 12 renamed — 4 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,15 +11,15 @@ async function rehydrateSessionState(paths) {
     let sessionKeys = [],
         entries;
     try {
-        entries = await Mo.readdir(paths.sessionsDir)
+        entries = await Lo.readdir(paths.sessionsDir)
     } catch {
         return sessionKeys
     }
     for (let sessionHash of entries) {
-        let sessionDir = Zr.join(paths.sessionsDir, sessionHash);
-        if (!(!(await Mo.stat(sessionDir).catch(() => null))?.isDirectory() || !await ret(sessionDir))) {
+        let sessionDir = ei.join(paths.sessionsDir, sessionHash);
+        if (!(!(await Lo.stat(sessionDir).catch(() => null))?.isDirectory() || !await bXe(sessionDir))) {
             try {
-                let content = await Mo.readFile(Zr.join(sessionDir, "state.json"), "utf8"),
+                let content = await Lo.readFile(ei.join(sessionDir, "state.json"), "utf8"),
                     parsed = JSON.parse(content);
                 if (parsed.session_key) {
                     sessionKeys.push(parsed.session_key);
@@ -27,16 +27,16 @@ async function rehydrateSessionState(paths) {
                 }
             } catch {}
             try {
-                let dirEntries = await Mo.readdir(paths.registrySessionsDir);
+                let dirEntries = await Lo.readdir(paths.registrySessionsDir);
                 for (let registryFile of dirEntries)
                     if (!(!registryFile.endsWith(".json") || registryFile.startsWith(".") || registryFile === "sessions.snapshot.json")) try {
                         let sessionKey = decodeURIComponent(registryFile.slice(0, -5));
                         if (hashSessionKey(sessionKey) === sessionHash) {
                             sessionKeys.push(sessionKey);
-                            let statePath = Zr.join(sessionDir, "state.json");
+                            let statePath = ei.join(sessionDir, "state.json");
                             try {
-                                let parsed = JSON.parse(await Mo.readFile(statePath, "utf8"));
-                                parsed.session_key = sessionKey, await Mo.writeFile(statePath, JSON.stringify(parsed, null, 2) + `
+                                let parsed = JSON.parse(await Lo.readFile(statePath, "utf8"));
+                                parsed.session_key = sessionKey, await Lo.writeFile(statePath, JSON.stringify(parsed, null, 2) + `
 `)
                             } catch {}
                             break

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: buildInitialStatus  (minified: tq, daemon.pretty.js:35066)
+// symbol: buildInitialStatus  (minified: qU, daemon.pretty.js:34182)
 // name: INFERRED — upstream's own spelling, from the __export block of v0.2.0..v0.3.7, followed to this release by the release pairing (maps/historical_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -22,7 +22,7 @@ function buildInitialStatus(paths, now = new Date, options = {}) {
             last_tick: null
         },
         spine: {
-            event_log: Cle.join(paths.eventsDir, `${now.toISOString().slice(0,10)}.jsonl`)
+            event_log: rle.join(paths.eventsDir, `${now.toISOString().slice(0,10)}.jsonl`)
         },
         health: {
             gateway: "starting",

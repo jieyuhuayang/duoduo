@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: assertJobWorkspaceUsable  (minified: Wve, daemon.pretty.js:63540)
+// symbol: assertJobWorkspaceUsable  (minified: gve, daemon.pretty.js:62728)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,9 +8,9 @@
 
 async function assertJobWorkspaceUsable(job) {
     if (job.context !== "workspace") return;
-    let cwdStats = await nO.stat(job.cwd).catch(() => null);
+    let cwdStats = await iO.stat(job.cwd).catch(() => null);
     if (!cwdStats || !cwdStats.isDirectory()) throw new Error(`Job workspace '${job.cwdRel}' no longer exists. cwd_rel points to a directory that must exist with a CLAUDE.md context file; it was present when the job was created but is now missing.`);
-    let claudeMdPath = Dg.join(job.cwd, "CLAUDE.md"),
-        claudeMdStats = await nO.stat(claudeMdPath).catch(() => null);
+    let claudeMdPath = Lg.join(job.cwd, "CLAUDE.md"),
+        claudeMdStats = await iO.stat(claudeMdPath).catch(() => null);
     if (!claudeMdStats || !claudeMdStats.isFile()) throw new Error(`Job workspace '${job.cwdRel}' is missing CLAUDE.md. cwd_rel requires a CLAUDE.md context file so the job session has project-level instructions; it was present when the job was created but is now missing.`)
 }

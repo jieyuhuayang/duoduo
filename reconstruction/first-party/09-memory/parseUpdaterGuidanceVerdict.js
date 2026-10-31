@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: parseUpdaterGuidanceVerdict  (minified: eht, daemon.pretty.js:69020)
+// symbol: parseUpdaterGuidanceVerdict  (minified: Spt, daemon.pretty.js:68136)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 1 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,7 +17,7 @@ function parseUpdaterGuidanceVerdict(text) {
         let upperLine = line.toUpperCase(),
             earliestVerdict = null,
             POSITIVEINFINITY = Number.POSITIVE_INFINITY;
-        for (let verdict of Ymt) {
+        for (let verdict of bpt) {
             let index = upperLine.indexOf(verdict);
             index >= 0 && index < POSITIVEINFINITY && (POSITIVEINFINITY = index, earliestVerdict = verdict)
         }

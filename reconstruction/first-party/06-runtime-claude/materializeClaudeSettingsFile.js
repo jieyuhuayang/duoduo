@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: materializeClaudeSettingsFile  (minified: fSe, daemon.pretty.js:67751)
+// symbol: materializeClaudeSettingsFile  (minified: Owe, daemon.pretty.js:66975)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,10 +10,10 @@
 async function materializeClaudeSettingsFile(params) {
     let claudeSettingsEnvOverrides = buildClaudeSettingsEnvOverrides(params);
     if (!claudeSettingsEnvOverrides) return;
-    imt();
-    let settingsJson = nmt(claudeSettingsEnvOverrides),
-        settingsPath = cSe.join(params.dir, rmt(settingsJson));
-    return T6.has(settingsPath) || (await writeFileAtomic(settingsPath, settingsJson, {
+    kft();
+    let settingsJson = wft(claudeSettingsEnvOverrides),
+        settingsPath = $we.join(params.dir, Sft(settingsJson));
+    return w6.has(settingsPath) || (await writeFileAtomic(settingsPath, settingsJson, {
         mode: 384
-    }), await I6.chmod(settingsPath, 384), T6.add(settingsPath)), settingsPath
+    }), await v6.chmod(settingsPath, 384), w6.add(settingsPath)), settingsPath
 }

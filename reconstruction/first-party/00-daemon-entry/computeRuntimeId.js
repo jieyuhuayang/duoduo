@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: computeRuntimeId  (minified: Xkt, daemon.pretty.js:92809)
+// symbol: computeRuntimeId  (minified: vSt, daemon.pretty.js:92166)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,6 +7,6 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function computeRuntimeId(runtimeDir) {
-    let resolvedDir = uo.resolve(runtimeDir);
-    return `rt_${ZN.createHash("sha256").update(resolvedDir).digest("hex").slice(0,12)}`
+    let resolvedDir = po.resolve(runtimeDir);
+    return `rt_${XN.createHash("sha256").update(resolvedDir).digest("hex").slice(0,12)}`
 }

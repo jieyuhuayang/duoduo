@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: computeContextProfileSignature  (minified: _S, daemon.pretty.js:67762)
+// symbol: computeContextProfileSignature  (minified: kS, daemon.pretty.js:66986)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 7 renamed — 1 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,8 +10,8 @@
 function computeContextProfileSignature(params) {
     let requirement = params.requirement,
         profiledRequirement = requirement?.kind === "profiled-external" ? requirement : void 0,
-        authTokenHash = profiledRequirement?.auth ? lSe.createHash("sha256").update(profiledRequirement.auth.token).digest("hex").slice(0, 16) : null,
-        aliasEntries = ff.flatMap(tier => {
+        authTokenHash = profiledRequirement?.auth ? Pwe.createHash("sha256").update(profiledRequirement.auth.token).digest("hex").slice(0, 16) : null,
+        aliasEntries = hf.flatMap(tier => {
             let aliasModel = params.aliases?.[tier];
             return aliasModel ? [
                 [tier, aliasModel]

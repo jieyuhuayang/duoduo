@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: mapClaudeResultToDrainUsage  (minified: wg, daemon.pretty.js:57261)
+// symbol: mapClaudeResultToDrainUsage  (minified: kg, daemon.pretty.js:56429)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.5, v0.5.6, v0.8.4 (maps/history_daemon.json)
 // locals: 8 renamed — 1 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -22,7 +22,7 @@ function mapClaudeResultToDrainUsage(resultMessage, costBaseline) {
     let isAnthropicProtocol = typeof usage?.cache_creation_input_tokens == "number";
     return {
         protocol: isAnthropicProtocol ? "anthropic" : void 0,
-        model: costBaseline?.baselineUnknown ? void 0 : selectDominantModelByInputTokens(costBaseline ? clt(costBaseline.prevModelUsage, result.modelUsage) : result.modelUsage),
+        model: costBaseline?.baselineUnknown ? void 0 : selectDominantModelByInputTokens(costBaseline ? Pat(costBaseline.prevModelUsage, result.modelUsage) : result.modelUsage),
         total_cost_usd: turnCostUsd,
         input_tokens: typeof usage?.input_tokens == "number" ? usage.input_tokens : void 0,
         output_tokens: typeof usage?.output_tokens == "number" ? usage.output_tokens : void 0,

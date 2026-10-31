@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: readHostDaemonToken  (minified: qgt, daemon.pretty.js:71249)
+// symbol: readHostDaemonToken  (minified: cht, daemon.pretty.js:70365)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ async function readHostDaemonToken(env = process.env) {
     let envPath = hostDotEnvPath(env),
         content;
     try {
-        content = await Ds.readFile(envPath, "utf8")
+        content = await Fs.readFile(envPath, "utf8")
     } catch (err) {
         if (err.code === "ENOENT") return;
         throw err

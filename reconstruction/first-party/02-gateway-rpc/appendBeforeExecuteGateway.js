@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: appendBeforeExecuteGateway  (minified: cpe, daemon.pretty.js:89696)
+// symbol: appendBeforeExecuteGateway  (minified: Dfe, daemon.pretty.js:88894)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.5.10, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 23 renamed — 6 from the code at the binding (rule), 17 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -60,7 +60,7 @@ async function appendBeforeExecuteGateway(paths, request, options) {
             });
             if (eventById) {
                 let outboxRecordByEventId = await findOutboxRecordByEventId(paths, eventById.id);
-                return await epe(paths, request.sourceKind, request.sourceChannelId), {
+                return await Efe(paths, request.sourceKind, request.sourceChannelId), {
                     event: eventById,
                     routing: {
                         target: readRoutingTarget(eventById),
@@ -84,11 +84,11 @@ async function appendBeforeExecuteGateway(paths, request, options) {
         rawPayload: request.rawPayload,
         routingHint: request.routingHint
     }, spineEvent);
-    spineEvent.payload && (spineEvent.payload.raw_path = rawPath), await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "gateway", spineEvent.id, new Date(spineEvent.ts)), await epe(paths, request.sourceKind, request.sourceChannelId), await updateStatus(paths, status => ({
+    spineEvent.payload && (spineEvent.payload.raw_path = rawPath), await atomicAppendEvent(paths, spineEvent), await advanceConsumerWatermark(paths, "gateway", spineEvent.id, new Date(spineEvent.ts)), await Efe(paths, request.sourceKind, request.sourceChannelId), await updateStatus(paths, status => ({
         ...status,
         spine: {
             ...status.spine,
-            event_log: vf.join(paths.eventsDir, formatEventPartitionName(new Date(spineEvent.ts)))
+            event_log: kf.join(paths.eventsDir, formatEventPartitionName(new Date(spineEvent.ts)))
         },
         health: {
             ...status.health,
@@ -122,7 +122,7 @@ async function appendBeforeExecuteGateway(paths, request, options) {
             isCommand = parseInjectionPromptCommand(commandText) !== void 0 || parseGatewayCommandText(commandText) !== void 0,
             outboxRecord = await writeVoidSessionOutboxRecord(paths, options?.bus, {
                 sessionKey: request.sessionKey,
-                text: isCommand ? `${Ju} ${commandText} was not run.` : request.text,
+                text: isCommand ? `${Gu} ${commandText} was not run.` : request.text,
                 attachments: isCommand ? void 0 : request.attachments,
                 data: {
                     event_id: spineEvent.id,

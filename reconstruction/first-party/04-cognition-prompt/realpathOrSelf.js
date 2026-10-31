@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: realpathOrSelf  (minified: ekt, daemon.pretty.js:84676)
+// symbol: realpathOrSelf  (minified: Swt, daemon.pretty.js:83839)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.2 (medium): The runtime parses Claude Code's `@<file>` directives itself and injects the rendered import graph
@@ -8,7 +8,7 @@
 
 async function realpathOrSelf(filePath) {
     try {
-        return await TTe.realpath(filePath)
+        return await YIe.realpath(filePath)
     } catch {
         return filePath
     }

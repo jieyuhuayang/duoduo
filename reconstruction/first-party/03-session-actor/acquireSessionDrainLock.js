@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: acquireSessionDrainLock  (minified: tEe, daemon.pretty.js:72245)
+// symbol: acquireSessionDrainLock  (minified: xEe, daemon.pretty.js:71361)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.4, v0.3.5 (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ async function acquireSessionDrainLock(paths, sessionRef, options = {}) {
         ttlMs = options.ttlMs ?? 12e4,
         pid = options.pid ?? process.pid,
         drainLockFile = await readDrainLockFile(sessionDrainLockPath);
-    if (drainLockFile && !__t(drainLockFile, now, ttlMs)) return {
+    if (drainLockFile && !zgt(drainLockFile, now, ttlMs)) return {
         acquired: !1,
         stale: !1,
         lock: drainLockFile

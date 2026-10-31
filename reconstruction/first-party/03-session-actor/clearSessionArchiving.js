@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: clearSessionArchiving  (minified: oI, daemon.pretty.js:34612)
+// symbol: clearSessionArchiving  (minified: oI, daemon.pretty.js:33728)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (medium): re-checks the archiving marker after the lock is taken.
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function clearSessionArchiving(sessionKey) {
-    Vb.delete(sessionKey)
+    Gb.delete(sessionKey)
 }

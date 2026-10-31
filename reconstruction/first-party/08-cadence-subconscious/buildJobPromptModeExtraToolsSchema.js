@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: buildJobPromptModeExtraToolsSchema  (minified: Rwe, daemon.pretty.js:66163)
+// symbol: buildJobPromptModeExtraToolsSchema  (minified: Zve, daemon.pretty.js:65351)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -7,7 +7,7 @@
 
 function buildJobPromptModeExtraToolsSchema() {
     return {
-        prompt_mode: mt.enum(["append", "override"]).describe(renderJobPromptModeDescription()).optional(),
-        extra_tools: mt.array(mt.string()).describe(renderJobExtraToolsDescription()).optional()
+        prompt_mode: ht.enum(["append", "override"]).describe(renderJobPromptModeDescription()).optional(),
+        extra_tools: ht.array(ht.string()).describe(renderJobExtraToolsDescription()).optional()
     }
 }

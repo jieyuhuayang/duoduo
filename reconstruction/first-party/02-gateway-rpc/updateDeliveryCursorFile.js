@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: updateDeliveryCursorFile  (minified: $we, daemon.pretty.js:66481)
+// symbol: updateDeliveryCursorFile  (minified: ewe, daemon.pretty.js:65669)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,6 +13,6 @@ async function updateDeliveryCursorFile(paths, sessionKey, consumerId, update) {
             sessionKey
         }), !1;
         let nextCursor = update(await readDeliveryCursorFile(paths, sessionKey, consumerId));
-        return nextCursor ? (await ensureDirectoryExists(Pwe.dirname(deliveryCursorPath)), await writeJsonFileAtomic(deliveryCursorPath, nextCursor), !0) : !1
+        return nextCursor ? (await ensureDirectoryExists(Qve.dirname(deliveryCursorPath)), await writeJsonFileAtomic(deliveryCursorPath, nextCursor), !0) : !1
     })
 }

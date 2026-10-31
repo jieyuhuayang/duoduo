@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: replyToGatewayCommandEvent  (minified: Ait, daemon.pretty.js:89862)
+// symbol: replyToGatewayCommandEvent  (minified: Knt, daemon.pretty.js:89060)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.7.0, v0.7.1 (maps/history_daemon.json)
 // locals: 10 renamed — 2 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function replyToGatewayCommandEvent(paths, event, bus, gatewayCommands) {
-    let command = Nit(event);
+    let command = Znt(event);
     if (!command) return {
         handled: !1
     };

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: readFileAsBase64  (minified: hSe, daemon.pretty.js:90382)
+// symbol: readFileAsBase64  (minified: Dwe, daemon.pretty.js:89580)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readFileAsBase64(filePath) {
-    return (await DO.readFile(filePath)).toString("base64")
+    return (await jO.readFile(filePath)).toString("base64")
 }

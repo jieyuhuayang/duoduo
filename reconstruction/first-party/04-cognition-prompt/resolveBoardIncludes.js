@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: resolveBoardIncludes  (minified: OTe, daemon.pretty.js:84642)
+// symbol: resolveBoardIncludes  (minified: tTe, daemon.pretty.js:83805)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 14 renamed — 4 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,15 +8,15 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function resolveBoardIncludes(filePath, visited, depth = 0, parentPath) {
-    if (depth >= ZSt) return [];
-    let resolvedPath = va.resolve(filePath),
+    if (depth >= ywt) return [];
+    let resolvedPath = Ea.resolve(filePath),
         includePathKey = normalizeIncludePathKey(resolvedPath);
     if (visited.has(includePathKey)) return [];
-    let extension = va.extname(resolvedPath).toLowerCase();
-    if (extension && !KSt.has(extension)) return [];
+    let extension = Ea.extname(resolvedPath).toLowerCase();
+    if (extension && !_wt.has(extension)) return [];
     let realPath = await realpathOrSelf(resolvedPath);
     visited.add(includePathKey), visited.add(normalizeIncludePathKey(realPath));
-    let rawContent = await QSt(resolvedPath);
+    let rawContent = await wwt(resolvedPath);
     if (rawContent === void 0) return [];
     let {
         content,

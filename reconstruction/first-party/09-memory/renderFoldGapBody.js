@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: renderFoldGapBody  (minified: dgt, daemon.pretty.js:70533)
+// symbol: renderFoldGapBody  (minified: Amt, daemon.pretty.js:69649)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.0 (medium): one consolidates them into intuition.

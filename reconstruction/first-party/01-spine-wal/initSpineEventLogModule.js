@@ -1,20 +1,20 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: initSpineEventLogModule  (minified: Do, daemon.pretty.js:34406)
+// symbol: initSpineEventLogModule  (minified: jo, daemon.pretty.js:33522)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.0 (high): The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var fle, HQe, QR, GU, ple, initSpineEventLogModule = N(() => {
+var Lue, sXe, QR, DU, Fue, initSpineEventLogModule = A(() => {
     "use strict";
-    nc();
+    ic();
     YR();
-    Pr();
-    Kn();
+    Cr();
+    Xn();
     initLogLevelModule();
-    fle = new Map;
-    HQe = /^\d{4}-\d{2}-\d{2}\.jsonl$/;
+    Lue = new Map;
+    sXe = /^\d{4}-\d{2}-\d{2}\.jsonl$/;
     QR = new Map;
-    GU = 7, ple = "ALADUO_SPINE_INDEX_RETENTION_DAYS"
+    DU = 7, Fue = "ALADUO_SPINE_INDEX_RETENTION_DAYS"
 });

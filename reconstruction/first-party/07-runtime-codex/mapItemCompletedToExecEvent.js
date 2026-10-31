@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: mapItemCompletedToExecEvent  (minified: fwe, daemon.pretty.js:65048)
+// symbol: mapItemCompletedToExecEvent  (minified: Mve, daemon.pretty.js:64236)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.8.1 (maps/history_daemon.json)
 // locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -28,7 +28,7 @@ function mapItemCompletedToExecEvent(item) {
             };
         case "webSearch":
             return {
-                type: "tool_result", toolUseId: id, toolName: "WebSearch", isError: !1, summary: Ift(item.action, item.query ?? "")
+                type: "tool_result", toolUseId: id, toolName: "WebSearch", isError: !1, summary: Wct(item.action, item.query ?? "")
             };
         case "plan":
             return {

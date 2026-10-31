@@ -1,15 +1,15 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: initOrphanMemoryModule  (minified: Oxe, daemon.pretty.js:70895)
+// symbol: initOrphanMemoryModule  (minified: txe, daemon.pretty.js:70011)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.0 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Rxe, uA, initOrphanMemoryModule = N(() => {
+var Kke, dA, initOrphanMemoryModule = A(() => {
     "use strict";
-    to();
-    TS();
+    oo();
+    OS();
     initMemorySignalKindsModule();
     initActivationLintModule();
-    Rxe = 3600 * 1e3, uA = 48
+    Kke = 3600 * 1e3, dA = 48
 });

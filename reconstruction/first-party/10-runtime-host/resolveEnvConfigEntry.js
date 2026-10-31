@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: resolveEnvConfigEntry  (minified: Wn, daemon.pretty.js:92647)
+// symbol: resolveEnvConfigEntry  (minified: Gn, daemon.pretty.js:92004)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ function resolveEnvConfigEntry(envKey, defaultValue) {
         value: defaultValue,
         source: defaultValue === null ? "unset" : "default"
     };
-    if (Bkt(envKey)) return {
+    if (dSt(envKey)) return {
         value: "***",
         source: "env"
     };

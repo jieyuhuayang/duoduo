@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: deliverScanGapSignal  (minified: oxe, daemon.pretty.js:70086)
+// symbol: deliverScanGapSignal  (minified: Tke, daemon.pretty.js:69202)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 12 renamed — 0 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,15 +8,15 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function deliverScanGapSignal(eventsDir, memoryDir, nowMs, ctx, options) {
-    let pendingPath = qc.join(partitionInboxDirFromVar(ctx.varDir, "gradient-distiller"), nxe);
-    if (lu.existsSync(pendingPath)) return {
+    let pendingPath = Wc.join(partitionInboxDirFromVar(ctx.varDir, "gradient-distiller"), Eke);
+    if (du.existsSync(pendingPath)) return {
         selected: [],
         span: null,
         bands: [],
         readFault: !1,
         pending: !0,
         recorded: !1,
-        delivery: iA()
+        delivery: aA()
     };
     let dryRun = options.dryRun === !0,
         handed = readOrSeedGapHandedDays(memoryDir, ctx.varDir, dryRun);
@@ -24,14 +24,14 @@ function deliverScanGapSignal(eventsDir, memoryDir, nowMs, ctx, options) {
         ...buildGapReadFaultResult(null),
         pending: !1,
         recorded: !1,
-        delivery: iA()
+        delivery: aA()
     };
     let lint = runGapLint(eventsDir, handed.coverage, nowMs, options.cadenceIntervalMs);
     if (lint.readFault || dryRun) return {
         ...lint,
         pending: !1,
         recorded: !1,
-        delivery: iA()
+        delivery: aA()
     };
     if (lint.selected.length === 0) {
         let recorded = lint.span !== null;
@@ -39,7 +39,7 @@ function deliverScanGapSignal(eventsDir, memoryDir, nowMs, ctx, options) {
             ...lint,
             pending: !1,
             recorded,
-            delivery: iA()
+            delivery: aA()
         }
     }
     let delivery = postMemorySignalsToInboxes(lint.selected, ctx),

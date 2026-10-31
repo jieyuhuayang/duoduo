@@ -1,7 +1,7 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-10-24",
-  "package": "v0.8.6",
+  "recorded": "2026-10-31",
+  "package": "v0.8.7",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -576,18 +576,6 @@
         "startsWith"
       ]
     },
-    "evaluateNotifyConsumerRefusal": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [
-        "channel"
-      ],
-      "props": [
-        "age_ms",
-        "now",
-        "unconsumed"
-      ]
-    },
     "resolveNotifyUnconsumedHours": {
       "kind": "function",
       "params": 1,
@@ -608,57 +596,6 @@
         "oldest_waiting_created_at",
         "parse",
         "records_past_cursor"
-      ]
-    },
-    "listSessionsWithRecentConsumer": {
-      "kind": "async function",
-      "params": 4,
-      "literals": [
-        "channel"
-      ],
-      "props": [
-        "age_ms",
-        "display_name",
-        "isFinite",
-        "listByKind",
-        "localeCompare",
-        "max",
-        "now",
-        "parse",
-        "push",
-        "session_key",
-        "sort"
-      ]
-    },
-    "renderNotifyRefusalMessage": {
-      "kind": "function",
-      "params": 5,
-      "literals": [
-        " (alias ",
-        " of its replies are waiting unread",
-        " old, and ",
-        " — consumer took output ",
-        ", and ",
-        ", so the reader knows why it arrived there.",
-        ", so there is nowhere a person would see this. Do not re-send it.",
-        "1 of its replies is waiting unread",
-        "If a person must see this, send it to a session that has a consumer; otherwise do not re-send it.",
-        "No consumer has taken this session's output for ",
-        "No session has had a consumer within the last ",
-        "Nothing was delivered. This call will not be retried.",
-        "Sessions a consumer has taken output from within the last ",
-        "This session has never had a consumer, its oldest unread output is ",
-        "When you re-send it, open with what it is and that it was meant for "
-      ],
-      "props": [
-        "age_ms",
-        "display_name",
-        "join",
-        "last_cursor_advance_at",
-        "length",
-        "push",
-        "records_past_cursor",
-        "session_key"
       ]
     },
     "isUsableEventIndexEntry": {
@@ -697,98 +634,6 @@
       "literals": [],
       "props": []
     },
-    "drainSessionMailbox": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [
-        " Request was not executed.",
-        " cancelled=true",
-        " event_id=",
-        " item_file=",
-        " not_after=",
-        " outbox=",
-        " skipped=",
-        "/compact",
-        "[runner] SDK session ID mismatch — context lost",
-        "[runner] Skip called — suppressing outbox",
-        "[runner] compact_boundary — telemetry only, no channel ack",
-        "[runner] dropping stale idle-compact item (no SDK call)",
-        "[runner] eager markDone failed (will retry at drain end)",
-        "[runner] history-control mailbox finalize failed (will be retried at drain end)",
-        "[runner] idle-compact no-op (nothing to compact) — no channel ack",
-        "[runner] in-band /compact turn — suppressing empty outbox",
-        "[runner] mailbox event unresolved: session_key=",
-        "[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack",
-        "agent.error",
-        "auto",
-        "channel",
-        "claude",
-        "codex",
-        "compact_boundary"
-      ],
-      "props": [
-        "abortController",
-        "aborted",
-        "acquired",
-        "actorLastTurnCompletedAt",
-        "actorSpawnedAt",
-        "additionalDirectories",
-        "aliases",
-        "allowedTools",
-        "anchorChannelConfig",
-        "auto_compact_idle_minutes",
-        "batchSize",
-        "blocks",
-        "boardHash",
-        "boardUpdatedInjected",
-        "bus",
-        "cache_create",
-        "cache_creation_input_tokens",
-        "cache_read",
-        "cache_read_input_tokens",
-        "cancelled",
-        "catch",
-        "claude_cost_baseline",
-        "command",
-        "compactNoticeInjected",
-        "compact_stats",
-        "configLayer",
-        "consumed",
-        "context_used_tokens",
-        "costBaseline",
-        "createdAt",
-        "cron",
-        "cwd",
-        "daemonRestartHintInjected",
-        "data",
-        "disallowedTools",
-        "effectiveModel",
-        "effort",
-        "event",
-        "eventId",
-        "eventIds",
-        "events",
-        "excludeEventIds",
-        "exec",
-        "file",
-        "filter",
-        "firstTokenLatencyMs",
-        "forkFrom",
-        "gatewayNoticeInjected",
-        "get",
-        "getStreamGeneration",
-        "hadOutput",
-        "has",
-        "holdInputOpenForBackgroundAgents",
-        "id",
-        "inject",
-        "injectionResult",
-        "input_tokens",
-        "intent",
-        "interruptedContextInjected",
-        "isError"
-      ]
-    },
     "resolveBoardIncludes": {
       "kind": "async function",
       "params": 4,
@@ -823,28 +668,6 @@
       "literals": [],
       "props": [
         "realpath"
-      ]
-    },
-    "collectInstructionsInputs": {
-      "kind": "async function",
-      "params": 4,
-      "literals": [
-        "channel"
-      ],
-      "props": [
-        "acceptance",
-        "catch",
-        "channel_kind",
-        "content",
-        "frontmatter",
-        "instance_prompt",
-        "jobId",
-        "kind_prompt",
-        "memoryBroadcastPath",
-        "origin",
-        "rendered",
-        "source_channel_id",
-        "trim"
       ]
     },
     "resolveRoutingTarget": {
@@ -1513,50 +1336,6 @@
         "time_gap_minutes"
       ]
     },
-    "ensureSessionDescriptorAndStateFiles": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [
-        "# Session Descriptor",
-        "High-churn runtime state is stored in state.json.",
-        "This file describes declarative metadata for this session.",
-        "custom",
-        "meta",
-        "state"
-      ],
-      "props": [
-        "access",
-        "default",
-        "display_name",
-        "join",
-        "kind",
-        "owner_session",
-        "session_key",
-        "stringify",
-        "toISOString"
-      ]
-    },
-    "updateSessionDisplayName": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [
-        "meta",
-        "string",
-        "utf8"
-      ],
-      "props": [
-        "content",
-        "data",
-        "default",
-        "display_name",
-        "kind",
-        "length",
-        "readFile",
-        "session_key",
-        "stringify",
-        "trim"
-      ]
-    },
     "patchSessionRuntimeState": {
       "kind": "async function",
       "params": 4,
@@ -1893,45 +1672,6 @@
         "reason",
         "toISOString",
         "trim"
-      ]
-    },
-    "initSkipToolModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        "- A job completed with results the user is waiting for",
-        "- An error or anomaly requires user attention",
-        "- Duplicate or redundant notifications you've already addressed",
-        "- How much time has elapsed since the skip",
-        "- Intermediate job progress that isn't actionable yet",
-        "- Routine system notifications that need no user attention",
-        "- The reason you provided",
-        "- The timestamp of the skip",
-        "- The user sent a direct message",
-        "After you call Skip, nothing further you produce this turn will be delivered.",
-        "Calling Skip immediately ends this turn.",
-        "Calling Skip immediately ends this turn. Skip is the only way to produce",
-        "Do NOT emit any text first — text streamed before Skip can still reach the user.",
-        "End this turn with no output to the user/channel.",
-        "Give a specific reason. On your next turn, a <skip-rewind> block returns:",
-        "In a turn you decide to skip, make Skip your FIRST action.",
-        "Respond instead of skipping when:",
-        "Skip",
-        "Use Skip for:",
-        "Why you are skipping this turn. Be specific — this reason will be shown to you on your next turn via <skip-rewind> so you can maintain continuity.",
-        "acknowledgements such as \"received\" or \"no need to reply\".",
-        "mcp__aladuo__Skip",
-        "silence — any text you emit is user-visible output, including"
-      ],
-      "props": [
-        "describe",
-        "join",
-        "replace",
-        "string"
-      ],
-      "values": [
-        "1c1b779149316909",
-        "9d5e4440db18e477"
       ]
     },
     "selectDominantModelByInputTokens": {
@@ -2520,32 +2260,6 @@
       "literals": [],
       "props": []
     },
-    "buildSessionIndexEntry": {
-      "kind": "function",
-      "params": 3,
-      "literals": [],
-      "props": [
-        "compact_stats",
-        "context_used_tokens",
-        "created_at",
-        "cwd",
-        "display_name",
-        "kind",
-        "last_compact_at",
-        "last_error",
-        "last_event_at",
-        "last_event_id",
-        "last_seen_daemon_started_at",
-        "last_served_model",
-        "measured_at",
-        "model",
-        "owner_session",
-        "permission_profile",
-        "plane",
-        "post_total",
-        "source_channel_id"
-      ]
-    },
     "createMapBackedSessionIndex": {
       "kind": "function",
       "params": 1,
@@ -2772,38 +2486,6 @@
         "startsWith"
       ]
     },
-    "resolveNotifyTargetSessionKey": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [
-        " (last activity ",
-        " (never drained; session state written ",
-        " sessions share the display name \"",
-        "Ambiguous target alias: ",
-        "Retry with the full session_key of the one you mean (most recent activity first):",
-        "Target session not found: ",
-        "The target must be a foreground working session.",
-        "The target must be a persisted session key or a session display-name alias (prefer active foreground sessions).",
-        "target_session_key is required in this session.",
-        "unknown"
-      ],
-      "props": [
-        "entries",
-        "filter",
-        "join",
-        "keys",
-        "lastEventAt",
-        "last_event_at",
-        "length",
-        "localeCompare",
-        "map",
-        "sessionKey",
-        "sort",
-        "sortKey",
-        "trim",
-        "updated_at"
-      ]
-    },
     "renderNotifyDeliveryReport": {
       "kind": "function",
       "params": 4,
@@ -2835,21 +2517,6 @@
         "refused",
         "success",
         "targetSessionKey"
-      ]
-    },
-    "initNotifyToolModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        "Notify",
-        "mcp__aladuo__Notify"
-      ],
-      "props": [],
-      "values": [
-        "4e07408562bedb8b",
-        "a9d9045714fea40a",
-        "c50a1f5af4cbbf74",
-        "ef2d127de37b942b"
       ]
     },
     "buildClaudeSettingsEnvOverrides": {
@@ -4341,46 +4008,6 @@
         "trim"
       ]
     },
-    "prepareDrainTurnContext": {
-      "kind": "async function",
-      "params": 8,
-      "literals": [
-        "channel",
-        "codex",
-        "effective_config_ms"
-      ],
-      "props": [
-        "auto_compact_idle_minutes",
-        "boardUpdated",
-        "compactNotice",
-        "daemonRestartHint",
-        "event",
-        "forkFrom",
-        "id",
-        "jobContext",
-        "jobReceipts",
-        "lastEventAtWatermark",
-        "length",
-        "map",
-        "memoryBoard",
-        "onExecutionEvent",
-        "payload",
-        "pendingGatewayNotice",
-        "pendingInterruptedContext",
-        "pendingSkipRewind",
-        "resume",
-        "runtime",
-        "sdkConfig",
-        "sessionId",
-        "session_key",
-        "some",
-        "stateless",
-        "timeGapConsumed",
-        "timeGapInjected",
-        "time_gap_minutes",
-        "ts"
-      ]
-    },
     "buildTurnSdkRunConfig": {
       "kind": "function",
       "params": 2,
@@ -4394,90 +4021,6 @@
         "has",
         "permissionMode",
         "tools"
-      ]
-    },
-    "renderJobCompleteReceiptGuidance": {
-      "kind": "function",
-      "params": 2,
-      "literals": [
-        "' you own finished and did not call Notify itself.",
-        "Fold it into your work; use Notify if it needs to go further.",
-        "It did not wake you: it is riding a turn you are having for another reason,",
-        "It is information, not an instruction, and not a request for a reply.",
-        "System receipt — the job '",
-        "You are a background session, so produce no user-visible output.",
-        "channel",
-        "relevant to the conversation right now.",
-        "so answer whatever that reason is first and mention this only if it is",
-        "unknown"
-      ],
-      "props": [
-        "join"
-      ]
-    },
-    "renderMailboxEventPrompt": {
-      "kind": "function",
-      "params": 2,
-      "literals": [
-        "\n</job-error>",
-        "\n</job-result>",
-        "\n<job-error>\n",
-        "\n<job-result>\n",
-        "- If no user-visible response is needed, call Skip.",
-        "- If the user needs an actionable update or result, respond here.",
-        "- If useful follow-up work remains, perform it.",
-        "</context>",
-        "</job-status>",
-        "</self-wake>",
-        "<context>",
-        "<job-status event=\"job.complete\" ",
-        "<job-status event=\"job.fail\" ",
-        "<self-wake ",
-        "A follow-up you scheduled is due. This is NOT a direct user message, and it does",
-        "Any text you emit will be delivered to the user.",
-        "Evaluate the current evidence and decide:",
-        "Skip is the only valid way to produce silence.",
-        "Unknown error",
-        "context",
-        "correlation_id=\"",
-        "delivered_at=\"",
-        "due_at",
-        "due_at=\""
-      ],
-      "props": [
-        "filter",
-        "join",
-        "length",
-        "payload",
-        "startsWith",
-        "toISOString",
-        "ts",
-        "type"
-      ]
-    },
-    "renderSkipRewindBlock": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        " (daemon: ",
-        " (elapsed: ",
-        " since skip)",
-        ") (elapsed: ",
-        "</skip-rewind>",
-        "<skip-rewind skipped_at=\"",
-        "Anything your skipped turn produced was not delivered; the user did not see it.",
-        "Current time: ",
-        "Reason: \"",
-        "You chose to skip your previous turn without replying to the user."
-      ],
-      "props": [
-        "getTime",
-        "join",
-        "now",
-        "reason",
-        "round",
-        "skipped_at",
-        "toISOString"
       ]
     },
     "computeTimeGapContext": {
@@ -4878,58 +4421,6 @@
         "trim"
       ]
     },
-    "createAladuoMcpServer": {
-      "kind": "function",
-      "params": 2,
-      "literals": [
-        "1.0.0",
-        "Error:",
-        "aladuo",
-        "anthropic/alwaysLoad",
-        "foreground",
-        "meta",
-        "system",
-        "text"
-      ],
-      "props": [
-        "bus",
-        "callerJobCron",
-        "callerRuntime",
-        "freeze",
-        "getSessionStatus",
-        "jobScheduleType",
-        "notifyDepth",
-        "onNotifyCalled",
-        "registerTool",
-        "sessionContextKind",
-        "sessionKey",
-        "startsWith"
-      ]
-    },
-    "buildCodexDynamicTools": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "Error:",
-        "codex",
-        "foreground",
-        "meta",
-        "system"
-      ],
-      "props": [
-        "bus",
-        "callerJobCron",
-        "getSessionStatus",
-        "jobScheduleType",
-        "notifyDepth",
-        "onNotifyCalled",
-        "paths",
-        "push",
-        "sessionContextKind",
-        "sessionKey",
-        "startsWith"
-      ]
-    },
     "buildSessionExecutionPayload": {
       "kind": "function",
       "params": 1,
@@ -4959,63 +4450,6 @@
       ],
       "props": [
         "startsWith"
-      ]
-    },
-    "createJobSessionFinalizer": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        ") — a fresh claim owns the sidecar; nothing written",
-        ") — state frozen",
-        "CANCELLED_POST_ACK",
-        "CANCELLED_PRE_ACK",
-        "NEVER_STARTED_FAILURE",
-        "STARTED_FAILURE",
-        "STARTED_SUCCESS",
-        "ZERO_FED",
-        "[session-manager] auto-archived one-shot job",
-        "[session-manager] error finalizing job session",
-        "[session-manager] failed to auto-archive one-shot job",
-        "[session-manager] failed to deliver job outcome to owner",
-        "[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)",
-        "[session-manager] job completed",
-        "[session-manager] job failed",
-        "[session-manager] job failed (never started, spawn-class) — job preserved",
-        "[session-manager] job gone at finalize (",
-        "[session-manager] job outcome delivered to owner",
-        "[session-manager] job outcome undeliverable: no owner_session",
-        "[session-manager] job outcome undeliverable: owner_session is not a route target",
-        "[session-manager] job run cancelled after turn ack — archived, owner notified",
-        "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery",
-        "[session-manager] job run ended without turn ack (cancelled before start) — finalize skipped, job preserved",
-        "[session-manager] job state finalize failed ("
-      ],
-      "props": [
-        "agentNotifiedThisDrain",
-        "archiveJobIfNotRearmed",
-        "archived",
-        "cancelled",
-        "cron",
-        "emit",
-        "error",
-        "finalizeJobState",
-        "frontmatter",
-        "has",
-        "id",
-        "init",
-        "jobId",
-        "jobSnapshot",
-        "kind",
-        "message",
-        "owner_session",
-        "processedCount",
-        "reason",
-        "runAt",
-        "runStarted",
-        "run_at",
-        "slice",
-        "toISOString",
-        "trim"
       ]
     },
     "initBoardTransclusionModule": {
@@ -5053,19 +4487,6 @@
         "4734e77cbbdcf77b",
         "860b7a89c4157957",
         "ef2d127de37b942b"
-      ]
-    },
-    "initInstructionsFingerprintModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        "claudeDelivery",
-        "impliedModel"
-      ],
-      "props": [],
-      "values": [
-        "84d53cfdbfc1d030",
-        "da7ba5403e148c23"
       ]
     },
     "narrowToModelSettableAdapter": {
@@ -6247,23 +5668,6 @@
         "workDir"
       ]
     },
-    "resolveSessionByKeyOrAlias": {
-      "kind": "function",
-      "params": 2,
-      "literals": [
-        "ambiguous",
-        "not_found"
-      ],
-      "props": [
-        "display_name",
-        "filter",
-        "get",
-        "length",
-        "list",
-        "map",
-        "session_key"
-      ]
-    },
     "resolveIsolatedPlaneKind": {
       "kind": "function",
       "params": 1,
@@ -6299,60 +5703,6 @@
         "session_key",
         "trim",
         "when"
-      ]
-    },
-    "deliverExternalSessionNotify": {
-      "kind": "async function",
-      "params": 4,
-      "literals": [
-        " (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.",
-        "The calling session ",
-        "ambiguous",
-        "delivery_failed",
-        "external",
-        "external:session.notify",
-        "forbidden_kind",
-        "never",
-        "no_consumer",
-        "not_found",
-        "notify",
-        "notify-tool",
-        "route",
-        "session-notify-",
-        "session.notify",
-        "session.notify:",
-        "unknown_caller"
-      ],
-      "props": [
-        "caller_session",
-        "candidates",
-        "display_name",
-        "error",
-        "eventId",
-        "eventTs",
-        "event_id",
-        "exact_key",
-        "force",
-        "get",
-        "idempotency_key",
-        "in_reply_to",
-        "inputs",
-        "mailboxPath",
-        "message",
-        "ok",
-        "randomUUID",
-        "reason",
-        "record",
-        "refused",
-        "session_key",
-        "source",
-        "stringify",
-        "success",
-        "target",
-        "trim",
-        "ts",
-        "unconsumedHours",
-        "verdict"
       ]
     },
     "readOrSetSessionModel": {
@@ -6476,56 +5826,6 @@
         "kind",
         "scope",
         "sessionKey"
-      ]
-    },
-    "upsertChannelSpawnDescriptor": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [
-        " Send a runtime to replace it.",
-        " session key; channel.spawn creates channel sessions only.",
-        "\" belongs to channel \"",
-        "\" does not exist and could not be created.",
-        "\" is a ",
-        "\" is a reserved name for the global config file (kernel/config/",
-        "\", not \"",
-        "\". Must be one of: ",
-        "\". Must match [A-Za-z0-9_-]{1,128}.",
-        "\"; channel.spawn does not move a session to another channel.",
-        ".md), not a channel kind. Pick a different channel_kind.",
-        "Failed to create session ",
-        "Failed to write descriptor: ",
-        "Invalid channel_id \"",
-        "Unsupported runtime \"",
-        "channel",
-        "cwd_abs \"",
-        "cwd_abs is required on first-time channel.spawn (no prior descriptor to inherit from).",
-        "cwd_abs must be an absolute path (got \"",
-        "runtime is required on first-time channel.spawn (no prior descriptor to inherit from).",
-        "session_key \""
-      ],
-      "props": [
-        "bound_by",
-        "catch",
-        "channel_id",
-        "channel_kind",
-        "created_at",
-        "cwd",
-        "cwd_abs",
-        "display_name",
-        "includes",
-        "isAbsolute",
-        "join",
-        "message",
-        "new_session_workspace",
-        "require_mention",
-        "runtime",
-        "runtimeRefusal",
-        "session_key",
-        "source_channel_id",
-        "toISOString",
-        "toLowerCase",
-        "trim"
       ]
     },
     "generateSpineEventId": {
@@ -6925,47 +6225,6 @@
         "some"
       ]
     },
-    "listSessionIndexSummaries": {
-      "kind": "async function",
-      "params": 4,
-      "literals": [
-        "job:"
-      ],
-      "props": [
-        "buildSessionKey",
-        "deliverable",
-        "filter",
-        "frontmatter",
-        "has",
-        "id",
-        "include_orphans",
-        "init",
-        "kind",
-        "list",
-        "listJobs",
-        "map",
-        "named_only",
-        "session_key",
-        "some",
-        "startsWith"
-      ]
-    },
-    "runViewSessionsTool": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [
-        "Error: ",
-        "[ViewSessions] Tool execution failed",
-        "string"
-      ],
-      "props": [
-        "getSessionStatus",
-        "length",
-        "message",
-        "session_key",
-        "trim"
-      ]
-    },
     "runRemindDuoduoTool": {
       "kind": "async function",
       "params": 2,
@@ -7008,40 +6267,6 @@
         "system"
       ],
       "props": []
-    },
-    "buildNotifyInputSchema": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "Call ViewSessions with no argument to see the sessions you can target (prefer active sessions).",
-        "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery, unless that session runs no model.",
-        "If omitted, the target is the job's owner — the session that created it.",
-        "If provided, delivers to this specific session instead.",
-        "Optional unique label (e.g. 'ask-r3-bigshu') when you expect a reply.",
-        "Optional: override this job's default Notify target.",
-        "Set to the correlation_id of the request you are responding to.",
-        "Target to receive this internal notification: either a session key or a session's display-name alias (resolved server-side).",
-        "The id of the mail you are answering, when the message you received gave one.",
-        "The label is rendered into the target's inbox as an XML attribute on",
-        "The original requester sees this label and matches it against their",
-        "This tool wakes the target session after delivery, unless that session runs no model.",
-        "Use this so your future turns can recognize the matched reply by",
-        "attention-aligning on the same label in conversation history.",
-        "earlier outgoing request. Do not invent a value — only echo a label",
-        "foreground",
-        "that arrived on a request you are answering.",
-        "the <session-notify> element; the responder should echo it via reply_to."
-      ],
-      "props": [
-        "correlation_id",
-        "describe",
-        "in_reply_to",
-        "join",
-        "optional",
-        "reply_to",
-        "string",
-        "target_session_key"
-      ]
     },
     "computeBoundedEditDistance": {
       "kind": "function",
@@ -7118,56 +6343,6 @@
         "id",
         "owner_session",
         "trim"
-      ]
-    },
-    "runNotifyTool": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [
-        "). Notify must target a different session.",
-        "). This notification chain is too deep — likely a loop.",
-        "Cannot notify self (session_key=",
-        "Error: ",
-        "Notify depth limit exceeded (max ",
-        "Notify is unavailable: runtime bus is not available in this context.",
-        "Notify requires a current session context (session_key).",
-        "[Notify] Tool execution failed",
-        "channel",
-        "explicit-target",
-        "foreground",
-        "job-default-target",
-        "meta",
-        "notify",
-        "notify-tool",
-        "notify_",
-        "notify_content is required and must not be empty.",
-        "route"
-      ],
-      "props": [
-        "candidates",
-        "correlation_id",
-        "entries",
-        "error",
-        "eventId",
-        "filter",
-        "in_reply_to",
-        "inputs",
-        "jobScheduleType",
-        "length",
-        "mailboxPath",
-        "message",
-        "notifyDepth",
-        "notify_content",
-        "now",
-        "push",
-        "refused",
-        "reply_to",
-        "success",
-        "target_session_key",
-        "toString",
-        "trim",
-        "unconsumedHours",
-        "verdict"
       ]
     },
     "materializeClaudeSettingsFile": {
@@ -7820,22 +6995,6 @@
         "subconsciousDir",
         "then",
         "warn"
-      ]
-    },
-    "initRuntimeInitializationModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        "# Subconscious Playlist\n\n## Current Round\n\n## History\n",
-        "config",
-        "dashboard.html",
-        "memory",
-        "meta-prompt.md"
-      ],
-      "props": [],
-      "values": [
-        "12ae32cb1ec02d01",
-        "d9447fef62c16903"
       ]
     },
     "resolveClaudeContextRequirement": {
@@ -8706,19 +7865,6 @@
         "wakeSession"
       ]
     },
-    "setSessionAliasAndReindex": {
-      "kind": "async function",
-      "params": 3,
-      "literals": [
-        "not_found"
-      ],
-      "props": [
-        "display_name",
-        "get",
-        "session_key",
-        "trim"
-      ]
-    },
     "checkChannelRuntimeRebindConflict": {
       "kind": "async function",
       "params": 4,
@@ -9032,16 +8178,6 @@
       "props": [
         "display_name",
         "get",
-        "session_key"
-      ]
-    },
-    "filterDeliverableSessions": {
-      "kind": "async function",
-      "params": 2,
-      "literals": [],
-      "props": [
-        "push",
-        "refused",
         "session_key"
       ]
     },
@@ -9373,19 +8509,6 @@
         "named_only"
       ]
     },
-    "isSessionSetAliasParams": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "string"
-      ],
-      "props": [
-        "display_name",
-        "length",
-        "session_key",
-        "trim"
-      ]
-    },
     "isSessionWakeParams": {
       "kind": "function",
       "params": 1,
@@ -9639,49 +8762,6 @@
       "props": [],
       "values": [
         "522a552ea29ea16f"
-      ]
-    },
-    "initProtocolSystemModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        "after",
-        "anthropic_auth_token",
-        "cadence",
-        "claude_code_oauth_token",
-        "conversation",
-        "count_only",
-        "date",
-        "dedup_key",
-        "from",
-        "gateway",
-        "interval",
-        "json",
-        "kind",
-        "lark",
-        "memory.read",
-        "meta",
-        "path",
-        "payload",
-        "profile_alias_model",
-        "profile_alias_set",
-        "profile_alias_tier",
-        "profile_alias_unset",
-        "profile_auth_field",
-        "profile_auth_token"
-      ],
-      "props": [],
-      "values": [
-        "001d04a7d5afe29e",
-        "524aacc8ed79a455",
-        "53fa794a5b183311",
-        "575c607f3c8f5172",
-        "57bb676a691806e9",
-        "93330c50d7e04844",
-        "9f5ffd4ad192aefd",
-        "c5392d879069d1dc",
-        "d447a1f0c57c7e9b",
-        "d69f22f1bd387414"
       ]
     },
     "logWarnMessage": {
@@ -11980,6 +11060,1152 @@
       "props": [
         "replace",
         "trim"
+      ]
+    },
+    "evaluateNotifyConsumerRefusal": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "channel"
+      ],
+      "props": [
+        "age_ms",
+        "now",
+        "unconsumed"
+      ]
+    },
+    "listSessionsWithRecentConsumer": {
+      "kind": "async function",
+      "params": 5,
+      "literals": [
+        "channel"
+      ],
+      "props": [
+        "NaN",
+        "age_ms",
+        "attached",
+        "display_name",
+        "isFinite",
+        "listByKind",
+        "localeCompare",
+        "max",
+        "now",
+        "parse",
+        "push",
+        "session_key",
+        "sort"
+      ]
+    },
+    "renderNotifyRefusalMessage": {
+      "kind": "function",
+      "params": 5,
+      "literals": [
+        " (alias ",
+        " of its replies are waiting unread",
+        " old, and ",
+        ", and ",
+        ", so the reader knows why it arrived there.",
+        ", so there is nowhere a person would see this. Do not re-send it.",
+        "1 of its replies is waiting unread",
+        "If a person must see this, send it to a session that has a consumer; otherwise do not re-send it.",
+        "No consumer has taken this session's output for ",
+        "No session has had a consumer within the last ",
+        "Nothing was delivered. This call will not be retried.",
+        "Sessions with a consumer attached now, or that a consumer has taken output from within the last ",
+        "This session has never had a consumer, its oldest unread output is ",
+        "When you re-send it, open with what it is and that it was meant for ",
+        "consumer attached now",
+        "consumer took output "
+      ],
+      "props": [
+        "age_ms",
+        "attached",
+        "display_name",
+        "join",
+        "last_cursor_advance_at",
+        "length",
+        "push",
+        "records_past_cursor",
+        "session_key"
+      ]
+    },
+    "drainSessionMailbox": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " Request was not executed.",
+        " cancelled=true",
+        " event_id=",
+        " item_file=",
+        " not_after=",
+        " outbox=",
+        " skipped=",
+        "/compact",
+        "[runner] SDK session ID mismatch — context lost",
+        "[runner] Skip called — suppressing outbox",
+        "[runner] compact_boundary — telemetry only, no channel ack",
+        "[runner] dropping stale idle-compact item (no SDK call)",
+        "[runner] eager markDone failed (will retry at drain end)",
+        "[runner] history-control mailbox finalize failed (will be retried at drain end)",
+        "[runner] idle-compact no-op (nothing to compact) — no channel ack",
+        "[runner] in-band /compact turn — suppressing empty outbox",
+        "[runner] mailbox event unresolved: session_key=",
+        "[runner] reactive compact_boundary on coalesced turn — stamped, no channel ack",
+        "agent.error",
+        "auto",
+        "channel",
+        "claude",
+        "codex",
+        "compact_boundary"
+      ],
+      "props": [
+        "abortController",
+        "aborted",
+        "acquired",
+        "actorLastTurnCompletedAt",
+        "actorSpawnedAt",
+        "additionalDirectories",
+        "aliases",
+        "allowedTools",
+        "anchorChannelConfig",
+        "auto_compact_idle_minutes",
+        "batchSize",
+        "blocks",
+        "boardHash",
+        "boardUpdatedInjected",
+        "bus",
+        "cache_create",
+        "cache_creation_input_tokens",
+        "cache_read",
+        "cache_read_input_tokens",
+        "cancelled",
+        "catch",
+        "claude_cost_baseline",
+        "command",
+        "compactNoticeInjected",
+        "compact_stats",
+        "configLayer",
+        "consumed",
+        "context_used_tokens",
+        "costBaseline",
+        "createdAt",
+        "cron",
+        "cwd",
+        "daemonRestartHintInjected",
+        "data",
+        "disallowedTools",
+        "effectiveModel",
+        "effort",
+        "event",
+        "eventId",
+        "eventIds",
+        "events",
+        "excludeEventIds",
+        "exec",
+        "file",
+        "filter",
+        "firstTokenLatencyMs",
+        "forkFrom",
+        "gatewayNoticeInjected",
+        "get",
+        "getStreamGeneration",
+        "hadOutput",
+        "has",
+        "holdInputOpenForBackgroundAgents",
+        "id",
+        "inject",
+        "injectionResult",
+        "input_tokens",
+        "intent",
+        "interruptedContextInjected",
+        "isError"
+      ]
+    },
+    "collectInstructionsInputs": {
+      "kind": "async function",
+      "params": 5,
+      "literals": [
+        "channel"
+      ],
+      "props": [
+        "acceptance",
+        "catch",
+        "channel_kind",
+        "content",
+        "frontmatter",
+        "instance_prompt",
+        "jobId",
+        "kind_prompt",
+        "memoryBroadcastPath",
+        "origin",
+        "rendered",
+        "source_channel_id",
+        "trim"
+      ]
+    },
+    "ensureSessionDescriptorAndStateFiles": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "# Session Descriptor",
+        "High-churn runtime state is stored in state.json.",
+        "This file describes declarative metadata for this session.",
+        "[session] refused the reserved main alias on session creation",
+        "custom",
+        "meta",
+        "state"
+      ],
+      "props": [
+        "access",
+        "default",
+        "display_name",
+        "join",
+        "kind",
+        "owner_session",
+        "session_key",
+        "stringify",
+        "toISOString"
+      ]
+    },
+    "updateSessionDisplayName": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "meta",
+        "string",
+        "utf8"
+      ],
+      "props": [
+        "content",
+        "data",
+        "default",
+        "display_name",
+        "kind",
+        "length",
+        "mainAuthorized",
+        "readFile",
+        "session_key",
+        "stringify",
+        "trim"
+      ]
+    },
+    "initSkipToolModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "- A job completed with results the user is waiting for",
+        "- An error or anomaly requires user attention",
+        "- Duplicate or redundant notifications you've already addressed",
+        "- How much time has elapsed since the skip",
+        "- Intermediate job progress that isn't actionable yet",
+        "- Routine system notifications that need no user attention",
+        "- The reason you provided",
+        "- The timestamp of the skip",
+        "- The user sent a direct message",
+        "After you call Skip, nothing further you produce this turn will be delivered.",
+        "Calling Skip immediately ends this turn.",
+        "Calling Skip immediately ends this turn. Skip is the only way to produce",
+        "End this turn with no output to the user/channel.",
+        "Give a specific reason. On your next turn, a <skip-rewind> block returns:",
+        "In a turn you decide to skip, write no text before Skip — text streamed before Skip",
+        "Respond instead of skipping when:",
+        "Skip",
+        "Use Skip for:",
+        "Why you are skipping this turn. Be specific — this reason will be shown to you on your next turn via <skip-rewind> so you can maintain continuity.",
+        "acknowledgements such as \"received\" or \"no need to reply\".",
+        "belongs elsewhere, then call Skip.",
+        "can still reach the user. Tool calls before Skip are fine: do the work, or send what",
+        "mcp__aladuo__Skip",
+        "silence — any text you emit is user-visible output, including"
+      ],
+      "props": [
+        "describe",
+        "join",
+        "replace",
+        "string"
+      ],
+      "values": [
+        "1c1b779149316909",
+        "9d5e4440db18e477"
+      ]
+    },
+    "buildSessionIndexEntry": {
+      "kind": "function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "compact_stats",
+        "context_used_tokens",
+        "created_at",
+        "cwd",
+        "display_name",
+        "kind",
+        "last_compact_at",
+        "last_error",
+        "last_event_at",
+        "last_event_id",
+        "last_seen_daemon_started_at",
+        "last_served_model",
+        "main_since",
+        "measured_at",
+        "model",
+        "owner_session",
+        "permission_profile",
+        "plane",
+        "post_total",
+        "source_channel_id"
+      ]
+    },
+    "resolveNotifyTargetSessionKey": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " (last activity ",
+        " (never drained; session state written ",
+        " sessions are aliased main, so none is the main session.",
+        " sessions share the display name \"",
+        "Ambiguous target alias: ",
+        "Name the session you mean instead (prefer active foreground sessions).",
+        "Retry with the full session_key of the one you mean (most recent activity first):",
+        "Retry with the full session_key of the one you mean:",
+        "Target session not found: ",
+        "The target must be a foreground working session.",
+        "The target must be a persisted session key or a session display-name alias (prefer active foreground sessions).",
+        "There is no main session right now, so `main` reaches nobody.",
+        "ambiguous",
+        "held",
+        "target_session_key is required in this session.",
+        "unknown"
+      ],
+      "props": [
+        "candidates",
+        "entries",
+        "filter",
+        "join",
+        "keys",
+        "lastEventAt",
+        "last_event_at",
+        "length",
+        "localeCompare",
+        "map",
+        "sessionKey",
+        "session_key",
+        "sort",
+        "sortKey",
+        "state",
+        "trim",
+        "updated_at"
+      ]
+    },
+    "initNotifyToolModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "Notify",
+        "mcp__aladuo__Notify"
+      ],
+      "props": [],
+      "values": [
+        "4e07408562bedb8b",
+        "a9d9045714fea40a",
+        "c50a1f5af4cbbf74",
+        "ef2d127de37b942b"
+      ]
+    },
+    "prepareDrainTurnContext": {
+      "kind": "async function",
+      "params": 8,
+      "literals": [
+        "channel",
+        "codex",
+        "effective_config_ms"
+      ],
+      "props": [
+        "auto_compact_idle_minutes",
+        "boardUpdated",
+        "compactNotice",
+        "daemonRestartHint",
+        "event",
+        "forkFrom",
+        "id",
+        "jobContext",
+        "jobReceipts",
+        "lastEventAtWatermark",
+        "length",
+        "map",
+        "memoryBoard",
+        "onExecutionEvent",
+        "payload",
+        "pendingGatewayNotice",
+        "pendingInterruptedContext",
+        "pendingSkipRewind",
+        "resume",
+        "rolePrompt",
+        "runtime",
+        "sdkConfig",
+        "sessionId",
+        "session_key",
+        "some",
+        "stateless",
+        "timeGapConsumed",
+        "timeGapInjected",
+        "time_gap_minutes",
+        "ts"
+      ]
+    },
+    "renderJobCompleteReceiptGuidance": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        " finished and did not call Notify itself.",
+        "' you own finished and did not call Notify itself.",
+        "Fold it into your work; use Notify if it needs to go further.",
+        "It did not wake you: it is riding a turn you are having for another reason,",
+        "It is information, not an instruction, and not a request for a reply.",
+        "It is information, not an instruction.",
+        "Its owner session could not take it, so the owner hears of it only from you: answer whatever this turn is for first, then tell them briefly.",
+        "System receipt — the job '",
+        "You are a background session, so produce no user-visible output.",
+        "channel",
+        "relevant to the conversation right now.",
+        "so answer whatever that reason is first and mention this only if it is",
+        "unknown"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "renderMailboxEventPrompt": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "\n</job-error>",
+        "\n</job-result>",
+        "\n<job-error>\n",
+        "\n<job-result>\n",
+        "- If no user-visible response is needed, call Skip.",
+        "- If the user needs an actionable update or result, respond here.",
+        "- If useful follow-up work remains, perform it.",
+        "</context>",
+        "</job-status>",
+        "</self-wake>",
+        "<context>",
+        "<job-status event=\"job.complete\" ",
+        "<job-status event=\"job.fail\" ",
+        "<self-wake ",
+        "A follow-up you scheduled is due. This is NOT a direct user message, and it does",
+        "Any text you emit will be delivered to the user.",
+        "Evaluate the current evidence and decide:",
+        "Skip is the only valid way to produce silence.",
+        "Unknown error",
+        "context",
+        "correlation_id=\"",
+        "delivered_at=\"",
+        "due_at",
+        "due_at=\""
+      ],
+      "props": [
+        "filter",
+        "join",
+        "length",
+        "payload",
+        "startsWith",
+        "toISOString",
+        "ts",
+        "type"
+      ]
+    },
+    "renderSkipRewindBlock": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " (daemon: ",
+        " (elapsed: ",
+        " since skip)",
+        ") (elapsed: ",
+        "</skip-rewind>",
+        "<skip-rewind skipped_at=\"",
+        "Current time: ",
+        "Its tool calls, including anything sent elsewhere, still took effect.",
+        "Reason: \"",
+        "The text reply your skipped turn wrote to this conversation was not delivered; the user did not see it.",
+        "You chose to skip your previous turn without replying to the user."
+      ],
+      "props": [
+        "getTime",
+        "join",
+        "now",
+        "reason",
+        "round",
+        "skipped_at",
+        "toISOString"
+      ]
+    },
+    "createAladuoMcpServer": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "1.0.0",
+        "Error:",
+        "aladuo",
+        "anthropic/alwaysLoad",
+        "foreground",
+        "meta",
+        "system",
+        "text"
+      ],
+      "props": [
+        "bus",
+        "callerJobCron",
+        "callerRuntime",
+        "finalSubscriberCount",
+        "freeze",
+        "getSessionStatus",
+        "jobScheduleType",
+        "notifyDepth",
+        "onNotifyCalled",
+        "registerTool",
+        "resolveMain",
+        "sessionContextKind",
+        "sessionKey",
+        "startsWith"
+      ]
+    },
+    "buildCodexDynamicTools": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "Error:",
+        "codex",
+        "foreground",
+        "meta",
+        "system"
+      ],
+      "props": [
+        "bus",
+        "callerJobCron",
+        "finalSubscriberCount",
+        "getSessionStatus",
+        "jobScheduleType",
+        "notifyDepth",
+        "onNotifyCalled",
+        "paths",
+        "push",
+        "resolveMain",
+        "sessionContextKind",
+        "sessionKey",
+        "startsWith"
+      ]
+    },
+    "createJobSessionFinalizer": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        ") — a fresh claim owns the sidecar; nothing written",
+        ") — state frozen",
+        "CANCELLED_POST_ACK",
+        "CANCELLED_PRE_ACK",
+        "NEVER_STARTED_FAILURE",
+        "STARTED_FAILURE",
+        "STARTED_SUCCESS",
+        "ZERO_FED",
+        "[session-manager] auto-archived one-shot job",
+        "[session-manager] error finalizing job session",
+        "[session-manager] failed to auto-archive one-shot job",
+        "[session-manager] failed to deliver job outcome",
+        "[session-manager] inbox fresh-name read failed at finalize — conservative re-drive (capped)",
+        "[session-manager] job completed",
+        "[session-manager] job failed",
+        "[session-manager] job failed (never started, spawn-class) — job preserved",
+        "[session-manager] job gone at finalize (",
+        "[session-manager] job outcome delivered",
+        "[session-manager] job outcome undeliverable: no live owner and no usable main",
+        "[session-manager] job run cancelled after turn ack — archived, owner notified",
+        "[session-manager] job run cancelled after turn ack — consumed + failure marker, job preserved, no delivery",
+        "[session-manager] job run ended without turn ack (cancelled before start) — finalize skipped, job preserved",
+        "[session-manager] job state finalize failed (",
+        "[session-manager] skip auto-archive: job already gone (archived mid-run)"
+      ],
+      "props": [
+        "agentNotifiedThisDrain",
+        "archiveJobIfNotRearmed",
+        "archived",
+        "cancelled",
+        "catch",
+        "cron",
+        "emit",
+        "error",
+        "finalizeJobState",
+        "frontmatter",
+        "has",
+        "id",
+        "init",
+        "jobId",
+        "jobSnapshot",
+        "kind",
+        "message",
+        "owner_session",
+        "processedCount",
+        "reason",
+        "refused",
+        "runAt",
+        "runStarted",
+        "run_at",
+        "session_key",
+        "slice",
+        "state",
+        "toISOString",
+        "trim"
+      ]
+    },
+    "resolveSessionByKeyOrAlias": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "ambiguous",
+        "held",
+        "not_found"
+      ],
+      "props": [
+        "candidates",
+        "display_name",
+        "filter",
+        "get",
+        "length",
+        "list",
+        "map",
+        "session_key",
+        "state"
+      ]
+    },
+    "deliverExternalSessionNotify": {
+      "kind": "async function",
+      "params": 5,
+      "literals": [
+        " (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.",
+        "The calling session ",
+        "ambiguous",
+        "delivery_failed",
+        "external",
+        "external:session.notify",
+        "forbidden_kind",
+        "never",
+        "no_consumer",
+        "not_found",
+        "notify",
+        "notify-tool",
+        "route",
+        "session-notify-",
+        "session.notify",
+        "session.notify:",
+        "unknown_caller"
+      ],
+      "props": [
+        "caller_session",
+        "candidates",
+        "display_name",
+        "error",
+        "eventId",
+        "eventTs",
+        "event_id",
+        "exact_key",
+        "force",
+        "get",
+        "idempotency_key",
+        "in_reply_to",
+        "inputs",
+        "mailboxPath",
+        "message",
+        "ok",
+        "randomUUID",
+        "reason",
+        "record",
+        "refused",
+        "session_key",
+        "source",
+        "stringify",
+        "success",
+        "target",
+        "trim",
+        "ts",
+        "unconsumedHours",
+        "verdict"
+      ]
+    },
+    "upsertChannelSpawnDescriptor": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        " --move",
+        " Send a runtime to replace it.",
+        " session key; channel.spawn creates channel sessions only.",
+        "\" belongs to channel \"",
+        "\" does not exist and could not be created.",
+        "\" is a ",
+        "\" is a reserved name for the global config file (kernel/config/",
+        "\" is reserved for the main session and cannot be set by channel.spawn. Nothing was written. Spawn with another display name; the owner makes a session main with: duoduo session alias <session_key> ",
+        "\", not \"",
+        "\". Must be one of: ",
+        "\". Must match [A-Za-z0-9_-]{1,128}.",
+        "\"; channel.spawn does not move a session to another channel.",
+        ".md), not a channel kind. Pick a different channel_kind.",
+        "Failed to create session ",
+        "Failed to write descriptor: ",
+        "Invalid channel_id \"",
+        "Unsupported runtime \"",
+        "channel",
+        "cwd_abs \"",
+        "cwd_abs is required on first-time channel.spawn (no prior descriptor to inherit from).",
+        "cwd_abs must be an absolute path (got \"",
+        "runtime is required on first-time channel.spawn (no prior descriptor to inherit from).",
+        "session_key \""
+      ],
+      "props": [
+        "bound_by",
+        "catch",
+        "channel_id",
+        "channel_kind",
+        "created_at",
+        "cwd",
+        "cwd_abs",
+        "display_name",
+        "includes",
+        "isAbsolute",
+        "join",
+        "message",
+        "new_session_workspace",
+        "require_mention",
+        "runtime",
+        "runtimeRefusal",
+        "session_key",
+        "source_channel_id",
+        "toISOString",
+        "toLowerCase",
+        "trim"
+      ]
+    },
+    "listSessionIndexSummaries": {
+      "kind": "async function",
+      "params": 5,
+      "literals": [
+        "ambiguous",
+        "candidate",
+        "held",
+        "job:"
+      ],
+      "props": [
+        "buildSessionKey",
+        "candidates",
+        "deliverable",
+        "filter",
+        "frontmatter",
+        "has",
+        "id",
+        "include_orphans",
+        "includes",
+        "init",
+        "kind",
+        "list",
+        "listJobs",
+        "main_since",
+        "map",
+        "named_only",
+        "session_key",
+        "some",
+        "startsWith",
+        "state"
+      ]
+    },
+    "runViewSessionsTool": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "Error: ",
+        "[ViewSessions] Tool execution failed",
+        "string"
+      ],
+      "props": [
+        "finalSubscriberCount",
+        "getSessionStatus",
+        "length",
+        "message",
+        "session_key",
+        "trim"
+      ]
+    },
+    "buildNotifyInputSchema": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "Call ViewSessions with no argument to see the sessions you can target (prefer active sessions).",
+        "Call ViewSessions with no argument to see the sessions you can target, by either its session key or its display-name alias (resolved server-side). This tool wakes the target session after delivery, unless that session runs no model.",
+        "If omitted, the target is the job's owner — the session that created it.",
+        "If provided, delivers to this specific session instead.",
+        "Optional unique label (e.g. 'ask-r3-bigshu') when you expect a reply.",
+        "Optional: override this job's default Notify target.",
+        "Set to the correlation_id of the request you are responding to.",
+        "Target to receive this internal notification: either a session key or a session's display-name alias (resolved server-side).",
+        "The id of the mail you are answering, when the message you received gave one.",
+        "The label is rendered into the target's inbox as an XML attribute on",
+        "The original requester sees this label and matches it against their",
+        "This tool wakes the target session after delivery, unless that session runs no model.",
+        "Use this so your future turns can recognize the matched reply by",
+        "`main` is the main session, resolved when the notification is delivered.",
+        "attention-aligning on the same label in conversation history.",
+        "earlier outgoing request. Do not invent a value — only echo a label",
+        "foreground",
+        "that arrived on a request you are answering.",
+        "the <session-notify> element; the responder should echo it via reply_to."
+      ],
+      "props": [
+        "correlation_id",
+        "describe",
+        "in_reply_to",
+        "join",
+        "optional",
+        "reply_to",
+        "string",
+        "target_session_key"
+      ]
+    },
+    "runNotifyTool": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        "). Notify must target a different session.",
+        "). This notification chain is too deep — likely a loop.",
+        "Cannot notify self (session_key=",
+        "Error: ",
+        "Notify depth limit exceeded (max ",
+        "Notify is unavailable: runtime bus is not available in this context.",
+        "Notify requires a current session context (session_key).",
+        "[Notify] Tool execution failed",
+        "channel",
+        "explicit-target",
+        "foreground",
+        "job-default-target",
+        "meta",
+        "notify",
+        "notify-tool",
+        "notify_",
+        "notify_content is required and must not be empty.",
+        "route"
+      ],
+      "props": [
+        "candidates",
+        "correlation_id",
+        "entries",
+        "error",
+        "eventId",
+        "filter",
+        "finalSubscriberCount",
+        "in_reply_to",
+        "inputs",
+        "jobScheduleType",
+        "length",
+        "mailboxPath",
+        "message",
+        "notifyDepth",
+        "notify_content",
+        "now",
+        "push",
+        "refused",
+        "reply_to",
+        "resolveMain",
+        "success",
+        "target_session_key",
+        "toString",
+        "trim",
+        "unconsumedHours",
+        "verdict"
+      ]
+    },
+    "initRuntimeInitializationModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "# Subconscious Playlist\n\n## Current Round\n\n## History\n",
+        "config",
+        "dashboard.html",
+        "memory",
+        "meta-prompt.md",
+        "roles"
+      ],
+      "props": [],
+      "values": [
+        "12ae32cb1ec02d01",
+        "d9447fef62c16903"
+      ]
+    },
+    "filterDeliverableSessions": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [],
+      "props": [
+        "push",
+        "refused",
+        "session_key"
+      ]
+    },
+    "isSessionSetAliasParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "boolean",
+        "string"
+      ],
+      "props": [
+        "caller_in_session",
+        "caller_session",
+        "display_name",
+        "length",
+        "move",
+        "session_key",
+        "trim"
+      ]
+    },
+    "initProtocolSystemModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "after",
+        "anthropic_auth_token",
+        "cadence",
+        "claude_code_oauth_token",
+        "conversation",
+        "count_only",
+        "date",
+        "dedup_key",
+        "from",
+        "gateway",
+        "interval",
+        "json",
+        "kind",
+        "lark",
+        "memory.read",
+        "meta",
+        "path",
+        "payload",
+        "profile_alias_model",
+        "profile_alias_set",
+        "profile_alias_tier",
+        "profile_alias_unset",
+        "profile_auth_field",
+        "profile_auth_token"
+      ],
+      "props": [],
+      "values": [
+        "001d04a7d5afe29e",
+        "524aacc8ed79a455",
+        "53fa794a5b183311",
+        "575c607f3c8f5172",
+        "57bb676a691806e9",
+        "93330c50d7e04844",
+        "9f5ffd4ad192aefd",
+        "c5392d879069d1dc",
+        "d447a1f0c57c7e9b",
+        "d69f22f1bd387414"
+      ]
+    },
+    "initInstructionsFingerprintModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "claudeDelivery",
+        "impliedModel"
+      ],
+      "props": [],
+      "values": [
+        "84d53cfdbfc1d030",
+        "da7ba5403e148c23"
+      ]
+    },
+    "setSessionAliasAndReindex": {
+      "kind": "async function",
+      "params": 4,
+      "literals": [
+        "not_found"
+      ],
+      "props": [
+        "display_name",
+        "get",
+        "paths",
+        "sessionIndex"
+      ]
+    },
+    "selectSessionRolePrompt": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "channel",
+        "held",
+        "main",
+        "member"
+      ],
+      "props": [
+        "session_key",
+        "state"
+      ]
+    },
+    "resolveMainSessionHolder": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "absent",
+        "ambiguous",
+        "held"
+      ],
+      "props": [
+        "add",
+        "length",
+        "session_key",
+        "sort"
+      ]
+    },
+    "isMainAliasedChannelSession": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "channel",
+        "string"
+      ],
+      "props": [
+        "display_name",
+        "session_key",
+        "trim"
+      ]
+    },
+    "isReservedMainAliasChange": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "channel"
+      ],
+      "props": [
+        "trim"
+      ]
+    },
+    "resolveMainSessionFromIndex": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "list"
+      ]
+    },
+    "setSessionAliasWithMainRole": {
+      "kind": "async function",
+      "params": 2,
+      "literals": [
+        " already aliased main, and there is only one main session. Nothing was changed. To make ",
+        " the main session instead, the current main session or the owner from their own terminal runs: ",
+        "[main-role] main session set",
+        "channel",
+        "main_held",
+        "not_found"
+      ],
+      "props": [
+        "display_name",
+        "filter",
+        "join",
+        "length",
+        "move",
+        "ok",
+        "paths",
+        "sessionIndex",
+        "session_key",
+        "trim"
+      ]
+    },
+    "checkMainAliasCallerAuthority": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        " or the owner from their own terminal can change which session is main. Nothing was changed. Ask the owner to run it from their own terminal: ",
+        "Changing which session is main is refused here: this command ran inside a session that could not be identified. Nothing was changed. Ask the owner to run it from their own terminal: ",
+        "Only ",
+        "held",
+        "no_caller",
+        "not_main",
+        "the current main session",
+        "the current main session ("
+      ],
+      "props": [
+        "caller_in_session",
+        "caller_session",
+        "display_name",
+        "move",
+        "session_key",
+        "state",
+        "trim"
+      ]
+    },
+    "announceMainSessionChange": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "[main-role] main_since stamp failed"
+      ],
+      "props": [
+        "catch",
+        "paths",
+        "sessionIndex",
+        "toISOString"
+      ]
+    },
+    "reconcileMainSessionAtBoot": {
+      "kind": "async function",
+      "params": 1,
+      "literals": [
+        "[main-role] ambiguous main session at boot",
+        "[main-role] stamping an existing main session",
+        "ambiguous",
+        "held"
+      ],
+      "props": [
+        "candidates",
+        "get",
+        "main_since",
+        "sessionIndex",
+        "session_key",
+        "state"
+      ]
+    },
+    "buildMainRoleContext": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        "main-role"
+      ],
+      "props": []
+    },
+    "runSessionSetAliasRpc": {
+      "kind": "async function",
+      "params": 5,
+      "literals": [],
+      "props": []
+    },
+    "initMainSessionAliasModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "main"
+      ],
+      "props": [],
+      "values": [
+        "e4a9e4d8baa71a9d"
+      ]
+    },
+    "describeStandInJobOwner": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " (it reached you as the main session)",
+        "owned by session ",
+        "that has no recorded owner (it reached you as the main session)"
+      ],
+      "props": [
+        "owner"
       ]
     }
   }

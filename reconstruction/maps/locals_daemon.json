@@ -2183,39 +2183,45 @@
   ],
   "buildSystemPromptForChannelConfig": [
     {
-      "ctx": "58fb029dfbb1b5c3",
+      "ctx": "9d54a0d66063d036",
       "occ": 0,
       "name": "channelConfig",
       "src": "llm"
     },
     {
-      "ctx": "7ba348e878b36f12",
+      "ctx": "3cdb10fc162f01d4",
       "occ": 0,
       "name": "sessionKey",
       "src": "llm"
     },
     {
-      "ctx": "9def32c499b9ce9e",
+      "ctx": "51e32d46823295c5",
       "occ": 0,
-      "name": "job",
+      "name": "jobMission",
       "src": "llm"
     },
     {
-      "ctx": "4863a266007669be",
+      "ctx": "76bc2d3fe25f1a71",
       "occ": 0,
       "name": "board",
       "src": "llm"
     },
     {
-      "ctx": "746694c5f91342fd",
+      "ctx": "1c9356950d9ee1ce",
       "occ": 0,
       "name": "runtime",
       "src": "llm"
     },
     {
-      "ctx": "799232ca54cdec56",
+      "ctx": "1d73a74c88a16d0a",
       "occ": 0,
-      "name": "append",
+      "name": "rolePrompt",
+      "src": "llm"
+    },
+    {
+      "ctx": "6a3a37f695bfc0a7",
+      "occ": 0,
+      "name": "appendText",
       "src": "llm"
     }
   ],
@@ -3083,37 +3089,43 @@
   ],
   "collectInstructionsInputs": [
     {
-      "ctx": "5a195e3fdccad006",
+      "ctx": "da2c2d5769f5f62d",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "e027dbce872334ab",
+      "ctx": "c16f217cc9aaf347",
       "occ": 0,
       "name": "sessionKey",
       "src": "llm"
     },
     {
-      "ctx": "344cee93bef4f14d",
+      "ctx": "1ead244de66905b0",
       "occ": 0,
-      "name": "actorOrigin",
+      "name": "actor",
       "src": "llm"
     },
     {
-      "ctx": "fe3d9daf287ba9f4",
+      "ctx": "e2d72fc6c1546394",
       "occ": 0,
-      "name": "job",
+      "name": "jobSnapshot",
       "src": "llm"
     },
     {
-      "ctx": "535eb9afbd4ca4b0",
+      "ctx": "6ebfb1c165d4bde3",
+      "occ": 0,
+      "name": "rolePrompt",
+      "src": "llm"
+    },
+    {
+      "ctx": "d7460dc76f765c19",
       "occ": 0,
       "name": "identity",
       "src": "llm"
     },
     {
-      "ctx": "36eff9f3251f6ef1",
+      "ctx": "bc54ed4a820d778a",
       "occ": 0,
       "name": "memoryBoard",
       "src": "llm"
@@ -3284,6 +3296,26 @@
       "ctx": "47b96f2cb9c090b5",
       "occ": 0,
       "name": "b",
+      "src": "llm"
+    }
+  ],
+  "composeIdentityLayer": [
+    {
+      "ctx": "bcccfeb1f9b9a4a8",
+      "occ": 0,
+      "name": "metaPrompt",
+      "src": "llm"
+    },
+    {
+      "ctx": "8196a02fc436fb44",
+      "occ": 0,
+      "name": "rolePrompt",
+      "src": "llm"
+    },
+    {
+      "ctx": "d4b388be2cef4336",
+      "occ": 0,
+      "name": "identityLayer",
       "src": "llm"
     }
   ],
@@ -4485,19 +4517,19 @@
   ],
   "createAladuoMcpServer": [
     {
-      "ctx": "e65b9582a4d060a6",
+      "ctx": "8f9e728616a3071e",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "ee3ef64dea5647c5",
+      "ctx": "857436051f0de6ad",
       "occ": 0,
       "name": "options",
       "src": "llm"
     },
     {
-      "ctx": "7ecee66500f4e3aa",
+      "ctx": "ff3495111750ea11",
       "occ": 0,
       "name": "server",
       "src": "llm"
@@ -5805,55 +5837,61 @@
   ],
   "createDaemon": [
     {
-      "ctx": "b2024a787c93f91a",
+      "ctx": "aed4d50a740210ed",
       "occ": 0,
       "name": "options",
       "src": "llm"
     },
     {
-      "ctx": "80bb33e724137bd0",
+      "ctx": "fc15257e86c63288",
       "occ": 0,
-      "name": "readOnlyApp",
+      "name": "app",
       "src": "llm"
     },
     {
-      "ctx": "f06497b446cf7142",
+      "ctx": "072c86f825ca3e72",
+      "occ": 0,
+      "name": "maxPayload",
+      "src": "llm"
+    },
+    {
+      "ctx": "158bd86367a9378a",
       "occ": 0,
       "name": "socketApp",
       "src": "llm"
     },
     {
-      "ctx": "16fb2bccf653e147",
+      "ctx": "dfd06870e48d72dd",
       "occ": 0,
       "name": "remoteApp",
       "src": "llm"
     },
     {
-      "ctx": "5e26beec955aac9e",
+      "ctx": "65737d130fe1dd94",
       "occ": 0,
       "name": "allowedHostnames",
       "src": "llm"
     },
     {
-      "ctx": "d3626dd2c52daee4",
+      "ctx": "5efc29256006d0ab",
       "occ": 0,
-      "name": "sendRejection",
+      "name": "rejectRequest",
       "src": "llm"
     },
     {
-      "ctx": "a03c6b7651aa77c7",
+      "ctx": "6afbe80324a753f2",
       "occ": 0,
       "name": "request",
       "src": "llm"
     },
     {
-      "ctx": "4690cc39ab9b4b07",
+      "ctx": "29d3cecf45493d72",
       "occ": 0,
       "name": "reply",
       "src": "llm"
     },
     {
-      "ctx": "db961ab02b9b9278",
+      "ctx": "a70fa360c51c5e20",
       "occ": 0,
       "name": "statusCode",
       "src": "llm"
@@ -5967,33 +6005,45 @@
       "src": "llm"
     },
     {
-      "ctx": "78040d984184c0aa",
+      "ctx": "713fb497496dc87c",
       "occ": 0,
       "name": "subscriptions",
       "src": "llm"
     },
     {
-      "ctx": "f6768c75b873d21f",
+      "ctx": "07ca18f58af80bd8",
       "occ": 0,
-      "name": "wsSubscriberCounter",
+      "name": "finalSubscriberCount",
       "src": "llm"
     },
     {
-      "ctx": "6d047ee26a0dcae9",
+      "ctx": "17921f593dd9793a",
+      "occ": 0,
+      "name": "sessionKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "32bf770f357d7435",
+      "occ": 0,
+      "name": "wsSubscriberSeq",
+      "src": "llm"
+    },
+    {
+      "ctx": "4b06b1cbb42c667d",
       "occ": 0,
       "name": "runtimeLockHeld",
       "src": "llm"
     },
     {
-      "ctx": "cc0afa4f050a8549",
+      "ctx": "e1a3f525890d36d7",
       "occ": 0,
       "name": "lockHeartbeatTimer",
       "src": "llm"
     },
     {
-      "ctx": "b4f83dde8e7ca680",
+      "ctx": "28f744432f396ba2",
       "occ": 0,
-      "name": "traceLevelMethods",
+      "name": "quietRpcMethods",
       "src": "llm"
     },
     {
@@ -6147,7 +6197,7 @@
       "src": "llm"
     },
     {
-      "ctx": "164cfcb3e4cf5de7",
+      "ctx": "661754fd82c171b8",
       "occ": 0,
       "name": "listParams",
       "src": "llm"
@@ -6171,15 +6221,15 @@
       "src": "llm"
     },
     {
-      "ctx": "6dc7cc77b5b41b99",
+      "ctx": "230edc5c8b252ed2",
       "occ": 0,
-      "name": "viewSessionsOutput",
+      "name": "viewOutput",
       "src": "llm"
     },
     {
-      "ctx": "e16330d7c2fb2631",
+      "ctx": "07600d9584b14bcb",
       "occ": 0,
-      "name": "sessionKey",
+      "name": "actorSessionKey",
       "src": "llm"
     },
     {
@@ -6501,7 +6551,7 @@
       "src": "llm"
     },
     {
-      "ctx": "584387a6ead0e01d",
+      "ctx": "a33714ddb922b275",
       "occ": 0,
       "name": "partition",
       "src": "llm"
@@ -6867,13 +6917,13 @@
       "src": "llm"
     },
     {
-      "ctx": "7313e9555b9bb799",
+      "ctx": "736626293493b4cc",
       "occ": 0,
       "name": "socketListening",
       "src": "llm"
     },
     {
-      "ctx": "f29948af9b0d308a",
+      "ctx": "6922ee801c6e47b3",
       "occ": 0,
       "name": "socketPathBytes",
       "src": "llm"
@@ -8071,21 +8121,21 @@
   ],
   "createJobSessionFinalizer": [
     {
-      "ctx": "c66adcee32a08ef6",
+      "ctx": "5db46cc3b5067c0c",
       "occ": 0,
       "name": "deps",
       "src": "llm"
     },
     {
-      "ctx": "f26e9499c028852d",
+      "ctx": "8ee934c88f200fe1",
       "occ": 0,
       "name": "listSessionInboxPendingNames",
       "src": "llm"
     },
     {
-      "ctx": "293bf602a38e9e3a",
+      "ctx": "7734b1b394f124e6",
       "occ": 0,
-      "name": "sessionKey",
+      "name": "inboxSessionKey",
       "src": "llm"
     },
     {
@@ -8299,27 +8349,87 @@
       "src": "llm"
     },
     {
-      "ctx": "56a5938277d434b0",
+      "ctx": "024ea1fb9eabd030",
       "occ": 0,
       "name": "sourceSessionKey",
       "src": "llm"
     },
     {
-      "ctx": "2cc2fb9036cd58f8",
+      "ctx": "7ad408d7334bc8b0",
       "occ": 0,
       "name": "eventType",
       "src": "llm"
     },
     {
-      "ctx": "19dbcc8c495d4648",
+      "ctx": "bd16ab9f7baace60",
       "occ": 0,
       "name": "payload",
       "src": "llm"
     },
     {
-      "ctx": "24988b6e8f7b207e",
+      "ctx": "af45ae821897e072",
       "occ": 0,
       "name": "ownerSession",
+      "src": "llm"
+    },
+    {
+      "ctx": "a6c94d5a322c29e3",
+      "occ": 0,
+      "name": "ownerTarget",
+      "src": "llm"
+    },
+    {
+      "ctx": "577b5bf7470704a6",
+      "occ": 0,
+      "name": "ownerReachable",
+      "src": "llm"
+    },
+    {
+      "ctx": "4bcf256bb6b751ff",
+      "occ": 0,
+      "name": "mainResolution",
+      "src": "llm"
+    },
+    {
+      "ctx": "d1d4638cff370585",
+      "occ": 0,
+      "name": "mainRefusal",
+      "src": "llm"
+    },
+    {
+      "ctx": "5d736956b565b68b",
+      "occ": 0,
+      "name": "deliverJobEvent",
+      "src": "llm"
+    },
+    {
+      "ctx": "1f97e5b4e4e18e7e",
+      "occ": 0,
+      "name": "deliveredJob",
+      "src": "llm"
+    },
+    {
+      "ctx": "eeb822cf4240a0c2",
+      "occ": 0,
+      "name": "deliverSourceSessionKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "8cb06538502a0372",
+      "occ": 0,
+      "name": "deliverEventType",
+      "src": "llm"
+    },
+    {
+      "ctx": "356efcc75467fd89",
+      "occ": 0,
+      "name": "deliverPayload",
+      "src": "llm"
+    },
+    {
+      "ctx": "8ffae7b6f0e6c007",
+      "occ": 0,
+      "name": "targetSessionKey",
       "src": "llm"
     }
   ],
@@ -8431,13 +8541,13 @@
       "src": "llm"
     },
     {
-      "ctx": "597a97f2a64c0b19",
+      "ctx": "df149bb0f57f78a8",
       "occ": 0,
       "name": "grokAvailability",
       "src": "llm"
     },
     {
-      "ctx": "b6941efff2b037cd",
+      "ctx": "d3d667e22020261b",
       "occ": 0,
       "name": "piAdapterFactory",
       "src": "llm"
@@ -8791,9 +8901,9 @@
       "src": "llm"
     },
     {
-      "ctx": "53a53e9027bfd794",
+      "ctx": "8e06396cbd44fa5b",
       "occ": 0,
-      "name": "tools",
+      "name": "partitionTools",
       "src": "llm"
     },
     {
@@ -9911,19 +10021,19 @@
       "src": "llm"
     },
     {
-      "ctx": "1f1d2dedff8ff3cb",
+      "ctx": "ea68a80d8af9fe73",
       "occ": 0,
       "name": "codexAvailability",
       "src": "llm"
     },
     {
-      "ctx": "9ea4c4a074f6debb",
+      "ctx": "f137b69233dbf133",
       "occ": 0,
       "name": "codexAdapterFactory",
       "src": "llm"
     },
     {
-      "ctx": "992718b2774bc2f4",
+      "ctx": "978c407c315172ac",
       "occ": 0,
       "name": "probeCodexAvailability",
       "src": "llm"
@@ -10547,7 +10657,13 @@
       "src": "llm"
     },
     {
-      "ctx": "abb52cefdd923faa",
+      "ctx": "2c9e5aa6abeb81dc",
+      "occ": 0,
+      "name": "rolePrompt",
+      "src": "llm"
+    },
+    {
+      "ctx": "0f943195b1be21c9",
       "occ": 0,
       "name": "fingerprintGuard",
       "src": "llm"
@@ -10829,9 +10945,9 @@
       "src": "llm"
     },
     {
-      "ctx": "16ea89d9a55184a7",
+      "ctx": "72fd6995e218a142",
       "occ": 0,
-      "name": "targetSessionKey",
+      "name": "statusSessionKey",
       "src": "llm"
     },
     {
@@ -10841,9 +10957,9 @@
       "src": "llm"
     },
     {
-      "ctx": "e4816b8169e3b096",
+      "ctx": "861f4da3f2a2829e",
       "occ": 0,
-      "name": "targetSessionKey",
+      "name": "drainStatusSessionKey",
       "src": "llm"
     },
     {
@@ -10961,9 +11077,9 @@
       "src": "llm"
     },
     {
-      "ctx": "e4816b8169e3b096",
+      "ctx": "861f4da3f2a2829e",
       "occ": 1,
-      "name": "targetSessionKey",
+      "name": "turnStatusSessionKey",
       "src": "llm"
     },
     {
@@ -12303,33 +12419,39 @@
   ],
   "deliverDaemonRestartWakes": [
     {
-      "ctx": "45e783ec9f1909ba",
+      "ctx": "ba433b3a78e35a14",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "9b32cac08e0e0aff",
+      "ctx": "74f333cfab54b17b",
       "occ": 0,
       "name": "bus",
       "src": "llm"
     },
     {
-      "ctx": "74a6e37e3a3da348",
+      "ctx": "0a3db1880437288d",
       "occ": 0,
       "name": "sessionIndex",
       "src": "llm"
     },
     {
-      "ctx": "107cf4a2868e2c66",
+      "ctx": "94808304e6eddc4f",
       "occ": 0,
       "name": "restartReason",
       "src": "llm"
     },
     {
-      "ctx": "b330dd74291e3299",
+      "ctx": "3f753b5e68547775",
       "occ": 0,
-      "name": "target",
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    },
+    {
+      "ctx": "bc1f1c7161bdff01",
+      "occ": 0,
+      "name": "wakeTarget",
       "src": "llm"
     },
     {
@@ -12347,31 +12469,37 @@
   ],
   "deliverExternalSessionNotify": [
     {
-      "ctx": "ee998e720de7e726",
+      "ctx": "c9ca83c8d6fdbd3e",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "e79d29e5e8e683ee",
+      "ctx": "e170fe1f5899f818",
       "occ": 0,
       "name": "bus",
       "src": "llm"
     },
     {
-      "ctx": "f4e040296a97afcd",
+      "ctx": "ae5049ba17e54f57",
       "occ": 0,
       "name": "sessionIndex",
       "src": "llm"
     },
     {
-      "ctx": "eb1b740f5980708a",
+      "ctx": "b093fd32e6826d3b",
       "occ": 0,
       "name": "params",
       "src": "llm"
     },
     {
-      "ctx": "95f43fe48946e4a0",
+      "ctx": "2acbda9095071026",
+      "occ": 0,
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    },
+    {
+      "ctx": "c9a70496e7610a34",
       "occ": 0,
       "name": "resolved",
       "src": "llm"
@@ -12467,7 +12595,7 @@
       "src": "llm"
     },
     {
-      "ctx": "6f8aaadab2f9b5cf",
+      "ctx": "06e27810ff0ab816",
       "occ": 0,
       "name": "refusal",
       "src": "llm"
@@ -13939,25 +14067,25 @@
       "src": "llm"
     },
     {
-      "ctx": "84edf6edfd0062a3",
+      "ctx": "328e433db2ff0408",
       "occ": 0,
       "name": "queryResult",
       "src": "llm"
     },
     {
-      "ctx": "50fdd86eeab3e217",
+      "ctx": "479350ad1b513269",
       "occ": 0,
-      "name": "streamHandler",
+      "name": "onStreamForEvent",
       "src": "llm"
     },
     {
-      "ctx": "df0a46d2fe40ec32",
+      "ctx": "561fdc2e807f2e9c",
       "occ": 0,
-      "name": "chunk",
+      "name": "streamChunk",
       "src": "llm"
     },
     {
-      "ctx": "c9ead99ada48d48d",
+      "ctx": "6e04d9eb811c6c31",
       "occ": 0,
       "name": "streamMeta",
       "src": "llm"
@@ -14317,31 +14445,31 @@
   ],
   "ensureSessionDescriptorAndStateFiles": [
     {
-      "ctx": "73f086ada6c73eac",
+      "ctx": "aa476183b3821a23",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "286ecd5b546aad06",
+      "ctx": "bbd6de4731f01bc6",
+      "occ": 0,
+      "name": "input",
+      "src": "llm"
+    },
+    {
+      "ctx": "58684d13faea2f06",
       "occ": 0,
       "name": "descriptor",
       "src": "llm"
     },
     {
-      "ctx": "91920f71563ba797",
-      "occ": 0,
-      "name": "meta",
-      "src": "llm"
-    },
-    {
-      "ctx": "d4eda5fb80697e89",
+      "ctx": "7306309039c8e617",
       "occ": 0,
       "name": "metaCreated",
       "src": "llm"
     },
     {
-      "ctx": "b12968d761da85c3",
+      "ctx": "40a34a13f3ec6646",
       "occ": 0,
       "name": "stateCreated",
       "src": "llm"
@@ -14377,25 +14505,31 @@
   ],
   "evaluateNotifyConsumerRefusal": [
     {
-      "ctx": "93609634d730efec",
+      "ctx": "1256170887d07cae",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "fad79a26f70731be",
+      "ctx": "79e3994cfae4252b",
       "occ": 0,
       "name": "sessionKey",
       "src": "llm"
     },
     {
-      "ctx": "60e2b1a400ea4f46",
+      "ctx": "13102b08c6409610",
+      "occ": 0,
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    },
+    {
+      "ctx": "190bc152a1502be3",
       "occ": 0,
       "name": "consumerInputs",
       "src": "llm"
     },
     {
-      "ctx": "4fb686161ed285fa",
+      "ctx": "682fe280a980ae3d",
       "occ": 0,
       "name": "verdict",
       "src": "llm"
@@ -15199,25 +15333,31 @@
   ],
   "filterDeliverableSessions": [
     {
-      "ctx": "17b2476be4adb153",
+      "ctx": "0f27658b9d858402",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "82b7d314ac85ee87",
+      "ctx": "e45bea406a7632d6",
       "occ": 0,
       "name": "sessions",
       "src": "llm"
     },
     {
-      "ctx": "6a428e64c8a5cd36",
+      "ctx": "8872c87c91aa0eab",
+      "occ": 0,
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    },
+    {
+      "ctx": "523942bf4529adea",
       "occ": 0,
       "name": "deliverable",
       "src": "llm"
     },
     {
-      "ctx": "bd8b88d12ba70f12",
+      "ctx": "422df90cb53116fc",
       "occ": 0,
       "name": "session",
       "src": "llm"
@@ -15259,7 +15399,7 @@
     {
       "ctx": "c1493f4ed94925c0",
       "occ": 0,
-      "name": "i",
+      "name": "index",
       "src": "llm"
     }
   ],
@@ -15527,7 +15667,7 @@
     {
       "ctx": "da31612c99ad9bb5",
       "occ": 0,
-      "name": "a",
+      "name": "left",
       "src": "llm"
     },
     {
@@ -18495,7 +18635,7 @@
   ],
   "isSessionSetAliasParams": [
     {
-      "ctx": "7614e42ab6476690",
+      "ctx": "339325e43c797838",
       "occ": 0,
       "name": "params",
       "src": "llm"
@@ -19165,39 +19305,45 @@
   ],
   "listSessionIndexSummaries": [
     {
-      "ctx": "6132177930373021",
+      "ctx": "d429a596319dbbd8",
       "occ": 0,
       "name": "sessionIndex",
       "src": "llm"
     },
     {
-      "ctx": "b56ce6051a3dc06b",
+      "ctx": "197db5bf90beb0d7",
       "occ": 0,
       "name": "jobStore",
       "src": "llm"
     },
     {
-      "ctx": "a30ea9aa356b8bde",
+      "ctx": "d616070725bd08c7",
       "occ": 0,
       "name": "filter",
       "src": "llm"
     },
     {
-      "ctx": "c09e21456800a385",
+      "ctx": "ff9e7be090c37d65",
       "occ": 0,
       "name": "deliverableDeps",
       "src": "llm"
     },
     {
-      "ctx": "6eb09059347f61f7",
+      "ctx": "6e256b987b00e86f",
+      "occ": 0,
+      "name": "deliverableOptions",
+      "src": "llm"
+    },
+    {
+      "ctx": "167c305bc2745491",
       "occ": 0,
       "name": "liveJobSessionKeys",
       "src": "llm"
     },
     {
-      "ctx": "3a25971375f70e6e",
+      "ctx": "0cbe9cbde73b03e9",
       "occ": 0,
-      "name": "entry",
+      "name": "indexEntry",
       "src": "llm"
     },
     {
@@ -19237,13 +19383,25 @@
       "src": "llm"
     },
     {
-      "ctx": "68bda9c5676738f7",
+      "ctx": "875484cc18024cc2",
       "occ": 0,
-      "name": "entry",
+      "name": "visibleEntries",
       "src": "llm"
     },
     {
-      "ctx": "56f20bf28b594784",
+      "ctx": "b70db20b26e0b693",
+      "occ": 0,
+      "name": "mainResolution",
+      "src": "llm"
+    },
+    {
+      "ctx": "ab82a8463d07e61a",
+      "occ": 0,
+      "name": "visibleEntry",
+      "src": "llm"
+    },
+    {
+      "ctx": "f80360de2bb0777f",
       "occ": 0,
       "name": "summary",
       "src": "llm"
@@ -19251,69 +19409,99 @@
   ],
   "listSessionsWithRecentConsumer": [
     {
-      "ctx": "8d87dd87de13db3c",
+      "ctx": "8753c5ee35f0eb06",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "95b955af760a9cba",
+      "ctx": "945a14463a431e78",
       "occ": 0,
       "name": "excludeSessionKey",
       "src": "llm"
     },
     {
-      "ctx": "56a6681c15a35d88",
+      "ctx": "6dbba2559a107082",
+      "occ": 0,
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    },
+    {
+      "ctx": "e987c6729a15e5f7",
       "occ": 0,
       "name": "now",
       "src": "llm"
     },
     {
-      "ctx": "612d86c9783b2b37",
+      "ctx": "ca6d8f6d674629ca",
       "occ": 0,
       "name": "unconsumedHours",
       "src": "llm"
     },
     {
-      "ctx": "e4c48efb56db09fc",
+      "ctx": "fa08ac26f2e4a9d2",
       "occ": 0,
-      "name": "maxAgeMs",
+      "name": "windowMs",
       "src": "llm"
     },
     {
-      "ctx": "30bcba1c85202d27",
+      "ctx": "6ec50cf80728b0e3",
       "occ": 0,
       "name": "candidates",
       "src": "llm"
     },
     {
-      "ctx": "d3fe081a4dd33023",
+      "ctx": "78ee289cbf57fba8",
       "occ": 0,
       "name": "session",
       "src": "llm"
     },
     {
-      "ctx": "8e00eefdb728bce6",
+      "ctx": "bef89640faadbca5",
       "occ": 0,
-      "name": "cursorUpdatedMs",
+      "name": "attached",
       "src": "llm"
     },
     {
-      "ctx": "71fec65b7ed4ff93",
+      "ctx": "ce0323dd2547c63c",
+      "occ": 0,
+      "name": "cursorMs",
+      "src": "llm"
+    },
+    {
+      "ctx": "1f65417d1ad5164e",
       "occ": 0,
       "name": "ageMs",
       "src": "llm"
     },
     {
-      "ctx": "c50222b9756526e9",
+      "ctx": "8e0bc956ffc17c51",
       "occ": 0,
-      "name": "a",
+      "name": "base",
       "src": "llm"
     },
     {
-      "ctx": "59e4b96bced9de01",
+      "ctx": "fd54ecb2659d5ab9",
       "occ": 0,
-      "name": "b",
+      "name": "rank",
+      "src": "llm"
+    },
+    {
+      "ctx": "9c8405d4b20b9199",
+      "occ": 0,
+      "name": "candidate",
+      "src": "llm"
+    },
+    {
+      "ctx": "fb558b0b0bab3acf",
+      "occ": 0,
+      "name": "left",
+      "src": "llm"
+    },
+    {
+      "ctx": "06751c57a26c3fac",
+      "occ": 0,
+      "name": "right",
       "src": "llm"
     }
   ],
@@ -19889,7 +20077,19 @@
       "src": "llm"
     },
     {
-      "ctx": "e2a5a796f489e1d7",
+      "ctx": "c9cf0287cdc486f9",
+      "occ": 0,
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    },
+    {
+      "ctx": "dbfc12a834a68db7",
+      "occ": 0,
+      "name": "sessionKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "da4d55d35968ef46",
       "occ": 0,
       "name": "sessionManager",
       "src": "llm"
@@ -19901,15 +20101,21 @@
       "src": "llm"
     },
     {
-      "ctx": "a8ddfbe0c358404e",
+      "ctx": "3a4991a7d461d4ab",
       "occ": 0,
-      "name": "err",
+      "name": "restartWakeError",
       "src": "llm"
     },
     {
-      "ctx": "b11c50e1b0786e8d",
+      "ctx": "1fe227e5094ff614",
       "occ": 0,
-      "name": "err",
+      "name": "reconcileError",
+      "src": "llm"
+    },
+    {
+      "ctx": "1cd5dbced90ab86a",
+      "occ": 0,
+      "name": "attachmentError",
       "src": "llm"
     },
     {
@@ -19955,19 +20161,19 @@
       "src": "llm"
     },
     {
-      "ctx": "9120f22f7ea18ab6",
+      "ctx": "4b36c4a8b08bcc6b",
       "occ": 0,
       "name": "shuttingDown",
       "src": "llm"
     },
     {
-      "ctx": "4ba25300e2582a2e",
+      "ctx": "23db7cdc3ca3ef3a",
       "occ": 0,
       "name": "shutdown",
       "src": "llm"
     },
     {
-      "ctx": "fd647f367af6148f",
+      "ctx": "9e2491580b61b106",
       "occ": 0,
       "name": "signal",
       "src": "llm"
@@ -21583,7 +21789,7 @@
     {
       "ctx": "d62b41932794efad",
       "occ": 0,
-      "name": "i",
+      "name": "index",
       "src": "llm"
     }
   ],
@@ -23813,6 +24019,32 @@
       "src": "llm"
     }
   ],
+  "reconcileMainSession": [
+    {
+      "ctx": "eceabbae88595cb3",
+      "occ": 0,
+      "name": "paths",
+      "src": "llm"
+    },
+    {
+      "ctx": "fe609976d65f7598",
+      "occ": 0,
+      "name": "bus",
+      "src": "llm"
+    },
+    {
+      "ctx": "2aaac845096142fe",
+      "occ": 0,
+      "name": "sessionIndex",
+      "src": "llm"
+    },
+    {
+      "ctx": "0925d9c4b9a13478",
+      "occ": 0,
+      "name": "finalSubscriberCount",
+      "src": "llm"
+    }
+  ],
   "reconcileMemorySignalInboxes": [
     {
       "ctx": "88df4c22088930c5",
@@ -24673,21 +24905,27 @@
   ],
   "renderJobCompleteReceiptGuidance": [
     {
-      "ctx": "585ada052601477e",
+      "ctx": "d70c2c53a786a01a",
       "occ": 0,
       "name": "sessionKind",
       "src": "llm"
     },
     {
-      "ctx": "aef32e60be3b6235",
+      "ctx": "72dd834020af067d",
       "occ": 0,
       "name": "jobId",
       "src": "llm"
     },
     {
-      "ctx": "8b92b4e7c1c02602",
+      "ctx": "599ef216dc8b2bd1",
       "occ": 0,
-      "name": "header",
+      "name": "ownerSessionKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "a71166344d1fb548",
+      "occ": 0,
+      "name": "receiptHeadline",
       "src": "llm"
     }
   ],
@@ -24825,19 +25063,25 @@
       "src": "llm"
     },
     {
-      "ctx": "1ecc7be50f53e0a8",
+      "ctx": "e116c62e1677da05",
       "occ": 0,
       "name": "sessionKind",
       "src": "llm"
     },
     {
-      "ctx": "dda85dccd1a767fa",
+      "ctx": "e8d01eb54ebd8338",
       "occ": 0,
       "name": "deliveredAt",
       "src": "llm"
     },
     {
-      "ctx": "4b53a8564a0867b1",
+      "ctx": "b728afc46d9a25be",
+      "occ": 0,
+      "name": "ownerSessionKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "53e7f63140a8a528",
       "occ": 0,
       "name": "attributes",
       "src": "llm"
@@ -24861,27 +25105,33 @@
       "src": "llm"
     },
     {
-      "ctx": "1ecc7be50f53e0a8",
+      "ctx": "e116c62e1677da05",
       "occ": 1,
-      "name": "sessionKind",
+      "name": "failSessionKind",
       "src": "llm"
     },
     {
-      "ctx": "dda85dccd1a767fa",
+      "ctx": "e8d01eb54ebd8338",
       "occ": 1,
-      "name": "deliveredAt",
+      "name": "failDeliveredAt",
       "src": "llm"
     },
     {
-      "ctx": "4b53a8564a0867b1",
+      "ctx": "b728afc46d9a25be",
       "occ": 1,
-      "name": "attributes",
+      "name": "failOwnerSessionKey",
       "src": "llm"
     },
     {
-      "ctx": "a2ad5f8638ad7c7a",
+      "ctx": "53e7f63140a8a528",
+      "occ": 1,
+      "name": "failAttributes",
+      "src": "llm"
+    },
+    {
+      "ctx": "fd7851f6164ca2cb",
       "occ": 0,
-      "name": "guidance",
+      "name": "failGuidance",
       "src": "llm"
     },
     {
@@ -25099,15 +25349,21 @@
       "src": "llm"
     },
     {
-      "ctx": "e923207c7ef17eea",
+      "ctx": "4e4f0b1ebafbbb5e",
       "occ": 0,
       "name": "candidate",
       "src": "llm"
     },
     {
-      "ctx": "fb35c6ed80dea118",
+      "ctx": "41fa4d09c06fd1d2",
       "occ": 0,
-      "name": "aliasSuffix",
+      "name": "aliasText",
+      "src": "llm"
+    },
+    {
+      "ctx": "e7f0ce69e7925fe8",
+      "occ": 0,
+      "name": "consumerText",
       "src": "llm"
     }
   ],
@@ -25293,43 +25549,55 @@
   ],
   "renderPromptLayers": [
     {
-      "ctx": "5c6f2a69963c4781",
+      "ctx": "1ef1ade3d7795771",
       "occ": 0,
       "name": "channelConfig",
       "src": "llm"
     },
     {
-      "ctx": "4daa1031f62bc711",
+      "ctx": "d3464b81955235ca",
       "occ": 0,
       "name": "sessionKey",
       "src": "llm"
     },
     {
-      "ctx": "18e4daf811dead1a",
+      "ctx": "fa1075902c4844b1",
       "occ": 0,
-      "name": "job",
+      "name": "jobMission",
       "src": "llm"
     },
     {
-      "ctx": "2ee30df2ed9ccd13",
+      "ctx": "afb2e75dafa92fdc",
       "occ": 0,
       "name": "board",
       "src": "llm"
     },
     {
-      "ctx": "fc76e581b6357509",
+      "ctx": "82e7f75e77658098",
       "occ": 0,
       "name": "runtime",
       "src": "llm"
     },
     {
-      "ctx": "1c110aac81f49bde",
+      "ctx": "82f24712bdc1ba94",
+      "occ": 0,
+      "name": "rolePrompt",
+      "src": "llm"
+    },
+    {
+      "ctx": "2afed38a0c5b5eaa",
+      "occ": 0,
+      "name": "identityLayer",
+      "src": "llm"
+    },
+    {
+      "ctx": "a9af7f259af6000c",
       "occ": 0,
       "name": "kindPrompt",
       "src": "llm"
     },
     {
-      "ctx": "f189750a6246142c",
+      "ctx": "6f023ad07d4c3639",
       "occ": 0,
       "name": "instancePrompt",
       "src": "llm"
@@ -26559,27 +26827,33 @@
   ],
   "resolveNotifyTargetSessionKey": [
     {
-      "ctx": "103383cd3dea9454",
+      "ctx": "a1b6ca72f6969745",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "9b5eebd892a8a98f",
+      "ctx": "ab222eee5ee4771c",
+      "occ": 0,
+      "name": "targetSessionKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "4f9cd8876a61276e",
+      "occ": 0,
+      "name": "resolveMain",
+      "src": "llm"
+    },
+    {
+      "ctx": "941ff356c29c3eae",
       "occ": 0,
       "name": "target",
       "src": "llm"
     },
     {
-      "ctx": "5598b6ac97291470",
+      "ctx": "0b1b73c6393abf37",
       "occ": 0,
-      "name": "trimmed",
-      "src": "llm"
-    },
-    {
-      "ctx": "40df368484692b3b",
-      "occ": 0,
-      "name": "sessionDetails",
+      "name": "activity",
       "src": "llm"
     },
     {
@@ -26595,19 +26869,49 @@
       "src": "llm"
     },
     {
-      "ctx": "5faf07ba640e0d40",
+      "ctx": "2633e8aaab4276ad",
       "occ": 0,
-      "name": "sessionDetails",
+      "name": "mainResolution",
       "src": "llm"
     },
     {
-      "ctx": "6a554877367b319a",
+      "ctx": "07871db34ffc9b02",
+      "occ": 0,
+      "name": "candidateKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "c9c5fd5446d7db5d",
+      "occ": 0,
+      "name": "mainActivity",
+      "src": "llm"
+    },
+    {
+      "ctx": "c92727287d7e194d",
+      "occ": 0,
+      "name": "mainDisplayNames",
+      "src": "llm"
+    },
+    {
+      "ctx": "83bc1c2072443eb8",
+      "occ": 0,
+      "name": "mainGroups",
+      "src": "llm"
+    },
+    {
+      "ctx": "365e2f1a54262c29",
+      "occ": 0,
+      "name": "aliasActivity",
+      "src": "llm"
+    },
+    {
+      "ctx": "7f8e36b875546fd0",
       "occ": 0,
       "name": "displayNames",
       "src": "llm"
     },
     {
-      "ctx": "2f127e6263d66bcd",
+      "ctx": "e5b54c7af796c3c3",
       "occ": 0,
       "name": "aliasMatches",
       "src": "llm"
@@ -27015,6 +27319,32 @@
       "src": "llm"
     }
   ],
+  "resolveRolePromptText": [
+    {
+      "ctx": "ff6a77557dd23553",
+      "occ": 0,
+      "name": "role",
+      "src": "llm"
+    },
+    {
+      "ctx": "535b66943eb2c37e",
+      "occ": 0,
+      "name": "candidatePaths",
+      "src": "llm"
+    },
+    {
+      "ctx": "d343045bb1ad4a51",
+      "occ": 0,
+      "name": "candidatePath",
+      "src": "llm"
+    },
+    {
+      "ctx": "e0548fdbdb3f5935",
+      "occ": 0,
+      "name": "rolePath",
+      "src": "llm"
+    }
+  ],
   "resolveRoutingTarget": [
     {
       "ctx": "280b3b6996bd00f7",
@@ -27343,21 +27673,33 @@
       "src": "llm"
     },
     {
-      "ctx": "84ef659061e986a1",
+      "ctx": "df08bd2025992976",
       "occ": 0,
-      "name": "candidates",
+      "name": "mainHolder",
       "src": "llm"
     },
     {
-      "ctx": "328e06b247d4854f",
+      "ctx": "57136c6027862439",
+      "occ": 0,
+      "name": "candidateKey",
+      "src": "llm"
+    },
+    {
+      "ctx": "8aee199dc9b4611c",
+      "occ": 0,
+      "name": "aliasMatches",
+      "src": "llm"
+    },
+    {
+      "ctx": "394c831e6bec8b5d",
       "occ": 0,
       "name": "entry",
       "src": "llm"
     },
     {
-      "ctx": "11604a562023d3b1",
+      "ctx": "e0f381ae56b3338c",
       "occ": 0,
-      "name": "match",
+      "name": "matchedEntry",
       "src": "llm"
     }
   ],
@@ -29091,13 +29433,13 @@
       "src": "llm"
     },
     {
-      "ctx": "19cbf17bdef54fae",
+      "ctx": "a3f19fc5fde0c3ca",
       "occ": 0,
       "name": "targetSessionKeys",
       "src": "llm"
     },
     {
-      "ctx": "92f294a19a03bf3f",
+      "ctx": "831480a74d6cd627",
       "occ": 0,
       "name": "targetKey",
       "src": "llm"
@@ -29157,7 +29499,7 @@
       "src": "llm"
     },
     {
-      "ctx": "775c5da2a7565c58",
+      "ctx": "3ded1b1e78e36ffe",
       "occ": 0,
       "name": "refusal",
       "src": "llm"
@@ -30005,31 +30347,37 @@
   ],
   "setSessionAliasAndReindex": [
     {
-      "ctx": "432ea8de19ef02b0",
+      "ctx": "df22e0c436399199",
       "occ": 0,
-      "name": "paths",
+      "name": "ctx",
       "src": "llm"
     },
     {
-      "ctx": "77c9d0b926343335",
+      "ctx": "118e9412ba11abbf",
       "occ": 0,
-      "name": "sessionIndex",
+      "name": "sessionKey",
       "src": "llm"
     },
     {
-      "ctx": "87f240eb3bc88446",
+      "ctx": "53ac4d56ef301a98",
       "occ": 0,
-      "name": "params",
+      "name": "displayName",
       "src": "llm"
     },
     {
-      "ctx": "930862990580fffb",
+      "ctx": "32cc0b630e397cf6",
       "occ": 0,
-      "name": "updatedMeta",
+      "name": "mainAuthorized",
       "src": "llm"
     },
     {
-      "ctx": "3314a5af71bfcc78",
+      "ctx": "07e779296c992930",
+      "occ": 0,
+      "name": "updated",
+      "src": "llm"
+    },
+    {
+      "ctx": "274d83748529bf86",
       "occ": 0,
       "name": "indexEntry",
       "src": "llm"
@@ -30555,31 +30903,37 @@
   ],
   "updateSessionDisplayName": [
     {
-      "ctx": "6dfcdb32f5a2dec5",
+      "ctx": "8593f6a6c5e39b35",
       "occ": 0,
       "name": "paths",
       "src": "llm"
     },
     {
-      "ctx": "da0a3e4035b5d601",
+      "ctx": "ca2e98b077bf956d",
       "occ": 0,
       "name": "sessionKey",
       "src": "llm"
     },
     {
-      "ctx": "7c13f60d94df24ef",
+      "ctx": "200b8ae99b97e848",
       "occ": 0,
       "name": "displayName",
       "src": "llm"
     },
     {
-      "ctx": "75041b17beaf6503",
+      "ctx": "dc23e2b7255be144",
+      "occ": 0,
+      "name": "options",
+      "src": "llm"
+    },
+    {
+      "ctx": "04d68805aa76a9e7",
       "occ": 0,
       "name": "updatedMeta",
       "src": "llm"
     },
     {
-      "ctx": "367518303bf70a42",
+      "ctx": "66bbdcbaef22abe8",
       "occ": 0,
       "name": "raw",
       "src": "llm"
@@ -30591,13 +30945,13 @@
       "src": "llm"
     },
     {
-      "ctx": "ff947ebd83689e16",
+      "ctx": "9b0cd1774dc89436",
       "occ": 0,
       "name": "trimmedName",
       "src": "llm"
     },
     {
-      "ctx": "957946dc064b6e16",
+      "ctx": "f30fc0e89e4fd6c0",
       "occ": 0,
       "name": "nextMeta",
       "src": "llm"
@@ -30703,19 +31057,19 @@
       "src": "llm"
     },
     {
-      "ctx": "ee4d72501bd8496e",
+      "ctx": "8eb20e3d3b7aea9c",
       "occ": 0,
       "name": "displayName",
       "src": "llm"
     },
     {
-      "ctx": "c44c949465b9d61d",
+      "ctx": "577e0d84dc774bc2",
       "occ": 0,
       "name": "boundBy",
       "src": "llm"
     },
     {
-      "ctx": "d4a37101d2a65bbe",
+      "ctx": "b4414b33100241a0",
       "occ": 0,
       "name": "boundAt",
       "src": "llm"
@@ -31378,6 +31732,14 @@
       "ctx": "8d8c42fedc9c0d8f",
       "occ": 0,
       "name": "output",
+      "src": "llm"
+    }
+  ],
+  "wsDefaultMaxPayload": [
+    {
+      "ctx": "22ada7f01f56b540",
+      "occ": 0,
+      "name": "probeServer",
       "src": "llm"
     }
   ]

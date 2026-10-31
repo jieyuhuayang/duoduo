@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: isKnownRuntimeValue  (minified: KR, daemon.pretty.js:33875)
+// symbol: isKnownRuntimeValue  (minified: ZR, daemon.pretty.js:32991)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.4 (medium): From v0.8.4 the value is refused with a sentence that names it and lists the valid ones.

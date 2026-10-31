@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runActivationLint  (minified: mxe, daemon.pretty.js:70388)
+// symbol: runActivationLint  (minified: jke, daemon.pretty.js:69504)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 42 renamed — 6 from the code at the binding (rule), 36 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ function runActivationLint(eventsDir, memoryDir, nowMs) {
     let memoryDirs = resolveMemoryDirs(memoryDir),
         scan = scanActivationWindowTouches(eventsDir, memoryDir, nowMs),
         dates = scan.dates,
-        inventory = [...fxe(memoryDir, memoryDirs.entitiesDir, "entities"), ...fxe(memoryDir, memoryDirs.topicsDir, "topics")],
+        inventory = [...Dke(memoryDir, memoryDirs.entitiesDir, "entities"), ...Dke(memoryDir, memoryDirs.topicsDir, "topics")],
         map = new Map(inventory.map(file => [file.rel, file])),
         map2 = new Map;
     for (let [rel, count] of scan.touches) map.has(rel) && map2.set(rel, count);
@@ -26,7 +26,7 @@ function runActivationLint(eventsDir, memoryDir, nowMs) {
         hotOrphans = [];
     if (memoryFile !== null) {
         for (let [rel, touches] of map2) {
-            let slug = cu.basename(rel, ".md");
+            let slug = fu.basename(rel, ".md");
             reachable.has(slug) || hotOrphans.push({
                 rel,
                 touches
@@ -34,7 +34,7 @@ function runActivationLint(eventsDir, memoryDir, nowMs) {
         }
         hotOrphans.sort((a, b) => a.touches !== b.touches ? b.touches - a.touches : compareStringsAscending(a.rel, b.rel))
     }
-    let topHotOrphans = hotOrphans.slice(0, pxe),
+    let topHotOrphans = hotOrphans.slice(0, Mke),
         memoryMaxLinesLimit = readMemoryMaxLinesLimit(),
         allTemperatureRows = [];
     if (memoryFile !== null) {
@@ -62,7 +62,7 @@ function runActivationLint(eventsDir, memoryDir, nowMs) {
         memoryTouches = 0;
     for (let count of map2.values()) memoryTouches += count;
     let metrics = {
-            windowDays: bW,
+            windowDays: pW,
             windowStart,
             windowEnd,
             partitionFiles: dates.length,
@@ -74,12 +74,12 @@ function runActivationLint(eventsDir, memoryDir, nowMs) {
             foregroundWrites: scan.foregroundWrites,
             coldCount,
             hotOrphanCount: hotOrphans.length,
-            expansionRate: _W(memoryTouches, scan.foregroundToolEvents),
-            liveRatio: _W(map2.size, inventory.length),
-            wiringIncompleteness: _W(hotOrphans.length, map2.size)
+            expansionRate: fW(memoryTouches, scan.foregroundToolEvents),
+            liveRatio: fW(map2.size, inventory.length),
+            wiringIncompleteness: fW(hotOrphans.length, map2.size)
         },
         touchWindow = {
-            windowDays: bW,
+            windowDays: pW,
             windowStart,
             windowEnd,
             interactionDays: scan.interactionDays,
@@ -94,8 +94,8 @@ function runActivationLint(eventsDir, memoryDir, nowMs) {
         temperatureTruncated: truncatedCount
     } : {
         selected: [{
-            kind: Vn.ACTIVATION_REPORT,
-            partition: egt,
+            kind: Jn.ACTIVATION_REPORT,
+            partition: Smt,
             pendingFilename: "activation-report.md.pending",
             pendingBody: renderActivationReportBody(metrics, temperature, truncatedCount, topHotOrphans)
         }],

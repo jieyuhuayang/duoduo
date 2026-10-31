@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: createDrainExecutionEventRecorder  (minified: WEe, daemon.pretty.js:74368)
+// symbol: createDrainExecutionEventRecorder  (minified: h0e, daemon.pretty.js:73508)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.2, v0.3.3, v0.8.0 (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 
 function createDrainExecutionEventRecorder(paths, sessionKey, eventSessionKey, onExecutionEvent, anchorEventId) {
     return async event => {
-        if (Q_t(event) && logDebugMessage("[runner] execution event", {
+        if (wyt(event) && logDebugMessage("[runner] execution event", {
                 sessionKey,
                 eventType: event.type,
                 ...event.type === "tool_use" ? {

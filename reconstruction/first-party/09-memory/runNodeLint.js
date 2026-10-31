@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runNodeLint  (minified: Lke, daemon.pretty.js:69364)
+// symbol: runNodeLint  (minified: ake, daemon.pretty.js:68480)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6 (maps/history_daemon.json)
 // locals: 16 renamed — 2 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -18,14 +18,14 @@ function runNodeLint(memoryDir, limit = 1, options) {
         reachable = walkReachableMemory(boardText, createMemorySlugReader(memoryDirs)),
         rows = [];
     for (let fileSlug of listMarkdownSlugsSync(memoryDirs.topicsDir)) {
-        let nodeType = yht(fileSlug);
+        let nodeType = Fpt(fileSlug);
         if (nodeType === null) continue;
         let slug = fileSlug.slice(`${nodeType}-`.length),
-            memoryFile = readMemoryFileSyncOrNull(pht.join(memoryDirs.topicsDir, `${fileSlug}.md`));
+            memoryFile = readMemoryFileSyncOrNull(Dpt.join(memoryDirs.topicsDir, `${fileSlug}.md`));
         if (memoryFile === null) continue;
-        let unexpectedSections = hht(memoryFile, nodeType),
+        let unexpectedSections = jpt(memoryFile, nodeType),
             lineCount = countNewlineChars(memoryFile);
-        if (unexpectedSections.length === 0 && lineCount <= oW) continue;
+        if (unexpectedSections.length === 0 && lineCount <= Q6) continue;
         let isReachable = reachable.has(fileSlug);
         rows.push({
             slug,
@@ -37,10 +37,10 @@ function runNodeLint(memoryDir, limit = 1, options) {
             escalated: !isReachable
         })
     }
-    rows.sort(_ht);
+    rows.sort(zpt);
     let selected = (Number.isFinite(limit) && limit > 0 ? rows.slice(0, limit) : []).map(row => ({
         row,
-        kind: Vn.NODE_CONVERGE,
+        kind: Jn.NODE_CONVERGE,
         partition: "pattern-tracker",
         pendingFilename: `${buildNodeSignalKey(row)}.md.pending`,
         pendingBody: renderNodeConvergeSignalBody(row)

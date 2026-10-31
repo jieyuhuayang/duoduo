@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runMemoryCheckTick  (minified: Dgt, daemon.pretty.js:70947)
+// symbol: runMemoryCheckTick  (minified: rht, daemon.pretty.js:70063)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.5.8, v0.7.1, v0.8.0 (maps/history_daemon.json)
 // locals: 33 renamed — 6 from the code at the binding (rule), 27 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -50,11 +50,11 @@ async function runMemoryCheckTick(ctx, nowMs) {
     if (hasConsumer) {
         let intuitionWeaverLastFinishedMs = await readIntuitionWeaverLastFinishedMs(ctx);
         allReadsClean = runReadAuditedMemoryCheckStep("board-lint", () => {
-            deliver(collectBoardLintReport(memoryDir, xW).selections)
+            deliver(collectBoardLintReport(memoryDir, _W).selections)
         }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("entity-lint", () => {
-            deliver(runEntityLint(memoryDir, xW).selected)
+            deliver(runEntityLint(memoryDir, _W).selected)
         }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("node-lint", () => {
-            deliver(runNodeLint(memoryDir, xW).selected)
+            deliver(runNodeLint(memoryDir, _W).selected)
         }) && allReadsClean, allReadsClean = runReadAuditedMemoryCheckStep("gap-lint", () => {
             let gapResult = deliverScanGapSignal(ctx.eventsDir, memoryDir, nowMs, signalCtx, {
                 cadenceIntervalMs: resolveCadenceIntervalMs()
@@ -115,8 +115,8 @@ async function runMemoryCheckTick(ctx, nowMs) {
             dryRun: !1
         }))
     }), (result.posted.length > 0 || result.swept.length > 0 || result.forgotten.length > 0 || result.withheld.length > 0 || result.sparedUnwarnable.length > 0) && logInfoMessage("[memory] check tick", {
-        posted: result.posted.map(postedPath => Axe.basename(postedPath)),
-        swept: result.swept.map(sweptPath => Axe.basename(sweptPath)),
+        posted: result.posted.map(postedPath => nxe.basename(postedPath)),
+        swept: result.swept.map(sweptPath => nxe.basename(sweptPath)),
         withheld: result.withheld,
         forgotten: result.forgotten,
         spared_unwarnable: result.sparedUnwarnable

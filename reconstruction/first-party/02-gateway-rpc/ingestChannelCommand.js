@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: ingestChannelCommand  (minified: hv, daemon.pretty.js:89668)
+// symbol: ingestChannelCommand  (minified: bv, daemon.pretty.js:88866)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.2, v0.5.6, v0.5.7, v0.5.10 (maps/history_daemon.json)
 // locals: 10 renamed — 1 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

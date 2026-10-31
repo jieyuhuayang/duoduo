@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runNotifyTool  (minified: Jg, daemon.pretty.js:67567)
+// symbol: runNotifyTool  (minified: Kg, daemon.pretty.js:66790)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.8.0, v0.8.2, v0.8.4 (maps/history_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.8.0, v0.8.2, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 30 renamed — 7 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.1 (high): adds `correlation_id` / `reply_to` fields to the Notify MCP tool
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -20,13 +20,13 @@ async function runNotifyTool(input, ctx) {
         let notifyContent = input.notify_content?.trim();
         if (!notifyContent) throw new Error("notify_content is required and must not be empty.");
         let notifyDepth = ctx.notifyDepth ?? 0;
-        if (notifyDepth >= Zwe) throw new Error(`Notify depth limit exceeded (max ${Zwe}). This notification chain is too deep — likely a loop.`);
+        if (notifyDepth >= bwe) throw new Error(`Notify depth limit exceeded (max ${bwe}). This notification chain is too deep — likely a loop.`);
         if (input.target_session_key?.trim() === sessionKey) throw new Error(`Cannot notify self (session_key=${sessionKey}). Notify must target a different session.`);
-        let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : oSe(sessionKey),
+        let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : Ewe(sessionKey),
             inReplyTo = input.in_reply_to?.trim() || void 0,
             useJobDefaultTarget = (sessionContextKind ?? (sourceKind === "job" ? "job" : "meta")) === "job" && !input.target_session_key?.trim(),
             mode = useJobDefaultTarget ? "job-default-target" : "explicit-target",
-            targetSessionKeys = useJobDefaultTarget ? await resolveJobOwnerNotifyTarget(paths, sessionKey) : [await resolveNotifyTargetSessionKey(paths, input.target_session_key)];
+            targetSessionKeys = useJobDefaultTarget ? await resolveJobOwnerNotifyTarget(paths, sessionKey) : [await resolveNotifyTargetSessionKey(paths, input.target_session_key, ctx.resolveMain)];
         if (targetSessionKeys.filter(targetKey => targetKey === sessionKey).length > 0) throw new Error(`Cannot notify self (session_key=${sessionKey}). Notify must target a different session.`);
         let nextDepth = notifyDepth + 1,
             correlationId = input.correlation_id?.trim(),
@@ -62,7 +62,7 @@ async function runNotifyTool(input, ctx) {
                     targetSessionKey,
                     eventType: "notify"
                 },
-                refusal = await evaluateNotifyConsumerRefusal(paths, targetSessionKey);
+                refusal = await evaluateNotifyConsumerRefusal(paths, targetSessionKey, ctx.finalSubscriberCount);
             if (refusal.refused) {
                 let notifyRefusalMessage = renderNotifyRefusalMessage(refusal.inputs, refusal.verdict, refusal.candidates, targetSessionKey, refusal.unconsumedHours),
                     walResult = await deliverRouteEventToSession(paths, bus, {

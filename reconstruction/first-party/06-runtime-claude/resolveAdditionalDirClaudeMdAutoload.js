@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: resolveAdditionalDirClaudeMdAutoload  (minified: yEe, daemon.pretty.js:72605)
+// symbol: resolveAdditionalDirClaudeMdAutoload  (minified: zEe, daemon.pretty.js:71721)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 0 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,6 +9,6 @@
 
 function resolveAdditionalDirClaudeMdAutoload(runtime, boardFile, additionalDirectories, cwd) {
     if (runtime !== "claude" || !boardFile?.content.trim() || !additionalDirectories || additionalDirectories.length === 0) return;
-    let cwdKey = gEe(cwd);
-    return additionalDirectories.some(directory => gEe(directory) !== cwdKey) ? void 0 : !1
+    let cwdKey = FEe(cwd);
+    return additionalDirectories.some(directory => FEe(directory) !== cwdKey) ? void 0 : !1
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: classifyDrainBatchClass  (minified: REe, daemon.pretty.js:74286)
+// symbol: classifyDrainBatchClass  (minified: KEe, daemon.pretty.js:73423)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.1 (medium): A message you send while the agent is mid-turn on something it started by itself now gets its own turn. It used to be folded into that turn
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function classifyDrainBatchClass(event) {
-    return event ? isWorkerTaskNotifyDelivery(event) ? "worker-notify" : isChannelMessageEvent(event) ? H_t : fJ : fJ
+    return event ? isWorkerTaskNotifyDelivery(event) ? "worker-notify" : isChannelMessageEvent(event) ? fyt : lJ : lJ
 }

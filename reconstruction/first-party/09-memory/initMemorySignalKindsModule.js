@@ -1,14 +1,14 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: initMemorySignalKindsModule  (minified: Ko, daemon.pretty.js:68972)
+// symbol: initMemorySignalKindsModule  (minified: es, daemon.pretty.js:68088)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.5.8, v0.8.0 (maps/history_daemon.json)
 // changelog v0.5.6 (medium): Each subconscious partition declares which `.pending` signal kinds it consumes in its `contract:` frontmatter. The memory-check delivery layer validates the declaration before posting — an undeclared signal kind is withheld
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Vn, initMemorySignalKindsModule = N(() => {
+var Jn, initMemorySignalKindsModule = A(() => {
     "use strict";
-    Vn = {
+    Jn = {
         ENTITY_CONVERGE: "entity-converge.v1",
         NODE_CONVERGE: "node-converge.v1",
         REVISE: "revise.v1",

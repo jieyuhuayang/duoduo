@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: buildEffectiveChannelConfig  (minified: kSe, daemon.pretty.js:67961)
+// symbol: buildEffectiveChannelConfig  (minified: Bwe, daemon.pretty.js:67185)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.5, v0.5.0, v0.5.10, v0.7.0, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
 // locals: 8 renamed — 5 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -32,7 +32,7 @@ function buildEffectiveChannelConfig(params) {
         additionalDirectories: instanceDescriptor?.additionalDirectories ?? kindDescriptor?.additionalDirectories,
         stream: instanceDescriptor?.stream ?? kindDescriptor?.stream,
         ...buildEffectiveRuntimeFields(instanceDescriptor, kindDescriptor),
-        claudeModelProfiles: ySe([{
+        claudeModelProfiles: jwe([{
             source: "global",
             profiles: globalConfig?.claudeModelProfiles
         }, {
@@ -42,7 +42,7 @@ function buildEffectiveChannelConfig(params) {
             source: "instance",
             profiles: instanceDescriptor?.claudeModelProfiles
         }]),
-        claudeModelProfileIssues: MO([{
+        claudeModelProfileIssues: LO([{
             source: "global",
             issues: globalConfig?.claudeModelProfileIssues
         }, {
@@ -52,7 +52,7 @@ function buildEffectiveChannelConfig(params) {
             source: "instance",
             issues: instanceDescriptor?.claudeModelProfileIssues
         }]),
-        claudeModelAliases: _Se([{
+        claudeModelAliases: Lwe([{
             source: "global",
             aliases: globalConfig?.claudeModelAliases
         }, {
@@ -62,7 +62,7 @@ function buildEffectiveChannelConfig(params) {
             source: "instance",
             aliases: instanceDescriptor?.claudeModelAliases
         }]),
-        claudeModelAliasIssues: MO([{
+        claudeModelAliasIssues: LO([{
             source: "global",
             issues: globalConfig?.claudeModelAliasIssues
         }, {
@@ -94,7 +94,7 @@ function buildEffectiveChannelConfig(params) {
         }]),
         kind_prompt: kindPrompt,
         instance_prompt: instancePrompt,
-        merged_prompt: dmt([kindPrompt, instancePrompt]),
+        merged_prompt: $ft([kindPrompt, instancePrompt]),
         kind_config: kindDescriptor?.kind_config === void 0 && instanceDescriptor?.kind_config === void 0 ? void 0 : {
             ...kindDescriptor?.kind_config,
             ...instanceDescriptor?.kind_config

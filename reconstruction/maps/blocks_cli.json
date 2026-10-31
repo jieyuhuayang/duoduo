@@ -1,18 +1,18 @@
 {
   "bundle": "cli",
-  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.4/cli.pretty.js",
-  "helper": "mm",
+  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.7/cli.pretty.js",
+  "helper": "Qm",
   "helperCandidates": {
-    "mm": 6
+    "Qm": 6
   },
   "blockCount": 6,
-  "namesInBlocks": 29,
-  "distinctNamesInBlocks": 29,
-  "entryExportCount": 17,
+  "namesInBlocks": 31,
+  "distinctNamesInBlocks": 31,
+  "entryExportCount": 18,
   "blocks": [
     {
       "index": 0,
-      "line": 20730,
+      "line": 23947,
       "count": 11,
       "marker": [
         "PLIST_LABEL",
@@ -33,44 +33,48 @@
         "unload"
       ],
       "mangled": [
-        "$b",
-        "yJ",
-        "Op",
-        "b_",
-        "lk",
-        "sk",
-        "D_",
-        "ck",
-        "ak",
-        "uk",
-        "I1"
+        "MB",
+        "tZ",
+        "Hf",
+        "j_",
+        "TF",
+        "IF",
+        "$_",
+        "yF",
+        "SF",
+        "DF",
+        "r1"
       ]
     },
     {
       "index": 1,
-      "line": 62647,
-      "count": 4,
+      "line": 24960,
+      "count": 6,
       "marker": [
-        "renderCompactResult",
-        "renderConfigResult",
-        "renderSessionList"
+        "defaultCallerVerdict",
+        "parseAliasArgs",
+        "renderCompactResult"
       ],
       "names": [
+        "defaultCallerVerdict",
+        "parseAliasArgs",
         "renderCompactResult",
         "renderConfigResult",
         "renderSessionList",
         "runSessionSubcommand"
       ],
       "mangled": [
-        "Xge",
-        "Zge",
-        "jge",
-        "K$e"
+        "PB",
+        "FZ",
+        "UZ",
+        "PZ",
+        "kZ",
+        "n8e"
       ]
     },
     {
       "index": 2,
-      "line": 63707,
+      "line": 67560,
       "count": 7,
       "marker": [
         "jobHelp",
@@ -87,18 +91,18 @@
         "runJobSubcommand"
       ],
       "mangled": [
-        "lU",
-        "npe",
-        "ope",
-        "rpe",
-        "ipe",
-        "spe",
-        "DJe"
+        "N9",
+        "Ome",
+        "Mme",
+        "wme",
+        "Lme",
+        "xme",
+        "Int"
       ]
     },
     {
       "index": 3,
-      "line": 64089,
+      "line": 67942,
       "count": 1,
       "marker": [
         "runPromptsSubcommand"
@@ -107,12 +111,12 @@
         "runPromptsSubcommand"
       ],
       "mangled": [
-        "vJe"
+        "Tnt"
       ]
     },
     {
       "index": 4,
-      "line": 66087,
+      "line": 69940,
       "count": 1,
       "marker": [
         "runMemoryCommand"
@@ -121,12 +125,12 @@
         "runMemoryCommand"
       ],
       "mangled": [
-        "dXe"
+        "oit"
       ]
     },
     {
       "index": 5,
-      "line": 66705,
+      "line": 70558,
       "count": 5,
       "marker": [
         "SpineCommandError",
@@ -141,31 +145,32 @@
         "spineParamsToArgs"
       ],
       "mangled": [
-        "YT",
-        "SEe",
-        "hEe",
-        "IXe",
-        "bXe"
+        "IT",
+        "j_e",
+        "z_e",
+        "_it",
+        "Cit"
       ]
     }
   ],
   "entryExports": {
-    "defaultExistingDaemonChoice": "FEe",
-    "inferOnboardConfigFromProbe": "JXe",
-    "isDetachedUpgradeWorker": "rZe",
-    "isInstallTargetFilePath": "zXe",
-    "main": "dZe",
-    "parseExistingDaemonChoice": "$Xe",
-    "parseRestartArgs": "eZe",
-    "parseRootCli": "KXe",
-    "parseUpgradeArgs": "sZe",
-    "printHelp": "PEe",
-    "readCliPackageVersion": "jXe",
-    "readOption": "tv",
-    "reasonlessRestartRefusal": "tZe",
-    "renderChannelNotInstalled": "uZe",
-    "restartWakeReport": "nZe",
-    "runDeclaredChannelVerb": "MEe",
-    "runUpgradeChannelPhase": "aZe"
+    "channelVerbInSession": "iot",
+    "defaultExistingDaemonChoice": "ghe",
+    "inferOnboardConfigFromProbe": "Vit",
+    "isDetachedUpgradeWorker": "$it",
+    "isInstallTargetFilePath": "Git",
+    "main": "sot",
+    "parseExistingDaemonChoice": "Yit",
+    "parseRestartArgs": "Jit",
+    "parseRootCli": "Hit",
+    "parseUpgradeArgs": "eot",
+    "printHelp": "Ehe",
+    "readCliPackageVersion": "qit",
+    "readOption": "TT",
+    "reasonlessRestartRefusal": "zit",
+    "renderChannelNotInstalled": "oot",
+    "restartWakeReport": "jit",
+    "runDeclaredChannelVerb": "lhe",
+    "runUpgradeChannelPhase": "tot"
   }
 }

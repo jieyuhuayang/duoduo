@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createEmptySessionIndex  (minified: Vfe, daemon.pretty.js:38939)
+// symbol: createEmptySessionIndex  (minified: gfe, daemon.pretty.js:38066)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // changelog v0.5.0 (medium): `SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`
 // NOTE: readable extract from daemon.recon.js; references other top-level

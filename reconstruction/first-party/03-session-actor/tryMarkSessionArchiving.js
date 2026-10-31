@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: tryMarkSessionArchiving  (minified: iI, daemon.pretty.js:34608)
+// symbol: tryMarkSessionArchiving  (minified: iI, daemon.pretty.js:33724)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function tryMarkSessionArchiving(sessionKey) {
-    return Vb.has(sessionKey) ? !1 : (Vb.add(sessionKey), !0)
+    return Gb.has(sessionKey) ? !1 : (Gb.add(sessionKey), !0)
 }

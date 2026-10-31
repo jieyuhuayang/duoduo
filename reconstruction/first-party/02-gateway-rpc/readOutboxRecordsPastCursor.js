@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: readOutboxRecordsPastCursor  (minified: lS, daemon.pretty.js:66657)
+// symbol: readOutboxRecordsPastCursor  (minified: pS, daemon.pretty.js:65845)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0 (maps/history_daemon.json)
 // locals: 22 renamed — 8 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -22,14 +22,14 @@ async function readOutboxRecordsPastCursor(options) {
         cursorHadOffset = !1,
         offsetResynced = !1;
     try {
-        let cursorFile = await aS(paths, sessionKey, consumerId),
-            cursor = uS(cursorFile);
-        cursorHadOffset = cursor.replay_offset !== void 0, await Cfe(paths, sessionKey);
+        let cursorFile = await dS(paths, sessionKey, consumerId),
+            cursor = fS(cursorFile);
+        cursorHadOffset = cursor.replay_offset !== void 0, await nfe(paths, sessionKey);
         let replayOffset;
         if (cursorOverride) {
             let outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, cursorOverride);
             if (outboxByIdIndexEntry || (await backfillOutboxByIdIndexFromReplay(paths, sessionKey), outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, cursorOverride)), !outboxByIdIndexEntry || outboxByIdIndexEntry.session_key !== sessionKey) {
-                let fallback = await hO(options);
+                let fallback = await yO(options);
                 return strategy = fallback.strategy, fallback.records
             }
             replayOffset = outboxByIdIndexEntry.replay_offset + outboxByIdIndexEntry.replay_byte_length
@@ -38,19 +38,19 @@ async function readOutboxRecordsPastCursor(options) {
             let outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, cursor.last_outbox_id);
             if (outboxByIdIndexEntry && outboxByIdIndexEntry.session_key === sessionKey) replayOffset = outboxByIdIndexEntry.replay_offset + outboxByIdIndexEntry.replay_byte_length, strategy = "bootstrapped";
             else {
-                let fallback = await hO(options);
+                let fallback = await yO(options);
                 return strategy = fallback.strategy, fallback.records
             }
         }
         replayOffset === void 0 && (replayOffset = 0);
-        let scan = await Afe(paths, sessionKey, replayOffset, maxRecords);
+        let scan = await ife(paths, sessionKey, replayOffset, maxRecords);
         if (recordsRead = scan.entries.length, offsetResynced = scan.resynced, scan.resynced && (strategy = "repair"), scan.damaged) {
-            let fallback = await hO(options);
+            let fallback = await yO(options);
             return strategy = fallback.strategy, recordsRead = fallback.records.length, fallback.records
         }
-        return await Spt(paths, scan.entries)
+        return await Udt(paths, scan.entries)
     } catch {
-        let fallback = await hO(options);
+        let fallback = await yO(options);
         return strategy = fallback.strategy, fallback.records
     } finally {
         await recordTelemetryMetric(paths, "replay_scan_ms", Date.now() - now, {

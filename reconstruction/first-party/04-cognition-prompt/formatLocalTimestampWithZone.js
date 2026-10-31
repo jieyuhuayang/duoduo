@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: formatLocalTimestampWithZone  (minified: CA, daemon.pretty.js:72509)
+// symbol: formatLocalTimestampWithZone  (minified: NA, daemon.pretty.js:71625)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0 (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,8 +10,8 @@
 function formatLocalTimestampWithZone(value) {
     let date = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(date.getTime())) return "";
-    let datePart = `${date.getFullYear()}-${lp(date.getMonth()+1)}-${lp(date.getDate())}`,
-        timePart = `${lp(date.getHours())}:${lp(date.getMinutes())}:${lp(date.getSeconds())}`,
-        offset = S_t(date);
-    return `${datePart} ${timePart} ${offset} (${w_t})`
+    let datePart = `${date.getFullYear()}-${cp(date.getMonth()+1)}-${cp(date.getDate())}`,
+        timePart = `${cp(date.getHours())}:${cp(date.getMinutes())}:${cp(date.getSeconds())}`,
+        offset = Vgt(date);
+    return `${datePart} ${timePart} ${offset} (${Bgt})`
 }

@@ -26,7 +26,7 @@ The click used a card that was rendered before someone else bound
 the channel. Resolution: have the user send `/setup` to get a fresh
 card. This error is a v0.5 guard, not a bug.
 
-### Symptom: "/setup does nothing on my DM" or "main session is locked"
+### Symptom: "/setup does nothing on my DM" or "This is the owner's DM, bound to …"
 
 This is owner-DM refusal by design. Check:
 
@@ -36,8 +36,9 @@ This is owner-DM refusal by design. Check:
    ```
 2. If `bound_by` matches `FEISHU_BOT_OWNER` (or
    `FEISHU_ALLOW_FROM[0]` when `FEISHU_BOT_OWNER` unset), it's the
-   locked main session. To relocate it, run the reset script —
-   there's no in-chat path.
+   locked owner DM. To rebind it, run the reset script —
+   there's no in-chat path. (Moving the main role is separate and
+   needs no reset: `duoduo-runtime-admin` → `references/main-session.md`.)
 3. If `bound_by` does NOT match the current owner, the descriptor
    drifted (zero-config era or stale env). The owner's `/setup`
    should already route to the secondary card — verify by having
@@ -63,7 +64,8 @@ and why each step matters.
 ### Symptom: "Strangers can DM my bot and it responds"
 
 Zero-config mode is active (no `FEISHU_BOT_OWNER`, default
-`dmPolicy=open`). Any first DM sender auto-spawns the main session.
+`dmPolicy=open`). Any first DM sender auto-spawns an owner-style DM
+session (it never becomes the main session in this mode).
 Fix:
 
 ```bash
@@ -98,7 +100,7 @@ Known v0.5 limit: concurrent first-time clicks race. The later writer
 wins. Fix: reset + bind deliberately (one operator clicks, others
 wait).
 
-### Symptom: "My bot lost its main session after I edited .env"
+### Symptom: "My bot lost its owner DM after I edited .env"
 
 Check whether `FEISHU_BOT_OWNER` is currently set:
 
@@ -113,6 +115,16 @@ DM may have been reassigned via `/setup`. Recovery:
 2. `duoduo channel feishu stop && duoduo channel feishu start`
 3. If the descriptor was rewritten in the unlocked window, run the
    reset script
+
+### Symptom: a chat of a second app, or a forwarded chat, does not answer
+
+Name the instance in every command (`--instance <name>`). Check
+`duoduo channel feishu status` (lists every instance), then
+`duoduo channel feishu forward --instance <name>` (is the chat
+forwarded, and to whom), then the instance log for
+`forwarded mention not delivered` (the chat also got a "This message was not
+delivered" reply) or `forwarded mention notify failed`. The full table is in
+[feishu-forward.md](feishu-forward.md) → Troubleshooting.
 
 ## When to escalate to a product bug
 

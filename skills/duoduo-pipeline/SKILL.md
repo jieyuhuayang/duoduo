@@ -29,8 +29,8 @@ Main session  (your foreground chat)
   involved at any point.
 - **Brain job** — a `keepalive` duoduo job. It wakes on notify, processes
   the incoming data, decides whether the result is worth surfacing, and
-  sends a Notify to your main session only when the signal clears your
-  threshold. Then it goes dormant again.
+  sends a Notify to your main session (target `main`) only when the signal
+  clears your threshold. Then it goes dormant again.
 - **Main session** — your regular foreground chat. It receives a single,
   pre-filtered brief only when the brain has found something actionable.
 

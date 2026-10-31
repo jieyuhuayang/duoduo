@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: writeHostDaemonToken  (minified: Bgt, daemon.pretty.js:71261)
+// symbol: writeHostDaemonToken  (minified: dht, daemon.pretty.js:70377)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ async function writeHostDaemonToken(token, env = process.env) {
     let envPath = hostDotEnvPath(env),
         existingContent = "";
     try {
-        existingContent = await Ds.readFile(envPath, "utf8")
+        existingContent = await Fs.readFile(envPath, "utf8")
     } catch {
         existingContent = ""
     }

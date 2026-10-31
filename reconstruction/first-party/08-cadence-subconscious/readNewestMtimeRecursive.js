@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: readNewestMtimeRecursive  (minified: JN, daemon.pretty.js:88255)
+// symbol: readNewestMtimeRecursive  (minified: ZN, daemon.pretty.js:87438)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 3 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 async function readNewestMtimeRecursive(dir) {
     let dirEntries;
     try {
-        dirEntries = await Pk.readdir(dir, {
+        dirEntries = await Ak.readdir(dir, {
             withFileTypes: !0
         })
     } catch {
@@ -17,16 +17,16 @@ async function readNewestMtimeRecursive(dir) {
     }
     let newestMtimeMs = 0;
     try {
-        let stats = await Pk.stat(dir);
+        let stats = await Ak.stat(dir);
         stats.mtimeMs > newestMtimeMs && (newestMtimeMs = stats.mtimeMs)
     } catch {}
     for (let dirEntry of dirEntries) {
-        let entryPath = Cy.join(dir, dirEntry.name);
+        let entryPath = Ay.join(dir, dirEntry.name);
         if (dirEntry.isDirectory()) {
             let newestMtimeRecursive = await readNewestMtimeRecursive(entryPath);
             newestMtimeRecursive > newestMtimeMs && (newestMtimeMs = newestMtimeRecursive)
         } else if (dirEntry.isFile() || dirEntry.isSymbolicLink()) try {
-            let stats = await Pk.stat(entryPath);
+            let stats = await Ak.stat(entryPath);
             stats.mtimeMs > newestMtimeMs && (newestMtimeMs = stats.mtimeMs)
         } catch {}
     }

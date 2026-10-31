@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBoardLint  (minified: lht, daemon.pretty.js:69187)
+// symbol: runBoardLint  (minified: Cpt, daemon.pretty.js:68303)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.0 (maps/history_daemon.json)
 // locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,18 +14,18 @@ function runBoardLint(ranked, limit) {
     let reviseTargets = ranked.filter(candidate => candidate.trajectory !== "NO-EFF" && candidate.cls === "behavioral" && candidate.fmt === "legacy" && !(candidate.trajectory === "WEAKENING" && (candidate.verdict === "REMOVE" || candidate.verdict === "DROP"))).slice(0, maxCount);
     for (let reviseTarget of reviseTargets) selections.push({
         target: reviseTarget,
-        kind: Vn.REVISE,
+        kind: Jn.REVISE,
         partition: "pattern-tracker",
         pendingFilename: `${reviseTarget.slug}.md.pending`,
-        pendingBody: iht(reviseTarget)
+        pendingBody: Rpt(reviseTarget)
     });
     let mergeTargets = ranked.filter(candidate => candidate.trajectory !== "NO-EFF" && candidate.dual && candidate.cls !== "domain").slice(0, maxCount);
     for (let mergeTarget of mergeTargets) selections.push({
         target: mergeTarget,
-        kind: Vn.MERGE,
+        kind: Jn.MERGE,
         partition: "intuition-weaver",
         pendingFilename: `merge-${mergeTarget.slug}.md.pending`,
-        pendingBody: oht(mergeTarget)
+        pendingBody: Ipt(mergeTarget)
     });
     return selections
 }

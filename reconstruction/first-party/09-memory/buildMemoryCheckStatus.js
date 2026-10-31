@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: buildMemoryCheckStatus  (minified: TW, daemon.pretty.js:70933)
+// symbol: buildMemoryCheckStatus  (minified: SW, daemon.pretty.js:70049)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ function buildMemoryCheckStatus(ctx) {
     let memoryCheckFlags = resolveMemoryCheckFlags(),
         partitions;
     try {
-        partitions = Vke(ctx.subconsciousDir)
+        partitions = mke(ctx.subconsciousDir)
     } catch {
         partitions = void 0
     }

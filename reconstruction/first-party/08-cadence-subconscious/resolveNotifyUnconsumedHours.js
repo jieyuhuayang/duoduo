@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: resolveNotifyUnconsumedHours  (minified: S6, daemon.pretty.js:66839)
+// symbol: resolveNotifyUnconsumedHours  (minified: f6, daemon.pretty.js:66027)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,8 +8,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveNotifyUnconsumedHours(env = process.env) {
-    let rawValue = env[w6];
-    if (rawValue === void 0 || rawValue === "") return gO;
+    let rawValue = env[d6];
+    if (rawValue === void 0 || rawValue === "") return _O;
     let hours = Number(rawValue);
-    return Number.isFinite(hours) ? hours : gO
+    return Number.isFinite(hours) ? hours : _O
 }

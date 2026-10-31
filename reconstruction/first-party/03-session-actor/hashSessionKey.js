@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: hashSessionKey  (minified: jo, daemon.pretty.js:34442)
+// symbol: hashSessionKey  (minified: Fo, daemon.pretty.js:33558)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function hashSessionKey(sessionKey) {
-    return eet.createHash("sha256").update(sessionKey).digest("hex")
+    return gXe.createHash("sha256").update(sessionKey).digest("hex")
 }

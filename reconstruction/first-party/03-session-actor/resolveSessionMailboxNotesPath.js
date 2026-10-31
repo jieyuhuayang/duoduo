@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: resolveSessionMailboxNotesPath  (minified: Ub, daemon.pretty.js:34478)
+// symbol: resolveSessionMailboxNotesPath  (minified: Vb, daemon.pretty.js:33594)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveSessionMailboxNotesPath(paths, sessionKey) {
-    return Zr.join(resolveSessionDir(paths, sessionKey), "mailbox", "notes.jsonl")
+    return ei.join(resolveSessionDir(paths, sessionKey), "mailbox", "notes.jsonl")
 }
