@@ -14,5 +14,7 @@
   "not": "runUpgradeCommand",
   "rot": "runChannelCommand",
   "Gm": "initCliHostEnvKeysModule",
-  "c8e": "runSessionAliasCommand"
+  "c8e": "runSessionAliasCommand",
+  "bZ": "sessionHelpText",
+  "o8e": "renderSessionMainColumn"
 }

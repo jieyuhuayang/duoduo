@@ -464,6 +464,53 @@
         "trim",
         "write"
       ]
+    },
+    "sessionHelpText": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "                          (whose job is gone from active/), marked ORPHAN.",
+        "                          --global writes kernel/config/runtime.md.",
+        "                          <wake-id>`.",
+        "                          ALADUO_NOTIFY_UNCONSUMED_HOURS; --force delivers anyway.",
+        "                          Channel sessions only (job/system/subconscious refused).",
+        "                          Compact a channel session's conversation context.",
+        "                          Inside a session only the current main may change it.",
+        "                          List sessions and aliases.",
+        "                          List sessions. --all includes orphan job sessions",
+        "                          Nothing is deleted — everything moves to",
+        "                          Queues /compact; runs on that session's NEXT",
+        "                          Read/edit channel-editable config (incl. idle",
+        "                          Read/edit claude.model_profiles — the physical",
+        "                          Refused when nobody has taken the target's output for",
+        "                          Run inside a session (ALADUO_CALLER_SESSION set), it",
+        "                          Schedule ONE future turn of that session. The context",
+        "                          Send a source-tagged notification to a session key or alias.",
+        "                          Show, set, or clear a session alias. `main` marks the",
+        "                          Show, set, or reset a session's model override.",
+        "                          Show, set, or reset reasoning effort.",
+        "                          auto-compact knobs). Default scope = the current",
+        "                          context window (tokens) per EXACT model id.",
+        "                          for the trade-off table and lifecycle rules.",
+        "                          gets. Cancel before it fires with `duoduo job archive"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "renderSessionMainColumn": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "candidate",
+        "held",
+        "main since ",
+        "main? (ambiguous)"
+      ],
+      "props": [
+        "main",
+        "main_since"
+      ]
     }
   }
 }
