@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: validateConfigValue  (minified: gmt, daemon.pretty.js:90468)
+// symbol: validateConfigValue  (minified: Dft, daemon.pretty.js:89666)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.1 (maps/history_daemon.json)
 // locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -72,7 +72,7 @@ function validateConfigValue(key, rawValue) {
                 value: trimmed
             } : {
                 ok: !1,
-                error: `${key}: expected one of ${Hi.join(", ")}, got "${rawValue}"`
+                error: `${key}: expected one of ${Gi.join(", ")}, got "${rawValue}"`
             }
         }
         case "string_array":

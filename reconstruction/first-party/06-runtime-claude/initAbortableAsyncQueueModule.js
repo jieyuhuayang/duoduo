@@ -1,14 +1,14 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: initAbortableAsyncQueueModule  (minified: qTe, daemon.pretty.js:85181)
+// symbol: initAbortableAsyncQueueModule  (minified: fTe, daemon.pretty.js:84352)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 10 renamed — 0 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var HN, initAbortableAsyncQueueModule = N(() => {
+var JN, initAbortableAsyncQueueModule = A(() => {
     "use strict";
-    HN = class {
+    JN = class {
         items = [];
         waiters = [];
         enqueue(item) {
@@ -20,7 +20,7 @@ var HN, initAbortableAsyncQueueModule = N(() => {
             this.items.push(item)
         }
         dequeue(signal) {
-            if (signal?.aborted) return Promise.reject(UTe());
+            if (signal?.aborted) return Promise.reject(dTe());
             let item = this.items.shift();
             return item !== void 0 ? Promise.resolve(item) : new Promise((resolve, reject) => {
                 let waiter = {
@@ -30,7 +30,7 @@ var HN, initAbortableAsyncQueueModule = N(() => {
                 if (this.waiters.push(waiter), !signal) return;
                 let onAbort = () => {
                     let index = this.waiters.indexOf(waiter);
-                    index >= 0 && this.waiters.splice(index, 1), reject(UTe())
+                    index >= 0 && this.waiters.splice(index, 1), reject(dTe())
                 };
                 signal.addEventListener("abort", onAbort, {
                     once: !0

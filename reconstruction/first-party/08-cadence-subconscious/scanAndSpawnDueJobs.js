@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: scanAndSpawnDueJobs  (minified: cZ, daemon.pretty.js:88975)
+// symbol: scanAndSpawnDueJobs  (minified: uK, daemon.pretty.js:88164)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.3.0, v0.4.5, v0.5.0, v0.5.6, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 19 renamed — 3 from the code at the binding (rule), 16 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function scanAndSpawnDueJobs(paths, sessionManager, options) {
-    let jobManager = new Hr(paths);
+    let jobManager = new Jr(paths);
     await jobManager.init();
     let jobs = await jobManager.listJobs(),
         now = options?.now ?? new Date,

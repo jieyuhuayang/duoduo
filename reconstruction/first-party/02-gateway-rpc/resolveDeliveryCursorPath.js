@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveDeliveryCursorPath  (minified: Owe, daemon.pretty.js:66502)
+// symbol: resolveDeliveryCursorPath  (minified: nwe, daemon.pretty.js:65690)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveDeliveryCursorPath(paths, sessionKey, consumerId) {
-    return Pwe.join(resolveSessionDir(paths, sessionKey), "delivery_cursors", `${bpt(consumerId)}.json`)
+    return Qve.join(resolveSessionDir(paths, sessionKey), "delivery_cursors", `${Ldt(consumerId)}.json`)
 }

@@ -1,8 +1,8 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: main  (minified: kxt, daemon.pretty.js:95201)
+// symbol: main  (minified: GSt, daemon.pretty.js:94601)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.7, v0.3.0, v0.3.1, v0.3.3, v0.4.3, v0.5.0, v0.5.3, v0.5.4, v0.5.6, v0.5.10, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
-// locals: 49 renamed — 24 from the code at the binding (rule), 25 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.7, v0.3.0, v0.3.1, v0.3.3, v0.4.3, v0.5.0, v0.5.3, v0.5.4, v0.5.6, v0.5.10, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.4, v0.8.7 (maps/history_daemon.json)
+// locals: 52 renamed — 24 from the code at the binding (rule), 28 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -10,31 +10,31 @@
 async function main() {
     let {
         resolveRuntimePaths
-    } = await Promise.resolve().then(() => (rp(), bke)), {
+    } = await Promise.resolve().then(() => (nc(), kue)), {
         initializeRuntime
-    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), H0e)), {
+    } = await Promise.resolve().then(() => (initRuntimeInitializationModule(), pEe)), {
         createAgentSdkAdapter
-    } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), yC)), {
+    } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)), {
         createSessionManager
-    } = await Promise.resolve().then(() => (ZTe(), GTe)), {
+    } = await Promise.resolve().then(() => (bTe(), _Te)), {
         createMetaSession
-    } = await Promise.resolve().then(() => (initMetaSessionModule(), YTe)), {
+    } = await Promise.resolve().then(() => (initMetaSessionModule(), wTe)), {
         runCadenceTick
-    } = await Promise.resolve().then(() => (dZ(), rPe)), {
+    } = await Promise.resolve().then(() => (lK(), ITe)), {
         createJobScheduler
-    } = await Promise.resolve().then(() => (initJobSchedulerModule(), iPe)), {
+    } = await Promise.resolve().then(() => (initJobSchedulerModule(), TTe)), {
         createOutboxDeliveryManager
-    } = await Promise.resolve().then(() => (aPe(), sPe)), {
+    } = await Promise.resolve().then(() => (CTe(), $Te)), {
         clearHostModelEnvVars,
         loadHostDotEnv
-    } = await Promise.resolve().then(() => (AW(), Wxe));
+    } = await Promise.resolve().then(() => (IW(), hxe));
     process.on("unhandledRejection", reason => {
         logErrorMessage("[pid0] unhandled promise rejection (contained, daemon survives)", reason)
     }), process.on("uncaughtException", err => {
         logErrorMessage("[pid0] uncaught exception (likely corrupted state, exiting for clean restart)", err), process.exit(1)
     });
     let loadedEnvCount = await loadHostDotEnv();
-    loadedEnvCount > 0 && logInfoMessage(`[pid0] loaded ${loadedEnvCount} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && clearHostModelEnvVars(process.env), delete process.env[tl], resolveDefaultRuntime();
+    loadedEnvCount > 0 && logInfoMessage(`[pid0] loaded ${loadedEnvCount} env var(s) from ~/.config/duoduo/.env`), readClaudeAuthSourceEnv(process.env) === "claude_code_local" && clearHostModelEnvVars(process.env), delete process.env[nl], resolveDefaultRuntime();
     let paths = resolveRuntimePaths(),
         runtimeWriterLock = await acquireRuntimeWriterLock(paths);
     if (!runtimeWriterLock.acquired) throw new Error(`Runtime lock already held by pid=${runtimeWriterLock.lock?.pid??"unknown"} at ${runtimeWriterLock.lockPath}`);
@@ -48,26 +48,26 @@ async function main() {
         throw await releaseRuntimeWriterLock(paths), err
     }
     let sessionIndexFromDisk = await buildSessionIndexFromDisk(paths);
-    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await dSe(NO(paths));
+    logInfoMessage(`[pid0] session index populated: ${sessionIndexFromDisk.size()} entries`), await Cwe(MO(paths));
     let restartReason = await claimDaemonRestartReason(paths);
     setPendingRestartReason(restartReason), restartReason && logInfoMessage("[pid0] restart reason claimed", {
         requested_at: restartReason.requested_at,
         requested_by_agent: restartReason.requested_by_agent,
         wake_targets: restartReason.wake_targets
     });
-    let bus = pSe(),
+    let bus = Awe(),
         {
             probeClaudeAvailability
-        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), yC)),
+        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)),
         {
             primeCodexAvailability,
             isCodexAvailable
-        } = await Promise.resolve().then(() => (initCodexAppServerModule(), d6)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), t6)),
         {
             primeGrokAvailability,
             isGrokAvailable,
             grokUnavailableReason
-        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), g6)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), s6)),
         [claudeAvailability] = await Promise.all([probeClaudeAvailability(), primeCodexAvailability(), primeGrokAvailability()]),
         codexAvailable = isCodexAvailable(),
         grokAvailable = isGrokAvailable(),
@@ -81,6 +81,7 @@ async function main() {
         grokReason: grokAvailable ? void 0 : grokUnavailableReason()
     });
     let sessionSubscriptionRegistry = createSessionSubscriptionRegistry(),
+        finalSubscriberCount = sessionKey => sessionSubscriptionRegistry.finalSubscriberCount(sessionKey),
         sessionManager = createSessionManager({
             paths,
             bus,
@@ -88,7 +89,9 @@ async function main() {
             idleTimeoutMs: Number(process.env.ALADUO_SESSION_IDLE_MS ?? 36e5),
             maxConcurrentChannel: Number(process.env.ALADUO_SESSION_MAX_CONCURRENT_CHANNEL ?? process.env.ALADUO_SESSION_MAX_CONCURRENT ?? 10),
             maxConcurrentJob: Number(process.env.ALADUO_SESSION_MAX_CONCURRENT_JOB ?? 6),
-            heartbeatIntervalMs: Number(process.env.ALADUO_SESSION_HEARTBEAT_MS ?? 3e4)
+            heartbeatIntervalMs: Number(process.env.ALADUO_SESSION_HEARTBEAT_MS ?? 3e4),
+            resolveMain: () => resolveMainSessionFromIndex(sessionIndexFromDisk),
+            finalSubscriberCount
         }),
         daemon = createDaemon({
             paths,
@@ -100,10 +103,12 @@ async function main() {
             runtimeLockAlreadyHeld: !0
         }),
         port = Number(process.env.ALADUO_PORT ?? process.env.PORT ?? 20233);
-    await daemon.start(port, "127.0.0.1"), logAlwaysAtLevel("info", `[pid0] aladuo daemon started on :${port}, pid=${process.pid}`), await sessionManager.start(), restartReason?.wake_targets?.length && await deliverDaemonRestartWakes(paths, bus, sessionIndexFromDisk, restartReason).catch(err => {
-        logErrorMessage("[pid0] restart wake delivery error", err)
-    }), sessionSubscriptionRegistry.setAttachmentCallbacks(createVoidAwareAttachmentCallbacks(paths, sessionManager, err => {
-        logErrorMessage("[pid0] channel attachment tracking error", err)
+    await daemon.start(port, "127.0.0.1"), logAlwaysAtLevel("info", `[pid0] aladuo daemon started on :${port}, pid=${process.pid}`), await sessionManager.start(), restartReason?.wake_targets?.length && await deliverDaemonRestartWakes(paths, bus, sessionIndexFromDisk, restartReason, finalSubscriberCount).catch(restartWakeError => {
+        logErrorMessage("[pid0] restart wake delivery error", restartWakeError)
+    }), await reconcileMainSession(paths, bus, sessionIndexFromDisk, finalSubscriberCount).catch(reconcileError => {
+        logErrorMessage("[pid0] main session reconciliation error", reconcileError)
+    }), sessionSubscriptionRegistry.setAttachmentCallbacks(createVoidAwareAttachmentCallbacks(paths, sessionManager, attachmentError => {
+        logErrorMessage("[pid0] channel attachment tracking error", attachmentError)
     }));
     let outboxDeliveryManager = createOutboxDeliveryManager({
         paths,
@@ -154,7 +159,9 @@ async function main() {
         bus,
         sdk,
         sessionManager,
-        cadenceIntervalMs: envIntegerOrFallback
+        cadenceIntervalMs: envIntegerOrFallback,
+        resolveMain: () => resolveMainSessionFromIndex(sessionIndexFromDisk),
+        finalSubscriberCount
     });
     metaSession.start();
     let shuttingDown = !1,

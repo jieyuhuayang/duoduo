@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createIdleCompactSweeper  (minified: dke, daemon.pretty.js:90989)
+// symbol: createIdleCompactSweeper  (minified: jSe, daemon.pretty.js:90346)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
 // locals: 52 renamed — 18 from the code at the binding (rule), 34 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ function createIdleCompactSweeper(options) {
         sessionManager,
         sessionIndex,
         bus
-    } = options, intervalMs = options.intervalMs ?? Tmt, fireCapPerSweep = options.fireCapPerSweep ?? $mt, intervalHandle = null, sweeping = !1, currentSweep = null, stopped = !1, map = new Map;
+    } = options, intervalMs = options.intervalMs ?? Xft, fireCapPerSweep = options.fireCapPerSweep ?? ept, intervalHandle = null, sweeping = !1, currentSweep = null, stopped = !1, map = new Map;
 
     function isEligible(entry) {
         let sessionKey = entry.session_key;
@@ -45,7 +45,7 @@ function createIdleCompactSweeper(options) {
         if (!channelConfig || channelConfig.runtime === "codex" || channelConfig.runtimeRefusal || channelConfig.runtime === "void") return !1;
         let autoCompactIdleMinutes = channelConfig.auto_compact_idle_minutes,
             autoCompactMinContextTokens = channelConfig.auto_compact_min_context_tokens;
-        if (!autoCompactIdleMinutes || autoCompactIdleMinutes <= 0 || !autoCompactMinContextTokens || autoCompactMinContextTokens <= 0 || idleMs < autoCompactIdleMinutes * Pmt) return !1;
+        if (!autoCompactIdleMinutes || autoCompactIdleMinutes <= 0 || !autoCompactMinContextTokens || autoCompactMinContextTokens <= 0 || idleMs < autoCompactIdleMinutes * Qft) return !1;
         let contextUsedTokens = entry.context_used_tokens;
         if (typeof contextUsedTokens != "number" || contextUsedTokens < autoCompactMinContextTokens) return !1;
         let compactMeasuredFloor = entry.compact_measured_floor;
@@ -69,7 +69,7 @@ function createIdleCompactSweeper(options) {
                 last_compact_at: new Date().toISOString()
             })
         } catch (err) {
-            if (err instanceof Km) return logDebugMessage("[idle-compact] skip: archiving (marker write)", {
+            if (err instanceof Zm) return logDebugMessage("[idle-compact] skip: archiving (marker write)", {
                 sessionKey
             }), !1;
             throw err
@@ -119,7 +119,7 @@ function createIdleCompactSweeper(options) {
                     let idleMs = computeIdleMs(entry, actorState.lastActivityAt, now2);
                     await tryFireCompact(entry, idleMs, fusedKeys) && (fired += 1)
                 } catch (err) {
-                    if (err instanceof Km) continue;
+                    if (err instanceof Zm) continue;
                     logErrorMessage("[idle-compact] per-session sweep error", {
                         sessionKey: entry.session_key,
                         error: err instanceof Error ? err.message : String(err)

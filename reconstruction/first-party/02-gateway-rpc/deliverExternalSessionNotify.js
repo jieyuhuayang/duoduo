@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverExternalSessionNotify  (minified: vPe, daemon.pretty.js:93165)
+// symbol: deliverExternalSessionNotify  (minified: hK, daemon.pretty.js:92545)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.2, v0.8.4 (maps/history_daemon.json)
-// locals: 26 renamed — 3 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.2, v0.8.4, v0.8.7 (maps/history_daemon.json)
+// locals: 27 renamed — 3 from the code at the binding (rule), 24 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (high): `duoduo session notify <target> -m "<msg>"` — wake another session by key or alias with a source-tagged notification (for cross-session orchestration). Only foreground/job sessions are valid targets; the kernel/subconscious plane is isolated and refused.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
+async function deliverExternalSessionNotify(paths, bus, sessionIndex, params, finalSubscriberCount) {
     let trimmed = params.target.trim(),
         resolved = params.exact_key ? resolveSessionByExactKey(sessionIndex, trimmed) : resolveSessionByKeyOrAlias(sessionIndex, trimmed);
     if (!resolved.ok) return resolved.reason === "ambiguous" ? {
@@ -58,7 +58,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
         error: `The calling session ${callerSessionKey} (ALADUO_CALLER_SESSION) does not exist, so nothing was sent. If this shell outlived its session, unset ALADUO_CALLER_SESSION and send again; the message then goes out under the --source label.`
     };
     let sourceLabel = params.source?.trim() || "session.notify",
-        routeId = `session-notify-${ZN.randomUUID()}`,
+        routeId = `session-notify-${XN.randomUUID()}`,
         basePayload = {
             notify_content: params.message,
             text: params.message,
@@ -88,7 +88,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
             ...callerSessionKey === null ? {
                 sourceName: sourceLabel,
                 sourceSessionKey: "external:session.notify",
-                eventType: WW
+                eventType: zW
             } : {
                 sourceName: "notify-tool",
                 sourceSessionKey: callerSessionKey,
@@ -96,7 +96,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params) {
             }
         };
     if (!params.force) {
-        let refusal = await evaluateNotifyConsumerRefusal(paths, resolved.session_key);
+        let refusal = await evaluateNotifyConsumerRefusal(paths, resolved.session_key, finalSubscriberCount);
         if (refusal.refused) {
             let notifyRefusalMessage = renderNotifyRefusalMessage(refusal.inputs, refusal.verdict, refusal.candidates, resolved.session_key, refusal.unconsumedHours),
                 refusedDelivery = await deliverRouteEventToSession(paths, bus, {

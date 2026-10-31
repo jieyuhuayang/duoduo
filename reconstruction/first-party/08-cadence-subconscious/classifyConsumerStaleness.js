@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: classifyConsumerStaleness  (minified: Bwe, daemon.pretty.js:66826)
+// symbol: classifyConsumerStaleness  (minified: pwe, daemon.pretty.js:66014)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 0 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -15,7 +15,7 @@ function classifyConsumerStaleness(inputs, unconsumedHours, now) {
         unconsumed: !1,
         age_ms: ageMs
     } : {
-        unconsumed: inputs.records_past_cursor > 0 && ageMs !== void 0 && ageMs > unconsumedHours * xpt,
+        unconsumed: inputs.records_past_cursor > 0 && ageMs !== void 0 && ageMs > unconsumedHours * Bdt,
         age_ms: ageMs
     }
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: readPartitionInboxEntries  (minified: Ske, daemon.pretty.js:68709)
+// symbol: readPartitionInboxEntries  (minified: HSe, daemon.pretty.js:67825)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.8.0 (maps/history_daemon.json)
 // locals: 17 renamed — 2 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ async function readPartitionInboxEntries(paths, partition) {
     let inboxDir = partitionInboxDir(paths, partition),
         dirEntries;
     try {
-        dirEntries = await al.readdir(inboxDir, {
+        dirEntries = await ll.readdir(inboxDir, {
             withFileTypes: !0
         })
     } catch {
@@ -21,7 +21,7 @@ async function readPartitionInboxEntries(paths, partition) {
     let fileNames = dirEntries.filter(dirEntry => dirEntry.isFile() && !dirEntry.name.startsWith(".") && (dirEntry.name.endsWith(".pending") || dirEntry.name.endsWith(".json"))).map(dirEntry => dirEntry.name),
         sortedNames = (await Promise.all(fileNames.map(async fileName => {
             try {
-                let stats = await al.stat(qO.join(inboxDir, fileName));
+                let stats = await ll.stat(HO.join(inboxDir, fileName));
                 return {
                     name: fileName,
                     mtimeMs: stats.mtimeMs
@@ -35,7 +35,7 @@ async function readPartitionInboxEntries(paths, partition) {
     };
     let entries = [];
     for (let fileName of sortedNames) try {
-        let content = await al.readFile(qO.join(inboxDir, fileName), "utf8");
+        let content = await ll.readFile(HO.join(inboxDir, fileName), "utf8");
         entries.push({
             file: fileName,
             message: content.trim()

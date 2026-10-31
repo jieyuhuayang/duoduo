@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: buildTransientUserBlocks  (minified: FEe, daemon.pretty.js:74053)
+// symbol: buildTransientUserBlocks  (minified: l0e, daemon.pretty.js:73190)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.5, v0.5.2, v0.5.5, v0.5.10, v0.6.0, v0.6.2, v0.8.0, v0.8.1 (maps/history_daemon.json)
 // locals: 18 renamed — 1 from the code at the binding (rule), 17 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -74,7 +74,7 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
         text: skipRewindBlock,
         tag: "skip-rewind"
     }), skipRewindInjected = !0);
-    let interruptedContext = I_t(options.interruptedContext);
+    let interruptedContext = Kgt(options.interruptedContext);
     return interruptedContext && (blocks.push({
         type: "text",
         text: `<interrupted-context>

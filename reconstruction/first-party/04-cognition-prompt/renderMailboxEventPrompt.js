@@ -1,8 +1,8 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderMailboxEventPrompt  (minified: NA, daemon.pretty.js:73876)
+// symbol: renderMailboxEventPrompt  (minified: jA, daemon.pretty.js:73011)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.0, v0.5.1, v0.5.3, v0.5.4, v0.6.0, v0.8.0, v0.8.2 (maps/history_daemon.json)
-// locals: 40 renamed — 12 from the code at the binding (rule), 28 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.0, v0.5.1, v0.5.3, v0.5.4, v0.6.0, v0.8.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
+// locals: 42 renamed — 12 from the code at the binding (rule), 30 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.0 (medium): **runner**: Add configurable time-gap session context and upgrade runtime prompt assembly to structured content blocks.
 // changelog v0.4.0 (medium): fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -22,8 +22,9 @@ function renderMailboxEventPrompt(event, sessionKey) {
                     scheduleType = readStringProperty(innerPayload, "schedule_type") ?? "",
                     sessionKind = classifySessionKeyOrUnknown(sessionKey),
                     deliveredAt = new Date().toISOString(),
-                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
-                    jobCompleteReceiptGuidance = renderJobCompleteReceiptGuidance(sessionKind, stringProperty);
+                    ownerSessionKey = aJ(innerPayload),
+                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", uJ(ownerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
+                    jobCompleteReceiptGuidance = renderJobCompleteReceiptGuidance(sessionKind, stringProperty, ownerSessionKey);
                 return [`<job-status event="job.complete" ${attributes}>`, jobCompleteReceiptGuidance, resultText ? `
 <job-result>
 ${escapeXmlText(resultText)}
@@ -37,11 +38,12 @@ ${escapeXmlText(resultText)}
                 let errorText = readStringProperty(innerPayload, "error") ?? readStringProperty(innerPayload, "error_summary") ?? "Unknown error",
                     sourceSessionKey = readStringProperty(eventPayload, "source_session_key") ?? "",
                     scheduleType = readStringProperty(innerPayload, "schedule_type") ?? "",
-                    sessionKind = classifySessionKeyOrUnknown(sessionKey),
-                    deliveredAt = new Date().toISOString(),
-                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
-                    guidance = P_t(sessionKind, scheduleType, stringProperty);
-                return [`<job-status event="job.fail" ${attributes}>`, guidance, `
+                    failSessionKind = classifySessionKeyOrUnknown(sessionKey),
+                    failDeliveredAt = new Date().toISOString(),
+                    failOwnerSessionKey = aJ(innerPayload),
+                    failAttributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", uJ(failOwnerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(failDeliveredAt)}"`].filter(Boolean).join(" "),
+                    failGuidance = Ygt(failSessionKind, scheduleType, stringProperty, failOwnerSessionKey);
+                return [`<job-status event="job.fail" ${failAttributes}>`, failGuidance, `
 <job-error>
 ${escapeXmlText(errorText)}
 </job-error>`, "</job-status>"].join(`
@@ -67,7 +69,7 @@ ${escapeXmlText(errorText)}
                 sessionKind = classifySessionKeyOrUnknown(sessionKey),
                 hasTaskId = !!readStringProperty(innerPayload, "task_id"),
                 attributes = [sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", sourceKind ? `source_kind="${escapeXmlText(sourceKind)}"` : "", stringProperty ? `source_label="${escapeXmlText(stringProperty)}"` : "", stringProperty3 ? `correlation_id="${escapeXmlText(stringProperty3)}"` : "", stringProperty4 ? `reply_to="${escapeXmlText(stringProperty4)}"` : ""].filter(Boolean).join(" ");
-            return $_t(sessionKind, sourceKind, stringProperty2 ?? void 0, notifyContent, attributes, {
+            return Xgt(sessionKind, sourceKind, stringProperty2 ?? void 0, notifyContent, attributes, {
                 sentAt: event.ts,
                 deliveredAt: new Date().toISOString()
             }, stringProperty4 ?? void 0, hasTaskId)
@@ -81,7 +83,7 @@ ${escapeXmlText(errorText)}
     }
     if (eventPayload) {
         let stringProperty = readStringProperty(eventPayload, "text"),
-            extraLines = R_t(eventPayload);
+            extraLines = Ggt(eventPayload);
         if (stringProperty && stringProperty.startsWith("/") || stringProperty && extraLines.length === 0) return stringProperty;
         if (!stringProperty && extraLines.length > 0) return extraLines.join(`
 `);

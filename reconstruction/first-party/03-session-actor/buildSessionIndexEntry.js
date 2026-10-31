@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: buildSessionIndexEntry  (minified: Wfe, daemon.pretty.js:38943)
+// symbol: buildSessionIndexEntry  (minified: yfe, daemon.pretty.js:38070)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.2, v0.5.10, v0.8.1 (maps/history_daemon.json)
+// since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.2, v0.5.10, v0.8.1, v0.8.7 (maps/history_daemon.json)
 // locals: 3 renamed — 0 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (medium): `SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -25,6 +25,7 @@ function buildSessionIndexEntry(sessionKey, state, meta) {
         compact_measured_at: state.compact_stats?.measured_at,
         last_served_model: state.last_served_model,
         model: state.model,
+        main_since: state.main_since,
         display_name: meta?.display_name,
         kind: meta?.kind,
         owner_session: meta?.owner_session

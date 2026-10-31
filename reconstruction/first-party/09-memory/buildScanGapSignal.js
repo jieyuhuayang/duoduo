@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: buildScanGapSignal  (minified: Uht, daemon.pretty.js:70023)
+// symbol: buildScanGapSignal  (minified: lmt, daemon.pretty.js:69139)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,9 +9,9 @@
 
 function buildScanGapSignal(span, context) {
     return {
-        kind: Vn.SCAN_GAP,
+        kind: Jn.SCAN_GAP,
         partition: "gradient-distiller",
-        pendingFilename: nxe,
+        pendingFilename: Eke,
         pendingBody: renderScanGapSignalBody(span, context)
     }
 }

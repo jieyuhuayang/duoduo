@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: generateAllPartitionCodexAgents  (minified: u_t, daemon.pretty.js:71927)
+// symbol: generateAllPartitionCodexAgents  (minified: $gt, daemon.pretty.js:71043)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 8 renamed — 2 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,9 +9,9 @@
 async function generateAllPartitionCodexAgents(paths) {
     let {
         generatePartitionCodexAgents
-    } = await Promise.resolve().then(() => (q0e(), U0e)), entries;
+    } = await Promise.resolve().then(() => (dEe(), cEe)), entries;
     try {
-        entries = await or.readdir(paths.subconsciousDir, {
+        entries = await lr.readdir(paths.subconsciousDir, {
             withFileTypes: !0
         })
     } catch {
@@ -19,7 +19,7 @@ async function generateAllPartitionCodexAgents(paths) {
     }
     for (let entry of entries) {
         if (!entry.isDirectory() || entry.name.startsWith(".") || entry.name === "inbox") continue;
-        let partitionDir = sr.join(paths.subconsciousDir, entry.name);
+        let partitionDir = cr.join(paths.subconsciousDir, entry.name);
         try {
             let result = await generatePartitionCodexAgents(partitionDir);
             if (result.errors.length > 0)

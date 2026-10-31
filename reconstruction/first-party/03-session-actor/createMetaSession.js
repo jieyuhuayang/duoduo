@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createMetaSession  (minified: Pkt, daemon.pretty.js:88298)
+// symbol: createMetaSession  (minified: Ywt, daemon.pretty.js:87481)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.3.3, v0.5.0, v0.5.2, v0.5.3, v0.5.4, v0.5.7, v0.5.8, v0.5.10, v0.7.1, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.3.3, v0.5.0, v0.5.2, v0.5.3, v0.5.4, v0.5.7, v0.5.8, v0.5.10, v0.7.1, v0.8.0, v0.8.1, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 154 renamed — 44 from the code at the binding (rule), 110 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.1 (medium): **cadence**: Settle subconscious partition scheduling — fix round-robin stalls and idle-tick fanout.
 // NOTE: readable extract from daemon.recon.js; references other top-level
@@ -19,7 +19,9 @@ function createMetaSession(options) {
             paths,
             sessionKey,
             bus,
-            sessionContextKind: "meta"
+            sessionContextKind: "meta",
+            resolveMain: options.resolveMain,
+            finalSubscriberCount: options.finalSubscriberCount
         })
     })), grokAvailability = options.grokAvailability ?? checkGrokAvailability, grokAdapterFactory = options.grokAdapterFactory, piAdapterFactory = options.piAdapterFactory ?? (({
         cwd,
@@ -31,7 +33,7 @@ function createMetaSession(options) {
                 settingsSeed,
                 defaultProjectTrust
             } = readPiAgentSettings(piAgentDir),
-            piSessionDir = _kt(Cy.join(vkt(), "aladuo-pi-partition-")),
+            piSessionDir = zwt(Ay.join(qwt(), "aladuo-pi-partition-")),
             workerToolContext = {
                 session_context_kind: "system"
             },
@@ -40,9 +42,9 @@ function createMetaSession(options) {
                 sdkSessionId: crypto.randomUUID(),
                 sessionDir: piSessionDir,
                 agentDir: piAgentDir,
-                authPath: Cy.join(piAgentDir, "auth.json"),
-                modelsPath: Cy.join(piAgentDir, "models.json"),
-                modelsStorePath: Cy.join(piSessionDir, "models-store.json"),
+                authPath: Ay.join(piAgentDir, "auth.json"),
+                modelsPath: Ay.join(piAgentDir, "models.json"),
+                modelsStorePath: Ay.join(piSessionDir, "models-store.json"),
                 settingsSeed,
                 resources: {
                     extensions: "all",
@@ -54,12 +56,12 @@ function createMetaSession(options) {
                 inMemorySession: !0,
                 workerCommand: resolvePiWorkerCommand(),
                 env: {
-                    [_C]: paths.daemonSocketPath,
-                    [bC]: issueWorkerToolContextToken({
+                    [vC]: paths.daemonSocketPath,
+                    [wC]: issueWorkerToolContextToken({
                         session_key: sessionKey,
                         ...workerToolContext
                     }),
-                    [vC]: JSON.stringify(workerToolContext)
+                    [SC]: JSON.stringify(workerToolContext)
                 },
                 logDebug: message => logDebugMessage(message, {
                     sessionKey
@@ -71,14 +73,14 @@ function createMetaSession(options) {
                 try {
                     await piWorkerAdapter.shutdown()
                 } finally {
-                    bkt(piSessionDir, {
+                    Uwt(piSessionDir, {
                         recursive: !0,
                         force: !0
                     })
                 }
             }
         }
-    }), maxPartitionsPerIdleTick = options.maxPartitionsPerIdleTick ?? 2, cadenceIntervalMs = options.cadenceIntervalMs ?? Zg, processing = !1, stopRequested = !1, inFlightTick = null, listening = !1, lastActivityFingerprint = null, tickCount = 0, map = new Map;
+    }), maxPartitionsPerIdleTick = options.maxPartitionsPerIdleTick ?? 2, cadenceIntervalMs = options.cadenceIntervalMs ?? Yg, processing = !1, stopRequested = !1, inFlightTick = null, listening = !1, lastActivityFingerprint = null, tickCount = 0, map = new Map;
     async function runNextPartition(partitions, runtimeContext, currentTick) {
         let runStateEntries = await Promise.all(partitions.map(async partition => [partition.name, await readPartitionRunState(paths, partition.name)])),
             map = new Map(runStateEntries);
@@ -203,7 +205,9 @@ function createMetaSession(options) {
                     sessionKey,
                     bus,
                     sessionContextKind: "meta",
-                    callerRuntime: effectiveRuntime
+                    callerRuntime: effectiveRuntime,
+                    resolveMain: options.resolveMain,
+                    finalSubscriberCount: options.finalSubscriberCount
                 })
             });
             adapter = grokAdapter, shutdownGrok = () => grokAdapter.shutdown()
@@ -243,9 +247,11 @@ ${runtimeContext}`,
                 sessionKey,
                 bus,
                 sessionContextKind: "meta",
-                callerRuntime: effectiveRuntime
+                callerRuntime: effectiveRuntime,
+                resolveMain: options.resolveMain,
+                finalSubscriberCount: options.finalSubscriberCount
             }),
-            tools = [...new Set([...PARTITION_CORE_TOOLS, ...partition.claudeTools ?? []])],
+            partitionTools = [...new Set([...PARTITION_CORE_TOOLS, ...partition.claudeTools ?? []])],
             abortController = new AbortController;
         logInfoMessage("[meta-session] executing partition", {
             partition: partition.name
@@ -280,7 +286,7 @@ ${runtimeContext}`,
                     holdInputOpenForBackgroundAgents: !0,
                     additionalDirectories: [paths.memoryDir],
                     autoloadAdditionalDirectoryClaudeMd: !1,
-                    tools,
+                    tools: partitionTools,
                     systemPrompt,
                     abortController,
                     onStream: (chunk, isSidechain) => {

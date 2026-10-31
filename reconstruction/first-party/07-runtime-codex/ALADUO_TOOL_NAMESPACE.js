@@ -1,17 +1,17 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: ALADUO_TOOL_NAMESPACE  (minified: sO, daemon.pretty.js:65121)
+// symbol: ALADUO_TOOL_NAMESPACE  (minified: uO, daemon.pretty.js:64309)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, wft, u6, l6, Eft, oO, ewe, initCodexAppServerModule = N(() => {
+var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule = A(() => {
     "use strict";
-    nc();
+    ic();
     initLogLevelModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    ALADUO_TOOL_NAMESPACE = "aladuo", wft = "features.code_mode.direct_only_tool_namespaces";
-    Eft = {
+    ALADUO_TOOL_NAMESPACE = "aladuo", zct = "features.code_mode.direct_only_tool_namespaces";
+    Vct = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -20,7 +20,7 @@ var ALADUO_TOOL_NAMESPACE, wft, u6, l6, Eft, oO, ewe, initCodexAppServerModule =
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, oO = class extends vft {
+    }, aO = class extends Fct {
         constructor(binary, cwd, env) {
             super();
             this.binary = binary;
@@ -36,7 +36,7 @@ var ALADUO_TOOL_NAMESPACE, wft, u6, l6, Eft, oO, ewe, initCodexAppServerModule =
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = yft(this.binary, ["app-server"], {
+            this.alive || (this.proc = Mct(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -213,5 +213,5 @@ var ALADUO_TOOL_NAMESPACE, wft, u6, l6, Eft, oO, ewe, initCodexAppServerModule =
             for (let [id, pendingRequest] of this.pending) pendingRequest.reject(error), this.pending.delete(id)
         }
     };
-    ewe = new Set
+    xve = new Set
 });

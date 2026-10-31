@@ -1,8 +1,8 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createJobSessionFinalizer  (minified: aTe, daemon.pretty.js:82706)
+// symbol: createJobSessionFinalizer  (minified: $Ie, daemon.pretty.js:81852)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
-// locals: 71 renamed — 29 from the code at the binding (rule), 42 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.7 (maps/history_daemon.json)
+// locals: 82 renamed — 30 from the code at the binding (rule), 52 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
@@ -11,10 +11,12 @@ function createJobSessionFinalizer(deps) {
     let {
         paths,
         bus,
-        jobManager
+        jobManager,
+        resolveMain,
+        finalSubscriberCount
     } = deps;
-    async function listSessionInboxPendingNames(sessionKey) {
-        return new Set(await listPendingInboxFiles(resolveSessionInboxDir(paths, sessionKey)))
+    async function listSessionInboxPendingNames(inboxSessionKey) {
+        return new Set(await listPendingInboxFiles(resolveSessionInboxDir(paths, inboxSessionKey)))
     }
     async function sessionInboxFreshNameVerdict(sessionKey, knownNames) {
         let pendingNames;
@@ -40,12 +42,12 @@ function createJobSessionFinalizer(deps) {
                 consumeRunAt,
                 expectedClaimCursor
             });
-            return result === r6 ? (logInfoMessage(`[session-manager] job gone at finalize (${label}) — state frozen`, {
+            return result === JH ? (logInfoMessage(`[session-manager] job gone at finalize (${label}) — state frozen`, {
                 jobId,
                 sessionKey
             }), {
                 kind: "gone"
-            }) : result === i6 ? (logWarnMessage(`[session-manager] stale finalize (${label}) — a fresh claim owns the sidecar; nothing written`, {
+            }) : result === GH ? (logWarnMessage(`[session-manager] stale finalize (${label}) — a fresh claim owns the sidecar; nothing written`, {
                 jobId,
                 sessionKey,
                 claimCursor: expectedClaimCursor
@@ -300,44 +302,57 @@ function createJobSessionFinalizer(deps) {
     }
     async function deliverJobOutcomeToOwner(job, sourceSessionKey, eventType, payload) {
         if (!job) return;
-        let ownerSession = job.frontmatter.owner_session?.trim();
-        if (!ownerSession) {
-            logWarnMessage("[session-manager] job outcome undeliverable: no owner_session", {
-                jobId: job.id,
-                eventType
-            });
+        let ownerSession = job.frontmatter.owner_session?.trim(),
+            ownerTarget = ownerSession ? normalizeNotifyChannelTarget(ownerSession) : null,
+            ownerReachable = ownerTarget !== null && !isSessionArchived(paths, ownerTarget) && !isSessionArchiving(ownerTarget);
+        if (ownerReachable && !(await evaluateNotifyConsumerRefusal(paths, ownerTarget, finalSubscriberCount).catch(() => null))?.refused) {
+            await deliverJobEvent(job, sourceSessionKey, eventType, payload, ownerTarget);
             return
         }
-        let notifyChannelTarget = normalizeNotifyChannelTarget(ownerSession);
-        if (!notifyChannelTarget) {
-            logWarnMessage("[session-manager] job outcome undeliverable: owner_session is not a route target", {
-                jobId: job.id,
-                owner: ownerSession,
-                eventType
-            });
+        let mainResolution = resolveMain();
+        if (mainResolution.state === "held") {
+            let mainRefusal = await evaluateNotifyConsumerRefusal(paths, mainResolution.session_key, finalSubscriberCount).catch(() => null);
+            if (mainRefusal && !mainRefusal.refused) {
+                await deliverJobEvent(job, sourceSessionKey, eventType, {
+                    ...payload,
+                    stand_in_for_owner: ownerSession ?? null
+                }, mainResolution.session_key);
+                return
+            }
+        }
+        if (ownerReachable) {
+            await deliverJobEvent(job, sourceSessionKey, eventType, payload, ownerTarget);
             return
         }
+        logWarnMessage("[session-manager] job outcome undeliverable: no live owner and no usable main", {
+            jobId: job.id,
+            owner: ownerSession,
+            main: mainResolution.state,
+            eventType
+        })
+    }
+    async function deliverJobEvent(deliveredJob, deliverSourceSessionKey, deliverEventType, deliverPayload, targetSessionKey) {
         try {
             await deliverRouteEventToSession(paths, bus, {
-                traceId: `job-finalize_${job.id}`,
+                traceId: `job-finalize_${deliveredJob.id}`,
                 routeId: "job-result",
-                sourceName: `job:${job.id}`,
-                sourceSessionKey,
-                targetSessionKey: notifyChannelTarget,
-                eventType,
-                payload,
-                enqueueWithoutWake: eventType === "job.complete"
-            }), logDebugMessage("[session-manager] job outcome delivered to owner", {
-                jobId: job.id,
-                targetSessionKey: notifyChannelTarget,
-                eventType,
-                woke: eventType === "job.fail"
+                sourceName: `job:${deliveredJob.id}`,
+                sourceSessionKey: deliverSourceSessionKey,
+                targetSessionKey,
+                eventType: deliverEventType,
+                payload: deliverPayload,
+                enqueueWithoutWake: deliverEventType === "job.complete"
+            }), logDebugMessage("[session-manager] job outcome delivered", {
+                jobId: deliveredJob.id,
+                targetSessionKey,
+                eventType: deliverEventType,
+                woke: deliverEventType === "job.fail"
             })
         } catch (err) {
-            logWarnMessage("[session-manager] failed to deliver job outcome to owner", {
-                jobId: job.id,
-                targetSessionKey: notifyChannelTarget,
-                eventType,
+            logWarnMessage("[session-manager] failed to deliver job outcome", {
+                jobId: deliveredJob.id,
+                targetSessionKey,
+                eventType: deliverEventType,
                 error: String(err)
             })
         }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: resolveMetaPromptText  (minified: Mw, daemon.pretty.js:57467)
+// symbol: resolveMetaPromptText  (minified: zw, daemon.pretty.js:56637)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 3 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,10 +9,10 @@
 function resolveMetaPromptText() {
     let optionalEnvString = normalizeOptionalEnvString(process.env.ALADUO_META_PROMPT_PATH),
         optionalEnvString2 = normalizeOptionalEnvString(process.env.ALADUO_BOOTSTRAP_DIR),
-        candidatePaths = [optionalEnvString, optionalEnvString2 ? GH.join(optionalEnvString2, "meta-prompt.md") : void 0].filter(candidate => !!candidate);
+        candidatePaths = [optionalEnvString, optionalEnvString2 ? xg.join(optionalEnvString2, "meta-prompt.md") : void 0].filter(candidate => !!candidate);
     for (let candidatePath of candidatePaths) try {
-        if (!JH(candidatePath)) continue;
-        let trimmed = U_e(candidatePath, "utf8").trim();
+        if (!gC(candidatePath)) continue;
+        let trimmed = LV(candidatePath, "utf8").trim();
         if (trimmed.length > 0) return trimmed
     } catch {}
 }

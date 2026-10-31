@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: buildClaudeSettingsEnvOverrides  (minified: tmt, daemon.pretty.js:67698)
+// symbol: buildClaudeSettingsEnvOverrides  (minified: vft, daemon.pretty.js:66922)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,10 +10,10 @@
 function buildClaudeSettingsEnvOverrides(params) {
     let env = {},
         requirement = params.requirement;
-    requirement?.kind === "profiled-external" && (env[Xpt] = String(requirement.requiredMaxContextTokens), requirement.baseUrl && (env[Qpt] = requirement.baseUrl), requirement.auth && (env[Ypt[requirement.auth.field]] = requirement.auth.token));
-    for (let tier of ff) {
+    requirement?.kind === "profiled-external" && (env[yft] = String(requirement.requiredMaxContextTokens), requirement.baseUrl && (env[_ft] = requirement.baseUrl), requirement.auth && (env[gft[requirement.auth.field]] = requirement.auth.token));
+    for (let tier of hf) {
         let aliasModel = params.aliases?.[tier];
-        aliasModel && (env[Kpt[tier]] = aliasModel)
+        aliasModel && (env[hft[tier]] = aliasModel)
     }
     return Object.keys(env).length === 0 ? void 0 : env
 }

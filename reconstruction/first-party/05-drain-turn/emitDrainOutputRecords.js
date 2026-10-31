@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: emitDrainOutputRecords  (minified: Vc, daemon.pretty.js:74538)
+// symbol: emitDrainOutputRecords  (minified: Kc, daemon.pretty.js:73678)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.5 (maps/history_daemon.json)
 // locals: 15 renamed — 4 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,7 +14,7 @@ async function emitDrainOutputRecords(paths, sessionKey, params) {
         length = targetSessionKeys.length,
         primaryRecord, replyOverride = params.item.replySessionKey?.trim();
     for (let [index, targetSessionKey] of targetSessionKeys.entries()) {
-        let channelKind = mbt(targetSessionKey, params.event.source.kind),
+        let channelKind = Myt(targetSessionKey, params.event.source.kind),
             includeTurnMeta = params.turnMeta !== void 0 && classifySessionKeyOrUnknown(targetSessionKey) === "channel",
             outboxRecord = createOutboxRecord({
                 channel_kind: channelKind,

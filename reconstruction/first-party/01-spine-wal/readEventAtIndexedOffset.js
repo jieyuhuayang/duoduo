@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: readEventAtIndexedOffset  (minified: JQe, daemon.pretty.js:34245)
+// symbol: readEventAtIndexedOffset  (minified: lXe, daemon.pretty.js:33361)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 9 renamed — 2 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,7 +17,7 @@ async function readEventAtIndexedOffset(paths, indexEntry, eventId) {
             } = await handle.read(buffer, 0, indexEntry.byte_len, indexEntry.byte_offset),
             trimmed = buffer.subarray(0, bytesRead).toString("utf8").trim();
         if (trimmed) {
-            let event = XQe(trimmed, eventId);
+            let event = mXe(trimmed, eventId);
             if (event) return event
         }
     } finally {

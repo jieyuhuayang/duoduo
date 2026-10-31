@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: scheduleSessionWakeRecord  (minified: oxt, daemon.pretty.js:93105)
+// symbol: scheduleSessionWakeRecord  (minified: PSt, daemon.pretty.js:92485)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
 // locals: 12 renamed — 8 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -28,7 +28,7 @@ async function scheduleSessionWakeRecord(paths, sessionIndex, params) {
         ok: !1,
         reason: "void_session",
         session_key: sessionByKeyOrAlias.session_key,
-        error: `${Ju} A wake would start no turn; nothing was scheduled.`
+        error: `${Gu} A wake would start no turn; nothing was scheduled.`
     };
     let date = new Date;
     try {
@@ -42,7 +42,7 @@ async function scheduleSessionWakeRecord(paths, sessionIndex, params) {
         }
     }
     try {
-        let wakeStore = new Hr(paths),
+        let wakeStore = new Jr(paths),
             {
                 id,
                 runAt

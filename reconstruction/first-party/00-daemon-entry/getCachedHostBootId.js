@@ -1,9 +1,9 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: getCachedHostBootId  (minified: pke, daemon.pretty.js:91371)
+// symbol: getCachedHostBootId  (minified: FSe, daemon.pretty.js:90728)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function getCachedHostBootId() {
-    return H6 || (H6 = computeHostBootId()), H6
+    return L6 || (L6 = computeHostBootId()), L6
 }

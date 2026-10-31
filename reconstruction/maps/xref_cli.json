@@ -1,41 +1,20 @@
 {
  "bundle": "cli",
- "version": "v0.8.6",
- "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.6/cli.pretty.js",
- "symbolCount": 61,
+ "version": "v0.8.7",
+ "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.7/cli.pretty.js",
+ "symbolCount": 67,
  "counts": {
   "env": 6,
   "logPrefixes": 0,
-  "dotted": 14,
+  "dotted": 16,
   "paths": 11,
-  "strings": 404,
-  "unnamedUsed": 97
+  "strings": 483,
+  "unnamedUsed": 103
  },
  "symbols": {
-  "CLI_DAEMON_TOKEN_ENV_KEY": {
-   "mangled": "TB",
-   "line": 67257,
-   "kind": "var",
-   "inner": [],
-   "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [],
-   "refBy": [
-    "readDaemonTokenFromEnvFile",
-    "writeDaemonTokenToEnvFile"
-   ],
-   "refByUnnamed": [],
-   "env": [],
-   "logPrefixes": [],
-   "dotted": [],
-   "paths": [],
-   "strings": [
-    "ALADUO_DAEMON_TOKEN"
-   ]
-  },
   "PLIST_LABEL": {
-   "mangled": "$b",
-   "line": 20863,
+   "mangled": "MB",
+   "line": 24080,
    "kind": "var (uninitialised)",
    "inner": [],
    "innerAnonymous": 0,
@@ -46,7 +25,7 @@
     "plistPath"
    ],
    "refByUnnamed": [
-    "y1"
+    "n1"
    ],
    "env": [],
    "logPrefixes": [],
@@ -55,8 +34,8 @@
    "strings": []
   },
   "SpineCommandError": {
-   "mangled": "YT",
-   "line": 67186,
+   "mangled": "IT",
+   "line": 71039,
    "kind": "var (uninitialised)",
    "inner": [],
    "innerAnonymous": 0,
@@ -66,7 +45,7 @@
     "runSpineCommand"
    ],
    "refByUnnamed": [
-    "Ar"
+    "Er"
    ],
    "env": [],
    "logPrefixes": [],
@@ -74,9 +53,34 @@
    "paths": [],
    "strings": []
   },
+  "channelVerbInSession": {
+   "mangled": "iot",
+   "line": 78720,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "defaultCallerVerdict"
+   ],
+   "refsUnnamed": [
+    "phe"
+   ],
+   "refBy": [
+    "runChannelCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "feishu",
+    "outside"
+   ]
+  },
   "clearOwnRestartReasonFile": {
-   "mangled": "m8",
-   "line": 67809,
+   "mangled": "C3",
+   "line": 2784,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 1,
@@ -97,8 +101,8 @@
    ]
   },
   "createDaemonToken": {
-   "mangled": "OJ",
-   "line": 68243,
+   "mangled": "AZ",
+   "line": 24503,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -110,7 +114,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "oZe"
+    "Zit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -121,165 +125,165 @@
    ]
   },
   "createStdioDaemonClient": {
-   "mangled": "a0",
-   "line": 72927,
+   "mangled": "zR",
+   "line": 76109,
    "kind": "async function",
    "inner": [
     {
      "name": "n",
-     "line": 72928,
-     "endLine": 72936
+     "line": 76110,
+     "endLine": 76118
     },
     {
      "name": "createConnection",
-     "line": 72929,
-     "endLine": 72931
+     "line": 76111,
+     "endLine": 76113
     },
     {
-     "name": "ve",
-     "line": 72960,
-     "endLine": 72965
+     "name": "Ne",
+     "line": 76142,
+     "endLine": 76147
     },
     {
-     "name": "ye",
-     "line": 72966,
-     "endLine": 72974
+     "name": "De",
+     "line": 76148,
+     "endLine": 76156
+    },
+    {
+     "name": "Me",
+     "line": 76157,
+     "endLine": 76165
+    },
+    {
+     "name": "Ie",
+     "line": 76166,
+     "endLine": 76175
+    },
+    {
+     "name": "Te",
+     "line": 76176,
+     "endLine": 76179
     },
     {
      "name": "we",
-     "line": 72975,
-     "endLine": 72983
+     "line": 76180,
+     "endLine": 76190
     },
     {
-     "name": "Ce",
-     "line": 72984,
-     "endLine": 72993
-    },
-    {
-     "name": "xe",
-     "line": 72994,
-     "endLine": 72997
+     "name": "rt",
+     "line": 76191,
+     "endLine": 76197
     },
     {
      "name": "Le",
-     "line": 72998,
-     "endLine": 73008
+     "line": 76198,
+     "endLine": 76204
     },
     {
-     "name": "Ve",
-     "line": 73009,
-     "endLine": 73015
+     "name": "Ot",
+     "line": 76205,
+     "endLine": 76223
     },
     {
-     "name": "Ze",
-     "line": 73016,
-     "endLine": 73022
-    },
-    {
-     "name": "Dt",
-     "line": 73023,
-     "endLine": 73041
-    },
-    {
-     "name": "ze",
-     "line": 73042,
-     "endLine": 73045
+     "name": "qe",
+     "line": 76224,
+     "endLine": 76227
     },
     {
      "name": "mt",
-     "line": 73046,
-     "endLine": 73113
-    },
-    {
-     "name": "dt",
-     "line": 73114,
-     "endLine": 73131
-    },
-    {
-     "name": "Gt",
-     "line": 73131,
-     "endLine": 73150
-    },
-    {
-     "name": "re",
-     "line": 73150,
-     "endLine": 73167
-    },
-    {
-     "name": "Ye",
-     "line": 73167,
-     "endLine": 73179
-    },
-    {
-     "name": "lt",
-     "line": 73179,
-     "endLine": 73193
-    },
-    {
-     "name": "Ht",
-     "line": 73193,
-     "endLine": 73200
-    },
-    {
-     "name": "Mt",
-     "line": 73202,
-     "endLine": 73230
-    },
-    {
-     "name": "on",
-     "line": 73210,
-     "endLine": 73212
-    },
-    {
-     "name": "hr",
-     "line": 73213,
-     "endLine": 73215
-    },
-    {
-     "name": "qn",
-     "line": 73216,
-     "endLine": 73218
+     "line": 76228,
+     "endLine": 76295
     },
     {
      "name": "st",
-     "line": 73219,
-     "endLine": 73221
+     "line": 76296,
+     "endLine": 76313
     },
     {
-     "name": "Fe",
-     "line": 73230,
-     "endLine": 73238
+     "name": "qt",
+     "line": 76313,
+     "endLine": 76332
     },
     {
-     "name": "ht",
-     "line": 73238,
-     "endLine": 73238
+     "name": "re",
+     "line": 76332,
+     "endLine": 76349
     },
     {
-     "name": "At",
-     "line": 73238,
-     "endLine": 73244
+     "name": "Ve",
+     "line": 76349,
+     "endLine": 76361
+    },
+    {
+     "name": "lt",
+     "line": 76361,
+     "endLine": 76375
+    },
+    {
+     "name": "Wt",
+     "line": 76375,
+     "endLine": 76382
+    },
+    {
+     "name": "Ut",
+     "line": 76384,
+     "endLine": 76412
+    },
+    {
+     "name": "sn",
+     "line": 76392,
+     "endLine": 76394
+    },
+    {
+     "name": "Ir",
+     "line": 76395,
+     "endLine": 76397
+    },
+    {
+     "name": "Kn",
+     "line": 76398,
+     "endLine": 76400
+    },
+    {
+     "name": "at",
+     "line": 76401,
+     "endLine": 76403
+    },
+    {
+     "name": "Ue",
+     "line": 76412,
+     "endLine": 76420
+    },
+    {
+     "name": "It",
+     "line": 76420,
+     "endLine": 76420
+    },
+    {
+     "name": "dt",
+     "line": 76420,
+     "endLine": 76426
     },
     {
      "name": "runtimeInfo",
-     "line": 73252,
-     "endLine": 73258
+     "line": 76434,
+     "endLine": 76440
     }
    ],
    "innerAnonymous": 15,
    "refs": [],
    "refsUnnamed": [
-    "Bne",
-    "ZB",
-    "aGe",
-    "qp",
-    "wne",
-    "xne"
+    "Foe",
+    "Poe",
+    "QO",
+    "Uoe",
+    "op",
+    "qqe"
    ],
    "refBy": [],
    "refByUnnamed": [
-    "iU",
-    "rU"
+    "S9",
+    "T9"
    ],
    "env": [
     "ALADUO_CLI_INITIAL_RECONNECT_DELAY_MS",
@@ -342,9 +346,39 @@
     "tool"
    ]
   },
+  "defaultCallerVerdict": {
+   "mangled": "PB",
+   "line": 24974,
+   "kind": "async function",
+   "inner": [
+    {
+     "name": "resolveDaemonPid",
+     "line": 24977,
+     "endLine": 24977
+    }
+   ],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "EZ",
+    "Fd",
+    "aa",
+    "qf"
+   ],
+   "refBy": [
+    "channelVerbInSession",
+    "runSessionSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "defaultExistingDaemonChoice": {
-   "mangled": "FEe",
-   "line": 74703,
+   "mangled": "ghe",
+   "line": 77885,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -354,7 +388,7 @@
     "parseExistingDaemonChoice"
    ],
    "refByUnnamed": [
-    "XXe"
+    "Wit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -366,15 +400,15 @@
    ]
   },
   "executeSpine": {
-   "mangled": "SEe",
-   "line": 66752,
+   "mangled": "j_e",
+   "line": 70605,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "GXe",
-    "kXe"
+    "Mit",
+    "vit"
    ],
    "refBy": [
     "runSpineCommand"
@@ -389,8 +423,8 @@
    ]
   },
   "generateDaemonTokenHex": {
-   "mangled": "Y2e",
-   "line": 68240,
+   "mangled": "U4e",
+   "line": 24500,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -409,8 +443,8 @@
    ]
   },
   "generatePlist": {
-   "mangled": "yJ",
-   "line": 20781,
+   "mangled": "tZ",
+   "line": 23998,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 2,
@@ -418,7 +452,7 @@
     "PLIST_LABEL"
    ],
    "refsUnnamed": [
-    "R_"
+    "z_"
    ],
    "refBy": [
     "installAndLoad"
@@ -445,8 +479,8 @@
    ]
   },
   "getLaunchdPid": {
-   "mangled": "Op",
-   "line": 20822,
+   "mangled": "Hf",
+   "line": 24039,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -454,17 +488,17 @@
     "getUid"
    ],
    "refsUnnamed": [
-    "vp",
-    "y1"
+    "Gf",
+    "n1"
    ],
    "refBy": [
     "restartDaemonWithReason"
    ],
    "refByUnnamed": [
-    "D1",
-    "DJ",
-    "L2e",
-    "jb"
+    "kB",
+    "oZ",
+    "qf",
+    "v4e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -476,14 +510,14 @@
    ]
   },
   "getUid": {
-   "mangled": "b_",
-   "line": 20762,
+   "mangled": "j_",
+   "line": 23979,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "vp"
+    "Gf"
    ],
    "refBy": [
     "getLaunchdPid",
@@ -503,8 +537,8 @@
    ]
   },
   "inferOnboardConfigFromProbe": {
-   "mangled": "JXe",
-   "line": 74712,
+   "mangled": "Vit",
+   "line": 77894,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -512,7 +546,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "BEe"
+    "ahe"
    ],
    "env": [],
    "logPrefixes": [],
@@ -523,9 +557,41 @@
     "local"
    ]
   },
+  "initCliHostEnvKeysModule": {
+   "mangled": "Gm",
+   "line": 2690,
+   "kind": "var",
+   "inner": [],
+   "innerAnonymous": 1,
+   "refs": [],
+   "refsUnnamed": [
+    "Dt"
+   ],
+   "refBy": [],
+   "refByUnnamed": [
+    "LF",
+    "vF"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "ALADUO_DAEMON_TOKEN",
+    "ANTHROPIC_API_KEY",
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "API_TIMEOUT_MS",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+    "CLAUDE_CODE_EXECUTABLE"
+   ]
+  },
   "installAndLoad": {
-   "mangled": "lk",
-   "line": 20837,
+   "mangled": "TF",
+   "line": 24054,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -535,13 +601,13 @@
     "plistPath"
    ],
    "refsUnnamed": [
-    "TJ",
-    "vp",
-    "y1"
+    "Gf",
+    "eZ",
+    "n1"
    ],
    "refBy": [],
    "refByUnnamed": [
-    "L2e"
+    "v4e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -555,8 +621,8 @@
    ]
   },
   "isAquaSession": {
-   "mangled": "sk",
-   "line": 20755,
+   "mangled": "IF",
+   "line": 23972,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -564,7 +630,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "L2e"
+    "v4e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -573,14 +639,14 @@
    "strings": []
   },
   "isDetachedUpgradeWorker": {
-   "mangled": "rZe",
-   "line": 74933,
+   "mangled": "$it",
+   "line": 78115,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "UEe"
+    "fhe"
    ],
    "refBy": [
     "runUpgradeCommand"
@@ -593,8 +659,8 @@
    "strings": []
   },
   "isInstallTargetFilePath": {
-   "mangled": "zXe",
-   "line": 74651,
+   "mangled": "Git",
+   "line": 77833,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -613,8 +679,8 @@
    "strings": []
   },
   "isServiceLoaded": {
-   "mangled": "D_",
-   "line": 20814,
+   "mangled": "$_",
+   "line": 24031,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -622,16 +688,16 @@
     "getUid"
    ],
    "refsUnnamed": [
-    "vp",
-    "y1"
+    "Gf",
+    "n1"
    ],
    "refBy": [
     "restartDaemonWithReason"
    ],
    "refByUnnamed": [
-    "D1",
-    "DJ",
-    "Xb"
+    "FB",
+    "oZ",
+    "qf"
    ],
    "env": [],
    "logPrefixes": [],
@@ -643,8 +709,8 @@
    ]
   },
   "jobHelp": {
-   "mangled": "lU",
-   "line": 63723,
+   "mangled": "N9",
+   "line": 67576,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -677,8 +743,8 @@
    ]
   },
   "kickstart": {
-   "mangled": "ck",
-   "line": 20848,
+   "mangled": "yF",
+   "line": 24065,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -686,8 +752,8 @@
     "getUid"
    ],
    "refsUnnamed": [
-    "vp",
-    "y1"
+    "Gf",
+    "n1"
    ],
    "refBy": [
     "restartDaemonWithReason"
@@ -704,8 +770,8 @@
    ]
   },
   "main": {
-   "mangled": "dZe",
-   "line": 75520,
+   "mangled": "sot",
+   "line": 78737,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 5,
@@ -717,20 +783,20 @@
     "runUpgradeCommand"
    ],
    "refsUnnamed": [
-    "$a",
-    "BEe",
-    "Epe",
-    "NEe",
-    "ZXe",
-    "aEe",
-    "ape",
-    "epe",
-    "lpe",
-    "oZe",
-    "ppe",
-    "sEe",
-    "tpe",
-    "vEe"
+    "Fme",
+    "GZ",
+    "Kit",
+    "LF",
+    "Wme",
+    "Zit",
+    "aa",
+    "ahe",
+    "ihe",
+    "k_e",
+    "kme",
+    "ohe",
+    "qme",
+    "x_e"
    ],
    "refBy": [],
    "refByUnnamed": [],
@@ -755,15 +821,15 @@
    ]
   },
   "notifyRestartWakeTargets": {
-   "mangled": "BJ",
-   "line": 68294,
+   "mangled": "lZ",
+   "line": 24554,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
-    "$H",
-    "Ba"
+    "N3",
+    "ka"
    ],
    "refBy": [
     "runUpgradeCommand"
@@ -783,9 +849,36 @@
     "notify refused"
    ]
   },
+  "parseAliasArgs": {
+   "mangled": "FZ",
+   "line": 25179,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "WE",
+    "Wf"
+   ],
+   "refBy": [
+    "runSessionAliasCommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "--clear",
+    "--move",
+    "error: --move is only valid with the name ",
+    "error: provide either an alias name or --clear, not both",
+    "error: session_key is required"
+   ]
+  },
   "parseExistingDaemonChoice": {
-   "mangled": "$Xe",
-   "line": 74707,
+   "mangled": "Yit",
+   "line": 77889,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -795,7 +888,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "XXe"
+    "Wit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -809,8 +902,8 @@
    ]
   },
   "parseJobCli": {
-   "mangled": "npe",
-   "line": 63728,
+   "mangled": "Ome",
+   "line": 67581,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -855,14 +948,14 @@
    ]
   },
   "parseRestartArgs": {
-   "mangled": "eZe",
-   "line": 74878,
+   "mangled": "Jit",
+   "line": 78060,
    "kind": "function",
    "inner": [
     {
      "name": "i",
-     "line": 74884,
-     "endLine": 74890
+     "line": 78066,
+     "endLine": 78072
     }
    ],
    "innerAnonymous": 0,
@@ -870,7 +963,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "oZe"
+    "Zit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -889,8 +982,8 @@
    ]
   },
   "parseRootCli": {
-   "mangled": "KXe",
-   "line": 74655,
+   "mangled": "Hit",
+   "line": 77837,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -925,18 +1018,18 @@
    ]
   },
   "parseSpineArgs": {
-   "mangled": "hEe",
-   "line": 66743,
+   "mangled": "z_e",
+   "line": 70596,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "$r",
-    "Ar",
-    "CEe",
-    "DXe",
-    "UXe"
+    "$_e",
+    "Er",
+    "Iit",
+    "Lit",
+    "ti"
    ],
    "refBy": [
     "runSpineCommand"
@@ -953,14 +1046,14 @@
    ]
   },
   "parseUpgradeArgs": {
-   "mangled": "sZe",
-   "line": 75131,
+   "mangled": "eot",
+   "line": 78318,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "UJ"
+    "KZ"
    ],
    "refBy": [
     "runUpgradeCommand"
@@ -982,8 +1075,8 @@
    ]
   },
   "plistPath": {
-   "mangled": "ak",
-   "line": 20759,
+   "mangled": "SF",
+   "line": 23976,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1008,8 +1101,8 @@
    ]
   },
   "printHelp": {
-   "mangled": "PEe",
-   "line": 74756,
+   "mangled": "Ehe",
+   "line": 77938,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1019,7 +1112,7 @@
     "main"
    ],
    "refByUnnamed": [
-    "BEe"
+    "ahe"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1031,7 +1124,7 @@
     "  -n, --named-session <name>  Use a named session",
     "  duoduo --version           Print the installed duoduo version",
     "  duoduo [chat options]",
-    "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]",
+    "  duoduo channel <channelType> <start|stop|status|logs|doctor> [--instance <name>] [args...]",
     "  duoduo channel install <package-name>",
     "  duoduo channel list",
     "  duoduo chat [chat options]",
@@ -1049,8 +1142,8 @@
    ]
   },
   "readCliPackageVersion": {
-   "mangled": "jXe",
-   "line": 74752,
+   "mangled": "qit",
+   "line": 77934,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1071,17 +1164,17 @@
    ]
   },
   "readDaemonTokenFromEnvFile": {
-   "mangled": "r8",
-   "line": 67365,
+   "mangled": "e3",
+   "line": 2645,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "CLI_DAEMON_TOKEN_ENV_KEY",
     "resolveHostEnvFilePath"
    ],
    "refsUnnamed": [
-    "yB"
+    "RI",
+    "UO"
    ],
    "refBy": [
     "createDaemonToken"
@@ -1097,8 +1190,8 @@
    ]
   },
   "readOption": {
-   "mangled": "tv",
-   "line": 74721,
+   "mangled": "TT",
+   "line": 77903,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1108,8 +1201,8 @@
     "runChannelCommand"
    ],
    "refByUnnamed": [
-    "BEe",
-    "oZe"
+    "Zit",
+    "ahe"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1118,8 +1211,8 @@
    "strings": []
   },
   "reasonlessRestartRefusal": {
-   "mangled": "tZe",
-   "line": 74910,
+   "mangled": "zit",
+   "line": 78092,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1127,7 +1220,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "oZe"
+    "Zit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1138,8 +1231,8 @@
    ]
   },
   "renderChannelNotInstalled": {
-   "mangled": "uZe",
-   "line": 75508,
+   "mangled": "oot",
+   "line": 78724,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1161,20 +1254,20 @@
    ]
   },
   "renderCompactResult": {
-   "mangled": "Xge",
-   "line": 63210,
+   "mangled": "UZ",
+   "line": 25561,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
-    "Ch",
-    "dr",
-    "fJe"
+    "S8e",
+    "eh",
+    "lr"
    ],
    "refBy": [],
    "refByUnnamed": [
-    "AJe"
+    "I8e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1207,24 +1300,24 @@
    ]
   },
   "renderConfigResult": {
-   "mangled": "Zge",
-   "line": 63582,
+   "mangled": "PZ",
+   "line": 25933,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 6,
    "refs": [],
    "refsUnnamed": [
-    "CJe",
-    "Ch",
-    "SJe",
-    "TJe",
-    "_Je",
-    "dr",
-    "hJe"
+    "B8e",
+    "Q8e",
+    "R8e",
+    "b8e",
+    "eh",
+    "lr",
+    "v8e"
    ],
    "refBy": [],
    "refByUnnamed": [
-    "mJe"
+    "N8e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1271,8 +1364,8 @@
    ]
   },
   "renderInterruptReceipt": {
-   "mangled": "ope",
-   "line": 63854,
+   "mangled": "Mme",
+   "line": 67707,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1303,14 +1396,14 @@
    ]
   },
   "renderJobList": {
-   "mangled": "rpe",
-   "line": 63825,
+   "mangled": "wme",
+   "line": 67678,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
-    "RJe"
+    "hnt"
    ],
    "refBy": [
     "runJobSubcommand"
@@ -1332,14 +1425,14 @@
    ]
   },
   "renderJobRead": {
-   "mangled": "ipe",
-   "line": 63834,
+   "mangled": "Lme",
+   "line": 67687,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "bJe"
+    "Cnt"
    ],
    "refBy": [
     "runJobSubcommand"
@@ -1372,8 +1465,8 @@
    ]
   },
   "renderRpcError": {
-   "mangled": "spe",
-   "line": 63865,
+   "mangled": "xme",
+   "line": 67718,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1381,7 +1474,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "kT"
+    "fT"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1393,19 +1486,22 @@
    ]
   },
   "renderSessionList": {
-   "mangled": "jge",
-   "line": 62760,
+   "mangled": "kZ",
+   "line": 25085,
    "kind": "function",
    "inner": [],
-   "innerAnonymous": 1,
-   "refs": [],
+   "innerAnonymous": 4,
+   "refs": [
+    "renderSessionMainColumn"
+   ],
    "refsUnnamed": [
-    "Ch",
-    "dr"
+    "WE",
+    "eh",
+    "lr"
    ],
    "refBy": [],
    "refByUnnamed": [
-    "Z$e"
+    "A8e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1413,16 +1509,43 @@
    "paths": [],
    "strings": [
     " (orphan)",
+    " --move\n",
+    " sessions are aliased main, so none is used as main. Pick one: duoduo session alias <session_key> ",
     "ALIAS",
     "KIND",
     "LAST_EVENT",
+    "MAIN",
     "PLANE",
-    "SESSION_KEY"
+    "SESSION_KEY",
+    "candidate"
+   ]
+  },
+  "renderSessionMainColumn": {
+   "mangled": "o8e",
+   "line": 25081,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "renderSessionList"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "candidate",
+    "held",
+    "main since ",
+    "main? (ambiguous)"
    ]
   },
   "resolveHostEnvFilePath": {
-   "mangled": "BA",
-   "line": 67259,
+   "mangled": "mc",
+   "line": 2539,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1433,12 +1556,13 @@
     "writeDaemonTokenToEnvFile"
    ],
    "refByUnnamed": [
-    "$a",
-    "BI",
-    "RB",
-    "jS",
-    "n8",
-    "o8"
+    "GO",
+    "NNe",
+    "QI",
+    "TD",
+    "ZY",
+    "aa",
+    "n3"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1452,8 +1576,8 @@
    ]
   },
   "resolveRestartReasonFilePath": {
-   "mangled": "p8",
-   "line": 67803,
+   "mangled": "_3",
+   "line": 2778,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1473,14 +1597,14 @@
    "strings": []
   },
   "restartDaemonWithReason": {
-   "mangled": "pk",
-   "line": 68254,
+   "mangled": "QF",
+   "line": 24514,
    "kind": "async function",
    "inner": [
     {
-     "name": "E",
-     "line": 68270,
-     "endLine": 68272
+     "name": "p",
+     "line": 24530,
+     "endLine": 24532
     }
    ],
    "innerAnonymous": 3,
@@ -1492,18 +1616,18 @@
     "writeRestartReasonFile"
    ],
    "refsUnnamed": [
-    "Bp",
-    "Oa",
-    "Xb",
-    "jb",
-    "ol",
-    "v_"
+    "FB",
+    "Yf",
+    "Z_",
+    "dA",
+    "kB",
+    "xa"
    ],
    "refBy": [
     "runUpgradeCommand"
    ],
    "refByUnnamed": [
-    "oZe"
+    "Zit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1514,8 +1638,8 @@
    ]
   },
   "restartWakeReport": {
-   "mangled": "nZe",
-   "line": 74916,
+   "mangled": "jit",
+   "line": 78098,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 2,
@@ -1523,7 +1647,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "oZe"
+    "Zit"
    ],
    "env": [],
    "logPrefixes": [],
@@ -1542,25 +1666,26 @@
    ]
   },
   "runChannelCommand": {
-   "mangled": "cZe",
-   "line": 75340,
+   "mangled": "rot",
+   "line": 78546,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 3,
    "refs": [
+    "channelVerbInSession",
     "isInstallTargetFilePath",
     "readOption",
     "runDeclaredChannelVerb"
    ],
    "refsUnnamed": [
-    "$a",
-    "Ek",
-    "du",
-    "ls",
-    "os",
-    "uu",
-    "wEe",
-    "xEe"
+    "Ahe",
+    "MF",
+    "_c",
+    "aa",
+    "hc",
+    "ms",
+    "phe",
+    "ps"
    ],
    "refBy": [
     "main"
@@ -1575,10 +1700,11 @@
    "strings": [
     "\nLocal-tarball installs run arbitrary code as a daemon plugin. If you intend this, re-run:\n  duoduo channel install --from-path ",
     "\nOtherwise install from the npm registry by package name.",
-    "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]",
+    "  duoduo channel <channelType> <start|stop|status|logs|doctor> [--instance <name>] [args...]",
     "  duoduo channel install --from-path <plugin.tgz>   # from a local tarball",
     "  duoduo channel install <package-name>             # from npm registry",
     "  duoduo channel list",
+    " --instance ",
     " already running pid=",
     " not installed",
     " not running",
@@ -1589,6 +1715,8 @@
     "--from-path",
     "--from-path expects a local tarball path, got: ",
     "--help",
+    "--instance",
+    "--instance needs a name: --instance <name>",
     "-h",
     "Missing action for channel '",
     "Refusing to install from a local path without --from-path: ",
@@ -1598,6 +1726,7 @@
     "help",
     "install",
     "installed ",
+    "instance ",
     "list",
     "logs",
     "package: ",
@@ -1612,8 +1741,8 @@
    ]
   },
   "runDeclaredChannelVerb": {
-   "mangled": "MEe",
-   "line": 75511,
+   "mangled": "lhe",
+   "line": 78727,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1632,8 +1761,8 @@
    "strings": []
   },
   "runJobSubcommand": {
-   "mangled": "DJe",
-   "line": 63877,
+   "mangled": "Int",
+   "line": 67730,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1645,8 +1774,8 @@
     "renderJobRead"
    ],
    "refsUnnamed": [
-    "QT",
-    "kT"
+    "ET",
+    "fT"
    ],
    "refBy": [],
    "refByUnnamed": [],
@@ -1679,17 +1808,17 @@
    ]
   },
   "runMemoryCommand": {
-   "mangled": "dXe",
-   "line": 66090,
+   "mangled": "oit",
+   "line": 69943,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "AXe",
-    "YU",
-    "fXe",
-    "oEe"
+    "M_e",
+    "a5",
+    "ait",
+    "sit"
    ],
    "refBy": [],
    "refByUnnamed": [],
@@ -1713,17 +1842,17 @@
    ]
   },
   "runPromptsSubcommand": {
-   "mangled": "vJe",
-   "line": 64092,
+   "mangled": "Tnt",
+   "line": 67945,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 1,
    "refs": [],
    "refsUnnamed": [
-    "Ape",
-    "OJe",
-    "dpe",
-    "fpe"
+    "Gme",
+    "Hme",
+    "Yme",
+    "ynt"
    ],
    "refBy": [],
    "refByUnnamed": [],
@@ -1745,21 +1874,66 @@
     "help"
    ]
   },
+  "runSessionAliasCommand": {
+   "mangled": "c8e",
+   "line": 25207,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 1,
+   "refs": [
+    "parseAliasArgs"
+   ],
+   "refsUnnamed": [
+    "Fd",
+    "Lu",
+    "Ng",
+    "QZ",
+    "ka",
+    "l8e",
+    "lr",
+    "wu",
+    "xZ"
+   ],
+   "refBy": [
+    "runSessionSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [
+    "session.list",
+    "session.set_alias"
+   ],
+   "paths": [],
+   "strings": [
+    "\nUsage: duoduo session alias <session_key> [<name>|--clear|main --move]\n",
+    "SESSION_KEY",
+    "STATUS",
+    "error",
+    "error: daemon rejected session.list: ",
+    "error: daemon rejected session.set_alias: ",
+    "error: daemon returned an empty response\n",
+    "json",
+    "not_found",
+    "outside",
+    "undecidable"
+   ]
+  },
   "runSessionNotifyCommand": {
-   "mangled": "rJe",
-   "line": 62971,
+   "mangled": "d8e",
+   "line": 25322,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [
-    "$d",
-    "Ba",
-    "Kd",
-    "Lf",
-    "Oge",
-    "j$e",
-    "nJe"
+    "Fd",
+    "Lu",
+    "Ng",
+    "ka",
+    "s8e",
+    "u8e",
+    "wu"
    ],
    "refBy": [
     "runSessionSubcommand"
@@ -1780,23 +1954,24 @@
    ]
   },
   "runSessionSubcommand": {
-   "mangled": "K$e",
-   "line": 62659,
+   "mangled": "n8e",
+   "line": 24980,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "runSessionNotifyCommand"
+    "defaultCallerVerdict",
+    "runSessionAliasCommand",
+    "runSessionNotifyCommand",
+    "sessionHelpText"
    ],
    "refsUnnamed": [
-    "AJe",
-    "Wge",
-    "Yge",
-    "Z$e",
-    "mJe",
-    "sJe",
-    "tJe",
-    "yJe"
+    "A8e",
+    "I8e",
+    "N8e",
+    "O8e",
+    "OZ",
+    "f8e"
    ],
    "refBy": [],
    "refByUnnamed": [],
@@ -1821,8 +1996,8 @@
    ]
   },
   "runSpineCommand": {
-   "mangled": "IXe",
-   "line": 66714,
+   "mangled": "_it",
+   "line": 70567,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -1832,9 +2007,9 @@
     "parseSpineArgs"
    ],
    "refsUnnamed": [
-    "CEe",
-    "Gi",
-    "RXe"
+    "$_e",
+    "Ki",
+    "hit"
    ],
    "refBy": [],
    "refByUnnamed": [],
@@ -1849,20 +2024,25 @@
    ]
   },
   "runUpgradeChannelPhase": {
-   "mangled": "aZe",
-   "line": 75157,
+   "mangled": "tot",
+   "line": 78344,
    "kind": "async function",
    "inner": [
     {
      "name": "n",
-     "line": 75158,
-     "endLine": 75158
+     "line": 78345,
+     "endLine": 78345
+    },
+    {
+     "name": "a",
+     "line": 78393,
+     "endLine": 78393
     }
    ],
-   "innerAnonymous": 0,
+   "innerAnonymous": 2,
    "refs": [],
    "refsUnnamed": [
-    "GJ"
+    "JZ"
    ],
    "refBy": [
     "runUpgradeCommand"
@@ -1873,10 +2053,12 @@
    "dotted": [],
    "paths": [],
    "strings": [
+    " --instance ",
     " failed (",
     " has no published version — skipping",
     " is up to date — skipping",
     " start",
+    " start --instance ",
     " stop and start",
     " with latest ",
     " — skipping",
@@ -1901,52 +2083,52 @@
    ]
   },
   "runUpgradeCommand": {
-   "mangled": "lZe",
-   "line": 75224,
+   "mangled": "not",
+   "line": 78427,
    "kind": "async function",
    "inner": [
     {
      "name": "h",
-     "line": 75268,
-     "endLine": 75299
+     "line": 78471,
+     "endLine": 78502
     },
     {
      "name": "listInstalled",
-     "line": 75307,
-     "endLine": 75307
+     "line": 78510,
+     "endLine": 78513
     },
     {
      "name": "fetchLatestVersion",
-     "line": 75308,
-     "endLine": 75315
+     "line": 78514,
+     "endLine": 78521
     },
     {
      "name": "stopChannel",
-     "line": 75316,
-     "endLine": 75318
+     "line": 78522,
+     "endLine": 78524
     },
     {
      "name": "installChannel",
-     "line": 75319,
-     "endLine": 75321
+     "line": 78525,
+     "endLine": 78527
     },
     {
      "name": "startChannel",
-     "line": 75322,
-     "endLine": 75329
+     "line": 78528,
+     "endLine": 78535
     },
     {
      "name": "log",
-     "line": 75330,
-     "endLine": 75330
+     "line": 78536,
+     "endLine": 78536
     },
     {
      "name": "warn",
-     "line": 75331,
-     "endLine": 75331
+     "line": 78537,
+     "endLine": 78537
     }
    ],
-   "innerAnonymous": 1,
+   "innerAnonymous": 2,
    "refs": [
     "isDetachedUpgradeWorker",
     "notifyRestartWakeTargets",
@@ -1955,23 +2137,23 @@
     "runUpgradeChannelPhase"
    ],
    "refsUnnamed": [
-    "$a",
-    "Ak",
-    "D1",
-    "Ek",
-    "Gi",
-    "N1",
-    "Oc",
-    "PJ",
-    "dk",
-    "du",
-    "ev",
-    "iZe",
-    "ls",
-    "ol",
-    "os",
-    "uu",
-    "v_"
+    "BF",
+    "Gb",
+    "Ki",
+    "MF",
+    "NF",
+    "WZ",
+    "Xit",
+    "Z_",
+    "_c",
+    "aa",
+    "dA",
+    "hc",
+    "ms",
+    "ps",
+    "qf",
+    "s1",
+    "xl"
    ],
    "refBy": [
     "main"
@@ -2018,20 +2200,85 @@
     "woke "
    ]
   },
+  "sessionHelpText": {
+   "mangled": "bZ",
+   "line": 25027,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runSessionSubcommand"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "                          (whose job is gone from active/), marked ORPHAN.",
+    "                          --global writes kernel/config/runtime.md.",
+    "                          <wake-id>`.",
+    "                          ALADUO_NOTIFY_UNCONSUMED_HOURS; --force delivers anyway.",
+    "                          Channel sessions only (job/system/subconscious refused).",
+    "                          Compact a channel session's conversation context.",
+    "                          Inside a session only the current main may change it.",
+    "                          List sessions and aliases.",
+    "                          List sessions. --all includes orphan job sessions",
+    "                          Nothing is deleted — everything moves to",
+    "                          Queues /compact; runs on that session's NEXT",
+    "                          Read/edit channel-editable config (incl. idle",
+    "                          Read/edit claude.model_profiles — the physical",
+    "                          Refused when nobody has taken the target's output for",
+    "                          Run inside a session (ALADUO_CALLER_SESSION set), it",
+    "                          Schedule ONE future turn of that session. The context",
+    "                          Send a source-tagged notification to a session key or alias.",
+    "                          Show, set, or clear a session alias. `main` marks the",
+    "                          Show, set, or reset a session's model override.",
+    "                          Show, set, or reset reasoning effort.",
+    "                          auto-compact knobs). Default scope = the current",
+    "                          context window (tokens) per EXACT model id.",
+    "                          for the trade-off table and lifecycle rules.",
+    "                          gets. Cancel before it fires with `duoduo job archive",
+    "                          instance; --kind edits the kind file. `config --help`",
+    "                          is live; cancel it first.",
+    "                          is read from stdin and is the only input that turn",
+    "                          main session; --move takes it from the current holder.",
+    "                          sends as that session and --source is unused.",
+    "                          turn. Fire-and-forget — returns no token delta.",
+    "                          var/<kind>-archive/. Refuses when an actor",
+    "  alias <session_key> [<name>|--clear|main --move] [--json|--plain]",
+    "  archive <session_key>   Archive all artifacts of a session.",
+    "  compact <target> [--source <label>] [--json|--plain]",
+    "  config <target> get|set k=v...|unset k... [--kind <kind>] [--json|--plain]",
+    "  config <target|--kind <kind>|--global> profile get|set <model> <tokens>|unset <model>",
+    "  effort <target> [<level>|reset] [--json|--plain]",
+    "  list [--kind <kind>] [--named] [--all] [--json|--plain]",
+    "  model <target> [<model-id>|reset] [--json|--plain]",
+    "  notify <target> -m <message> [--source <label>] [--force] [--json|--plain]",
+    "  wake <session-key> --in <duration> | --at <iso> [--json|--plain]",
+    "Subcommands:",
+    "To permanently delete: remove the archived directory by hand once",
+    "To recover an archived session: `mv` the archived directory back.",
+    "Usage: duoduo session <subcommand> [args]",
+    "you're sure you won't need it."
+   ]
+  },
   "spineParamsToArgs": {
-   "mangled": "bXe",
-   "line": 66760,
+   "mangled": "Cit",
+   "line": 70613,
    "kind": "function",
    "inner": [
     {
      "name": "n",
-     "line": 66762,
-     "endLine": 66764
+     "line": 70615,
+     "endLine": 70617
     },
     {
      "name": "r",
-     "line": 66765,
-     "endLine": 66767
+     "line": 70618,
+     "endLine": 70620
     }
    ],
    "innerAnonymous": 0,
@@ -2061,8 +2308,8 @@
    ]
   },
   "uninstall": {
-   "mangled": "uk",
-   "line": 20858,
+   "mangled": "DF",
+   "line": 24075,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -2073,7 +2320,7 @@
    "refsUnnamed": [],
    "refBy": [],
    "refByUnnamed": [
-    "wJ"
+    "cZ"
    ],
    "env": [],
    "logPrefixes": [],
@@ -2082,8 +2329,8 @@
    "strings": []
   },
   "unload": {
-   "mangled": "I1",
-   "line": 20852,
+   "mangled": "r1",
+   "line": 24069,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -2091,15 +2338,15 @@
     "getUid"
    ],
    "refsUnnamed": [
-    "vp",
-    "y1"
+    "Gf",
+    "n1"
    ],
    "refBy": [
     "uninstall"
    ],
    "refByUnnamed": [
-    "L2e",
-    "Xb"
+    "FB",
+    "v4e"
    ],
    "env": [],
    "logPrefixes": [],
@@ -2111,18 +2358,18 @@
    ]
   },
   "writeDaemonTokenToEnvFile": {
-   "mangled": "i8",
-   "line": 67377,
+   "mangled": "t3",
+   "line": 2657,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "CLI_DAEMON_TOKEN_ENV_KEY",
     "resolveHostEnvFilePath"
    ],
    "refsUnnamed": [
-    "BI",
-    "t8"
+    "TD",
+    "UO",
+    "XY"
    ],
    "refBy": [
     "createDaemonToken"
@@ -2137,8 +2384,8 @@
    ]
   },
   "writeRestartReasonFile": {
-   "mangled": "E8",
-   "line": 67806,
+   "mangled": "h3",
+   "line": 2781,
    "kind": "async function",
    "inner": [],
    "innerAnonymous": 0,
@@ -2146,7 +2393,7 @@
     "resolveRestartReasonFilePath"
    ],
    "refsUnnamed": [
-    "NI"
+    "_D"
    ],
    "refBy": [
     "restartDaemonWithReason"
@@ -2211,12 +2458,18 @@
   "session.execution": [
    "createStdioDaemonClient"
   ],
+  "session.list": [
+   "runSessionAliasCommand"
+  ],
   "session.notify": [
-   "runSessionNotifyCommand",
-   "notifyRestartWakeTargets"
+   "notifyRestartWakeTargets",
+   "runSessionNotifyCommand"
   ],
   "session.output": [
    "createStdioDaemonClient"
+  ],
+  "session.set_alias": [
+   "runSessionAliasCommand"
   ],
   "session.stream": [
    "createStdioDaemonClient"
@@ -2279,6 +2532,9 @@
   "\nUsage: duoduo prompts <name>\n": [
    "runPromptsSubcommand"
   ],
+  "\nUsage: duoduo session alias <session_key> [<name>|--clear|main --move]\n": [
+   "runSessionAliasCommand"
+  ],
   "\nUsage: duoduo session notify <target> -m <message> [--source <label>] [--force]\n": [
    "runSessionNotifyCommand"
   ],
@@ -2300,14 +2556,98 @@
   "\nconfig: session is being archived, retry later.\n": [
    "renderConfigResult"
   ],
+  "                          (whose job is gone from active/), marked ORPHAN.": [
+   "sessionHelpText"
+  ],
+  "                          --global writes kernel/config/runtime.md.": [
+   "sessionHelpText"
+  ],
   "                          8601 timestamp with an explicit zone). The job's": [
    "jobHelp"
+  ],
+  "                          <wake-id>`.": [
+   "sessionHelpText"
+  ],
+  "                          ALADUO_NOTIFY_UNCONSUMED_HOURS; --force delivers anyway.": [
+   "sessionHelpText"
+  ],
+  "                          Channel sessions only (job/system/subconscious refused).": [
+   "sessionHelpText"
+  ],
+  "                          Compact a channel session's conversation context.": [
+   "sessionHelpText"
+  ],
+  "                          Inside a session only the current main may change it.": [
+   "sessionHelpText"
+  ],
+  "                          List sessions and aliases.": [
+   "sessionHelpText"
+  ],
+  "                          List sessions. --all includes orphan job sessions": [
+   "sessionHelpText"
+  ],
+  "                          Nothing is deleted — everything moves to": [
+   "sessionHelpText"
+  ],
+  "                          Queues /compact; runs on that session's NEXT": [
+   "sessionHelpText"
+  ],
+  "                          Read/edit channel-editable config (incl. idle": [
+   "sessionHelpText"
+  ],
+  "                          Read/edit claude.model_profiles — the physical": [
+   "sessionHelpText"
+  ],
+  "                          Refused when nobody has taken the target's output for": [
+   "sessionHelpText"
   ],
   "                          Request the end of the run in progress. -r is": [
    "jobHelp"
   ],
+  "                          Run inside a session (ALADUO_CALLER_SESSION set), it": [
+   "sessionHelpText"
+  ],
+  "                          Schedule ONE future turn of that session. The context": [
+   "sessionHelpText"
+  ],
+  "                          Send a source-tagged notification to a session key or alias.": [
+   "sessionHelpText"
+  ],
   "                          Set ONE extra fire at <when> ('@in 30m', or an ISO": [
    "jobHelp"
+  ],
+  "                          Show, set, or clear a session alias. `main` marks the": [
+   "sessionHelpText"
+  ],
+  "                          Show, set, or reset a session's model override.": [
+   "sessionHelpText"
+  ],
+  "                          Show, set, or reset reasoning effort.": [
+   "sessionHelpText"
+  ],
+  "                          auto-compact knobs). Default scope = the current": [
+   "sessionHelpText"
+  ],
+  "                          context window (tokens) per EXACT model id.": [
+   "sessionHelpText"
+  ],
+  "                          for the trade-off table and lifecycle rules.": [
+   "sessionHelpText"
+  ],
+  "                          gets. Cancel before it fires with `duoduo job archive": [
+   "sessionHelpText"
+  ],
+  "                          instance; --kind edits the kind file. `config --help`": [
+   "sessionHelpText"
+  ],
+  "                          is live; cancel it first.": [
+   "sessionHelpText"
+  ],
+  "                          is read from stdin and is the only input that turn": [
+   "sessionHelpText"
+  ],
+  "                          main session; --move takes it from the current holder.": [
+   "sessionHelpText"
   ],
   "                          required: the reason is what the interrupted": [
    "jobHelp"
@@ -2318,8 +2658,17 @@
   "                          schedule class is never changed.": [
    "jobHelp"
   ],
+  "                          sends as that session and --source is unused.": [
+   "sessionHelpText"
+  ],
   "                          session is told on its next run.": [
    "jobHelp"
+  ],
+  "                          turn. Fire-and-forget — returns no token delta.": [
+   "sessionHelpText"
+  ],
+  "                          var/<kind>-archive/. Refuses when an actor": [
+   "sessionHelpText"
   ],
   "      <key>": [
    "generatePlist"
@@ -2339,8 +2688,23 @@
   "  -n, --named-session <name>  Use a named session": [
    "printHelp"
   ],
+  "  alias <session_key> [<name>|--clear|main --move] [--json|--plain]": [
+   "sessionHelpText"
+  ],
   "  archive <id> [--json]   Stop future scheduling. A run already in progress": [
    "jobHelp"
+  ],
+  "  archive <session_key>   Archive all artifacts of a session.": [
+   "sessionHelpText"
+  ],
+  "  compact <target> [--source <label>] [--json|--plain]": [
+   "sessionHelpText"
+  ],
+  "  config <target> get|set k=v...|unset k... [--kind <kind>] [--json|--plain]": [
+   "sessionHelpText"
+  ],
+  "  config <target|--kind <kind>|--global> profile get|set <model> <tokens>|unset <model>": [
+   "sessionHelpText"
   ],
   "  duoduo --version           Print the installed duoduo version": [
    "printHelp"
@@ -2348,7 +2712,7 @@
   "  duoduo [chat options]": [
    "printHelp"
   ],
-  "  duoduo channel <channelType> <start|stop|status|logs|doctor> [args...]": [
+  "  duoduo channel <channelType> <start|stop|status|logs|doctor> [--instance <name>] [args...]": [
    "printHelp",
    "runChannelCommand"
   ],
@@ -2392,17 +2756,32 @@
   "  duoduo upgrade [version] [--wake <session-or-alias>]": [
    "printHelp"
   ],
+  "  effort <target> [<level>|reset] [--json|--plain]": [
+   "sessionHelpText"
+  ],
   "  interrupt <id> -r \"<reason>\" [--json]": [
    "jobHelp"
   ],
   "  list [--json]           List active jobs with schedule and last outcome.": [
    "jobHelp"
   ],
+  "  list [--kind <kind>] [--named] [--all] [--json|--plain]": [
+   "sessionHelpText"
+  ],
+  "  model <target> [<model-id>|reset] [--json|--plain]": [
+   "sessionHelpText"
+  ],
+  "  notify <target> -m <message> [--source <label>] [--force] [--json|--plain]": [
+   "sessionHelpText"
+  ],
   "  read <id> [--json]      Show one job's definition, instruction and last run.": [
    "jobHelp"
   ],
   "  reschedule <id> <when> [--json]": [
    "jobHelp"
+  ],
+  "  wake <session-key> --in <duration> | --at <iso> [--json|--plain]": [
+   "sessionHelpText"
   ],
   " (event ": [
    "renderCompactResult"
@@ -2411,6 +2790,13 @@
    "runUpgradeCommand"
   ],
   " (orphan)": [
+   "renderSessionList"
+  ],
+  " --instance ": [
+   "runUpgradeChannelPhase",
+   "runChannelCommand"
+  ],
+  " --move\n": [
    "renderSessionList"
   ],
   " -m \"<message>\"": [
@@ -2476,6 +2862,9 @@
   " session (per-run query, no resident process to compact).\n": [
    "renderCompactResult"
   ],
+  " sessions are aliased main, so none is used as main. Pick one: duoduo session alias <session_key> ": [
+   "renderSessionList"
+  ],
   " sessions. Re-run with one of the SESSION_KEY values above to disambiguate.\n": [
    "renderCompactResult"
   ],
@@ -2483,6 +2872,9 @@
    "renderConfigResult"
   ],
   " start": [
+   "runUpgradeChannelPhase"
+  ],
+  " start --instance ": [
    "runUpgradeChannelPhase"
   ],
   " stop and start": [
@@ -2564,6 +2956,9 @@
   "--after": [
    "spineParamsToArgs"
   ],
+  "--clear": [
+   "parseAliasArgs"
+  ],
   "--count-only": [
    "spineParamsToArgs"
   ],
@@ -2594,6 +2989,12 @@
    "parseRootCli",
    "runChannelCommand"
   ],
+  "--instance": [
+   "runChannelCommand"
+  ],
+  "--instance needs a name: --instance <name>": [
+   "runChannelCommand"
+  ],
   "--interval": [
    "spineParamsToArgs"
   ],
@@ -2604,6 +3005,9 @@
   ],
   "--kind": [
    "spineParamsToArgs"
+  ],
+  "--move": [
+   "parseAliasArgs"
   ],
   "--prefix": [
    "runUpgradeCommand"
@@ -2727,7 +3131,7 @@
    "renderInterruptReceipt"
   ],
   "ALADUO_DAEMON_TOKEN": [
-   "CLI_DAEMON_TOKEN_ENV_KEY"
+   "initCliHostEnvKeysModule"
   ],
   "ALIAS": [
    "renderSessionList",
@@ -2738,8 +3142,35 @@
    "renderCompactResult",
    "renderConfigResult"
   ],
+  "ANTHROPIC_API_KEY": [
+   "initCliHostEnvKeysModule"
+  ],
+  "ANTHROPIC_AUTH_TOKEN": [
+   "initCliHostEnvKeysModule"
+  ],
+  "ANTHROPIC_BASE_URL": [
+   "initCliHostEnvKeysModule"
+  ],
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL": [
+   "initCliHostEnvKeysModule"
+  ],
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": [
+   "initCliHostEnvKeysModule"
+  ],
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": [
+   "initCliHostEnvKeysModule"
+  ],
+  "API_TIMEOUT_MS": [
+   "initCliHostEnvKeysModule"
+  ],
   "Bearer ": [
    "createStdioDaemonClient"
+  ],
+  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": [
+   "initCliHostEnvKeysModule"
+  ],
+  "CLAUDE_CODE_EXECUTABLE": [
+   "initCliHostEnvKeysModule"
   ],
   "CRON": [
    "renderJobList"
@@ -2802,6 +3233,9 @@
   "Library": [
    "plistPath"
   ],
+  "MAIN": [
+   "renderSessionList"
+  ],
   "Missing action for channel '": [
    "runChannelCommand"
   ],
@@ -2840,6 +3274,7 @@
   ],
   "SESSION_KEY": [
    "renderSessionList",
+   "runSessionAliasCommand",
    "renderCompactResult",
    "renderConfigResult"
   ],
@@ -2850,6 +3285,7 @@
    "renderConfigResult"
   ],
   "STATUS": [
+   "runSessionAliasCommand",
    "renderCompactResult",
    "renderConfigResult"
   ],
@@ -2857,6 +3293,7 @@
    "renderConfigResult"
   ],
   "Subcommands:": [
+   "sessionHelpText",
    "jobHelp"
   ],
   "TARGET": [
@@ -2874,6 +3311,12 @@
   ],
   "Timed out waiting for output event_id=": [
    "createStdioDaemonClient"
+  ],
+  "To permanently delete: remove the archived directory by hand once": [
+   "sessionHelpText"
+  ],
+  "To recover an archived session: `mv` the archived directory back.": [
+   "sessionHelpText"
   ],
   "Unexpected extra arguments after prompt name: ": [
    "runPromptsSubcommand"
@@ -2899,6 +3342,9 @@
   ],
   "Usage: duoduo job <subcommand> [args]": [
    "jobHelp"
+  ],
+  "Usage: duoduo session <subcommand> [args]": [
+   "sessionHelpText"
   ],
   "VALUE": [
    "renderConfigResult"
@@ -2953,6 +3399,10 @@
   ],
   "bootstrap": [
    "installAndLoad"
+  ],
+  "candidate": [
+   "renderSessionMainColumn",
+   "renderSessionList"
   ],
   "cat": [
    "parseSpineArgs",
@@ -3059,6 +3509,7 @@
    "runMemoryCommand"
   ],
   "error": [
+   "runSessionAliasCommand",
    "runSessionNotifyCommand",
    "runJobSubcommand",
    "createStdioDaemonClient"
@@ -3066,6 +3517,9 @@
   "error: ": [
    "parseJobCli",
    "parseRestartArgs"
+  ],
+  "error: --move is only valid with the name ": [
+   "parseAliasArgs"
   ],
   "error: --wake needs a session key or alias\n  try: duoduo daemon restart -r \"why\" --wake my_journal": [
    "parseRestartArgs"
@@ -3076,10 +3530,17 @@
   "error: daemon rejected ": [
    "renderRpcError"
   ],
+  "error: daemon rejected session.list: ": [
+   "runSessionAliasCommand"
+  ],
   "error: daemon rejected session.notify: ": [
    "runSessionNotifyCommand"
   ],
+  "error: daemon rejected session.set_alias: ": [
+   "runSessionAliasCommand"
+  ],
   "error: daemon returned an empty response\n": [
+   "runSessionAliasCommand",
    "runSessionNotifyCommand"
   ],
   "error: duoduo job ": [
@@ -3097,8 +3558,14 @@
   "error: duoduo job reschedule requires a job id": [
    "parseJobCli"
   ],
+  "error: provide either an alias name or --clear, not both": [
+   "parseAliasArgs"
+  ],
   "error: refusing to restart the daemon without --reason. The reason reaches every session woken after the restart, and a session whose turn this kills has no other way to learn why — absent one, its li…": [
    "reasonlessRestartRefusal"
+  ],
+  "error: session_key is required": [
+   "parseAliasArgs"
   ],
   "error: unexpected extra argument: ": [
    "parseUpgradeArgs"
@@ -3142,6 +3609,9 @@
   "failed to wake ": [
    "runUpgradeCommand"
   ],
+  "feishu": [
+   "channelVerbInSession"
+  ],
   "final": [
    "createStdioDaemonClient"
   ],
@@ -3154,6 +3624,9 @@
   ],
   "global (kernel/config/runtime.md)": [
    "renderConfigResult"
+  ],
+  "held": [
+   "renderSessionMainColumn"
   ],
   "help": [
    "runSessionSubcommand",
@@ -3188,6 +3661,9 @@
   "instance": [
    "renderConfigResult"
   ],
+  "instance ": [
+   "runChannelCommand"
+  ],
   "instance extra": [
    "renderConfigResult"
   ],
@@ -3221,6 +3697,7 @@
    "runJobSubcommand"
   ],
   "json": [
+   "runSessionAliasCommand",
    "runSessionNotifyCommand"
   ],
   "kickstart": [
@@ -3273,6 +3750,12 @@
   "logs": [
    "runChannelCommand"
   ],
+  "main since ": [
+   "renderSessionMainColumn"
+  ],
+  "main? (ambiguous)": [
+   "renderSessionMainColumn"
+  ],
   "memory": [
    "parseRootCli",
    "main"
@@ -3311,6 +3794,7 @@
    "restartWakeReport"
   ],
   "not_found": [
+   "runSessionAliasCommand",
    "renderCompactResult",
    "renderConfigResult"
   ],
@@ -3354,6 +3838,10 @@
   ],
   "output": [
    "createStdioDaemonClient"
+  ],
+  "outside": [
+   "runSessionAliasCommand",
+   "channelVerbInSession"
   ],
   "owner receives job.fail; any other job stays scheduled and receives no receipt; a run": [
    "renderInterruptReceipt"
@@ -3420,12 +3908,18 @@
   "session.execution": [
    "createStdioDaemonClient"
   ],
+  "session.list": [
+   "runSessionAliasCommand"
+  ],
   "session.notify": [
-   "runSessionNotifyCommand",
-   "notifyRestartWakeTargets"
+   "notifyRestartWakeTargets",
+   "runSessionNotifyCommand"
   ],
   "session.output": [
    "createStdioDaemonClient"
+  ],
+  "session.set_alias": [
+   "runSessionAliasCommand"
   ],
   "session.stream": [
    "createStdioDaemonClient"
@@ -3486,6 +3980,9 @@
   "tool": [
    "createStdioDaemonClient"
   ],
+  "undecidable": [
+   "runSessionAliasCommand"
+  ],
   "unknown": [
    "renderCompactResult",
    "renderJobList",
@@ -3509,10 +4006,10 @@
    "runUpgradeCommand"
   ],
   "utf8": [
-   "installAndLoad",
    "readDaemonTokenFromEnvFile",
    "writeDaemonTokenToEnvFile",
-   "clearOwnRestartReasonFile"
+   "clearOwnRestartReasonFile",
+   "installAndLoad"
   ],
   "version": [
    "parseRootCli",
@@ -3561,11 +4058,14 @@
   ],
   "ws://localhost/ws": [
    "createStdioDaemonClient"
+  ],
+  "you're sure you won't need it.": [
+   "sessionHelpText"
   ]
  },
  "unnamed": {
-  "vp": {
-   "line": 20863,
+  "Gf": {
+   "line": 24080,
    "kind": "var (uninitialised)",
    "usedBy": [
     "getLaunchdPid",
@@ -3576,8 +4076,8 @@
     "unload"
    ]
   },
-  "y1": {
-   "line": 20773,
+  "n1": {
+   "line": 23990,
    "kind": "function",
    "usedBy": [
     "getLaunchdPid",
@@ -3587,17 +4087,28 @@
     "unload"
    ]
   },
-  "$a": {
-   "line": 67397,
+  "aa": {
+   "line": 2677,
    "kind": "async function",
    "usedBy": [
+    "defaultCallerVerdict",
     "main",
     "runChannelCommand",
     "runUpgradeCommand"
    ]
   },
-  "Ch": {
-   "line": 62738,
+  "lr": {
+   "line": 25074,
+   "kind": "function",
+   "usedBy": [
+    "renderCompactResult",
+    "renderConfigResult",
+    "renderSessionList",
+    "runSessionAliasCommand"
+   ]
+  },
+  "eh": {
+   "line": 25059,
    "kind": "function",
    "usedBy": [
     "renderCompactResult",
@@ -3605,664 +4116,707 @@
     "renderSessionList"
    ]
   },
-  "dr": {
-   "line": 62753,
-   "kind": "function",
+  "Fd": {
+   "line": 2416,
+   "kind": "var (uninitialised)",
    "usedBy": [
-    "renderCompactResult",
-    "renderConfigResult",
-    "renderSessionList"
-   ]
-  },
-  "Ba": {
-   "line": 20681,
-   "kind": "async function",
-   "usedBy": [
-    "notifyRestartWakeTargets",
+    "defaultCallerVerdict",
+    "runSessionAliasCommand",
     "runSessionNotifyCommand"
    ]
   },
-  "CEe": {
-   "line": 66773,
+  "ka": {
+   "line": 23898,
+   "kind": "async function",
+   "usedBy": [
+    "notifyRestartWakeTargets",
+    "runSessionAliasCommand",
+    "runSessionNotifyCommand"
+   ]
+  },
+  "_c": {
+   "line": 71295,
+   "kind": "function",
+   "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "$_e": {
+   "line": 70626,
    "kind": "function",
    "usedBy": [
     "parseSpineArgs",
     "runSpineCommand"
    ]
   },
-  "du": {
-   "line": 254,
+  "dA": {
+   "line": 24160,
+   "kind": "async function",
+   "usedBy": [
+    "restartDaemonWithReason",
+    "runUpgradeCommand"
+   ]
+  },
+  "hc": {
+   "line": 2755,
    "kind": "function",
    "usedBy": [
     "runChannelCommand",
     "runUpgradeCommand"
    ]
   },
-  "Ek": {
-   "line": 68420,
-   "kind": "function",
-   "usedBy": [
-    "runChannelCommand",
-    "runUpgradeCommand"
-   ]
-  },
-  "Gi": {
-   "line": 102,
+  "Ki": {
+   "line": 2426,
    "kind": "function",
    "usedBy": [
     "runSpineCommand",
     "runUpgradeCommand"
    ]
   },
-  "ls": {
-   "line": 20561,
+  "Lu": {
+   "line": 25048,
    "kind": "function",
    "usedBy": [
-    "runChannelCommand",
-    "runUpgradeCommand"
-   ]
-  },
-  "ol": {
-   "line": 67898,
-   "kind": "async function",
-   "usedBy": [
-    "restartDaemonWithReason",
-    "runUpgradeCommand"
-   ]
-  },
-  "os": {
-   "line": 245,
-   "kind": "async function",
-   "usedBy": [
-    "runChannelCommand",
-    "runUpgradeCommand"
-   ]
-  },
-  "uu": {
-   "line": 67552,
-   "kind": "function",
-   "usedBy": [
-    "runChannelCommand",
-    "runUpgradeCommand"
-   ]
-  },
-  "v_": {
-   "line": 68238,
-   "kind": "class-expr",
-   "usedBy": [
-    "restartDaemonWithReason",
-    "runUpgradeCommand"
-   ]
-  },
-  "_Je": {
-   "line": 63529,
-   "kind": "function",
-   "usedBy": [
-    "renderConfigResult"
-   ]
-  },
-  "$d": {
-   "line": 62727,
-   "kind": "function",
-   "usedBy": [
+    "runSessionAliasCommand",
     "runSessionNotifyCommand"
    ]
   },
-  "$H": {
-   "line": 67828,
+  "MF": {
+   "line": 71600,
    "kind": "function",
    "usedBy": [
-    "notifyRestartWakeTargets"
-   ]
-  },
-  "$r": {
-   "line": 67186,
-   "kind": "var (uninitialised)",
-   "usedBy": [
-    "parseSpineArgs"
-   ]
-  },
-  "aEe": {
-   "line": 66462,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "aGe": {
-   "line": 72890,
-   "kind": "function",
-   "usedBy": [
-    "createStdioDaemonClient"
-   ]
-  },
-  "AJe": {
-   "line": 63189,
-   "kind": "async function",
-   "usedBy": [
-    "runSessionSubcommand"
-   ]
-  },
-  "Ak": {
-   "line": 20863,
-   "kind": "var",
-   "usedBy": [
+    "runChannelCommand",
     "runUpgradeCommand"
    ]
   },
-  "ape": {
-   "line": 63706,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "Ape": {
-   "line": 64066,
+  "ms": {
+   "line": 23778,
    "kind": "function",
    "usedBy": [
-    "runPromptsSubcommand"
+    "runChannelCommand",
+    "runUpgradeCommand"
    ]
   },
-  "Ar": {
-   "line": 66739,
-   "kind": "function",
-   "usedBy": [
-    "parseSpineArgs"
-   ]
-  },
-  "AXe": {
-   "line": 66190,
+  "Ng": {
+   "line": 24968,
    "kind": "async function",
    "usedBy": [
-    "runMemoryCommand"
+    "runSessionAliasCommand",
+    "runSessionNotifyCommand"
    ]
   },
-  "BEe": {
-   "line": 74823,
+  "phe": {
+   "line": 78715,
    "kind": "async function",
    "usedBy": [
-    "main"
+    "channelVerbInSession",
+    "runChannelCommand"
    ]
   },
-  "BI": {
-   "line": 67298,
+  "ps": {
+   "line": 2746,
    "kind": "async function",
    "usedBy": [
+    "runChannelCommand",
+    "runUpgradeCommand"
+   ]
+  },
+  "qf": {
+   "line": 24138,
+   "kind": "async function",
+   "usedBy": [
+    "defaultCallerVerdict",
+    "runUpgradeCommand"
+   ]
+  },
+  "UO": {
+   "line": 2690,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "readDaemonTokenFromEnvFile",
     "writeDaemonTokenToEnvFile"
    ]
   },
-  "bJe": {
-   "line": 63846,
+  "WE": {
+   "line": 2136,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "parseAliasArgs",
+    "renderSessionList"
+   ]
+  },
+  "wu": {
+   "line": 25044,
    "kind": "function",
    "usedBy": [
-    "renderJobRead"
-   ]
-  },
-  "Bne": {
-   "line": 72858,
-   "kind": "function",
-   "usedBy": [
-    "createStdioDaemonClient"
-   ]
-  },
-  "Bp": {
-   "line": 67835,
-   "kind": "function",
-   "usedBy": [
-    "restartDaemonWithReason"
-   ]
-  },
-  "CJe": {
-   "line": 63558,
-   "kind": "function",
-   "usedBy": [
-    "renderConfigResult"
-   ]
-  },
-  "D1": {
-   "line": 67876,
-   "kind": "async function",
-   "usedBy": [
-    "runUpgradeCommand"
-   ]
-  },
-  "dk": {
-   "line": 20729,
-   "kind": "var",
-   "usedBy": [
-    "runUpgradeCommand"
-   ]
-  },
-  "dpe": {
-   "line": 64062,
-   "kind": "function",
-   "usedBy": [
-    "runPromptsSubcommand"
-   ]
-  },
-  "DXe": {
-   "line": 66806,
-   "kind": "function",
-   "usedBy": [
-    "parseSpineArgs"
-   ]
-  },
-  "epe": {
-   "line": 62646,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "Epe": {
-   "line": 64130,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "ev": {
-   "line": 74621,
-   "kind": "async function",
-   "usedBy": [
-    "runUpgradeCommand"
-   ]
-  },
-  "fJe": {
-   "line": 63232,
-   "kind": "function",
-   "usedBy": [
-    "renderCompactResult"
-   ]
-  },
-  "fpe": {
-   "line": 64070,
-   "kind": "function",
-   "usedBy": [
-    "runPromptsSubcommand"
-   ]
-  },
-  "fXe": {
-   "line": 66327,
-   "kind": "function",
-   "usedBy": [
-    "runMemoryCommand"
-   ]
-  },
-  "GJ": {
-   "line": 68467,
-   "kind": "function",
-   "usedBy": [
-    "runUpgradeChannelPhase"
-   ]
-  },
-  "GXe": {
-   "line": 67158,
-   "kind": "async function",
-   "usedBy": [
-    "executeSpine"
-   ]
-  },
-  "hJe": {
-   "line": 63549,
-   "kind": "function",
-   "usedBy": [
-    "renderConfigResult"
-   ]
-  },
-  "iZe": {
-   "line": 74936,
-   "kind": "async function",
-   "usedBy": [
-    "runUpgradeCommand"
-   ]
-  },
-  "j$e": {
-   "line": 62772,
-   "kind": "function",
-   "usedBy": [
+    "runSessionAliasCommand",
     "runSessionNotifyCommand"
    ]
   },
-  "jb": {
-   "line": 67954,
-   "kind": "async function",
+  "Z_": {
+   "line": 24620,
+   "kind": "var (uninitialised)",
    "usedBy": [
-    "restartDaemonWithReason"
-   ]
-  },
-  "Kd": {
-   "line": 62723,
-   "kind": "function",
-   "usedBy": [
-    "runSessionNotifyCommand"
-   ]
-  },
-  "kT": {
-   "line": 63872,
-   "kind": "async function",
-   "usedBy": [
-    "runJobSubcommand"
-   ]
-  },
-  "kXe": {
-   "line": 67079,
-   "kind": "function",
-   "usedBy": [
-    "executeSpine"
-   ]
-  },
-  "Lf": {
-   "line": 62653,
-   "kind": "async function",
-   "usedBy": [
-    "runSessionNotifyCommand"
-   ]
-  },
-  "lpe": {
-   "line": 63942,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "mJe": {
-   "line": 63503,
-   "kind": "async function",
-   "usedBy": [
-    "runSessionSubcommand"
-   ]
-  },
-  "N1": {
-   "line": 68380,
-   "kind": "async function",
-   "usedBy": [
+    "restartDaemonWithReason",
     "runUpgradeCommand"
    ]
   },
-  "NEe": {
-   "line": 66704,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "NI": {
-   "line": 75,
+  "_D": {
+   "line": 2115,
    "kind": "async function",
    "usedBy": [
     "writeRestartReasonFile"
    ]
   },
-  "nJe": {
-   "line": 62919,
-   "kind": "function",
-   "usedBy": [
-    "runSessionNotifyCommand"
-   ]
-  },
-  "Oa": {
-   "line": 20618,
-   "kind": "function",
-   "usedBy": [
-    "restartDaemonWithReason"
-   ]
-  },
-  "Oc": {
-   "line": 72806,
-   "kind": "function",
-   "usedBy": [
-    "runUpgradeCommand"
-   ]
-  },
-  "oEe": {
-   "line": 66119,
+  "a5": {
+   "line": 70247,
    "kind": "function",
    "usedBy": [
     "runMemoryCommand"
    ]
   },
-  "Oge": {
-   "line": 62481,
-   "kind": "var (uninitialised)",
+  "A8e": {
+   "line": 25161,
+   "kind": "async function",
    "usedBy": [
-    "runSessionNotifyCommand"
+    "runSessionSubcommand"
    ]
   },
-  "OJe": {
-   "line": 64126,
-   "kind": "function",
-   "usedBy": [
-    "runPromptsSubcommand"
-   ]
-  },
-  "oZe": {
-   "line": 74964,
+  "ahe": {
+   "line": 78005,
    "kind": "async function",
    "usedBy": [
     "main"
    ]
   },
-  "PJ": {
-   "line": 68409,
+  "Ahe": {
+   "line": 78709,
    "kind": "function",
+   "usedBy": [
+    "runChannelCommand"
+   ]
+  },
+  "ait": {
+   "line": 70180,
+   "kind": "function",
+   "usedBy": [
+    "runMemoryCommand"
+   ]
+  },
+  "b8e": {
+   "line": 26014,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "B8e": {
+   "line": 25880,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "BF": {
+   "line": 24080,
+   "kind": "var",
    "usedBy": [
     "runUpgradeCommand"
    ]
   },
-  "ppe": {
-   "line": 64088,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "qp": {
-   "line": 39788,
-   "kind": "var (uninitialised)",
-   "usedBy": [
-    "createStdioDaemonClient"
-   ]
-  },
-  "QT": {
-   "line": 63860,
+  "Cnt": {
+   "line": 67699,
    "kind": "function",
    "usedBy": [
-    "runJobSubcommand"
+    "renderJobRead"
    ]
   },
-  "R_": {
-   "line": 20777,
-   "kind": "function",
+  "Dt": {
+   "line": 19,
+   "kind": "function-expr",
    "usedBy": [
-    "generatePlist"
+    "initCliHostEnvKeysModule"
    ]
   },
-  "RJe": {
-   "line": 63816,
-   "kind": "function",
-   "usedBy": [
-    "renderJobList"
-   ]
-  },
-  "RXe": {
-   "line": 66733,
-   "kind": "function",
-   "usedBy": [
-    "runSpineCommand"
-   ]
-  },
-  "sEe": {
-   "line": 66086,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "sJe": {
-   "line": 63034,
-   "kind": "async function",
-   "usedBy": [
-    "runSessionSubcommand"
-   ]
-  },
-  "SJe": {
-   "line": 63663,
-   "kind": "var (uninitialised)",
-   "usedBy": [
-    "renderConfigResult"
-   ]
-  },
-  "t8": {
-   "line": 67286,
-   "kind": "function",
-   "usedBy": [
-    "writeDaemonTokenToEnvFile"
-   ]
-  },
-  "TJ": {
-   "line": 20769,
-   "kind": "function",
-   "usedBy": [
-    "installAndLoad"
-   ]
-  },
-  "tJe": {
-   "line": 62875,
-   "kind": "async function",
-   "usedBy": [
-    "runSessionSubcommand"
-   ]
-  },
-  "TJe": {
-   "line": 63636,
-   "kind": "function",
-   "usedBy": [
-    "renderConfigResult"
-   ]
-  },
-  "tpe": {
-   "line": 63663,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "UEe": {
-   "line": 74931,
-   "kind": "var",
-   "usedBy": [
-    "isDetachedUpgradeWorker"
-   ]
-  },
-  "UJ": {
-   "line": 68447,
-   "kind": "function",
-   "usedBy": [
-    "parseUpgradeArgs"
-   ]
-  },
-  "UXe": {
-   "line": 67137,
+  "Er": {
+   "line": 70592,
    "kind": "function",
    "usedBy": [
     "parseSpineArgs"
    ]
   },
-  "vEe": {
-   "line": 67186,
-   "kind": "var",
-   "usedBy": [
-    "main"
-   ]
-  },
-  "wEe": {
-   "line": 75496,
+  "ET": {
+   "line": 67713,
    "kind": "function",
    "usedBy": [
-    "runChannelCommand"
+    "runJobSubcommand"
    ]
   },
-  "Wge": {
-   "line": 63128,
+  "eZ": {
+   "line": 23986,
+   "kind": "function",
+   "usedBy": [
+    "installAndLoad"
+   ]
+  },
+  "EZ": {
+   "line": 24679,
+   "kind": "async function",
+   "usedBy": [
+    "defaultCallerVerdict"
+   ]
+  },
+  "f8e": {
+   "line": 25385,
    "kind": "async function",
    "usedBy": [
     "runSessionSubcommand"
    ]
   },
-  "wne": {
-   "line": 72909,
-   "kind": "function",
-   "usedBy": [
-    "createStdioDaemonClient"
-   ]
-  },
-  "Xb": {
-   "line": 68061,
+  "FB": {
+   "line": 24323,
    "kind": "async function",
    "usedBy": [
     "restartDaemonWithReason"
    ]
   },
-  "xEe": {
-   "line": 75502,
-   "kind": "async function",
+  "fhe": {
+   "line": 78113,
+   "kind": "var",
    "usedBy": [
-    "runChannelCommand"
+    "isDetachedUpgradeWorker"
    ]
   },
-  "xne": {
-   "line": 72923,
+  "Fme": {
+   "line": 67795,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "Foe": {
+   "line": 76040,
    "kind": "function",
    "usedBy": [
     "createStdioDaemonClient"
    ]
   },
-  "yB": {
-   "line": 67243,
-   "kind": "function",
+  "fT": {
+   "line": 67725,
+   "kind": "async function",
    "usedBy": [
-    "readDaemonTokenFromEnvFile"
+    "runJobSubcommand"
    ]
   },
-  "Yge": {
-   "line": 62706,
-   "kind": "function",
+  "Gb": {
+   "line": 77803,
+   "kind": "async function",
    "usedBy": [
-    "runSessionSubcommand"
+    "runUpgradeCommand"
    ]
   },
-  "yJe": {
-   "line": 63640,
+  "Gme": {
+   "line": 67915,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "GZ": {
+   "line": 24959,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "hit": {
+   "line": 70586,
+   "kind": "function",
+   "usedBy": [
+    "runSpineCommand"
+   ]
+  },
+  "Hme": {
+   "line": 67919,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "hnt": {
+   "line": 67669,
+   "kind": "function",
+   "usedBy": [
+    "renderJobList"
+   ]
+  },
+  "I8e": {
+   "line": 25540,
    "kind": "async function",
    "usedBy": [
     "runSessionSubcommand"
    ]
   },
-  "YU": {
-   "line": 66394,
+  "ihe": {
+   "line": 70557,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "Iit": {
+   "line": 70659,
+   "kind": "function",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "JZ": {
+   "line": 71647,
+   "kind": "function",
+   "usedBy": [
+    "runUpgradeChannelPhase"
+   ]
+  },
+  "k_e": {
+   "line": 70315,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "kB": {
+   "line": 24216,
+   "kind": "async function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "Kit": {
+   "line": 77984,
+   "kind": "async function",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "kme": {
+   "line": 67559,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "KZ": {
+   "line": 71627,
+   "kind": "function",
+   "usedBy": [
+    "parseUpgradeArgs"
+   ]
+  },
+  "l8e": {
+   "line": 25204,
+   "kind": "function",
+   "usedBy": [
+    "runSessionAliasCommand"
+   ]
+  },
+  "LF": {
+   "line": 26014,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "Lit": {
+   "line": 70990,
+   "kind": "function",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "M_e": {
+   "line": 69972,
    "kind": "function",
    "usedBy": [
     "runMemoryCommand"
    ]
   },
-  "Z$e": {
-   "line": 62831,
+  "Mit": {
+   "line": 71011,
+   "kind": "async function",
+   "usedBy": [
+    "executeSpine"
+   ]
+  },
+  "N3": {
+   "line": 2824,
+   "kind": "function",
+   "usedBy": [
+    "notifyRestartWakeTargets"
+   ]
+  },
+  "N8e": {
+   "line": 25854,
    "kind": "async function",
    "usedBy": [
     "runSessionSubcommand"
    ]
   },
-  "ZB": {
-   "line": 2345,
+  "NF": {
+   "line": 23946,
+   "kind": "var",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "O8e": {
+   "line": 25991,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "ohe": {
+   "line": 71039,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "op": {
+   "line": 44981,
    "kind": "var (uninitialised)",
    "usedBy": [
     "createStdioDaemonClient"
    ]
   },
-  "ZXe": {
-   "line": 74802,
+  "OZ": {
+   "line": 25479,
+   "kind": "async function",
+   "usedBy": [
+    "runSessionSubcommand"
+   ]
+  },
+  "Poe": {
+   "line": 76105,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
+  "Q8e": {
+   "line": 25909,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "qme": {
+   "line": 67941,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "QO": {
+   "line": 2174,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
+  "qqe": {
+   "line": 76072,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
+  "QZ": {
+   "line": 25097,
+   "kind": "function",
+   "usedBy": [
+    "runSessionAliasCommand"
+   ]
+  },
+  "R8e": {
+   "line": 25900,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "RI": {
+   "line": 2524,
+   "kind": "function",
+   "usedBy": [
+    "readDaemonTokenFromEnvFile"
+   ]
+  },
+  "s1": {
+   "line": 24672,
+   "kind": "async function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "s8e": {
+   "line": 25102,
+   "kind": "function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "S8e": {
+   "line": 25583,
+   "kind": "function",
+   "usedBy": [
+    "renderCompactResult"
+   ]
+  },
+  "sit": {
+   "line": 70043,
+   "kind": "async function",
+   "usedBy": [
+    "runMemoryCommand"
+   ]
+  },
+  "TD": {
+   "line": 2578,
+   "kind": "async function",
+   "usedBy": [
+    "writeDaemonTokenToEnvFile"
+   ]
+  },
+  "ti": {
+   "line": 71039,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "parseSpineArgs"
+   ]
+  },
+  "u8e": {
+   "line": 25270,
+   "kind": "function",
+   "usedBy": [
+    "runSessionNotifyCommand"
+   ]
+  },
+  "Uoe": {
+   "line": 76091,
+   "kind": "function",
+   "usedBy": [
+    "createStdioDaemonClient"
+   ]
+  },
+  "v8e": {
+   "line": 25987,
+   "kind": "function",
+   "usedBy": [
+    "renderConfigResult"
+   ]
+  },
+  "vit": {
+   "line": 70932,
+   "kind": "function",
+   "usedBy": [
+    "executeSpine"
+   ]
+  },
+  "Wf": {
+   "line": 25032,
+   "kind": "function",
+   "usedBy": [
+    "parseAliasArgs"
+   ]
+  },
+  "Wme": {
+   "line": 67983,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "WZ": {
+   "line": 71589,
+   "kind": "function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "x_e": {
+   "line": 69939,
+   "kind": "var",
+   "usedBy": [
+    "main"
+   ]
+  },
+  "xa": {
+   "line": 23835,
+   "kind": "function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "Xit": {
+   "line": 78118,
+   "kind": "async function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "xl": {
+   "line": 75988,
+   "kind": "function",
+   "usedBy": [
+    "runUpgradeCommand"
+   ]
+  },
+  "XY": {
+   "line": 2566,
+   "kind": "function",
+   "usedBy": [
+    "writeDaemonTokenToEnvFile"
+   ]
+  },
+  "xZ": {
+   "line": 25053,
+   "kind": "function",
+   "usedBy": [
+    "runSessionAliasCommand"
+   ]
+  },
+  "Yf": {
+   "line": 24097,
+   "kind": "function",
+   "usedBy": [
+    "restartDaemonWithReason"
+   ]
+  },
+  "Yme": {
+   "line": 67923,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "ynt": {
+   "line": 67979,
+   "kind": "function",
+   "usedBy": [
+    "runPromptsSubcommand"
+   ]
+  },
+  "z_": {
+   "line": 23994,
+   "kind": "function",
+   "usedBy": [
+    "generatePlist"
+   ]
+  },
+  "Zit": {
+   "line": 78146,
    "kind": "async function",
    "usedBy": [
     "main"

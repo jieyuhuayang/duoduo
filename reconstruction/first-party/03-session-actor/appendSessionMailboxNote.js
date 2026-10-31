@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: appendSessionMailboxNote  (minified: Jb, daemon.pretty.js:34880)
+// symbol: appendSessionMailboxNote  (minified: Zb, daemon.pretty.js:33996)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,6 +14,6 @@ async function appendSessionMailboxNote(paths, sessionKey, note, now = new Date)
             ts: now.toISOString(),
             note: note.trim()
         };
-    await Sr.appendFile(sessionMailboxNotesPath, JSON.stringify(record) + `
+    await xr.appendFile(sessionMailboxNotesPath, JSON.stringify(record) + `
 `)
 }

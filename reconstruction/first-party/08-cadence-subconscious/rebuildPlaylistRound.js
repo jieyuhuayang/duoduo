@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: rebuildPlaylistRound  (minified: wke, daemon.pretty.js:68665)
+// symbol: rebuildPlaylistRound  (minified: VSe, daemon.pretty.js:67781)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 17 renamed — 3 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,7 +19,7 @@ async function rebuildPlaylistRound(paths) {
     }
     let source;
     try {
-        source = await al.readFile(paths.subconsciousPlaylistPath, "utf8")
+        source = await ll.readFile(paths.subconsciousPlaylistPath, "utf8")
     } catch {
         source = `# Subconscious Playlist
 

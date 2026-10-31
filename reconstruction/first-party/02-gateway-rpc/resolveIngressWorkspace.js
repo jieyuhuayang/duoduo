@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveIngressWorkspace  (minified: cPe, daemon.pretty.js:92838)
+// symbol: resolveIngressWorkspace  (minified: NTe, daemon.pretty.js:92195)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.4.2, v0.5.0, v0.5.10, v0.6.0, v0.8.0 (maps/history_daemon.json)
 // locals: 18 renamed — 7 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ async function resolveIngressWorkspace(options) {
         cwdAbs,
         channelKind,
         channelId
-    } = options, sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey), plane = sessionRuntimeState?.plane ?? classifySessionPlaneByKey(sessionKey), permissionProfile = sessionRuntimeState?.permission_profile ?? ext(plane), effectiveConfig = channelKind ? await resolveEffectiveChannelConfig(paths, {
+    } = options, sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey), plane = sessionRuntimeState?.plane ?? classifySessionPlaneByKey(sessionKey), permissionProfile = sessionRuntimeState?.permission_profile ?? SSt(plane), effectiveConfig = channelKind ? await resolveEffectiveChannelConfig(paths, {
         channel_kind: channelKind,
         channel_id: channelId
     }) : null, bindCwd = async cwd => {
@@ -66,7 +66,7 @@ async function resolveIngressWorkspace(options) {
             guidance: `Workspace unavailable: '${boundCwd}' (bound session path does not exist).`
         }
     }
-    let workDir = await resolveExistingDirRealpath(paths.workDir).catch(() => null) ?? uo.resolve(paths.workDir);
+    let workDir = await resolveExistingDirRealpath(paths.workDir).catch(() => null) ?? po.resolve(paths.workDir);
     return await bindCwd(workDir), {
         ok: !0,
         cwd: workDir,

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: readDeliveryCursorFile  (minified: Awe, daemon.pretty.js:66514)
+// symbol: readDeliveryCursorFile  (minified: rwe, daemon.pretty.js:65702)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.8.0 (maps/history_daemon.json)
 // locals: 12 renamed — 3 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 async function readDeliveryCursorFile(paths, sessionKey, consumerId) {
     let deliveryCursorPath = resolveDeliveryCursorPath(paths, sessionKey, consumerId);
     try {
-        let content = await _pt.readFile(deliveryCursorPath, "utf8"),
+        let content = await jdt.readFile(deliveryCursorPath, "utf8"),
             parsed = JSON.parse(content);
         if (parsed.session_key !== sessionKey) return null;
         let optimisticLastOutboxId = typeof parsed.optimistic_last_outbox_id == "string" ? parsed.optimistic_last_outbox_id : typeof parsed.last_outbox_id == "string" ? parsed.last_outbox_id : void 0,

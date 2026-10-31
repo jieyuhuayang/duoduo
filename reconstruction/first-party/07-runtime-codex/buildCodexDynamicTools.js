@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexDynamicTools  (minified: PN, daemon.pretty.js:82495)
+// symbol: buildCodexDynamicTools  (minified: ON, daemon.pretty.js:81638)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.4, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.4, v0.8.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
 // locals: 18 renamed — 0 from the code at the binding (rule), 18 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.4 (high): Dynamic tools bridge: aladuo MCP tools available to Codex sessions
 // changelog v0.5.1 (high): Codex foreground: register missing tools (`Skip`, `QueueOutboundAttachment`)
@@ -16,7 +16,7 @@ function buildCodexDynamicTools(ctx) {
     if (!isMetaOrSystem) {
         let jobInputSchema = isJob ? buildJobSessionInputSchema(runtime) : buildManageJobInputSchema(runtime);
         tools.push({
-            name: oS,
+            name: lS,
             description: isJob ? renderJobSessionToolDescription() : renderManageJobToolDescription(),
             inputSchema: buildCodexStringInputSchema(jobInputSchema),
             handler: async input => {
@@ -35,14 +35,15 @@ function buildCodexDynamicTools(ctx) {
         })
     }
     return tools.push({
-        name: dS,
-        description: SO,
-        inputSchema: buildCodexStringInputSchema(kO),
+        name: gS,
+        description: xO,
+        inputSchema: buildCodexStringInputSchema(EO),
         handler: async input => {
             let output = await runViewSessionsTool(input, {
                 paths: ctx.paths,
                 sessionKey: ctx.sessionKey,
-                getSessionStatus: ctx.getSessionStatus
+                getSessionStatus: ctx.getSessionStatus,
+                finalSubscriberCount: ctx.finalSubscriberCount
             });
             return {
                 success: !output.startsWith("Error:"),
@@ -50,7 +51,7 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), tools.push({
-        name: gS,
+        name: wS,
         description: renderNotifyToolDescription({
             sessionKey: ctx.sessionKey,
             sessionContextKind: ctx.sessionContextKind
@@ -66,7 +67,9 @@ function buildCodexDynamicTools(ctx) {
                 sessionKey: ctx.sessionKey,
                 sessionContextKind: ctx.sessionContextKind,
                 notifyDepth: ctx.notifyDepth,
-                jobScheduleType: ctx.jobScheduleType
+                jobScheduleType: ctx.jobScheduleType,
+                resolveMain: ctx.resolveMain,
+                finalSubscriberCount: ctx.finalSubscriberCount
             });
             return output.startsWith("Error:") || ctx.onNotifyCalled?.(), {
                 success: !output.startsWith("Error:"),
@@ -74,9 +77,9 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), ctx.sessionContextKind === "foreground" && (tools.push({
-        name: cp,
-        description: jA,
-        inputSchema: buildCodexStringInputSchema(LA),
+        name: dp,
+        description: zA,
+        inputSchema: buildCodexStringInputSchema(UA),
         handler: async input => {
             let output = await runQueueOutboundAttachmentTool(input, {
                 paths: ctx.paths,
@@ -88,8 +91,8 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), tools.push({
-        name: Rs,
-        description: D_e,
+        name: $s,
+        description: s_e,
         inputSchema: buildCodexStringInputSchema(iC),
         handler: async input => {
             let output = await runSkipTool(input, {
@@ -103,9 +106,9 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     })), isMetaOrSystem || tools.push({
-        name: pS,
-        description: isJob ? RO : xO,
-        inputSchema: buildCodexStringInputSchema(isJob ? IO : EO),
+        name: _S,
+        description: isJob ? TO : RO,
+        inputSchema: buildCodexStringInputSchema(isJob ? PO : IO),
         handler: async input => {
             let output = await runRemindDuoduoTool(input, {
                 paths: ctx.paths,

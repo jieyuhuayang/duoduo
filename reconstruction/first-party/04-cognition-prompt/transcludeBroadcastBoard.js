@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: transcludeBroadcastBoard  (minified: CTe, daemon.pretty.js:84627)
+// symbol: transcludeBroadcastBoard  (minified: eTe, daemon.pretty.js:83790)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function transcludeBroadcastBoard(boardPath) {
-    let boardIncludes = await resolveBoardIncludes(va.resolve(boardPath), new Set);
+    let boardIncludes = await resolveBoardIncludes(Ea.resolve(boardPath), new Set);
     return {
         files: boardIncludes,
         rendered: renderTranscludedFiles(boardIncludes)

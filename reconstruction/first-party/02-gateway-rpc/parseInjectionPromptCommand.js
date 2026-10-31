@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: parseInjectionPromptCommand  (minified: zI, daemon.pretty.js:89583)
+// symbol: parseInjectionPromptCommand  (minified: UI, daemon.pretty.js:88781)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 2 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@
 function parseInjectionPromptCommand(text) {
     if (!text) return;
     let trimmed = text.trim(),
-        commandToken = spe(trimmed);
+        commandToken = Cfe(trimmed);
     if (!commandToken || !commandToken.startsWith("/")) return;
     let name = commandToken.slice(1),
         injectionPrompt = lookupInjectionPrompt(name);

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: releaseRuntimeWriterLock  (minified: UO, daemon.pretty.js:91440)
+// symbol: releaseRuntimeWriterLock  (minified: VO, daemon.pretty.js:90797)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,8 +9,8 @@
 async function releaseRuntimeWriterLock(paths) {
     let runtimeWriterLockPath = resolveRuntimeWriterLockPath(paths);
     try {
-        let lock = await W6(runtimeWriterLockPath);
+        let lock = await z6(runtimeWriterLockPath);
         if (lock && lock.pid !== process.pid) return;
-        await ES.unlink(runtimeWriterLockPath)
+        await $S.unlink(runtimeWriterLockPath)
     } catch {}
 }

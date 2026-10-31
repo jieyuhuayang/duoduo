@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: readIntuitionWeaverLastFinishedMs  (minified: _xe, daemon.pretty.js:70497)
+// symbol: readIntuitionWeaverLastFinishedMs  (minified: Uke, daemon.pretty.js:69613)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function readIntuitionWeaverLastFinishedMs(ctx) {
-    let partitionRunState = await readPartitionRunState(ctx, yxe),
+    let partitionRunState = await readPartitionRunState(ctx, zke),
         lastFinishedMs = partitionRunState.last_finished_at === null ? NaN : Date.parse(partitionRunState.last_finished_at);
     return Number.isFinite(lastFinishedMs) ? lastFinishedMs : 0
 }

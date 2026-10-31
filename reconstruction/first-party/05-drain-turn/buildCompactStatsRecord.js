@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: buildCompactStatsRecord  (minified: PEe, daemon.pretty.js:74463)
+// symbol: buildCompactStatsRecord  (minified: XEe, daemon.pretty.js:73603)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 11 renamed — 8 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -16,7 +16,7 @@ function buildCompactStatsRecord(params) {
         measuredAt,
         sessionKey,
         gapCounts
-    } = params, historyPost = completion.hadBoundary ? completion.history_post : void 0, estimate = pfe({
+    } = params, historyPost = completion.hadBoundary ? completion.history_post : void 0, estimate = Fde({
         post_total: postTotal,
         history_post: historyPost,
         g_gt1h_since_prev_compact: gapCounts?.g_gt1h_since_prev_compact,

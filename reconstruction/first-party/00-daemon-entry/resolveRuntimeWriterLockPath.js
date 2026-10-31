@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: resolveRuntimeWriterLockPath  (minified: V6, daemon.pretty.js:91340)
+// symbol: resolveRuntimeWriterLockPath  (minified: F6, daemon.pretty.js:90697)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveRuntimeWriterLockPath(paths) {
-    return Nmt.join(paths.runLocksDir, "daemon-writer.json")
+    return ipt.join(paths.runLocksDir, "daemon-writer.json")
 }

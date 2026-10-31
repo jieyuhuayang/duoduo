@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: ensureOutboxRecordInReplay  (minified: dit, daemon.pretty.js:38455)
+// symbol: ensureOutboxRecordInReplay  (minified: Int, daemon.pretty.js:37586)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in v0.3.1 (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,11 +8,11 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function ensureOutboxRecordInReplay(paths, record) {
-    return $fe(record.session_key, async () => {
-        await Ofe(paths, record.session_key, !1);
+    return tfe(record.session_key, async () => {
+        await rfe(paths, record.session_key, !1);
         let outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, record.id);
-        if (outboxByIdIndexEntry) return await lv(paths, record.session_key, resolveOutboxReplayFilePath(paths, record.session_key)), outboxByIdIndexEntry;
-        let indexEntry = await cit(paths, record);
-        return await lv(paths, record.session_key, resolveOutboxReplayFilePath(paths, record.session_key)), indexEntry
+        if (outboxByIdIndexEntry) return await pv(paths, record.session_key, resolveOutboxReplayFilePath(paths, record.session_key)), outboxByIdIndexEntry;
+        let indexEntry = await Rnt(paths, record);
+        return await pv(paths, record.session_key, resolveOutboxReplayFilePath(paths, record.session_key)), indexEntry
     })
 }

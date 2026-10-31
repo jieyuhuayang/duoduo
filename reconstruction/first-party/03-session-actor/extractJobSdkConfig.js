@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: extractJobSdkConfig  (minified: Xve, daemon.pretty.js:63677)
+// symbol: extractJobSdkConfig  (minified: Sve, daemon.pretty.js:62865)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.6.2 — first release whose bundle holds this declaration; body changed in v0.7.0 (maps/history_daemon.json)
 // locals: 10 renamed — 9 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

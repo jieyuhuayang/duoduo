@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: parseLogLevelName  (minified: cle, daemon.pretty.js:34088)
+// symbol: parseLogLevelName  (minified: Mue, daemon.pretty.js:33204)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,5 +9,5 @@
 function parseLogLevelName(name) {
     if (!name) return null;
     let lowered = name.toLowerCase();
-    return lowered in JU ? lowered : null
+    return lowered in NU ? lowered : null
 }

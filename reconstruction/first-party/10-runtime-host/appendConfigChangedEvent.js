@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: appendConfigChangedEvent  (minified: Oy, daemon.pretty.js:93970)
+// symbol: appendConfigChangedEvent  (minified: Ny, daemon.pretty.js:93350)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.7.0 (maps/history_daemon.json)
 // locals: 3 renamed — 1 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -29,7 +29,7 @@ async function appendConfigChangedEvent(paths, change) {
                 changed: change.changed
             } : {
                 scope: "global",
-                file: `${Xr}.md`,
+                file: `${ri}.md`,
                 changed: change.changed
             }
         });

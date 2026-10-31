@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: runBroadcastFlattenLint  (minified: kxe, daemon.pretty.js:70655)
+// symbol: runBroadcastFlattenLint  (minified: Wke, daemon.pretty.js:69771)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 3 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -20,10 +20,10 @@ function runBroadcastFlattenLint(memoryDir) {
     } : {
         headings: boardHeadingLines,
         selected: [{
-            kind: Vn.CLAUDE_FLATTEN,
-            partition: Sgt,
+            kind: Jn.CLAUDE_FLATTEN,
+            partition: Vmt,
             pendingFilename: "claude-flatten.md.pending",
-            pendingBody: Rgt(memoryDirs.boardPath, boardHeadingLines)
+            pendingBody: Gmt(memoryDirs.boardPath, boardHeadingLines)
         }]
     }
 }

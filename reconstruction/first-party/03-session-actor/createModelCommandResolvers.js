@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createModelCommandResolvers  (minified: FTe, daemon.pretty.js:85083)
+// symbol: createModelCommandResolvers  (minified: lTe, daemon.pretty.js:84254)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 29 renamed — 7 from the code at the binding (rule), 22 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -23,7 +23,7 @@ function createModelCommandResolvers(deps) {
     }
     async function runtimeCommandRefusal(sessionKey) {
         let sessionChannelRuntime = await resolveSessionChannelRuntime(paths, sessionKey);
-        return sessionChannelRuntime.ok ? sessionChannelRuntime.runtime === "void" ? `${Ju} It has no model or effort to show or set.` : void 0 : sessionChannelRuntime.reason
+        return sessionChannelRuntime.ok ? sessionChannelRuntime.runtime === "void" ? `${Gu} It has no model or effort to show or set.` : void 0 : sessionChannelRuntime.reason
     }
     async function resolveModelProfileScope(sessionKey, source) {
         let channelConfigBySession = await resolveChannelConfigBySession(paths, sessionKey);
@@ -39,7 +39,7 @@ function createModelCommandResolvers(deps) {
     }
     async function classifyModelTargetAgainstLiveGeneration(sessionKey, actor, model, source) {
         let liveContextToken = actor ? readLiveStreamContextToken(actor) : void 0,
-            liveProfileSignature = actor ? LTe(actor) : void 0,
+            liveProfileSignature = actor ? uTe(actor) : void 0,
             profileScope = await resolveModelProfileScope(sessionKey, source),
             cwd = model ? void 0 : buildSessionInfoFromState(paths, sessionKey, await readSessionRuntimeState(paths, sessionKey).catch(() => null) ?? void 0).cwd,
             claudeContextRequirement = await resolveClaudeContextRequirement({
@@ -53,9 +53,9 @@ function createModelCommandResolvers(deps) {
             profileIssuesForModel = selectProfileIssuesForModel(claudeContextRequirement, profileScope.claudeModelProfileIssues);
         if (profileIssuesForModel.length > 0) return {
             outcome: "blocked",
-            detail: RA(profileIssuesForModel)
+            detail: PA(profileIssuesForModel)
         };
-        let contextWindow = G0e(claudeContextRequirement);
+        let contextWindow = yEe(claudeContextRequirement);
         return liveContextToken === void 0 || liveProfileSignature === void 0 ? {
             outcome: "unknown",
             requirementKind: claudeContextRequirement.kind,
@@ -68,7 +68,7 @@ function createModelCommandResolvers(deps) {
                     liveGenerationToken: liveContextToken
                 }),
                 requirement: claudeContextRequirement,
-                aliases: AO(profileScope.claudeModelAliases)
+                aliases: DO(profileScope.claudeModelAliases)
             }) === liveProfileSignature ? "compatible" : "rebuild",
             requirementKind: claudeContextRequirement.kind,
             contextWindow

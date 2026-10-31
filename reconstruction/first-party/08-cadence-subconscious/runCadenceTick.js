@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runCadenceTick  (minified: Ckt, daemon.pretty.js:88944)
+// symbol: runCadenceTick  (minified: Qwt, daemon.pretty.js:88133)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.5, v0.5.6, v0.8.0 (maps/history_daemon.json)
 // locals: 6 renamed — 4 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,12 +10,12 @@
 async function runCadenceTick(paths) {
     let {
         runMemoryCheckTick
-    } = await Promise.resolve().then(() => (initMemoryCheckTickModule(), Dxe));
+    } = await Promise.resolve().then(() => (initMemoryCheckTickModule(), ixe));
     await runMemoryCheckTick(paths, Date.now());
     try {
         let {
             sweepTombstonedSessionRecords
-        } = await Promise.resolve().then(() => (nPe(), tPe));
+        } = await Promise.resolve().then(() => (RTe(), ETe));
         await sweepTombstonedSessionRecords(paths)
     } catch (err) {
         logWarnMessage("[cadence] tombstoned-session housekeeping sweep failed (non-fatal)", {

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: parsePartitionDefinition  (minified: Hmt, daemon.pretty.js:68569)
+// symbol: parsePartitionDefinition  (minified: fpt, daemon.pretty.js:67685)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.10, v0.7.0, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 16 renamed — 3 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,13 +9,13 @@
 
 async function parsePartitionDefinition(name, dir, claudeMdPath) {
     try {
-        let content = await al.readFile(claudeMdPath, "utf8"),
-            parsed = (0, vke.default)(content, kr),
+        let content = await ll.readFile(claudeMdPath, "utf8"),
+            parsed = (0, BSe.default)(content, Er),
             rawSchedule = parsed.data?.schedule ?? {},
             schedule = {
-                enabled: rawSchedule.enabled ?? Z6.enabled,
-                cooldown_ticks: rawSchedule.cooldown_ticks ?? Z6.cooldown_ticks,
-                max_duration_ms: rawSchedule.max_duration_ms ?? Z6.max_duration_ms
+                enabled: rawSchedule.enabled ?? B6.enabled,
+                cooldown_ticks: rawSchedule.cooldown_ticks ?? B6.cooldown_ticks,
+                max_duration_ms: rawSchedule.max_duration_ms ?? B6.max_duration_ms
             },
             runtimeCheck = validateRunnableRuntimeValue(parsed.data?.runtime, `Partition "${name}"`),
             runtime = runtimeCheck.ok ? runtimeCheck.runtime : void 0,
