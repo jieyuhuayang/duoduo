@@ -4,6 +4,7 @@
   "createDaemonToken": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
   "createStdioDaemonClient": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
   "generateDaemonTokenHex": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
+  "initCliHostEnvKeysModule": "first-party only through a name asserted by hand, which is no evidence: its module (lines 2518-2694) holds writeDaemonTokenToEnvFile (asserted by hand, allow-unproven)",
   "notifyRestartWakeTargets": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
   "readDaemonTokenFromEnvFile": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",
   "resolveHostEnvFilePath": "no reference evidence either way; position: first-party region (nearest export block above: @66705 SpineCommandError, executeSpine)",

@@ -731,5 +731,18 @@
   "SR": "isSessionSetAliasParams",
   "RU": "initProtocolSystemModule",
   "Ck": "initInstructionsFingerprintModule",
-  "qO": "setSessionAliasAndReindex"
+  "qO": "setSessionAliasAndReindex",
+  "sTe": "selectSessionRolePrompt",
+  "Mb": "resolveMainSessionHolder",
+  "xue": "isMainAliasedChannelSession",
+  "cv": "isReservedMainAliasChange",
+  "qc": "resolveMainSessionFromIndex",
+  "SSe": "setSessionAliasWithMainRole",
+  "qft": "checkMainAliasCallerAuthority",
+  "wSe": "announceMainSessionChange",
+  "kSe": "reconcileMainSessionAtBoot",
+  "qTe": "buildMainRoleContext",
+  "RSt": "runSessionSetAliasRpc",
+  "bU": "initMainSessionAliasModule",
+  "s0e": "describeStandInJobOwner"
 }

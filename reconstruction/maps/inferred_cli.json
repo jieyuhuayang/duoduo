@@ -12,5 +12,6 @@
   "mc": "resolveHostEnvFilePath",
   "zR": "createStdioDaemonClient",
   "not": "runUpgradeCommand",
-  "rot": "runChannelCommand"
+  "rot": "runChannelCommand",
+  "Gm": "initCliHostEnvKeysModule"
 }
