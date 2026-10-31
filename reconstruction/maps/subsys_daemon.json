@@ -20,6 +20,7 @@
   "MemoryReadRpcError": "02-gateway-rpc",
   "PARTITION_CORE_TOOLS": "08-cadence-subconscious",
   "SESSION_SCHEMA_VERSION": "03-session-actor",
+  "SUN_PATH_MAX_BYTES": "10-runtime-host",
   "SpineRpcParamsError": "02-gateway-rpc",
   "__resetClaudeProbeCacheForTest": "06-runtime-claude",
   "__setClaudeVerifierForTest": "06-runtime-claude",
@@ -141,6 +142,7 @@
   "collectJobCompletionReceipts": "05-drain-turn",
   "compareBoardLintTargets": "09-memory",
   "compareStringsAscending": "09-memory",
+  "composeIdentityLayer": "04-cognition-prompt",
   "computeBoardLayerHash": "09-memory",
   "computeBoundedEditDistance": "08-cadence-subconscious",
   "computeCacheHitRate": "05-drain-turn",
@@ -610,6 +612,7 @@
   "readStringProperty": "05-drain-turn",
   "realpathOrSelf": "04-cognition-prompt",
   "rebuildPlaylistRound": "08-cadence-subconscious",
+  "reconcileMainSession": "00-daemon-entry",
   "reconcileMemorySignalInboxes": "09-memory",
   "recordChannelCapabilityDeclaration": "02-gateway-rpc",
   "recordExternalSpineEvent": "01-spine-wal",
@@ -731,6 +734,7 @@
   "resolvePreemptFromCommandText": "03-session-actor",
   "resolveRemoteListenerConfig": "02-gateway-rpc",
   "resolveReplyTargetSessionKeys": "05-drain-turn",
+  "resolveRolePromptText": "04-cognition-prompt",
   "resolveRoutingTarget": "02-gateway-rpc",
   "resolveRuntimePaths": "10-runtime-host",
   "resolveRuntimeWriterLockPath": "00-daemon-entry",
@@ -843,5 +847,6 @@
   "writeLogLine": "10-runtime-host",
   "writePartitionRunState": "08-cadence-subconscious",
   "writeStatus": "00-daemon-entry",
-  "writeVoidSessionOutboxRecord": "02-gateway-rpc"
+  "writeVoidSessionOutboxRecord": "02-gateway-rpc",
+  "wsDefaultMaxPayload": "02-gateway-rpc"
 }
