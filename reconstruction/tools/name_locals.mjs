@@ -294,7 +294,13 @@ if (CMD === "apply") {
   const [SUBSYS, OUTDIR, ...flags] = rest;
   const only = flags[0] === "--only" ? new Set(flags[1].split(",")) : null;
   const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8"));
-  const { all } = plan();
+  const { all, unresolved } = plan();
+  // the names a declaration's locals had before the code next to them changed:
+  // the entries that no longer locate a binding. Printed with the task so the
+  // reader reuses the code's own vocabulary (at v0.8.7 one of two naming passes
+  // never opened locals_daemon.json, where these were, and named from scratch)
+  const before = new Map();
+  for (const u of unresolved) { if (!before.has(u.decl)) before.set(u.decl, []); before.get(u.decl).push(u.name); }
   fs.mkdirSync(OUTDIR, { recursive: true });
   const groups = {};
   for (const { d, done, occOf } of all) {
@@ -314,10 +320,16 @@ if (CMD === "apply") {
     for (const x of ed) { parts.push(src.slice(x.end, end), x.text); end = x.start; }
     parts.push(src.slice(d.start, end));
     const body = parts.reverse().join("");
-    (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body });
+    (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body, before: [...new Set(before.get(d.real) || [])] });
   }
   for (const [dir, list] of Object.entries(groups)) {
-    const md = list.map(x => `### ${x.real}\n\nname: ${x.pending.map(o => `$${o}`).join(" ")}\n\n\`\`\`js\n${x.body}\n\`\`\`\n`).join("\n");
+    const head = "Name every `$<ordinal>` listed under `name:` with a short descriptive lowerCamelCase identifier, from how the binding is used\n" +
+      "(property names, string literals, the real names of callees), in the convention of the locals already named in the same code\n" +
+      "(`paths` for the runtime paths object, `sessionKey`, ...). `previously:` lists names this declaration's locals had before the\n" +
+      "code next to them changed: reuse one when the binding plays the same role. Answer with one JSON file of the form\n" +
+      "{\"<realName>\": {\"<ordinal>\": \"<name>\"}} covering every ordinal in the .json next to this file, then run name_locals.mjs record.\n\n";
+    const md = head + list.map(x => `### ${x.real}\n\nname: ${x.pending.map(o => `$${o}`).join(" ")}\n` +
+      (x.before.length ? `previously: ${x.before.join(", ")}\n` : "") + `\n\`\`\`js\n${x.body}\n\`\`\`\n`).join("\n");
     fs.writeFileSync(path.join(OUTDIR, `${dir}.md`), md);
     writeJson(path.join(OUTDIR, `${dir}.json`), Object.fromEntries(list.map(x => [x.real, x.pending])));
     console.log(`${dir}: ${list.length} declarations, ${list.reduce((n, x) => n + x.pending.length, 0)} locals to name`);

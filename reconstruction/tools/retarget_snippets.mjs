@@ -135,6 +135,47 @@ export function rederive(code, span, migration) {
   return { status: counts.some((c) => c > 1) ? "ambiguous" : "no match" };
 }
 
+// A snippet the pattern finds more than once in a CHANGED declaration, settled
+// by position: the pattern (every short identifier a wildcard) is run over the
+// old declaration as well, and when it matches there exactly as often as in the
+// new one, the occurrence the snippet quotes (the old match that rewrites to the
+// snippet as written) is taken to be the one at the same ordinal in the new
+// declaration. A migration pin must agree: an old top-level short name the
+// migration maps has to come out as its new short name. At v0.8.6 -> v0.8.7 the
+// pattern left 37 snippets `ambiguous`, nearly all of them one statement that
+// occurs twice in drainSessionMailbox or createSessionManager (`Le.last_served_model
+// = Vt` on the batch path and on the single-event path); they were fixed by hand
+// exactly this way.
+export function byOrdinal(code, oldSpan, newSpan, migration) {
+  const toks = tokenize(code);
+  const { re, groups } = attempt(code, toks, new Map(), { pins: false, keysLiteral: true });
+  let rx;
+  try { rx = new RegExp(re, "g"); } catch { return { status: "pattern error" }; }
+  const rewrite = (m) => {
+    let out = "", from = 0;
+    for (const t of toks) {
+      if (t.role !== "var" || !groups.has(t.text)) continue;
+      out += code.slice(from, t.at) + m.groups[groups.get(t.text)];
+      from = t.at + t.text.length;
+    }
+    return out + code.slice(from);
+  };
+  const olds = [...oldSpan.matchAll(rx)], news = [...newSpan.matchAll(rx)];
+  if (olds.length < 2 || olds.length !== news.length) return { status: "ambiguous", ordinal: `${olds.length} old / ${news.length} new` };
+  const ks = olds.map((m, k) => (rewrite(m) === code ? k : -1)).filter((k) => k >= 0);
+  if (!ks.length) return { status: "ambiguous", ordinal: "not in old declaration as written" };
+  const outs = new Set(ks.map((k) => rewrite(news[k])));
+  if (outs.size > 1) return { status: "ambiguous", ordinal: "occurrences disagree" };
+  const to = [...outs][0];
+  // a mapped top-level short name must land on its migrated name
+  const after = tokenize(to);
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i];
+    if (t.role === "var" && migration.has(t.text) && after[i]?.text !== migration.get(t.text)) return { status: "ambiguous", ordinal: "migration disagrees" };
+  }
+  return { status: "rewritten", to, how: "ordinal" };
+}
+
 // The rewrite of a snippet from an unchanged declaration: token k of oldSpan is
 // token k of newSpan. Returns { status, to? }.
 //
@@ -362,6 +403,11 @@ function main() {
         viaOld = r.status;  // why the exact rewrite did not apply, kept for the report
       }
       if (r.status !== "rewritten") r = rederive(code, span, b.migration);
+      if (r.status === "ambiguous" && oe) {
+        const o = byOrdinal(code, b.old.lines.slice(oe.line - 1, oe.endLine).join("\n"), span, b.migration);
+        if (o.status === "rewritten") r = o;
+        else if (o.ordinal) r = { ...r, ordinal: o.ordinal };
+      }
       if (r.status === "rewritten") {
         const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
         const ok = to !== raw && !to.includes("`") && snippetHolds(to, b.lines, e.line, e.endLine, true);
@@ -375,6 +421,7 @@ function main() {
       const line = text.slice(0, m.index).split("\n").length;
       tally.set(r.status, (tally.get(r.status) || 0) + 1);
       report.push({ doc, line, symbol: (qual ? qual + ":" : "") + name, from: raw, ...(r.to ? { to: r.to } : {}), status: r.status,
+                   ...(r.how ? { how: r.how } : {}), ...(r.ordinal ? { ordinal: r.ordinal } : {}),
                    ...(viaOld && r.status !== "rewritten" ? { old: viaOld } : {}) });
       if (r.status !== "rewritten") console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）` + (viaOld ? `  [--old: ${viaOld}]` : ""));
       else console.log(`  rewritten              ${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 50)}\``);
