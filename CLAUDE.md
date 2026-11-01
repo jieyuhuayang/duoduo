@@ -481,8 +481,9 @@ cd "$PKG"                                           # global one. The copy must 
 ISO=/tmp/iso && mkdir -p "$ISO" && chmod 700 "$ISO"   # keep it SHORT: the daemon refuses to boot
                                                       # if <HOME>/.aladuo/run/daemon.sock exceeds the
                                                       # 104-byte unix-socket limit (fatal, not a warning)
-# ALADUO_BOOTSTRAP_DIR is what puts meta-prompt.md into the system prompt: the identity layer is
-# found only through it or ALADUO_META_PROMPT_PATH (INTERNALS §2.1), never through the package root
+# ALADUO_BOOTSTRAP_DIR is what puts meta-prompt.md and the role texts roles/{main,member}.md into
+# the system prompt: the identity layer is found only through it or ALADUO_META_PROMPT_PATH
+# (INTERNALS §2.1), never through the package root, and neither file is copied into the kernel
 HOME="$ISO" ALADUO_PORT=20333 ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" \
   ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local ALADUO_LOG_LEVEL=info \
   node daemon.recon.js        # starts socket + read-only TCP + cadence + WAL; SIGTERM to stop
@@ -506,7 +507,7 @@ per-user label `ai.openduo.daemon` (`launchctl bootout gui/<uid>/ai.openduo.daem
 `daemon status` under an isolated `HOME` likewise reports the real daemon's pid. Shipped and
 reconstructed CLI behave the same here — this is upstream behaviour, not a reconstruction defect.
 
-Deploying the shipped runtime. Non-TTY onboarding requires only `ALADUO_CLAUDE_AUTH_SOURCE` (`claude_code_local`, `anthropic_api_key` or `compatible_endpoint`) plus the key its source needs (`ANTHROPIC_API_KEY`, or `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`); without it `onboard` exits code 2. The rest are optional: `DUODUO_ONBOARD_YES=1` skips the y/N confirmations, and `DUODUO_NODE_BIN` is for the wrapper (next paragraph). `ALADUO_RUNTIME_MODE` needs no setting: the daemon never reads it, and the CLI only warns when it is `container` and continues in host mode.
+Deploying the shipped runtime. Non-TTY onboarding requires only `ALADUO_CLAUDE_AUTH_SOURCE` (`claude_code_local`, `anthropic_api_key` or `compatible_endpoint`) plus the key its source needs (`anthropic_api_key` needs `ANTHROPIC_API_KEY`; `compatible_endpoint` needs `ANTHROPIC_BASE_URL`, and `ANTHROPIC_AUTH_TOKEN` is optional; `claude_code_local` needs a prior `claude login`, which onboard checks with `claude auth status`); without `ALADUO_CLAUDE_AUTH_SOURCE` and no TTY, `onboard` exits with code 2. The rest are optional: `DUODUO_ONBOARD_YES=1` skips the y/N confirmations, and `DUODUO_NODE_BIN` is for the wrapper (next paragraph). `ALADUO_RUNTIME_MODE` needs no setting: the daemon never reads it, and the CLI only warns when it is `container` and continues in host mode.
 
 ```bash
 npm install -g @openduo/duoduo

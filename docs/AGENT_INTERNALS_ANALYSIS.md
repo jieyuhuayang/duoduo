@@ -1608,7 +1608,7 @@ void 会话的输出因此只有这些出站记录，渠道插件照常经 `chan
 
 ### 9.2 飞书适配器
 
-飞书适配器把飞书的事件模型映射到上述协议，所有与平台有关的判断都在适配器进程内完成：一个飞书会话（一个群，或私聊中的一个用户）加一个工作目录对应一个 daemon 会话键；准入策略、@ 过滤和 `/setup` 在消息到达 daemon 之前执行；处理进度以表情回应和可选的进度卡呈现。本节依据 `@openduo/duoduo` 包内的 `dist/release/feishu-gateway.js`，它不在重建流水线覆盖范围内，没有真名，字面量以普通引号给出并注明出处。cli 与 daemon bundle 都不引用这个文件名，实际运行的是 `duoduo channel install` 装入的 `@openduo/channel-feishu` 包；两者是否为同一构建，本文没有核对（未证实推测）。
+飞书适配器把飞书的事件模型映射到上述协议，所有与平台有关的判断都在适配器进程内完成：一个飞书会话（一个群，或私聊中的一个用户）加一个工作目录对应一个 daemon 会话键；准入策略、@ 过滤和 `/setup` 在消息到达 daemon 之前执行；处理进度以表情回应和可选的进度卡呈现。本节依据 `@openduo/duoduo` 包内的 `dist/release/feishu-gateway.js`，它不在重建流水线覆盖范围内，没有真名，字面量以普通引号给出并注明出处。cli 与 daemon bundle 都不引用这个文件名，实际运行的是 `duoduo channel install` 装入的 `@openduo/channel-feishu` 包。这两个文件在 0.8.7 是同一份代码：本文用 `@babel/parser` 比较了 `@openduo/channel-feishu@0.8.7` 的 `dist/plugin.js` 与 duoduo 0.8.7 包内的 `feishu-gateway.js`，开头创建 `require` 的几条语句不同（plugin.js 另定义 `__filename`、`__dirname`），其余顶层语句的 AST 逐条相同、顺序相同，只有模板字符串原文里的转义写法不同，解码后的值相同（confirmed）。
 
 一条飞书消息进入 daemon 之前依次经过以下步骤（均为 confirmed，证据见本节证据表）：
 
@@ -1868,7 +1868,7 @@ keepalive job 首次运行之后不会再被扫描器判为到期，也不会自
 
 在v0.8.4 的还原 daemon 上实测（场景 04-cadence，心跳周期设为 4 秒），定时器回调先同步调用两个订阅者，即 `createOutboxDeliveryManager (iSt)` 与 `createMetaSession (Ywt)` 注册的回调，然后才进入 `runCadenceTick (Qwt)`；四步按上面的顺序执行，三次维护分别用了 14、6、5 毫秒，没有调用任何引擎适配器（confirmed）。`system.status` 的 `cadence.last_tick` 在第一次心跳之前为 `null`，之后等于最近一条 `system.cadence_tick` 事件的 `ts`。
 
-心跳的状态经控制面方法 `system.status` 对外报告：`cadence` 一项给出 `last_tick` 与 `interval_ms`，`subconscious` 一项列出轮转表当前一轮每个分区是否已勾选，`memory_check` 一项给出两个记忆检查开关和每个分区的契约状态（`buildMemoryCheckStatus (SW)`，第 12.2 节）（confirmed）。其中 `interval_ms` 是对同一环境变量做 `parseInt`、失败时取默认值得到的，没有 1000 的下限，也不拒绝小数：变量设成 500 时，定时器按默认的 37 分钟运行，`system.status` 却报告 500（confirmed）。
+心跳的状态经控制面方法 `system.status` 对外报告：`cadence` 一项给出 `mode`（状态文件初始化时写入 `"layered"`，状态文件里没有这一项时报告 `"unknown"`）、`last_tick` 与 `interval_ms`，`subconscious` 一项列出轮转表当前一轮每个分区是否已勾选，`memory_check` 一项给出两个记忆检查开关和每个分区的契约状态（`buildMemoryCheckStatus (SW)`，第 12.2 节）（confirmed）。其中 `interval_ms` 是对同一环境变量做 `parseInt`、失败时取默认值得到的，没有 1000 的下限，也不拒绝小数：变量设成 500 时，定时器按默认的 37 分钟运行，`system.status` 却报告 500（confirmed）。
 
 ### 11.2 跳过条件
 
@@ -1976,7 +1976,7 @@ daemon 每次启动都由 `initializeRuntime (Pgt)` 做一遍初始化，重复�
 | `cadence.tick` 有两个订阅者：后台分区调度器与出站投递管理器 | `n.on("cadence.tick", E)`（`createMetaSession`）；`n.on("cadence.tick", c)`（`createOutboxDeliveryManager`） | confirmed |
 | 维护四步：记忆检查、清理已归档会话残留、写 `system.cadence_tick`、推进 `jobs` 消费进度并写 `last_tick` | `await t(e, Date.now())`（`runCadenceTick`）；`"[cadence] tombstoned-session housekeeping sweep failed (non-fatal)"`（`runCadenceTick`）；`type: "system.cadence_tick"`（`runCadenceTick`）；`await Vu(e, "jobs", n.id, new Date(n.ts))`（`runCadenceTick`）；`last_tick: n.ts`（`runCadenceTick`） | confirmed；在v0.8.4 的还原 daemon 上实测（场景 04-cadence） |
 | 清理只删已归档会话中非 pending 的出站记录与重放日志 | `s.status !== "pending" && zo(e, s.session_key)`（`sweepTombstonedSessionRecords`） | confirmed |
-| `system.status` 报告心跳、轮转表当前一轮与记忆检查状态；报告的周期不经下限校验 | `last_tick: I?.cadence?.last_tick ?? null`（`createDaemon`）；`done: ee.done`（`createDaemon`）；`memory_check: SW(l)`（`createDaemon`）；`parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) \|\| 222e4`（`createDaemon`） | confirmed |
+| `system.status` 报告心跳、轮转表当前一轮与记忆检查状态；报告的周期不经下限校验 | `mode: I?.cadence?.mode ?? "unknown"`（`createDaemon`）；`mode: "layered"`（`buildInitialStatus`）；`last_tick: I?.cadence?.last_tick ?? null`（`createDaemon`）；`done: ee.done`（`createDaemon`）；`memory_check: SW(l)`（`createDaemon`）；`parseInt(process.env.ALADUO_CADENCE_INTERVAL_MS ?? "2220000", 10) \|\| 222e4`（`createDaemon`） | confirmed |
 | 调度器自带重入与停机检查，独立于 `main` 的标志 | `"[meta-session] skipping tick"`（`createMetaSession`） | confirmed |
 | 活动指纹由三个记忆目录的最新 mtime 与最新外部事件 id 组成，不含记忆板、收件箱与轮转表，不变则跳过整次心跳 | `Promise.all([ZN(t.memoryFragmentsDir), ZN(t.memoryEntitiesDir), ZN(t.memoryTopicsDir), Gwt(t)])`（`createMetaSession`）；`readNewestMtimeRecursive (ZN)`；`"[meta-session] activity gate: skipping tick (fingerprint unchanged)"`（`createMetaSession`） | confirmed；在v0.8.4 的还原 daemon 上实测（场景 04-cadence） |
 | 外部事件指来源不属六个内部来源的事件，只查最新一天的日志文件；内部来源集合由共享数组建成，`spine.record` 用同一数组拒绝内部来源 | `Qg = new Set(qm)`（`initGapSpanModule`）；`o && !Qg.has(o) && typeof i.id == "string"`（`readLatestExternalEventId`）；`is one of duoduo's internal sources`（`checkReservedRecordSource`） | confirmed（六个来源名 cadence、meta、system、runner、route、gateway 写在一个尚无真名的模块初始化器的数组字面量里，静态阅读） |
