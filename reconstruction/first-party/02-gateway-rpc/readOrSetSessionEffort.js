@@ -20,7 +20,7 @@ async function readOrSetSessionEffort(sessionIndex, effortControl, params) {
         reason: "not_found",
         target: trimmed
     };
-    let sessionKind = classifySessionKeyKind(sessionByKeyOrAlias.session_key);
+    let sessionKind = classifySessionKey(sessionByKeyOrAlias.session_key);
     return sessionKind !== "channel" ? {
         ok: !1,
         reason: "forbidden_kind",

@@ -2,12 +2,13 @@
 
 下表把 esbuild `--minify` 后的短标识符映射回**真实原名**。名字来源：`__export()` 助手保留的导出符号名（权威）+ 少量逆向推断的内部函数名（标注 *inferred*；其中标注 *published source* 的名字是上游在同作者的公开源码包里的拼写，由 `maps/published_daemon.json` 记录；标注 *historical export* 的名字是上游在旧版本 `__export` 块里的拼写，经版本配对追到本版本，由 `maps/historical_daemon.json` 记录）。“原行号”指反混淆后的 `daemon.pretty.js`。“首见版本”是 npm 上最早含有该声明的发行版（`maps/history_daemon.json`，由 `tools/history.sh` 逐版本配对得出）。
 
-共 863 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.7。
+共 890 个一等公民符号，覆盖 12 个子系统。基于 `@openduo/duoduo` v0.8.7。
 
 ## 00-daemon-entry
 
 | minified | 还原名 | 来源 | pretty 行 | 首见版本 |
 |---|---|---|---|---|
+| `Hue` | `setSessionArchivedListener` | inferred | 33554 |  |
 | `fI` | `statusPath` | inferred, historical export (v0.2.0..v0.3.7) | 34178 | v0.2.0 |
 | `qU` | `buildInitialStatus` | inferred, historical export (v0.2.0..v0.3.7) | 34182 | v0.2.0 |
 | `BU` | `writeStatus` | inferred, historical export (v0.2.0..v0.3.7) | 34209 | v0.2.0 |
@@ -167,6 +168,7 @@
 | `vfe` | `listVoidChannelSessions` | inferred | 38184 | v0.8.4 |
 | `LI` | `writeVoidSessionOutboxRecord` | inferred | 38196 | v0.8.4 |
 | `ewe` | `updateDeliveryCursorFile` | inferred | 65669 | v0.5.6 |
+| `Ldt` | `hashDeliveryCursorKey` | inferred | 65686 | v0.2.0 |
 | `nwe` | `resolveDeliveryCursorPath` | inferred | 65690 | v0.2.0 |
 | `rwe` | `readDeliveryCursorFile` | inferred | 65702 | v0.2.0 |
 | `u6` | `advanceOptimisticDeliveryCursor` | inferred | 65745 | v0.3.0 |
@@ -175,6 +177,7 @@
 | `bO` | `readLatestDeliveryCursorUpdate` | inferred | 65989 |  |
 | `zc` | `hasNonEmptyDisplayName` | inferred | 66135 | v0.5.4 |
 | `Kdt` | `filterDeliverableSessions` | inferred | 66179 | v0.8.4 |
+| `rft` | `isPlainObjectRecord` | inferred | 66330 | v0.8.4 |
 | `Ls` | `deliverRouteEventToSession` | inferred | 66333 | v0.8.0 |
 | `fA` | `DAEMON_TOKEN_ENV_KEY` | __export | 70410 |  |
 | `cfe` | `lookupInjectionPrompt` | inferred | 88716 | v0.5.7 |
@@ -195,10 +198,16 @@
 | `Nwe` | `saveChannelUploadToInbox` | inferred | 89556 | v0.2.0 |
 | `Dwe` | `readFileAsBase64` | inferred | 89580 | v0.2.0 |
 | `Rft` | `sanitizeUploadFileName` | inferred | 89584 | v0.2.0 |
+| `vSe` | `formatSessionAliasCommand` | inferred | 90192 | v0.8.7 |
+| `Uft` | `listMainAliasHolderKeys` | inferred | 90198 | v0.8.7 |
 | `qft` | `checkMainAliasCallerAuthority` | inferred | 90202 | v0.8.7 |
+| `Bft` | `renderNewMainSessionNotice` | inferred | 90222 | v0.8.7 |
+| `Vft` | `renderFormerMainSessionNotice` | inferred | 90227 | v0.8.7 |
+| `A6` | `deliverMainRoleNoticeSafely` | inferred | 90231 | v0.8.7 |
 | `wSe` | `announceMainSessionChange` | inferred | 90245 | v0.8.7 |
 | `qO` | `setSessionAliasAndReindex` | inferred | 90254 | v0.8.7 |
 | `SSe` | `setSessionAliasWithMainRole` | inferred | 90271 | v0.8.7 |
+| `Hft` | `renderAmbiguousMainAliasNotice` | inferred | 90307 | v0.8.7 |
 | `kSe` | `reconcileMainSessionAtBoot` | inferred | 90311 | v0.8.7 |
 | `j6` | `createSessionSubscriptionRegistry` | inferred | 90505 | v0.2.0 |
 | `Jc` | `MemoryReadRpcError` | inferred | 90932 |  |
@@ -237,9 +246,9 @@
 
 | minified | 还原名 | 来源 | pretty 行 | 首见版本 |
 |---|---|---|---|---|
-| `Nt` | `classifySessionKeyKind` | inferred | 32685 | v0.5.0 |
-| `xue` | `isMainAliasedChannelSession` | inferred | 32689 | v0.8.7 |
-| `Mb` | `resolveMainSessionHolder` | inferred | 32693 | v0.8.7 |
+| `Nt` | `classifySessionKey` | inferred, published source (@openduo/protocol@0.8.6 main-session.ts) | 32685 | v0.5.0 |
+| `xue` | `isMainSessionCandidate` | inferred, published source (@openduo/protocol@0.8.6 main-session.ts) | 32689 | v0.8.7 |
+| `Mb` | `resolveMainSession` | inferred, published source (@openduo/protocol@0.8.6 main-session.ts) | 32693 | v0.8.7 |
 | `bU` | `initMainSessionAliasModule` | inferred | 32707 |  |
 | `rf` | `moveFileIntoDirectory` | inferred | 33538 | v0.5.6 |
 | `Fo` | `hashSessionKey` | inferred | 33558 | v0.2.0 |
@@ -264,6 +273,7 @@
 | `er` | `isSessionArchiving` | inferred | 33732 |  |
 | `oc` | `assertSessionNotArchiving` | inferred | 33736 |  |
 | `oa` | `initSessionLockAndArchivingModule` | inferred | 33739 | v0.5.0 |
+| `Yue` | `isMailboxMergeReadError` | inferred | 33763 |  |
 | `zU` | `ensureSessionMailboxPendingDir` | inferred | 33845 |  |
 | `aa` | `enqueueSessionInboxLine` | inferred | 33848 | v0.2.0 |
 | `aI` | `mergeInboxIntoMailbox` | inferred | 33859 | v0.2.0 |
@@ -283,6 +293,7 @@
 | `Ye` | `patchSessionRuntimeState` | inferred | 36897 | v0.2.0 |
 | `yf` | `mutateSessionRuntimeState` | inferred | 36934 | v0.5.0 |
 | `ua` | `clearSessionRuntimeStateField` | inferred | 36970 | v0.5.0 |
+| `Rr` | `initReservedMainAliasModule` | inferred | 36996 |  |
 | `$q` | `isUserVisibleSessionKey` | inferred | 38053 |  |
 | `bh` | `buildSessionIndexFromDisk` | inferred | 38056 | v0.5.0 |
 | `gfe` | `createEmptySessionIndex` | inferred | 38066 |  |
@@ -298,6 +309,7 @@
 | `Sve` | `extractJobSdkConfig` | inferred | 62865 | v0.6.2 |
 | `SO` | `listSessionIndexSummaries` | inferred | 66151 | v0.5.4 |
 | `hwe` | `formatViewSessionsListLine` | inferred | 66199 | v0.8.2 |
+| `Xdt` | `renderActiveSessionsListing` | inferred | 66203 | v0.8.2 |
 | `Wg` | `runViewSessionsTool` | inferred | 66236 | v0.8.2 |
 | `yS` | `initViewSessionsToolModule` | inferred | 66248 | v0.8.2 |
 | `DSe` | `archiveSessionDirUnlessAlreadyArchiving` | inferred | 67445 | v0.5.6 |
@@ -387,7 +399,10 @@
 | `n0e` | `projectJobPromptContext` | inferred | 71727 | v0.8.0 |
 | `jt` | `escapeXmlText` | inferred | 72926 | v0.2.0 |
 | `Zgt` | `renderJobCompleteReceiptGuidance` | inferred | 72949 | v0.4.0 |
+| `aJ` | `extractStandInOwnerInfo` | inferred | 72957 |  |
+| `uJ` | `renderForOwnerAttribute` | inferred | 72963 | v0.8.7 |
 | `s0e` | `describeStandInJobOwner` | inferred | 72967 | v0.8.7 |
+| `Ygt` | `renderJobFailureNotification` | inferred | 72975 | v0.4.0 |
 | `jA` | `renderMailboxEventPrompt` | inferred | 73011 | v0.2.0 |
 | `Qgt` | `renderSkipRewindBlock` | inferred | 73096 | v0.2.0 |
 | `tyt` | `resolvePendingCompactNotice` | inferred | 73110 | v0.5.10 |
@@ -417,6 +432,7 @@
 | minified | 还原名 | 来源 | pretty 行 | 首见版本 |
 |---|---|---|---|---|
 | `Oq` | `detectInProcessBreak` | __export | 38243 | v0.5.10 |
+| `Vnt` | `sanitizeDrainRecordSegment` | inferred | 38251 | v0.2.0 |
 | `Qa` | `drainRecordPath` | __export | 38255 | v0.2.0 |
 | `Sf` | `appendDrainRecord` | __export | 38258 | v0.2.0 |
 | `Sh` | `readDrainRecords` | __export | 38277 |  |
@@ -466,6 +482,7 @@
 | `KEe` | `classifyDrainBatchClass` | inferred | 73423 |  |
 | `gyt` | `computeDrainCoalesceKey` | inferred | 73431 | v0.2.0 |
 | `yyt` | `resolveEventSourceChannelId` | inferred | 73439 | v0.2.0 |
+| `_yt` | `renderJobCompletionReceipt` | inferred | 73451 | v0.8.0 |
 | `byt` | `collectJobCompletionReceipts` | inferred | 73468 | v0.8.1 |
 | `vyt` | `renderCoalescedDrainPrompt` | inferred | 73496 | v0.8.1 |
 | `h0e` | `createDrainExecutionEventRecorder` | inferred | 73508 | v0.2.0 |
@@ -490,6 +507,7 @@
 | `y0e` | `mergeOutboundAttachmentLists` | inferred | 73998 | v0.5.0 |
 | `zyt` | `runDrainTurnWithResumeFallback` | inferred | 74008 | v0.2.0 |
 | `HS` | `initMailboxDrainRunnerModule` | inferred | 74140 | v0.2.0 |
+| `r_t` | `extractSessionKeyChannelKind` | inferred | 74744 | v0.2.0 |
 | `uy` | `runQueueOutboundAttachmentTool` | inferred | 74800 | v0.2.0 |
 | `KS` | `initQueueOutboundAttachmentModule` | inferred | 74831 | v0.2.0 |
 
@@ -548,6 +566,7 @@
 | `iy` | `resolveClaudeContextRequirement` | inferred | 71332 | v0.7.0 |
 | `BS` | `isClaudeRuntimeOrDefault` | inferred | 71426 |  |
 | `CA` | `prepareClaudeContextProfile` | inferred | 71429 | v0.7.0 |
+| `FEe` | `normalizeDirPathForCompare` | inferred | 71716 | v0.5.2 |
 | `zEe` | `resolveAdditionalDirClaudeMdAutoload` | inferred | 71721 | v0.5.2 |
 | `$y` | `createAladuoMcpServer` | inferred | 81488 | v0.2.0 |
 | `fTe` | `initAbortableAsyncQueueModule` | inferred | 84352 | v0.3.0 |
@@ -631,7 +650,11 @@
 | `Jg` | `runRemindDuoduoTool` | inferred | 66268 | v0.8.2 |
 | `bS` | `initRemindDuoduoToolModule` | inferred | 66301 | v0.8.2 |
 | `$O` | `normalizeNotifyChannelTarget` | inferred | 66314 | v0.8.0 |
+| `Ewe` | `classifyNotifySessionKind` | inferred | 66500 | v0.8.2 |
 | `Rwe` | `isJobSessionKeyKind` | inferred | 66508 | v0.2.0 |
+| `sft` | `renderMetaNotifyModeGuidance` | inferred | 66527 | v0.3.0 |
+| `_we` | `renderChannelNotifyModeGuidance` | inferred | 66532 | v0.3.0 |
+| `aft` | `renderSystemNotifyModeGuidance` | inferred | 66537 | v0.3.0 |
 | `AO` | `renderNotifyToolDescription` | inferred | 66542 | v0.2.0 |
 | `NO` | `buildNotifyInputSchema` | inferred | 66561 | v0.2.0 |
 | `Iwe` | `isOrphanJobSessionKey` | inferred | 66587 | v0.6.2 |
@@ -700,6 +723,7 @@
 | `XO` | `countNewlineChars` | inferred | 68006 |  |
 | `Qo` | `splitLinesDropTrailingEmpty` | inferred | 68013 | v0.5.5 |
 | `Co` | `recordUnreadableMemoryPath` | inferred | 68028 | v0.7.1 |
+| `ZSe` | `countUnreadableMemoryPaths` | inferred | 68032 |  |
 | `$n` | `readMemoryFileSyncOrNull` | inferred | 68040 |  |
 | `Bc` | `isMemoryPathFile` | inferred | 68048 | v0.5.5 |
 | `Xg` | `isMemoryPathDirectory` | inferred | 68056 | v0.5.5 |
@@ -731,6 +755,7 @@
 | `uke` | `initNodeLintModule` | inferred | 68539 |  |
 | `DS` | `initGapSpanModule` | inferred | 68675 | v0.8.4 |
 | `MS` | `readPartitionContract` | inferred | 68683 | v0.5.6 |
+| `dke` | `isPlainJsonObject` | inferred | 68760 | v0.5.6 |
 | `iA` | `getCachedPartitionContract` | inferred | 68774 | v0.5.6 |
 | `oA` | `postMemorySignalsToInboxes` | inferred | 68780 | v0.5.6 |
 | `sA` | `enforceContractGate` | inferred | 68833 | v0.5.6 |
@@ -754,6 +779,7 @@
 | `Ake` | `runBroadcastBudgetLint` | inferred | 69320 | v0.8.0 |
 | `cW` | `initBroadcastBudgetLintModule` | inferred | 69359 | v0.5.3 |
 | `Emt` | `listEventPartitionDates` | inferred | 69372 | v0.8.0 |
+| `Nke` | `escapeRegExpSource` | inferred | 69387 |  |
 | `Imt` | `scanActivationWindowTouches` | inferred | 69399 | v0.8.0 |
 | `Tmt` | `renderActivationReportHeader` | inferred | 69476 | v0.8.0 |
 | `Pmt` | `renderBoardTemperatureSection` | inferred | 69481 | v0.8.0 |
@@ -864,6 +890,7 @@
 | `uu` | `resolveChannelConfigBySession` | inferred | 67325 | v0.5.10 |
 | `pA` | `parseDotEnv` | __export | 70244 | v0.3.3 |
 | `dl` | `hostDotEnvPath` | __export | 70259 | v0.4.3 |
+| `uht` | `isHostModelEnvKey` | inferred | 70275 |  |
 | `uxe` | `removeHostModelEnvLines` | inferred | 70279 |  |
 | `lxe` | `removeDotEnvKeyLines` | inferred | 70286 | v0.5.1 |
 | `mA` | `writeHostDotEnvLines` | inferred | 70298 | v0.4.3 |

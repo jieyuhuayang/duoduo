@@ -10,6 +10,6 @@
 function runReadAuditedMemoryCheckStep(stepName, fn) {
     YSe();
     let ok = runMemoryCheckSubStep(stepName, fn),
-        unreadableCount = ZSe();
+        unreadableCount = countUnreadableMemoryPaths();
     return unreadableCount > 0 && logErrorMessage(`[memory] check tick sub-step read ${unreadableCount} unreadable path(s): ${stepName} — results are degraded, inbox sweep suppressed this tick`), ok && unreadableCount === 0
 }

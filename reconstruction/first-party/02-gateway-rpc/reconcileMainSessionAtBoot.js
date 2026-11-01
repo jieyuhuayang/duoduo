@@ -13,7 +13,7 @@ async function reconcileMainSessionAtBoot(e) {
             logWarnMessage("[main-role] ambiguous main session at boot", {
                 candidates: mainSessionFromIndex.candidates
             });
-            for (let r of mainSessionFromIndex.candidates) await A6(e, r, Hft(mainSessionFromIndex.candidates));
+            for (let r of mainSessionFromIndex.candidates) await deliverMainRoleNoticeSafely(e, r, renderAmbiguousMainAliasNotice(mainSessionFromIndex.candidates));
             return
         }
         if (mainSessionFromIndex.state !== "held") return;

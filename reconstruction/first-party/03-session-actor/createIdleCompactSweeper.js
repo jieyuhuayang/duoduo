@@ -17,7 +17,7 @@ function createIdleCompactSweeper(options) {
 
     function isEligible(entry) {
         let sessionKey = entry.session_key;
-        if (classifySessionKeyKind(sessionKey) !== "channel") return !1;
+        if (classifySessionKey(sessionKey) !== "channel") return !1;
         let actorState = sessionManager.getSweeperActorState(sessionKey);
         return !(!actorState || actorState.midTurn || isCompactedSinceLastEvent(entry.last_compact_at, entry.last_event_at))
     }

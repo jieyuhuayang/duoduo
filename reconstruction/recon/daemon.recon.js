@@ -32682,17 +32682,17 @@ var SUN_PATH_MAX_BYTES, wue, nc = A(() => {
     SUN_PATH_MAX_BYTES = 104, wue = vt.resolve(vt.dirname(z7e(import.meta.url)), "..", "..")
 });
 
-function classifySessionKeyKind(sessionKey) {
+function classifySessionKey(sessionKey) {
     return sessionKey.startsWith("meta:") || sessionKey.startsWith("cadence:") ? "meta" : sessionKey.startsWith("subconscious:") ? "subconscious" : sessionKey.startsWith("system:") ? "system" : sessionKey.startsWith("job:") ? "job" : "channel"
 }
 
-function isMainAliasedChannelSession(e) {
-    return classifySessionKeyKind(e.session_key) === "channel" && typeof e.display_name == "string" && e.display_name.trim() === Hn
+function isMainSessionCandidate(e) {
+    return classifySessionKey(e.session_key) === "channel" && typeof e.display_name == "string" && e.display_name.trim() === Hn
 }
 
-function resolveMainSessionHolder(e) {
+function resolveMainSession(e) {
     let t = new Set;
-    for (let r of e) isMainAliasedChannelSession(r) && t.add(r.session_key);
+    for (let r of e) isMainSessionCandidate(r) && t.add(r.session_key);
     let n = [...t].sort();
     return n.length === 0 ? {
         state: "absent"
@@ -33551,7 +33551,7 @@ import {
 } from "node:fs";
 import ei from "node:path";
 
-function Hue(e) {
+function setSessionArchivedListener(e) {
     FU = e
 }
 
@@ -33760,7 +33760,7 @@ import {
 } from "node:fs";
 import sa from "node:path";
 
-function Yue(e) {
+function isMailboxMergeReadError(e) {
     return e instanceof sI
 }
 
@@ -36797,7 +36797,7 @@ function stripUndefinedFieldsDeep(value) {
 }
 
 function isReservedMainAliasChange(e, t, n) {
-    return classifySessionKeyKind(e) !== "channel" ? !1 : t?.trim() === Hn || n?.trim() === Hn
+    return classifySessionKey(e) !== "channel" ? !1 : t?.trim() === Hn || n?.trim() === Hn
 }
 async function ensureSessionDescriptorAndStateFiles(paths, input) {
     assertSessionNotArchiving(input.session_key);
@@ -36993,7 +36993,7 @@ async function clearSessionRuntimeStateField(paths, sessionKey, field) {
         }), written = !0
     }), written && notifySessionFileChanged(sessionKey, "state")
 }
-var lv, jde, TI, Rr = A(() => {
+var lv, jde, TI, initReservedMainAliasModule = A(() => {
     "use strict";
     lv = Zn(xs(), 1);
     ni();
@@ -38051,7 +38051,7 @@ var Pq = A(() => {
 });
 
 function isUserVisibleSessionKey(sessionKey) {
-    return classifySessionKeyKind(sessionKey) === "channel" || classifySessionKeyKind(sessionKey) === "job"
+    return classifySessionKey(sessionKey) === "channel" || classifySessionKey(sessionKey) === "job"
 }
 async function buildSessionIndexFromDisk(paths) {
     let map = new Map,
@@ -38102,7 +38102,7 @@ function createMapBackedSessionIndex(entriesByKey) {
         },
         listByKind(kind) {
             let result = [];
-            for (let entry of entriesByKey.values()) classifySessionKeyKind(entry.session_key) === kind && result.push(entry);
+            for (let entry of entriesByKey.values()) classifySessionKey(entry.session_key) === kind && result.push(entry);
             return result
         },
         listUserVisible() {
@@ -38153,7 +38153,7 @@ async function refreshSessionIndexEntry(paths, sessionIndex, sessionKey) {
 }
 var ca = A(() => {
     "use strict";
-    Rr();
+    initReservedMainAliasModule();
     Qr()
 });
 async function resolveSessionChannelRuntime(paths, sessionKey, sourceChannelId) {
@@ -38187,7 +38187,7 @@ async function listVoidChannelSessions(paths) {
         voidSessionKeys = new Set;
     for (let [sessionKey, sessionState] of Object.entries(allSessionStateFiles)) {
         let sourceChannelId = sessionState.source_channel_id;
-        if (!sourceChannelId || classifySessionKeyKind(sessionKey) !== "channel") continue;
+        if (!sourceChannelId || classifySessionKey(sessionKey) !== "channel") continue;
         let isVoidPromise = map.get(sourceChannelId);
         isVoidPromise === void 0 && (isVoidPromise = isVoidRuntimeSession(paths, sessionKey, sourceChannelId), map.set(sourceChannelId, isVoidPromise)), await isVoidPromise && voidSessionKeys.add(sessionKey)
     }
@@ -38217,7 +38217,7 @@ var Gu, initVoidRuntimeModule = A(() => {
     ni();
     initOutboxStoreModule();
     ca();
-    Rr();
+    initReservedMainAliasModule();
     Gu = "This session never runs a model (runtime void)."
 });
 var Dq = {};
@@ -38248,12 +38248,12 @@ function detectInProcessBreak(usage, skip) {
     return cacheableTokens <= 0 ? !1 : cacheReadTokens / cacheableTokens < IN_PROCESS_BREAK_HIT_RATIO_FLOOR
 }
 
-function Vnt(e) {
+function sanitizeDrainRecordSegment(e) {
     return e.replace(/[/\\]/g, "_")
 }
 
 function drainRecordPath(paths, sessionKey) {
-    return qnt.join(paths.usageDir, `${Vnt(sessionKey)}.jsonl`)
+    return qnt.join(paths.usageDir, `${sanitizeDrainRecordSegment(sessionKey)}.jsonl`)
 }
 async function appendDrainRecord(paths, record) {
     await ensureDirectoryExists(paths.usageDir);
@@ -56257,7 +56257,7 @@ var $s, Ic, MV, s_e, iC, initSkipToolModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     $s = "Skip", Ic = "mcp__aladuo__Skip", MV = ["End this turn with no output to the user/channel.", "", "Calling Skip immediately ends this turn. Skip is the only way to produce", "silence — any text you emit is user-visible output, including", 'acknowledgements such as "received" or "no need to reply".', "", "In a turn you decide to skip, write no text before Skip — text streamed before Skip", "can still reach the user. Tool calls before Skip are fine: do the work, or send what", "belongs elsewhere, then call Skip.", "", "Give a specific reason. On your next turn, a <skip-rewind> block returns:", "- The reason you provided", "- The timestamp of the skip", "- How much time has elapsed since the skip", "", "Use Skip for:", "- Intermediate job progress that isn't actionable yet", "- Routine system notifications that need no user attention", "- Duplicate or redundant notifications you've already addressed", "", "Respond instead of skipping when:", "- The user sent a direct message", "- A job completed with results the user is waiting for", "- An error or anomaly requires user attention"].join(`
 `), s_e = MV.replace("Calling Skip immediately ends this turn.", "After you call Skip, nothing further you produce this turn will be delivered."), iC = {
         reason: ht.string().describe("Why you are skipping this turn. Be specific — this reason will be shown to you on your next turn via <skip-rewind> so you can maintain continuity.")
@@ -62920,7 +62920,7 @@ var wve, Oct, oO, JH, GH, Jr, initJobManagerModule = A(() => {
     tS();
     HH();
     nS();
-    Rr();
+    initReservedMainAliasModule();
     Oct = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
     oO = new Map;
     JH = "gone", GH = "stale", Jr = class {
@@ -65683,12 +65683,12 @@ async function twe(e, t) {
     } catch {}
 }
 
-function Ldt(e) {
+function hashDeliveryCursorKey(e) {
     return Mdt.createHash("sha256").update(e).digest("hex")
 }
 
 function resolveDeliveryCursorPath(paths, sessionKey, consumerId) {
-    return Qve.join(resolveSessionDir(paths, sessionKey), "delivery_cursors", `${Ldt(consumerId)}.json`)
+    return Qve.join(resolveSessionDir(paths, sessionKey), "delivery_cursors", `${hashDeliveryCursorKey(consumerId)}.json`)
 }
 async function dS(e, t, n) {
     let r = Date.now(),
@@ -66039,7 +66039,7 @@ var qdt, Bdt, d6, _O, initNotifyConsumerStalenessModule = A(() => {
     qdt = "delivery_cursors", Bdt = 36e5, d6 = "ALADUO_NOTIFY_UNCONSUMED_HOURS", _O = 1
 });
 async function evaluateNotifyConsumerRefusal(paths, sessionKey, finalSubscriberCount) {
-    if (classifySessionKeyKind(sessionKey) !== "channel") return {
+    if (classifySessionKey(sessionKey) !== "channel") return {
         refused: !1
     };
     let consumerInputs = await fwe(paths, sessionKey);
@@ -66140,7 +66140,7 @@ function Gdt(e) {
     return {
         session_key: e.session_key,
         display_name: hasNonEmptyDisplayName(e) ? e.display_name ?? null : null,
-        kind: classifySessionKeyKind(e.session_key),
+        kind: classifySessionKey(e.session_key),
         plane: e.plane ?? null,
         cwd: e.cwd ?? null,
         last_event_at: e.last_event_at ?? null,
@@ -66158,9 +66158,9 @@ async function listSessionIndexSummaries(sessionIndex, jobStore, filter, deliver
         liveJobSessionKeys = null
     }
     let isOrphan = sessionKey => liveJobSessionKeys === null || !sessionKey.startsWith("job:") ? !1 : !liveJobSessionKeys.has(sessionKey),
-        matched = sessionIndex.list().filter(entry => !(filter.kind && classifySessionKeyKind(entry.session_key) !== filter.kind || filter.named_only && !hasNonEmptyDisplayName(entry) || !filter.include_orphans && isOrphan(entry.session_key))),
+        matched = sessionIndex.list().filter(entry => !(filter.kind && classifySessionKey(entry.session_key) !== filter.kind || filter.named_only && !hasNonEmptyDisplayName(entry) || !filter.include_orphans && isOrphan(entry.session_key))),
         visibleEntries = filter.deliverable ? await filterDeliverableSessions(deliverableDeps, matched, deliverableOptions) : matched,
-        mainResolution = resolveMainSessionHolder(sessionIndex.list());
+        mainResolution = resolveMainSession(sessionIndex.list());
     return visibleEntries.map(visibleEntry => {
         let summary = Gdt(visibleEntry);
         return mainResolution.state === "held" && mainResolution.session_key === visibleEntry.session_key ? summary = {
@@ -66200,9 +66200,9 @@ function formatViewSessionsListLine(session) {
     let parts = [`kind ${session.kind}`];
     return session.display_name && parts.push(`alias "${session.display_name}"`), session.orphan && parts.push("orphan — job archived or recreated, will not run"), `- ${session.session_key} (${parts.join("; ")})${session.isCaller?" (you)":""}`
 }
-async function Xdt(e, t, n) {
-    let r = await buildSessionIndexFromDisk(e),
-        o = (await listSessionIndexSummaries(r, new Jr(e), {
+async function renderActiveSessionsListing(e, t, n) {
+    let sessionIndexFromDisk = await buildSessionIndexFromDisk(e),
+        o = (await listSessionIndexSummaries(sessionIndexFromDisk, new Jr(e), {
             include_orphans: !0
         }, e, t)).map(l => ({
             ...l,
@@ -66240,7 +66240,7 @@ async function runViewSessionsTool(input, ctx) {
     } = ctx;
     try {
         let targetSessionKey = input && typeof input.session_key == "string" ? input.session_key.trim() : "";
-        return targetSessionKey.length === 0 ? await Xdt(paths, ctx.finalSubscriberCount, sessionKey) : await Qdt(paths, targetSessionKey, ctx.getSessionStatus)
+        return targetSessionKey.length === 0 ? await renderActiveSessionsListing(paths, ctx.finalSubscriberCount, sessionKey) : await Qdt(paths, targetSessionKey, ctx.getSessionStatus)
     } catch (err) {
         return logErrorMessage("[ViewSessions] Tool execution failed", err), `Error: ${err instanceof Error?err.message:String(err)}`
     }
@@ -66249,7 +66249,7 @@ var gS, gwe, xO, EO, initViewSessionsToolModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     kO();
     ti();
     ca();
@@ -66327,7 +66327,7 @@ var nft, h6 = A(() => {
     }
 });
 
-function rft(e) {
+function isPlainObjectRecord(e) {
     return typeof e == "object" && e !== null && !Array.isArray(e)
 }
 async function deliverRouteEventToSession(paths, bus, delivery) {
@@ -66407,7 +66407,7 @@ async function deliverRouteEventToSession(paths, bus, delivery) {
             eventTs: spineEvent.ts
         };
         if (await isVoidRuntimeSession(paths, targetSessionKey)) {
-            let payloadRecord = rft(payload) ? payload : {},
+            let payloadRecord = isPlainObjectRecord(payload) ? payload : {},
                 outboxRecord = await writeVoidSessionOutboxRecord(paths, bus, {
                     sessionKey: targetSessionKey,
                     text: typeof payloadRecord.text == "string" ? payloadRecord.text : "",
@@ -66497,7 +66497,7 @@ var Gg = A(() => {
     initVoidRuntimeModule()
 });
 
-function Ewe(e) {
+function classifyNotifySessionKind(e) {
     return e ? e.startsWith("job:") ? "job" : e.startsWith("meta:") ? "meta" : e.startsWith("system:") || e.startsWith("cadence:") ? "system" : e.includes(":") ? "channel" : "unknown" : "unknown"
 }
 
@@ -66506,7 +66506,7 @@ function vS(e) {
 }
 
 function isJobSessionKeyKind(sessionKey) {
-    return Ewe(sessionKey) === "job"
+    return classifyNotifySessionKind(sessionKey) === "job"
 }
 
 function ift() {
@@ -66524,17 +66524,17 @@ function oft() {
 `)
 }
 
-function sft() {
+function renderMetaNotifyModeGuidance() {
     return [OO(), "", "Meta/subconscious session mode:", "- You MUST provide `target_session_key`; `main` reaches the main session.", "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).", "- Use this to hand off findings from background/meta work into a foreground interactive session.", "", "IMPORTANT: To reach the end user, you must target a foreground channel session", "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session", "will NOT produce user-visible output."].join(`
 `)
 }
 
-function _we() {
+function renderChannelNotifyModeGuidance() {
     return [OO(), "", "Channel (foreground) session mode:", "- You MUST provide `target_session_key`; `main` reaches the main session.", "- Call ViewSessions with no argument to see the sessions you can target.", "- Use this to relay information, hand off completed work, or coordinate across sessions.", "- Example: you completed a task in CLI and want to notify the user via a Feishu channel session."].join(`
 `)
 }
 
-function aft() {
+function renderSystemNotifyModeGuidance() {
     return [OO(), "", "System session mode:", "- You MUST provide `target_session_key`; `main` reaches the main session.", "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).", "", "IMPORTANT: To reach the end user, you must target a foreground channel session", "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session", "will NOT produce user-visible output."].join(`
 `)
 }
@@ -66548,13 +66548,13 @@ function renderNotifyToolDescription(ctx) {
         case "job":
             return oft();
         case "meta":
-            return sft();
+            return renderMetaNotifyModeGuidance();
         case "foreground":
-            return _we();
+            return renderChannelNotifyModeGuidance();
         case "system":
-            return aft();
+            return renderSystemNotifyModeGuidance();
         default:
-            return _we()
+            return renderChannelNotifyModeGuidance()
     }
 }
 
@@ -66802,7 +66802,7 @@ async function runNotifyTool(input, ctx) {
         let notifyDepth = ctx.notifyDepth ?? 0;
         if (notifyDepth >= bwe) throw new Error(`Notify depth limit exceeded (max ${bwe}). This notification chain is too deep — likely a loop.`);
         if (input.target_session_key?.trim() === sessionKey) throw new Error(`Cannot notify self (session_key=${sessionKey}). Notify must target a different session.`);
-        let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : Ewe(sessionKey),
+        let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : classifyNotifySessionKind(sessionKey),
             inReplyTo = input.in_reply_to?.trim() || void 0,
             useJobDefaultTarget = (sessionContextKind ?? (sourceKind === "job" ? "job" : "meta")) === "job" && !input.target_session_key?.trim(),
             mode = useJobDefaultTarget ? "job-default-target" : "explicit-target",
@@ -66893,7 +66893,7 @@ var wS, xwe, bwe, wwe, initNotifyToolModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     initJobManagerModule();
     h6();
     Gg();
@@ -67345,7 +67345,7 @@ async function resolveChannelConfigBySession(paths, sessionKey) {
 var Cft, ul = A(() => {
     "use strict";
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     initChannelConfigLoaderModule();
     _f();
     ni();
@@ -67398,7 +67398,7 @@ var BO, N6 = A(() => {
 });
 
 function decideRestartHintInjection(params) {
-    return classifySessionKeyKind(params.sessionKey) !== "channel" ? {
+    return classifySessionKey(params.sessionKey) !== "channel" ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
         writeLastSeenOnInjectSuccess: void 0,
@@ -68029,7 +68029,7 @@ function recordUnreadableMemoryPath(err) {
     err?.code !== "ENOENT" && (G6 += 1)
 }
 
-function ZSe() {
+function countUnreadableMemoryPaths() {
     return G6
 }
 
@@ -68702,14 +68702,14 @@ function readPartitionContract(subconsciousDir, partition) {
             enabled: !0
         }
     }
-    let schedule = dke(frontmatter.schedule) ? frontmatter.schedule : {},
+    let schedule = isPlainJsonObject(frontmatter.schedule) ? frontmatter.schedule : {},
         enabled = typeof schedule.enabled == "boolean" ? schedule.enabled : !0,
         contract = frontmatter.contract;
     if (contract == null) return {
         state: "no-contract",
         enabled
     };
-    if (!dke(contract)) return {
+    if (!isPlainJsonObject(contract)) return {
         state: "parse-fail",
         enabled
     };
@@ -68757,7 +68757,7 @@ function mke(e) {
     return n.sort((r, i) => compareStringsAscending(r.name, i.name)), n
 }
 
-function dke(e) {
+function isPlainJsonObject(e) {
     return typeof e == "object" && e !== null && !Array.isArray(e)
 }
 var pke, rA = A(() => {
@@ -69384,7 +69384,7 @@ function listEventPartitionDates(eventsDir) {
     return dates.sort(), dates
 }
 
-function Nke(e) {
+function escapeRegExpSource(e) {
     return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
@@ -69399,7 +69399,7 @@ function Rmt(e) {
 function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
     let entitiesPrefix = fu.join(memoryDir, "entities") + fu.sep,
         topicsPrefix = fu.join(memoryDir, "topics") + fu.sep,
-        regExp = new RegExp(`${Nke(memoryDir+fu.sep)}(?:entities|topics)${Nke(fu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
+        regExp = new RegExp(`${escapeRegExpSource(memoryDir+fu.sep)}(?:entities|topics)${escapeRegExpSource(fu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
         result = {
             dates: [],
             interactionDays: 0,
@@ -70187,7 +70187,7 @@ function runMemoryCheckSubStep(stepName, fn) {
 function runReadAuditedMemoryCheckStep(stepName, fn) {
     YSe();
     let ok = runMemoryCheckSubStep(stepName, fn),
-        unreadableCount = ZSe();
+        unreadableCount = countUnreadableMemoryPaths();
     return unreadableCount > 0 && logErrorMessage(`[memory] check tick sub-step read ${unreadableCount} unreadable path(s): ${stepName} — results are degraded, inbox sweep suppressed this tick`), ok && unreadableCount === 0
 }
 
@@ -70272,14 +70272,14 @@ function axe(e) {
     return n < 1 ? null : t.slice(0, n).trim()
 }
 
-function uht(e) {
+function isHostModelEnvKey(e) {
     return HOST_MODEL_ENV_KEYS.includes(e)
 }
 
 function removeHostModelEnvLines(content) {
     return sxe(content).filter(line => {
         let key = axe(line);
-        return !key || !uht(key)
+        return !key || !isHostModelEnvKey(key)
     })
 }
 
@@ -71713,15 +71713,15 @@ function Wgt(e, t) {
     return t0e([...e ?? [], ...t ?? []]) ?? []
 }
 
-function FEe(e) {
+function normalizeDirPathForCompare(e) {
     let t = oy.resolve(e);
     return process.platform === "win32" ? t.toLowerCase() : t
 }
 
 function resolveAdditionalDirClaudeMdAutoload(runtime, boardFile, additionalDirectories, cwd) {
     if (runtime !== "claude" || !boardFile?.content.trim() || !additionalDirectories || additionalDirectories.length === 0) return;
-    let cwdKey = FEe(cwd);
-    return additionalDirectories.some(directory => FEe(directory) !== cwdKey) ? void 0 : !1
+    let cwdKey = normalizeDirPathForCompare(cwd);
+    return additionalDirectories.some(directory => normalizeDirPathForCompare(directory) !== cwdKey) ? void 0 : !1
 }
 
 function projectJobPromptContext(job) {
@@ -71960,7 +71960,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
         try {
             await runTimedDrainPhase(perf, "mailbox_merge_ms", async () => mergeInboxIntoMailbox(paths, sessionKey))
         } catch (err) {
-            if (Yue(err)) return {
+            if (isMailboxMergeReadError(err)) return {
                 processed: 0,
                 skipped: 0,
                 lockAcquired: !0,
@@ -72954,13 +72954,13 @@ function renderJobCompleteReceiptGuidance(sessionKind, jobId, ownerSessionKey) {
 `)
 }
 
-function aJ(e) {
+function extractStandInOwnerInfo(e) {
     if ("stand_in_for_owner" in e) return {
         owner: readStringProperty(e, "stand_in_for_owner")
     }
 }
 
-function uJ(e) {
+function renderForOwnerAttribute(e) {
     return e?.owner ? `for_owner="${escapeXmlText(e.owner)}"` : ""
 }
 
@@ -72972,7 +72972,7 @@ function iJ(e) {
     return `System failure notification — a job ${e.owner?`owned by session ${e.owner}`:"that has no recorded owner"} has crashed; it reached you as the main session.`
 }
 
-function Ygt(e, t, n, r) {
+function renderJobFailureNotification(e, t, n, r) {
     let i = e === "channel" || e === "unknown";
     return i && t === "one-shot" ? [r ? iJ(r) : `System failure notification — the runtime process for a one-shot task the user dispatched has crashed (job '${n}').`, "A runtime crash does NOT necessarily mean the task itself failed. The task's working directory", "may already contain partial or complete artifacts (reports, evidence, state files) that survived", "the crash.", "", "Before telling the user the task failed:", `- ManageJob(read, '${n}') gives you its working directory and instruction; inspect that`, "  directory with Read/LS for report/evidence/state files.", "- Classify the failure: (a) runtime crash with recoverable artifacts → consider retry or relay", "  partial results, (b) task-level blocker (no artifacts, repeated zero-progress crashes) → report it,", "  (c) effectively complete (coherent artifacts on disk) → deliver them and note the runtime warning.", "- When you cannot determine which, tell the user the runtime crashed and you are checking for", "  recoverable progress — not that the task failed.", "", "Do NOT treat this as a user instruction."].join(`
 `) : i && t === "periodic" ? [r ? iJ(r) : "System failure notification — a periodic background job has crashed.", "", "- Call the Skip tool with a reason if the failure is transient or expected to retry.", "- Produce text only if the failure is persistent, critical, or warrants user attention now.", "", 'Do NOT emit text like "Skip — ...", "noted, will monitor", "acknowledging failure",', "or similar self-notes.", "Skip is the only valid way to produce silence. Any text you emit will be delivered to the user.", "", `If you have already seen '${n}' fail this way earlier in this conversation, it is`, "retrying on its schedule and will keep arriving on that schedule indefinitely.", `Running \`duoduo job archive ${m0e(n)}\` in a shell stops it, and ManageJob(read,`, `'${n}') still returns an archived job's instruction, so it can be recreated under`, "the same id once the cause is fixed (its run history does not carry over).", "Say so if you do it: never stop a job the user is expecting without telling them.", r ? "Its owner session could not take this. If you already told the owner about this job's failures and nothing has changed, a repeat needs no new message. If you stop the job, tell the owner in the same turn." : void 0].filter(o => o !== void 0).join(`
@@ -73022,8 +73022,8 @@ function renderMailboxEventPrompt(event, sessionKey) {
                     scheduleType = readStringProperty(innerPayload, "schedule_type") ?? "",
                     sessionKind = classifySessionKeyOrUnknown(sessionKey),
                     deliveredAt = new Date().toISOString(),
-                    ownerSessionKey = aJ(innerPayload),
-                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", uJ(ownerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
+                    ownerSessionKey = extractStandInOwnerInfo(innerPayload),
+                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", renderForOwnerAttribute(ownerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
                     jobCompleteReceiptGuidance = renderJobCompleteReceiptGuidance(sessionKind, stringProperty, ownerSessionKey);
                 return [`<job-status event="job.complete" ${attributes}>`, jobCompleteReceiptGuidance, resultText ? `
 <job-result>
@@ -73040,9 +73040,9 @@ ${escapeXmlText(resultText)}
                     scheduleType = readStringProperty(innerPayload, "schedule_type") ?? "",
                     failSessionKind = classifySessionKeyOrUnknown(sessionKey),
                     failDeliveredAt = new Date().toISOString(),
-                    failOwnerSessionKey = aJ(innerPayload),
-                    failAttributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", uJ(failOwnerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(failDeliveredAt)}"`].filter(Boolean).join(" "),
-                    failGuidance = Ygt(failSessionKind, scheduleType, stringProperty, failOwnerSessionKey);
+                    failOwnerSessionKey = extractStandInOwnerInfo(innerPayload),
+                    failAttributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", renderForOwnerAttribute(failOwnerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(failDeliveredAt)}"`].filter(Boolean).join(" "),
+                    failGuidance = renderJobFailureNotification(failSessionKind, scheduleType, stringProperty, failOwnerSessionKey);
                 return [`<job-status event="job.fail" ${failAttributes}>`, failGuidance, `
 <job-error>
 ${escapeXmlText(errorText)}
@@ -73448,15 +73448,15 @@ function m0e(e) {
     return `'${e.replace(/'/g,"'\\''")}'`
 }
 
-function _yt(e, t, n, r) {
+function renderJobCompletionReceipt(e, t, n, r) {
     let i = classifySessionKeyOrUnknown(t),
-        o = r[0].event,
-        s = r[r.length - 1].event,
-        a = extractJobCompletePayload(o),
-        u = a ? readStringProperty(a, "schedule_type") ?? "" : "",
-        l = extractJobCompletePayload(s),
-        c = l ? aJ(l) : void 0,
-        d = [`job_id="${escapeXmlText(n)}"`, uJ(c), u ? `schedule="${escapeXmlText(u)}"` : "", `runs="${r.length}"`, o.ts ? `first_at="${escapeXmlText(o.ts)}"` : "", s.ts ? `last_at="${escapeXmlText(s.ts)}"` : "", `delivered_at="${escapeXmlText(new Date().toISOString())}"`].filter(Boolean).join(" "),
+        event = r[0].event,
+        event2 = r[r.length - 1].event,
+        jobCompletePayload = extractJobCompletePayload(event),
+        u = jobCompletePayload ? readStringProperty(jobCompletePayload, "schedule_type") ?? "" : "",
+        jobCompletePayload2 = extractJobCompletePayload(event2),
+        c = jobCompletePayload2 ? extractStandInOwnerInfo(jobCompletePayload2) : void 0,
+        d = [`job_id="${escapeXmlText(n)}"`, renderForOwnerAttribute(c), u ? `schedule="${escapeXmlText(u)}"` : "", `runs="${r.length}"`, event.ts ? `first_at="${escapeXmlText(event.ts)}"` : "", event2.ts ? `last_at="${escapeXmlText(event2.ts)}"` : "", `delivered_at="${escapeXmlText(new Date().toISOString())}"`].filter(Boolean).join(" "),
         f = c ? describeStandInJobOwner(c) : "you own",
         p = `System receipt — the job '${n}' ${f} succeeded ${r.length} times, and none of those runs delivered a Notify (a run that notifies successfully sends no receipt at all; one whose Notify FAILED still does).`,
         m = ["Each run's full result text is in the spine. Read them only if this conversation", "needs them:", `  grep -F ${m0e(`"job_id":"${n}"`)} "${e.eventsDir}"/*.jsonl`].join(`
@@ -73484,7 +73484,7 @@ async function collectJobCompletionReceipts(paths, renderOptions, items, eventCa
     }
     if (map.size === 0) return null;
     let sections = [];
-    for (let [jobId, entries] of map) sections.push(entries.length === 1 ? entries[0].prompt : _yt(paths, renderOptions, jobId, entries));
+    for (let [jobId, entries] of map) sections.push(entries.length === 1 ? entries[0].prompt : renderJobCompletionReceipt(paths, renderOptions, jobId, entries));
     return {
         text: sections.join(`
 
@@ -74153,7 +74153,7 @@ var dJ, fJ, sJ, eyt, iyt, fyt, lJ, xyt, Eyt, initMailboxDrainRunnerModule = A(()
     $Ee();
     initLogLevelModule();
     Bu();
-    Rr();
+    initReservedMainAliasModule();
     Zu();
     AEe();
     NEe();
@@ -74741,7 +74741,7 @@ function n_t(e) {
     return t_t[t] ?? P0e
 }
 
-function r_t(e) {
+function extractSessionKeyChannelKind(e) {
     let t = e.indexOf(":");
     return t <= 0 ? "unknown" : e.slice(0, t)
 }
@@ -74806,7 +74806,7 @@ async function runQueueOutboundAttachmentTool(input, ctx) {
             stats = await e_t.stat(resolvedPath);
         if (!stats.isFile()) throw new Error(`path is not a file: ${resolvedPath}`);
         let sessionRuntimeState = await readSessionRuntimeState(ctx.paths, sessionKey),
-            channelId = r_t(sessionKey),
+            channelId = extractSessionKeyChannelKind(sessionKey),
             {
                 acceptMime,
                 maxBytes
@@ -74832,7 +74832,7 @@ var P0e, t_t, dp, $0e, zA, UA, initQueueOutboundAttachmentModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     P0e = "application/octet-stream", t_t = {
         ".png": "image/png",
         ".jpg": "image/jpeg",
@@ -74912,7 +74912,7 @@ async function handlePiToolEndObservation(paths, sessionKey, toolEnd) {
 var N0e = A(() => {
     "use strict";
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     initSkipToolModule();
     initQueueOutboundAttachmentModule()
 });
@@ -84141,7 +84141,7 @@ async function runInstructionsFingerprintGuard(paths, sessionKey, instructions, 
 }
 
 function selectSessionRolePrompt(e, t) {
-    if (classifySessionKeyKind(e) !== "channel") return;
+    if (classifySessionKey(e) !== "channel") return;
     let n = t(),
         r = n.state === "held" && n.session_key === e ? "main" : "member";
     return resolveRolePromptText(r)
@@ -84187,7 +84187,7 @@ var UN, iTe, initInstructionsFingerprintModule = A(() => {
     Qr();
     ul();
     _f();
-    Rr();
+    initReservedMainAliasModule();
     initBoardTransclusionModule();
     initLogLevelModule();
     initMailboxDrainRunnerModule();
@@ -84328,7 +84328,7 @@ function createModelCommandResolvers(deps) {
 }
 var cTe = A(() => {
     "use strict";
-    Rr();
+    initReservedMainAliasModule();
     initChannelConfigLoaderModule();
     ul();
     initRuntimeValidationModule();
@@ -85210,7 +85210,7 @@ var gTe = A(() => {
     "use strict";
     initAgentSdkAdapterModule();
     initOutboxStoreModule();
-    Rr();
+    initReservedMainAliasModule();
     initAbortableAsyncQueueModule();
     initLogLevelModule();
     fl();
@@ -85221,7 +85221,7 @@ var gTe = A(() => {
     aK();
     AN();
     Gg();
-    Rr();
+    initReservedMainAliasModule();
     sf();
     Zu();
     initMailboxDrainRunnerModule();
@@ -86590,7 +86590,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
     }
     async function appendChannelAttachedEvent(sessionKey, channelId) {
         let attachWrite = (map3.get(sessionKey) ?? Promise.resolve()).catch(() => {}).then(async () => {
-            if (classifySessionKeyKind(sessionKey) !== "channel") return;
+            if (classifySessionKey(sessionKey) !== "channel") return;
             let channelKind = channelKindFromSessionKey(sessionKey),
                 attachedAt = new Date().toISOString(),
                 spineEvent = createSpineEvent({
@@ -87327,7 +87327,7 @@ var bTe = A(() => {
     initLogLevelModule();
     Cr();
     HH();
-    Rr();
+    initReservedMainAliasModule();
     EIe();
     AN();
     UG();
@@ -88589,7 +88589,7 @@ function computeDedupKey(event) {
 }
 dI();
 Ym();
-Rr();
+initReservedMainAliasModule();
 _f();
 ti();
 initOutboxStoreModule();
@@ -90164,11 +90164,11 @@ async function writeInstanceModelAlias(paths, sessionKey, tier, model, maxAttemp
 ni();
 _f();
 initChannelConfigLoaderModule();
-Rr();
+initReservedMainAliasModule();
 kO();
 Qr();
 ca();
-Rr();
+initReservedMainAliasModule();
 kO();
 initLogLevelModule();
 var _Se = Promise.resolve();
@@ -90186,28 +90186,28 @@ async function bSe(e) {
 }
 
 function resolveMainSessionFromIndex(e) {
-    return resolveMainSessionHolder(e.list())
+    return resolveMainSession(e.list())
 }
 
-function vSe(e, t, n) {
+function formatSessionAliasCommand(e, t, n) {
     if (t === null || t.trim().length === 0) return `duoduo session alias ${e} --clear`;
-    let r = t.trim();
-    return r === Hn ? `duoduo session alias ${e} ${Hn}${n?" --move":""}` : `duoduo session alias ${e} ${JSON.stringify(r)}`
+    let trimmed = t.trim();
+    return trimmed === Hn ? `duoduo session alias ${e} ${Hn}${n?" --move":""}` : `duoduo session alias ${e} ${JSON.stringify(trimmed)}`
 }
 
-function Uft(e) {
+function listMainAliasHolderKeys(e) {
     return e.state === "held" ? [e.session_key] : e.state === "ambiguous" ? e.candidates : []
 }
 
 function checkMainAliasCallerAuthority(e, t, n) {
     if (!(e.caller_in_session === !0 || e.caller_session !== void 0)) return null;
-    let i = vSe(t, e.display_name, e.move === !0),
+    let sessionAliasCommand = formatSessionAliasCommand(t, e.display_name, e.move === !0),
         o = e.caller_session?.trim();
     if (!o) return {
         ok: !1,
         reason: "no_caller",
         session_key: t,
-        error: `Changing which session is main is refused here: this command ran inside a session that could not be identified. Nothing was changed. Ask the owner to run it from their own terminal: ${i}`
+        error: `Changing which session is main is refused here: this command ran inside a session that could not be identified. Nothing was changed. Ask the owner to run it from their own terminal: ${sessionAliasCommand}`
     };
     if (n.state === "held" && n.session_key === o) return null;
     let s = n.state === "held" ? `the current main session (${n.session_key})` : "the current main session";
@@ -90215,36 +90215,36 @@ function checkMainAliasCallerAuthority(e, t, n) {
         ok: !1,
         reason: "not_main",
         session_key: t,
-        error: `Only ${s} or the owner from their own terminal can change which session is main. Nothing was changed. Ask the owner to run it from their own terminal: ${i}`
+        error: `Only ${s} or the owner from their own terminal can change which session is main. Nothing was changed. Ask the owner to run it from their own terminal: ${sessionAliasCommand}`
     }
 }
 
-function Bft(e) {
+function renderNewMainSessionNotice(e) {
     return ["You are now the main session. Deliveries with no better target come here: job outcomes whose owner session is gone or unread, Notify calls that name `main`, chats forwarded to `main`, and setup requests from chats.", e.length > 0 ? `Previously main: ${e.join(", ")}. It was told of the handover and may send you what it carried.` : void 0, "Tell the owner here, in your own words, that this conversation is now where such things land — when the conversation allows."].filter(Boolean).join(`
 `)
 }
 
-function Vft(e) {
+function renderFormerMainSessionNotice(e) {
     return [`Session ${e} is now the main session; this session no longer is.`, "Deliveries without a better target go there from now on.", `If you carry work the main session should own (open requests, commitments, jobs), hand it over to ${e} with Notify.`, "If the people here relied on this session being main, say so here in your own words."].join(`
 `)
 }
-async function A6(e, t, n) {
+async function deliverMainRoleNoticeSafely(e, t, n) {
     try {
         let r = await e.notify(t, n);
         r.ok || logWarnMessage("[main-role] role notice not delivered", {
             session_key: t,
             reason: r.reason
         })
-    } catch (r) {
+    } catch (err) {
         logWarnMessage("[main-role] role notice failed", {
             session_key: t,
-            error: String(r)
+            error: String(err)
         })
     }
 }
 async function announceMainSessionChange(e, t, n) {
-    for (let r of n) await A6(e, r, Vft(t));
-    await A6(e, t, Bft(n)), await patchSessionRuntimeState(e.paths, t, {
+    for (let r of n) await deliverMainRoleNoticeSafely(e, r, renderFormerMainSessionNotice(t));
+    await deliverMainRoleNoticeSafely(e, t, renderNewMainSessionNotice(n)), await patchSessionRuntimeState(e.paths, t, {
         main_since: new Date().toISOString()
     }).catch(r => logWarnMessage("[main-role] main_since stamp failed", {
         session_key: t,
@@ -90270,7 +90270,7 @@ async function setSessionAliasAndReindex(ctx, sessionKey, displayName, mainAutho
 }
 async function setSessionAliasWithMainRole(e, t) {
     let trimmed = t.session_key.trim();
-    return classifySessionKeyKind(trimmed) !== "channel" ? setSessionAliasAndReindex(e, trimmed, t.display_name, !1) : bSe(async () => {
+    return classifySessionKey(trimmed) !== "channel" ? setSessionAliasAndReindex(e, trimmed, t.display_name, !1) : bSe(async () => {
         let sessionMetaFile = await readSessionMetaFile(e.paths, trimmed);
         if (!isReservedMainAliasChange(trimmed, t.display_name, sessionMetaFile?.display_name)) return setSessionAliasAndReindex(e, trimmed, t.display_name, !1);
         if (!sessionMetaFile) return {
@@ -90283,14 +90283,14 @@ async function setSessionAliasWithMainRole(e, t) {
         if (o) return o;
         let s = sessionMetaFile.display_name?.trim() === Hn;
         if (!(t.display_name?.trim() === Hn)) return setSessionAliasAndReindex(e, trimmed, t.display_name, !0);
-        let u = Uft(mainSessionFromIndex).filter(c => c !== trimmed);
+        let u = listMainAliasHolderKeys(mainSessionFromIndex).filter(c => c !== trimmed);
         if (u.length > 0 && t.move !== !0) {
             let c = u.join(", ");
             return {
                 ok: !1,
                 reason: "main_held",
                 session_key: trimmed,
-                error: `${c} ${u.length===1?"is":"are"} already aliased main, and there is only one main session. Nothing was changed. To make ${trimmed} the main session instead, the current main session or the owner from their own terminal runs: ` + vSe(trimmed, Hn, !0)
+                error: `${c} ${u.length===1?"is":"are"} already aliased main, and there is only one main session. Nothing was changed. To make ${trimmed} the main session instead, the current main session or the owner from their own terminal runs: ` + formatSessionAliasCommand(trimmed, Hn, !0)
             }
         }
         for (let c of u) await updateSessionDisplayName(e.paths, c, null, {
@@ -90304,7 +90304,7 @@ async function setSessionAliasWithMainRole(e, t) {
     })
 }
 
-function Hft(e) {
+function renderAmbiguousMainAliasNotice(e) {
     return [`More than one session is aliased main: ${e.join(", ")}.`, "None of them is used as the main session until one remains, so deliveries without a", "better target fall back as if there were no main session.", "Tell the owner and ask them to pick one from their own terminal:", `duoduo session alias <session_key> ${Hn} --move`, "This notice is for you and the owner; do not repeat the candidate list in a chat others can read."].join(`
 `)
 }
@@ -90315,7 +90315,7 @@ async function reconcileMainSessionAtBoot(e) {
             logWarnMessage("[main-role] ambiguous main session at boot", {
                 candidates: mainSessionFromIndex.candidates
             });
-            for (let r of mainSessionFromIndex.candidates) await A6(e, r, Hft(mainSessionFromIndex.candidates));
+            for (let r of mainSessionFromIndex.candidates) await deliverMainRoleNoticeSafely(e, r, renderAmbiguousMainAliasNotice(mainSessionFromIndex.candidates));
             return
         }
         if (mainSessionFromIndex.state !== "held") return;
@@ -90336,7 +90336,7 @@ ti();
 M6();
 ca();
 ul();
-Rr();
+initReservedMainAliasModule();
 initSessionLockAndArchivingModule();
 initLogLevelModule();
 var Xft = 6e4,
@@ -90353,7 +90353,7 @@ function createIdleCompactSweeper(options) {
 
     function isEligible(entry) {
         let sessionKey = entry.session_key;
-        if (classifySessionKeyKind(sessionKey) !== "channel") return !1;
+        if (classifySessionKey(sessionKey) !== "channel") return !1;
         let actorState = sessionManager.getSweeperActorState(sessionKey);
         return !(!actorState || actorState.midTurn || isCompactedSinceLastEvent(entry.last_compact_at, entry.last_event_at))
     }
@@ -90802,7 +90802,7 @@ async function releaseRuntimeWriterLock(paths) {
         await $S.unlink(runtimeWriterLockPath)
     } catch {}
 }
-Rr();
+initReservedMainAliasModule();
 initSpineEventLogModule();
 import {
     promises as upt
@@ -91857,7 +91857,7 @@ function stripSpineEventToEnvelope(event) {
 
 function redactSpineEventForExternal(event, sessionKeys = new Set) {
     if (event.type === Uxe) return event;
-    if (event.session_key === void 0 || classifySessionKeyKind(event.session_key) !== "channel") return null;
+    if (event.session_key === void 0 || classifySessionKey(event.session_key) !== "channel") return null;
     if (Xht.has(event.type) || shouldKeepRouteDeliverEvent(event, sessionKeys)) return event;
     if (event.type === "agent.tool_use" || event.type === "agent.tool_result") {
         let payload = isRecord(event.payload) ? event.payload : {};
@@ -92479,7 +92479,7 @@ function resolveSessionByKeyOrAlias(sessionIndex, keyOrAlias) {
 }
 
 function resolveIsolatedPlaneKind(sessionKey) {
-    let kind = classifySessionKeyKind(sessionKey);
+    let kind = classifySessionKey(sessionKey);
     return kind === "channel" || kind === "job" ? null : kind
 }
 async function scheduleSessionWakeRecord(paths, sessionIndex, params) {
@@ -92611,7 +92611,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params, fi
             notify_source: sourceLabel
         } : {
             ...basePayload,
-            notify_source_kind: classifySessionKeyKind(callerSessionKey),
+            notify_source_kind: classifySessionKey(callerSessionKey),
             notify_source_session_key: callerSessionKey
         },
         routeParams = {
@@ -92745,7 +92745,7 @@ async function readOrSetSessionModel(sessionIndex, modelControl, params) {
         reason: "not_found",
         target: trimmed
     };
-    let sessionKind = classifySessionKeyKind(sessionByKeyOrAlias.session_key);
+    let sessionKind = classifySessionKey(sessionByKeyOrAlias.session_key);
     return sessionKind !== "channel" ? {
         ok: !1,
         reason: "forbidden_kind",
@@ -92775,7 +92775,7 @@ async function readOrSetSessionEffort(sessionIndex, effortControl, params) {
         reason: "not_found",
         target: trimmed
     };
-    let sessionKind = classifySessionKeyKind(sessionByKeyOrAlias.session_key);
+    let sessionKind = classifySessionKey(sessionByKeyOrAlias.session_key);
     return sessionKind !== "channel" ? {
         ok: !1,
         reason: "forbidden_kind",
@@ -92805,7 +92805,7 @@ async function enqueueSessionCompactCommand(paths, bus, sessionIndex, gatewayCom
         reason: "not_found",
         target: trimmed
     };
-    let sessionKind = classifySessionKeyKind(sessionByKeyOrAlias.session_key);
+    let sessionKind = classifySessionKey(sessionByKeyOrAlias.session_key);
     if (sessionKind !== "channel") return {
         ok: !1,
         reason: "forbidden_kind",
@@ -93017,7 +93017,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
         target: trimmed
     };
     let sessionKey = sessionByKeyOrAlias.session_key,
-        sessionKind = classifySessionKeyKind(sessionKey);
+        sessionKind = classifySessionKey(sessionKey);
     if (sessionKind !== "channel") return {
         ok: !1,
         reason: "forbidden_kind",
@@ -93291,7 +93291,7 @@ async function zSt(e, t, n) {
         target: m
     };
     let g = h.session_key,
-        y = classifySessionKeyKind(g);
+        y = classifySessionKey(g);
     if (y !== "channel") return {
         ok: !1,
         reason: "forbidden_kind",
@@ -93390,9 +93390,9 @@ async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
         reason: `"${ri}" is a reserved name for the global config file (kernel/config/${ri}.md), not a channel kind. Pick a different channel_kind.`
     };
     let sessionKey = params.session_key?.trim();
-    if (sessionKey !== void 0 && classifySessionKeyKind(sessionKey) !== "channel") return {
+    if (sessionKey !== void 0 && classifySessionKey(sessionKey) !== "channel") return {
         ok: !1,
-        reason: `session_key "${sessionKey}" is a ${classifySessionKeyKind(sessionKey)} session key; channel.spawn creates channel sessions only.`
+        reason: `session_key "${sessionKey}" is a ${classifySessionKey(sessionKey)} session key; channel.spawn creates channel sessions only.`
     };
     if (sessionKey !== void 0) {
         let existingChannelId = (await readSessionRuntimeState(paths, sessionKey))?.source_channel_id;
@@ -93600,7 +93600,7 @@ Content-Length: 0\r
                 replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta)
             } catch {}
         }).catch(() => {})
-    }), Hue(sessionKey => {
+    }), setSessionArchivedListener(sessionKey => {
         sessionIndex.remove(sessionKey)
     });
     let runtimeInfo = {
@@ -94183,7 +94183,7 @@ Content-Length: 0\r
                         served: servedModel,
                         pending: pendingModel !== null && pendingModel !== servedModel ? pendingModel : null
                     }
-                }, readDeliveryInfo = async sessionKey => classifySessionKeyKind(sessionKey) !== "channel" ? {} : {
+                }, readDeliveryInfo = async sessionKey => classifySessionKey(sessionKey) !== "channel" ? {} : {
                     last_cursor_advance_at: await readLatestDeliveryCursorUpdate(paths, sessionKey),
                     final_subscriber_count: subscriptions.finalSubscriberCount(sessionKey)
                 };

@@ -83,7 +83,7 @@ async function deliverRouteEventToSession(paths, bus, delivery) {
             eventTs: spineEvent.ts
         };
         if (await isVoidRuntimeSession(paths, targetSessionKey)) {
-            let payloadRecord = rft(payload) ? payload : {},
+            let payloadRecord = isPlainObjectRecord(payload) ? payload : {},
                 outboxRecord = await writeVoidSessionOutboxRecord(paths, bus, {
                     sessionKey: targetSessionKey,
                     text: typeof payloadRecord.text == "string" ? payloadRecord.text : "",

@@ -29,14 +29,14 @@ function readPartitionContract(subconsciousDir, partition) {
             enabled: !0
         }
     }
-    let schedule = dke(frontmatter.schedule) ? frontmatter.schedule : {},
+    let schedule = isPlainJsonObject(frontmatter.schedule) ? frontmatter.schedule : {},
         enabled = typeof schedule.enabled == "boolean" ? schedule.enabled : !0,
         contract = frontmatter.contract;
     if (contract == null) return {
         state: "no-contract",
         enabled
     };
-    if (!dke(contract)) return {
+    if (!isPlainJsonObject(contract)) return {
         state: "parse-fail",
         enabled
     };

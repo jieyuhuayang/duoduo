@@ -210,6 +210,12 @@ const ALLOW_UNPROVEN = flag("--allow-unproven");
 // reader can tell a name upstream spelled from one this repository inferred.
 // Vendor evidence still refuses: the report says what the code is, not that it
 // is safe to rename.
+// The report's `conflict` verdict is the published declaration matching code
+// that already carries one of OUR inferred names (classifySessionKeyKind where
+// @openduo/protocol 0.8.6 exports classifySessionKey). Such an entry, spelled
+// exactly upstream's name, RENAMES the inferred name, as --historical does: only
+// an inferred name (never an upstream one), only when the match is not thin,
+// scores at least 0.6 and leads its runner-up by at least 0.15.
 const PUBLISHED = opt("--published");
 // --historical <report.json>: a match_historical_exports.mjs report. An entry
 // whose short name that report follows (verdict unique) to a name an OLDER
@@ -286,9 +292,15 @@ const publishedPrior = publishedFile ?? {};
 const report = PUBLISHED ? JSON.parse(fs.readFileSync(PUBLISHED, "utf8")) : null;
 const pubByShort = new Map(); // short -> { name, file, line, verdict, score }
 const pubInitByShort = new Map(); // short -> { file, hits, of }
+const pubRenameByShort = new Map(); // short -> a conflict entry that may rename the inferred name there
 if (report) {
   for (const m of report.matches ?? []) if (m.best && ["unique", "ordered", "picked"].includes(m.verdict)) pubByShort.set(m.best.short, { name: m.name, file: m.file, line: m.line, verdict: m.verdict, score: m.best.score, exported: m.exported });
   for (const [file, fi] of Object.entries(report.files ?? {})) if (fi.initialiser) pubInitByShort.set(fi.initialiser.short, { file, hits: fi.initialiser.hits, of: fi.initialiser.of });
+  for (const m of report.matches ?? []) {
+    if (m.verdict !== "conflict" || m.thin || !m.best?.named) continue;
+    const lead = m.best.score - (m.candidates?.[1]?.score ?? 0);
+    if (m.best.score >= 0.6 && lead >= 0.15) pubRenameByShort.set(m.best.short, { name: m.name, file: m.file, line: m.line, verdict: "conflict", score: m.best.score, exported: m.exported, replaces: m.best.named });
+  }
 }
 const HISTORICAL_MAP = mapPath(`historical_${B}.json`);
 const historicalFile = fs.existsSync(HISTORICAL_MAP) ? JSON.parse(fs.readFileSync(HISTORICAL_MAP, "utf8")) : null;
@@ -549,8 +561,10 @@ for (const e of entries) {
   // 3. FRESH (or a rename to upstream's historical spelling)
   const hist = histByShort.get(e.short);
   const histOk = hist && hist.name === e.name;
-  if (inferredKeys.has(e.short) && histOk) e.replaces = inferred[e.short];
-  else if (Object.hasOwn(rename, e.short) || inferredKeys.has(e.short)) { bad(`${e.short} is already named ${rename[e.short] ?? inferred[e.short]}${hist ? ` (the historical report names it ${hist.name})` : ""}`); continue; }
+  const pubRen = pubRenameByShort.get(e.short);
+  const pubRenOk = !!pubRen && pubRen.name === e.name && inferredKeys.has(e.short) && inferred[e.short] === pubRen.replaces;
+  if (inferredKeys.has(e.short) && (histOk || pubRenOk)) e.replaces = inferred[e.short];
+  else if (Object.hasOwn(rename, e.short) || inferredKeys.has(e.short)) { bad(`${e.short} is already named ${rename[e.short] ?? inferred[e.short]}${hist ? ` (the historical report names it ${hist.name})` : ""}${pubRen ? ` (the published report names it ${pubRen.name})` : ""}`); continue; }
   if (hist && !histOk) { bad(`the historical report follows ${e.short} to ${hist.name} (exported ${hist.exportedFirst}..${hist.exportedLast}), not ${e.name}`); continue; }
   if (seenShort.has(e.short)) { bad(`${e.short} is also named at ${seenShort.get(e.short)}`); continue; }
   seenShort.set(e.short, e.where);
@@ -571,8 +585,10 @@ for (const e of entries) {
   // 4. ORIGIN
   const histWhy = histOk ? `historical export: ${hist.name} in the __export block of ${hist.exportedFirst}..${hist.exportedLast} (as ${hist.lastShort}), followed to ${index.version} by the release pairing${hist.changedSince?.length ? `, body changed in ${hist.changedSince.join(", ")}` : ", body unchanged"}` : null;
   const historical = histOk ? { exportedFirst: hist.exportedFirst, exportedLast: hist.exportedLast, lastShort: hist.lastShort, block: hist.block, blockClass: hist.blockClass, changedSince: hist.changedSince ?? [] } : null;
+  const pubRenWhy = pubRenOk ? `published source: ${report.package} ${pubRen.file}:${pubRen.line} ${pubRen.exported ? "export " : ""}${pubRen.name} (score ${pubRen.score}, matched code this repository had named ${pubRen.replaces})` : null;
   const o = e.replaces
-    ? { ok: !Object.hasOwn(asserted, e.replaces), keepsAsserted: Object.hasOwn(asserted, e.replaces), why: `renames ${e.replaces}; ${histWhy}${Object.hasOwn(asserted, e.replaces) ? "; first-party still only asserted by hand, as when it was registered" : ""}` }
+    ? { ok: !Object.hasOwn(asserted, e.replaces), keepsAsserted: Object.hasOwn(asserted, e.replaces), why: `renames ${e.replaces}; ${histWhy ?? pubRenWhy}${Object.hasOwn(asserted, e.replaces) ? "; first-party still only asserted by hand, as when it was registered" : ""}`,
+        published: pubRenOk && !histOk ? { package: report.package, file: pubRen.file, line: pubRen.line, verdict: "renamed" } : null }
     : histOk && hist.blockClass === "first-party" ? (() => { const r = origin(e.short, d, e.name); return r.ok || r.unproven ? { ok: true, why: histWhy } : r; })()
     : origin(e.short, d, e.name);
   if (!o.ok && !o.keepsAsserted && !(o.unproven && e.allowUnproven)) nameProblems.push(o.why + (o.unproven ? " -- mark the entry allow-unproven only if you have read the body and know it is duoduo's" : ""));
@@ -631,6 +647,27 @@ for (const p of planned) {
   }
   if (p.weak) nextAsserted[p.name] = p.why;
 }
+// the maps keyed by real name follow a rename: the local names of the declaration
+// (locals_daemon.json), its release history and CHANGELOG pairing. Without this
+// the renamed declaration's locals fall back to unnamed and the next rebuild
+// records localNames=warn for entries whose "declaration was not found".
+const keyedByReal = [];
+if (planned.some(p => p.replaces)) {
+  // each file keeps the indentation its writer uses (name_locals 2, history_chain and changelog_merge 1)
+  for (const [f, sub, indent] of [[`locals_${B}.json`, null, 2], [`history_${B}.json`, "symbols", 1], [`changelog_${B}.json`, "symbols", 1]]) {
+    if (!fs.existsSync(mapPath(f))) continue;
+    const j = JSON.parse(fs.readFileSync(mapPath(f), "utf8"));
+    const tbl = sub ? j[sub] : j;
+    if (!tbl) continue;
+    let moved = 0;
+    for (const p of planned) if (p.replaces && Object.hasOwn(tbl, p.replaces) && !Object.hasOwn(tbl, p.name)) { tbl[p.name] = tbl[p.replaces]; delete tbl[p.replaces]; moved++; }
+    if (moved) {
+      const sorted = sortedKeys(tbl);
+      if (sub) j[sub] = sorted;
+      keyedByReal.push([f, JSON.stringify(sub ? j : sorted, null, indent) + "\n"]);
+    }
+  }
+}
 // a renamed symbol is named in other entries' recorded verdicts ("its module
 // ... holds <name>"): those texts follow the rename
 for (const p of planned) if (p.replaces) {
@@ -644,6 +681,7 @@ const writes = [
   ...(planned.some(p => p.weak || p.replaces) && assertedFile ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : planned.some(p => p.weak) ? [[F.asserted, canonical(sortedKeys(nextAsserted))]] : []),
   ...(planned.some(p => p.published) ? [[`published_${B}.json`, canonical(sortedKeys(nextPublished))]] : []),
   ...(planned.some(p => p.historical) ? [[`historical_${B}.json`, canonical(sortedKeys(nextHistorical))]] : []),
+  ...keyedByReal,
 ];
 if (DRY) console.error(`\ndry run: would register ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
 else {

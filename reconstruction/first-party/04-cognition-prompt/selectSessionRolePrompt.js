@@ -6,7 +6,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function selectSessionRolePrompt(e, t) {
-    if (classifySessionKeyKind(e) !== "channel") return;
+    if (classifySessionKey(e) !== "channel") return;
     let n = t(),
         r = n.state === "held" && n.session_key === e ? "main" : "member";
     return resolveRolePromptText(r)

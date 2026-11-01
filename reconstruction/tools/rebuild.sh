@@ -490,7 +490,8 @@ node -e '
 const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
 const out = [];
 (function walk(o, p) { for (const [k, v] of Object.entries(o)) { if (v && typeof v === "object") walk(v, p + k + "."); else if (typeof v === "string") out.push([p + k, v]); } })(r.verdicts || {}, "");
-const other = out.filter(([, v]) => v !== "pass");
+// `promoted` is committedInSync after a PROMOTE=1 run wrote the artifacts: not a failure
+const other = out.filter(([k, v]) => v !== "pass" && !(k === "committedInSync" && v === "promoted"));
 console.log(`==== verdicts: ${out.length - other.length} pass` + (other.length ? `, ${other.length} not: ${other.map(([k, v]) => `${k}=${v}`).join(" ")}` : ""));
 ' "$OUT/pipeline_report.json" 2> /dev/null || true
 

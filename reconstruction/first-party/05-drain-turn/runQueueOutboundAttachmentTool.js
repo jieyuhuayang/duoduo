@@ -15,7 +15,7 @@ async function runQueueOutboundAttachmentTool(input, ctx) {
             stats = await e_t.stat(resolvedPath);
         if (!stats.isFile()) throw new Error(`path is not a file: ${resolvedPath}`);
         let sessionRuntimeState = await readSessionRuntimeState(ctx.paths, sessionKey),
-            channelId = r_t(sessionKey),
+            channelId = extractSessionKeyChannelKind(sessionKey),
             {
                 acceptMime,
                 maxBytes

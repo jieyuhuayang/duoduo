@@ -57,7 +57,7 @@
   "0.8.6",
   "0.8.7"
  ],
- "symbolCount": 863,
+ "symbolCount": 890,
  "symbols": {
   "ALADUO_TOOL_NAMESPACE": {
    "mangled": "uO",
@@ -919,7 +919,12 @@
    "firstSeen": "0.7.0",
    "changedIn": []
   },
-  "classifySessionKeyKind": {
+  "classifyNotifySessionKind": {
+   "mangled": "Ewe",
+   "firstSeen": "0.8.2",
+   "changedIn": []
+  },
+  "classifySessionKey": {
    "mangled": "Nt",
    "firstSeen": "0.5.0",
    "changedIn": []
@@ -1228,6 +1233,12 @@
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.5"
+  },
+  "countUnreadableMemoryPaths": {
+   "mangled": "ZSe",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.7.1"
   },
   "createAbortErrorWithCause": {
    "mangled": "Sg",
@@ -1598,6 +1609,11 @@
     "0.8.2:0.813"
    ]
   },
+  "deliverMainRoleNoticeSafely": {
+   "mangled": "A6",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "deliverRouteEventToSession": {
    "mangled": "Ls",
    "firstSeen": "0.8.0",
@@ -1833,6 +1849,12 @@
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.3.1"
   },
+  "escapeRegExpSource": {
+   "mangled": "Nke",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.8.0"
+  },
   "escapeXmlText": {
    "mangled": "jt",
    "firstSeen": "0.2.0",
@@ -1939,6 +1961,17 @@
    "mangled": "VEe",
    "firstSeen": "0.8.1",
    "changedIn": []
+  },
+  "extractSessionKeyChannelKind": {
+   "mangled": "r_t",
+   "firstSeen": "0.2.0",
+   "changedIn": []
+  },
+  "extractStandInOwnerInfo": {
+   "mangled": "aJ",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.8.7"
   },
   "extractStreamTextDeltas": {
    "mangled": "uC",
@@ -2056,6 +2089,11 @@
   "formatModelConfigIssues": {
    "mangled": "pK",
    "firstSeen": "0.7.0",
+   "changedIn": []
+  },
+  "formatSessionAliasCommand": {
+   "mangled": "vSe",
+   "firstSeen": "0.8.7",
    "changedIn": []
   },
   "formatSlugLinkLocations": {
@@ -2190,6 +2228,11 @@
   },
   "hashActivityFingerprint": {
    "mangled": "Jwt",
+   "firstSeen": "0.2.0",
+   "changedIn": []
+  },
+  "hashDeliveryCursorKey": {
+   "mangled": "Ldt",
    "firstSeen": "0.2.0",
    "changedIn": []
   },
@@ -2600,6 +2643,14 @@
    "firstSeen": "0.8.2",
    "changedIn": []
   },
+  "initReservedMainAliasModule": {
+   "mangled": "Rr",
+   "firstSeen": null,
+   "changedIn": [
+    "0.8.7"
+   ],
+   "untraceable": "module-init with too few features to follow past v0.7.0"
+  },
   "initRuntimeInitializationModule": {
    "mangled": "mEe",
    "firstSeen": "0.2.0",
@@ -2857,6 +2908,12 @@
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.7.1"
   },
+  "isHostModelEnvKey": {
+   "mangled": "uht",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.4.3"
+  },
   "isImageGenerationItemType": {
    "mangled": "$ve",
    "firstSeen": "0.5.0",
@@ -2957,7 +3014,13 @@
    "firstSeen": "0.7.0",
    "changedIn": []
   },
-  "isMainAliasedChannelSession": {
+  "isMailboxMergeReadError": {
+   "mangled": "Yue",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.5.6"
+  },
+  "isMainSessionCandidate": {
    "mangled": "xue",
    "firstSeen": "0.8.7",
    "changedIn": []
@@ -3047,6 +3110,16 @@
   "isPathWithinDir": {
    "mangled": "fve",
    "firstSeen": "0.8.5",
+   "changedIn": []
+  },
+  "isPlainJsonObject": {
+   "mangled": "dke",
+   "firstSeen": "0.5.6",
+   "changedIn": []
+  },
+  "isPlainObjectRecord": {
+   "mangled": "rft",
+   "firstSeen": "0.8.4",
    "changedIn": []
   },
   "isProcessAliveByPid": {
@@ -3288,6 +3361,11 @@
    "changedIn": [
     "0.8.0"
    ]
+  },
+  "listMainAliasHolderKeys": {
+   "mangled": "Uft",
+   "firstSeen": "0.8.7",
+   "changedIn": []
   },
   "listMarkdownSlugsSync": {
    "mangled": "lu",
@@ -3703,6 +3781,11 @@
   "normalizeChannelCapabilityDeclarations": {
    "mangled": "_St",
    "firstSeen": "0.3.3",
+   "changedIn": []
+  },
+  "normalizeDirPathForCompare": {
+   "mangled": "FEe",
+   "firstSeen": "0.5.2",
    "changedIn": []
   },
   "normalizeIncludePathKey": {
@@ -4564,9 +4647,22 @@
    "firstSeen": "0.8.0",
    "changedIn": []
   },
+  "renderActiveSessionsListing": {
+   "mangled": "Xdt",
+   "firstSeen": "0.8.2",
+   "changedIn": [
+    "0.8.4",
+    "0.8.7"
+   ]
+  },
   "renderAgentToml": {
    "mangled": "lEe",
    "firstSeen": "0.5.3",
+   "changedIn": []
+  },
+  "renderAmbiguousMainAliasNotice": {
+   "mangled": "Hft",
+   "firstSeen": "0.8.7",
    "changedIn": []
   },
   "renderBoardTemperatureSection": {
@@ -4579,6 +4675,14 @@
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.5.10"
+  },
+  "renderChannelNotifyModeGuidance": {
+   "mangled": "_we",
+   "firstSeen": "0.3.0",
+   "changedIn": [
+    "0.8.2",
+    "0.8.7"
+   ]
   },
   "renderCoalescedDrainPrompt": {
    "mangled": "vyt",
@@ -4615,6 +4719,16 @@
    "firstSeen": "0.8.0",
    "changedIn": []
   },
+  "renderForOwnerAttribute": {
+   "mangled": "uJ",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
+  "renderFormerMainSessionNotice": {
+   "mangled": "Vft",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "renderHotOrphansSection": {
    "mangled": "$mt",
    "firstSeen": "0.8.0",
@@ -4637,10 +4751,31 @@
     "0.8.7:0.78"
    ]
   },
+  "renderJobCompletionReceipt": {
+   "mangled": "_yt",
+   "firstSeen": "0.8.0",
+   "changedIn": [
+    "0.8.7"
+   ]
+  },
   "renderJobExtraToolsDescription": {
    "mangled": "Sdt",
    "firstSeen": "0.8.0",
    "changedIn": []
+  },
+  "renderJobFailureNotification": {
+   "mangled": "Ygt",
+   "firstSeen": "0.4.0",
+   "changedIn": [
+    "0.5.1",
+    "0.5.3",
+    "0.8.0",
+    "0.8.2",
+    "0.8.7"
+   ],
+   "similarSteps": [
+    "0.8.7:0.954"
+   ]
   },
   "renderJobFileMarkdown": {
    "mangled": "Act",
@@ -4716,6 +4851,20 @@
   "renderManualCompactNotice": {
    "mangled": "Syt",
    "firstSeen": "0.5.5",
+   "changedIn": []
+  },
+  "renderMetaNotifyModeGuidance": {
+   "mangled": "sft",
+   "firstSeen": "0.3.0",
+   "changedIn": [
+    "0.4.0",
+    "0.8.2",
+    "0.8.7"
+   ]
+  },
+  "renderNewMainSessionNotice": {
+   "mangled": "Bft",
+   "firstSeen": "0.8.7",
    "changedIn": []
   },
   "renderNodeConvergeSignalBody": {
@@ -4850,6 +4999,15 @@
    "mangled": "nyt",
    "firstSeen": "0.5.10",
    "changedIn": []
+  },
+  "renderSystemNotifyModeGuidance": {
+   "mangled": "aft",
+   "firstSeen": "0.3.0",
+   "changedIn": [
+    "0.4.0",
+    "0.8.2",
+    "0.8.7"
+   ]
   },
   "renderTimeGapContextBlock": {
    "mangled": "ryt",
@@ -5090,16 +5248,16 @@
    "firstSeen": "0.3.3",
    "changedIn": []
   },
+  "resolveMainSession": {
+   "mangled": "Mb",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "resolveMainSessionFromIndex": {
    "mangled": "qc",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.7"
-  },
-  "resolveMainSessionHolder": {
-   "mangled": "Mb",
-   "firstSeen": "0.8.7",
-   "changedIn": []
   },
   "resolveMemoryCheckFlags": {
    "mangled": "wW",
@@ -5608,6 +5766,11 @@
    "firstSeen": "0.5.0",
    "changedIn": []
   },
+  "sanitizeDrainRecordSegment": {
+   "mangled": "Vnt",
+   "firstSeen": "0.2.0",
+   "changedIn": []
+  },
   "sanitizeUploadFileName": {
    "mangled": "Rft",
    "firstSeen": "0.2.0",
@@ -5713,6 +5876,12 @@
    "mangled": "SSe",
    "firstSeen": "0.8.7",
    "changedIn": []
+  },
+  "setSessionArchivedListener": {
+   "mangled": "Hue",
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "function with too few features to follow past v0.5.6"
   },
   "shouldKeepRouteDeliverEvent": {
    "mangled": "Qht",
@@ -6084,6 +6253,7 @@
     "eventToMessageGenerator",
     "executeGatewayCommand",
     "extractPayloadMediaRefs",
+    "extractSessionKeyChannelKind",
     "findOutboxRecordByEventId",
     "formatEventPartitionName",
     "formatLogPrefix",
@@ -6091,6 +6261,7 @@
     "generateSpineEventId",
     "getOrCreateEventIdIndexCache",
     "hashActivityFingerprint",
+    "hashDeliveryCursorKey",
     "hashSessionKey",
     "indexOutboxRecordByEventId",
     "ingestChannelCommand",
@@ -6241,6 +6412,7 @@
     "runNotifyTool",
     "runQueueOutboundAttachmentTool",
     "runSkipTool",
+    "sanitizeDrainRecordSegment",
     "sanitizeUploadFileName",
     "saveChannelUploadToInbox",
     "scanAndSpawnDueJobs",
@@ -6345,6 +6517,9 @@
     "isRuntimeWriterLockStale",
     "mapClaudeResultToDrainUsage",
     "recordTelemetryMetric",
+    "renderChannelNotifyModeGuidance",
+    "renderMetaNotifyModeGuidance",
+    "renderSystemNotifyModeGuidance",
     "renderTimeGapContextBlock",
     "resolveOutboxByIdIndexPath",
     "resolveOutboxReplayDir",
@@ -6502,7 +6677,8 @@
     "isAutoArchivedJobSchedule",
     "readAllSessionStateFiles",
     "rehydrateSessionState",
-    "renderJobCompleteReceiptGuidance"
+    "renderJobCompleteReceiptGuidance",
+    "renderJobFailureNotification"
    ],
    "changed": [
     "buildSessionInfoFromState",
@@ -6516,6 +6692,8 @@
     "initNotifyToolModule",
     "initRuntimeInitializationModule",
     "renderMailboxEventPrompt",
+    "renderMetaNotifyModeGuidance",
+    "renderSystemNotifyModeGuidance",
     "resolveIngressWorkspace",
     "resolveNotifyTargetSessionKey",
     "runManageJobTool",
@@ -6627,7 +6805,7 @@
     "archiveSessionIfQuiescent",
     "buildSessionIndexEntry",
     "buildSessionIndexFromDisk",
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "clearSessionRuntimeStateField",
     "computeBoundedEditDistance",
     "createMapBackedSessionIndex",
@@ -6713,6 +6891,7 @@
     "initializeRuntime",
     "prepareDrainTurnContext",
     "renderJobCompleteReceiptGuidance",
+    "renderJobFailureNotification",
     "renderMailboxEventPrompt",
     "renderPartitionRuntimeContext",
     "resolveRuntimePaths",
@@ -6727,6 +6906,7 @@
     "decideRestartHintInjection",
     "initBoardTransclusionModule",
     "isBoardIncludePathCandidate",
+    "normalizeDirPathForCompare",
     "normalizeIncludePathKey",
     "parseBoardFileContent",
     "renderTranscludedFiles",
@@ -6798,6 +6978,7 @@
     "main",
     "parsePartitionDefinition",
     "readPartitionInboxEntries",
+    "renderJobFailureNotification",
     "renderMailboxEventPrompt",
     "renderPartitionRuntimeContext",
     "resolveRuntimePaths",
@@ -6928,6 +7109,7 @@
     "hasSkipRewindRecordSince",
     "initMemorySignalKindsModule",
     "isJobScheduleDue",
+    "isPlainJsonObject",
     "listPendingInboxFiles",
     "moveFileIntoDirectory",
     "normalizeInputTokenTotals",
@@ -7359,6 +7541,7 @@
     "renderFoldGapBody",
     "renderHotOrphansSection",
     "renderJobAcceptanceBlock",
+    "renderJobCompletionReceipt",
     "renderJobExtraToolsDescription",
     "renderJobPromptModeDescription",
     "renderRestartWakeMessage",
@@ -7483,6 +7666,7 @@
     "renderDrainErrorRuntimeHint",
     "renderEntityConvergeSignalBody",
     "renderJobCompleteReceiptGuidance",
+    "renderJobFailureNotification",
     "renderJobFileMarkdown",
     "renderJobMissionBlock",
     "renderMailboxEventPrompt",
@@ -7569,6 +7753,7 @@
   "0.8.2": {
    "born": [
     "classifyConsumerStaleness",
+    "classifyNotifySessionKind",
     "createEmptyUsageSummary",
     "evaluateNotifyConsumerRefusal",
     "fireDueWakeRecords",
@@ -7587,6 +7772,7 @@
     "readPartitionByteRange",
     "readPartitionTail",
     "recordPendingInterruptMarker",
+    "renderActiveSessionsListing",
     "renderNotifyRefusalMessage",
     "resolveNotifyUnconsumedHours",
     "resolveTailCursorEndOffset",
@@ -7627,9 +7813,13 @@
     "readAllSessionSummaries",
     "readGlobalUsageTotals",
     "readSpineTail",
+    "renderChannelNotifyModeGuidance",
+    "renderJobFailureNotification",
     "renderMailboxEventPrompt",
     "renderManageJobToolDescription",
+    "renderMetaNotifyModeGuidance",
     "renderNotifyDeliveryReport",
+    "renderSystemNotifyModeGuidance",
     "requestBoundaryAwarePreempt",
     "runManageJobTool",
     "runNotifyTool",
@@ -7674,6 +7864,7 @@
     "initGapSpanModule",
     "initRuntimeValidationModule",
     "isNonEmptyText",
+    "isPlainObjectRecord",
     "isVoidRuntimeSession",
     "listVoidChannelSessions",
     "parseChannelRuntimeField",
@@ -7729,6 +7920,7 @@
     "parseChannelConfigFields",
     "parsePartitionDefinition",
     "readGapLintDayEvents",
+    "renderActiveSessionsListing",
     "resolveDefaultRuntime",
     "runManageJobTool",
     "runNotifyTool",
@@ -7756,11 +7948,18 @@
     "buildMainRoleContext",
     "checkMainAliasCallerAuthority",
     "composeIdentityLayer",
+    "deliverMainRoleNoticeSafely",
     "describeStandInJobOwner",
-    "isMainAliasedChannelSession",
+    "formatSessionAliasCommand",
+    "isMainSessionCandidate",
     "isReservedMainAliasChange",
+    "listMainAliasHolderKeys",
     "reconcileMainSessionAtBoot",
-    "resolveMainSessionHolder",
+    "renderAmbiguousMainAliasNotice",
+    "renderForOwnerAttribute",
+    "renderFormerMainSessionNotice",
+    "renderNewMainSessionNotice",
+    "resolveMainSession",
     "resolveRolePromptText",
     "selectSessionRolePrompt",
     "setSessionAliasAndReindex",
@@ -7786,6 +7985,7 @@
     "filterDeliverableSessions",
     "initNotifyToolModule",
     "initProtocolSystemModule",
+    "initReservedMainAliasModule",
     "initRuntimeInitializationModule",
     "initSkipToolModule",
     "isSessionSetAliasParams",
@@ -7793,11 +7993,17 @@
     "listSessionsWithRecentConsumer",
     "main",
     "prepareDrainTurnContext",
+    "renderActiveSessionsListing",
+    "renderChannelNotifyModeGuidance",
     "renderJobCompleteReceiptGuidance",
+    "renderJobCompletionReceipt",
+    "renderJobFailureNotification",
     "renderMailboxEventPrompt",
+    "renderMetaNotifyModeGuidance",
     "renderNotifyRefusalMessage",
     "renderPromptLayers",
     "renderSkipRewindBlock",
+    "renderSystemNotifyModeGuidance",
     "resolveNotifyTargetSessionKey",
     "resolveSessionByKeyOrAlias",
     "runNotifyTool",
@@ -7854,12 +8060,15 @@
   "containsWhitespaceChar",
   "countDatedStampLines",
   "countNewlineChars",
+  "countUnreadableMemoryPaths",
   "createEmptySessionIndex",
   "describeConversationProblem",
   "describeMemoryReadProblem",
   "encodePiWorkerFrame",
   "ensureSessionMailboxPendingDir",
+  "escapeRegExpSource",
   "evaluatePredicateOrFalse",
+  "extractStandInOwnerInfo",
   "extractUrlHost",
   "findEventInPartitionFile",
   "getCachedHostBootId",
@@ -7877,6 +8086,7 @@
   "initMemoryCheckTickModule",
   "initMemorySignalDeliveryModule",
   "initNodeLintModule",
+  "initReservedMainAliasModule",
   "initVoidRuntimeModule",
   "isAgentRuntime",
   "isAgentSdkPromptNotAcceptedAbortError",
@@ -7888,9 +8098,11 @@
   "isEffortLevel",
   "isGrokAvailable",
   "isGrokSkipToolCall",
+  "isHostModelEnvKey",
   "isJobArchiveParams",
   "isKnownRuntimeValue",
   "isLogLevelEnabled",
+  "isMailboxMergeReadError",
   "isModelRuntime",
   "isOrphanWarningDeliverable",
   "isSessionArchived",
@@ -7938,6 +8150,7 @@
   "selectInstructionsFingerprint",
   "selectInterruptMarkerText",
   "setPendingRestartReason",
+  "setSessionArchivedListener",
   "summarizeDrainRecords",
   "writeInstanceModelAlias",
   "writePartitionRunState"

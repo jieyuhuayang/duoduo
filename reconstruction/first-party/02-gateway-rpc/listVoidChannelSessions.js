@@ -13,7 +13,7 @@ async function listVoidChannelSessions(paths) {
         voidSessionKeys = new Set;
     for (let [sessionKey, sessionState] of Object.entries(allSessionStateFiles)) {
         let sourceChannelId = sessionState.source_channel_id;
-        if (!sourceChannelId || classifySessionKeyKind(sessionKey) !== "channel") continue;
+        if (!sourceChannelId || classifySessionKey(sessionKey) !== "channel") continue;
         let isVoidPromise = map.get(sourceChannelId);
         isVoidPromise === void 0 && (isVoidPromise = isVoidRuntimeSession(paths, sessionKey, sourceChannelId), map.set(sourceChannelId, isVoidPromise)), await isVoidPromise && voidSessionKeys.add(sessionKey)
     }

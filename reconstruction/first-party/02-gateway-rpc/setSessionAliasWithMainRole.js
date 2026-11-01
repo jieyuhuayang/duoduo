@@ -8,7 +8,7 @@
 
 async function setSessionAliasWithMainRole(e, t) {
     let trimmed = t.session_key.trim();
-    return classifySessionKeyKind(trimmed) !== "channel" ? setSessionAliasAndReindex(e, trimmed, t.display_name, !1) : bSe(async () => {
+    return classifySessionKey(trimmed) !== "channel" ? setSessionAliasAndReindex(e, trimmed, t.display_name, !1) : bSe(async () => {
         let sessionMetaFile = await readSessionMetaFile(e.paths, trimmed);
         if (!isReservedMainAliasChange(trimmed, t.display_name, sessionMetaFile?.display_name)) return setSessionAliasAndReindex(e, trimmed, t.display_name, !1);
         if (!sessionMetaFile) return {
@@ -21,14 +21,14 @@ async function setSessionAliasWithMainRole(e, t) {
         if (o) return o;
         let s = sessionMetaFile.display_name?.trim() === Hn;
         if (!(t.display_name?.trim() === Hn)) return setSessionAliasAndReindex(e, trimmed, t.display_name, !0);
-        let u = Uft(mainSessionFromIndex).filter(c => c !== trimmed);
+        let u = listMainAliasHolderKeys(mainSessionFromIndex).filter(c => c !== trimmed);
         if (u.length > 0 && t.move !== !0) {
             let c = u.join(", ");
             return {
                 ok: !1,
                 reason: "main_held",
                 session_key: trimmed,
-                error: `${c} ${u.length===1?"is":"are"} already aliased main, and there is only one main session. Nothing was changed. To make ${trimmed} the main session instead, the current main session or the owner from their own terminal runs: ` + vSe(trimmed, Hn, !0)
+                error: `${c} ${u.length===1?"is":"are"} already aliased main, and there is only one main session. Nothing was changed. To make ${trimmed} the main session instead, the current main session or the owner from their own terminal runs: ` + formatSessionAliasCommand(trimmed, Hn, !0)
             }
         }
         for (let c of u) await updateSessionDisplayName(e.paths, c, null, {

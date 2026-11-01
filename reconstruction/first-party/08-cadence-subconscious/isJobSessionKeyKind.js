@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isJobSessionKeyKind(sessionKey) {
-    return Ewe(sessionKey) === "job"
+    return classifyNotifySessionKind(sessionKey) === "job"
 }

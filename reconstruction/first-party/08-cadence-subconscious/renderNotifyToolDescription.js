@@ -15,12 +15,12 @@ function renderNotifyToolDescription(ctx) {
         case "job":
             return oft();
         case "meta":
-            return sft();
+            return renderMetaNotifyModeGuidance();
         case "foreground":
-            return _we();
+            return renderChannelNotifyModeGuidance();
         case "system":
-            return aft();
+            return renderSystemNotifyModeGuidance();
         default:
-            return _we()
+            return renderChannelNotifyModeGuidance()
     }
 }
