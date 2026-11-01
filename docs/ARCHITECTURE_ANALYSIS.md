@@ -457,7 +457,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 
 ### 7.5 控制面探测（v0.7.1）
 
-在隔离环境（`ALADUO_PORT=20334`）上探测只读端口与 socket，结果与 §4 描述的 v0.8.7 代码行为一致（只读方法集合自 v0.7.1 以来没有变化）：
+在隔离环境（`ALADUO_PORT=20334`）上探测只读端口与 socket，结果与 §4 描述的 v0.8.7 代码行为一致：
 
 ```
 $ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
