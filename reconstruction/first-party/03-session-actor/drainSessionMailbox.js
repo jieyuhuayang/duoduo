@@ -5,6 +5,7 @@
 // locals: 239 renamed — 64 from the code at the binding (rule), 175 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (medium): surfaces a per-session "runtime unavailable" error instead of failing silently.
 // changelog v0.5.5 (medium): Parallel worker-completion notifications are coalesced into one turn.
+// changelog v0.8.7 (medium): **Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

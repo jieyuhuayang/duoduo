@@ -4,6 +4,7 @@
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.7 (maps/history_daemon.json)
 // locals: 82 renamed — 30 from the code at the binding (rule), 52 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.0 (medium): Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.
+// changelog v0.8.7 (high): A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

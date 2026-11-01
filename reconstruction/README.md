@@ -311,6 +311,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 局部变量命名任务附旧名（`name_locals.mjs tasks`） | 任务文件开头写明命名规则和答案格式，每个声明附 `previously:`：附近代码改动后失效的条目原来的名字，供命名时沿用 | v0.8.7 两个命名子代理之一没有打开 `locals_daemon.json`，全部从头命名；同一次升级重新生成的任务里 27 个声明带 `previously:` |
 | 顶层代码的命名任务（`name_toplevel.mjs`） | 升级留下的无名新代码一次列全，一轮命名填 TSV，`name_symbol.mjs --dry-run` 逐条过同样的检查，再由人抽查函数体很短的条目 | v0.8.7：40 个候选，命名子代理提出 33 个，原样通过 23 个，读过函数体后 `--allow-unproven` 4 个；抽查改正 2 个只有三行函数体、子代理靠猜的名字，任务文件因此加了"共用变量"一行（`FU: also used by moveSessionDirToArchive`） |
 | 已发布源码改名（`name_symbol.mjs --published` 处理 `conflict`） | 上游已发布源码里对应声明的名字与本仓库的推断名不同时，换成上游的写法；改名时 `locals_`、`history_`、`changelog_<bundle>.json` 里按真名为键的条目一起移动 | `@openduo/protocol` 0.8.6 的 `main-session.ts`：`classifySessionKeyKind`→`classifySessionKey`、`isMainAliasedChannelSession`→`isMainSessionCandidate`、`resolveMainSessionHolder`→`resolveMainSession`，三项得分都是 1，领先第二名分别为 0.19、0.53、0.50（`classifySessionKey` 的第二名是另一个按前缀分类的函数，0.81） |
+| CHANGELOG 对照的增量合并（`changelog_merge.mjs --keep`） | 逐版本对照文件放在 `.build` 下，换一次会话就没了；`--keep` 让目录里没有对照文件的版本沿用已提交映射里的条目，升级时只需写新版本的那一份 | v0.8.7：先由映射反推出 30 个旧版本的对照文件再合并，与原映射逐字节相同（只差一处按旧名记的条目，见下）；只给 0.8.5–0.8.7 三份新文件加 `--keep` 合并，结果与全量合并逐条相同。顺带修正：改名时 `changelog_<bundle>.json` 的 `unexplained` 列表也随之改名（此前 `classifySessionKeyKind` 留在列表里） |
 | 每次运行末尾打印全部 verdict（`rebuild.sh`） | `FAILED` 之前一行列出多少项 pass、不是 pass 的逐项写出，不必再打开 `pipeline_report.json` | 输出多一行 |
 
 ### 未实现

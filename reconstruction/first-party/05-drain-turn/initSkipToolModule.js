@@ -2,6 +2,7 @@
 // symbol: initSkipToolModule  (minified: tl, daemon.pretty.js:56256)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.8.7 (maps/history_daemon.json)
+// changelog v0.8.7 (high): **Skip texts name what was withheld.** The Skip tool and the notice after a skipped turn now say that the turn's text reply was not delivered, rather than everything the turn did; tool calls before Skip, such as a `send`, still take effect.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

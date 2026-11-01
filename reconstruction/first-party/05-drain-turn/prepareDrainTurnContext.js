@@ -4,6 +4,7 @@
 // since: v0.3.7 — first release whose bundle holds this declaration; body changed in v0.4.5, v0.5.1, v0.5.2, v0.5.4, v0.5.5, v0.5.10, v0.6.2, v0.8.0, v0.8.1, v0.8.7 (maps/history_daemon.json)
 // locals: 27 renamed — 6 from the code at the binding (rule), 21 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.7 (medium): **session-manager**: Streaming turn admission control — new ingress enters a live CLI session without interrupting the active drain. When the CLI's result is delayed (e.g. background tasks polling), later messages are admitted into the same streaming session via a drain-scoped callback
+// changelog v0.8.7 (medium): **Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

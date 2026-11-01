@@ -3,6 +3,7 @@
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.5 (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// changelog v0.8.5 (high): An invalid job `cwd_rel` is refused. Up to v0.8.4 a job whose `cwd_rel` was an absolute path or pointed outside the work dir (possible only in a job file edited by hand) ran silently in a system scratch workspace, without its project `CLAUDE.md`. It now fails each run with `invalid cwd_rel path`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

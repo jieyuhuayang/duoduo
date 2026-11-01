@@ -2,6 +2,7 @@
 // symbol: renderMetaNotifyModeGuidance  (minified: sft, daemon.pretty.js:66527)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
+// changelog v0.8.7 (high): **Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

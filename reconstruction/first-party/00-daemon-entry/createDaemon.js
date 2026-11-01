@@ -4,6 +4,7 @@
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10, v0.3.0, v0.3.2, v0.3.3, v0.3.4, v0.3.6, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.4, v0.5.0, v0.5.4, v0.5.5, v0.5.6, v0.5.8, v0.5.10, v0.6.0, v0.7.0, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 260 renamed — 72 from the code at the binding (rule), 188 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.0 (high): That interface now lives on a socket file that carries owner-only permissions, so the operating system enforces what nothing was enforcing before.
+// changelog v0.8.7 (high): **Uploads over `/rpc` match WebSocket.** The full-access HTTP `/rpc` body limit now equals the WebSocket message limit, so an upload that works over WebSocket also works over `/rpc`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

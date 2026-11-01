@@ -4,6 +4,7 @@
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // locals: 18 renamed — 2 from the code at the binding (rule), 16 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.2 (medium): now fails with a message naming the sessions that *do* have a reader
+// changelog v0.8.7 (medium): **Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

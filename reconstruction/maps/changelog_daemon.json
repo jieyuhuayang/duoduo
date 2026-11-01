@@ -2,11 +2,11 @@
  "generatedBy": "tools/changelog_merge.mjs",
  "source": "CHANGELOG.md of openduo/duoduo, read per release against maps/history_daemon.json",
  "counts": {
-  "born": 379,
-  "changed": 65,
-  "high": 158,
-  "medium": 285,
-  "low": 1,
+  "born": 401,
+  "changed": 104,
+  "high": 196,
+  "medium": 307,
+  "low": 2,
   "unknownSymbol": 0
  },
  "symbols": {
@@ -62,6 +62,15 @@
     "confidence": "medium",
     "changelog": "The dashboard streams usage summaries",
     "why": "Accumulates drain records into a usage summary while iterating (for await), instead of collecting all records first."
+   }
+  ],
+  "announceMainSessionChange": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The session is told when it becomes main and tells its owner in its own words.",
+    "why": "Delivers renderNewMainSessionNotice/renderFormerMainSessionNotice to sessions and stamps `main_since`."
    }
   ],
   "appendBeforeExecuteGateway": [
@@ -281,6 +290,13 @@
     "confidence": "high",
     "changelog": "Codex foreground: register missing tools (`Skip`, `QueueOutboundAttachment`)",
     "why": "Body registers QueueOutboundAttachment for Codex"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Skip texts name what was withheld.** The Skip tool and the notice after a skipped turn now say that the turn's text reply was not delivered, rather than everything the turn did; tool calls before Skip, such as a `send`, still take effect.",
+    "why": "Codex Skip tool uses the `s_e` description."
    }
   ],
   "buildCodexStringInputSchema": [
@@ -328,6 +344,15 @@
     "why": "Builds the job runtime enum from listSelectableJobRuntimes, which in this release always appends \"pi\"."
    }
   ],
+  "buildMainRoleContext": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "The session is told when it becomes main and tells its owner in its own words.",
+    "why": "Builds a notify context with `source: \"main-role\"`, `force: !0` to deliver role notices."
+   }
+  ],
   "buildNotifyInputSchema": [
    {
     "version": "0.5.1",
@@ -335,6 +360,13 @@
     "confidence": "high",
     "changelog": "adds `correlation_id` / `reply_to` fields to the Notify MCP tool",
     "why": "Schema now contains correlation_id and reply_to"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Description says `main` is the main session as a target_session_key."
    }
   ],
   "buildOrphanIslandsSignal": [
@@ -407,6 +439,13 @@
     "confidence": "medium",
     "changelog": "`SessionIndex` is now the in-memory derived view of `var/sessions/<hash>/state.json`",
     "why": "Turns one session's state/meta into an index entry (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`duoduo session list` marks it, and `--json` rows carry `main` and `main_since`",
+    "why": "Index entry now carries `main_since: state.main_since`."
    }
   ],
   "buildSessionIndexFromDisk": [
@@ -432,6 +471,15 @@
     "confidence": "high",
     "changelog": "Exposed in `system.config` RPC and dashboard.",
     "why": "Lists ALADUO_TELEMETRY_ENABLED among the reported env entries."
+   }
+  ],
+  "buildSystemPromptForChannelConfig": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Takes a `rolePrompt` argument passed into renderPromptLayers."
    }
   ],
   "buildTransientUserBlocks": [
@@ -505,6 +553,15 @@
     "confidence": "low",
     "changelog": "A failed Grok availability probe reported a login problem regardless of the real cause.",
     "why": "Body changed in this release; the fix concerns its failure reason, but the diff was not inspected."
+   }
+  ],
+  "checkMainAliasCallerAuthority": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A channel session can no longer take `main` as its display name any other way. Elsewhere `duoduo session alias <key> main --move` sets or moves it.",
+    "why": "Refuses with `reason: \"not_main\"` and tells the owner to run the `duoduo session alias` command from their terminal."
    }
   ],
   "checkReservedRecordSource": [
@@ -681,6 +738,13 @@
     "confidence": "medium",
     "changelog": "injects the rendered import graph into both Claude and Codex sessions through one path.",
     "why": "Now calls transcludeBroadcastBoard for the memory-board input"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Identity composed with composeIdentityLayer(resolveMetaPromptText(), rolePrompt)."
    }
   ],
   "collectJobCompletionReceipts": [
@@ -690,6 +754,15 @@
     "confidence": "medium",
     "changelog": "A finished job's completion receipt now arrives as context on the owner's next turn instead of waking a turn of its own.",
     "why": "Collects job-completion events (extractJobCompletionJobId) from the drain items and renders them as prompt context for the turn."
+   }
+  ],
+  "composeIdentityLayer": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Joins meta prompt and role prompt into the identity layer."
    }
   ],
   "computeBoundedEditDistance": [
@@ -771,6 +844,13 @@
     "confidence": "high",
     "changelog": "**Claude Code's own auto memory is off** in every Claude session duoduo starts, because it would keep a second memory store beside duoduo's.",
     "why": "The Claude session env now sets CLAUDE_CODE_DISABLE_AUTO_MEMORY = \"1\" (and ALADUO_CALLER_SESSION)."
+   },
+   {
+    "version": "0.8.6",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Fork subagents stay off. Agent SDK 0.3.302 started offering \"fork\" subagents by default: a subagent that inherits the whole conversation and always runs on the parent session's model. duoduo turns them off for every Claude session in this release.",
+    "why": "The only change in the body is `env.CLAUDE_CODE_FORK_SUBAGENT = \"0\"` in the environment every Claude session is started with."
    }
   ],
   "createCodexAppServerAdapter": [
@@ -796,6 +876,13 @@
     "confidence": "high",
     "changelog": "That interface now lives on a socket file that carries owner-only permissions, so the operating system enforces what nothing was enforcing before.",
     "why": "\"daemon.sock\" appears in the bundle first in v0.7.0 (0 hits in v0.6.2), and createDaemon is the current holder of it."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Uploads over `/rpc` match WebSocket.** The full-access HTTP `/rpc` body limit now equals the WebSocket message limit, so an upload that works over WebSocket also works over `/rpc`.",
+    "why": "`bodyLimit: maxPayload` with `maxPayload = wsDefaultMaxPayload()`."
    }
   ],
   "createEmptySessionIndex": [
@@ -832,6 +919,13 @@
     "confidence": "medium",
     "changelog": "Job results went nowhere when the job had no explicit audience; the owner is now the default, and a job can no longer disappear without a trace.",
     "why": "Logs \"job outcome delivered to owner\" / \"undeliverable: no owner_session\", delivering job results to owner_session by default (body likely restructured from older job finalisation)."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "deliverJobOutcomeToOwner falls back to resolveMain() and adds `stand_in_for_owner`."
    }
   ],
   "createMapBackedSessionIndex": [
@@ -870,6 +964,15 @@
     "why": "The pi runtime adapter: spawns the pi worker process, exchanges exec/abort/compact frames and maps aborts to the shared AgentSdk turn errors."
    }
   ],
+  "createSessionManager": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Computes `rolePrompt = selectSessionRolePrompt(sessionKey, options.resolveMain)` and passes it on."
+   }
+  ],
   "createVoidAwareAttachmentCallbacks": [
    {
     "version": "0.8.4",
@@ -904,6 +1007,22 @@
     "confidence": "high",
     "changelog": "`duoduo session notify <target> -m \"<msg>\"` — wake another session by key or alias with a source-tagged notification (for cross-session orchestration). Only foreground/job sessions are valid targets; the kernel/subconscious plane is isolated and refused.",
     "why": "Handles session.notify with source \"external:session.notify\", refuses forbidden_kind via resolveIsolatedPlaneKind"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.",
+    "why": "Takes the subscriber counter as a new parameter and passes it to evaluateNotifyConsumerRefusal, so a session with a live connection is not refused."
+   }
+  ],
+  "deliverMainRoleNoticeSafely": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The session is told when it becomes main and tells its owner in its own words.",
+    "why": "Delivers the role notice with logs `[main-role] role notice not delivered`."
    }
   ],
   "deliverScanGapSignal": [
@@ -958,6 +1077,15 @@
     "why": "Protocol validator for spine.record params (source, payload, dedup_key, conversation); renderParamsProblem(\"spine.record\") reports it."
    }
   ],
+  "describeStandInJobOwner": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "Text `it reached you as the main session` describes a stand-in delivery of an owner's job."
+   }
+  ],
   "detectOrphanMemory": [
    {
     "version": "0.5.5",
@@ -990,6 +1118,13 @@
     "confidence": "medium",
     "changelog": "Parallel worker-completion notifications are coalesced into one turn.",
     "why": "drainSessionMailbox is the caller of the new isMergeableDrainBatch that merges worker notify deliveries into one turn."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Passes `options.rolePrompt` to buildSystemPromptForChannelConfig."
    }
   ],
   "encodePiWorkerFrame": [
@@ -1037,6 +1172,15 @@
     "why": "Write path that appends a record to replay only when the by_id index lacks it, under a per-session lock, separate from the read/bootstrap path."
    }
   ],
+  "ensureSessionDescriptorAndStateFiles": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A channel session can no longer take `main` as its display name any other way.",
+    "why": "Logs `refused the reserved main alias on session creation`."
+   }
+  ],
   "ensureSessionMailboxPendingDir": [
    {
     "version": "0.3.1",
@@ -1053,6 +1197,13 @@
     "confidence": "medium",
     "changelog": "**Notify refuses a session nobody reads.** Delivering into a foreground session whose last consumer take is older than `ALADUO_NOTIFY_UNCONSUMED_HOURS` (default off until set) now fails",
     "why": "For a \"channel\" target, decides refusal from classifyConsumerStaleness and lists sessions with a recent consumer."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.",
+    "why": "Returns `refused: !1` when `finalSubscriberCount(sessionKey) > 0` before any staleness check."
    }
   ],
   "executeGatewayCommand": [
@@ -1123,6 +1274,13 @@
     "confidence": "high",
     "changelog": "`session.list` accepts `deliverable: true` to list only the sessions a `Notify` would deliver to.",
     "why": "Keeps only sessions for which evaluateNotifyConsumerRefusal (the Notify refusal check) does not refuse; called when session.list gets deliverable."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.",
+    "why": "Passes the subscriber counter to evaluateNotifyConsumerRefusal, so `session.list` with `deliverable` keeps sessions that have a live connection."
    }
   ],
   "findDeadAllowedToolEntries": [
@@ -1204,6 +1362,15 @@
     "confidence": "medium",
     "changelog": "Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp on host-mode deployments",
     "why": "Formats a local date/time with zone offset and name; called by renderTimeGapContextBlock, renderJobTickBlock and renderSkipRewindBlock (all changed in 0.5.0)"
+   }
+  ],
+  "formatSessionAliasCommand": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Elsewhere `duoduo session alias <key> main --move` sets or moves it.",
+    "why": "Formats `duoduo session alias ${key} main --move`."
    }
   ],
   "formatViewSessionsListLine": [
@@ -1492,6 +1659,13 @@
     "confidence": "medium",
     "changelog": "`spine.record` appends an `external.record` event for writers outside duoduo, with optional per-source deduplication.",
     "why": "Protocol constants module that lists the new RPC methods spine.record, spine.cat and memory.read with their param keys (dedup_key, conversation, count_only)."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "low",
+    "changelog": "Elsewhere `duoduo session alias <key> main --move` sets or moves it. A channel session can no longer take `main` as its display name any other way.",
+    "why": "Now calls initMainSessionAliasModule; protocol 0.8.6 carries the main alias."
    }
   ],
   "initRemindDuoduoToolModule": [
@@ -1501,6 +1675,24 @@
     "confidence": "high",
     "changelog": "`Wake` is now `RemindDuoduo`",
     "why": "Defines the tool \"RemindDuoduo\" (\"mcp__aladuo__RemindDuoduo\") with the description \"Schedule one future turn of this session\"."
+   }
+  ],
+  "initReservedMainAliasModule": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A channel session can no longer take `main` as its display name any other way.",
+    "why": "Defines ReservedMainAliasError: `is reserved for the main session and only session.set_alias may set or clear it`."
+   }
+  ],
+  "initRuntimeInitializationModule": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "The set of top-level directories the kernel copy skips now includes `roles` (`HW = new Set([\"var\", \"roles\"])`), so the role texts are read from the bootstrap directory and never copied into the kernel."
    }
   ],
   "initRuntimeValidationModule": [
@@ -1519,6 +1711,15 @@
     "confidence": "medium",
     "changelog": "Concurrent `channel.ack` during archive refused at entry: prevents delivery-cursor writers from creating files beside a just-renamed session dir; observer re-read is now wrapped in the per-session state lock and re-checks the archiving marker after the lock is taken.",
     "why": "Defines SessionArchivingError with code session_archiving and message \"Session is being archived; refusing to materialize state\" (entry v0.5.0-rc.2; rc deltas land in 0.5.0)"
+   }
+  ],
+  "initSkipToolModule": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Skip texts name what was withheld.** The Skip tool and the notice after a skipped turn now say that the turn's text reply was not delivered, rather than everything the turn did; tool calls before Skip, such as a `send`, still take effect.",
+    "why": "Defines `s_e` replacing the description with `After you call Skip, nothing further you produce this turn will be delivered.`"
    }
   ],
   "initSpineEventLogModule": [
@@ -1690,6 +1891,15 @@
     "why": "Classifies the bind host as loopback (\"localhost\", \"::1\"), which resolveRemoteListenerConfig uses to tell a public address (token required) from a local one."
    }
   ],
+  "isMainSessionCandidate": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "True for a channel session whose display_name equals the `main` alias."
+   }
+  ],
   "isMergeableDrainBatch": [
    {
     "version": "0.5.5",
@@ -1735,6 +1945,15 @@
     "why": "Lets the partition scheduler skip a partition that is in backoff when picking the next one."
    }
   ],
+  "isPathWithinDir": [
+   {
+    "version": "0.8.5",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A job `cwd_rel` inside a directory whose name begins with two dots (such as `..x`) was treated as outside the work dir. It is now accepted.",
+    "why": "The check rejects only a relative path that is exactly `..` or starts with `../` (or is absolute), so a directory named `..x` passes; the fix the entry describes."
+   }
+  ],
   "isProviderQualifiedModelId": [
    {
     "version": "0.8.0",
@@ -1742,6 +1961,15 @@
     "confidence": "medium",
     "changelog": "a job naming a model pi cannot run is refused when you create it, not when it next fires.",
     "why": "Tests for a provider/model id (pi's model form); runManageJobTool calls it when a job is created."
+   }
+  ],
+  "isReservedMainAliasChange": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "A channel session can no longer take `main` as its display name any other way.",
+    "why": "True when a channel session's display name is being set to or from the reserved main alias."
    }
   ],
   "isSessionArchiveParams": [
@@ -1839,6 +2067,13 @@
     "confidence": "medium",
     "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label so it is legible in `list` and usable as a wake target.",
     "why": "Param validator (key + name strings) for the alias RPC"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "Elsewhere `duoduo session alias <key> main --move` sets or moves it.",
+    "why": "Validates the optional boolean `move` parameter."
    }
   ],
   "isSpineTailParams": [
@@ -1956,6 +2191,15 @@
     "why": "Lists mailbox/pending/*.item.json: the mailbox is now one file per pending item instead of a rewritten markdown list."
    }
   ],
+  "listMainAliasHolderKeys": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Lists keys of the session(s) holding the `main` alias (held or ambiguous)."
+   }
+  ],
   "listMemoryFragmentDates": [
    {
     "version": "0.8.0",
@@ -1989,6 +2233,13 @@
     "changelog": "`session.list` accepts `deliverable: true` to list only the sessions a `Notify` would deliver to.",
     "why": "Applies n.deliverable ? await filterDeliverableSessions(...) to the session.list result; the rest of the body existed in 0.8.3 (see suspectChain).",
     "note": "the release chain may have lost an older body of this symbol; the entry describes a change, not its first appearance"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "`duoduo session list` marks it, and `--json` rows carry `main` and `main_since`",
+    "why": "Summary rows get `main: \"held\"`/`\"candidate\"` and `main_since`."
    }
   ],
   "listSessionsWithRecentConsumer": [
@@ -1998,6 +2249,13 @@
     "confidence": "medium",
     "changelog": "now fails with a message naming the sessions that *do* have a reader",
     "why": "Lists \"channel\" sessions whose latest delivery-cursor update is within the window."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.",
+    "why": "Candidates include sessions with a live consumer (`attached`) regardless of age."
    }
   ],
   "listSortedAliasKeys": [
@@ -2079,6 +2337,13 @@
     "confidence": "medium",
     "changelog": "The by-id index is now a bounded recency cache keyed on event date and compacted at boot (`ALADUO_SPINE_INDEX_RETENTION_DAYS`, 7 days by default).",
     "why": "Boot calls pruneEventIdIndexByRetention (\"compacted at boot\")."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Boot now calls reconcileMainSession (log `[pid0] main session reconciliation error` on failure), which stamps or warns about the main session."
    }
   ],
   "mapClaudeResultToDrainUsage": [
@@ -2453,6 +2718,13 @@
     "confidence": "medium",
     "changelog": "**session-manager**: Streaming turn admission control — new ingress enters a live CLI session without interrupting the active drain. When the CLI's result is delayed (e.g. background tasks polling), later messages are admitted into the same streaming session via a drain-scoped callback",
     "why": "Turn preparation (effective config, system prompt, transient blocks, coalesced prompt) factored out of the drain and called from both drainSessionMailbox and createSessionManager, so an admitted message can be prepared outside the original drain call."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Passes `options.rolePrompt` to buildSystemPromptForChannelConfig."
    }
   ],
   "prependPendingInterruptMarker": [
@@ -2752,6 +3024,15 @@
     "why": "realpath with fallback used by resolveBoardIncludes for cycle/de-dup"
    }
   ],
+  "reconcileMainSessionAtBoot": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo daemon status` lists the sessions when more than one is aliased `main`.",
+    "why": "On boot warns `ambiguous main session at boot`, notifies candidates and stamps an existing main."
+   }
+  ],
   "reconcileMemorySignalInboxes": [
    {
     "version": "0.7.1",
@@ -2878,6 +3159,15 @@
     "why": "Header prints \"dead weight\", \"live ratio\" and \"interaction days (days holding channel.message)\", the metrics the entry names."
    }
   ],
+  "renderAmbiguousMainAliasNotice": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "`duoduo daemon status` lists the sessions when more than one is aliased `main`.",
+    "why": "Notice text `More than one session is aliased main` listing the sessions."
+   }
+  ],
   "renderBoardTemperatureSection": [
    {
     "version": "0.8.0",
@@ -2885,6 +3175,15 @@
     "confidence": "medium",
     "changelog": "On top of that sits an activation report: it counts which memories are actually being read during real work, so the pipeline gets told about dead weight and unreachable material instead of accumulating both silently.",
     "why": "Lists board [[slug]] lines with touch counts and says a 0-touch line is evidence for retirement (dead weight)."
+   }
+  ],
+  "renderChannelNotifyModeGuidance": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Guidance says `main` reaches the main session."
    }
   ],
   "renderDaemonRestartHint": [
@@ -2914,6 +3213,24 @@
     "why": "Signal text: \"gradient has accumulated since your last wake\", pointing at memory/fragments/ to consolidate."
    }
   ],
+  "renderForOwnerAttribute": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "Renders `for_owner=\"...\"` attribute for a stand-in delivery of an owner's job."
+   }
+  ],
+  "renderFormerMainSessionNotice": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The session is told when it becomes main and tells its owner in its own words.",
+    "why": "Text `Session X is now the main session; this session no longer is.`"
+   }
+  ],
   "renderHotOrphansSection": [
    {
     "version": "0.8.0",
@@ -2930,6 +3247,31 @@
     "confidence": "medium",
     "changelog": "fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)",
     "why": "Its 0.4.0 body is the 'System fallback notification' text for a job that completed without calling Notify, split by one-shot/periodic and child job ('A child job you dispatched has completed ... this is the system delivery')."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "Uses describeStandInJobOwner; says the owner session could not take it."
+   }
+  ],
+  "renderJobCompletionReceipt": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "Uses extractStandInOwnerInfo, renderForOwnerAttribute and describeStandInJobOwner."
+   }
+  ],
+  "renderJobFailureNotification": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "Takes owner info for stand-in delivery of failures."
    }
   ],
   "renderJobFileMarkdown": [
@@ -2994,6 +3336,31 @@
     "confidence": "medium",
     "changelog": "fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)",
     "why": "Calls the new fallback-notification guidance for job.complete deliveries."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.",
+    "why": "Calls extractStandInOwnerInfo and renderForOwnerAttribute for job complete/fail receipts."
+   }
+  ],
+  "renderMetaNotifyModeGuidance": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Guidance says `main` reaches the main session."
+   }
+  ],
+  "renderNewMainSessionNotice": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "The session is told when it becomes main and tells its owner in its own words.",
+    "why": "Text `You are now the main session. Deliveries with no better target come here`."
    }
   ],
   "renderNodeConvergeSignalBody": [
@@ -3012,6 +3379,13 @@
     "confidence": "high",
     "changelog": "now fails with a message naming the sessions that *do* have a reader, instead of writing into a void.",
     "why": "Renders \"… consumer took output … ago … so there is nowhere a person would see this. Do not re-send it.\" and \"send it to a session that has a consumer\"."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.",
+    "why": "The candidate list now marks a session with a live connection as `consumer attached now`, the case the entry says is no longer refused."
    }
   ],
   "renderNotifyTargetCandidateLines": [
@@ -3030,6 +3404,15 @@
     "confidence": "medium",
     "changelog": "A new cadence-driven memory lint measures the memory tree and routes convergence signals to the subconscious partitions. `ALADUO_EXP_MEMORY_CHECK=1` enables the measure-and-notify lints",
     "why": "Renders the [orphan-islands] signal body (\"islands: slug | age | indeg | referenced-by\") that a partition consumes."
+   }
+  ],
+  "renderPromptLayers": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Identity layer composed from meta prompt and `rolePrompt` via composeIdentityLayer."
    }
   ],
   "renderRuntimeMismatchGuidance": [
@@ -3075,6 +3458,13 @@
     "confidence": "high",
     "changelog": "Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp",
     "why": "Renders <skip-rewind> and now calls formatLocalTimestampWithZone"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Skip texts name what was withheld.** The Skip tool and the notice after a skipped turn now say that the turn's text reply was not delivered, rather than everything the turn did; tool calls before Skip, such as a `send`, still take effect.",
+    "why": "Text `The text reply your skipped turn wrote to this conversation was not delivered` and `Its tool calls ... still took effect.`"
    }
   ],
   "renderSmartCompactNoticeBlock": [
@@ -3084,6 +3474,15 @@
     "confidence": "high",
     "changelog": "A one-line notice on the session's next reply reports what was compacted and its measured stats, so retuning is based on real numbers rather than guesswork. See the `smart-compaction` skill",
     "why": "Renders <smart-compact-notice> with \"compacted\", ctx before/after, \"suggested\" and \"re-calibrate via smart-compaction skill\"."
+   }
+  ],
+  "renderSystemNotifyModeGuidance": [
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Guidance says `main` reaches the main session."
    }
   ],
   "renderTimeGapContextBlock": [
@@ -3244,6 +3643,15 @@
     "why": "Returns the session kind unless it is \"channel\" or \"job\", i.e. names the isolated plane the wake refuses."
    }
   ],
+  "resolveJobExecutionWorkspace": [
+   {
+    "version": "0.8.5",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "An invalid job `cwd_rel` is refused. Up to v0.8.4 a job whose `cwd_rel` was an absolute path or pointed outside the work dir (possible only in a job file edited by hand) ran silently in a system scratch workspace, without its project `CLAUDE.md`. It now fails each run with `invalid cwd_rel path`.",
+    "why": "The body now throws `Job ${id} has invalid cwd_rel path`, the message the entry quotes, instead of falling back to the scratch workspace."
+   }
+  ],
   "resolveJobOwnerNotifyTarget": [
    {
     "version": "0.8.0",
@@ -3262,6 +3670,15 @@
     "why": "Resolves runtime across instance, kind and default layers (\"explicit\"/\"inherited\"/\"default\") and carries a refusal through instead of falling to the next layer."
    }
   ],
+  "resolveMainSession": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Resolves held/absent/ambiguous main from session list by sorted `main` candidates."
+   }
+  ],
   "resolveMemoryCheckFlags": [
    {
     "version": "0.5.5",
@@ -3278,6 +3695,13 @@
     "confidence": "medium",
     "changelog": "The `Notify` tool accepts display-name aliases ... Archived sessions are excluded from alias resolution",
     "why": "The Notify target resolver now resolves aliases."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Resolves target `main` via resolveMain(); errors `There is no main session right now`."
    }
   ],
   "resolveNotifyUnconsumedHours": [
@@ -3370,6 +3794,15 @@
     "why": "Throws \"remote exposure requires ALADUO_DAEMON_TOKEN; run `duoduo daemon token new`\", requires an explicit ALADUO_REMOTE_PORT, and refuses a port that does not \"differ from the read-only port\"."
    }
   ],
+  "resolveRolePromptText": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Reads `roles/${role}.md` under ALADUO_BOOTSTRAP_DIR or beside ALADUO_META_PROMPT_PATH."
+   }
+  ],
   "resolveRuntimePaths": [
    {
     "version": "0.4.3",
@@ -3386,6 +3819,13 @@
     "confidence": "high",
     "changelog": "`duoduo session notify <target> -m \"<msg>\"` — wake another session by key or alias",
     "why": "Resolves a target by exact key or display name, returning ambiguous/not_found"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "**Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.",
+    "why": "Special-cases `keyOrAlias === Hn` (main) via resolveMainSessionFromIndex."
    }
   ],
   "resolveSessionChannelRuntime": [
@@ -3630,6 +4070,13 @@
     "confidence": "high",
     "changelog": "adds `correlation_id` / `reply_to` fields to the Notify MCP tool",
     "why": "Tool body reads correlation_id and reply_to"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "medium",
+    "changelog": "**Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.",
+    "why": "Passes `t.finalSubscriberCount` to evaluateNotifyConsumerRefusal and `t.resolveMain` to resolveNotifyTargetSessionKey."
    }
   ],
   "runReadAuditedMemoryCheckStep": [
@@ -3731,6 +4178,15 @@
     "why": "Filters the claude.model_profiles issues down to those for the session's model, consumed by prepareClaudeContextProfile."
    }
   ],
+  "selectSessionRolePrompt": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.",
+    "why": "Picks `\"main\"` for the held main session and `\"member\"` for other channel sessions."
+   }
+  ],
   "setPendingRestartReason": [
    {
     "version": "0.6.2",
@@ -3747,6 +4203,22 @@
     "confidence": "high",
     "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label so it is legible in `list`",
     "why": "Writes the display name then refreshes the session index entry so list shows it"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "medium",
+    "changelog": "Elsewhere `duoduo session alias <key> main --move` sets or moves it. `duoduo session list` marks it",
+    "why": "Sets display name and refreshes the session index entry."
+   }
+  ],
+  "setSessionAliasWithMainRole": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "Elsewhere `duoduo session alias <key> main --move` sets or moves it. A channel session can no longer take `main` as its display name any other way.",
+    "why": "Handles `move` flag, `reason: \"main_held\"`, displaces holders and announces the change."
    }
   ],
   "shouldKeepRouteDeliverEvent": [
@@ -3828,6 +4300,13 @@
     "confidence": "medium",
     "changelog": "`duoduo session alias <key> \"<name>\"` — give a session a human label",
     "why": "Writes display_name into the session meta file under the session mutex"
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A channel session can no longer take `main` as its display name any other way.",
+    "why": "Throws on isReservedMainAliasChange unless `options.mainAuthorized`."
    }
   ],
   "upsertChannelSpawnDescriptor": [
@@ -3844,6 +4323,13 @@
     "confidence": "high",
     "changelog": "`channel.spawn` never moves a session to another channel. Naming a session that another channel owns is refused before anything is written.",
     "why": "Refuses a session_key owned by another channel before writing the descriptor."
+   },
+   {
+    "version": "0.8.7",
+    "kind": "changed",
+    "confidence": "high",
+    "changelog": "A channel session can no longer take `main` as its display name any other way.",
+    "why": "Refuses `\"main\" is reserved for the main session and cannot be set by channel.spawn`."
    }
   ],
   "validateConfigValue": [
@@ -3944,6 +4430,15 @@
     "changelog": "A new runtime value, `void`, for channel plugins whose sessions never run a model. A message to a void session is written to the spine and the outbox and wakes nothing.",
     "why": "Writes a void session's message as an outbox record and emits session.output, the \"written to ... the outbox\" path."
    }
+  ],
+  "wsDefaultMaxPayload": [
+   {
+    "version": "0.8.7",
+    "kind": "born",
+    "confidence": "high",
+    "changelog": "**Uploads over `/rpc` match WebSocket.** The full-access HTTP `/rpc` body limit now equals the WebSocket message limit, so an upload that works over WebSocket also works over `/rpc`.",
+    "why": "Reads the `ws` server's default `maxPayload` so it can be used as the HTTP body limit."
+   }
   ]
  },
  "unexplained": {
@@ -3977,7 +4472,7 @@
   ],
   "0.5.0": [
    "buildSessionInfoFromState",
-   "classifySessionKeyKind",
+   "classifySessionKey",
    "isCodexPlainObject",
    "isImageGenerationItemType",
    "isUserVisibleSessionKey",
