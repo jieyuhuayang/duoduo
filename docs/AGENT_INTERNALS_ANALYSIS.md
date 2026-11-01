@@ -2309,11 +2309,9 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 2. **去重表的长期增长（5.3）。** 每个不同的键只写一行、重发不加行，已在v0.8.4 的还原 daemon 上实测（场景 05-dedup）。长期运行下 `var/registry/dedup.jsonl` 的增长速度和 daemon 常驻数周后去重 Map 的内存占用没有测量。
 3. **记忆系统在真实记忆上的运行（12）。** 第 12 节关于可达性、任务单投递和两个分区改写的结论来自代码与提示词原文，没有在记忆目录有真实内容的实例上观测过。遗忘 GC 的命令序列与提交失败已在v0.8.4 的还原 daemon 上实测（12.3，场景 06-forget-gc）；memory-committer 之后是否把遗忘留下的暂存删除提交进历史需要模型，没有观测。
 4. **launchd 托管时残留的重启原因文件（6.4）。** 之后任何一次成功启动都会认领残留的旧文件并投递其中的唤醒目标，这一半已在v0.8.4 的还原 daemon 上实测（场景 08-restart-reason）。剩下要在 macOS 上验证的是另一半：由 launchd 托管的重启在新 daemon 启动失败时，CLI 是否真的把原因文件留在原处。验证方法：让 launchd 托管的 daemon 在重启后启动失败，再手动启动，观察重启提示与唤醒投递。
-5. **飞书适配器的两个产物是否为同一构建（9.2）。** 第 9.2 节依据包内的 `dist/release/feishu-gateway.js`，实际运行的是 `duoduo channel install` 装入的 `@openduo/channel-feishu`。npm registry 上 `@openduo/channel-feishu` 的 latest 现在是 0.8.7，与本文对齐的 duoduo 版本号相同。两个文件字节不同：0.8.7 的 `dist/plugin.js` 比 `feishu-gateway.js` 大约 2.7 KB，开头多一行 shebang、用另一种 require 垫片，并把非 ASCII 字符写成 `\u` 转义；两者字符串字面量集合的差异多数只是这种转义写法。它们是否出自同一份源码还没有逐处核对，要用同一种规范化（例如美化后统一转义）比较两份 bundle 的 AST 才能下结论。
-6. **void 会话在适配器一侧的呈现（6.3、4.3）。** void 会话在 daemon 一侧的流转已在v0.8.4 的还原 daemon 上实测（6.2、6.3，场景 03-void-session）。渠道适配器收到这类出站记录后怎样呈现，以及 `notify_in_reply_to` 由谁读取，要在装有声明 `void` 的渠道插件的实例上观察。
-7. **`spine.cat` 脱敏对需要模型才能产生的事件（6.1）。** `redact: "external"` 对 `channel.message`、`agent.result`、`external.record`、`route.deliver` 和只留事件头的类型的处理已在v0.8.4 的还原 daemon 上实测（场景 09-spine-redaction）。`body.experience`、`body.mail` 与工具事件需要模型才能写出，它们的保留规则仍只来自静态阅读。验证方法：在能调用模型的实例上产生这几类事件，再比较 `spine.cat` 带与不带 `redact: "external"` 的输出。
-
-8. **主会话的端到端流转（8.6、10.3）。** 设置与转移 `main` 时的调用方检查、新旧主会话收到的通知、启动时的核对、owner 收不了时 job 结果改投主会话，以及飞书 owner 私聊认领主会话，都只来自 v0.8.7 的代码与上游 CHANGELOG，还没有写成场景在还原 daemon 上运行；飞书一侧的认领在 feishu-gateway bundle 里，不在还原范围内。
+5. **void 会话在适配器一侧的呈现（6.3、4.3）。** void 会话在 daemon 一侧的流转已在v0.8.4 的还原 daemon 上实测（6.2、6.3，场景 03-void-session）。渠道适配器收到这类出站记录后怎样呈现，以及 `notify_in_reply_to` 由谁读取，要在装有声明 `void` 的渠道插件的实例上观察。
+6. **`spine.cat` 脱敏对需要模型才能产生的事件（6.1）。** `redact: "external"` 对 `channel.message`、`agent.result`、`external.record`、`route.deliver` 和只留事件头的类型的处理已在v0.8.4 的还原 daemon 上实测（场景 09-spine-redaction）。`body.experience`、`body.mail` 与工具事件需要模型才能写出，它们的保留规则仍只来自静态阅读。验证方法：在能调用模型的实例上产生这几类事件，再比较 `spine.cat` 带与不带 `redact: "external"` 的输出。
+7. **主会话的端到端流转（8.6、10.3）。** 设置与转移 `main` 时的调用方检查、新旧主会话收到的通知、启动时的核对、owner 收不了时 job 结果改投主会话，以及飞书 owner 私聊认领主会话，都只来自 v0.8.7 的代码与上游 CHANGELOG，还没有写成场景在还原 daemon 上运行；飞书一侧的认领在 feishu-gateway bundle 里，不在还原范围内。
 
 ### 14.3 由静态阅读推出、尚未复现的后果
 
@@ -2330,7 +2328,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 
 ### 14.4 只因函数没有真名而标为未证实推测的项
 
-正文里还有一批未证实推测，代码已在 pretty bundle 读到，缺的只是一个构建检查能核对的引用。多数在 cli bundle 里：cli bundle 的真名主要来自 `__export` 表，推断名映射登记的还只有少数函数，这些 CLI 函数因此没有真名。daemon bundle 入口代码里还有两个用 `new Set` 构造的顶层常量：只读 TCP 端口放行的方法集合，以及 `spine.cat` 脱敏时原样保留的事件类型集合。登记工具只接受函数、模块初始化器和字面量常量，这两个集合不属于任何一种，所以不能命名。前一个集合的六个成员已在v0.8.4 的还原 daemon 上全部实测（6.1、B.3）；后一个集合中能在没有模型时产生的成员已经实测，其余成员见 14.2 第 7 项。所以这两个集合不再列在这里。其余各项按节列出如下：
+正文里还有一批未证实推测，代码已在 pretty bundle 读到，缺的只是一个构建检查能核对的引用。多数在 cli bundle 里：cli bundle 的真名主要来自 `__export` 表，推断名映射登记的还只有少数函数，这些 CLI 函数因此没有真名。daemon bundle 入口代码里还有两个用 `new Set` 构造的顶层常量：只读 TCP 端口放行的方法集合，以及 `spine.cat` 脱敏时原样保留的事件类型集合。登记工具只接受函数、模块初始化器和字面量常量，这两个集合不属于任何一种，所以不能命名。前一个集合的六个成员已在v0.8.4 的还原 daemon 上全部实测（6.1、B.3）；后一个集合中能在没有模型时产生的成员已经实测，其余成员见 14.2 第 6 项。所以这两个集合不再列在这里。其余各项按节列出如下：
 
 | 节 | 只因函数没有真名而未证实的主张 |
 |---|---|

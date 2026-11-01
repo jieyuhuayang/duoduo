@@ -294,14 +294,14 @@ macOS 上的 launchd 服务是用户级的（标签 `"ai.openduo.daemon"`（`cli
 
 ### 5.3 升级与刷新分区提示词
 
-`duoduo upgrade [version] [--wake <会话或别名>]` 优于手工 `npm install -g` 加重启，因为它同时处理渠道包、重启理由和会话唤醒。它按以下顺序执行（第 1、2、3、5 步有按名证据，confirmed；升级命令本身、第 4 步的重启与第 6 步的 `--wake` 投递只在没有真名的 cli 函数里读到，未证实推测，见 INTERNALS 6.4）：
+`duoduo upgrade [version] [--wake <会话或别名>]` 优于手工 `npm install -g` 加重启，因为它同时处理渠道包、重启理由和会话唤醒。升级命令由 `runUpgradeCommand (not)` 执行，按以下顺序进行（confirmed，另注的除外；见 INTERNALS 6.4）：
 
-1. 在会话内执行时（判断方法同 §5.2），CLI 把升级交给一个脱离会话的子进程完成，进度写在 `<runDir>/upgrade.log`；子进程由环境变量 `ALADUO_UPGRADE_DETACHED_WORKER` 标记（`isDetachedUpgradeWorker ($it)`）。这样做的原因是升级触发的 daemon 重启会杀掉会话里的 CLI 进程，它就来不及重新启动渠道。
+1. 如果 CLI 是 daemon 进程的后代，CLI 就把升级交给一个脱离会话的子进程完成（`if (D ? await s1(D) : !1)`（`cli:runUpgradeCommand`））。这项判断与 §5.2 的重启判断相同，只沿父进程链查找 daemon，不看 `ALADUO_CALLER_SESSION`，判断不出来时按不在会话里处理（父进程链判断在没有真名的 cli 函数里，未证实推测）。脱离会话的子进程把进度写进 `<runDir>/upgrade.log`；子进程由环境变量 `ALADUO_UPGRADE_DETACHED_WORKER` 标记（`isDetachedUpgradeWorker ($it)`）。这样做的原因是升级触发的 daemon 重启会杀掉会话里的 CLI 进程，它就来不及重新启动渠道。
 2. 执行 `npm install -g @openduo/duoduo@<版本>`，然后提醒刷新技能：`npx -y skills add https://github.com/openduo/duoduo --global --all`。版本参数只接受版本号或 dist-tag（`Installing from a path, URL or git remote is not supported here.`（`cli:parseUpgradeArgs`））。
-3. 渠道阶段由 `runUpgradeChannelPhase (tot)` 执行：对每个已安装的渠道包查询最新版本，已是最新的跳过；需要升级的先安装新版本，再停掉其中原先在运行的（`stopped for upgrade`（`cli:runUpgradeChannelPhase`））。
-4. 以 `upgraded @openduo/duoduo to <版本>` 为理由重启 daemon。daemon 原本没有运行时（健康检查不通过，且在 macOS 上 launchd 服务也未加载）不重启。
+3. 渠道阶段由 `runUpgradeChannelPhase (tot)` 执行：对每个已安装的渠道包查询最新版本，已是最新的跳过；需要升级的先安装新版本，再停掉其中原先在运行的默认实例和具名实例（`stopped for upgrade`（`cli:runUpgradeChannelPhase`）；具名实例见下文 v0.8.7 一段）。
+4. 以 `upgraded @openduo/duoduo to <版本>` 为理由，经 `restartDaemonWithReason (QF)` 重启 daemon（`console.log("restarting daemon...")`（`cli:runUpgradeCommand`））。daemon 原本没有运行时（健康检查不通过，且在 macOS 上 launchd 服务也未加载）不重启。
 5. 把第 3 步停掉的渠道重新启动，原先没在运行的保持停止（`left stopped (was not running before the upgrade)`（`cli:runUpgradeChannelPhase`））。不需要升级的渠道在整个过程中不被停止或重启。
-6. `--wake` 的目标由 CLI 在以上步骤完成后经 `session.notify` RPC 逐个投递（强制投递，来源 `daemon-restart`），不写入重启原因文件。
+6. `--wake` 的目标由 CLI 在以上步骤完成后经 `session.notify` RPC 逐个投递（强制投递，来源 `daemon-restart`），不写入重启原因文件（`notifyRestartWakeTargets (lZ)`；`source: "daemon-restart"`（`cli:notifyRestartWakeTargets`））。
 
 重启这一步有四种结局：成功时打印新 pid；重启已发出、但 launchd 托管的 daemon 还没通过健康检查时，提示 `On a slow-booting host this is expected — confirm with: duoduo daemon status`；停机后旧 daemon 仍在应答时，警告 `the previous process is still running the old code`，要求手工重启；其他错误打印重启失败并给出手工重启命令。手工等价步骤是 `npm i -g @openduo/duoduo@latest` 后 `duoduo daemon restart -r "<改了什么>"`，但它不会升级渠道包。
 
@@ -350,8 +350,8 @@ job 的归档、打断和改期只经 CLI 及其调用的 `job.archive`、`job.i
 | 技能 | 范围 |
 |------|------|
 | `duoduo-admin` | host 模式总入口：解释工作方式、查看配置与各路径、升级 duoduo、归档与恢复会话 |
-| `duoduo-runtime-admin` | daemon 设置、诊断与日志；引擎选择（Claude、Codex、Grok、Pi，`ALADUO_DEFAULT_RUNTIME`）；`.env` 里的 `ALADUO_*` 键；刷新后台分区提示词；`duoduo memory`、`session`、`job`、`spine` 命令；usage 账本清理；第三方模型的 model profile |
-| `duoduo-channel-admin` | 渠道安装与生命周期、飞书设置（setup 卡片、owner、主会话）、ACP 编辑器集成、渠道描述文件（种类与实例） |
+| `duoduo-runtime-admin` | daemon 设置、诊断与日志；引擎选择（Claude、Codex、Grok、Pi，`ALADUO_DEFAULT_RUNTIME`）；`.env` 里的 `ALADUO_*` 键；刷新后台分区提示词；`duoduo memory`、`session`、`job`、`spine` 命令；主会话的查找、设置、迁移与重名处理；usage 账本清理；第三方模型的 model profile |
+| `duoduo-channel-admin` | 渠道安装与生命周期、飞书设置（setup 卡片、owner、主会话）、第二个飞书或 Lark 应用（`--instance`）、把聊天转发给已有会话（`forward` 与 `send`）、ACP 编辑器集成、渠道描述文件（种类与实例） |
 | `duoduo-pipeline` | 用不调用模型的采集层加 `session notify` 唤醒 job，搭建事件驱动的流水线 |
 | `duoduo-loop` | `/loop` 命令及其创建的周期后台任务：设置、查看、暂停、改节奏、打断 |
 | `smart-compaction` | 渠道会话空闲自动压缩：开关、统计数据与阈值调整 |
@@ -520,5 +520,5 @@ $ curl -s -H 'Content-Type: application/json' \
 | daemon 日志 | macOS：`run/daemon.stderr.log`；其他平台：`duoduo daemon logs`（`run/daemon-supervisor.log`） |
 | 读事件日志 | `duoduo spine cat …`（对话记录）、`duoduo spine show <event-id>`（单条事件） |
 | 重启 | `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]` |
-| 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包；升级到 v0.8.4 前先核对所有写下的 `runtime` 值与 pi 的 DeepSeek Flash 模型 id，升级到 v0.8.5 前核对所有 job 的 `cwd_rel`；升级到 v0.8.6 要同时重装飞书渠道包（§5.3） |
+| 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包；升级到 v0.8.4 前先核对所有写下的 `runtime` 值与 pi 的 DeepSeek Flash 模型 id，升级到 v0.8.5 前核对所有 job 的 `cwd_rel`；升级到 v0.8.6 要同时重装飞书渠道包；升级到 v0.8.7 要重装核心包、`@openduo/protocol` 0.8.6 与飞书渠道包，并重启 daemon 和每一个飞书实例（§5.3） |
 | 引擎取值 | `claude`、`codex`、`grok`、`pi`；渠道配置另可写 `void`（不运行模型）；不认识的值被拒绝，`ALADUO_DEFAULT_RUNTIME` 写错时 daemon 不启动（§2.3） |
