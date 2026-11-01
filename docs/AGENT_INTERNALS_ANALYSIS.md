@@ -19,9 +19,9 @@
 | 事件日志 | 追加 WAL 行与 by_id 索引，按幂等键去重，按 id 读回，重启后按邮箱指针恢复待处理的会话 | 无 | 5 | 2.1、2.5、5.4 |
 | 网关与控制面 | 三个监听器的访问控制，入站分流与网关命令，出站拉取、订阅与能力协商，重启原因文件 | 路由到会话的消息如何回复 | 6 | 2.1、2.5、5.1、5.4 |
 | Drain 与 turn 控制 | 切窗口与合并，单 turn 准入与插话，三个抢占边界，失败收敛为一条回复加一条 `agent.error` | 合并后一次 turn 的回复，以及插话进来的消息如何接续 | 7 | 1.1、1.5、2.2、2.3、5.2、5.3、5.4 |
-| 会话 actor、锁与并发池 | 一个会话键至多一个 actor，进程写锁与按会话键的异步互斥，两个并发池，空闲回收，前缀隔离与收尾再校验 | 无 | 8 | 2.1、2.2、2.3、5.1、5.2、5.3 |
+| 会话 actor、锁与并发池 | 一个会话键至多一个 actor，进程写锁与按会话键的异步互斥，两个并发池，空闲回收，前缀隔离与收尾再校验，按显示名 `main` 判定主会话 | 无 | 8 | 2.1、2.2、2.3、5.1、5.2、5.3 |
 | 渠道适配器 | 适配器进程由 CLI 安装与启动；协议方法；飞书的会话键派生、准入、@ 过滤、进度卡与表情回应 | 无 | 9 | 2.6 |
-| job 调度 | 60 秒扫描，创建校验，认领与六种结束状态的结算，结果投递给 owner | 执行任务书，以及 owner 收到失败通知后如何处置 | 10 | 3.1 |
+| job 调度 | 60 秒扫描，创建校验，认领与六种结束状态的结算，结果投递给 owner，owner 收不了时改投主会话 | 执行任务书，以及 owner 收到失败通知后如何处置 | 10 | 3.1 |
 | 心跳与后台分区 | 心跳定时器与确定性维护，跳过条件，轮转表，一次性分区会话，三处代码强制的检查，出厂初始化与分区退休 | 每个分区会话里的判断和文件修改 | 11 | 3.2、3.3、4.1、4.2、4.3、4.4、4.5、4.7、4.8、5.1、5.2、5.3、5.4 |
 | 记忆系统 | 以记忆板为根的可达性计算，只读检查与任务单投递，默认关闭的遗忘 GC | 碎片、效果记录、记忆板与档案的全部改写 | 12 | 4.1、4.3、4.4、4.5、4.7、5.1 |
 | 指令指纹与改动生效 | 每次 drain 前算指纹与记忆板哈希，按引擎决定重建流式进程、fork 线程或沿用 | 无 | 13 | 4.6 |
@@ -179,7 +179,7 @@ Claude 会话另有一条可能重复加载记忆板的途径，运行时在默�
 | 2 | `smart-compact-notice` | 最近一次上下文压缩的时间与结果（上下文 token 数与历史 token 数的前后变化），有记录时附压缩前完整 transcript 的保存路径；空闲压缩和 turn 中由 SDK 触发的压缩都会留下记录 | effective config 配置了空闲自动压缩（`auto_compact_idle_minutes` > 0），会话状态中的压缩统计属于最近一次压缩，且压缩之后还没有处理过新事件 | 8.4 |
 | 3 | `gateway-notice` | 包在 `<system-reminder>` 里的说明：某个网关命令已在模型之外执行，视为已生效，不要重复；末尾注明与当前任务无关时不必回应 | 有待送达的网关命令结果 | 6.2 |
 | 4 | `time-context` | 上次交互时间、当前时间，以及两者相隔约多久 | 渠道会话的用户消息，距上次事件不短于阈值，且这次 drain 中还没有注入过 | 本节 |
-| 5 | `skip-rewind` | 上一轮用 Skip 跳过、产出未送达的说明 | 有待送达的 Skip 记录，且这一批包含用户消息 | 4.5 |
+| 5 | `skip-rewind` | 上一轮用 Skip 跳过、文字回复未送达而工具调用仍已生效的说明 | 有待送达的 Skip 记录，且这一批包含用户消息 | 4.5 |
 | 6 | `interrupted-context` | 被打断那一轮的输入文本 | 有待送达的打断记录 | 7.7 |
 | 7 | `job-receipts` | 已完成 job 的回执 | 这个会话是 owner，且有未送达回执 | 10.3 |
 | 8 | `job-tick` | 第几次运行、触发时间、上次运行时间（首次运行时注明）、cron | 逐条处理一条 `job.spawn` 事件的那一轮 | 10.2 |
@@ -533,7 +533,7 @@ pi 的内置工具由 pi SDK 提供。worker 创建 pi 会话时以 init 帧里�
 
 ## 4 自操作工具
 
-duoduo 在引擎自带的工具之外给模型追加六个自操作工具：ManageJob（创建和查看 job）、RemindDuoduo（给自己预约一次以后的 turn）、ViewSessions（查看会话）、Notify（向另一个会话投递通知）、QueueOutboundAttachment（把文件排进这一轮的出站附件）和 Skip（这一轮不向用户输出）。哪些会话拿到哪些工具由会话来源决定：渠道会话六个都有，job 会话没有 QueueOutboundAttachment 与 Skip，system 来源的会话和后台分区只有 ViewSessions 与 Notify，pi 引擎上这两类会话另外多一个 ManageJob。daemon 执行工具体，并在代码里检查输入：ManageJob 只接受 create、list、read 三个动作且 `action` 必填；Notify 在目标渠道会话有未读输出、并且超过阈值（默认 1 小时）没有消费者取走时拒绝投递，目标是不运行模型的 void 会话时只写出站记录、不唤醒；Skip 在 Claude 上由 PreToolUse hook 结束这一轮，在 pi 上由 worker 自己中止这一轮，在 Codex 与 Grok 上不中断这一轮，但无论哪个引擎，drain 都丢弃这一轮的输出（confirmed）。4.1 讲分配规则和各引擎的注册差异，4.2 到 4.5 逐个讲工具的检查规则。本节对应 GUIDE 1.6。
+duoduo 在引擎自带的工具之外给模型追加六个自操作工具：ManageJob（创建和查看 job）、RemindDuoduo（给自己预约一次以后的 turn）、ViewSessions（查看会话）、Notify（向另一个会话投递通知）、QueueOutboundAttachment（把文件排进这一轮的出站附件）和 Skip（这一轮不向用户输出）。哪些会话拿到哪些工具由会话来源决定：渠道会话六个都有，job 会话没有 QueueOutboundAttachment 与 Skip，system 来源的会话和后台分区只有 ViewSessions 与 Notify，pi 引擎上这两类会话另外多一个 ManageJob。daemon 执行工具体，并在代码里检查输入：ManageJob 只接受 create、list、read 三个动作且 `action` 必填；Notify 在目标渠道会话此刻没有连接订阅它的输出、有未读输出、并且超过阈值（默认 1 小时）没有消费者取走时拒绝投递，目标是不运行模型的 void 会话时只写出站记录、不唤醒；Skip 在 Claude 上由 PreToolUse hook 结束这一轮，在 pi 上由 worker 自己中止这一轮，在 Codex 与 Grok 上不中断这一轮，但无论哪个引擎，drain 都丢弃这一轮的输出（confirmed）。4.1 讲分配规则和各引擎的注册差异，4.2 到 4.5 逐个讲工具的检查规则。本节对应 GUIDE 1.6。
 
 ### 4.1 六个工具与按会话来源的分配
 
@@ -672,7 +672,7 @@ drain 收到引擎结果后，由 `markTurnSkippedFromSkipRecord (JEe)` 按三�
 
 pi 上 daemon 写的 Skip 记录不参与这项判定，只供下一轮的 skip-rewind 块使用（confirmed，静态阅读）。Codex 与 Grok 在 Skip 之后仍可能继续产出文字，Codex 的描述因此改成"之后的产出不会送达"；Grok 用的是 Claude 原版描述，而它的适配器并不中断这一轮，这句描述在 Grok 上与实际行为不一致（confirmed，静态阅读）。插话回调在适配器报告当前 turn 已观察到 Skip、或 Skip 记录晚于这一轮开始时，不向这个 turn 插话，改为重新 drain（7.4）。
 
-这一轮被标记为跳过之后，处理结果对四个引擎相同（confirmed）。drain 不写出站记录，这一轮涉及的事件照常标记为已处理；会话发给订阅者的 `session.stream_end` 带 `reason: "skipped"`，按协议的类型注释，渠道适配器据此撤回已经流式渲染的部分内容。没有在 `accept_stream_end_reasons` 里声明 `skipped` 的适配器收到的是 `interrupted`（`let b = m === "interrupted" || _.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`createSessionSubscriptionRegistry`），见 6.3）。下一轮是用户消息时，每轮瞬时块里加入 `<skip-rewind>` 块，写明跳过的时间、理由、距今多久，以及"上一轮的产出没有送达"（`renderSkipRewindBlock (Qgt)`，块的注入与清除见 2.3）。
+这一轮被标记为跳过之后，处理结果对四个引擎相同（confirmed）。drain 不写出站记录，这一轮涉及的事件照常标记为已处理；会话发给订阅者的 `session.stream_end` 带 `reason: "skipped"`，按协议的类型注释，渠道适配器据此撤回已经流式渲染的部分内容。没有在 `accept_stream_end_reasons` 里声明 `skipped` 的适配器收到的是 `interrupted`（`let b = m === "interrupted" || _.acceptStreamEndReasons?.includes(m) ? m : "interrupted"`（`createSessionSubscriptionRegistry`），见 6.3）。下一轮是用户消息时，每轮瞬时块里加入 `<skip-rewind>` 块，写明跳过的时间、理由、距今多久，并说明上一轮写给这个对话的文字回复没有送达、用户没有看到，而它的工具调用仍已生效（`"The text reply your skipped turn wrote to this conversation was not delivered; the user did not see it."`（`renderSkipRewindBlock`）；块的注入与清除见 2.3）。
 
 场景 11-skip-rewind 在 Claude 引擎上实测了这条路径：`markTurnSkippedFromSkipRecord (JEe)` 直接沿用 hook 的标记，drain 记日志 `[runner] Skip called — suppressing outbox`，不写出站记录，事件日志里这一轮只有 `agent.tool_use` 与 `agent.tool_result`，没有 `agent.result`，`createSessionSubscriptionRegistry (j6)` 发出的 stream_end 带 `reason: "skipped"`（confirmed）。
 
@@ -1034,7 +1034,7 @@ daemon 认可的文件内容是 `{reason, requested_at, requested_by_agent, wake
 写入方是两个 CLI 命令，都经同一个重启函数 `restartDaemonWithReason (QF)` 写文件，文件位置由 `resolveRestartReasonFilePath (_3)` 给出（`"daemon-restart-reason.json"`（`cli:resolveRestartReasonFilePath`）），写入与清理分别是 `writeRestartReasonFile (h3)` 与 `clearOwnRestartReasonFile (C3)`（confirmed）。
 
 - `duoduo daemon restart -r "<原因>" [--wake <会话或别名>]`。`cli:parseRestartArgs (Jit)` 解析 `-r`/`--reason` 和可重复的 `--wake`；从 daemon 派生的 agent 会话内部调用而不给原因时，`cli:reasonlessRestartRefusal (zit)` 拒绝执行（confirmed）。CLI 在停止旧 daemon 之前写文件（`a && g && await h3(a, g);…await C3(a, g.requested_at)…await FB(t, e);`（`cli:restartDaemonWithReason`）：先写文件，再定义清理函数，最后停止旧 daemon），内容是 `{reason, requested_at, requested_by_agent}`，给了 `--wake` 时再加 `wake_targets`（`wake_targets: l`（`cli:restartDaemonWithReason`）），此时即使没给 `-r` 也会写文件，`reason` 为空串（`reason: ""`（`cli:restartDaemonWithReason`））（confirmed）。CLI 按三种结果提示用户：已重启时说明唤醒会在 daemon 启动后投递，没有重启时说明 `--wake` 被丢弃，健康检查超时时说明 `--wake` 仍会在 daemon 启动完成后投递（confirmed）。
-- `duoduo upgrade [版本] [--wake <会话或别名>]`。`cli:parseUpgradeArgs (eot)` 解析版本与可重复的 `--wake`，版本缺省为 `latest`（confirmed）。安装新版本后，只有 daemon 在运行（macOS 上 launchd 服务已加载，或健康检查通过）时，CLI 才经同一个重启函数重启并写原因文件（`isServiceLoaded()) && !(await dA(Q)).healthy) return;`（`cli:runUpgradeCommand`）），原因固定为 `upgraded @openduo/duoduo to <实际安装的版本>`，不带 `wake_targets`（`reason: z`（`cli:runUpgradeCommand`））；daemon 没在运行时不重启、也不写文件（confirmed）。这次重启夹在渠道适配器升级的中间：CLI 先安装有新版本的渠道适配器并停下其中正在运行的，再重启 daemon，最后重新启动这些适配器（渠道部分 confirmed，见 `cli:runUpgradeChannelPhase (tot)`）。`--wake` 不经过这个文件：升级流程结束后，无论 daemon 是否重启，CLI 都直接经 `session.notify` RPC 逐个投递（`await lZ(D, i.wake,`（`cli:runUpgradeCommand`）），带 `force` 与 `daemon-restart` 来源（`source: "daemon-restart"`（`cli:notifyRestartWakeTargets`）），正文写的是命令行请求的版本（例如 `latest`），不是实际安装的版本号（confirmed）。
+- `duoduo upgrade [版本] [--wake <会话或别名>]`。`cli:parseUpgradeArgs (eot)` 解析版本与可重复的 `--wake`，版本缺省为 `latest`（confirmed）。安装新版本后，只有 daemon 在运行（macOS 上 launchd 服务已加载，或健康检查通过）时，CLI 才经同一个重启函数重启并写原因文件（`isServiceLoaded()) && !(await dA(Q)).healthy) return;`（`cli:runUpgradeCommand`）），原因固定为 `upgraded @openduo/duoduo to <实际安装的版本>`，不带 `wake_targets`（`reason: z`（`cli:runUpgradeCommand`））；daemon 没在运行时不重启、也不写文件（confirmed）。这次重启夹在渠道适配器升级的中间：CLI 先安装有新版本的渠道适配器并停下其中正在运行的，再重启 daemon，最后重新启动这些适配器；停下与重新启动的范围包括默认实例和升级前在运行的每个具名实例（`--instance`，v0.8.7 起），升级前没在运行的默认实例保持停止（`runningInstances: (l.instances ?? []).filter(y => y.running).map(y => y.name)`（`cli:runUpgradeChannelPhase`））（confirmed，见 `cli:runUpgradeChannelPhase (tot)`）。CLI 判定自己是 daemon 进程的后代、又不是脱离会话的升级子进程时，不在当前进程里升级，而是把同样的参数交给一个脱离会话的子进程执行，然后返回（`if (!$it(process.env)) {`（`cli:runUpgradeCommand`）；判定子进程的是 `isDetachedUpgradeWorker ($it)`），因为 daemon 重启会杀掉会话里的 CLI 进程，使它来不及重新启动渠道（confirmed；派生子进程的函数没有真名，原因取自它打印的说明文字）。`--wake` 不经过这个文件：升级流程结束后，无论 daemon 是否重启，CLI 都直接经 `session.notify` RPC 逐个投递（`await lZ(D, i.wake,`（`cli:runUpgradeCommand`）），带 `force` 与 `daemon-restart` 来源（`source: "daemon-restart"`（`cli:notifyRestartWakeTargets`）），正文写的是命令行请求的版本（例如 `latest`），不是实际安装的版本号（confirmed）。
 
 文件的清理只发生在 CLI 自己拉起 daemon 的路径上（confirmed）。重启没有发生（停止之后健康检查仍然通过，说明旧 daemon 还在运行）或启动失败时，CLI 在文件的 `requested_at` 仍是自己写入的值时删除它（`return h.started || await p(), h`（`cli:restartDaemonWithReason`）；`if (JSON.parse(r).requested_at !== t) return`（`cli:clearOwnRestartReasonFile`）），下一次启动因此不会认领这条原因；macOS 上由 launchd 托管时，CLI 只触发重启并轮询健康检查，超时也不删除文件（`"daemon restart timed out waiting for health checks at"`（`cli:restartDaemonWithReason`）在这条路径上直接抛出），新 daemon 启动完成后照常认领。`cli:restartWakeReport (jit)` 的提示与这一行为一致：没有重启时说 `--wake` 被丢弃，健康检查超时时说 `--wake` 仍会投递（confirmed）。
 
@@ -1394,7 +1394,7 @@ actor 的引擎在每次启动 actor 时重新解析一次（drain 循环开始�
 
 解析结果被拒、为 `void`，或 job 的 runtime 不合法时，会话管理器都不让 drain 调用引擎，而是把拒绝原因交给 drain（confirmed）。渠道会话被拒时，会话管理器记一条 `"[session-manager] channel runtime refused"` 警告，把拒绝原因作为 `runtimeRefusal` 交给 drain，drain 不调用引擎，以 `runtime_refused` 结束这一批并把"原因 + Request was not executed."作为回复写出（第 7 节）。解析结果为 `void` 时同样不调用引擎：会话管理器把 "This session never runs a model (runtime void). A message queued before it became void was not run." 作为拒绝原因，这只会落到会话变成 void 之前就已进邮箱的消息上，因为之后的消息不再进邮箱（6.2）。job 会话不看渠道，按 job frontmatter 的 `runtime` 经 `validateRunnableRuntimeValue (tf)` 检查，不合法或为 `void` 时同样以拒绝原因交给 drain，job 因此失败（第 10 节）。
 
-actor 启动时调用 `ensureSessionDescriptorAndStateFiles (ch)`，它只在 `meta.md` 与 `state.json` 不存在时创建它们，已存在的文件不改写（confirmed，证据见证据表）。所以 `meta.md` 里的类别只在第一次创建时写入一次：由 actor 启动创建时，类别由 actor 的来源推出，来源为 job 或 system 时取来源，否则 `meta:` 前缀取 meta，其余为 channel；由 job 创建先写入时，类别为 job；显示名取自此前唤醒事件携带的显示名（`channel.ingress` 发出的唤醒带有这个字段），没有时为空。之后的 actor 启动不会更新它，显示名只能经 `session.set_alias` RPC 由 `updateSessionDisplayName (pq)` 修改。会话类别因此有两个来源：前缀分类，以及 `meta.md` 里第一次写入的类别。
+actor 启动时调用 `ensureSessionDescriptorAndStateFiles (ch)`，它只在 `meta.md` 与 `state.json` 不存在时创建它们，已存在的文件不改写（confirmed，证据见证据表）。所以 `meta.md` 里的类别只在第一次创建时写入一次：由 actor 启动创建时，类别由 actor 的来源推出，来源为 job 或 system 时取来源，否则 `meta:` 前缀取 meta，其余为 channel；由 job 创建先写入时，类别为 job；由带 session_key 的 `channel.spawn` 先写入时，类别为 channel，显示名取 spawn 参数或实例描述符里的 display_name（9.1）。由 actor 启动创建时，显示名取自此前唤醒事件携带的显示名（`channel.ingress` 发出的唤醒带有这个字段），没有时为空。渠道会话创建时带来的显示名是 `main` 时，`ensureSessionDescriptorAndStateFiles (ch)` 丢掉它（8.6）。之后的 actor 启动不会更新显示名，显示名只能经 `session.set_alias` RPC 由 `updateSessionDisplayName (pq)` 修改。会话类别因此有两个来源：前缀分类，以及 `meta.md` 里第一次写入的类别。
 
 Map 里还可能有两种不运行 drain 的占位记录（confirmed）。渠道附着到一个还没有 actor 的会话键时，`attachChannel` 创建一条 `actorRunId` 为 0、状态为 idle 的记录，只用来保存附着集合；job 池已满时启动 job 会话，也会先放一条占位记录并把会话键排进 job 池的队列（8.3）。`getActorView` 不返回占位记录；`listActors` 只在会话键排在某个池的队列里时才列出占位记录（`j.actorRunId <= 0 && !D(j.sessionKey)`（`createSessionManager`））。
 
@@ -1402,7 +1402,7 @@ daemon 启动时哪些会话被重新唤醒、依据是什么，见 5.5。
 
 ### 8.2 进程写锁与按键异步互斥
 
-duoduo 用三种作用范围不同的锁：进程写锁跨进程、跨重启，保证一个数据目录只有一个 daemon 写入；drain 租约文件按会话，保证同一会话同一时刻只有一个 drain 处理邮箱；进程内的异步互斥按会话键，保证同一会话的状态文件改动串行执行（confirmed）。另有一个按会话键的归档标记，在归档期间阻止写入 inbox 与会话状态文件、阻止唤醒。
+duoduo 用三种作用范围不同的锁：进程写锁跨进程、跨重启，保证一个数据目录只有一个 daemon 写入；drain 租约文件按会话，保证同一会话同一时刻只有一个 drain 处理邮箱；进程内的异步互斥按会话键，保证同一会话的状态文件改动串行执行（confirmed）。另有一个按会话键的归档标记，在归档期间阻止写入 inbox 与会话状态文件、阻止唤醒。v0.8.7 起还有一把不分会话键的进程内互斥，只用来串行执行涉及主会话的显示名改动和启动时的主会话核对（8.6；`bSe(async () => {`（`setSessionAliasWithMainRole`）与 `await bSe(async () => {`（`reconcileMainSessionAtBoot`），这把互斥的函数没有真名）（confirmed）。
 
 进程写锁是 `run/locks/daemon-writer.json`（`resolveRuntimeWriterLockPath (F6)`），内容为 `runtime_dir`、`pid`、`boot_id`、`started_at`、`last_heartbeat_at`（confirmed）。`acquireRuntimeWriterLock (U6)` 先写一个临时文件，再用硬链接把它链到锁文件路径，链接成功即取得锁；锁文件已存在时读出内容，判断为过期或读不出时覆盖，否则取锁失败。
 
@@ -1711,7 +1711,7 @@ void 会话的输出因此只有这些出站记录，渠道插件照常经 `chan
 
 ## 10 job 调度
 
-job 由一个独立于心跳的 60 秒扫描器调度，调度规则在创建时校验；扫描器先写认领时间再派生 job 会话，一次运行在该会话的 actor 退出时按六种结束状态之一结算：失败写 job.fail 事件并唤醒 owner，成功写 job.complete 事件、只进 owner 邮箱，作为回执随 owner 的下一轮送达；once 与 @in 结算后自动归档。归档、打断和由运维发起的改期是 CLI `duoduo job` 的三个动词，分别经 `job.archive`、`job.interrupt`、`job.reschedule` 三个 RPC 方法执行；ManageJob 工具没有这三个动作，job 要让自己再运行一次只能调用 RemindDuoduo。
+job 由一个独立于心跳的 60 秒扫描器调度，调度规则在创建时校验；扫描器先写认领时间再派生 job 会话，一次运行在该会话的 actor 退出时按六种结束状态之一结算：失败写 job.fail 事件并唤醒 owner，成功写 job.complete 事件、只进 owner 邮箱，作为回执随 owner 的下一轮送达；owner 收不了时，结果改投主会话（v0.8.7 起，8.6）；once 与 @in 结算后自动归档。归档、打断和由运维发起的改期是 CLI `duoduo job` 的三个动词，分别经 `job.archive`、`job.interrupt`、`job.reschedule` 三个 RPC 方法执行；ManageJob 工具没有这三个动作，job 要让自己再运行一次只能调用 RemindDuoduo。
 
 ### 10.1 定义与创建校验
 
@@ -1778,11 +1778,11 @@ job 会话的 actor 退出时，`createJobSessionFinalizer ($Ie)` 按是否出�
 
 中止的来源包括 `duoduo job interrupt`（10.4）和 daemon 重启；包内文档把"已经开始、被 daemon 重启中止、job 本身仍保留"列为最常见的不投递情形，因为扫描器会再次运行它，通知 owner 只会多出一条无需处理的消息（`bootstrap/var/jobs/DUODUO.md` 原文；ManageJob 的工具说明也写明被重启切断、之后还会再运行的一次不通知 owner）。
 
-结果先投递给 owner，owner 收不了时改投主会话（8 节），没有别的配置项。owner 取自 job 文件的 owner_session，而且用的是这次运行开始时的快照，所以运行期间修改 job 文件不会改变这次运行的收件人。owner 是可投递的会话、没有归档也不在归档中、并且没有被 Notify 的未读检查拒绝（`evaluateNotifyConsumerRefusal (al)`）时，结果投给 owner；否则如果此刻恰好有一个主会话、它也没有被未读检查拒绝，结果改投主会话，负载带上 `stand_in_for_owner: b ?? null`（`createJobSessionFinalizer`），记下原来的 owner（没有 owner 时为 null）；主会话也不可用时，owner 只要是未归档的可投递会话，仍照常投给它；三者都不成立时不投递，只写日志 `"[session-manager] job outcome undeliverable: no live owner and no usable main"`（`createJobSessionFinalizer`）（confirmed）。投递经 `deliverRouteEventToSession (Ls)` 完成：追加一条 route.deliver 事件并在 owner 邮箱写入指针；job.fail 随后发出唤醒，抢占模式为 never，不打断 owner 正在进行的轮次；job.complete 带 enqueueWithoutWake 标记，只进邮箱不唤醒（`enqueueWithoutWake: y === "job.complete"`（`createJobSessionFinalizer`））。成功投递的负载带结果摘要（前 200 个字符）、结果正文（前 2000 个字符）和调度类型（one-shot 或 periodic）。job 在本次运行中成功调用过 Notify 时，系统不再投递 job.complete，因为已经有人收到了结果；Notify 被拒绝的运行照常投递。
+结果先投递给 owner，owner 收不了时改投主会话（8.6），没有别的配置项。owner 取自 job 文件的 owner_session，而且用的是这次运行开始时的快照，所以运行期间修改 job 文件不会改变这次运行的收件人。owner 是可投递的会话、没有归档也不在归档中、并且没有被 Notify 的未读检查拒绝（`evaluateNotifyConsumerRefusal (al)`）时，结果投给 owner。未读检查与 Notify 用的是同一个函数（4.3）：它只拒绝渠道会话，而且此刻有连接订阅这个会话输出时一律不拒绝（v0.8.7 起），所以插件在线的渠道会话总能收到结果；否则如果此刻恰好有一个主会话、它也没有被未读检查拒绝，结果改投主会话，负载带上 `stand_in_for_owner: b ?? null`（`createJobSessionFinalizer`），记下原来的 owner（没有 owner 时为 null）；主会话也不可用时，owner 只要是未归档的可投递会话，仍照常投给它；三者都不成立时不投递，只写日志 `"[session-manager] job outcome undeliverable: no live owner and no usable main"`（`createJobSessionFinalizer`）（confirmed）。投递经 `deliverRouteEventToSession (Ls)` 完成：追加一条 route.deliver 事件并在 owner 邮箱写入指针；job.fail 随后发出唤醒，抢占模式为 never，不打断 owner 正在进行的轮次；job.complete 带 enqueueWithoutWake 标记，只进邮箱不唤醒（`enqueueWithoutWake: y === "job.complete"`（`createJobSessionFinalizer`））。成功投递的负载带结果摘要（前 200 个字符）、结果正文（前 2000 个字符）和调度类型（one-shot 或 periodic）。job 在本次运行中成功调用过 Notify 时，系统不再投递 job.complete，因为已经有人收到了结果；Notify 被拒绝的运行照常投递。
 
 成功回执不会自己驱动 owner 的一轮。owner 下一次因为别的原因 drain 时，`batchDrainItems (gJ)` 挑选驱动这一轮的条目，跳过所有 job.complete 投递；`collectJobCompletionReceipts (byt)` 再从全部待处理条目里把它们收集起来，按 job_id 分组渲染：同一个 job 只有一条回执时给出结果正文，有多条时合并为一条摘要，说明成功了几次，并给出在事件日志里检索各次结果的 grep 命令。渲染出的文本作为 job-receipts 瞬时块放进这一轮的用户消息（2.3），这些条目随这一轮一起标记完成。给渠道会话的回执写明它是信息、不是指令、不要求回复，并说明它随 owner 因其他原因进行的这一轮一起送达，并没有唤醒 owner；给后台会话的回执则要求不产生用户可见输出。主会话代收的回执换一种写法：说明这个 job 属于哪个会话、是作为主会话收到的（`(it reached you as the main session)`（`describeStandInJobOwner`）），并要求先处理这一轮本来的事，再简短告诉用户（`"Its owner session could not take it, so the owner hears of it only from you: answer whatever this turn is for first, then tell them briefly."`（`renderJobCompleteReceiptGuidance`））（confirmed）。插话路径同样经 `batchDrainItems (gJ)` 挑选条目，所以回执不会作为插话进入正在进行的轮次，而是留在邮箱里等下一次 drain。
 
-失败通知是普通的邮箱条目，会驱动 owner 的一轮，提示词按 owner 的会话类型和 job 的调度类型给出不同的处置要求：渠道会话收到一次性调度的 job 失败时，先被要求检查工作目录里是否已有部分成果，再决定怎样告诉用户；收到周期 job 失败时，被告知暂时性失败可以调用 Skip、不向用户回复，以及怎样用 `duoduo job archive` 停掉它。owner 不是渠道或未知类型的会话时（例如 keepalive job 派出的子 job 失败），提示词要求它决定是创建替代 job 重试、把错误并入自己的结果，还是不带目标调用 Notify 请求人工判断。
+失败通知是普通的邮箱条目，会驱动 owner 的一轮，提示词按 owner 的会话类型和 job 的调度类型给出不同的处置要求：渠道会话收到一次性调度的 job 失败时，先被要求检查工作目录里是否已有部分成果，再决定怎样告诉用户；收到周期 job 失败时，被告知暂时性失败可以调用 Skip、不向用户回复，以及怎样用 `duoduo job archive` 停掉它。owner 不是渠道或未知类型的会话时（例如 keepalive job 派出的子 job 失败），提示词要求它决定是创建替代 job 重试、把错误并入自己的结果，还是不带目标调用 Notify 请求人工判断。主会话代收的失败通知（负载带 `stand_in_for_owner`）开头改为说明这个 job 属于哪个会话、是作为主会话收到的，`<job-status>` 标签另带 `for_owner` 属性；周期 job 的代收失败通知还要求：已经告诉过 owner 而情况没有变化时，重复的失败不必再发消息，停掉 job 时在同一轮告诉 owner（confirmed，`m = Ygt(c, l, s, f)`（`renderMailboxEventPrompt`）；生成这些文字的函数没有真名，文字已在 pretty bundle 中读到）。
 
 认领时间同时起游标的作用：结算写状态时带上本次运行认领时记下的 last_scheduled_at，如果状态文件里的值已经变了（扫描器又认领了新的一次），这次结算什么都不写。job 在运行中被归档时，定义文件已不在 active 目录，结算冻结状态、不再自动归档，但结果仍照常投递给 owner。run_at 只在它不晚于认领时间时才被消费，所以运行期间用 RemindDuoduo 或 `duoduo job reschedule` 设下的新触发时间会保留下来；once 或 @in job 结算时如果 run_at 仍在，就跳过自动归档，等待那次触发。
 
@@ -1835,7 +1835,7 @@ keepalive job 首次运行之后不会再被扫描器判为到期，也不会自
 | 成功负载截断长度；成功调用过 Notify 时不投递成功回执，Notify 返回错误时不算 | `result_summary: E?.slice(0, 200)`（`createJobSessionFinalizer`）；`result_text: E?.slice(0, 2e3)`（`createJobSessionFinalizer`）；`"[session-manager] skipping system job.complete delivery: agent called Notify"`（`createJobSessionFinalizer`）；`a.startsWith("Error:")`（`createAladuoMcpServer`）；`t.onNotifyCalled?.()`（`createAladuoMcpServer`）；`e.sessionManager?.markAgentNotified(D.session_key)`（`createDaemon`） | confirmed |
 | 回执不驱动轮次，随 owner 下一轮作为 job-receipts 瞬时块送达，插话路径同样跳过它；同一 job 多条合并 | `if (c && p0e(c) !== null) continue`（`batchDrainItems`）；`v.admissionCallback = async () => {`（`createSessionManager`）；`Lt = await gJ(t, Ge, { fallbackBatchSize: dJ,`（`createSessionManager`）；`l.length === 1 ? l[0].prompt : _yt(e, t, u, l)`（`collectJobCompletionReceipts`）；`jobReceipts: M ? void 0 : k?.text`（`drainSessionMailbox`）；`tag: "job-receipts"`（`buildTransientUserBlocks`） | confirmed（插话准入回调里紧接着调用 `batchDrainItems (gJ)` 挑选条目；多条合并的渲染函数没有真名，其 grep 提示已在 pretty bundle 中读到） |
 | 回执对渠道会话声明"不是指令、不要求回复" | `"It did not wake you: it is riding a turn you are having for another reason,"`（`renderJobCompleteReceiptGuidance`） | confirmed |
-| 失败通知按 owner 的会话类型与调度类型给出处置要求 | `l = Xt(o, "schedule_type") ?? ""`（`renderMailboxEventPrompt`）；`m = Zgt(c, s, f)`（`renderMailboxEventPrompt`） | confirmed（c 是 owner 的会话类型，l 是 schedule_type；指引文本所在函数没有真名，其四个分支已在 pretty bundle 中读到） |
+| 失败通知按 owner 的会话类型与调度类型给出处置要求；主会话代收时说明原 owner | `l = Xt(o, "schedule_type") ?? ""`（`renderMailboxEventPrompt`）；`if (r === "job.fail" && o) {`（`renderMailboxEventPrompt`）；`m = Ygt(c, l, s, f)`（`renderMailboxEventPrompt`） | confirmed（c 是 owner 的会话类型，l 是 schedule_type，f 是从负载 `stand_in_for_owner` 读出的原 owner；指引文本所在函数没有真名，其四个分支与代收时的开头已在 pretty bundle 中读到） |
 | 认领游标：状态已被新认领覆盖时结算不写 | `"expectedClaimCursor" in r`（`initJobManagerModule`） | confirmed |
 | keepalive 可被外部通知唤醒，且不抢占；从会话内发出时以该会话为发送者 | `sourceSessionKey: "external:session.notify"`（`deliverExternalSessionNotify`）；`sourceName: "notify-tool"`（`deliverExternalSessionNotify`）；`eventType: "notify"`（`deliverExternalSessionNotify`）；`preempt: "never"`（`deliverExternalSessionNotify`） | confirmed（会话外的来源事件类型是模块常量 "external.notify"，在一个尚无真名的模块初始化器里赋值） |
 | keepalive 可创建 job，但不能创建 keepalive；keepalive 不能是 stateless | `"A keepalive job may create jobs, but not another keepalive job."`（`initManageJobToolModule`）；`e.stateless === !0 && e.cron === "keepalive"`（`runManageJobTool`） | confirmed |
