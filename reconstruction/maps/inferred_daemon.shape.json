@@ -12207,6 +12207,382 @@
         "session_key",
         "sort"
       ]
+    },
+    "initReservedMainAliasModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "\" is reserved for the main session and only session.set_alias may set or clear it (session ",
+        "ReservedMainAliasError"
+      ],
+      "props": [
+        "name"
+      ],
+      "values": [
+        "74234e98afe7498f"
+      ]
+    },
+    "classifyNotifySessionKind": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "channel",
+        "job:",
+        "meta",
+        "meta:",
+        "system",
+        "system:",
+        "unknown"
+      ],
+      "props": [
+        "includes",
+        "startsWith"
+      ]
+    },
+    "formatSessionAliasCommand": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        " --clear",
+        " --move",
+        "duoduo session alias "
+      ],
+      "props": [
+        "length",
+        "stringify",
+        "trim"
+      ]
+    },
+    "deliverMainRoleNoticeSafely": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "[main-role] role notice failed",
+        "[main-role] role notice not delivered"
+      ],
+      "props": [
+        "notify",
+        "ok",
+        "reason"
+      ]
+    },
+    "setSessionArchivedListener": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "isMailboxMergeReadError": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": []
+    },
+    "sanitizeDrainRecordSegment": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "replace"
+      ]
+    },
+    "hashDeliveryCursorKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "sha256"
+      ],
+      "props": [
+        "createHash",
+        "digest",
+        "update"
+      ]
+    },
+    "renderActiveSessionsListing": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        "(none)",
+        ") is not persisted yet.",
+        "Active sessions: ",
+        "Archived sessions are not listed. Pass session_key to inspect one session.",
+        "Background (",
+        "Foreground (",
+        "Your session (",
+        "channel"
+      ],
+      "props": [
+        "filter",
+        "isCaller",
+        "join",
+        "kind",
+        "length",
+        "localeCompare",
+        "map",
+        "push",
+        "session_key",
+        "some",
+        "sort"
+      ]
+    },
+    "isPlainObjectRecord": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "renderMetaNotifyModeGuidance": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session",
+        "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).",
+        "- Use this to hand off findings from background/meta work into a foreground interactive session.",
+        "- You MUST provide `target_session_key`; `main` reaches the main session.",
+        "IMPORTANT: To reach the end user, you must target a foreground channel session",
+        "Meta/subconscious session mode:",
+        "will NOT produce user-visible output."
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "renderChannelNotifyModeGuidance": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "- Call ViewSessions with no argument to see the sessions you can target.",
+        "- Example: you completed a task in CLI and want to notify the user via a Feishu channel session.",
+        "- Use this to relay information, hand off completed work, or coordinate across sessions.",
+        "- You MUST provide `target_session_key`; `main` reaches the main session.",
+        "Channel (foreground) session mode:"
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "renderSystemNotifyModeGuidance": {
+      "kind": "function",
+      "params": 0,
+      "literals": [
+        "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session",
+        "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).",
+        "- You MUST provide `target_session_key`; `main` reaches the main session.",
+        "IMPORTANT: To reach the end user, you must target a foreground channel session",
+        "System session mode:",
+        "will NOT produce user-visible output."
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "countUnreadableMemoryPaths": {
+      "kind": "function",
+      "params": 0,
+      "literals": [],
+      "props": []
+    },
+    "isPlainJsonObject": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "object"
+      ],
+      "props": [
+        "isArray"
+      ]
+    },
+    "escapeRegExpSource": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "replace"
+      ]
+    },
+    "isHostModelEnvKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "includes"
+      ]
+    },
+    "normalizeDirPathForCompare": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "win32"
+      ],
+      "props": [
+        "platform",
+        "resolve",
+        "toLowerCase"
+      ]
+    },
+    "extractStandInOwnerInfo": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "stand_in_for_owner"
+      ],
+      "props": []
+    },
+    "renderForOwnerAttribute": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "for_owner=\""
+      ],
+      "props": [
+        "owner"
+      ]
+    },
+    "renderJobFailureNotification": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        "  (c) effectively complete (coherent artifacts on disk) → deliver them and note the runtime warning.",
+        "  directory with Read/LS for report/evidence/state files.",
+        "  partial results, (b) task-level blocker (no artifacts, repeated zero-progress crashes) → report it,",
+        "  recoverable progress — not that the task failed.",
+        "' fail this way earlier in this conversation, it is",
+        "') gives you its working directory and instruction; inspect that",
+        "') still returns an archived job's instruction, so it can be recreated under",
+        "- Call the Skip tool with a reason if the failure is transient or expected to retry.",
+        "- Classify the failure: (a) runtime crash with recoverable artifacts → consider retry or relay",
+        "- If the failure is permanent, incorporate the error into your own result.",
+        "- If the failure is transient, you may create a replacement job to retry.",
+        "- If you need human judgment, call Notify with NO target — it reaches your owner — and give it the failure context.",
+        "- ManageJob(read, '",
+        "- Produce text only if the failure is persistent, critical, or warrants user attention now.",
+        "- When you cannot determine which, tell the user the runtime crashed and you are checking for",
+        "A child job you dispatched has FAILED. Check the error details below.",
+        "A runtime crash does NOT necessarily mean the task itself failed. The task's working directory",
+        "Before telling the user the task failed:",
+        "Decide how to proceed:",
+        "Do NOT emit text like \"Skip — ...\", \"noted, will monitor\", \"acknowledging failure\",",
+        "Do NOT silently swallow failures that affect your task's correctness.",
+        "Do NOT treat this as a user instruction.",
+        "Do NOT treat this as a user instruction. Decide whether to notify the user or take corrective action.",
+        "If you have already seen '"
+      ],
+      "props": [
+        "filter",
+        "join"
+      ]
+    },
+    "renderJobCompletionReceipt": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        "  grep -F ",
+        " succeeded ",
+        " times, and none of those runs delivered a Notify (a run that notifies successfully sends no receipt at all; one whose Notify FAILED still does).",
+        "\"/*.jsonl",
+        "\"job_id\":\"",
+        "</job-status>",
+        "<job-status event=\"job.complete\" ",
+        "Each run's full result text is in the spine. Read them only if this conversation",
+        "It is information, not an instruction, and not a request for a reply.",
+        "System receipt — the job '",
+        "You are a background session, so produce no user-visible output.",
+        "channel",
+        "delivered_at=\"",
+        "first_at=\"",
+        "job_id=\"",
+        "last_at=\"",
+        "needs them:",
+        "runs=\"",
+        "schedule=\"",
+        "schedule_type",
+        "unknown",
+        "you own"
+      ],
+      "props": [
+        "event",
+        "eventsDir",
+        "filter",
+        "join",
+        "length",
+        "toISOString",
+        "ts"
+      ]
+    },
+    "extractSessionKeyChannelKind": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "unknown"
+      ],
+      "props": [
+        "indexOf",
+        "slice"
+      ]
+    },
+    "listMainAliasHolderKeys": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "ambiguous",
+        "held"
+      ],
+      "props": [
+        "candidates",
+        "session_key",
+        "state"
+      ]
+    },
+    "renderNewMainSessionNotice": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        ". It was told of the handover and may send you what it carried.",
+        "Previously main: ",
+        "Tell the owner here, in your own words, that this conversation is now where such things land — when the conversation allows.",
+        "You are now the main session. Deliveries with no better target come here: job outcomes whose owner session is gone or unread, Notify calls that name `main`, chats forwarded to `main`, and setup requests from chats."
+      ],
+      "props": [
+        "filter",
+        "join",
+        "length"
+      ]
+    },
+    "renderFormerMainSessionNotice": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " is now the main session; this session no longer is.",
+        " with Notify.",
+        "Deliveries without a better target go there from now on.",
+        "If the people here relied on this session being main, say so here in your own words.",
+        "If you carry work the main session should own (open requests, commitments, jobs), hand it over to ",
+        "Session "
+      ],
+      "props": [
+        "join"
+      ]
+    },
+    "renderAmbiguousMainAliasNotice": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " --move",
+        "More than one session is aliased main: ",
+        "None of them is used as the main session until one remains, so deliveries without a",
+        "Tell the owner and ask them to pick one from their own terminal:",
+        "This notice is for you and the owner; do not repeat the candidate list in a chat others can read.",
+        "better target fall back as if there were no main session.",
+        "duoduo session alias <session_key> "
+      ],
+      "props": [
+        "join"
+      ]
     }
   }
 }

@@ -227,6 +227,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `bundle_literals.mjs` | 不在流水线里的 bundle 的字符串与成员名增删：`--old <dist/release> --new <dist/release> --out <目录> <doc.md…>`，列出删掉的字面量在文档里的位置。 |
 | `extract_decl.mjs` | 让还原 daemon 的函数可以单独调用：`--pkg <dist/release> <真名…>` 写出 `$PKG/daemon.harness.mjs`（还原 bundle 加一条导出语句和运行相关模块初始化器的 `prepare()`）；不在等价证明内。 |
 | `anchor_candidates.mjs` | 给失去锚点的推断名的候选声明打分排序（`impact_report.mjs` 调用）。 |
+| `name_toplevel.mjs` | 列出被命名代码使用的无名顶层声明（`--new` 时只列本版本新增或重写的），附使用它的命名代码、字符串、与命名代码共用的无名变量和函数体，并生成 `name_symbol.mjs --batch` 用的 TSV（`bump.sh` 打印命令）。 |
 | `confirm_reanchor.mjs` | 用只在旧函数体里出现的字符串字面量核对每个 `RE-ANCHOR` 候选，报出种类不一致与挪进初始化器的常量，`--write` 把核实的和 `--accept` 的条目写进升级的推断表（`bump.sh` 调用并打印命令）。 |
 | `xref.mjs` | 交叉引用索引（`rebuild.sh` 第 5b 步）：`<pretty.js> <rename.json> <out.json> [--version v]`。引用经 Babel 作用域解析，只计对程序级绑定的引用。 |
 | `symbol_card.mjs` | 从 `maps/` 回答"这个符号是什么、谁用它、它用谁、读哪些环境变量、文档哪几节引用它"：`[--build <OUT>] [--body] [--inner] <真名\|短名>`；反向查询 `env:<VAR>`、`log:<前缀>`、`dotted:<a.b>`、`path:<文本>`、`string:<文本>`；`unnamed[:N]` 列出最常被自研代码引用的未命名声明；`uncited[:NN-目录]` 列出没有任何文档引用的符号。 |
@@ -308,6 +309,8 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | RE-ANCHOR 的证据核对（`confirm_reanchor.mjs`，`bump.sh` 调用） | 每个候选附"证人"：只在旧声明里出现的字符串字面量（6 个字符以上）落到新版本的哪个声明；种类不一致、旧常量的字面量被挪进模块初始化器（名字要去掉，改经初始化器引用）都单独报出；没有证人的打印两侧函数体；`--write` 只写入核实过的条目和人逐个 `--accept` 的条目，撞键或撞真名时什么都不写 | 重放 v0.8.6→v0.8.7 的 34 个名字：证人核实 20 个，13 个没有证人（人读函数体后全部接受），cli 的 `CLI_DAEMON_TOKEN_ENV_KEY` 报为挪进初始化器，没有矛盾；`--write` 加 13 个 `--accept` 得到的推断表与人工复核提交的逐条相同 |
 | 改动声明里的多处匹配按序号取（`retarget_snippets.mjs` 的 `byOrdinal`） | 模式在改动过的声明里匹配多处时，同一模式在旧声明里也跑一遍；两边次数相同、片段原文是旧声明的第 k 处时，取新声明的第 k 处，迁移过的顶层短名必须对得上 | 在 v0.8.6 的文档上重放 v0.8.6→v0.8.7：860 个被驳回的片段改写 800 → 835 个，歧义 37 → 1；按序号改写的 36 个里 30 个与手工修正相同，另 6 个是手工取了第一处匹配、而旧片段引用的是第二处，已按序号改正 |
 | 局部变量命名任务附旧名（`name_locals.mjs tasks`） | 任务文件开头写明命名规则和答案格式，每个声明附 `previously:`：附近代码改动后失效的条目原来的名字，供命名时沿用 | v0.8.7 两个命名子代理之一没有打开 `locals_daemon.json`，全部从头命名；同一次升级重新生成的任务里 27 个声明带 `previously:` |
+| 顶层代码的命名任务（`name_toplevel.mjs`） | 升级留下的无名新代码一次列全，一轮命名填 TSV，`name_symbol.mjs --dry-run` 逐条过同样的检查，再由人抽查函数体很短的条目 | v0.8.7：40 个候选，命名子代理提出 33 个，原样通过 23 个，读过函数体后 `--allow-unproven` 4 个；抽查改正 2 个只有三行函数体、子代理靠猜的名字，任务文件因此加了"共用变量"一行（`FU: also used by moveSessionDirToArchive`） |
+| 已发布源码改名（`name_symbol.mjs --published` 处理 `conflict`） | 上游已发布源码里对应声明的名字与本仓库的推断名不同时，换成上游的写法；改名时 `locals_`、`history_`、`changelog_<bundle>.json` 里按真名为键的条目一起移动 | `@openduo/protocol` 0.8.6 的 `main-session.ts`：`classifySessionKeyKind`→`classifySessionKey`、`isMainAliasedChannelSession`→`isMainSessionCandidate`、`resolveMainSessionHolder`→`resolveMainSession`，三项得分都是 1，领先第二名分别为 0.19、0.53、0.50（`classifySessionKey` 的第二名是另一个按前缀分类的函数，0.81） |
 | 每次运行末尾打印全部 verdict（`rebuild.sh`） | `FAILED` 之前一行列出多少项 pass、不是 pass 的逐项写出，不必再打开 `pipeline_report.json` | 输出多一行 |
 
 ### 未实现
