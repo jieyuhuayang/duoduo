@@ -2228,24 +2228,6 @@
         "e2e949302663f020"
       ]
     },
-    "classifySessionKeyKind": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "cadence:",
-        "channel",
-        "job:",
-        "meta",
-        "meta:",
-        "subconscious",
-        "subconscious:",
-        "system",
-        "system:"
-      ],
-      "props": [
-        "startsWith"
-      ]
-    },
     "isUserVisibleSessionKey": {
       "kind": "function",
       "params": 1,
@@ -12047,34 +12029,6 @@
         "state"
       ]
     },
-    "resolveMainSessionHolder": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "absent",
-        "ambiguous",
-        "held"
-      ],
-      "props": [
-        "add",
-        "length",
-        "session_key",
-        "sort"
-      ]
-    },
-    "isMainAliasedChannelSession": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "channel",
-        "string"
-      ],
-      "props": [
-        "display_name",
-        "session_key",
-        "trim"
-      ]
-    },
     "isReservedMainAliasChange": {
       "kind": "function",
       "params": 3,
@@ -12206,6 +12160,52 @@
       ],
       "props": [
         "owner"
+      ]
+    },
+    "classifySessionKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "channel",
+        "job:",
+        "meta",
+        "meta:",
+        "subconscious",
+        "subconscious:",
+        "system",
+        "system:"
+      ],
+      "props": [
+        "startsWith"
+      ]
+    },
+    "isMainSessionCandidate": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "channel",
+        "string"
+      ],
+      "props": [
+        "display_name",
+        "session_key",
+        "trim"
+      ]
+    },
+    "resolveMainSession": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "absent",
+        "ambiguous",
+        "held"
+      ],
+      "props": [
+        "add",
+        "length",
+        "session_key",
+        "sort"
       ]
     }
   }

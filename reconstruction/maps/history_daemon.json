@@ -919,7 +919,7 @@
    "firstSeen": "0.7.0",
    "changedIn": []
   },
-  "classifySessionKeyKind": {
+  "classifySessionKey": {
    "mangled": "Nt",
    "firstSeen": "0.5.0",
    "changedIn": []
@@ -2957,7 +2957,7 @@
    "firstSeen": "0.7.0",
    "changedIn": []
   },
-  "isMainAliasedChannelSession": {
+  "isMainSessionCandidate": {
    "mangled": "xue",
    "firstSeen": "0.8.7",
    "changedIn": []
@@ -5090,16 +5090,16 @@
    "firstSeen": "0.3.3",
    "changedIn": []
   },
+  "resolveMainSession": {
+   "mangled": "Mb",
+   "firstSeen": "0.8.7",
+   "changedIn": []
+  },
   "resolveMainSessionFromIndex": {
    "mangled": "qc",
    "firstSeen": null,
    "changedIn": [],
    "untraceable": "function with too few features to follow past v0.8.7"
-  },
-  "resolveMainSessionHolder": {
-   "mangled": "Mb",
-   "firstSeen": "0.8.7",
-   "changedIn": []
   },
   "resolveMemoryCheckFlags": {
    "mangled": "wW",

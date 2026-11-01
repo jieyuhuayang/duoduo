@@ -1,4 +1,10 @@
 {
+  "classifySessionKey": {
+    "package": "@openduo/protocol@0.8.6",
+    "file": "main-session.ts",
+    "line": 22,
+    "verdict": "renamed"
+  },
   "describeConversationProblem": {
     "package": "@openduo/protocol@0.8.4",
     "file": "system.ts",
@@ -137,6 +143,12 @@
     "line": 93,
     "verdict": "unique"
   },
+  "isMainSessionCandidate": {
+    "package": "@openduo/protocol@0.8.6",
+    "file": "main-session.ts",
+    "line": 40,
+    "verdict": "renamed"
+  },
   "isMimePattern": {
     "package": "@openduo/protocol@0.8.4",
     "file": "channel.ts",
@@ -262,6 +274,12 @@
     "file": "system.ts",
     "line": 1100,
     "verdict": "unique"
+  },
+  "resolveMainSession": {
+    "package": "@openduo/protocol@0.8.6",
+    "file": "main-session.ts",
+    "line": 57,
+    "verdict": "renamed"
   },
   "textKeysProblem": {
     "package": "@openduo/protocol@0.8.4",
