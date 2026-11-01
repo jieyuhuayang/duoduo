@@ -6,66 +6,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is **not** the source of the `duoduo` runtime. Two layers live here:
 
-1. **Upstream `openduo/duoduo` GitHub scaffold** (tracked in git): `README.md`, `CHANGELOG.md`, `skills/` (host-mode ops skills), `subconscious/` (partition prompt scaffold), `contrib/` (dashboard helpers), `assets/`. The upstream project **deliberately publishes no runtime source** — the real runtime ships as **minified JavaScript** in the npm package `@openduo/duoduo` (author's stance: "the code is written for agents, minification is compression not obfuscation"). Upstream's license (FSL-1.1-Apache-2.0 with the agent addendum in `LICENSE.agents.yaml`) explicitly allows de-minifying, decompiling and analysing every published version and sharing patches, and forbids only competing commercial use; that is the licensing basis for the reconstruction here. So there is nothing to "build" here in the usual sense.
+1. **Upstream `openduo/duoduo` GitHub scaffold** (tracked in git, merged from `upstream/main`): `README.md`, `CHANGELOG.md`, `skills/` (host-mode ops skills), `subconscious/` (partition prompt scaffold), `contrib/` (dashboard helpers), `assets/`. Upstream publishes **no runtime source**: the runtime ships as **minified JavaScript** in the npm package `@openduo/duoduo`. Upstream's license (FSL-1.1-Apache-2.0 with the agent addendum in `LICENSE.agents.yaml`) allows de-minifying, decompiling and analysing every published version and sharing patches, and forbids only competing commercial use; that is the licensing basis for the reconstruction. Do not edit this layer except by merging upstream.
+2. **Local reverse-engineering and analysis work**: `docs/` (analysis) and `reconstruction/` (the minified runtime reconstructed into readable, provably equivalent source, and the tooling that produced and checks it). "Analyze duoduo's logic" or "restore the source" means work in this layer.
 
-2. **Local reverse-engineering / analysis work** (added on top): `docs/` (deep analysis) and `reconstruction/` (the minified runtime reconstructed into readable, provably-equivalent source + the tooling that produced it). This is the actual working material of this repo.
+There is no build in the usual sense. The "build" is `reconstruction/tools/rebuild.sh`, a chain of proofs, and the "tests" are its gates (below).
 
-When someone says "analyze duoduo's logic" or "restore the source," they mean working within layers 2 — reading the reconstructed source and refining the analysis docs, **not** editing the upstream scaffold.
+## Repository map
 
-## Repository map (the parts that matter)
+Docs (`docs/README.md` is the reading map and the maintainers' conventions; read it first when you change a doc):
 
-- `docs/AGENT_INTERNALS_ANALYSIS.md` — the primary artifact: the runtime's mechanisms reverse-engineered from the minified bundle, in numbered sections 1–14 (1 端到端路径, 2 系统提示装配, 3 引擎, 4 自操作工具, 5 事件日志, 6 网关与控制面, 7 Drain 与 turn 控制, 8 会话 actor、锁与并发池, 9 渠道适配器, 10 job 调度, 11 心跳与后台分区, 12 记忆系统, 13 指令指纹与改动生效, 14 未证实与待实测). These sections and `first-party/`'s `NN-` directories (how many: `firstPartyTree` in `maps/pipeline_report.json`) are two independent groupings of the same symbols, numbered independently; neither is derived from the other. Pyramid-structured; every mechanism claim names the code behind it (`真名 (短名)`, or a snippet bound to a real name) and carries a `confirmed` / `未证实推测` confidence tag, and the doc carries no line numbers. Its Appendix A links `reconstruction/maps/RENAME_TABLE.md` instead of copying it. Cross-validated against the reconstructed source.
-- `docs/ARCHITECTURE_ANALYSIS.md` — deployment and operations: how the runtime is distributed, install and onboarding, where each environment variable and config file lives and who reads it, the two directories (`~/aladuo`, `~/.aladuo`) and their locks, the control-plane listeners and their access control, day-to-day ops commands (restart, upgrade, partition-prompt refresh, jobs), channel-adapter install and lifecycle, live-daemon measurement records (each labelled with the older release it was measured on), and ops risks. Mechanism-level code evidence is in `AGENT_INTERNALS_ANALYSIS.md`, not here.
-- `docs/DUODUO_FRAMEWORK_GUIDE.md` — the entry point for product managers: a first-principles explanation of the runtime ("what the model lacks, the runtime supplies"), written for a reader who only knows what an LLM is. Deliberately carries **no** line anchors or short names; its Appendix C maps each section to the evidence sections of `AGENT_INTERNALS_ANALYSIS.md`, and Appendix D lists the upstream changes it absorbed.
-- `docs/SOURCE_RECONSTRUCTION.md` — the reconstruction methodology.
-- `reconstruction/recon/daemon.recon.js` — runnable reconstructed source, **provably semantically identical** to the shipped bundle (only first-party symbols renamed, and the parameters and local variables inside them). "Identical" means identical AST modulo the rename map, resolved binding by binding; two things sit outside that proof: anything that reads a function's own name (`Function.prototype.name`, `constructor.name`, stack traces show the real name), and the one direct `eval()` in vendored gray-matter, which sees module scope by name. The cli counterpart is not committed: `rebuild.sh` writes it to `.build/cli.recon.js`.
-- `reconstruction/first-party/<NN-subsystem>/*.js` — one file per renamed daemon symbol, in the `NN-` directory `maps/subsys_daemon.json` gives it: a readable per-subsystem tree (real names, local variables named as in `recon/`, original `daemon.pretty.js` line in header, and a `// name:` line saying whether the name is upstream's or INFERRED by us). Generated by `rebuild.sh`, never hand-edited. **Read-only reference — not independently runnable.**
-- `reconstruction/maps/modules_<bundle>.json` — hand-made: which esbuild `__export` block (= which source module) is duoduo's own and which is a vendored library. Everything else in `maps/` is generated by `rebuild.sh` and enters the repo only through `PROMOTE=1`, except these files, which people maintain directly or through the tool named:
-  - `inferred_daemon.json` — the names we derived for daemon code that esbuild left unnamed (functions, module initialisers, literal constants), keyed by *mangled* name, so every release needs `bump.sh` to carry them across. Add to it with `name_symbol.mjs` (see "Writing / editing the analysis docs"), not by hand.
-  - `subsys_daemon.json` — which `NN-` directory of `first-party/` each renamed daemon symbol belongs in. It must cover exactly the rename map: a renamed symbol without an entry, or an entry without a renamed symbol, stops the build (`extract_functions.mjs`, `gen_rename_table.mjs`).
-  - `inferred_daemon.shape.json` — the reviewed shape of every inferred name, written by `verify_inferred.mjs record` after a human review and compared at every rebuild.
-  - `inferred_daemon.asserted.json` — the names registered with `name_symbol.mjs --allow-unproven`, each with the verdict it was asserted over; created by the first such registration.
-  - `published_daemon.json` — the inferred names that are upstream's own spelling, confirmed against a published sibling package (`@openduo/protocol` ships TypeScript source; the daemon inlines its validators and constants without names): real name → package, file, line and how it was matched. Written by `name_symbol.mjs --published <report>`, the report being `match_published_source.mjs`'s; `RENAME_TABLE.md` and the first-party headers mark these *published source*.
-  - `historical_daemon.json` — the inferred names that are upstream's own spelling from an OLDER release's `__export` block: esbuild drops a module's block when its export object is no longer needed at run time (v0.4.0 inlined the session-registry module that v0.2.0–v0.3.7 exported), and `match_historical_exports.mjs` follows each such name forward to the current declaration through the release pairing of `tools/history.sh` (identical body, position, feature similarity; a twin-by-order step or two old names on one declaration refuse it). Real name → the releases that exported it, its short name in the last of them, the export block, and the releases where the body changed since. Written by `name_symbol.mjs --historical <report>`, which may also replace an existing inferred name with upstream's (never an upstream one), keeping the first-party evidence the old name had; `RENAME_TABLE.md` and the first-party headers mark these *historical export*.
-  - `locals_daemon.json` — names for the local bindings (parameters, variables, catch params, inner functions) inside renamed daemon declarations that the rules of `name_locals.mjs` cannot derive: per declaration real name, entries keyed by the binding's `ctx` (a hash of the code around the binding with locals spelled `_`, every top-level binding `#` and whitespace removed, `local_bindings.mjs`; so naming a neighbour or a formatter's spacing no longer moves it, both of which broke entries at v0.8.5) and `occ`, with the short name it had (`was`) and `src: llm`. Written by `name_locals.mjs record` from answers to `name_locals.mjs tasks` (an LLM pass that reads each declaration), never by hand. Rule names (destructured keys, member reads, `new`, `catch`, verb-prefixed first-party callees, a few builtins) are recomputed at every rebuild and not stored. Keyed by real name and ctx, not by short name, so entries follow a release by themselves; an entry whose ctx no longer matches (the code next to it changed) makes the rebuild record `localNames=warn`, which PROMOTE refuses: re-name with `tasks`/`record` or drop with `prune`. An entry written under the earlier ctx scheme still resolves (`apply` reports how many), and `name_locals.mjs rekey` rewrites it. `tasks` heads each file with the naming rules and the answer format and prints, per declaration, `previously:` the names its stale entries had, so the pass reuses the code's own vocabulary (at v0.8.7 one of two naming passes never opened this file and named from scratch). The v0.8.4 names were proposed by opus; on one batch of 348 locals (05-drain-turn), sonnet gave the same name or one sharing a word for 307, haiku for 273, and haiku's other names were mostly generic (`store` where the code's convention is `paths`), so use sonnet or better for the names a bump needs.
-  - `inferred_cli.json`, `inferred_cli.shape.json`, `inferred_cli.asserted.json` — the same three for the cli, written by `name_symbol.mjs --bundle cli`. The cli has no first-party tree, so it has no subsystem map.
-  - `history_daemon.json` — for every renamed daemon symbol, the npm release it first appeared in (`firstSeen`), the releases its body changed in (`changedIn`), and `untraceable` for declarations with too few features to follow (uninitialised `var`s, one-line predicates). Written by `tools/history.sh --write`, which fetches every release, beautifies it with the pinned js-beautify, pairs consecutive releases (identical body, positional, feature similarity) and walks each current symbol back (`history_chain.mjs`). Not part of `rebuild.sh`. During a bump run `history.sh --build reconstruction/.build --write` after the last `name_symbol.mjs` and before the one PROMOTE (without `--build` it needs maps/ to describe the new release already, which cost a second PROMOTE at v0.8.5). The first-party headers carry it as `// since:` and `RENAME_TABLE.md` as a column.
-  - `changelog_daemon.json` — the upstream `CHANGELOG.md` entries that describe a symbol, paired per release with the symbols born or changed in it, each with a confidence (`high`: the entry names a literal, flag or command in the body; `medium`: behaviour only) and the reason. Written by `changelog_merge.mjs` from per-release pairing files (`.build/history/changelog_pairs/`, written by reading each entry against the function bodies). A reading, not a proof: the headers print it with its confidence. `.build` does not outlive a session, so a bump writes only the new release's pairing file (one naming pass over `history_daemon.json`'s born and changed symbols of that release, then a spot-check of the `why` lines) and merges it with `--keep maps/changelog_daemon.json`, which carries every other release's entries over from the committed map; at v0.8.7 that reproduced the full merge entry for entry.
-  - `bare_anchor_baseline.json` — per-doc ceilings on legacy line numbers, written by `check_bare_anchors.mjs --write-baseline`, which refuses to raise one.
-- `reconstruction/maps/symbols_<bundle>.json` — generated symbol index: real name → mangled name, declaration line, and a structural signature of the body. This is the authority for "where is symbol X"; line numbers are derived from it, never hand-written.
-- `reconstruction/maps/xref_<bundle>.json` — generated cross-reference index (`xref.mjs`, rebuild step 5b): per renamed symbol, the first-party symbols and unnamed top-level code it refers to (resolved through Babel scopes), the inverse, the env vars it reads, its log prefixes, dotted names (RPC methods, event types), paths and other string literals, plus the inverse indexes from each literal to its symbols, the unnamed declarations first-party code uses most (the naming queue), and per symbol `inner`: the named closures inside its declaration (`outer>name`, the names instrument.mjs traces under) with their lines, the outline of a factory such as `createDaemon`. Query it with `tools/symbol_card.mjs` (a card per symbol: callers, callees, literals, name origin, first release, CHANGELOG entry, doc sections citing it; reverse queries `env:`, `log:`, `dotted:`, `path:`, `string:`, `unnamed`, `uncited`) instead of grepping the bundle; `tools/doc_coverage.mjs` writes which symbols no doc cites and how many symbols each section cites.
-- `reconstruction/scenarios/` — runtime scenarios: `run.sh` instruments `recon/daemon.recon.js` with `instrument.mjs` (every first-party function and, with `--inner`, every closure inside one, named `outer>name`, writes enter/exit/fail lines to a trace) into `$PKG/daemon.traced.js`, then each `NN-*.sh` boots it in an isolated HOME on its own port (20300 + NN) through `lib.sh`, drives it over the socket and the read-only TCP port, marks its steps in the trace, and `trace_report.mjs` writes the call tree per step to `.build/scenarios/<name>/report.md`. The default auth source cannot reach a model. The conclusions, per scenario, are committed in `scenarios/findings/<name>.md`: the claim tested, the evidence, the verdict, the sentence for the doc. The instrumented file is a run artifact outside the equivalence proof.
-- `reconstruction/maps/pipeline_report.json` — **generated**; the authoritative record of a run: its counts (export blocks, recovered and inferred names, rename entries, first-party tree size), each gate's verdict, the sha256 of every shipped and pretty bundle it read, and the toolchain versions. Cite it rather than restating numbers in prose: the hand-copied versions of these had drifted into three contradictory values.
-- `reconstruction/maps/RENAME_TABLE.md` and `RENAME_TABLE_cli.md` — the generated mangled↔real name tables for daemon and cli.
-- `reconstruction/tools/*.mjs` — the Babel-based reconstruction pipeline (`rebuild.sh` runs it; `bump.sh` retargets it to a new release).
-- `.claude/workflows/upgrade-docs.js` — the saved multi-agent workflow for the doc half of a version bump (step 3b below): it works through `bump.sh`'s impact report, one agent per group of doc sections. Run it by name; `bump.sh` prints its args.
+- `docs/AGENT_INTERNALS_ANALYSIS.md` (INTERNALS) — the primary artifact: every runtime mechanism with the code behind it, in sections 1–14 (1 端到端路径, 2 系统提示装配, 3 引擎, 4 自操作工具, 5 事件日志, 6 网关与控制面, 7 Drain 与 turn 控制, 8 会话 actor、锁与并发池, 9 渠道适配器, 10 job 调度, 11 心跳与后台分区, 12 记忆系统, 13 指令指纹与改动生效, 14 未证实与待实测). Each claim cites code by name and carries `confirmed` or `未证实推测`; no line numbers. These sections and the `NN-` directories of `first-party/` group the same symbols independently; neither is derived from the other. Appendix A links `reconstruction/maps/RENAME_TABLE.md`, Appendix B lists event types and RPC methods.
+- `docs/ARCHITECTURE_ANALYSIS.md` — deployment and operations: install and onboarding, which env var or config file lives where and who reads it, the two directories and their locks, control-plane listeners, ops commands, channel-adapter lifecycle, live-daemon measurements (each labelled with the older release it was measured on), ops risks. Mechanism evidence stays in INTERNALS.
+- `docs/DUODUO_FRAMEWORK_GUIDE.md` (GUIDE) — the product-manager entry point, written for a reader who only knows what an LLM is. **No anchors and no short names, on purpose**; Appendix C maps each section to INTERNALS sections, Appendix D lists the upstream changes it absorbed.
+- `docs/SOURCE_RECONSTRUCTION.md` — why the reconstruction is credible and how doc citations are checked.
+- `docs/AGENT_FRAMEWORKS_COMPARISON.md` (duoduo vs hermes-agent vs pi) and `docs/DUODUO_VS_BOTMUX.md` (how duoduo and botmux drive Claude Code and Codex) — comparisons; their duoduo facts rest on the three docs above.
 
-## Core discipline: the reconstruction must stay *provably equivalent*
+Reconstruction (`reconstruction/README.md` is the full reference: generated artifacts, hand-maintained maps, the bump procedure step by step with the measured results of each tool, the tool table; `reconstruction/VERIFICATION.md` is the evidence log per proof):
 
-The reconstruction is a chain of **semantics-preserving** transforms (beautify → byte-lossless de-bundle → scope-safe rename), never a hand-rewrite. These invariants must hold and are machine-checkable (exact counts and each run's verdicts: `maps/pipeline_report.json`):
+- `recon/daemon.recon.js` — runnable reconstructed daemon, identical AST to the shipped bundle modulo the rename map (first-party top-level symbols, plus the parameters and locals inside them), compared binding by binding. Outside the proof: code that reads a function's own name (`Function.prototype.name`, `constructor.name`, stack traces) and the one direct `eval()` in vendored gray-matter. The cli counterpart is not committed (`.build/cli.recon.js`).
+- `first-party/<NN-subsystem>/<realName>.js` — one file per renamed daemon symbol, generated, read-only, not runnable. Headers give the short name, declaration line, `// name:` (upstream / INFERRED / published source / historical export), `// since:`, `// locals:`, and any CHANGELOG pairing with its confidence.
+- `maps/` — generated indexes plus a few hand-maintained maps (table below). `maps/pipeline_report.json` is the authoritative record of a run (counts, every verdict, sha256 of each shipped and pretty bundle, toolchain): cite it, never copy its numbers into prose. `maps/symbols_<bundle>.json` is the authority for "where is symbol X"; `maps/xref_<bundle>.json` is the cross-reference index (callers, callees, env vars, log prefixes, RPC methods and event types, strings, inner closures as `outer>name`, the queue of unnamed code); query it through `tools/symbol_card.mjs`, not by grepping the bundle.
+- `scenarios/` — runtime experiments: `run.sh` instruments `recon/daemon.recon.js` (`instrument.mjs`, enter/exit/fail per first-party function, `--inner` for closures), each `NN-*.sh` boots it in an isolated HOME on port 20300+NN via `lib.sh`, drives it over the socket and read-only TCP port, and `trace_report.mjs` writes the call tree per step to `.build/scenarios/<name>/report.md`. Conclusions are committed in `scenarios/findings/<name>.md`. The default auth source reaches no model.
+- `tools/` — the Babel-based pipeline (`rebuild.sh`, `bump.sh`, and the `.mjs` tools listed under "Tool reference").
+- `.claude/workflows/upgrade-docs.js` — the saved multi-agent workflow for bump step 3b (the `upgrade-docs` skill wraps it); `bump.sh` prints its args.
 
-- **Lossless split**: concatenating the split module files reproduces the beautified bundle **byte-for-byte** (`cmp`). Segment files are named case-insensitively unique — minified identifiers routinely differ only by case (`nS` vs `rW`), and on macOS or Windows the second write would otherwise overwrite the first and quietly falsify this proof.
-- **Beautify fidelity**: the shipped minified bundle and `*.pretty.js` have identical ASTs (`tools/ast_equiv.mjs` with no map). Without it every other proof starts from a file that does not ship. It needs the shipped bundle (`PKG`); a run without it records `beautifyEquivalent=skipped`, which cannot be promoted.
-- **Rename equivalence**: `recon/*.recon.js` and the beautified source have **identical ASTs modulo the rename map** (`tools/ast_equiv.mjs`). Identifiers are compared by the binding they resolve to, not by spelling: declarations must correspond one-to-one, and only mapped top-level bindings may change name, plus, in the daemon, the local bindings that `name_locals.mjs apply` lists in `$OUT/locals_daemon.applied.json` (`--locals`; each identified by its declaration's real name and its ordinal among that declaration's locals, recomputed on the beautified file), each to exactly the listed name. A spelling-only comparison accepted an un-renamed reference and a renamed member property (`process.on`) as equivalent.
-- **Committed = generated**: the committed `recon/`, `maps/` and `first-party/` equal what the pipeline generates for the version they claim (`tools/promote.mjs`), and the committed `maps/pipeline_report.json` must itself be promotable: every proof verdict `pass`, and a sha256 of each shipped and each pretty bundle. Otherwise the comparison fails even when every artifact matches. The `anchorTargetMatches` verdict checks that `docs/.pretty-anchor-target` names the release that report's `package` records.
-- **First-party tree honesty**: every `first-party/**/*.js` body is exactly its symbol's whole declaration in `recon/daemon.recon.js` (not merely a substring of it), its header agrees with the rename map and with `maps/inferred_daemon.json` on whether the name is inferred, its cited line IS the symbol's declaration line, and the set of files is exactly the renamed daemon symbols, each in the directory `maps/subsys_daemon.json` gives it (`tools/verify_first_party.mjs`). Nothing else checks this tree, and every way it can be wrong is silent.
-- **Citation identity**: every `真名 (短名)` pair — with or without a line, in prose, tables or fences, and the `real/short` shorthand too — names a symbol that still exists and still has that short name (`tools/verify_citations.mjs`, over `docs/*.md`, `reconstruction/*.md` and this file); every name-bound snippet `代码片段`（`真名`） lies inside that symbol (`tools/check_bare_anchors.mjs`); and every legacy `短名`（`N`） still holds on line N of the bundle it names, daemon or cli: the short name is on that line as a whole identifier, or, as `rebuild.sh` runs it (`--resolve`), line N lies inside the top-level declaration that short name declares (`tools/check_doc_anchors.mjs`). The last two run over `docs/*.md`. The exact conditions are under "Writing / editing the analysis docs". Legacy line numbers are counted against a ceiling that may only fall; a drifted legacy line on an F1 citation is regenerable with `--fix`.
+Hand-maintained maps. Everything else in `maps/` is generated and enters the repo only through `PROMOTE=1`. Write these with the tool named, not by hand (except `modules_`):
 
-Do **not** hand-edit `recon/*.recon.js` as if it were source you can freely change — any edit must preserve AST equivalence, or the "runs identically" guarantee is void. Real symbol names come from esbuild's `__export` helper, which is authoritative; a minority of internal names (functions, and module initialisers or constants once named) are RE-*inferred* (flagged in `RENAME_TABLE.md`) — an inferred name being slightly off never affects correctness because renaming is scope-safe. For how many of each, read `maps/pipeline_report.json`; do not copy the number into prose.
+| Map | What it holds | Written by |
+|---|---|---|
+| `modules_<bundle>.json` | per esbuild `__export` block (= one source module): first-party or vendored, by marker export names | hand, one decision per new upstream module |
+| `inferred_<bundle>.json` | our names for unnamed code (functions, `init<Name>Module` initialisers, UPPER_SNAKE constants), **keyed by mangled name**, so every release needs `bump.sh` | `name_symbol.mjs`, `confirm_reanchor.mjs --write` mid-bump |
+| `inferred_<bundle>.shape.json` | the reviewed shape of each inferred name, compared at every rebuild | `verify_inferred.mjs record` after review |
+| `inferred_<bundle>.asserted.json` | names registered with `--allow-unproven`; never evidence for a later registration | `name_symbol.mjs` |
+| `published_daemon.json` | inferred names confirmed as upstream's spelling from `@openduo/protocol`'s TypeScript source | `name_symbol.mjs --published` |
+| `historical_daemon.json` | inferred names confirmed as upstream's spelling from an older release's `__export` block | `name_symbol.mjs --historical` |
+| `subsys_daemon.json` | the `NN-` directory of each renamed daemon symbol; must cover exactly the rename map or the build stops | `name_symbol.mjs` |
+| `locals_daemon.json` | LLM-proposed names for locals the rules cannot derive, keyed by real name + `ctx` hash + `occ`; a stale ctx gives `localNames=warn` | `name_locals.mjs tasks` → `record` (or `prune`, `rekey`); use sonnet or better for the naming pass |
+| `history_daemon.json` | per symbol `firstSeen`, `changedIn`, `untraceable` across every npm release | `tools/history.sh --write` (not part of `rebuild.sh`) |
+| `changelog_daemon.json` | upstream CHANGELOG entries paired with the symbols they describe, with confidence; a reading, not a proof | `changelog_merge.mjs`; a bump writes only the new release's pairing file and merges with `--keep maps/changelog_daemon.json` (`.build` does not outlive a session) |
+| `bare_anchor_baseline.json` | per-doc ceilings on legacy line numbers; may only fall | `check_bare_anchors.mjs --write-baseline` |
 
-## Checking whether upstream has anything new (run this before anything else)
+The cli has `inferred_cli.*` but no first-party tree, so no subsystem or locals map.
 
-A sync check that compares against **unfetched** refs is comparing against the past, not
-the present. In an ephemeral container the clone happened at container start, and other
-sessions push to `origin` in between — so `origin/main` on disk can be many commits stale
-while looking perfectly authoritative. A scheduled run is exactly where this bites: nobody
-is watching, and the stale picture is self-consistent. Fetch first, always:
+## Check whether upstream has anything new (run this first)
+
+A sync check against **unfetched** refs compares against the past. In an ephemeral container or a scheduled run, `origin/main` on disk can be many commits stale and still look self-consistent, and the local branch can lag `origin/main` too. Fetch first, always:
 
 ```bash
-# 0) the clone only has `origin`; add upstream idempotently, then refresh EVERYTHING
 git remote get-url upstream >/dev/null 2>&1 || git remote add upstream https://github.com/openduo/duoduo.git
 git fetch --all --prune --tags
-
+git status -sb | head -1                        # 0) is the local branch behind origin? fast-forward before working
 cat docs/.pretty-anchor-target                  # 1) version this repo last reconstructed to
 git describe --tags --abbrev=0 upstream/main    # 2) latest upstream release tag
 npm view @openduo/duoduo version                # 3) latest published runtime (the thing reconstructed)
@@ -73,475 +63,240 @@ git merge-base --is-ancestor upstream/main origin/main   # 4) has upstream fully
 git log origin/main..upstream/main --oneline    # 4b) if (4) is false: exactly what is missing
 ```
 
-**Decision rule**: (4) true **and** the three version strings agree ⇒ nothing to do, stop and
-say so. Any disagreement ⇒ the delta is real; merge, retarget the reconstruction, update
-`docs/`. Each signal is authoritative for a different question and they are not
-interchangeable: (4) alone answers "is there new upstream work", (2)/(3) answer "which
-version would we be retargeting to". A tag can lag the branch tip, so never let a matching
-tag stand in for the ancestry check.
+**Decision rule**: (4) true **and** the three version strings agree ⇒ nothing to do; stop and say so. Any disagreement ⇒ the delta is real: merge, bump the reconstruction, update `docs/`. (4) answers "is there new upstream work"; (2)/(3) answer "which version to retarget to". A tag can lag the branch tip, so a matching tag never replaces the ancestry check.
 
-**"Did this work already land?" is answered by ancestry, never by PR metadata.** A PR shows
-`merged:false, state:closed` whenever its content reached the base by a direct push or a
-local merge instead of the GitHub merge button — both are normal here (PRs #1 and #2 both
-look unmerged in the API and both are fully in `main`). Reading that as "the work never
-landed" once produced a confident, wrong report that `main` was 13 commits behind, because
-it agreed with an equally stale `origin/main` — two signals that look independent but share
-one root cause. Only `git merge-base --is-ancestor <commit> origin/main`, against a
-freshly fetched ref, settles it.
+**"Did this work already land?" is answered by ancestry, never by PR metadata.** A PR shows `merged:false, state:closed` whenever its content reached the base by a direct push or local merge, which is normal here. Only `git merge-base --is-ancestor <commit> origin/main` against a freshly fetched ref settles it. A report sent out of band (push notification, issue, PR comment) may contain only claims verified in that same run against fresh refs.
 
-When a run reports its findings out of band (a push notification, an issue, a PR comment),
-every claim in it must have been verified in that same run against freshly fetched refs.
-Anything not re-verified does not go in.
+## Core discipline: the reconstruction must stay *provably equivalent*
 
-## CI (`.github/workflows/`)
+The reconstruction is a chain of **semantics-preserving** transforms (beautify → byte-lossless de-bundle → scope-safe rename), never a hand-rewrite. **Never hand-edit `recon/`, `first-party/` or the generated `maps/`**: they are compared with what the pipeline generates, and any edit that breaks AST equivalence voids the "runs identically" guarantee. Real names come from esbuild's `__export` helper and are authoritative; inferred names are flagged in `RENAME_TABLE.md`, and an imprecise one never affects behaviour because renaming is scope-safe.
 
-- `verify.yml` runs on every PR and push to `main`: on the Node major in the repo-root
-  `.nvmrc`, it installs the npm release that `maps/pipeline_report.json` records (not the
-  latest one) and runs the full `rebuild.sh` with `PKG`, so every gate — beautify fidelity,
-  inferred names, local names, AST equivalence, committed-artifact sync, the docs target,
-  first-party tree, citations, line anchors, the anchor-checker mutation test — can fail a
-  PR. A `warn` or `skipped` verdict does not fail the job (only `PROMOTE=1` refuses it);
-  the job writes every verdict as a table into the run summary and uploads
-  `pipeline_report.json` and `verdicts.txt` as the `pipeline-report` artifact, so read the
-  summary on a green run too. Nothing in CI commits fixes: every failure it can raise needs
-  judgement. Fix it in a session (the Claude app's Auto-fix on the PR, or by hand).
+The gates `rebuild.sh` runs, each a verdict in `pipeline_report.json`:
 
-## Reconstruction workflow (commands)
+- **Lossless split** (`<bundle>.lossless`): the split module files concatenate back to the beautified bundle byte for byte. Segment file names are case-insensitively unique, because minified names differ only by case and macOS/Windows would overwrite.
+- **Beautify fidelity** (`<bundle>.beautifyEquivalent`): shipped minified bundle and `*.pretty.js` have identical ASTs. Needs `PKG`; without it the verdict is `skipped`.
+- **Inferred names** (`<bundle>.inferredNames`): `verify_inferred.mjs check`, the only gate that catches a mis-anchored inferred name: right kind of code, right spelling for the kind, shape unchanged, no other recorded shape fitting better. Exit 0 pass, 1 fail, 3 warn (shape changed: re-read the body, then `record`).
+- **Local names** (`daemon.localNames`): `warn` when a `locals_daemon.json` entry no longer matches its code.
+- **Syntax and rename equivalence** (`<bundle>.syntax`, `<bundle>.astEquivalent`): identical ASTs modulo the rename map, identifiers compared by resolved binding; only mapped top-level bindings and the locals listed in `$OUT/locals_daemon.applied.json` may change name.
+- **Committed = generated** (`committedInSync`, `anchorTargetMatches`): committed `recon/`, `maps/`, `first-party/` equal the generated ones for the version the committed report claims, that report is itself promotable, and `docs/.pretty-anchor-target` names the same release. A run for another version records `retarget-pending`; a run without `PKG`/`PKG_VERSION` or with `MAPS` records `unverified`.
+- **First-party tree** (`firstPartyTree`, `verify_first_party.mjs`): every file is exactly its symbol's whole declaration, its header agrees with the maps, and the file set equals the renamed symbols in their subsystem directories. Nothing else checks this tree.
+- **Citations and anchors** (`citations`, `lineAnchors`, `anchorCheckers`): see "Writing / editing the analysis docs". `anchorCheckers` is a mutation test that the checkers catch injected errors.
 
-The pipeline starts from the shipped bundles in the npm package (`dist/release/{daemon,cli}.js`). `rebuild.sh` beautifies them itself with the pinned js-beautify, into `$OUT/beautified/<version>/{daemon,cli}.pretty.js` (`$OUT` defaults to `reconstruction/.build`; nothing under it is committed), so the only input it needs is a scratch install of the release:
+`PROMOTE=1` is the only way generated artifacts enter the repo, and it writes only a run in which **every** proof verdict is exactly `pass` (`skipped`, `warn`, `fail`, or a gate that never ran are all refused) and both hashes exist for every bundle. It is refused before anything is written unless `PKG` points at `dist/release` inside an installed `@openduo/duoduo` (version from its `package.json`, a release `vX.Y.Z`), `BEAUTIFIED` and `MAPS` are unset, and `docs/.pretty-anchor-target` already names that version.
+
+## CI (`.github/workflows/verify.yml`)
+
+On every PR and push to `main`: on the Node major in the repo-root `.nvmrc`, install the npm release that `maps/pipeline_report.json` records (not the latest) and run the full `rebuild.sh` with `PKG`, so every gate can fail a PR. `warn` and `skipped` do not fail the job (only `PROMOTE=1` refuses them); the run summary shows every verdict as a table and the `pipeline-report` artifact holds `pipeline_report.json` and `verdicts.txt`, so read the summary on a green run too. CI commits nothing; fix failures in a session.
+
+## Commands
 
 ```bash
-# 0) tooling. Use the Node major pinned in the repo-root .nvmrc (CI's setup-node
-#    reads the same file; rebuild.sh warns when it runs on another major).
-cd reconstruction/tools && npm ci             # installs @babel/{parser,traverse,types} + pinned js-beautify
+# 0) tooling, on the Node major in .nvmrc (rebuild.sh warns on another major)
+cd reconstruction/tools && npm ci             # @babel/{parser,traverse,types} + pinned js-beautify
 
-# 1) get the shipped bundles into a SCRATCH install of the release that
-#    maps/pipeline_report.json records -- the one CI installs. A newer release is a
-#    version bump (below), not a check of the committed reconstruction.
-#    Do not point PKG at the global install: the runtime-verification section below
-#    copies the reconstruction into $PKG, and the global install is the one the live
-#    daemon was started from.
+# 1) a SCRATCH install of the release the committed report records (the one CI installs).
+#    Never point PKG at the global install: the runtime section copies files into $PKG,
+#    and the global install is the one the live daemon runs from.
 V="$(node -p 'require("../maps/pipeline_report.json").package.slice(1)')"
 npm install --prefix /tmp/duoduo-pkg "@openduo/duoduo@$V"
 PKG="/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release"
 
-# 2) run the full pipeline. Per bundle (daemon and cli, concurrently): beautify →
-#    split → reassemble+cmp → beautify fidelity (shipped minified ≡ pretty) →
-#    export blocks → module gate → inferred-name check → rename → local names
-#    (daemon) → syntax → AST equivalence → symbol index → cross-reference index →
-#    rename tables + first-party tree. Then
-#    compare everything with the committed copies, check docs/.pretty-anchor-target
-#    against the committed report, verify the first-party tree, the citations, the
-#    legacy line anchors and the anchor checkers themselves (mutation test), and
-#    write $OUT/pipeline_report.json (verdicts, sha256 of every shipped and pretty
-#    bundle read, toolchain versions); its last line before DONE/FAILED counts the
-#    verdicts that passed and names each one that did not. JOBS=1 runs the bundles, and the mutation
-#    test's checkers, one at a time, for bisecting a failure (a failure fails the
-#    build in both modes). The version is read from $PKG/../../package.json; a
-#    PKG_VERSION that contradicts it is refused. Without PROMOTE the run never
-#    writes into the repo.
+# 2) the full pipeline (about two minutes; writes only $OUT = reconstruction/.build).
+#    Its last line before DONE/FAILED counts passed verdicts and names each that did not.
 PKG="$PKG" bash rebuild.sh
-PROMOTE=1 PKG="$PKG" bash rebuild.sh   # write the results into recon/, maps/, first-party/
+JOBS=1 PKG="$PKG" bash rebuild.sh             # bundles and mutation checkers one at a time, to bisect a failure
+PROMOTE=1 PKG="$PKG" bash rebuild.sh          # write the results into recon/, maps/, first-party/
+
+# 3) after a doc edit: only the citation and anchor checks, against $OUT's index (seconds).
+#    $OUT must index the release the docs claim; check_docs.sh refuses a mismatched bundle.
+bash check_docs.sh [doc.md...]                # no args: docs/*.md, reconstruction/*.md, CLAUDE.md
 ```
 
-**The committed artifacts are compared, not trusted.** `rebuild.sh` regenerates
-`recon/daemon.recon.js`, the `maps/` JSON, both rename tables and the whole `first-party/`
-tree under `$OUT`, and `promote.mjs` compares them with the committed copies. A difference
-fails the build (`committedInSync=fail`) when the committed `pipeline_report.json` claims
-the same package version (stale or hand-edited), and is recorded as `retarget-pending` when
-this run is another version; a run stamped `unrecorded` (no `PKG` and no `PKG_VERSION`) or
-reading a `MAPS` copy records `unverified`. In a same-version run the comparison also fails when the committed report could not
-be promoted today (see "Committed = generated" above). `PROMOTE=1` is the only way generated
-artifacts enter the repository; there is no manual copy step.
+Development overrides, both refused by `PROMOTE=1`: `BEAUTIFIED=<dir of *.pretty.js>` skips beautifying (and, without `PKG`, the fidelity proof); `MAPS=<dir>` reads the hand-maintained maps from a copy, to try a naming end to end (`name_symbol.mjs --maps <dir>`) without touching the repo. The beautifier is pinned in `tools/package.json` because every line number in `maps/`, `first-party/` and the docs is its output; a hand-given `BEAUTIFIED` may come from any formatter.
 
-**`PROMOTE=1` writes only a run in which every proof passed.** It is refused before anything
-is written, `$OUT` included, unless `PKG` points at `dist/release` inside an installed
-`@openduo/duoduo` (the version stamp comes from its `package.json` and must be a release
-`vX.Y.Z`), `BEAUTIFIED` and `MAPS` are unset, and `docs/.pretty-anchor-target` already names
-that version. `BEAUTIFIED` is refused because every line number promoted into `maps/` and
-`first-party/` comes from the formatter's layout, which the fidelity proof does not check.
-The run then checks the candidate artifacts in `$OUT` (first-party tree, citations, line
-anchors, mutation test), and `promote.mjs write` copies them in only if every proof verdict
-is exactly `pass` — per bundle `lossless`, `beautifyEquivalent`, `syntax`, `astEquivalent`,
-`inferredNames` where an inferred map exists, and `localNames` where a locals map exists
-(the daemon); for the whole run `firstPartyTree`,
-`citations`, `lineAnchors`, `anchorCheckers`, `anchorTargetMatches` — and the report carries
-both hashes for every bundle. `skipped`, `warn`, `fail` and a gate that never ran are all
-refused.
+**Only bundles with a first-party export table are worth running**, currently `daemon` and `cli`. `stdio` has only entry exports, `feishu-gateway` one export block, and every export block of `pi-worker` and `channel-acp` is vendored zod; renaming nothing and proving the nothing equivalent is not evidence. Naming those needs the hand route (`locate_by_anchor.mjs` → `maps/inferred_<bundle>.json`); `bump.sh` covers their changes with a literal delta only.
 
-Two overrides serve development runs, and `PROMOTE=1` refuses both. `BEAUTIFIED=<dir of
-*.pretty.js>` skips the beautify step and, when `PKG` is not set as well, the beautify-fidelity
-proof (`beautifyEquivalent=skipped`); such a run is stamped `unrecorded` unless
-`PKG_VERSION` is given. `MAPS=<dir>` reads the hand-maintained maps from a copy instead of
-`maps/`, to try a naming (`name_symbol.mjs --maps <dir>`) end to end without touching the
-repository; the first-party check then runs on the candidate tree in `$OUT`.
+**The module gate fails loudly on a bump, by design.** esbuild emits an `__export` block only for a module whose export object is needed at run time, and a block is always exactly one module. `build_rename.mjs` matches each block to a `maps/modules_<bundle>.json` record (`min(2, markers)` marker names present; highest share wins, then closest size). A block matching no record, or a first-party and a vendor record equally, stops the build: decide it in `modules_<bundle>.json`, using the evidence `bump.sh` prints from `module_owner_hint.mjs` (installed packages exporting the block's names; first-party bindings it refers to). This replaced a per-name keyword allowlist that silently dropped first-party symbols (the Grok module exports only `GROK_ACP_*` constants; `pi` matches `pipeline` and `api`).
 
-**On a version bump, `rebuild.sh` is the second step, not the first — run `bump.sh` before it.**
-`maps/inferred_<bundle>.json` is keyed by *mangled* names, and esbuild re-mangles every
-identifier on every build, so those keys silently mean different code in the new release.
-Running `rebuild.sh` straight at a new version is not a no-op failure: it renames real
-functions to wrong names and every downstream check still passes, because renaming is
-scope-safe and the tree only proves internal agreement. At v0.8.1 → v0.8.2 this put 21 of
-31 inferred names on the wrong declaration. The order the gates accept, run from
-`reconstruction/` (`bump.sh` prints steps 0–4 with every path filled in):
+## On a version bump, run `bump.sh` before `rebuild.sh`
+
+`maps/inferred_<bundle>.json` is keyed by mangled names, and esbuild re-mangles every identifier on every build. Running `rebuild.sh` straight at a new release puts inferred names on the wrong declarations while every downstream gate still passes (at v0.8.1 → v0.8.2: 21 of 31). Run from `reconstruction/`; `bump.sh` prints every step with paths filled in, and `reconstruction/README.md` §跟随上游升级 explains each output and how well each tool did on past bumps.
 
 ```bash
-# Install both releases in scratch dirs; PKG_OLD is the release maps/pipeline_report.json
-# records. bump.sh beautifies both with the pinned js-beautify, checks that OLD is the
-# release maps/ describes, fingerprint-matches the two, carries the inferred names
-# across, runs the module gate on NEW, diffs the changed declarations, collects the
-# plain-text delta and the literal delta of the four bundles outside the pipeline,
-# writes .build/bump/impact.md (read it first) and checks every RE-ANCHOR candidate
-# by its literals (.build/bump/reanchor_<bundle>.md). It writes only under .build/bump. (OLD=/NEW= dirs of *.pretty.js also work, but without
-# PKG_NEW nothing ties NEW to a release.)
+# Scratch-install both releases; PKG_OLD must be the release maps/ describes.
+# Writes only .build/bump. Read .build/bump/impact.md first, then reanchor_<bundle>.md.
 PKG_OLD=<old dist/release> PKG_NEW=<new dist/release> bash tools/bump.sh
-# 0. write the RE-ANCHOR names confirmed by literals, and those accepted after reading
-#    both bodies, into the bump's map (bump.sh prints the full command per bundle)
+# 0. carry the RE-ANCHOR names: those confirmed by literal witnesses, plus each one you
+#    accept after reading both bodies (bump.sh prints the full command per bundle)
 node tools/confirm_reanchor.mjs --impact .build/bump/impact.json --bundle daemon \
   --proposed .build/bump/inferred_daemon.proposed.json --write .build/bump/inferred_daemon.json \
   [--accept <oldShort>[=<newShort>]]... .build/bump/pretty_old/daemon.pretty.js .build/bump/pretty_new/daemon.pretty.js
-cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # after reviewing it, LAST (and inferred_cli.json the same way)
-#  → after this copy maps/inferred_daemon.json is keyed by NEW's short names; bump.sh
-#    refuses to run again (it checks the map against OLD) until it is restored from
-#    origin/main. Before step 1 overwrites the shape baseline, run verify_inferred.mjs
-#    check on the NEW bundle against the OLD baseline and settle every finding.
-#  → bump.sh also writes $OUT/pairing_<bundle>.json (pair_releases.mjs: the three-layer
-#    pairing of the two releases that history_chain.mjs uses) and remap_inferred.mjs
-#    prints a PROPOSED new short name for every RE-ANCHOR and AMBIGUOUS entry, into
-#    .build/bump/inferred_<bundle>.proposed.json, with how it was paired. Replayed on
-#    v0.8.3 → v0.8.4: 43 of 45 proposals were the hand-confirmed name, the one miss a
-#    twin body picked by order. Read each proposal's body before merging it.
-#  → bump.sh also aligns every top-level statement of the two releases in order
-#    (align_releases.mjs → $OUT/align_<bundle>.json), and remap_inferred.mjs --align
-#    carries an AMBIGUOUS (twin-body) entry when that alignment pairs it, anchored,
-#    with one of its candidates; a unique fingerprint match the alignment contradicts
-#    is a CONFLICT, not carried. At v0.8.4 → v0.8.5 this carried all 31 twins exactly
-#    as they had been confirmed by hand, and on the three bumps before it every
-#    anchored pair agreed with the committed map.
-#  → anything bump.sh reports as RE-ANCHOR must be relocated BY HAND with
-#    locate_by_anchor.mjs (pick a string literal unique to that function body; for a
-#    module initialiser, a string literal it assigns) and confirmed against the old
-#    body before it is written back; impact.md ranks the candidates for each
-#    (anchor_candidates.mjs: callers and callees mapped across the bump, strings)
-#    and marks CLOSE the ones whose top pick leads by less than 1. Replayed on
-#    v0.8.3 → v0.8.4 the top pick was the hand-confirmed one for 46 of 47 names,
-#    and the one miss (a function split in two) was marked CLOSE. bump.sh then runs
-#    confirm_reanchor.mjs on every candidate (.build/bump/reanchor_<bundle>.md): the
-#    string literals only the old body had are looked up in NEW, a candidate they all
-#    land in is `confirmed`, one with none gets both bodies printed for a person, and
-#    an old literal constant that NEW assigns inside a module initialiser is reported
-#    as moved (drop the name, cite the value through the initialiser). `--write`
-#    puts the confirmed entries and each `--accept <oldShort>` into the bump's
-#    inferred map. Replayed on v0.8.6 → v0.8.7: 20 of 34 confirmed by literals, 13
-#    accepted after reading the bodies, 1 moved constant, the written map equal to
-#    the hand-reviewed one. Every name bump.sh lists under "need a subsystem"
-#    goes into maps/subsys_daemon.json, and a module-gate failure needs a decision in
-#    maps/modules_<bundle>.json; bump.sh prints module_owner_hint.mjs's evidence for it
-#    (at v0.8.6: the block's four names are all cookie@2.0.1's exports, and it refers
-#    to no first-party binding).
-# 1. record the reviewed inferred names as the shape baseline
+#    Review .build/bump/inferred_<bundle>.json (proposals in *.proposed.json: read each body),
+#    run verify_inferred.mjs check on NEW against the OLD shape baseline and settle every
+#    finding, add every name listed under "need a subsystem" to maps/subsys_daemon.json,
+#    decide any module-gate failure in maps/modules_<bundle>.json. Copy LAST:
+cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # (and inferred_cli.json)
+#    From here maps/ is keyed by NEW; bump.sh refuses to rerun until maps/ is restored from origin/main.
+# 1. record the reviewed shapes
 PKG_VERSION=v<new> node tools/verify_inferred.mjs record \
   .build/bump/pretty_new/daemon.pretty.js maps/inferred_daemon.json maps/inferred_daemon.shape.json
-# 2. a check-mode run, which produces the index and pretty bundles step 3 works from.
-#    committedInSync=retarget-pending and failing firstPartyTree, citations and line
-#    anchors are expected here, and daemon.localNames=warn when maps/locals_daemon.json
-#    has entries in changed code: name those declarations' locals again
-#    (name_locals.mjs tasks/record on .build/daemon.recon.top.js and
-#    .build/rename_daemon.json) or prune them, before step 4.
+# 2. check-mode run: produces the new index and pretty bundles. Expected here:
+#    committedInSync=retarget-pending, failing firstPartyTree/citations/lineAnchors, and
+#    daemon.localNames=warn for locals in changed code -> name_locals.mjs tasks/record on
+#    .build/daemon.recon.top.js + .build/rename_daemon.json, or prune, before step 4.
 PKG=<new dist/release> bash tools/rebuild.sh
-# 3. retarget the docs to v<new> against this run's .build (next paragraph)
-# 3b. bring the substance of the release into the docs: split them into one file per
-#    `## ` section, then run the saved workflow upgrade-docs (.claude/workflows/
-#    upgrade-docs.js; bump.sh prints its args). It surveys the delta, updates each work
-#    group of impact.json with a writer, an adversarial verifier and a fixer, then joins
-#    the sections, registers new names, reruns this check-mode build and updates the GUIDE.
+# 3. retarget the doc citations mechanically (order below)
+# 3b. bring the release's substance into the docs: split per `## ` section, then run the
+#     saved workflow upgrade-docs (args printed by bump.sh). Name new code with
+#     name_toplevel.mjs tasks -> name_symbol.mjs --batch --build .build (dry-run first).
 node tools/doc_sections.mjs split .build/bump/chunks ../docs/*.md ../CLAUDE.md
-# 3c. after the last name_symbol.mjs of the bump, extend the release history from the
-#    step-2 run's rename map, so the one PROMOTE carries `// since:` into first-party/
+# 3c. after the last name_symbol.mjs, extend the release history from the step-2 run
 bash tools/history.sh --build .build --write
-# 4. promote, once the docs pass
+# 4. promote once every check passes
 PROMOTE=1 PKG=<new dist/release> bash tools/rebuild.sh
 ```
 
-**The work of a bump should scale with what upstream changed, not with the size of the
-docs**, and step 3 only makes the citations point at the right code again. What bump.sh
-adds for step 3b: `diff_decls.mjs` writes a readable `.diff` per changed declaration
-(aligned with every local as `_` and top-level names in one vocabulary, so esbuild's local
-renaming is not shown as change; at v0.8.2 → v0.8.3 the positional `.norm` form showed
-4239 changed lines, the readable diffs 318; declarations with no old counterpart get one diff
-per run of them that sits together in the bundle, ending at a module initialiser, each headed
-by the existing declarations that use it, changed ones first); `plaintext_delta.mjs` collects the package's
-non-bundle files and upstream's repository between the release tags; `impact_report.mjs`
-lists every doc citation of a changed declaration in three tiers (1 re-read: a name-bound
-snippet on a changed line or gone from the new code; 2 check: a whole-declaration citation
-whose paragraph shares a distinctive token with the change, or of a short declaration; 3
-skim, which includes a snippet whose quoted code is in both versions with only its short
-identifiers spelled differently: counted as `respelled`, left for `retarget_snippets.mjs`;
-at v0.8.4 that moved 106 of 215 tier-1/2 citations, every one of which `retarget_snippets`
-fixes or already held), what no doc covers yet, and packs the affected `## ` sections into work groups. It
-drops nothing; the tier orders the reading. A fourth list, tier 2c (`callee-changed`), holds
-the citations of a declaration that did not change but refers directly to one that changed or
-was removed, by the OLD release's call graph (`maps/xref_<bundle>.json` in `--maps`; a module
-initialiser does not count as a callee); each entry names the changed callees and their diffs,
-and it is packed into work groups with the weight of tier 2, or of tier 3 when every callee the entry reaches
-changed only by adding or removing literal assignments to members (`change_kind.mjs`; impact.md folds tier
-2c by callee, so such a group is one diff to read: at v0.8.6 all 467 entries went through
-`createAgentSdkAdapter`, whose change was `s.CLAUDE_CODE_FORK_SUBAGENT = "0"`). It looks one call deep only:
-replayed on v0.8.3 → v0.8.4 it listed 96 citations in 66 paragraphs, 33 of them reached by no
-tier 1–3 entry, and one of those 33 (`runGapLint`, whose callee `readGapLintDayEvents` changed
-which events end a gap interval) was rewritten by hand at v0.8.4. A claim that cites only a
-caller two calls away from a change is still not listed, so cite the callee too. Tier 4
-(`keyword`) covers a change no doc cites at all: the paragraphs that share a distinctive
-code-like word (snake_case or camelCase, not a JS or Node built-in) or a message-like string
-with a first-party change nobody cites; at v0.8.5 that was the job workspace resolver, and
-tiers 1–3 were empty while eight paragraphs described its old behaviour. bump.sh also writes
-the literal delta of the four bundles outside the pipeline (`bundle_literals.mjs`,
-`.build/bump/literals/`), summarised in impact.md: at v0.8.5 it showed the Feishu adapter's
-removed "思考中..." and new `is_folder` without a grep through minified code.
+**Step 3 has one correct order, because the line step is one-shot.** For each bundle that changed, `retarget_docs.mjs collect --scope <bundle>` → `remap_doc_anchors.mjs`; then `retarget_docs.mjs apply --stamp v<new>` (not idempotent; it stamps `docs/.pretty-anchor-target` next to the first doc argument, so pass `docs/*.md` first; if no bundle changed, write the stamp by hand) → `retarget_symbols.mjs --bundle daemon maps/rename_daemon.json .build/rename_daemon.json` and the same with `--bundle cli` → `retarget_snippets.mjs --write` (with the `--old` arguments bump.sh prints) → `verify_citations.mjs --fix` (residue). Pass `CLAUDE.md` and `reconstruction/*.md` to the citation tools too. Pass `--bundle daemon=<pretty.js>` to `verify_citations.mjs`: without it every line check passes **vacuously**. `retarget_symbols.mjs` moves a `real (short)` pair only where one code span is exactly that pair and the old map pairs exactly those two names, and a prefixed pair (`cli:main (sot)`) only in the run for that bundle; it never rewrites a bare one-identifier span (it lists them for you to decide) or identifiers inside quoted code. Stale snippets are `retarget_snippets.mjs`'s job, and what it cannot settle is listed in its report for re-reading.
 
-`verify_inferred.mjs check` (rebuild step 2b) is the only gate that can catch a mis-anchored
-inferred name. It checks that each name sits on code of its kind (function, module
-initialiser or literal constant) and is spelled for that kind, compares the code with the
-recorded shape, and fails when another recorded shape fits a body better (two names
-exchanged). A literal constant's record also keeps what its readers look like (the strings
-and member names of the declarations that refer to it), so a constant that shares its
-literal with another is told apart by who reads it instead of warning at every rebuild. It exits 0 (`inferredNames=pass`), 1 (a name is on the wrong code; the build
-fails) or 3 (nothing refuted, but a shape changed and needs a human re-read:
-`inferredNames=warn`, which `PROMOTE=1` refuses). The re-read ends with
-`verify_inferred.mjs record` (step 1), which also keeps the next bump from being checked
-against a stale shape.
+**The work of a bump should scale with what upstream changed, not with the size of the docs.** Step 3 only makes citations point at the right code again. For step 3b, `impact.md` lists every doc citation of a changed declaration by tier: 1 re-read (a snippet on a changed line or gone), 2 check, 2c `callee-changed` (cites an unchanged declaration whose direct callee changed; one call deep only, so cite the callee too), 3 skim (including `respelled` snippets left to `retarget_snippets.mjs`), and 4 `keyword` (paragraphs sharing a distinctive word with a change no doc cites). It drops nothing; the tier orders the reading. Per changed declaration, `diff_decls.mjs` writes a readable `.diff` with locals spelled `_` so esbuild's renaming does not show as change; `plaintext_delta.mjs` and `bundle_literals.mjs` (`.build/bump/literals/`) cover the package's non-bundle files, upstream's repo between tags, and the four bundles outside the pipeline.
 
-**Doc retargeting (step 3) has one correct order, and the line step is one-shot.** (Name citations need none of this — only `retarget_symbols.mjs` for short names. The line steps exist for the legacy line numbers that remain; every one converted to a name form is one less to move.)
-The line steps read `bump.sh`'s outputs in `.build/bump` (both pretty bundles,
-`fp_<bundle>.json`, `pairs_<bundle>.json`); the name steps read the step-2 run's `.build`
-(`rename_daemon.json`, `symbols_*.json`, `beautified/v<new>/*.pretty.js`). `retarget_docs.mjs apply` is
-not idempotent (a new line number that is also an old key gets moved twice) and it stamps
-`docs/.pretty-anchor-target` to refuse a second run, so it must come *before*
-`verify_citations.mjs --fix` writes new line numbers into the docs. Run, for each bundle that
-changed, `retarget_docs.mjs collect --scope <bundle>` → `remap_doc_anchors.mjs` (build the
-map); then `retarget_docs.mjs apply --stamp v<new>` (bulk lines; the stamp is written next
-to the first doc argument, so pass `docs/*.md` first, and when no bundle changed write
-`docs/.pretty-anchor-target` by hand) → `retarget_symbols.mjs --bundle daemon
-maps/rename_daemon.json .build/rename_daemon.json`, then the same with `--bundle cli` and the
-`rename_cli.json` pair (short names, order-independent) → `retarget_snippets.mjs --write`
-(name-bound snippets; the full command is printed by `bump.sh`) → `verify_citations.mjs --fix`
-(residue). Pass `--bundle daemon=<pretty.js>` to `verify_citations.mjs`: without it every
-line check passes **vacuously** and reports zero drift on thoroughly stale anchors.
-`retarget_symbols.mjs` rewrites a `real (short)` pair only where one code span is exactly
-that pair, and a `real/short` pair anywhere, and in both cases only when the old rename map
-it is given pairs exactly that real name with exactly that short name; a pair with a bundle
-prefix (`cli:main (sot)`) moves only in the run whose `--bundle` names that bundle. One run
-takes one bundle's maps, so with the daemon maps every cli pair is left as written, even one
-whose short name happens to also be a daemon short name (esbuild mangles each bundle
-independently, so such coincidences are common), and the cli run moves them; at v0.8.4 that
-second run would have fixed all 32 stale cli pairs that were fixed by hand. A code span that is exactly one identifier has no
-real name to check, so it is never rewritten (unless `--bare` is given): the tool lists each
-one whose identifier the map moves, with file and line, for a person to decide. At v0.8.4,
-when such spans were still rewritten, 5 of the 8 it moved were not citations (the spine
-subcommand `cat`, the command `ps`, a historical example) and every check passed, which is
-one more reason not to write bare short names. The tool deliberately leaves identifiers inside
-quoted code expressions alone (they are usually function-locals), so short names quoted
-mid-snippet stay stale — a stale callee in an F3 or name-bound snippet is exactly what
-`check_bare_anchors.mjs` refutes. `retarget_snippets.mjs` (next, also printed by `bump.sh`)
-re-derives a refuted name-bound snippet from its symbol's new declaration: string literals,
-properties and long names as written, migrated short names pinned, other short identifiers
-as wildcards (the same one twice must match the same name), rewritten only on a unique match
-that then passes `check_bare_anchors.mjs`' rule, and only its identifiers change. Replayed
-on the v0.8.3 docs it fixed 626 of the 689 refuted snippets, 622 of them exactly as the
-v0.8.4 docs were fixed by hand; the rest, which it lists in `snippets.json`, quote code that
-changed and need re-reading. With `--old <bundle>=<old pretty.js>,<old symbols.json>` (bump.sh
-prints it) a snippet of a declaration whose normalised token stream did not change is rewritten
-token for token from the old release before any pattern is tried; replayed on the v0.8.4 docs that
-left none of the 369 refuted snippets for a person, byte-identical to the hand-fixed v0.8.5 docs. Both
-declarations are compared as `@babel/parser` tokens: the earlier regex lexer read a template literal as one
-token, so a renamed local inside `${...}` made an unchanged declaration look changed, and at v0.8.6 that left
-27 snippets ambiguous; replayed with Babel tokens, 786 of the 787 refuted snippets are rewritten exactly as
-the v0.8.6 docs were fixed by hand, and the one left quotes the line v0.8.6 changed. A snippet the pattern
-finds more than once in a CHANGED declaration is settled by position: the same pattern is run over the old
-declaration, and when it matches there as often as in the new one, the occurrence the snippet quotes takes the
-new match with the same ordinal (`byOrdinal`); replayed on v0.8.6 → v0.8.7 that took the ambiguous snippets
-from 37 to 1, and of its 36 rewrites 30 equal the hand fix while the other 6 corrected a hand fix that had
-taken the first match where the old snippet quoted the second. Step 9 of `rebuild.sh` checks
-`CLAUDE.md` and `reconstruction/*.md` as well, so pass them to `retarget_symbols.mjs` and
-`verify_citations.mjs` too.
+## Tool reference
 
-Beautification is *inside* the pipeline, with `js-beautify` pinned to an exact version in
-`tools/package.json`, and each release's output goes to its own `$OUT/beautified/<version>/`.
-Line numbers are an output of the formatter: every line anchor in `docs/`, every
-`first-party/` header and every line in `maps/symbols_*.json` rests on that one version, and
-a formatter release would shift all of them at once with no signal but a red anchor check.
-A `BEAUTIFIED` directory given by hand can come from any formatter, which is why
-`PROMOTE=1` refuses it.
-
-**Only bundles with a first-party export table are worth running**, currently `daemon` and
-`cli`. `stdio`, `pi-worker`, `channel-acp` and `feishu-gateway` recover few or no
-first-party names: `stdio` has no export block, only its entry exports; `feishu-gateway`
-has a single export block; and every export block of `pi-worker` and `channel-acp`, entry
-bundles whose own modules are inlined, is vendored zod. Renaming nothing and then proving the
-nothing is AST-equivalent is not evidence. Naming those bundles needs the hand-derived
-route (`locate_by_anchor.mjs` → `maps/inferred_<bundle>.json`).
-
-**The module gate is the step that fails loudly on a version bump.** esbuild emits an
-`__export` block only for a module whose export object is needed at run time (typically one
-that is imported dynamically), so most modules have no block, but a block is always exactly
-one module; `maps/modules_<bundle>.json` records, per block-bearing module, whether it is
-ours. Each record lists some of that module's own export names as markers (one or many); a
-block matches a record when `min(2, markers)` of them are present, and among several
-matching records the one with the highest share of its markers present wins, then the one
-whose recorded size is closest (`build_rename.mjs`). A block that matches no record, or
-matches a first-party and a vendor record equally well, stops the build — one decision per
-new upstream module, not per unknown name. On such a failure `bump.sh` runs `module_owner_hint.mjs`, which lists the
-installed packages (under `PKG_NEW`'s `node_modules`, the release's own bundles excluded) whose source holds
-every name of the block, and the first-party bindings the block's exported declarations refer to, resolved
-through Babel scopes. It is evidence for the decision, not the decision: a block with neither is read by hand.
-
-This replaced a per-name keyword allowlist that failed in both directions at v0.8.1: it
-missed 8 first-party symbols living in our own modules (`diffStreamingConfigSignature`,
-`detectInProcessBreak`, `mapItemCompletedToExecEvent`, …), and once those were swept into
-the accepted-vendor baseline nothing could ever flag them again. The failure was structural,
-not a missing word — the entire Grok module exports only `GROK_ACP_*` constants, which is
-how v0.7.1 lost 19 symbols in silence, and `pi` cannot be a substring rule because it
-matches `pipeline` and `api`.
-
-Individual tools, run from `reconstruction/`. All take explicit paths and write only their
-named outputs, except ten that change repository files by design: `name_symbol.mjs`
-(`maps/`), `name_locals.mjs record|prune|rekey` (`maps/locals_daemon.json`), `history.sh --write`
-(`maps/history_daemon.json`), `convert_line_citations.mjs --write`, `retarget_snippets.mjs --write`,
-`retarget_symbols.mjs` (unless `--dry-run`) and `verify_citations.mjs --fix` (the docs given),
-`retarget_docs.mjs apply` (the docs given, and with `--stamp` the `.pretty-anchor-target` next to
-the first of them), `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
-docs given, so pass all of `../docs/*.md`), and `doc_sections.mjs join` (every doc a
-manifest under the given dir names; it refuses a doc changed since the split).
+Run from `reconstruction/`. Every tool takes explicit paths and writes only its named outputs, except these, which change repository files by design: `name_symbol.mjs` (`maps/`), `name_locals.mjs record|prune|rekey` (`maps/locals_daemon.json`), `history.sh --write` (`maps/history_daemon.json`), `convert_line_citations.mjs --write`, `retarget_snippets.mjs --write`, `retarget_symbols.mjs` (unless `--dry-run`), `verify_citations.mjs --fix`, `retarget_docs.mjs apply` (the docs given; `--stamp` also `.pretty-anchor-target`), `check_bare_anchors.mjs --write-baseline` (pass all of `../docs/*.md`), `doc_sections.mjs join` (refuses a doc changed since the split).
 
 ```bash
-node tools/split.mjs <pretty.js> <outdir>            # AST byte-slice de-bundle → modules/ + manifest.json
-node tools/reassemble.mjs <splitdir> <out.js>        # concat back; must cmp-match original
-node tools/export_blocks.mjs <pretty.js> --json <o>  # __export names GROUPED BY SOURCE MODULE + entry exports
-node tools/build_rename.mjs [--unmatched <o.json>] <blocks> <modules> <inferred> <out>   # module gate → mangled→real map; --unmatched: the failing blocks, for module_owner_hint
-node tools/module_owner_hint.mjs <unmatched.json> <pretty.js> <node_modules dir>...   # evidence for a gate failure: installed packages exporting the block's names, first-party bindings it refers to
-node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>  # inferred names on code of their kind and shape; exit 0 pass, 3 warn, 1 fail
-node tools/rename.mjs <pretty.js> <rename.json> <out.js> [report] # scope-safe, formatting-preserving rename
-node tools/name_locals.mjs apply <top.js> <rename.json> maps/locals_daemon.json <out.js> <applied.json>   # local names (rules + map), rebuild step 3b; top.js = $OUT/daemon.recon.top.js
-node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...]  # unnamed locals as $<ordinal>, per subsystem, for an LLM to name
-node tools/name_locals.mjs record|prune|rekey <top.js> <rename.json> maps/locals_daemon.json [answers.json...]  # register {real: {ordinal: name}} / drop entries that lost their binding / rewrite entries of the earlier ctx scheme
-node tools/ast_equiv.mjs <original.js> <renamed.js> [rename.json] [--locals <applied.json>] # prove semantic equivalence (no map: beautify fidelity)
-node tools/symbol_index.mjs <pretty.js> <rename.json> <out.json> [--version <v>]  # name → line + structural signature
-node tools/locate_by_anchor.mjs <pretty.js> <string...>          # the top-level declaration (and its kind) holding each literal's first occurrence
-node tools/align_releases.mjs <old.pretty.js> <new.pretty.js> <out.json>   # every top-level statement aligned in order; per old name its new name and whether anchored
-node tools/bundle_literals.mjs --old <dist/release> --new <dist/release> --out <dir> <doc.md...>   # string/name delta of stdio, pi-worker, channel-acp, feishu-gateway
-node tools/extract_decl.mjs --pkg <dist/release> <realName...>   # $PKG/daemon.harness.mjs: the recon bundle exporting those names and prepare() (their module initialisers)
-node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] <oldShort>[=<cand>,...]...  # rank where an inferred name moved
-node tools/name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> maps/subsys_daemon.json <outdir> [--new <fp.json>] [--limit N]   # unnamed top-level code used by named code, with callers, strings, shared state, body; a TSV for name_symbol --batch
-node tools/confirm_reanchor.mjs --impact <impact.json> --bundle <daemon|cli> [--proposed <p.json>] [--md <o.md>] [--json <o.json>] \
-     [--write <bump inferred.json> [--accept <oldShort>[=<newShort>]]...] <old.pretty.js> <new.pretty.js>   # literal witnesses per RE-ANCHOR candidate; writes the confirmed and accepted ones
-node tools/retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] \
-     [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--old <bundle>=<old pretty.js>,<old symbols.json>]... \
-     [--write] [--report <o.json>] <doc.md...>  # re-derive stale name-bound snippets
-node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <pretty.js> <short> <realName> <NN-subsystem|->
-node tools/match_published_source.mjs --src <dir of *.ts> --package <name@version> [--rename <rename.json>] [--inferred <inferred.json>] \
-     [--pick <short>=<name>]... [--report <o.json>] <pretty.js>   # pair a published sibling package's declarations with the bundle's (features + order), for name_symbol --published
-node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--historical <report.json>] [--dry-run] <pretty.js> --batch <list.tsv|list.json>   # register inferred names; --build <OUT> mid-bump
-node tools/match_historical_exports.mjs [--history <dir>] [--maps <dir>] --out <report.json>   # names only an older release exported, followed to current code (needs tools/history.sh's .build/history), for name_symbol --historical
-node tools/xref.mjs <pretty.js> <rename.json> <out.json> [--version <v>]   # cross-reference index (rebuild step 5b)
+# query (start here instead of grepping the bundle)
 node tools/symbol_card.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] [--body] [--inner] <real|short|env:VAR|log:prefix|dotted:a.b|path:text|string:text|unnamed[:N]|uncited[:NN-dir]>...
 node tools/doc_coverage.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] <out.md>   # uncited symbols per subsystem, symbols per doc section, naming queue
-node tools/instrument.mjs <daemon.recon.js> <symbols_daemon.json> <out.js> [--all] [--inner]   # tracing wrappers; writes $DUO_TRACE_FILE at run time
-node tools/trace_report.mjs <trace.jsonl> [--depth N] [--filter regex] [--out report.md] [--json o.json]
-PKG=<dist/release> bash scenarios/run.sh [NN-name ...]            # instrument once, run the scenarios; outputs under $OUT/scenarios/
-bash tools/history.sh [--build <OUT>] [--write]                    # every npm release → .build/history; --write maps/history_daemon.json (needs network); --build mid-bump
-node tools/history_chain.mjs <history dir> <rename_daemon.json> <out.json> [--min 0.5] [--lead 0.1] [--slim]
-node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json>   # three-layer old→new pairing (bump.sh runs it; remap_inferred --pairing)
-node tools/changelog_merge.mjs <pairs dir> <rename_daemon.json> <out.json> [--keep <existing changelog_daemon.json>]   # releases with no pairing file keep their entries
-node tools/verify_citations.mjs <symbols.json>[,...] [--bundle <name>=<pretty.js>]... <doc.md...> [--fix]  # real (short) and real/short pairs by symbol identity
-node tools/check_doc_anchors.mjs [--resolve] [--index <symbols.json>[,...]] [--bundle cli=<cli.pretty.js>] \
-     <daemon.pretty.js> <doc.md...>                               # F2: the short name on its cited line, daemon or cli
+node tools/locate_by_anchor.mjs <pretty.js> <string...>          # top-level declaration (and kind) holding each literal's first occurrence
+node tools/extract_decl.mjs --pkg <dist/release> <realName...>   # $PKG/daemon.harness.mjs: recon bundle exporting those names + prepare() (their module initialisers)
+
+# naming
+node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <pretty.js> <short> <realName> <NN-subsystem|->
+node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--historical <report.json>] [--dry-run] <pretty.js> --batch <list.tsv|list.json>
+node tools/name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> maps/subsys_daemon.json <outdir> [--new <fp.json>] [--limit N]   # unnamed code used by named code; TSV for --batch
+node tools/match_published_source.mjs --src <dir of *.ts> --package <name@version> [--rename <rename.json>] [--inferred <inferred.json>] [--pick <short>=<name>]... [--report <o.json>] <pretty.js>
+node tools/match_historical_exports.mjs [--history <dir>] [--maps <dir>] --out <report.json>   # needs history.sh's .build/history
+node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...]
+node tools/name_locals.mjs record|prune|rekey <top.js> <rename.json> maps/locals_daemon.json [answers.json...]
+node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>   # exit 0 pass, 3 warn, 1 fail
+
+# doc checks and conversions
+node tools/verify_citations.mjs <symbols.json>[,...] [--bundle <name>=<pretty.js>]... <doc.md...> [--fix]
+node tools/check_doc_anchors.mjs [--resolve] [--index <symbols.json>[,...]] [--bundle cli=<cli.pretty.js>] <daemon.pretty.js> <doc.md...>
 node tools/check_bare_anchors.mjs [--index <symbols.json>[,...]] [--bundle cli=<cli.pretty.js>] \
      [--baseline maps/bare_anchor_baseline.json [--write-baseline]] [--list <o.json>] \
-     <daemon.pretty.js> maps/blocks_daemon.json maps/modules_daemon.json <doc.md...>  # F3, name-bound snippets, unbound numbers, ceilings
-node tools/convert_line_citations.mjs --index <symbols_daemon.json>[,<symbols_cli.json>] \
-     --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--write] [--report <o.json>] <doc.md...>  # legacy line citations → the two line-free forms
-MAPS=<dir> PKG=<dist/release> bash tools/rebuild.sh               # full run on a copy of the hand-maintained maps; PROMOTE refuses it
-[OUT=<rebuild OUT>] bash tools/check_docs.sh [doc.md...]           # rebuild.sh's citation and line-anchor checks alone, against $OUT's index (seconds; proves nothing else)
-node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] \
-     [--fp <fp.json>] [--old-label v] [--new-label v]            # per changed declaration: readable .diff, .norm, .delta.json
-node tools/plaintext_delta.mjs --out <dir> [--pkg <old pkg root> <new pkg root>] [--git <repo> <old tag> <new tag>]
-node tools/impact_report.mjs --bump <bump OUT> [--old <dir>] [--new <dir>] [--maps <dir>] [--groups <K>] <doc.md...>  # impact.json + impact.md
+     <daemon.pretty.js> maps/blocks_daemon.json maps/modules_daemon.json <doc.md...>
+node tools/convert_line_citations.mjs --index <symbols_daemon.json>[,<symbols_cli.json>] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--write] [--report <o.json>] <doc.md...>
 node tools/doc_sections.mjs split <dir> <doc.md...>   |   node tools/doc_sections.mjs join <dir> [--force]
+
+# runtime experiments
+PKG=<dist/release> bash scenarios/run.sh [NN-name ...]            # instrument once, run scenarios; outputs under $OUT/scenarios/
+node tools/instrument.mjs <daemon.recon.js> <symbols_daemon.json> <out.js> [--all] [--inner]
+node tools/trace_report.mjs <trace.jsonl> [--depth N] [--filter regex] [--out report.md] [--json o.json]
+
+# bump internals (bump.sh runs these; run by hand to inspect one step)
+node tools/confirm_reanchor.mjs --impact <impact.json> --bundle <daemon|cli> [--proposed <p.json>] [--md <o.md>] [--json <o.json>] [--write <bump inferred.json> [--accept <oldShort>[=<newShort>]]...] <old.pretty.js> <new.pretty.js>
+node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] <oldShort>[=<cand>,...]...
+node tools/align_releases.mjs <old.pretty.js> <new.pretty.js> <out.json>
+node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json>
+node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] [--fp <fp.json>] [--old-label v] [--new-label v]
+node tools/impact_report.mjs --bump <bump OUT> [--old <dir>] [--new <dir>] [--maps <dir>] [--groups <K>] <doc.md...>
+node tools/retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--old <bundle>=<old pretty.js>,<old symbols.json>]... [--write] [--report <o.json>] <doc.md...>
+node tools/plaintext_delta.mjs --out <dir> [--pkg <old pkg root> <new pkg root>] [--git <repo> <old tag> <new tag>]
+node tools/bundle_literals.mjs --old <dist/release> --new <dist/release> --out <dir> <doc.md...>
+node tools/module_owner_hint.mjs <unmatched.json> <pretty.js> <node_modules dir>...
+bash tools/history.sh [--build <OUT>] [--write]                    # every npm release -> .build/history (network)
+node tools/history_chain.mjs <history dir> <rename_daemon.json> <out.json> [--min 0.5] [--lead 0.1] [--slim]
+node tools/changelog_merge.mjs <pairs dir> <rename_daemon.json> <out.json> [--keep <existing changelog_daemon.json>]   # releases with no pairing file keep their entries
+
+# pipeline steps (rebuild.sh runs these)
+node tools/split.mjs <pretty.js> <outdir>  ;  node tools/reassemble.mjs <splitdir> <out.js>
+node tools/export_blocks.mjs <pretty.js> --json <o>
+node tools/build_rename.mjs [--unmatched <o.json>] <blocks> <modules> <inferred> <out>
+node tools/rename.mjs <pretty.js> <rename.json> <out.js> [report]
+node tools/name_locals.mjs apply <top.js> <rename.json> maps/locals_daemon.json <out.js> <applied.json>
+node tools/ast_equiv.mjs <original.js> <renamed.js> [rename.json] [--locals <applied.json>]   # no map: beautify fidelity
+node tools/symbol_index.mjs <pretty.js> <rename.json> <out.json> [--version <v>]
+node tools/xref.mjs <pretty.js> <rename.json> <out.json> [--version <v>]
 ```
 
 ## Running / verifying the actual runtime
 
-The reconstructed daemon boots as a real daemon. To verify it **without disturbing a live instance**, isolate `HOME` and pick a non-default RPC port. `HOME` is the one variable that moves all three places the daemon keeps state or reads settings from (`resolveRuntimePaths`, `hostDotEnvPath`): the runtime data `<home>/.aladuo`, the kernel `<home>/aladuo`, and `~/.config/duoduo/.env`, which the daemon reads at boot. `ALADUO_RUNTIME_DIR` and `ALADUO_KERNEL_DIR` move the first two, and `ALADUO_HOME` moves both at once, but none of them moves the `.env` file. `ALADUO_WORK_DIR` moves none of the three: it is the work root (the default session working directory, where received attachments are saved under `inbox/`), and it defaults to the daemon's current directory.
+The reconstructed daemon boots as a real daemon. To run it **without disturbing a live instance**, isolate `HOME` and use a non-default port. `HOME` is the one variable that moves all three places the daemon reads or keeps state (`resolveRuntimePaths`, `hostDotEnvPath`): runtime data `<home>/.aladuo`, kernel `<home>/aladuo`, and `~/.config/duoduo/.env` (read at boot). `ALADUO_RUNTIME_DIR`, `ALADUO_KERNEL_DIR` and `ALADUO_HOME` move the first two but not `.env`. `ALADUO_WORK_DIR` moves none of them: it is the default session working directory (attachments land in `inbox/`), defaulting to the daemon's cwd.
 
 ```bash
-cp reconstruction/recon/daemon.recon.js "$PKG/"     # $PKG = the scratch install from step 1, never the
-cd "$PKG"                                           # global one. The copy must sit in dist/release: Node
-                                                    # resolves the dependency @anthropic-ai/claude-agent-sdk
-                                                    # from the file's location, and the daemon derives the
-                                                    # package root (bootstrap/, bin/duoduo) from it too
-ISO=/tmp/iso && mkdir -p "$ISO" && chmod 700 "$ISO"   # keep it SHORT: the daemon refuses to boot
-                                                      # if <HOME>/.aladuo/run/daemon.sock exceeds the
-                                                      # 104-byte unix-socket limit (fatal, not a warning)
-# ALADUO_BOOTSTRAP_DIR is what puts meta-prompt.md and the role texts roles/{main,member}.md into
-# the system prompt: the identity layer is found only through it or ALADUO_META_PROMPT_PATH
-# (INTERNALS §2.1), never through the package root, and neither file is copied into the kernel
+cp reconstruction/recon/daemon.recon.js "$PKG/"     # the scratch install, never the global one; it must sit in
+cd "$PKG"                                           # dist/release: Node resolves @anthropic-ai/claude-agent-sdk and
+                                                    # the daemon derives the package root (bootstrap/, bin/duoduo) from it
+ISO=/tmp/iso && mkdir -p "$ISO" && chmod 700 "$ISO"   # keep it SHORT: boot is fatal if <HOME>/.aladuo/run/daemon.sock
+                                                      # exceeds the 104-byte unix-socket limit
+# ALADUO_BOOTSTRAP_DIR is the only way (besides ALADUO_META_PROMPT_PATH) that meta-prompt.md and the
+# role texts roles/{main,member}.md reach the system prompt; neither is copied into the kernel
 HOME="$ISO" ALADUO_PORT=20333 ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" \
   ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local ALADUO_LOG_LEVEL=info \
-  node daemon.recon.js        # starts socket + read-only TCP + cadence + WAL; SIGTERM to stop
+  node daemon.recon.js        # socket + read-only TCP + cadence + WAL; SIGTERM to stop
 
-# probe the READ-ONLY TCP surface (6 allowlisted methods; writes get -32601)
+# READ-ONLY TCP surface (allowlisted methods; writes get -32601)
 curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20333/rpc \
   -d '{"jsonrpc":"2.0","id":1,"method":"system.status","params":{}}'
-# probe the FULL control plane — it lives on the unix socket
+# FULL control plane, on the unix socket
 curl -s -H 'Content-Type: application/json' \
   --unix-socket "$ISO/.aladuo/run/daemon.sock" http://localhost/rpc \
   -XPOST -d '{"jsonrpc":"2.0","id":2,"method":"session.list","params":{}}'
 ```
 
-Two things silently break these probes: omitting `-H 'Content-Type: application/json'` (curl defaults to form-encoding, so fastify answers `415` before JSON-RPC dispatch — it reads like a dead endpoint), and writing `"$HOME/.aladuo/run/daemon.sock"` for the socket path (the `HOME=` prefix applied only to `node`, so `$HOME` expands to your **real** home and you probe the live daemon instead of the isolated one). Default log level is `warn`; set `ALADUO_LOG_LEVEL=info` or boot-time behaviour looks like dead code.
+Three things silently break this. Without `-H 'Content-Type: application/json'`, fastify answers `415` before JSON-RPC dispatch and the endpoint looks dead. `"$HOME/.aladuo/run/daemon.sock"` expands to your **real** home (the `HOME=` prefix applied only to `node`), so you probe the live daemon. The default log level is `warn`, so boot-time behaviour looks like dead code without `ALADUO_LOG_LEVEL=info`.
 
-**HOME isolation does not isolate the CLI's daemon commands on macOS.** Start the isolated
-daemon with `node daemon.recon.js` as above, never with `duoduo daemon start|stop|restart|uninstall`
-(or `cli.recon.js` equivalents) under the isolated `HOME`: the CLI drives launchd through the
-per-user label `ai.openduo.daemon` (`launchctl bootout gui/<uid>/ai.openduo.daemon`, then
-`bootstrap` of the isolated plist), which stops the machine's real daemon and replaces it.
-`daemon status` under an isolated `HOME` likewise reports the real daemon's pid. Shipped and
-reconstructed CLI behave the same here — this is upstream behaviour, not a reconstruction defect.
+A claim that a few calls of one function settle needs no daemon: `extract_decl.mjs` writes a harness that exports those functions; import it, call `prepare()`, call them, and say in the doc that the claim was checked by executing them. A claim that only a running daemon settles goes to `reconstruction/scenarios/`: write a scenario, run it, record the finding in `scenarios/findings/`, then change the doc, saying it was measured on the reconstructed daemon of that release.
 
-Deploying the shipped runtime. Non-TTY onboarding requires only `ALADUO_CLAUDE_AUTH_SOURCE` (`claude_code_local`, `anthropic_api_key` or `compatible_endpoint`) plus the key its source needs (`anthropic_api_key` needs `ANTHROPIC_API_KEY`; `compatible_endpoint` needs `ANTHROPIC_BASE_URL`, and `ANTHROPIC_AUTH_TOKEN` is optional; `claude_code_local` needs a prior `claude login`, which onboard checks with `claude auth status`); without `ALADUO_CLAUDE_AUTH_SOURCE` and no TTY, `onboard` exits with code 2. The rest are optional: `DUODUO_ONBOARD_YES=1` skips the y/N confirmations, and `DUODUO_NODE_BIN` is for the wrapper (next paragraph). `ALADUO_RUNTIME_MODE` needs no setting: the daemon never reads it, and the CLI only warns when it is `container` and continues in host mode.
+**HOME isolation does not isolate the CLI's daemon commands on macOS.** Never run `duoduo daemon start|stop|restart|uninstall` (or the `cli.recon.js` equivalents) under an isolated `HOME`: the CLI drives launchd through the per-user label `ai.openduo.daemon`, so it stops and replaces the machine's real daemon, and `daemon status` reports the real daemon's pid. This is upstream behaviour, not a reconstruction defect.
+
+**Deploying the shipped runtime** (details: ARCHITECTURE §2, §5). Non-TTY onboarding needs only `ALADUO_CLAUDE_AUTH_SOURCE` (`claude_code_local`, which needs a prior `claude login`; `anthropic_api_key`, which needs `ANTHROPIC_API_KEY`; `compatible_endpoint`, which needs `ANTHROPIC_BASE_URL`, with `ANTHROPIC_AUTH_TOKEN` optional); without it and without a TTY, `onboard` exits 2. `DUODUO_ONBOARD_YES=1` skips confirmations. `ALADUO_RUNTIME_MODE` needs no setting (the daemon never reads it).
 
 ```bash
 npm install -g @openduo/duoduo
-export DUODUO_NODE_BIN="$(command -v node)" \
-       ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local DUODUO_ONBOARD_YES=1
+export DUODUO_NODE_BIN="$(command -v node)" ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local DUODUO_ONBOARD_YES=1
 duoduo onboard && duoduo daemon start && duoduo daemon status
 ```
 
-The daemon is a **detached background process that does not hot-reload** — restart with `duoduo daemon restart` after config changes. Two different persistence homes, do not conflate them. `onboard` records the auth source as `authSource` in `~/.config/duoduo/config.json`, which only the CLI reads: it applies it to the daemon's environment each time it starts or restarts the daemon. The credentials that source needs, and the other `ALADUO_*` keys, go in `~/.config/duoduo/.env`, which the daemon itself reads at boot (`loadHostDotEnv`, fills only unset keys); an `ALADUO_CLAUDE_AUTH_SOURCE` set there only matters when the daemon is started without the CLI. `DUODUO_NODE_BIN` does **not**: its only reader in the shipped package is the `bin/duoduo` bash wrapper (`NODE_BIN="${DUODUO_NODE_BIN:-node}"`), which runs before any JavaScript and never sources `.env` — none of the six `dist/release/*.js` bundles contain the literal, and the CLI spawns the daemon and channel processes via `process.execPath`. So to survive a PATH reset (`bash -lc`, GUI process managers), export it in the shell startup file or the process manager's environment that launches `duoduo`. Putting it in `.env` only propagates it to the sessions the daemon spawns; it does not help the wrapper find node.
+The daemon is detached and **does not hot-reload**: run `duoduo daemon restart` after a config change. Keep the two persistence homes apart. `~/.config/duoduo/config.json` holds `authSource`; only the CLI reads it and applies it to the daemon's environment at each start or restart. `~/.config/duoduo/.env` holds credentials and other `ALADUO_*` keys; the daemon reads it at boot (`loadHostDotEnv`, fills only unset keys). `DUODUO_NODE_BIN` is read only by the `bin/duoduo` bash wrapper, before any JavaScript and without sourcing `.env`, so export it in the shell startup file or the process manager's environment; in `.env` it reaches only the sessions the daemon spawns.
 
 ## duoduo runtime architecture (what the docs describe)
 
-duoduo is a program that keeps a large language model running unattended: runtime code does what the model cannot do itself (keeping state, scheduling, concurrency, boundary checks), and everything that needs judgement goes to the model. Deterministic work goes to code: storage, ordering, scheduling, concurrency, measurement, validation. Judgement goes to the model: reasoning, writing, deciding what to remember and what to change. `docs/AGENT_INTERNALS_ANALYSIS.md` holds the evidence (section numbers below are its sections); these are the facts the rest of the docs build on:
+duoduo keeps a large language model running unattended. Runtime code does the deterministic work the model cannot do itself (storage, ordering, scheduling, concurrency, measurement, validation); the model does the judgement (reasoning, writing, deciding what to remember and what to change). INTERNALS holds the evidence (section numbers below are its sections); these are the facts the rest of the docs build on:
 
-- **Append before execute** (§5): every inbound event is appended to the event log (upstream "Spine", a WAL of UTC-dated files `~/.aladuo/var/events/YYYY-MM-DD.jsonl`) *before* a mailbox pointer is written or anything runs (an event for a `void` session gets no pointer and is copied to the outbox instead). An append is always exactly two writes, the WAL line and then the `by_id` index line, and the pair is not a transaction. There is no `by_session` index (the string appears nowhere in the bundle); session-scoped retrieval goes through the mailbox `- [ ] @evt(<id>)` pointers. Dedup is a separate registry file keyed only by the idempotency key the channel sends. The log is not the whole state: on restart the runtime rebuilds the set of sessions with pending work from the session directories and their mailbox pointers, and reads event bodies back from the log by id; session state, the dedup table and the outbox are not reconstructed from the log, tool results are logged only as their summary, and the consumer-offset files under `run/queue_offsets/` are written and never read. Entry points: `createSpineEvent` and `atomicAppendEvent` (the log), `appendBeforeExecuteGateway` (gateway ingest).
-- **One actor per session key** (§8): each session key has at most one in-memory actor (`createSessionManager`). A process write-lock keeps one daemon per data directory, an async per-key mutex serialises each session's state changes, and a per-session drain lease file (`acquireSessionDrainLock`, under `run/locks/`) marks the session being drained. Channel and job sessions draw from two separate concurrency pools (10 and 6 slots by default); a channel actor gives its slot back as soon as it goes idle and releases its engine process after the idle timeout (default 1 h). Since v0.8.7 at most one channel session is the main session: the one whose display name is `main` (`resolveMainSession`; two such sessions make it ambiguous and neither counts). Only `session.set_alias` can set or move that name, and from inside a session only the current main may; deliveries with no better home (a job outcome whose owner cannot take it, a Notify to `main`) go to it (§8.6, §10).
-- **Four engines plus `void`, no fallback** (§3): the config field `runtime` takes one of five values defined in one place (`initChannelProtocolModule`): the four engines `claude`, `codex`, `grok`, `pi`, and `void`, which a channel's config can set and which never runs a model (its inbound messages go to the event log and the outbox, never to the mailbox; model commands, wake and compact are refused). An unknown value is refused wherever it is written, never replaced by the default (`validateKnownRuntimeValue`, `validateRunnableRuntimeValue`; the latter also refuses `void` for jobs, partitions and the host default): an unknown or `void` `ALADUO_DEFAULT_RUNTIME` stops the daemon at boot (`resolveDefaultRuntime` throws), and a refused channel, job or partition value stops that session or partition from running when it would run (`runtime_refused`). The actor is bound to the requested engine first and probed second; an unavailable engine is refused at drain time (`runtime_unavailable`) and re-probed with the next message, and a session whose history belongs to another engine is refused too (`runtime_mismatch`, `/clear` first). No engine ever falls back to another. The process model, the implementation of same-named commands, permissions and thinking output branch per engine. Unlike the other three, pi needs no external CLI or login: it ships inside the npm package (`dist/release/pi-worker.js`, not covered by `reconstruction/`) and is always listed as available; it is refused only when no model is configured for it.
-- **Two injection points** (§2): `renderPromptLayers` joins six stable system-prompt layers in a fixed order (identity: `meta-prompt.md`, followed for channel sessions by the role text `roles/main.md` for the one main session or `roles/member.md` for every other one; channel kind, channel instance, the memory board `memory/CLAUDE.md` (upstream "broadcast board"), runtime context, job mission), and `buildSystemPromptForChannelConfig` only decides whether to wrap them in the Claude Code preset. No layer depends on the clock, so while the identity (including the session's role), channel prompts, memory board and job mission stay the same, consecutive turns of a session send an identical system prompt, which is what the engine's prompt cache needs. Information that changes per turn (time gap, restart notice, interruption, job receipts, board-updated hint) goes into per-turn transient blocks that `buildTransientUserBlocks` places before the user message. All four engines receive the same system-prompt text; Codex wraps it in one extra `<aladuo:system-context>` block.
-- **Foreground sessions and background partitions** (§10–§12; upstream README calls them "Cortex" and "Subconscious"): channel and job sessions answer messages and run jobs, and jobs are scheduled by their own 60-second scanner. The heartbeat (cadence, default `2220000` ms = 37 min, `ALADUO_CADENCE_INTERVAL_MS`) runs four deterministic maintenance steps that never call a model (`runCadenceTick`, starting with the read-only memory check `runMemoryCheckTick`). The same tick is broadcast to the partition scheduler, which runs nothing when the activity fingerprint has not changed; otherwise it runs the next playlist partition not in cooldown or backoff, and a second one only when at most one session is active. Each partition run is a one-shot session with no saved history. The runtime's only deletion of memory files is a default-off orphan GC that `git rm`s stale orphan topic files (unreachable from the memory board, no inbound links, unmodified for 48 h); `git rm` touches only files already committed, so each stays recoverable from git history. All changes to memory content are made by the model inside the partitions (§12.4 lists which partition writes what).
-- **Two directories** (don't confuse them): `~/aladuo` is the kernel, a git repository holding the prompts, config and memory, where every commit is a revert point; `~/.aladuo` is mutable runtime data (`var/` for the event log, sessions and jobs; `run/` for locks, the socket and process output). The control plane (§6) is JSON-RPC 2.0 on up to three listeners that share one router: full control (state-changing RPC methods, `/ws`) is served on a unix socket at `<runDir>/daemon.sock` (mode 0600, parent dir 0700; filesystem permissions are the actual access control), while `:20233/rpc` is a **read-only** endpoint (an allowlist of read-only methods; everything else gets a JSON-RPC `-32601`) plus `/healthz`, `/dashboard`, `/readyz`. A third, bearer-token-gated remote TCP listener with full access opens only when `ALADUO_DAEMON_HOST`, `ALADUO_DAEMON_TOKEN` and `ALADUO_REMOTE_PORT` are all set, a loopback host included (`resolveRemoteListenerConfig`); a non-loopback host without the token, or with the token but without a remote port, is an error at daemon start.
+- **Append before execute** (§5): every inbound event is appended to the event log (upstream "Spine", a WAL of UTC-dated files `~/.aladuo/var/events/YYYY-MM-DD.jsonl`) *before* a mailbox pointer is written or anything runs (an event for a `void` session gets no pointer and is copied to the outbox instead). An append is exactly two writes, the WAL line and then the `by_id` index line, and the pair is not a transaction. There is no `by_session` index; session-scoped retrieval goes through the mailbox `- [ ] @evt(<id>)` pointers. Dedup is a separate registry keyed only by the channel's idempotency key. The log is not the whole state: on restart the runtime rebuilds the set of sessions with pending work from the session directories and their mailbox pointers and reads event bodies back by id; session state, the dedup table and the outbox are not reconstructed from the log, tool results are logged only as their summary, and the consumer-offset files under `run/queue_offsets/` are written and never read. Entry points: `createSpineEvent` and `atomicAppendEvent` (the log), `appendBeforeExecuteGateway` (gateway ingest).
+- **One actor per session key** (§8): each session key has at most one in-memory actor (`createSessionManager`). A process write-lock keeps one daemon per data directory, an async per-key mutex serialises each session's state changes, and a per-session drain lease file (`acquireSessionDrainLock`, under `run/locks/`) marks the session being drained. Channel and job sessions draw from two separate concurrency pools (10 and 6 slots by default); a channel actor returns its slot as soon as it goes idle and releases its engine process after the idle timeout (default 1 h). Since v0.8.7 at most one channel session is the main session: the one whose display name is `main` (`resolveMainSession`; two such sessions make it ambiguous and neither counts). Only `session.set_alias` sets or moves that name, and from inside a session only the current main may; deliveries with no better home (a job outcome whose owner cannot take it, a Notify to `main`) go to it (§8.6, §10).
+- **Four engines plus `void`, no fallback** (§3): the config field `runtime` takes one of five values defined in one place (`initChannelProtocolModule`): the engines `claude`, `codex`, `grok`, `pi`, and `void`, which only a channel may set and which never runs a model (inbound messages go to the event log and the outbox, never the mailbox; model commands, wake and compact are refused). An unknown value is refused wherever it is written, never replaced by the default (`validateKnownRuntimeValue`, `validateRunnableRuntimeValue`, the latter also refusing `void` for jobs, partitions and the host default): an unknown or `void` `ALADUO_DEFAULT_RUNTIME` stops the daemon at boot (`resolveDefaultRuntime` throws), and a refused channel, job or partition value stops that session or partition when it would run (`runtime_refused`). The actor is bound to the requested engine first and probed second; an unavailable engine is refused at drain time (`runtime_unavailable`) and re-probed with the next message, and a session whose history belongs to another engine is refused (`runtime_mismatch`; `/clear` first). Process model, same-named commands, permissions and thinking output branch per engine. pi ships inside the npm package (`dist/release/pi-worker.js`, not covered by `reconstruction/`), needs no external CLI or login, is always listed as available, and is refused only when no model is configured for it.
+- **Two injection points** (§2): `renderPromptLayers` joins six stable system-prompt layers in a fixed order (identity: `meta-prompt.md`, followed for channel sessions by `roles/main.md` for the main session or `roles/member.md` for every other; channel kind; channel instance; the memory board `memory/CLAUDE.md` (upstream "broadcast board"); runtime context; job mission), and `buildSystemPromptForChannelConfig` only decides whether to wrap them in the Claude Code preset. No layer depends on the clock, so while identity (including role), channel prompts, memory board and job mission stay the same, consecutive turns send an identical system prompt, which the engine's prompt cache needs. Per-turn information (time gap, restart notice, interruption, job receipts, board-updated hint) goes into transient blocks that `buildTransientUserBlocks` places before the user message. All four engines receive the same system-prompt text; Codex wraps it in one extra `<aladuo:system-context>` block.
+- **Foreground sessions and background partitions** (§10–§12; upstream "Cortex" and "Subconscious"): channel and job sessions answer messages and run jobs; jobs have their own 60-second scanner. The heartbeat (cadence, default `2220000` ms = 37 min, `ALADUO_CADENCE_INTERVAL_MS`) runs four deterministic maintenance steps that never call a model (`runCadenceTick`, starting with the read-only memory check `runMemoryCheckTick`). The same tick goes to the partition scheduler, which runs nothing when the activity fingerprint is unchanged; otherwise it runs the next playlist partition not in cooldown or backoff, and a second one only when at most one session is active. Each partition run is a one-shot session with no saved history. The runtime's only deletion of memory files is a default-off orphan GC that `git rm`s stale orphan topic files (unreachable from the memory board, no inbound links, unmodified for 48 h), so each stays recoverable from git history. All changes to memory content are made by the model inside the partitions (§12.4 lists which partition writes what).
+- **Two directories** (do not confuse them): `~/aladuo` is the kernel, a git repository of prompts, config and memory where every commit is a revert point; `~/.aladuo` is mutable runtime data (`var/` for the event log, sessions and jobs; `run/` for locks, the socket and process output). The control plane (§6) is JSON-RPC 2.0 on up to three listeners sharing one router: full control (state-changing methods, `/ws`) on the unix socket `<runDir>/daemon.sock` (mode 0600, parent 0700; filesystem permissions are the access control); `:20233/rpc` is **read-only** (an allowlist; everything else gets `-32601`) plus `/healthz`, `/dashboard`, `/readyz`. A third, bearer-token-gated remote TCP listener with full access opens only when `ALADUO_DAEMON_HOST`, `ALADUO_DAEMON_TOKEN` and `ALADUO_REMOTE_PORT` are all set, a loopback host included (`resolveRemoteListenerConfig`); a non-loopback host without the token, or a token without a remote port, is an error at daemon start.
 
 ## Writing / editing the analysis docs
 
-- **Cite code by name, never add a line number.** Every mechanism claim names the code that implements it and carries a `confirmed` / `未证实推测` tag; never present an unverified inference as fact. A line number is not stable evidence: esbuild re-mangles every identifier and the formatter reflows on every release, so most lines move on each bump, and at v0.8.3 about two hundred of them could not be relocated at all and had to be dropped. A real name comes from esbuild's `__export` table and survives releases; the symbol index (`maps/symbols_*.json`) and the `first-party/` tree already say where it is. New text uses exactly two citation forms, both checked by the build (shapes defined in `reconstruction/tools/anchor_forms.mjs`):
-  - `` `真名 (短名)` `` — a symbol in `maps/symbols_*.json`, e.g. `atomicAppendEvent (rn)`, **with no line**, written as one code span. `verify_citations.mjs` checks every such pairing wherever it appears (prose, tables, fences; with a line or without) and fails the build when the short name is not that symbol's, or when the real name is in no index and is spelled like a real name (lowerCamelCase with a hump, UPPER_SNAKE with an underscore, or PascalCase with two humps; at least 8 characters) next to a 1–4 character short name. A pair means the daemon's symbol of that name, else the cli's, so a cli-only name needs no prefix; a real name both bundles have (currently only `main`) means the daemon's unless prefixed, as in `cli:main (sot)`. The short name is kept because it is what a reader greps for in the pretty bundle; `retarget_symbols.mjs` updates it on a bump, but only where one code span is exactly the pair and the old rename map it is given pairs that real name with that short name (it runs once per bundle) — a pair in plain prose or in a fence is checked and not moved.
-  - `` `代码片段`（`真名`） `` — "this statement proves it", e.g. `` `stage: "runtime_mismatch"`（`drainSessionMailbox`） ``; a cli symbol is written `` `代码片段`（`cli:真名`） ``. `check_bare_anchors.mjs` checks it strictly against that symbol's current declaration: some distinctive token of the snippet (a string literal, or a non-keyword identifier of 3+ characters spelled as in the pretty bundle, matched as a whole word) must be in it, and so must every short name the snippet calls and every number it writes; each `NAME = <number or arithmetic>` clause must appear there as that exact token sequence (`Ydt = 5` is refuted where the declaration assigns 5 to another constant); and a snippet made only of short names and numbers must appear there as a whole token sequence. On top of those, the snippet itself must be in the declaration as written, whitespace aside (`snippetVerbatim`): `…` marks a gap between pieces that must appear in that order, `\|` in a table cell reads as `|`, and a snippet that is one quoted string may be part of a longer string. Before that rule, one matching token was enough, and at the v0.8.4 bump several hundred snippets still quoting v0.8.3 locals and short names passed. A snippet with nothing checkable, or bound to a real-name-shaped name no index has, is refuted. Quote string literals where you can: they survive releases, while every quoted mangled identifier, local or top-level, changes on every bump and is then refuted until someone fixes it.
+**Cite code by name, never add a line number.** Every mechanism claim names the code that implements it and carries `confirmed` or `未证实推测`; never present an inference as fact. Line numbers move on every release (esbuild re-mangles, the formatter reflows); real names survive. New text uses exactly two citation forms, both checked by the build (shapes in `reconstruction/tools/anchor_forms.mjs`):
 
-  The `real/short` shorthand makes the same claim as `真名 (短名)`, and `verify_citations.mjs` checks it the same way, but do not write it in new text: `a/b` is also how prose writes "a or b", so the checker reads it as a pair only when its halves have the right shapes, and a stale one can pass unread.
-- **Local variable names are reading aids, not evidence.** `recon/` and `first-party/` carry names for the parameters and locals of first-party code; rule names are read off the code at the binding, the rest were proposed by an LLM reading the body (each first-party header's `// locals:` line gives the split, each `maps/locals_daemon.json` entry its `src`). The equivalence proof shows renaming changed no behaviour, not that a name is apt. Base a claim on property names, string literals, real names and call relations, never on a local's name; snippets are checked against the pretty bundle anyway, so a snippet that quotes a local's reconstructed name is refuted.
-- **Start from the card, not the bundle.** `node reconstruction/tools/symbol_card.mjs <name>` (or `--build reconstruction/.build` right after a check-mode run) prints what a doc section needs about a symbol: callers, callees, env vars, log prefixes, RPC methods and event types it carries, name origin, first release and the CHANGELOG entry that describes it, and which doc sections already cite it; `env:ALADUO_X`, `dotted:session.notify`, `string:text` answer the reverse questions. `symbol_card.mjs unnamed` lists the unnamed code first-party functions use most, which is what to name next; `uncited:<NN-dir>` lists what no doc has covered. A claim that a few calls of one function settle (an input the CHANGELOG says is refused) needs no daemon: `node reconstruction/tools/extract_decl.mjs --pkg <dist/release> <realName...>` writes `$PKG/daemon.harness.mjs`, the recon bundle exporting those functions and a `prepare()` that runs the module initialisers they read; import it, call `prepare()`, call the functions, and say in the doc that the claim was checked by executing them. A claim that only a running daemon can settle goes to `reconstruction/scenarios/`: write a scenario, run it, record the finding in `scenarios/findings/`, and only then change the doc, saying the claim was measured on the reconstructed daemon of that release.
-- **Code with no real name gets one before it is cited.** Register the name with `node reconstruction/tools/name_symbol.mjs <daemon.pretty.js> <short> <realName> <NN-subsystem>`; for cli code add `--bundle cli`, pass the cli pretty bundle (`.build/beautified/v<version>/cli.pretty.js`, with `--build reconstruction/.build`, since the cli recon is not committed) and write `-` for the subsystem: the cli has an inferred-name map (`maps/inferred_cli.json`, with its shape baseline, checked by `verify_inferred.mjs` at every rebuild like the daemon's) but no first-party tree, so no subsystem map (or `--batch list.tsv` for several; `--dry-run` checks without writing). The committed `reconstruction/recon/daemon.recon.js` can stand in for the pretty bundle: it has the same lines, and unnamed code has the same short name in both. Three kinds of top-level code can be named, each with its own spelling: a function (camelCase; a class may be PascalCase), an esbuild module initialiser (`init<Name>Module`) and a literal constant (UPPER_SNAKE with an underscore); every name is at least 8 characters and not used yet, as a variable anywhere in the bundle or as a real name in any bundle's maps. Naming the initialiser that assigns a module's constants is what makes a default value citable: with the initialiser that assigns the drain merge-window defaults named `initMailboxDrainRunnerModule (HS)`, `` `dJ = 5, fJ = 180 * 1e3`（`initMailboxDrainRunnerModule`） `` is a checked citation. An uninitialised `var` is refused; cite its value through the initialiser that assigns it. The tool accepts code only with reference evidence that it is first-party, and any vendor evidence refuses outright (vendored code never refers to duoduo's code by name). Code with no evidence either way needs `--allow-unproven` after reading the body; that records the name in `maps/inferred_daemon.asserted.json`, and a name recorded there is not evidence for any later registration. A third kind of evidence is a published sibling package: `match_published_source.mjs` pairs the TypeScript source of `@openduo/protocol` (the only openduo package that ships source; the daemon inlines it) with the bundle by literals, property names, globals, arity and in-module order, and `--published <its report>` accepts a name that the report pairs with exactly that upstream name, recording it in `maps/published_daemon.json`. Vendor evidence still refuses. Prefer this over `--allow-unproven` wherever the report has a `unique` or `ordered` match: the name is then upstream's, not ours. It refuses a subsystem that is not one of the existing `NN-` directories, writes `maps/inferred_daemon.json`, `maps/subsys_daemon.json` and the new names' entries in `maps/inferred_daemon.shape.json`, and prints the `真名 (短名)` citation. The name reaches `recon/`, `first-party/` and `maps/symbols_daemon.json` through `PROMOTE=1 PKG=… bash rebuild.sh`; commit the maps and the promoted artifacts together, or `committedInSync` fails. During a version bump, before PROMOTE, `maps/symbols_daemon.json` still indexes the old release and the tool refuses a new-release bundle; pass `--build reconstruction/.build` (the step-2 check-mode run's `$OUT`, which indexes the new one) with the bundle it beautified, `.build/beautified/v<new>/daemon.pretty.js`. The hand-made maps are still read from and written to `maps/`. With `--build` the tool then also updates that run's `rename_daemon.json` and `symbols_daemon.json` (the same `build_rename.mjs` and `symbol_index.mjs` steps `rebuild.sh` runs), so the new name can be cited and checked with `check_docs.sh` at once instead of after another full rebuild; outside a bump, `--build reconstruction/.build` does the same for the current release. To name many at once (a bump leaves the code it added unnamed), `name_toplevel.mjs tasks` lists the unnamed declarations that named code uses (with `--new <fp.json>`, only those this release added or rewrote), each with the named code using it, its strings, the unnamed variables it shares with named code and its body, plus a TSV for `--batch`: one naming pass fills the TSV, `--dry-run` checks every proposal, and a person spot-checks the thin bodies before the real run. At v0.8.7, 40 candidates gave 33 proposals; 23 passed the dry run as written, 4 more after reading their bodies (`--allow-unproven`), and the spot-check corrected 2 that a three-line body had let the naming pass guess (which is why the task now shows shared variables: `FU: also used by moveSessionDirToArchive`). `--published` also renames an inferred name the report shows upstream spells otherwise (verdict `conflict`): `@openduo/protocol` 0.8.6 publishes `main-session.ts`, which turned three of ours into `classifySessionKey`, `isMainSessionCandidate` and `resolveMainSession`; a rename, published or historical, carries the entries keyed by real name in `locals_`, `history_` and `changelog_<bundle>.json` along. A bare short name (`` `jXe` ``) cannot be checked by anything and silently turns into a different function on the next release — v0.8.3 reused `AXe`, `UEe` and `WEe` for unrelated code — and a `真名 (短名)` pair whose real name is not in the maps fails `verify_citations.mjs` as a missing symbol.
-- **Line numbers are legacy and may only disappear.** The older forms — `` `真名 (短名)`（`N`） `` (F1, checked by `verify_citations.mjs`), `` `短名`（`N`） `` (F2, `check_doc_anchors.mjs`, against the cli bundle when the citation says `cli.pretty.js:N`; it holds when the short name is on line N as a whole identifier or, under the `--resolve` that `rebuild.sh` passes, when line N lies inside the top-level declaration of that short name), `` `代码片段`（`N`） `` (F3, `check_bare_anchors.mjs`) — are still checked while they exist, and any other line number (plain-text `daemon:N`, several lines in one span, a number inside a ``` fence, …; `looseLineNumbers()` finds them) is unbound. `reconstruction/maps/bare_anchor_baseline.json` holds two per-doc ceilings, `lineNumbers` (every line number, whatever its shape) and `unbound` (held at 0), and `check_bare_anchors.mjs` fails the build when a doc exceeds either — so adding a line number, even a correct F1 one, fails. `convert_line_citations.mjs` retires them mechanically: it rewrites F1 and F2 into `真名 (短名)` and F3 into `代码片段`（`真名`） wherever the symbol index names the code, runs the three checkers on the result and reverts any rewrite they refute, and lists every citation it left with the reason, ranking the unnamed functions, module initialisers and constants by how many citations naming each would convert. Both bundles' can be named that way, with `name_symbol.mjs` (`--bundle cli` for the cli's). After `--write`, or after converting by hand, lower the ceilings in the same commit with `check_bare_anchors.mjs … --baseline maps/bare_anchor_baseline.json --write-baseline` over all of `docs/*.md`. `--write-baseline` refuses to raise a ceiling; `--allow-raise` exists for a genuinely new doc, not to make room. When a claim's evidence cannot be re-found, drop the citation and, if nothing else supports the claim, downgrade it to `未证实推测`. Diagrams in fences carry no citations: a pair or a line number written in one is still checked, but `retarget_symbols.mjs` does not move a `真名 (短名)` pair there, so cite in the prose below the diagram.
-- **Exception: `docs/DUODUO_FRAMEWORK_GUIDE.md` carries no anchors and no short names, on purpose.** It is the product-manager guide: plain literal language (no metaphors, flourish, or coined labels — say what the mechanism does), every term explained at first use, conclusion-first. Its credibility comes from Appendix C (section → `AGENT_INTERNALS_ANALYSIS.md` evidence section), not from inline citations. When upstream changes a mechanism, update the prose and Appendix D (version delta); do not "fix" it by adding line numbers.
-- Docs are written **conclusion-first (Pyramid Principle)**: central idea → MECE key sentences → answer-first sections. Preserve that when extending.
-- **Language and style of `docs/` and `reconstruction/*.md`** (the owner's rules; sessions that run without the owner's personal settings — scheduled routines, CI auto-fix, workflow agents — get them only from here): Chinese is the main language, with technical terms kept in English. Reasoning is written as connected paragraphs; a list is only for a genuine enumeration, a comparison table or steps, not for chopping an argument into fragments. Say things literally: no metaphor, personification, slogan or coined label in place of a plain statement, and an established technical term instead of a vague paraphrase ("验证工具", not "核对机制").
-- When a claim is corrected, update the doc **in place to the latest verified conclusion** — no errata notes, strikethroughs, or revision-history appendices in `docs/`. Credibility comes from every claim staying re-checkable against the reconstructed source via the name it cites (git history preserves the old wording if ever needed).
+- `` `真名 (短名)` `` — one code span, no line, e.g. `atomicAppendEvent (rn)`. `verify_citations.mjs` checks every such pair anywhere (prose, tables, fences) over `docs/*.md`, `reconstruction/*.md` and this file, and fails when the short name is not that symbol's, or when a real-name-shaped name (lowerCamelCase with a hump, UPPER_SNAKE with an underscore, PascalCase with two humps; ≥ 8 characters) next to a 1–4 character short name is in no index. A pair means the daemon's symbol, else the cli's; a name both bundles have (currently only `main`) needs the prefix for the cli: `cli:main (sot)`. Only a span that is exactly the pair is moved on a bump; a pair in plain prose or a fence is checked but not moved. Do not write the `real/short` shorthand in new text (it reads like "a or b").
+- `` `代码片段`（`真名`） `` — "this statement proves it", e.g. `` `stage: "runtime_mismatch"`（`drainSessionMailbox`） ``; cli symbols as `（`cli:真名`）`. `check_bare_anchors.mjs` (over `docs/*.md`) requires the snippet to appear in that symbol's current declaration as written, whitespace aside (`…` marks an ordered gap, `\|` in a table reads as `|`, a one-string snippet may be part of a longer string), including every short name it calls, every number, and every `NAME = <number>` clause as that exact token sequence. **Quote string literals and property names where you can**: they survive releases, while every quoted mangled identifier is refuted at the next bump.
+
+**A bare short name (`` `jXe` ``) is never a citation**: nothing can check it, and the next release reuses it for unrelated code. **Local variable names are reading aids, not evidence**: rule-derived or LLM-proposed (`// locals:` in each first-party header); base a claim on property names, string literals, real names and call relations, and never quote a reconstructed local in a snippet (snippets are checked against the pretty bundle).
+
+**Start from the card, not the bundle.** `node reconstruction/tools/symbol_card.mjs <name>` (add `--build reconstruction/.build` right after a check-mode run) prints callers, callees, env vars, log prefixes, RPC methods and event types, name origin, first release, the CHANGELOG entry, and which doc sections cite it. `env:ALADUO_X`, `dotted:session.notify`, `string:text` answer the reverse questions; `unnamed` lists what to name next, `uncited:<NN-dir>` what no doc covers.
+
+**Code with no real name gets one before it is cited**: `node reconstruction/tools/name_symbol.mjs <daemon.pretty.js> <short> <realName> <NN-subsystem>` (`--batch list.tsv` for several, `--dry-run` to check). The committed `recon/daemon.recon.js` can stand in for the pretty bundle (same lines, same short names for unnamed code). For the cli add `--bundle cli`, pass `.build/beautified/v<version>/cli.pretty.js` with `--build reconstruction/.build`, and write `-` for the subsystem. The rules the tool enforces:
+
+- Spelling by kind: function camelCase (a class may be PascalCase), module initialiser `init<Name>Module`, literal constant UPPER_SNAKE; ≥ 8 characters, unused anywhere. An uninitialised `var` is refused: name the initialiser that assigns it and cite the value through it, as in `` `dJ = 5, fJ = 180 * 1e3`（`initMailboxDrainRunnerModule`） `` with `initMailboxDrainRunnerModule (HS)`.
+- Evidence: the code must refer to or be referred to by first-party code; any vendor evidence refuses. Prefer upstream's own spelling: `--published <match_published_source.mjs report>` (TypeScript source of `@openduo/protocol`, accepted on a `unique` or `ordered` match, and able to rename one of ours to upstream's on `conflict`) or `--historical <match_historical_exports.mjs report>` (an older release's export block). `--allow-unproven` only after reading the body; it is recorded in `inferred_daemon.asserted.json`. A rename carries the real-name-keyed entries in `locals_`, `history_` and `changelog_daemon.json` along.
+- Reaching the repo: the tool writes `maps/inferred_*.json`, `subsys_daemon.json` and the shape entries; the name reaches `recon/`, `first-party/` and `symbols_daemon.json` only through `PROMOTE=1 PKG=… bash rebuild.sh`. Commit the maps and the promoted artifacts together, or `committedInSync` fails. With `--build reconstruction/.build` the tool also updates that run's rename map and index, so `check_docs.sh` can check the new citation at once; mid-bump, `--build` is required (with `.build/beautified/v<new>/daemon.pretty.js`), because `maps/symbols_daemon.json` still indexes the old release.
+- Many at once (code a bump added): `name_toplevel.mjs tasks` lists unnamed declarations that named code uses (`--new <fp.json>` for this release's), with callers, strings, shared variables and body, plus a TSV for `--batch`; fill it in one naming pass, `--dry-run` it, and spot-check the thin bodies by hand before the real run.
+
+**Line numbers are legacy and may only disappear.** The older forms `` `真名 (短名)`（`N`） `` (F1), `` `短名`（`N`） `` (F2, `check_doc_anchors.mjs --resolve`: the short name on line N, or line N inside its declaration; `cli.pretty.js:N` checks the cli) and `` `代码片段`（`N`） `` (F3) are checked while they exist; any other line number is unbound. `maps/bare_anchor_baseline.json` caps each doc's `lineNumbers` and holds `unbound` at 0, so adding any line number, even a correct F1, fails the build. Retire them with `convert_line_citations.mjs --write` (it reverts any rewrite the checkers refute and ranks the unnamed code whose naming would convert the most), then lower the ceilings in the same commit with `check_bare_anchors.mjs … --baseline maps/bare_anchor_baseline.json --write-baseline` over all of `docs/*.md` (`--allow-raise` is for a genuinely new doc only). When a claim's evidence cannot be re-found, drop the citation and, if nothing else supports the claim, downgrade it to `未证实推测`. Diagrams in fences carry no citations: cite in the prose below them.
+
+**Style and structure** (the owner's rules; sessions without the owner's personal settings, such as scheduled routines, CI auto-fix and workflow agents, get them only from here):
+
+- `docs/` and `reconstruction/*.md` are written in Chinese, with technical terms kept in English, conclusion-first (Pyramid Principle: central idea → MECE key sentences → answer-first sections). Reasoning goes in connected paragraphs; use a list only for a genuine enumeration, a comparison table or steps.
+- Say things literally: no metaphor, personification, slogan or coined label in place of a plain statement; use the established technical term ("验证工具", not "核对机制").
+- `docs/DUODUO_FRAMEWORK_GUIDE.md` carries no anchors and no short names: plain language, every term defined at first use. When upstream changes a mechanism, update its prose and Appendix D; never add citations to it.
+- When a claim is corrected, update the doc **in place to the latest verified conclusion**: no errata, strikethroughs or revision-history appendices in `docs/`. Git history keeps the old wording.
+- When a fact in "duoduo runtime architecture" above changes, update it here as well as in `docs/README.md` (the `upgrade-docs` workflow does this at step 3b).
