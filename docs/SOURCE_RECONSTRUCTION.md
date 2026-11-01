@@ -57,7 +57,7 @@
 
 ### 推断名：每个都是可被推翻的主张
 
-**没有导出名的内部代码由本仓库命名，这些名字标为 inferred，并由三类检查确认它们标在正确的代码上。** 需要这些检查，是因为推断名标错不会让任何等价证明失败：改名是作用域安全的，标错名字不改变语义，AST 全等照样成立，可读树的检查也只证明各产物彼此一致。能发现标错的，只有专门核对“这个名字下面是不是那段代码”的检查。推断名记录在 `maps/inferred_daemon.json`（短名 → 名字），`maps/RENAME_TABLE.md` 和可读树文件头的 `// name:` 行都注明哪些名字是推断的，读者因此能区分上游的名字和本仓库的判断。
+**没有导出名的内部代码由本仓库命名，这些名字标为 inferred，并由三类检查确认它们标在正确的代码上。** 需要这些检查，是因为推断名标错不会让任何等价证明失败：改名是作用域安全的，标错名字不改变语义，AST 全等照样成立，可读树的检查也只证明各产物彼此一致。能发现标错的，只有专门核对“这个名字下面是不是那段代码”的检查。推断名记录在 `maps/inferred_daemon.json`（短名 → 名字；cli 的在 `maps/inferred_cli.json`，有自己的 shape 基线，按同样的规则检查），`maps/RENAME_TABLE.md` 和可读树文件头的 `// name:` 行都注明哪些名字是推断的，读者因此能区分上游的名字和本仓库的判断。
 
 **第一类检查是种类与拼写。** 推断名只能落在三种代码上，每种有固定拼写：函数（函数或类声明，或初始化为函数、箭头函数、类的变量）用 camelCase，且不能写成 `init…Module`；esbuild 模块初始化器（`var a, b, X = __esm(() => { a = 5; … })`）用 `init<Name>Module`，模块的常量只在初始化器里赋值，所以文档引用某个默认常量时只能绑定到它；只由字面量组成的顶层常量用 UPPER_SNAKE。`__esm` 助手按它的行为识别，不按短名，因为同一个短名在 daemon 和 cli 里可以是不同的助手。其他代码一律不能命名，包括别的调用结果、非字面量表达式，以及未初始化的 `var`（它的值在模块初始化器里赋，应通过初始化器引用）。拼写规则不需要任何基线，所以把函数名放到模块初始化器上会直接失败。按字面量重新定位时就可能出现这种错误：函数独有的字符串字面量可能在新版本里被上游提升成模块常量，按它定位就会落到初始化器上，而不是函数上。
 
@@ -74,9 +74,9 @@
 - 目标还没有名字；
 - 目标是 first-party；
 - 名字按种类拼写、足够长（引用检查据此把它识别为真名），不作为变量名或全局名出现在 bundle 里，也不与任何 bundle 已有的真名重复；
-- 子系统是已有目录之一。
+- 子系统是已有目录之一（cli 没有可读树和子系统映射，`--bundle cli` 登记时子系统写 `-`）。
 
-通过后它把名字追加进 `inferred_daemon.json`，归入 `subsys_daemon.json`，只为新名字补一条 shape 基线（重新记录整个基线会把其他名字的漂移一并认可），并打印引用写法 `真名 (短名)`。
+通过后它把名字追加进 `inferred_daemon.json`（cli 为 `inferred_cli.json`），归入 `subsys_daemon.json`，只为新名字补一条 shape 基线（重新记录整个基线会把其他名字的漂移一并认可），并打印引用写法 `真名 (短名)`。
 
 **第四类证据是上游公开的同作者源码包。** `@openduo/duoduo` 只发布压缩 bundle，但同作者、同版本号的 `@openduo/protocol` 包直接发布 TypeScript 源码（`main` 指向 `src/index.ts`），内容是 daemon 与渠道适配器之间的 RPC 参数类型、参数校验函数、错误描述函数和常量。daemon 把这些函数和常量内联进 bundle，多数不保留名字。`match_published_source.mjs` 把该包每个顶层声明与 bundle 的顶层声明配对。配对不能用结构签名，因为 esbuild 的 `--minify-syntax` 会改写控制流（`if (…) return false; return true` 变成 `return !(…)`）。所以它只比较压缩器改不了的内容：字符串与数字字面量、非计算的属性名与对象键、全局名，加上函数的参数个数，按加权 Jaccard 打分。常量则按 `canonicalLiteral` 的规范形式，在赋值它们的模块初始化器里查找（esbuild 把模块的 `const X = <字面量>` 提升为 `var X` 加初始化器里的赋值，所以常量的名字落在初始化器上）。
 
@@ -112,7 +112,7 @@ first-party 的判定依据一条不对称关系：vendored 库不会按名字�
 
 esbuild 把每个函数里的参数和局部变量都改成一两个字母，`rename.mjs` 只改顶层绑定，所以只做到上一步时，first-party 声明内部几乎所有名字仍是压缩名。`name_locals.mjs` 在 `rename.mjs` 之后再做一次同样的原位拼接改名，只作用于已改名的顶层声明内部的局部绑定，从不碰 vendor 代码和未命名的顶层代码。局部名字有两个来源。第一个来源是规则，每次构建按代码重新计算，不存储：解构 `{ sessionKey: e }` 取属性名，`const e = x.status` 取成员名，`new AbortController()` 取类名，`catch (e)` 记为 `err`，`const e = readStatus(...)` 去掉 first-party 被调函数名的动词前缀，几个常见内置调用查固定表（`JSON.parse` 记为 `parsed`，`Date.now` 记为 `now`）；snake_case 的属性名改写成 camelCase。第二个来源是 `maps/locals_daemon.json`，存放规则推不出的名字。这些名字由阅读代码得出：`name_locals.mjs tasks` 把每个声明中待命名的局部变量写成 `$<序号>`，交给 LLM 逐个声明命名，`name_locals.mjs record` 校验后登记，条目标为 `llm`。两种来源同时给出名字时，以 map 为准。
 
-局部绑定没有稳定的名字可以作为键：esbuild 在每个作用域里按使用频率分配 `e`、`t`、`n`，同一个声明里同一个拼写会出现几十次。`local_bindings.mjs` 因此用两样东西标识一个局部绑定。证明使用的是“所在顶层声明的真名 + 它在该声明全部局部绑定中按出现位置排的序号”，两份文件结构相同，序号也相同。map 存储使用的是 ctx：绑定标识符前后各 60 个字符的哈希，计算前把所有局部变量写成 `_`、没有真名的顶层绑定写成 `#`，并压缩空白；真名、全局名、属性名和字面量原样保留。ctx 不受 esbuild 重新压缩的影响，只在绑定附近的代码改动时才变。
+局部绑定没有稳定的名字可以作为键：esbuild 在每个作用域里按使用频率分配 `e`、`t`、`n`，同一个声明里同一个拼写会出现几十次。`local_bindings.mjs` 因此用两样东西标识一个局部绑定。证明使用的是“所在顶层声明的真名 + 它在该声明全部局部绑定中按出现位置排的序号”，两份文件结构相同，序号也相同。map 存储使用的是 ctx：绑定标识符前后各 60 个字符的哈希，计算前把所有局部变量写成 `_`、所有顶层绑定（有没有真名都一样）写成 `#`，并删去全部空白；全局名、属性名和字面量原样保留。ctx 不受 esbuild 重新压缩、相邻声明新登记名字和格式化器空格差异的影响，只在绑定附近的代码改动时才变。上一种方案（ctx1：空白压成一个空格，有真名的顶层绑定写真名）在 v0.8.4→v0.8.5 上因这两点失配过；按它写的条目仍能解析，`name_locals.mjs rekey` 把它们改写成当前方案。
 
 局部改名沿用顶层改名的拒绝规则，并扩展到嵌套作用域。下面三种情况下名字不被采用：新名字已经绑定在该绑定的作用域里；在某个引用位置与绑定之间的作用域里绑定了同名变量；该作用域内有标识符按这个名字读取外层绑定或全局名。名字冲突时依次尝试加数字后缀（`status2`），冲突与后缀都记在 `locals_daemon.applied.json` 里。`ast_equiv.mjs --locals <applied.json>` 在美化 bundle 上独立计算同样的序号，要求每个列出的局部绑定拼写恰好是列表给的名字，其余局部绑定拼写不变，并让声明一一对应的检查覆盖局部绑定，所以捕获或被捕获的局部改名会像顶层改名一样失败。唯一新增的结构差异是 `{ key: x }` 在 `x` 改名为 `key` 之后收成 `{ key }`：shorthand 只在键与值同名时允许从 false 变为 true。
 
@@ -140,7 +140,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 ### 实机运行是补充证据，运行场景把它变成可重复的实验
 
-还原的 daemon 可以在隔离的 HOME 和备用端口上作为真实 daemon 启动（方法见 `CLAUDE.md` 的 “Running / verifying the actual runtime”），与出厂 `daemon.js` 做 A/B 对照：启动日志、生成的文件树、只读 TCP 接口、unix socket 上的 RPC、cadence、进程被终止后的恢复行为。它补充静态证明而不能替代它，因为一次运行只经过被触发的代码路径。
+还原的 daemon 可以在隔离的 HOME 和备用端口上作为真实 daemon 启动（方法见 `CLAUDE.md` 的 “Running / verifying the actual runtime”），与出厂 `daemon.js` 做 A/B 对照：启动日志、生成的文件树、只读 TCP 接口、unix socket 上的 RPC、cadence、进程被终止后的恢复行为。它补充静态证明而不能替代它，因为一次运行只经过被触发的代码路径。只涉及少数几个函数的主张（例如某个输入会被拒绝）不需要启动 daemon：`extract_decl.mjs --pkg <dist/release> <真名…>` 写出 `daemon.harness.mjs`，即导出这些函数的还原 bundle，外加运行它们所读模块初始化器的 `prepare()`，导入后直接调用这些函数。这个文件与插桩文件一样是运行产物，不在等价证明之内。
 
 静态阅读得出的机制主张，有一部分只能在运行中的实例上核实（`AGENT_INTERNALS_ANALYSIS.md` 第 14 节）。`reconstruction/scenarios/` 把这类核实写成脚本。`instrument.mjs` 先给 `recon/daemon.recon.js` 做插桩：每个自研顶层函数的函数体，连同它内部的闭包（命名为 `外层>名字`，例如 `createDaemon>R` 是 RPC 分发器），都包进一层记录进入、退出和异常的代码。包装代码用 Node 的 `AsyncLocalStorage` 跨 await 记下调用者，一次运行写出一份调用 trace。插桩按文本拼接，只在函数体首尾插入固定文本，不重排版，所以插桩文件与还原文件只差这些包装；它是运行产物，不提交，也不在 AST 等价证明之内。
 
@@ -156,7 +156,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 在相邻两个版本之间，即使函数体完全没变，多数顶层声明的短名也会改变，而旧短名往往仍然存在于新版本里，属于另一段代码。把旧表直接用在新版本上不会报错，它只会把名字标到别的函数上；改名是作用域安全的，标错名字不改变语义，AST 全等和可读树检查全部照常通过。因此 `bump.sh` 的第一步先用 `bundle_guard.mjs` 确认给它的旧版本正是 `maps/` 描述的版本（每个已索引符号的短名都在记录的行上），因为旧侧的全部标注都通过提交的 maps 读取。两侧可以直接给出厂的 `dist/release` 目录（`PKG_OLD`、`PKG_NEW`），由 `bump.sh` 用锁定的 js-beautify 美化；同时给了美化目录和 `PKG_NEW` 时，它先证明两者 AST 全等。
 
-**局部变量名不需要迁移步骤。** 规则名字每次构建在新版本代码上重新计算。`maps/locals_daemon.json` 以真名和 ctx 为键，不以短名为键，所以声明在新版本里没有改动、或改动不在绑定附近时，条目自动找到同一个绑定。绑定附近的代码改动后，ctx 对不上，条目就找不到绑定；`rebuild.sh` 把这种情况记为 `localNames=warn`，`PROMOTE=1` 拒绝。处理办法有两种：用 `name_locals.mjs tasks` 和 `record` 为改动过的声明重新命名，或用 `name_locals.mjs prune` 删掉这些条目。每次升级的工作量因此只与改动过的声明数量相关。局部名字标错不影响语义，只影响可读性，因为改名是作用域安全的，并且被 AST 全等证明覆盖。
+**局部变量名不需要迁移步骤。** 规则名字每次构建在新版本代码上重新计算。`maps/locals_daemon.json` 以真名和 ctx 为键，不以短名为键，所以声明在新版本里没有改动、或改动不在绑定附近时，条目自动找到同一个绑定。绑定附近的代码改动后，ctx 对不上，条目就找不到绑定；`rebuild.sh` 把这种情况记为 `localNames=warn`，`PROMOTE=1` 拒绝。处理办法有两种：用 `name_locals.mjs tasks` 和 `record` 为改动过的声明重新命名，或用 `name_locals.mjs prune` 删掉这些条目。`tasks` 在每个任务文件开头写明命名规则和答案格式，并在每个声明下用 `previously:` 列出它失配条目原来的名字，命名时沿用代码已有的用词。每次升级的工作量因此只与改动过的声明数量相关。局部名字标错不影响语义，只影响可读性，因为改名是作用域安全的，并且被 AST 全等证明覆盖。
 
 **判断新旧两个声明是不是同一段代码，依据是 `structural_signature.mjs` 计算的结构签名。** 它只把压缩器每次都会重新选择的名字换成按首次出现顺序编号的位置槽：声明内部绑定的标识符（参数、局部变量、内层函数名）、对其他顶层符号的引用、私有类成员名和标签。压缩器改不了的内容原样保留：字面量的值，非计算的属性名、对象键和类成员名（API 的形状），以及全局名（`setTimeout`、`process` 这类在程序里没有绑定的名字）。位置和格式不计入。两个声明的签名相同，就是同一段代码被重新压缩的结果。`fingerprint_match.mjs` 用签名配对两个版本的顶层声明，`remap_inferred.mjs` 沿唯一的配对迁移推断名；一个旧声明对应多个同签名的新声明时报 AMBIGUOUS，由人挑选；函数体改了、找不到配对的报 RE-ANCHOR。同一个签名也写进符号索引的 `signature` 字段，所以比较两个版本的签名就能回答“这个机制到底改了没有”。
 
@@ -164,23 +164,32 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 `bump.sh` 还用第 6 节的三层配对（`pair_releases.mjs`）配对两个版本的全部声明，`remap_inferred.mjs --pairing` 据此为每个 RE-ANCHOR 和 AMBIGUOUS 名字给出一个建议的新短名，注明配对方式，写入 `inferred_<bundle>.proposed.json`。在 v0.8.3→v0.8.4 的真实升级数据上回放，45 个建议中 43 个与人工确认的结果一致；唯一不一致的一个，是三个函数体相同的声明按位置选错了。两种建议互相补充：调用图候选能区分函数体相同的声明，相似度配对能跟住重写过的函数。
 
+函数体有孪生的推断名（一个签名对应多个声明，报 AMBIGUOUS）另有一条承接途径。`align_releases.mjs` 把两个版本的全部顶层语句按顺序对齐：标识符一律写成 `_`，成员名、字符串、数字与标点保留，用 patience diff 对齐。`remap_inferred.mjs --align` 只在对齐结果是指纹候选之一、并且落在含有两侧唯一语句的连续对齐段里时，才按对齐承接这个名字；指纹的唯一匹配与对齐结果矛盾时报 `CONFLICT`，不承接。在 v0.8.4→v0.8.5 上，这一步承接的 31 个孪生名字与人工确认的结果完全相同。
+
+`bump.sh` 最后对每个 RE-ANCHOR 候选运行 `confirm_reanchor.mjs`，结果写进 `reanchor_<bundle>.md`。它取只在旧函数体里出现的字符串字面量作为证人，到新版本里查它们落在哪个声明：全部证人落在候选上的记为 `confirmed`；没有证人的打印两侧函数体，由人读过后决定；证人与候选矛盾、种类不一致的单独报出；旧版本的字面量常量在新版本里改由模块初始化器赋值的，报为挪进初始化器，这个名字要去掉，文档改经那个初始化器引用它的值。`--write` 只把 `confirmed` 的条目和人逐个 `--accept` 的条目写进升级的推断名表。在 v0.8.6→v0.8.7 上回放，34 个名字里 20 个由证人确认，13 个读过函数体后接受，1 个是挪进初始化器的常量，写出的推断名表与人工复核后提交的逐条相同。
+
 候选和建议都只是建议，名字仍要人工读过函数体、确认后才写入。确认用 `locate_by_anchor.mjs`：挑一个只出现在该函数体里的字符串字面量，在新版本里找到包含它的顶层声明。工具同时打印命中的是哪一种代码，只有种类相同时才能记录，原因见第 2 节的种类检查。模块初始化器的签名包含它初始化的模块列表，所以多一个 import 就会 RE-ANCHOR，要按它赋值的字符串字面量重新定位；常量只有在字面量不变时才被迁移。
 
-`bump.sh` 同时列出本版本改动了哪些声明。它先对新版本运行模块归属检查，生成新版本自己的改名表，并列出需要归入子系统的新名字。`pair_changes.mjs` 按顶层顺序把“改了的旧声明”与“新出现的声明”配对：esbuild 的输出顺序稳定，一个改了的声明在两个版本里夹在同样两个未变的声明之间，数量对不上时整段作为一块输出。
+`bump.sh` 同时列出本版本改动了哪些声明。它先对新版本运行模块归属检查，生成新版本自己的改名表，并列出需要归入子系统的新名字。模块归属检查在新版本上失败时，`bump.sh` 照常产出其余结果，最后以 exit 1 结束，并运行 `module_owner_hint.mjs` 列出两类证据：哪个随版本安装的 npm 包导出了这个块的全部名字，以及块导出的声明经 Babel 作用域解析后是否引用了已知的自研绑定。证据只供判定，模块的归属仍由人写进 `maps/modules_<bundle>.json`。`pair_changes.mjs` 按顶层顺序把“改了的旧声明”与“新出现的声明”配对：esbuild 的输出顺序稳定，一个改了的声明在两个版本里夹在同样两个未变的声明之间，数量对不上时整段作为一块输出。
 
 `diff_decls.mjs` 为每一对输出三种形式。位置归一化形式判断声明是否只是被重新压缩；它按标识符首次出现的顺序编号，函数里多一个局部变量，后面的编号全部改变，所以不用来阅读。给人读的是行级 diff。对齐时，它把局部变量一律视为 `_`，把顶层名字两侧统一写成真名（没有真名的写成新版本里同一声明的短名），只因局部变量改名而不同的行算作未变；打印出来的仍是代码原文。v0.8.2→v0.8.3 显示为变化的行因此从 4239 行降到 318 行。第三种是字符串、属性名与数字的增删。导出名集合的增减（`exports_map.mjs` 生成的 `*.exports.json` 的键）直接给出新增或消失了哪些具名函数，不需要推断。
 
-**升级的工作量跟上游改了多少成正比，不跟文档篇幅成正比，前提是文档按名字引用代码。** `impact_report.mjs` 把改动的声明与文档里的引用按真名对上，列出每一处引用了改动代码的位置，并分三档：代码片段落在改动行上或在新版本里找不到的要重读，段落与改动共有有辨识度的记号的要核对，其余略读。v0.8.2→v0.8.3 的文档里有 2746 处按名字的代码引用，664 处指向改动的声明，需要重读的 69 处。同一份清单还列出没有任何文档覆盖的新声明与新增字符串，以及出厂包和上游仓库的明文变化（`plaintext_delta.mjs`）在文档里被提到的位置。
+**升级的工作量跟上游改了多少成正比，不跟文档篇幅成正比，前提是文档按名字引用代码。** `impact_report.mjs` 把改动的声明与文档里的引用按真名对上，列出每一处引用了改动代码的位置，主体分三档：代码片段落在改动行上或在新版本里找不到的要重读，段落与改动共有有辨识度的记号的要核对，其余略读；片段引用的代码在两版里都在、只有短标识符拼写不同的计为 `respelled`，归入略读，留给 `retarget_snippets.mjs` 改写。v0.8.2→v0.8.3 的文档里有 2746 处按名字的代码引用，664 处指向改动的声明，需要重读的 69 处。同一份清单还列出没有任何文档覆盖的新声明与新增字符串，以及出厂包和上游仓库的明文变化（`plaintext_delta.mjs`）在文档里被提到的位置。
 
-第四份列表（2c 档，`callee-changed`）按旧版本 `maps/xref_<bundle>.json` 的调用图，列出这样的引用：被引用的声明没变，但它直接调用的声明变了或被删除了；模块初始化器不算被调用方。在 v0.8.3→v0.8.4 上回放，这份列表有 96 处引用，其中 33 处不在前三档里。这 33 处里有一处（`runGapLint` 的被调用方 `readGapLintDayEvents` 改了结束空档的事件）正是 v0.8.4 文档手工重写过的段落。2c 档只看一层调用，所以清单仍然看不到两类论断：只引用了离改动两层以上的调用方的，以及没有引用的。
+第四份列表（2c 档，`callee-changed`）按旧版本 `maps/xref_<bundle>.json` 的调用图，列出这样的引用：被引用的声明没变，但它直接调用的声明变了或被删除了；模块初始化器不算被调用方。在 v0.8.3→v0.8.4 上回放，这份列表有 96 处引用，其中 33 处不在前三档里。这 33 处里有一处（`runGapLint` 的被调用方 `readGapLintDayEvents` 改了结束空档的事件）正是 v0.8.4 文档手工重写过的段落。`impact.md` 把 2c 档按所经过的改动被调用方分组，一组只需读一次那个被调用方的 diff。`change_kind.mjs` 判定每个 diff 的改动种类：被调用方的改动只是增删"成员 = 字面量"赋值时，这组条目照常列出，但在工作分组里按第 3 档计重。v0.8.5→v0.8.6 的 467 条 2c 档条目全部经过 `createAgentSdkAdapter`，它的改动只有一条字面量赋值。2c 档只看一层调用，所以只引用了离改动两层以上的调用方的论断仍然不在清单里。
+
+第五份列表（第 4 档，`keyword`）处理没有任何文档引用的改动。对每个没有引用、但第一方代码会用到的改动声明，它取改动行与字面量增删里像代码的词（snake_case 或 camelCase、不是 JavaScript 或 Node 内置成员名、只出现在少数段落里）和像消息、键名或路径的字符串，列出含有它们的段落。"第一方会用到"指声明有真名，或者旧版本的交叉引用里有命名声明引用它（不计模块初始化器），所以第三方库的更新不会把读者引到无关的段落。v0.8.4→v0.8.5 唯一的第一方改动是 job 工作目录解析，当时没有名字，第 1 到 3 档和 2c 档都是空的；第 4 档列出讲 `cwd_rel` 的 8 个段落，也只有这 8 个。完全不含相关代码词的论断仍然看不到。
+
+给了 `PKG_OLD` 与 `PKG_NEW` 时，`bump.sh` 还用 `bundle_literals.mjs` 比较不在流水线里的四个 bundle（stdio、pi-worker、channel-acp、feishu-gateway）的字符串与成员名增删，结果写进 `.build/bump/literals/`，摘要进入 `impact.md`，删掉的字面量附上它在文档里出现的位置。这四个 bundle 没有真名，按字面量是唯一能做的比较。
 
 `bump.sh` 只写 `$OUT`，最后按各道检查能接受的唯一顺序打印剩余步骤：
 
-1. 复核迁移后的推断名表，复制进 `maps/`，重新定位全部 RE-ANCHOR 名字，给新名字归入子系统，然后用 `verify_inferred.mjs record` 把它记为新的 shape 基线（没有重新记录的基线会得到 warn，promote 拒绝）；
-2. 带 `PKG` 的检查模式 `rebuild.sh`。此时引用和行号检查失败是预期的，这次运行产出文档重定向需要的新索引和新美化文件；
+1. 用 `confirm_reanchor.mjs --write` 把证人确认的和人读过后 `--accept` 的 RE-ANCHOR 名字写进升级的推断名表；复核整张表，给新名字归入子系统，最后把表复制进 `maps/`；然后用 `verify_inferred.mjs record` 把它记为新的 shape 基线（没有重新记录的基线会得到 warn，promote 拒绝）；
+2. 带 `PKG` 的检查模式 `rebuild.sh`。此时 `committedInSync=retarget-pending`、可读树、引用和行号检查失败都是预期的；`maps/locals_daemon.json` 里有条目落在改动代码上时，`daemon.localNames` 为 `warn`，要用 `name_locals.mjs tasks` 与 `record` 重新命名这些声明的局部变量，或用 `prune` 删掉条目。这次运行产出文档重定向需要的新索引和新美化文件；
 3. 用这次运行的产物重定向文档（见第 5 节）；
 4. 按影响清单更新文档的实质内容：`doc_sections.mjs` 把文档按 `## ` 节拆成单独的文件，仓库里保存的 workflow `upgrade-docs` 按清单的工作分组给每组一个写作 agent、一个对照新代码反驳的核验 agent，最后拼回文档、登记新名字、重跑检查；
-5. `PROMOTE=1 PKG=… bash rebuild.sh`，全部检查对候选产物通过才写入。
+5. 本次升级最后一次 `name_symbol.mjs` 之后，运行 `history.sh --build <第 2 步的 OUT> --write`，用那次运行的改名表延伸发行历史，这样一次 promote 就能把 `// since:` 写进可读树；
+6. `PROMOTE=1 PKG=… bash rebuild.sh`，全部检查对候选产物通过才写入。
 
 这个顺序由 PROMOTE 的前置条件决定：文档必须已经对准新版本，所有结论必须是 pass。
 
@@ -211,7 +220,11 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 还剩的行号在版本升级时仍然要迁移，顺序固定。`remap_doc_anchors.mjs` 为每个旧行号求新行号，依次尝试四种策略：行在 `__export` 或具名 import 里时按真名匹配；所在声明结构未变时保持它在声明内的偏移；声明签名不唯一、而所引的是声明头时，按它夹在两个已配对声明之间的顺序；声明改了时，在配对的新声明里按“标识符抹掉、字面量保留”的行形状匹配。都不成立的留在原处并报出，不猜。`retarget_docs.mjs apply --stamp <版本>` 批量改写行号；它不是幂等的（一个新行号可能恰好也是某个旧行号），所以把目标版本写进 `docs/.pretty-anchor-target`，并拒绝对同一目标再运行一次。
 
-`retarget_symbols.mjs` 按同一个 bundle 两个版本的改名表一次性替换短名，只改写两种位置：整个代码 span 就是 `真名 (短名)`；`真名/短名` 简写。两种配对都只在旧改名表恰好把这个真名与这个短名配成一对时才改写，所以用 daemon 的改名表运行时，cli 的配对原样保留，即使它的短名同时也是某个 daemon 符号的短名，cli 的配对由第二次运行（cli 的改名表加 `--bundle cli`）改写。整个代码 span 只是一个标识符时没有真名可以核对，它可能是引用，也可能是 `cat`、`ps` 这样的命令或普通单词，所以默认不改写，只连同文件和行号列出，由人判断。引用的代码表达式里的局部变量不动。最后 `verify_citations.mjs --fix` 重新生成剩余带真名引用的行号。每少一个行号，这一步就少一处要迁移。
+`retarget_symbols.mjs` 按同一个 bundle 两个版本的改名表一次性替换短名，只改写两种位置：整个代码 span 就是 `真名 (短名)`；`真名/短名` 简写。两种配对都只在旧改名表恰好把这个真名与这个短名配成一对时才改写，所以用 daemon 的改名表运行时，cli 的配对原样保留，即使它的短名同时也是某个 daemon 符号的短名，cli 的配对由第二次运行（cli 的改名表加 `--bundle cli`）改写。整个代码 span 只是一个标识符时没有真名可以核对，它可能是引用，也可能是 `cat`、`ps` 这样的命令或普通单词，所以默认不改写，只连同文件和行号列出，由人判断。引用的代码表达式里的局部变量不动。
+
+名字绑定片段 `代码片段`（`真名`）里写的短名在发版后通常会变，由 `retarget_snippets.mjs` 改写，按三种方式依次尝试。第一种：给了 `--old` 时，如果片段所在声明的 `@babel/parser` 记号序列在两版之间只有标识符拼写不同，片段里的每个标识符取新声明同一位置的记号，不做模式匹配。第二种：声明改过时，把片段写成模式（字符串字面量、属性名和长名字原样保留，已迁移的短名固定，其余短标识符作通配，同一个通配出现两次必须匹配同一个名字），在新声明里只有唯一匹配时改写。第三种：模式在新声明里匹配多处时，同一模式在旧声明里也跑一遍，两边次数相同时，片段原来引用旧声明的第 k 处，就取新声明的第 k 处（`byOrdinal`）。每处改写都必须通过 `check_bare_anchors.mjs` 的规则，只改片段里的标识符。改不了的片段列在报告里，它们引用的代码确实变了，要重读。在 v0.8.6→v0.8.7 的回放里，按序号改写把歧义的片段从 37 个降到 1 个。
+
+最后 `verify_citations.mjs --fix` 重新生成剩余带真名引用的行号。每少一个行号，这一步就少一处要迁移。
 
 **检查器本身也被检验。** `mutate_anchor_checks.mjs` 从符号索引和 bundle 本身生成一份合成文档，因此不需要随版本维护测试数据。它先确认每个检查器在这份文档上通过，再一次注入一种已知错误（短名换错、真名不存在、片段绑定到不包含它的符号、各种形状的未绑定行号、超出上限的新行号、写错的数字），确认负责的检查器失败；它还确认每个检查器拒绝一个整体偏移了一行的 bundle，确认 `--write-baseline` 拒绝抬高上限，并对 `verify_inferred.mjs` 注入常量值改变、初始化器名字挪到别处、按错误种类拼写的名字等错误。每个检查器读取 bundle 之前都经过 `bundle_guard.mjs`：每个已索引符号的短名必须出现在它记录的行上，否则拒绝运行，避免对着错误版本的 bundle 把正确的引用报错，或用 `--fix` 把它们改错。
 
@@ -223,7 +236,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 每个符号还记录 `inner`：声明内部的具名闭包及其行号，名字写成 `外层>名字`，与插桩 trace 里的名字相同（两者共用 `closure_names.mjs`），所以 `createDaemon` 这样的工厂函数也有一份可读的提纲。`symbol_card.mjs` 把这些加上子系统、名字来源、首见版本与 CHANGELOG 条目、文档引用位置，打印成一张卡片，也接受 `env:`、`log:`、`dotted:`、`path:`、`string:` 的反向查询；`doc_coverage.mjs` 列出每个子系统里没有任何文档引用的符号和每节引用的不同符号数，让分析投入有依据。索引随每次运行生成，经 PROMOTE 提交为 `maps/xref_<bundle>.json`。
 
-**发行历史给每个符号一个首见版本，上游的 CHANGELOG 由此成为第五类证据。** `@openduo/duoduo` 在 npm 上有 51 个正式发行版，从 0.2.0 到 0.8.6，每版的 `CHANGELOG.md` 条目由作者写成。`tools/history.sh` 取回每个发行版的 `daemon.js`，用锁定版本的 js-beautify 美化，再对相邻版本做三层配对。第一层 `fingerprint_match.mjs` 按结构签名找函数体完全相同的声明；第二层 `pair_changes.mjs` 把改动过的声明按它在两个相邻的相同声明之间的位置配对；第三层在前两层都没有结果时使用：`decl_features.mjs` 提取压缩器改不了的特征（属性名、字符串、数字、全局名、参数个数、在 bundle 里的位置），`release_pairing.mjs` 在相邻相同声明划出的窗口里按这些特征的加权 Jaccard 取领先的候选，函数体大幅增长时改用重合系数。
+**发行历史给每个符号一个首见版本，上游的 CHANGELOG 由此成为一类与命名无关的证据。** `@openduo/duoduo` 在 npm 上的正式发行版从 0.2.0 起，到当前对齐的版本为止，参与回溯的版本列表记在 `maps/history_daemon.json` 的 `versions`；每版的 `CHANGELOG.md` 条目由作者写成。`tools/history.sh` 取回每个发行版的 `daemon.js`，用锁定版本的 js-beautify 美化，再对相邻版本做三层配对。第一层 `fingerprint_match.mjs` 按结构签名找函数体完全相同的声明；第二层 `pair_changes.mjs` 把改动过的声明按它在两个相邻的相同声明之间的位置配对；第三层在前两层都没有结果时使用：`decl_features.mjs` 提取压缩器改不了的特征（属性名、字符串、数字、全局名、参数个数、在 bundle 里的位置），`release_pairing.mjs` 在相邻相同声明划出的窗口里按这些特征的加权 Jaccard 取领先的候选，函数体大幅增长时改用重合系数。
 
 `history_chain.mjs` 用这三层配对从当前版本的每个符号出发逐版本回溯（`bump.sh` 调用的 `pair_releases.mjs` 用的是同一份实现），回溯停住的版本记为首见版本，每一步靠位置或相似配对的版本记为改动版本；特征太少的声明（未初始化的 `var`、`e => X.includes(e)` 这样的单行谓词）无法跟随，记为 `untraceable` 而不是记成当前版本新增。最近一步可以独立核对：v0.8.3 的改名表是升级时人工承接的，与回溯结果重合的 125 个符号全部一致，没有一个不一致。已知的误差是被大幅重写、或从别的函数里抽出成为独立函数的声明，回溯在重写处停住，首见版本偏晚。
 
@@ -247,6 +260,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 | **运行实测的结论** | `reconstruction/scenarios/findings/`；脚本在 `reconstruction/scenarios/`，输出在 `.build/scenarios/` |
 | **本次产物的计数、检查结论与出厂字节哈希** | `maps/pipeline_report.json` |
 | **一键复现** | `reconstruction/tools/rebuild.sh` |
+| **改文档后的快速检查** | `reconstruction/tools/check_docs.sh`（用上一次运行的 `$OUT`，只跑引用与行号检查） |
 | **跟随上游升级** | `reconstruction/tools/bump.sh`（先跑它，再按它打印的顺序跑 `rebuild.sh`） |
 | **每道检查的实测记录** | `reconstruction/VERIFICATION.md` |
 
@@ -260,11 +274,12 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 | 可读化产出 | `extract_functions.mjs`、`gen_rename_table.mjs`、`exports_map.mjs` |
 | 产物检查与写入 | `build_rename.mjs` 的模块归属检查、`verify_inferred.mjs`、`verify_first_party.mjs`、`pipeline_report.mjs`、`promote.mjs` |
 | 命名 | `name_symbol.mjs`、`locate_by_anchor.mjs`、`match_published_source.mjs`、`match_historical_exports.mjs` |
+| 局部变量名 | `name_locals.mjs`（`apply` 由 `rebuild.sh` 运行；`tasks`、`record`、`prune`、`rekey`）、`local_bindings.mjs` |
 | 索引与查询 | `xref.mjs`、`symbol_card.mjs`、`doc_coverage.mjs`、`doc_cites.mjs` |
-| 运行场景 | `instrument.mjs`、`trace_report.mjs`；`scenarios/run.sh`、`scenarios/lib.sh` |
-| 发行历史 | `history.sh`、`decl_features.mjs`、`history_chain.mjs`、`changelog_merge.mjs`（复用 `fingerprint_match.mjs` 与 `pair_changes.mjs`） |
-| 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`remap_inferred.mjs`、`pair_changes.mjs`、`diff_decls.mjs`、`plaintext_delta.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
-| 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs` |
+| 运行与单函数调用 | `instrument.mjs`、`closure_names.mjs`、`trace_report.mjs`；`scenarios/run.sh`、`scenarios/lib.sh`；`extract_decl.mjs` |
+| 发行历史 | `history.sh`、`decl_features.mjs`、`release_pairing.mjs`、`history_chain.mjs`、`changelog_merge.mjs`（复用 `fingerprint_match.mjs` 与 `pair_changes.mjs`） |
+| 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`pair_changes.mjs`、`pair_releases.mjs`、`align_releases.mjs`、`remap_inferred.mjs`、`anchor_candidates.mjs`、`confirm_reanchor.mjs`、`module_owner_hint.mjs`、`diff_decls.mjs`、`change_kind.mjs`、`plaintext_delta.mjs`、`bundle_literals.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
+| 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`check_docs.sh`（只跑这三个检查器，改文档时用）、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs` |
 
 三条做法可以直接用到别的逆向项目上。
 
