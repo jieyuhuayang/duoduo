@@ -98,10 +98,13 @@ Anything not re-verified does not go in.
 - `verify.yml` runs on every PR and push to `main`: on the Node major in the repo-root
   `.nvmrc`, it installs the npm release that `maps/pipeline_report.json` records (not the
   latest one) and runs the full `rebuild.sh` with `PKG`, so every gate — beautify fidelity,
-  inferred names, AST equivalence, committed-artifact sync, the docs target, first-party
-  tree, citations, line anchors, the anchor-checker mutation test — can fail a PR. Nothing
-  in CI commits fixes: every failure it can raise needs judgement. Fix it in a session (the
-  Claude app's Auto-fix on the PR, or by hand).
+  inferred names, local names, AST equivalence, committed-artifact sync, the docs target,
+  first-party tree, citations, line anchors, the anchor-checker mutation test — can fail a
+  PR. A `warn` or `skipped` verdict does not fail the job (only `PROMOTE=1` refuses it);
+  the job writes every verdict as a table into the run summary and uploads
+  `pipeline_report.json` and `verdicts.txt` as the `pipeline-report` artifact, so read the
+  summary on a green run too. Nothing in CI commits fixes: every failure it can raise needs
+  judgement. Fix it in a session (the Claude app's Auto-fix on the PR, or by hand).
 
 ## Reconstruction workflow (commands)
 
@@ -124,13 +127,15 @@ PKG="/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release"
 
 # 2) run the full pipeline. Per bundle (daemon and cli, concurrently): beautify →
 #    split → reassemble+cmp → beautify fidelity (shipped minified ≡ pretty) →
-#    export blocks → module gate → inferred-name check → rename → syntax →
-#    AST equivalence → symbol index → rename tables + first-party tree. Then
+#    export blocks → module gate → inferred-name check → rename → local names
+#    (daemon) → syntax → AST equivalence → symbol index → cross-reference index →
+#    rename tables + first-party tree. Then
 #    compare everything with the committed copies, check docs/.pretty-anchor-target
 #    against the committed report, verify the first-party tree, the citations, the
 #    legacy line anchors and the anchor checkers themselves (mutation test), and
 #    write $OUT/pipeline_report.json (verdicts, sha256 of every shipped and pretty
-#    bundle read, toolchain versions). JOBS=1 runs the bundles, and the mutation
+#    bundle read, toolchain versions); its last line before DONE/FAILED counts the
+#    verdicts that passed and names each one that did not. JOBS=1 runs the bundles, and the mutation
 #    test's checkers, one at a time, for bisecting a failure (a failure fails the
 #    build in both modes). The version is read from $PKG/../../package.json; a
 #    PKG_VERSION that contradicts it is refused. Without PROMOTE the run never
@@ -158,7 +163,8 @@ that version. `BEAUTIFIED` is refused because every line number promoted into `m
 The run then checks the candidate artifacts in `$OUT` (first-party tree, citations, line
 anchors, mutation test), and `promote.mjs write` copies them in only if every proof verdict
 is exactly `pass` — per bundle `lossless`, `beautifyEquivalent`, `syntax`, `astEquivalent`,
-and `inferredNames` where an inferred map exists; for the whole run `firstPartyTree`,
+`inferredNames` where an inferred map exists, and `localNames` where a locals map exists
+(the daemon); for the whole run `firstPartyTree`,
 `citations`, `lineAnchors`, `anchorCheckers`, `anchorTargetMatches` — and the report carries
 both hashes for every bundle. `skipped`, `warn`, `fail` and a gate that never ran are all
 refused.
@@ -177,17 +183,23 @@ Running `rebuild.sh` straight at a new version is not a no-op failure: it rename
 functions to wrong names and every downstream check still passes, because renaming is
 scope-safe and the tree only proves internal agreement. At v0.8.1 → v0.8.2 this put 21 of
 31 inferred names on the wrong declaration. The order the gates accept, run from
-`reconstruction/` (`bump.sh` prints steps 1–4 with every path filled in):
+`reconstruction/` (`bump.sh` prints steps 0–4 with every path filled in):
 
 ```bash
 # Install both releases in scratch dirs; PKG_OLD is the release maps/pipeline_report.json
 # records. bump.sh beautifies both with the pinned js-beautify, checks that OLD is the
 # release maps/ describes, fingerprint-matches the two, carries the inferred names
 # across, runs the module gate on NEW, diffs the changed declarations, collects the
-# plain-text delta and writes .build/bump/impact.md (read it first). It writes
-# only under .build/bump. (OLD=/NEW= dirs of *.pretty.js also work, but without
+# plain-text delta and the literal delta of the four bundles outside the pipeline,
+# writes .build/bump/impact.md (read it first) and checks every RE-ANCHOR candidate
+# by its literals (.build/bump/reanchor_<bundle>.md). It writes only under .build/bump. (OLD=/NEW= dirs of *.pretty.js also work, but without
 # PKG_NEW nothing ties NEW to a release.)
 PKG_OLD=<old dist/release> PKG_NEW=<new dist/release> bash tools/bump.sh
+# 0. write the RE-ANCHOR names confirmed by literals, and those accepted after reading
+#    both bodies, into the bump's map (bump.sh prints the full command per bundle)
+node tools/confirm_reanchor.mjs --impact .build/bump/impact.json --bundle daemon \
+  --proposed .build/bump/inferred_daemon.proposed.json --write .build/bump/inferred_daemon.json \
+  [--accept <oldShort>[=<newShort>]]... .build/bump/pretty_old/daemon.pretty.js .build/bump/pretty_new/daemon.pretty.js
 cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # after reviewing it, LAST (and inferred_cli.json the same way)
 #  → after this copy maps/inferred_daemon.json is keyed by NEW's short names; bump.sh
 #    refuses to run again (it checks the map against OLD) until it is restored from
@@ -244,6 +256,9 @@ PKG=<new dist/release> bash tools/rebuild.sh
 #    group of impact.json with a writer, an adversarial verifier and a fixer, then joins
 #    the sections, registers new names, reruns this check-mode build and updates the GUIDE.
 node tools/doc_sections.mjs split .build/bump/chunks ../docs/*.md ../CLAUDE.md
+# 3c. after the last name_symbol.mjs of the bump, extend the release history from the
+#    step-2 run's rename map, so the one PROMOTE carries `// since:` into first-party/
+bash tools/history.sh --build .build --write
 # 4. promote, once the docs pass
 PROMOTE=1 PKG=<new dist/release> bash tools/rebuild.sh
 ```
@@ -389,9 +404,12 @@ how v0.7.1 lost 19 symbols in silence, and `pi` cannot be a substring rule becau
 matches `pipeline` and `api`.
 
 Individual tools, run from `reconstruction/`. All take explicit paths and write only their
-named outputs, except seven that change repository files by design: `name_symbol.mjs`
-(`maps/`), `name_locals.mjs record|prune|rekey` (`maps/locals_daemon.json`), `convert_line_citations.mjs --write`, `retarget_snippets.mjs --write` and
-`verify_citations.mjs --fix` (the docs given), `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
+named outputs, except ten that change repository files by design: `name_symbol.mjs`
+(`maps/`), `name_locals.mjs record|prune|rekey` (`maps/locals_daemon.json`), `history.sh --write`
+(`maps/history_daemon.json`), `convert_line_citations.mjs --write`, `retarget_snippets.mjs --write`,
+`retarget_symbols.mjs` (unless `--dry-run`) and `verify_citations.mjs --fix` (the docs given),
+`retarget_docs.mjs apply` (the docs given, and with `--stamp` the `.pretty-anchor-target` next to
+the first of them), `check_bare_anchors.mjs --write-baseline` (the baseline file, rewritten from the
 docs given, so pass all of `../docs/*.md`), and `doc_sections.mjs join` (every doc a
 manifest under the given dir names; it refuses a doc changed since the split).
 
@@ -464,8 +482,9 @@ cd "$PKG"                                           # global one. The copy must 
 ISO=/tmp/iso && mkdir -p "$ISO" && chmod 700 "$ISO"   # keep it SHORT: the daemon refuses to boot
                                                       # if <HOME>/.aladuo/run/daemon.sock exceeds the
                                                       # 104-byte unix-socket limit (fatal, not a warning)
-# ALADUO_BOOTSTRAP_DIR is what puts meta-prompt.md into the system prompt: the identity layer is
-# found only through it or ALADUO_META_PROMPT_PATH (INTERNALS §2.1), never through the package root
+# ALADUO_BOOTSTRAP_DIR is what puts meta-prompt.md and the role texts roles/{main,member}.md into
+# the system prompt: the identity layer is found only through it or ALADUO_META_PROMPT_PATH
+# (INTERNALS §2.1), never through the package root, and neither file is copied into the kernel
 HOME="$ISO" ALADUO_PORT=20333 ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" \
   ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local ALADUO_LOG_LEVEL=info \
   node daemon.recon.js        # starts socket + read-only TCP + cadence + WAL; SIGTERM to stop
@@ -489,7 +508,7 @@ per-user label `ai.openduo.daemon` (`launchctl bootout gui/<uid>/ai.openduo.daem
 `daemon status` under an isolated `HOME` likewise reports the real daemon's pid. Shipped and
 reconstructed CLI behave the same here — this is upstream behaviour, not a reconstruction defect.
 
-Deploying the shipped runtime. Non-TTY onboarding requires only `ALADUO_CLAUDE_AUTH_SOURCE` (`claude_code_local`, `anthropic_api_key` or `compatible_endpoint`) plus the key its source needs (`ANTHROPIC_API_KEY`, or `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`); without it `onboard` exits code 2. The rest are optional: `DUODUO_ONBOARD_YES=1` skips the y/N confirmations, and `DUODUO_NODE_BIN` is for the wrapper (next paragraph). `ALADUO_RUNTIME_MODE` needs no setting: the daemon never reads it, and the CLI only warns when it is `container` and continues in host mode.
+Deploying the shipped runtime. Non-TTY onboarding requires only `ALADUO_CLAUDE_AUTH_SOURCE` (`claude_code_local`, `anthropic_api_key` or `compatible_endpoint`) plus the key its source needs (`anthropic_api_key` needs `ANTHROPIC_API_KEY`; `compatible_endpoint` needs `ANTHROPIC_BASE_URL`, and `ANTHROPIC_AUTH_TOKEN` is optional; `claude_code_local` needs a prior `claude login`, which onboard checks with `claude auth status`); without `ALADUO_CLAUDE_AUTH_SOURCE` and no TTY, `onboard` exits with code 2. The rest are optional: `DUODUO_ONBOARD_YES=1` skips the y/N confirmations, and `DUODUO_NODE_BIN` is for the wrapper (next paragraph). `ALADUO_RUNTIME_MODE` needs no setting: the daemon never reads it, and the CLI only warns when it is `container` and continues in host mode.
 
 ```bash
 npm install -g @openduo/duoduo

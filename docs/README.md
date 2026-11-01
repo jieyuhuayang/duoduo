@@ -44,16 +44,16 @@ reconstruction/  还原源码、符号索引、引用检查工具（为什么可
 
 ## 文档清单与对齐版本
 
-GUIDE 与 INTERNALS 整篇对齐 v0.8.7；ARCHITECTURE 有一部分对齐 v0.8.7，COMPARISON 有一部分对齐 v0.8.3，范围写在各自的头部，下表照录；SOURCE_RECONSTRUCTION 讲方法，不绑定某个版本。INTERNALS 与 ARCHITECTURE 按名字引用代码，并给每条机制主张标 `confirmed` 或 `未证实推测`；COMPARISON 的 duoduo 部分同样按名字引用；GUIDE 不含代码引用。
+GUIDE 与 INTERNALS 整篇对齐 v0.8.7；ARCHITECTURE 与 COMPARISON 各有一部分对齐 v0.8.7，范围写在各自的头部，下表照录；SOURCE_RECONSTRUCTION 讲方法，不绑定某个版本。INTERNALS 与 ARCHITECTURE 按名字引用代码，并给每条机制主张标 `confirmed` 或 `未证实推测`；COMPARISON 的 duoduo 部分同样按名字引用；GUIDE 不含代码引用。
 
 | 文档 | 读者与内容 | 对齐版本 |
 |---|---|---|
 | [DUODUO_FRAMEWORK_GUIDE.md](./DUODUO_FRAMEWORK_GUIDE.md) | 写给产品经理的入门，只假设读者知道大语言模型是输入文本、输出文本的程序。从模型的五个限制出发（不能执行工具、两次调用之间没有记忆、感觉不到时间、没人提问就不运行、不会自己变好），第一至第四部分说明运行时的对策：四个可替换的引擎、一条消息的处理、两套独立的定时器、自我改进；第五部分讲无人值守下的代码强制检查、成本控制、失败处置与可观测性，第六部分总评。附录 C 是证据对照，附录 D 汇总版本变化 | v0.8.7 |
 | [AGENT_INTERNALS_ANALYSIS.md](./AGENT_INTERNALS_ANALYSIS.md) | 写给工程师的证据文档。第 1 至 13 节各讲一个子系统：端到端路径、系统提示装配、引擎、自操作工具、事件日志、网关与控制面、Drain 与 turn 控制、会话 actor 与并发池、渠道适配器、job 调度、心跳与后台分区、记忆系统、指令指纹与改动生效；第 14 节汇总未证实与待实测的项；附录 B 列出落库事件类型、控制面 RPC 方法与只读 TCP 端口放行的方法 | v0.8.7 |
 | [ARCHITECTURE_ANALYSIS.md](./ARCHITECTURE_ANALYSIS.md) | 部署与运维：分发形态；安装与首次配置（认证来源、引擎选择、环境变量与配置文件的位置）；内核目录 `~/aladuo` 与运行时目录 `~/.aladuo` 的内容、三种锁与配置生效时机；控制面的只读 TCP 端口、完整控制 unix socket 与可选的远程监听；日常运维命令；渠道适配器的安装与运维；本机部署的实测记录；运维风险 | §1–§6 与 §8 对齐 v0.8.7；§7 的实测记录逐条注明测量时的版本（v0.6.1 或 v0.7.1），未在 v0.8.4 及以后的版本上重测 |
-| [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | duoduo、hermes-agent、pi 三个框架的设计哲学、十个维度的横向对比与优劣总评，以及面向"充分运用贝叶斯第一性原理、可持续自我迭代、擅长 long-horizon 金融预测任务的 agent"的融合架构建议与落地路线 | 关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 v0.8.3，已对照还原源码与出厂分区提示词核实；标"实测"的 duoduo 运行行为来自早期版本的部署，未在 v0.8.3 上重测；hermes-agent 与 pi 的事实来自调研时的源码快照（见其附录），未随两者的上游更新 |
+| [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | duoduo、hermes-agent、pi 三个框架的设计哲学、十个维度的横向对比与优劣总评，以及面向"充分运用贝叶斯第一性原理、可持续自我迭代、擅长 long-horizon 金融预测任务的 agent"的融合架构建议与落地路线 | 关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 v0.8.7，已对照 v0.8.7 的还原源码与出厂分区提示词核实；标"实测"的 duoduo 运行行为来自早期版本的部署或 v0.8.4 还原 daemon 上的场景测试，未在 v0.8.7 上重测；hermes-agent 与 pi 的事实来自调研时的源码快照（见其附录），未随两者的上游更新 |
 | [DUODUO_VS_BOTMUX.md](./DUODUO_VS_BOTMUX.md) | duoduo 与 botmux 驱动 Claude Code、Codex 的方式对比：集成边界（Agent SDK 与 app-server RPC，对比 tmux 里的交互式 CLI）、输入与 turn 结束的判断方式、两条路线各自的长处与代价，以及对 duoduo 的借鉴 | duoduo 的陈述对齐 v0.8.7，按名字引用；botmux 的陈述对齐 2026-10-16 的 master 快照（commit `f77f32e`），未随其上游更新 |
-| [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 还原方法：排版与拆包不改变语义；导出名从 esbuild 的 `__export` 块读出，推断名逐个登记并在每次构建时核对；改名按作用域进行并由 AST 全等证明；上游升级时按结构签名迁移推断名；文档引用按符号身份核对；第 6 节说明交叉引用索引、运行场景与发行历史。末尾有产物地图 | 不绑定版本；产物对应的版本、各项计数与每道检查的结论以 [`reconstruction/maps/pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 为准 |
+| [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 还原方法：排版与拆包不改变语义；导出名从 esbuild 的 `__export` 块读出，推断名逐个登记并在每次构建时核对；改名按作用域进行并由 AST 全等证明；上游升级时按结构签名迁移推断名；文档引用按符号身份核对；第 3 节末尾说明在插桩的还原 daemon 上运行的场景，第 6 节说明交叉引用索引与发行历史。末尾有产物地图 | 不绑定版本；产物对应的版本、各项计数与每道检查的结论以 [`reconstruction/maps/pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 为准 |
 
 ## 维护约定
 
@@ -76,7 +76,7 @@ GUIDE 与 INTERNALS 整篇对齐 v0.8.7；ARCHITECTURE 有一部分对齐 v0.8.7
 | 写法 | 表示什么 | 检查工具 | 构建失败的条件 |
 |---|---|---|---|
 | `` `真名 (短名)` ``，例如 `atomicAppendEvent (rn)` | 指向一个符号。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名，跨版本不变；短名是美化后 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，保留它是为了方便在 bundle 里搜索 | `verify_citations.mjs` | 真名不在任何符号索引里（被上游删除或改名，或者只在正文里起了名、没有登记）；短名不是该符号当前的短名 |
-| `` `代码片段`（`真名`） ``，例如 `stage: "runtime_mismatch"`（`drainSessionMailbox`） | 这句代码就是证据。片段里的标识符按美化后 bundle 的拼写写，即写短名 | `check_bare_anchors.mjs` | 真名不在符号索引里；片段中没有任何有辨识度的 token（至少 2 个字符的字符串字面量，或至少 3 个字符的非关键字标识符）落在该符号当前的声明范围内；片段调用的某个短名、写出的某个数字不在这个范围内；片段本身不按原文出现在这个范围内（空白不计，`…` 表示中间有省略） |
+| `` `代码片段`（`真名`） ``，例如 `stage: "runtime_mismatch"`（`drainSessionMailbox`） | 这句代码就是证据。片段里的标识符按美化后 bundle 的拼写写，即写短名 | `check_bare_anchors.mjs` | 真名不在符号索引里；片段中没有任何有辨识度的 token（至少 2 个字符的字符串字面量，或至少 3 个字符的非关键字标识符）落在该符号当前的声明范围内；片段调用的某个短名、写出的某个数字不在这个范围内；`名字 = 数值` 形式的子句不作为完整的记号序列出现在这个范围内；片段本身不按原文出现在这个范围内（空白不计，`…` 表示中间有省略） |
 
 `verify_citations.mjs` 对第一种写法的检查不依赖它出现在哪里：正文、表格和围栏里的图都会被读到，带不带行号都一样。真名在所有符号索引里都找不到时，只要它的拼写像真名（至少 8 个字符，lowerCamelCase、UPPER_SNAKE 或多段 PascalCase），括号里又是短名形状的标识符，构建就失败；这两个条件是为了让正文里普通的"词 (词)"不被误报。
 
@@ -106,20 +106,14 @@ esbuild 只为模块导出的符号留下原名，很多函数、模块初始化
 
 ### 检查与发版后的更新
 
-每次改动文档后运行引用检查。完整的检查是 `reconstruction/tools/rebuild.sh`：它检查 `docs/` 下的全部文档，CI 的 `.github/workflows/verify.yml` 在每个 PR 和每次推送到 `main` 时运行它，不带 `PROMOTE=1` 时不写入仓库；运行方法见 [`../CLAUDE.md`](../CLAUDE.md)。只改了文档时，可以单独运行两个检查器，美化后的 bundle 由一次 `rebuild.sh` 生成在 `reconstruction/.build/beautified/<版本>/`：
+每次改动文档后运行引用检查。完整的检查是 `reconstruction/tools/rebuild.sh`：它检查 `docs/` 下的全部文档，另外按符号身份检查 `CLAUDE.md` 与 `reconstruction/*.md` 里的 `真名 (短名)` 配对；CI 的 `.github/workflows/verify.yml` 在每个 PR 和每次推送到 `main` 时运行它，不带 `PROMOTE=1` 时不写入仓库；运行方法见 [`../CLAUDE.md`](../CLAUDE.md)。只改了文档时，运行 `reconstruction/tools/check_docs.sh`。它用上一次 `rebuild.sh` 留在 `reconstruction/.build/`（或 `OUT` 指定的目录）里的符号索引和美化 bundle，只跑 `rebuild.sh` 的引用检查与行号检查（`verify_citations.mjs`、`check_doc_anchors.mjs`、`check_bare_anchors.mjs`），几秒出结果，不写任何文件：
 
 ```bash
-B=reconstruction/.build/beautified/<版本>
-M=reconstruction/maps
-node reconstruction/tools/verify_citations.mjs $M/symbols_daemon.json,$M/symbols_cli.json \
-  --bundle daemon=$B/daemon.pretty.js --bundle cli=$B/cli.pretty.js docs/*.md
-node reconstruction/tools/check_bare_anchors.mjs --index $M/symbols_daemon.json,$M/symbols_cli.json \
-  --bundle cli=$B/cli.pretty.js --baseline $M/bare_anchor_baseline.json \
-  $B/daemon.pretty.js $M/blocks_daemon.json $M/modules_daemon.json docs/*.md
+cd reconstruction && OUT=.build bash tools/check_docs.sh ../docs/<改过的文档>.md
 ```
 
-上游发布新版本时，先按 [`../CLAUDE.md`](../CLAUDE.md) 与 SOURCE_RECONSTRUCTION 中"跟随上游升级"一节规定的顺序运行 `bump.sh` 迁移推断名，再运行 `rebuild.sh`。文档引用不带行号，发版后机械性的更新只有两项：`retarget_symbols.mjs` 按新旧两版的改名表一次性替换 `真名 (短名)` 里的短名；片段里写的 mangled 标识符由 `retarget_snippets.mjs` 按新版本的声明重新推出，只在唯一匹配、且改写后通过 `check_bare_anchors.mjs` 的核对时才改写；推不出的片段说明所引的代码变了，要重读后手工改，或改为引用字符串字面量。
+上游发布新版本时，先按 [`../CLAUDE.md`](../CLAUDE.md) 与 SOURCE_RECONSTRUCTION 中"跟随上游升级"一节规定的顺序运行 `bump.sh` 迁移推断名，再运行 `rebuild.sh`。按名字写的引用在发版后需要的机械更新有两项：`retarget_symbols.mjs` 按新旧两版的改名表替换 `真名 (短名)` 里的短名，daemon 与 cli 各运行一次；片段里写的 mangled 标识符由 `retarget_snippets.mjs` 改写。`retarget_snippets.mjs` 对函数体没变的声明按旧版本逐个记号改写；对改过的声明按新声明重新推出片段，只在唯一匹配、或旧声明里同样多处匹配时按序号对应、且改写后通过 `check_bare_anchors.mjs` 的核对时才改写。推不出的片段说明所引的代码变了，要重读后手工改，或改为引用字符串字面量。遗留行号另有两个迁移步骤：`retarget_docs.mjs apply` 排在上面两项之前，`verify_citations.mjs --fix` 排在最后；完整顺序见 CLAUDE.md。
 
-机械更新之外，真名消失或片段不再成立的引用会被检查报出，要对照新版代码重新核对它支撑的主张。检查报不出的是引用仍然成立、但代码行为已经改了的主张：`bump.sh` 写出的 `.build/bump/impact.md` 列出文档里每一处引用了改动代码的位置，按需要重读的程度分三档，另有一份 2c 档列出引用的函数没变、但它直接调用的函数变了的位置。仓库里保存的 workflow `upgrade-docs` 按这份清单分组更新文档（步骤见 [`../reconstruction/README.md`](../reconstruction/README.md) "跟随上游升级"一节）。
+机械更新之外，真名消失或片段不再成立的引用会被检查报出，要对照新版代码重新核对它支撑的主张。检查报不出的是引用仍然成立、但代码行为已经改了的主张。`bump.sh` 写出的 `.build/bump/impact.md` 按需要重读的程度列出这类位置。第 1 到 3 档是引用了改动代码的位置，分为重读、核对、略读。第 2c 档是引用的函数没变、但它直接调用的函数变了的位置。第 4 档是改动的代码没有任何文档引用、但段落里出现了改动行中的代码词或消息字符串的位置。仓库里保存的 workflow `upgrade-docs` 按这份清单分组更新文档（步骤见 [`../reconstruction/README.md`](../reconstruction/README.md) "跟随上游升级"一节）。
 
 文档对准的版本记在 `docs/.pretty-anchor-target`，构建检查它与 `pipeline_report.json` 的 `package` 字段一致，只在升级进行中、文档已对准新版本而 `maps/` 尚未提升时例外；`PROMOTE=1` 要求它已经写成新版本，由 `retarget_docs.mjs apply --stamp <版本>` 写入。

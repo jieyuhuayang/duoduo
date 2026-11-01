@@ -2,17 +2,17 @@
 
 目标命题：**还原产物（提交的 `recon/daemon.recon.js`，以及 `rebuild.sh` 生成在 `$OUT` 下的 `cli.recon.js`）与出厂 `dist/release/` 下的同名 bundle 是同一个程序，能同样运行。**
 
-命题的静态部分在 v0.8.3 上成立，而且不是一次性结论：每次 `tools/rebuild.sh` 运行都从出厂包重新证明一遍。已提交的 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 由一次带 `PKG` 的 `PROMOTE=1` 运行写入，每个证明类 verdict 都是 `pass`，并记录了出厂与美化 bundle 的 sha256；CI 在每个 PR 上用报告记录的版本重跑全部检查。命题的运行部分（第 4 节）在 v0.8.3 上用提交 `221811b` 的还原产物做过一次启动对照，覆盖启动、控制面读接口、生成的 HOME 文件树与 SIGTERM 退出；覆盖面更大的一次 A/B 对照是在 v0.8.2 上做的。本文不复述流水线计数，计数以报告为准；各项检查的机制说明见 [README.md](./README.md)，本文只记录它们证明了什么、证据在哪里。
+命题的静态部分在已提交报告记录的版本（报告的 `package` 字段）上成立，而且不是一次性结论：每次 `tools/rebuild.sh` 运行都从出厂包重新证明一遍。已提交的 [`maps/pipeline_report.json`](./maps/pipeline_report.json) 由一次带 `PKG` 的 `PROMOTE=1` 运行写入，每个证明类 verdict 都是 `pass`，并记录了出厂与美化 bundle 的 sha256；CI 在每个 PR 上用报告记录的版本重跑全部检查。命题的运行部分（第 4 节）不随每次运行重做：在 v0.8.3 上用提交 `221811b` 的还原产物做过一次启动对照，覆盖启动、控制面读接口、生成的 HOME 文件树与 SIGTERM 退出；覆盖面更大的一次 A/B 对照是在 v0.8.2 上做的；v0.8.4 上另有 11 个运行场景（`scenarios/findings/`）。本文不复述流水线计数，计数以报告为准；各项检查的机制说明见 [README.md](./README.md)，本文只记录它们证明了什么、证据在哪里。
 
 九项证据按节编号，分工如下。第 1–3 节证明变换链不改程序，第 4 节是实机运行，第 5 节覆盖跨版本重定向，第 6、7 节覆盖人读的东西（可读树与文档引用，它们出错时前几节的证据照样全部通过），第 8 节反过来检验检查器本身，第 9 节把"`$OUT` 里的结论"变成"仓库里文件的结论"。
 
 | 节 | 证明什么 | 何时取得 | 记录在 |
 |------|----------|----------|--------|
 | 1 无损拆包 | 模块边界从真实结构切出，拆分没有信息损失 | 每次运行 | verdict `<bundle>.lossless` |
-| 2 名字与归属 | 真名来自 esbuild 导出结构，归属按模块判定，推断名登记在正确的声明上 | 每次运行 | 模块归属检查（失败即停止构建）；verdict `daemon.inferredNames` |
-| 3 语义全等 | 出厂压缩文件 ≡ 美化文件 ≡ 还原产物（模改名表） | 每次运行 | verdict `<bundle>.beautifyEquivalent`、`<bundle>.syntax`、`<bundle>.astEquivalent` |
+| 2 名字与归属 | 真名来自 esbuild 导出结构，归属按模块判定，推断名登记在正确的声明上 | 每次运行 | 模块归属检查（失败即停止构建）；verdict `<bundle>.inferredNames` |
+| 3 语义全等 | 出厂压缩文件 ≡ 美化文件 ≡ 还原产物（模改名表与局部名字列表） | 每次运行 | verdict `<bundle>.beautifyEquivalent`、`daemon.localNames`、`<bundle>.syntax`、`<bundle>.astEquivalent` |
 | 4 实机运行 | 还原 daemon 与 cli 的运行效果与出厂版相同 | 人工 A/B 对照，不随每次运行重做 | 本文 |
-| 5 跨版本重定向 | 升级时推断名按结构签名迁移，承接不了的全部显式报出；改动的代码与引用它的文档位置全部列出 | 升级时运行 `bump.sh`；当前版本的 `bump.sh` 在 v0.8.2→v0.8.3 上回放过 | 本文 |
+| 5 跨版本重定向 | 升级时推断名按结构签名迁移，承接不了的全部显式报出；改动的代码与引用它的文档位置全部列出 | 升级时运行 `bump.sh`；2026-09 的 `bump.sh` 在 v0.8.2→v0.8.3 上完整回放过，此后加入的步骤各自的回放见 README.md「已实现」表 | 本文；README.md |
 | 6 可读树 | `first-party/` 与 bundle、改名表、推断名表、子系统映射一致 | 每次运行 | verdict `firstPartyTree` |
 | 7 文档引用 | 文档里每一处代码引用指向它声称的符号或代码 | 每次运行 | verdict `citations`、`lineAnchors` |
 | 8 检查器变异测试 | 各检查器能报出注入的已知错误 | 每次运行，另有一次性故障注入 | verdict `anchorCheckers`；本文 |
@@ -32,14 +32,14 @@
 
 **归属按模块判定。** `build_rename.mjs` 用 `maps/modules_<bundle>.json` 逐块判定自研还是第三方；匹配不上任何记录的块让构建失败，并列出该块全部导出名。这项检查没有单独的 verdict：它失败时构建直接停止，报告不会生成。按名字判定归属时，一个被误记为第三方的名字此后永远不会再被检查；按模块判定时，新版本带来的是一个需要判定的模块，而模块的身份不依赖名字长什么样（整个 Grok 模块只导出 `GROK_ACP_*` 常量）。
 
-**推断名登记在正确的声明上。** 没有导出的内部符号用人工推断的名字（`maps/inferred_daemon.json`）。改名是作用域安全的，名字登记到错误的声明上时 AST 等价照样成立、daemon 照样启动，所以 `verify_inferred.mjs` 在每次运行里检查每个推断名的种类与拼写、与形态基线（`maps/inferred_daemon.shape.json`）的差异，以及推断名之间是否被互换（规则见 README.md）。v0.8.3 的已提交报告里 `daemon.inferredNames` 为 `pass`：没有被推翻的名字，也没有需要人工复核的告警。模块初始化器与常量两种种类的规则由变异测试覆盖（第 8.1 节），不依赖映射里是否已经有这两种名字。cli 没有推断名。
+**推断名登记在正确的声明上。** 没有导出的内部符号用人工推断的名字（`maps/inferred_daemon.json`）。改名是作用域安全的，名字登记到错误的声明上时 AST 等价照样成立、daemon 照样启动，所以 `verify_inferred.mjs` 在每次运行里检查每个推断名的种类与拼写、与形态基线（`maps/inferred_daemon.shape.json`）的差异，以及推断名之间是否被互换（规则见 README.md）。已提交报告里 `daemon.inferredNames` 与 `cli.inferredNames` 都为 `pass`：没有被推翻的名字，也没有需要人工复核的告警。cli 的推断名记在 `maps/inferred_cli.json`，用自己的形态基线按同样的规则检查。模块初始化器与常量两种种类的规则由变异测试覆盖（第 8.1 节），不依赖映射里是否已经有这两种名字。
 
 ## 3 语义全等：出厂 ≡ 美化 ≡ 还原
 
-每个 bundle 在每次带 `PKG` 的运行里做两次 AST 等价证明，已提交报告中 daemon、cli 的三个 verdict 都是 `pass`：
+每个 bundle 在每次带 `PKG` 的运行里做两次 AST 等价证明，已提交报告中 daemon、cli 的这些 verdict 都是 `pass`：
 
 1. **出厂 ≡ 美化**（`<bundle>.beautifyEquivalent`）：`ast_equiv.mjs` 比对出厂压缩文件与锁定版本 js-beautify 的输出。没有这一步，后面的证明全部从一个不随包发布的文件开始。
-2. **美化 ≡ 还原**（`<bundle>.astEquivalent`）：`ast_equiv.mjs` 并行遍历两棵 AST，每个节点类型与字面量必须相同；标识符按它解析到的绑定比较，两边的声明必须一一对应，全局名保持同名全局，只有改名表列出的顶层绑定可以换名。另用 `node --input-type=module --check` 按 ESM 解析还原产物（`<bundle>.syntax`）。
+2. **美化 ≡ 还原**（`<bundle>.astEquivalent`）：`ast_equiv.mjs` 并行遍历两棵 AST，每个节点类型与字面量必须相同；标识符按它解析到的绑定比较，两边的声明必须一一对应，全局名保持同名全局，只有改名表列出的顶层绑定和 `locals_daemon.applied.json` 列出的局部绑定（`--locals`）可以换名，并且只能换成列出的名字。局部名字列表由 `name_locals.mjs apply` 写出；它的条目有找不到绑定的时，`daemon.localNames` 记为 `warn`，promote 拒绝。另用 `node --input-type=module --check` 按 ESM 解析还原产物（`<bundle>.syntax`）。
 
 这是覆盖 100% 代码的静态证明，比只跑到启动路径的实机运行更强。比较过的节点数打印在运行日志的 `nodes compared` 行，不进入报告。两处不覆盖的行为：读取函数自身名字的代码（`Function.prototype.name`、类的 `constructor.name`、调用栈文本）在还原版里看到的是真名；内联的 gray-matter 有一处 direct `eval()`（运行日志里的 `note: 1 direct eval() call(s)`），被 eval 的代码按名字看得到模块作用域。duoduo 自研代码不读取被改名函数的名字，控制流不受影响。
 
@@ -81,7 +81,7 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 推断名表以短名为键，而 esbuild 每次构建都重新分配短名，同一个短名在下一个版本里可以是完全不同的函数；直接沿用旧表不会报错，只会把名字登记到错误的函数上。`tools/bump.sh` 按结构指纹承接推断名，承接不了的报 `RE-ANCHOR`，交给人用字符串锚点重新定位，再由第 2 节的推断名检查核对。
 
-当前版本的 `bump.sh` 在 v0.8.2→v0.8.3 上完整回放过（`maps/` 取自 v0.8.2 的提交，两侧都是 npm registry 的出厂包，Node 22，`/bin/bash` 3.2），结果如下：
+2026-09 的 `bump.sh` 在 v0.8.2→v0.8.3 上完整回放过（`maps/` 取自 v0.8.2 的提交，两侧都是 npm registry 的出厂包，Node 22，`/bin/bash` 3.2），结果如下：
 
 - 以 exit 0 结束，用时约 40 s，其中美化两侧约占一半；
 - 给出 v0.8.3 的美化文件与 `PKG_NEW` 时，`ast_equiv.mjs` 证明前者就是后者的美化结果；
@@ -96,7 +96,9 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 `doc_sections.mjs` 对 `docs/*.md` 与 `CLAUDE.md` 拆分后立即拼回，与原文逐字节相同；拼回时拒绝拆分后被直接改过的文档。`upgrade-docs` workflow 只用模拟的 agent 跑过控制流（从 `impact.json` 加载分组、把 survey 指定的新节分给负载最轻的组、只在核验报出问题时运行修正、汇总待登记的名字），还没有在一次真实升级上运行过。
 
-已提交的 v0.8.3 映射不依赖这次回放：它们的正确性由 v0.8.3 上第 2、6、7 节的证据成立（推断名检查、可读树与引用检查全部 `pass`）。
+这次回放之后 `bump.sh` 又加入了几个步骤：按顺序对齐全部顶层语句承接孪生推断名（`align_releases.mjs`），第 2c 档与第 4 档影响清单，其余四个 bundle 的字面量差异（`bundle_literals.mjs`），模块归属检查失败时的证据（`module_owner_hint.mjs`），以及 RE-ANCHOR 候选的证人核对（`confirm_reanchor.mjs`）。它们各自的回放记录在 README.md「已实现」表里，没有在一次完整的 `bump.sh` 运行里重新汇总。
+
+已提交的映射不依赖这些回放：它们的正确性由对齐版本上第 2、6、7 节的证据成立（推断名检查、可读树与引用检查全部 `pass`）。
 
 ## 6 可读树与 bundle 一致
 
@@ -132,10 +134,10 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 | 带行号的名字引用 | F1 短名换错；F2 短名换错、范围倒置、短名只作为更长单词的一部分出现在所引行上、cli 引用的短名换错 | `verify_citations`、`check_doc_anchors` |
 | 不带行号的名字引用 | `真名 (短名)` 的短名换错、真名不存在、PascalCase 类名不存在、两个 bundle 共有的真名配了另一个 bundle 的短名（不带前缀配 cli 短名，带 `cli:` 前缀配 daemon 短名）；`真名/短名` 的短名换错、真名不存在、围栏图里的短名换错、短名是没被索引的全小写记号、两半都没被索引 | `verify_citations` |
 | 带行号的代码片段 | F3 行号挪动 50 行；片段保留字面量但调用的短名已被重新分配；形如 `foo(x)` 的调用片段行号错误；cli 引用丢掉 `cli.pretty.js:` 前缀 | `check_bare_anchors` |
-| 不带行号的代码片段 | 绑定到不包含它的符号、绑定到没被索引的真名、绑定到没被索引的 `UPPER_SNAKE` 常量名；常量片段名字对但数字错（长短名各一例），或写成同一范围里另一个常量的数字 | `check_bare_anchors` |
+| 不带行号的代码片段 | 绑定到不包含它的符号、绑定到没被索引的真名、绑定到没被索引的 `UPPER_SNAKE` 常量名；常量片段名字对但数字错（长短名各一例），或写成同一范围里另一个常量的数字；片段保留字面量但引用一个过期的局部变量名，或调用一个过期的全小写短名（这两例由 `snippetVerbatim` 拒绝） | `check_bare_anchors` |
 | 裸行号与上限 | 新增裸行号；倒置的范围；正文里的 `daemon:N`、`daemon.pretty.js:N / N`、`cli.pretty.js:N`；一个代码 span 里写多个行号；以行号开头的代码 span；围栏图里的行号；表格里以空格限定 bundle 的行号；片段后不带反引号的括号行号；新增一个写法正确的 F1 行号（超过上限）；用 `--write-baseline` 调高上限 | `check_bare_anchors` |
 | 错误的 bundle | 整个 bundle 下移一行 | 三个检查器都以 exit 2 拒绝 |
-| 推断名的种类 | 常量的字面量被改；初始化器的名字挪到无关的初始化器、挪到函数上、挪到没有字面量也没有常量的初始化器上、挪到只共享一个常量的初始化器上；只共享默认值且原模块已不存在；没有基线时把函数名放到初始化器上（`check` 失败，`record` 拒绝写入），把常量名放到函数上；两个形状相同的初始化器（期望 `warn`，不能通过） | `verify_inferred` |
+| 推断名的种类 | 常量的字面量被改；初始化器的名字挪到无关的初始化器、挪到函数上、挪到没有字面量也没有常量的初始化器上、挪到只共享一个常量的初始化器上；只共享默认值且原模块已不存在；没有基线时把函数名放到初始化器上（`check` 失败，`record` 拒绝写入），把常量名放到函数上；两个形状相同的初始化器（期望 `warn`，不能通过）；与另一个常量同值的常量上的名字按读取方通过，挪到那个孪生常量上判失败 | `verify_inferred` |
 
 ### 8.2 一次性故障注入（没有接入流水线）
 
@@ -164,22 +166,23 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 - **记录绑定到字节**。报告的 `sha256.<bundle>.shipped` 与 `sha256.<bundle>.pretty` 记录了生成它的运行读到的出厂文件与美化文件；check 模式比较报告时，这两个哈希必须与本次运行一致（没给 `PKG` 的运行读不到出厂文件，只比较美化哈希）。
 - **文档与 `maps/` 描述同一版本**（verdict `anchorTargetMatches`）：`docs/.pretty-anchor-target` 必须等于已提交报告的 `package`。
 
-v0.8.3 的已提交报告里 `committedInSync` 为 `promoted`，表示它由一次写入成功的 `PROMOTE=1` 运行生成；`anchorTargetMatches` 为 `pass`。2026-09-24 对提交 `221811b` 写入的产物，用 v0.8.3 出厂包做了一次 check 模式运行（Node v22.23.3，`/bin/bash` 3.2），全部 verdict 为 `pass`，其中 `committedInSync=pass`：每个比较过的产物都与已提交版本一致，包括报告里的两组哈希。
+已提交报告里 `committedInSync` 为 `promoted`，表示它由一次写入成功的 `PROMOTE=1` 运行生成；`anchorTargetMatches` 为 `pass`。2026-11-01 用 v0.8.7 出厂包对已提交产物做了一次 check 模式运行（Node v22.23.4），全部 verdict 为 `pass`，其中 `committedInSync=pass`：每个比较过的产物都与已提交版本一致，包括报告里的两组哈希。
 
 美化输出按版本写到 `$OUT/beautified/<版本>/`，旧的平铺目录里残留的美化文件在每次运行时删除。手工用 `BEAUTIFIED=` 指定的目录仍可能过期，而 `bundle_guard.mjs` 在 `rebuild.sh` 里发现不了它：流水线的符号索引由本次运行从同一份美化文件生成，二者总是一致。流水线内由别的检查暴露它：推断名表以短名为键，放到另一个版本的美化文件上会落到别的声明上，`daemon.inferredNames` 记为 `fail`，构建在第 2b 步停止（2026-09-24 用 v0.8.2 的美化文件对照 v0.8.3 的 `maps/` 实测：236 个推断名被推翻，exit 1）；同时给了 `PKG` 时，美化等价证明也会失败；没给 `PKG` 的运行没有版本号，即使走到第 7 步也只能记 `committedInSync=unverified`。`bundle_guard.mjs` 拒绝的是另一种情形：在流水线之外，拿过期的美化文件对照已提交的 `maps/symbols_*.json` 手工运行检查器时，它以 exit 2 拒绝（第 8.1 节的"错误的 bundle"）。
 
 ---
 
-## 汇总（v0.8.3）
+## 汇总
 
-已提交报告的 verdicts：
+已提交报告的 verdicts（版本见报告的 `package`）：
 
 | 检查 | verdict 键 | daemon | cli |
 |------|-----------|--------|-----|
 | 无损拆包 | `<bundle>.lossless` | pass | pass |
 | 出厂 ≡ 美化 | `<bundle>.beautifyEquivalent` | pass | pass |
 | 模块归属检查 | 无（失败即停止构建） | 通过 | 通过 |
-| 推断名 | `<bundle>.inferredNames` | pass | 无推断名 |
+| 推断名 | `<bundle>.inferredNames` | pass | pass |
+| 局部变量名 | `<bundle>.localNames` | pass | 无局部名字表 |
 | 语法（按 ESM 解析） | `<bundle>.syntax` | pass | pass |
 | AST 全等 | `<bundle>.astEquivalent` | pass | pass |
 
@@ -190,13 +193,13 @@ v0.8.3 的已提交报告里 `committedInSync` 为 `promoted`，表示它由一�
 | 行号、片段与上限 | `lineAnchors` | pass |
 | 检查器变异测试 | `anchorCheckers` | pass |
 | 文档目标版本 = 报告版本 | `anchorTargetMatches` | pass |
-| 已提交产物 = 生成产物 | `committedInSync` | promoted（2026-09-24 的 check 运行为 pass） |
+| 已提交产物 = 生成产物 | `committedInSync` | promoted（2026-11-01 的 check 运行为 pass） |
 | 出厂与美化字节 | `sha256` | daemon、cli 均已记录 |
 | 实机 A/B 对照 | 无 | 人工对照；版本、还原产物所在的提交与覆盖路径见第 4 节 |
 
 覆盖面限于有自研导出表的 daemon 与 cli。`stdio`、`pi-worker`、`channel-acp`、`feishu-gateway` 几乎恢复不出自研真名，不进入流水线，没有任何检查；`duoduo` 命令实际执行的 cli、daemon、pi-worker 三个 bundle 里，pi-worker 没有还原。
 
-**结论**：在 v0.8.3 上，所覆盖 bundle 的还原产物与出厂产物语义全等（两处不覆盖的行为见第 3 节），仓库里的产物就是由记录了哈希的出厂字节生成的；运行效果在实机对照覆盖的路径上一致（对照所在版本、还原产物所在的提交与覆盖范围见第 4 节）。
+**结论**：在已提交报告记录的版本上，所覆盖 bundle 的还原产物与出厂产物语义全等（两处不覆盖的行为见第 3 节），仓库里的产物就是由记录了哈希的出厂字节生成的；运行效果在实机对照覆盖的路径上一致（对照所在版本、还原产物所在的提交与覆盖范围见第 4 节）。
 
 ---
 
@@ -222,10 +225,10 @@ PKG_OLD="$PKG" PKG_NEW=<新版本的 dist/release> bash bump.sh
 
 # 3) 第 4 节：隔离 HOME + 备用端口，勿用默认的 :20233
 PORT=${PORT:-20353}
-ISO=/tmp/iso083 && mkdir -p "$ISO" && chmod 700 "$ISO"
+ISO=/tmp/iso-recon && mkdir -p "$ISO" && chmod 700 "$ISO"
 cp ../recon/daemon.recon.js "$PKG/" && cd "$PKG"
 HOME="$ISO" ALADUO_PORT="$PORT" ALADUO_LOG_LEVEL=info \
-  ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" ALADUO_RUNTIME_MODE=host \
+  ALADUO_BOOTSTRAP_DIR="$PKG/../../bootstrap" \
   ALADUO_CLAUDE_AUTH_SOURCE=claude_code_local node daemon.recon.js &
 until curl -s -o /dev/null "127.0.0.1:$PORT/healthz"; do sleep 0.2; done
 curl -s -H 'Content-Type: application/json' -XPOST "127.0.0.1:$PORT/rpc" \
