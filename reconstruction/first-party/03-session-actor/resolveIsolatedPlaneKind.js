@@ -7,6 +7,6 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveIsolatedPlaneKind(sessionKey) {
-    let kind = classifySessionKeyKind(sessionKey);
+    let kind = classifySessionKey(sessionKey);
     return kind === "channel" || kind === "job" ? null : kind
 }

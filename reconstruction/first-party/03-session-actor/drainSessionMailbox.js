@@ -110,7 +110,7 @@ async function drainSessionMailbox(paths, sessionKey, options = {}) {
         try {
             await runTimedDrainPhase(perf, "mailbox_merge_ms", async () => mergeInboxIntoMailbox(paths, sessionKey))
         } catch (err) {
-            if (Yue(err)) return {
+            if (isMailboxMergeReadError(err)) return {
                 processed: 0,
                 skipped: 0,
                 lockAcquired: !0,

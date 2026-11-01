@@ -22,7 +22,7 @@ async function runNotifyTool(input, ctx) {
         let notifyDepth = ctx.notifyDepth ?? 0;
         if (notifyDepth >= bwe) throw new Error(`Notify depth limit exceeded (max ${bwe}). This notification chain is too deep — likely a loop.`);
         if (input.target_session_key?.trim() === sessionKey) throw new Error(`Cannot notify self (session_key=${sessionKey}). Notify must target a different session.`);
-        let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : Ewe(sessionKey),
+        let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : classifyNotifySessionKind(sessionKey),
             inReplyTo = input.in_reply_to?.trim() || void 0,
             useJobDefaultTarget = (sessionContextKind ?? (sourceKind === "job" ? "job" : "meta")) === "job" && !input.target_session_key?.trim(),
             mode = useJobDefaultTarget ? "job-default-target" : "explicit-target",

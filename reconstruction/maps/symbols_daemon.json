@@ -2,7 +2,7 @@
   "bundle": "daemon",
   "version": "v0.8.7",
   "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.7/daemon.pretty.js",
-  "symbolCount": 863,
+  "symbolCount": 890,
   "notTopLevel": [],
   "symbols": {
     "SUN_PATH_MAX_BYTES": {
@@ -1917,7 +1917,7 @@
       "bytes": 17517,
       "signature": "a942e34603dc5781058e"
     },
-    "classifySessionKeyKind": {
+    "classifySessionKey": {
       "mangled": "Nt",
       "line": 32685,
       "endLine": 32687,
@@ -6813,7 +6813,7 @@
       "bytes": 168,
       "signature": "da71b730f741deb7a0ec"
     },
-    "resolveMainSessionHolder": {
+    "resolveMainSession": {
       "mangled": "Mb",
       "line": 32693,
       "endLine": 32706,
@@ -6821,7 +6821,7 @@
       "bytes": 315,
       "signature": "56d5f596c6e9de3fd2e4"
     },
-    "isMainAliasedChannelSession": {
+    "isMainSessionCandidate": {
       "mangled": "xue",
       "line": 32689,
       "endLine": 32691,
@@ -6908,6 +6908,222 @@
       "kind": "function",
       "bytes": 175,
       "signature": "a686c9e763a9eae9e776"
+    },
+    "initReservedMainAliasModule": {
+      "mangled": "Rr",
+      "line": 36996,
+      "endLine": 37012,
+      "kind": "var = call",
+      "bytes": 396,
+      "signature": "221a6a5c375b791a109e"
+    },
+    "classifyNotifySessionKind": {
+      "mangled": "Ewe",
+      "line": 66500,
+      "endLine": 66502,
+      "kind": "function",
+      "bytes": 215,
+      "signature": "567e2fba77bfa46b423e"
+    },
+    "formatSessionAliasCommand": {
+      "mangled": "vSe",
+      "line": 90192,
+      "endLine": 90196,
+      "kind": "function",
+      "bytes": 260,
+      "signature": "09b08623ef47a40e604c"
+    },
+    "deliverMainRoleNoticeSafely": {
+      "mangled": "A6",
+      "line": 90231,
+      "endLine": 90244,
+      "kind": "async function",
+      "bytes": 345,
+      "signature": "9f18f4ba96450797d8ee"
+    },
+    "setSessionArchivedListener": {
+      "mangled": "Hue",
+      "line": 33554,
+      "endLine": 33556,
+      "kind": "function",
+      "bytes": 30,
+      "signature": "5e002c7fcaa919f21705"
+    },
+    "isMailboxMergeReadError": {
+      "mangled": "Yue",
+      "line": 33763,
+      "endLine": 33765,
+      "kind": "function",
+      "bytes": 46,
+      "signature": "4752be52ad41f5d4ee5e"
+    },
+    "sanitizeDrainRecordSegment": {
+      "mangled": "Vnt",
+      "line": 38251,
+      "endLine": 38253,
+      "kind": "function",
+      "bytes": 55,
+      "signature": "2ee544ced4520e6ad34c"
+    },
+    "hashDeliveryCursorKey": {
+      "mangled": "Ldt",
+      "line": 65686,
+      "endLine": 65688,
+      "kind": "function",
+      "bytes": 79,
+      "signature": "83c1b7eb63b88fd1831b"
+    },
+    "renderActiveSessionsListing": {
+      "mangled": "Xdt",
+      "line": 66203,
+      "endLine": 66217,
+      "kind": "async function",
+      "bytes": 808,
+      "signature": "22af413d9c4b7d597ed1"
+    },
+    "isPlainObjectRecord": {
+      "mangled": "rft",
+      "line": 66330,
+      "endLine": 66332,
+      "kind": "function",
+      "bytes": 86,
+      "signature": "d0462577ca221117181e"
+    },
+    "renderMetaNotifyModeGuidance": {
+      "mangled": "sft",
+      "line": 66527,
+      "endLine": 66530,
+      "kind": "function",
+      "bytes": 584,
+      "signature": "bf1d3cdfd0504f07aeae"
+    },
+    "renderChannelNotifyModeGuidance": {
+      "mangled": "_we",
+      "line": 66532,
+      "endLine": 66535,
+      "kind": "function",
+      "bytes": 433,
+      "signature": "949617008e8ce669d929"
+    },
+    "renderSystemNotifyModeGuidance": {
+      "mangled": "aft",
+      "line": 66537,
+      "endLine": 66540,
+      "kind": "function",
+      "bytes": 473,
+      "signature": "ae56a3b51661a06ec36e"
+    },
+    "countUnreadableMemoryPaths": {
+      "mangled": "ZSe",
+      "line": 68032,
+      "endLine": 68034,
+      "kind": "function",
+      "bytes": 32,
+      "signature": "8ca000545cca471237b5"
+    },
+    "isPlainJsonObject": {
+      "mangled": "dke",
+      "line": 68760,
+      "endLine": 68762,
+      "kind": "function",
+      "bytes": 86,
+      "signature": "d0462577ca221117181e"
+    },
+    "escapeRegExpSource": {
+      "mangled": "Nke",
+      "line": 69387,
+      "endLine": 69389,
+      "kind": "function",
+      "bytes": 71,
+      "signature": "06c76e16ab590444b3dc"
+    },
+    "isHostModelEnvKey": {
+      "mangled": "uht",
+      "line": 70275,
+      "endLine": 70277,
+      "kind": "function",
+      "bytes": 45,
+      "signature": "da01e02df35c89ef1470"
+    },
+    "normalizeDirPathForCompare": {
+      "mangled": "FEe",
+      "line": 71716,
+      "endLine": 71719,
+      "kind": "function",
+      "bytes": 108,
+      "signature": "e041b40effc79656f50f"
+    },
+    "extractStandInOwnerInfo": {
+      "mangled": "aJ",
+      "line": 72957,
+      "endLine": 72961,
+      "kind": "function",
+      "bytes": 111,
+      "signature": "928fb21dfb27362bedb7"
+    },
+    "renderForOwnerAttribute": {
+      "mangled": "uJ",
+      "line": 72963,
+      "endLine": 72965,
+      "kind": "function",
+      "bytes": 74,
+      "signature": "029902e5535cb982a3bb"
+    },
+    "renderJobFailureNotification": {
+      "mangled": "Ygt",
+      "line": 72975,
+      "endLine": 72982,
+      "kind": "function",
+      "bytes": 3102,
+      "signature": "a0610b79d8e688aef86b"
+    },
+    "renderJobCompletionReceipt": {
+      "mangled": "_yt",
+      "line": 73451,
+      "endLine": 73467,
+      "kind": "function",
+      "bytes": 1210,
+      "signature": "9798cc3a4535ac5dc59f"
+    },
+    "extractSessionKeyChannelKind": {
+      "mangled": "r_t",
+      "line": 74744,
+      "endLine": 74747,
+      "kind": "function",
+      "bytes": 93,
+      "signature": "a08576e63726cf2b8388"
+    },
+    "listMainAliasHolderKeys": {
+      "mangled": "Uft",
+      "line": 90198,
+      "endLine": 90200,
+      "kind": "function",
+      "bytes": 113,
+      "signature": "0d17120564b319c84a16"
+    },
+    "renderNewMainSessionNotice": {
+      "mangled": "Bft",
+      "line": 90222,
+      "endLine": 90225,
+      "kind": "function",
+      "bytes": 526,
+      "signature": "a56d8202a4b0bafae699"
+    },
+    "renderFormerMainSessionNotice": {
+      "mangled": "Vft",
+      "line": 90227,
+      "endLine": 90230,
+      "kind": "function",
+      "bytes": 376,
+      "signature": "a5263d68907b0e1388e8"
+    },
+    "renderAmbiguousMainAliasNotice": {
+      "mangled": "Hft",
+      "line": 90307,
+      "endLine": 90310,
+      "kind": "function",
+      "bytes": 468,
+      "signature": "2a4e1174d5fc7c1553d2"
     }
   }
 }

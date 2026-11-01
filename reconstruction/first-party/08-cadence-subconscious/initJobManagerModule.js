@@ -18,7 +18,7 @@ var wve, Oct, oO, JH, GH, Jr, initJobManagerModule = A(() => {
     tS();
     HH();
     nS();
-    Rr();
+    initReservedMainAliasModule();
     Oct = ["claude", "claudeTools", "claudeModelProfiles", "claudeModelProfileIssues", "claudeModelAliases", "claudeModelAliasIssues", "prompt_mode", ...listFrontmatterKeyAliases("allowedTools"), ...listFrontmatterKeyAliases("disallowedTools"), ...listFrontmatterKeyAliases("additionalDirectories")];
     oO = new Map;
     JH = "gone", GH = "stale", Jr = class {

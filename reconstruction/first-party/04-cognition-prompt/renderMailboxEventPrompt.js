@@ -22,8 +22,8 @@ function renderMailboxEventPrompt(event, sessionKey) {
                     scheduleType = readStringProperty(innerPayload, "schedule_type") ?? "",
                     sessionKind = classifySessionKeyOrUnknown(sessionKey),
                     deliveredAt = new Date().toISOString(),
-                    ownerSessionKey = aJ(innerPayload),
-                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", uJ(ownerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
+                    ownerSessionKey = extractStandInOwnerInfo(innerPayload),
+                    attributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", renderForOwnerAttribute(ownerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(deliveredAt)}"`].filter(Boolean).join(" "),
                     jobCompleteReceiptGuidance = renderJobCompleteReceiptGuidance(sessionKind, stringProperty, ownerSessionKey);
                 return [`<job-status event="job.complete" ${attributes}>`, jobCompleteReceiptGuidance, resultText ? `
 <job-result>
@@ -40,9 +40,9 @@ ${escapeXmlText(resultText)}
                     scheduleType = readStringProperty(innerPayload, "schedule_type") ?? "",
                     failSessionKind = classifySessionKeyOrUnknown(sessionKey),
                     failDeliveredAt = new Date().toISOString(),
-                    failOwnerSessionKey = aJ(innerPayload),
-                    failAttributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", uJ(failOwnerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(failDeliveredAt)}"`].filter(Boolean).join(" "),
-                    failGuidance = Ygt(failSessionKind, scheduleType, stringProperty, failOwnerSessionKey);
+                    failOwnerSessionKey = extractStandInOwnerInfo(innerPayload),
+                    failAttributes = [`job_id="${escapeXmlText(stringProperty)}"`, sourceSessionKey ? `source_session="${escapeXmlText(sourceSessionKey)}"` : "", renderForOwnerAttribute(failOwnerSessionKey), scheduleType ? `schedule="${escapeXmlText(scheduleType)}"` : "", event.ts ? `sent_at="${escapeXmlText(event.ts)}"` : "", `delivered_at="${escapeXmlText(failDeliveredAt)}"`].filter(Boolean).join(" "),
+                    failGuidance = renderJobFailureNotification(failSessionKind, scheduleType, stringProperty, failOwnerSessionKey);
                 return [`<job-status event="job.fail" ${failAttributes}>`, failGuidance, `
 <job-error>
 ${escapeXmlText(errorText)}

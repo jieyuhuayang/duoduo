@@ -26,7 +26,7 @@ async function collectJobCompletionReceipts(paths, renderOptions, items, eventCa
     }
     if (map.size === 0) return null;
     let sections = [];
-    for (let [jobId, entries] of map) sections.push(entries.length === 1 ? entries[0].prompt : _yt(paths, renderOptions, jobId, entries));
+    for (let [jobId, entries] of map) sections.push(entries.length === 1 ? entries[0].prompt : renderJobCompletionReceipt(paths, renderOptions, jobId, entries));
     return {
         text: sections.join(`
 

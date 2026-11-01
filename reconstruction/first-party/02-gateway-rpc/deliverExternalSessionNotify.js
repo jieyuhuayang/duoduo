@@ -76,7 +76,7 @@ async function deliverExternalSessionNotify(paths, bus, sessionIndex, params, fi
             notify_source: sourceLabel
         } : {
             ...basePayload,
-            notify_source_kind: classifySessionKeyKind(callerSessionKey),
+            notify_source_kind: classifySessionKey(callerSessionKey),
             notify_source_session_key: callerSessionKey
         },
         routeParams = {

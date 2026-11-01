@@ -14,7 +14,7 @@ async function runViewSessionsTool(input, ctx) {
     } = ctx;
     try {
         let targetSessionKey = input && typeof input.session_key == "string" ? input.session_key.trim() : "";
-        return targetSessionKey.length === 0 ? await Xdt(paths, ctx.finalSubscriberCount, sessionKey) : await Qdt(paths, targetSessionKey, ctx.getSessionStatus)
+        return targetSessionKey.length === 0 ? await renderActiveSessionsListing(paths, ctx.finalSubscriberCount, sessionKey) : await Qdt(paths, targetSessionKey, ctx.getSessionStatus)
     } catch (err) {
         return logErrorMessage("[ViewSessions] Tool execution failed", err), `Error: ${err instanceof Error?err.message:String(err)}`
     }

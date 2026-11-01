@@ -2,14 +2,14 @@
  "bundle": "daemon",
  "version": "v0.8.7",
  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.7/daemon.pretty.js",
- "symbolCount": 863,
+ "symbolCount": 890,
  "counts": {
   "env": 41,
   "logPrefixes": 48,
   "dotted": 94,
-  "paths": 246,
-  "strings": 2755,
-  "unnamedUsed": 616
+  "paths": 247,
+  "strings": 2846,
+  "unnamedUsed": 593
  },
  "symbols": {
   "ALADUO_TOOL_NAMESPACE": {
@@ -323,11 +323,10 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
-    "clearHostModelEnvVars"
+    "clearHostModelEnvVars",
+    "isHostModelEnvKey"
    ],
-   "refByUnnamed": [
-    "uht"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -710,15 +709,14 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
+    "deliverMainRoleNoticeSafely",
     "logWarnMessage",
     "patchSessionRuntimeState",
-    "refreshSessionIndexEntry"
+    "refreshSessionIndexEntry",
+    "renderFormerMainSessionNotice",
+    "renderNewMainSessionNotice"
    ],
-   "refsUnnamed": [
-    "A6",
-    "Bft",
-    "Vft"
-   ],
+   "refsUnnamed": [],
    "refBy": [
     "reconcileMainSessionAtBoot",
     "setSessionAliasWithMainRole"
@@ -1100,7 +1098,7 @@
    "refs": [
     "appendConfigChangedEvent",
     "checkChannelRuntimeRebindConflict",
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "isSessionArchiving",
     "listFrontmatterKeyAliases",
     "loadChannelKindConfig",
@@ -2565,11 +2563,10 @@
    "refsUnnamed": [],
    "refBy": [
     "listSessionsWithRecentConsumer",
-    "main"
+    "main",
+    "renderActiveSessionsListing"
    ],
-   "refByUnnamed": [
-    "Xdt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -2994,10 +2991,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "vSe"
+   "refs": [
+    "formatSessionAliasCommand"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "setSessionAliasWithMainRole"
    ],
@@ -3205,7 +3202,36 @@
     "native-claude"
    ]
   },
-  "classifySessionKeyKind": {
+  "classifyNotifySessionKind": {
+   "mangled": "Ewe",
+   "line": 66500,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "isJobSessionKeyKind",
+    "runNotifyTool"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "cadence:",
+    "channel",
+    "job",
+    "job:",
+    "meta",
+    "meta:",
+    "system",
+    "system:",
+    "unknown"
+   ]
+  },
+  "classifySessionKey": {
    "mangled": "Nt",
    "line": 32685,
    "kind": "function",
@@ -3223,7 +3249,7 @@
     "deliverExternalSessionNotify",
     "enqueueSessionCompactCommand",
     "evaluateNotifyConsumerRefusal",
-    "isMainAliasedChannelSession",
+    "isMainSessionCandidate",
     "isReservedMainAliasChange",
     "isUserVisibleSessionKey",
     "listSessionIndexSummaries",
@@ -3270,12 +3296,11 @@
     "drainSessionMailbox",
     "emitDrainOutputRecords",
     "prepareDrainTurnContext",
+    "renderJobCompletionReceipt",
     "renderMailboxEventPrompt",
     "runInstructionsFingerprintGuard"
    ],
-   "refByUnnamed": [
-    "_yt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -3856,11 +3881,10 @@
    "refs": [
     "extractJobCompletionJobId",
     "loadDrainItemEventCached",
+    "renderJobCompletionReceipt",
     "renderMailboxEventPrompt"
    ],
-   "refsUnnamed": [
-    "_yt"
-   ],
+   "refsUnnamed": [],
    "refBy": [
     "drainSessionMailbox"
    ],
@@ -4521,6 +4545,26 @@
    "refBy": [
     "runEntityLint",
     "runNodeLint"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "countUnreadableMemoryPaths": {
+   "mangled": "ZSe",
+   "line": 68032,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "G6"
+   ],
+   "refBy": [
+    "runReadAuditedMemoryCheckStep"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -5356,7 +5400,7 @@
     "buildJobSessionKey",
     "buildMemoryCheckStatus",
     "buildSystemConfigReport",
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "clearSessionRuntimeStateField",
     "computeRuntimeId",
     "createEmptySessionIndex",
@@ -5453,6 +5497,7 @@
     "runWithSessionMutex",
     "saveChannelUploadToInbox",
     "scheduleSessionWakeRecord",
+    "setSessionArchivedListener",
     "summarizeDrainRecords",
     "upsertChannelSpawnDescriptor",
     "wsDefaultMaxPayload"
@@ -5463,7 +5508,6 @@
     "Fb",
     "Gde",
     "Hm",
-    "Hue",
     "Jr",
     "Lde",
     "YN",
@@ -6080,7 +6124,7 @@
    ],
    "innerAnonymous": 2,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "ingestChannelCommand",
     "isSessionArchiving",
     "logAlwaysAtLevel",
@@ -6339,7 +6383,7 @@
    ],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "isUserVisibleSessionKey"
    ],
    "refsUnnamed": [
@@ -7313,7 +7357,7 @@
     "checkCodexAvailability",
     "checkGrokAvailability",
     "classifyJobScheduleType",
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "classifySessionKeyOrUnknown",
     "classifySessionPoolKind",
     "clearSessionRuntimeStateField",
@@ -7734,7 +7778,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind"
+    "classifySessionKey"
    ],
    "refsUnnamed": [],
    "refBy": [
@@ -7822,7 +7866,7 @@
    ],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "deliverRouteEventToSession",
     "evaluateNotifyConsumerRefusal",
     "loadRegistryDedupStore",
@@ -7867,6 +7911,29 @@
     "unknown_caller"
    ]
   },
+  "deliverMainRoleNoticeSafely": {
+   "mangled": "A6",
+   "line": 90231,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "logWarnMessage"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "announceMainSessionChange",
+    "reconcileMainSessionAtBoot"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [
+    "[main-role]"
+   ],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "deliverRouteEventToSession": {
    "mangled": "Ls",
    "line": 66333,
@@ -7877,6 +7944,7 @@
     "atomicAppendEvent",
     "createSpineEvent",
     "enqueueSessionInboxLine",
+    "isPlainObjectRecord",
     "isSessionArchived",
     "isSessionArchiving",
     "isVoidRuntimeSession",
@@ -7884,9 +7952,7 @@
     "logWarnMessage",
     "writeVoidSessionOutboxRecord"
    ],
-   "refsUnnamed": [
-    "rft"
-   ],
+   "refsUnnamed": [],
    "refBy": [
     "createClaudeStreamingSessionFactory",
     "createJobSessionFinalizer",
@@ -8142,11 +8208,10 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
-    "renderJobCompleteReceiptGuidance"
+    "renderJobCompleteReceiptGuidance",
+    "renderJobCompletionReceipt"
    ],
-   "refByUnnamed": [
-    "_yt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -8310,10 +8375,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Vnt"
+   "refs": [
+    "sanitizeDrainRecordSegment"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "appendDrainRecord",
     "runManageJobTool"
@@ -8455,6 +8520,7 @@
     "isAgentSdkPromptNotAcceptedAbortError",
     "isAgentSdkTurnInterruptedError",
     "isChannelMessageEvent",
+    "isMailboxMergeReadError",
     "isMergeableDrainBatch",
     "isNonNullObject",
     "isStaleIdleCompactEvent",
@@ -8497,7 +8563,6 @@
    ],
    "refsUnnamed": [
     "BEe",
-    "Yue",
     "dJ",
     "fJ",
     "iyt",
@@ -8692,7 +8757,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "ingestChannelCommand",
     "isSessionArchiving",
     "isVoidRuntimeSession",
@@ -8999,6 +9064,26 @@
    "paths": [],
    "strings": []
   },
+  "escapeRegExpSource": {
+   "mangled": "Nke",
+   "line": 69387,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "scanActivationWindowTouches"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "\\$&"
+   ]
+  },
   "escapeXmlText": {
    "mangled": "jt",
    "line": 72926,
@@ -9008,14 +9093,14 @@
    "refs": [],
    "refsUnnamed": [],
    "refBy": [
+    "renderForOwnerAttribute",
+    "renderJobCompletionReceipt",
     "renderMailboxEventPrompt",
     "renderTimeGapContextBlock"
    ],
    "refByUnnamed": [
     "Ggt",
-    "Xgt",
-    "_yt",
-    "uJ"
+    "Xgt"
    ],
    "env": [],
    "logPrefixes": [],
@@ -9037,7 +9122,7 @@
    "innerAnonymous": 0,
    "refs": [
     "classifyConsumerStaleness",
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "listSessionsWithRecentConsumer",
     "resolveNotifyUnconsumedHours"
    ],
@@ -9422,11 +9507,10 @@
    ],
    "refsUnnamed": [],
    "refBy": [
-    "extractJobCompletionJobId"
+    "extractJobCompletionJobId",
+    "renderJobCompletionReceipt"
    ],
-   "refByUnnamed": [
-    "_yt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [
@@ -9570,6 +9654,49 @@
    "paths": [],
    "strings": [
     "default"
+   ]
+  },
+  "extractSessionKeyChannelKind": {
+   "mangled": "r_t",
+   "line": 74744,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "runQueueOutboundAttachmentTool"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "unknown"
+   ]
+  },
+  "extractStandInOwnerInfo": {
+   "mangled": "aJ",
+   "line": 72957,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "readStringProperty"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "renderJobCompletionReceipt",
+    "renderMailboxEventPrompt"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "stand_in_for_owner"
    ]
   },
   "extractStreamTextDeltas": {
@@ -10096,6 +10223,31 @@
    "paths": [],
    "strings": []
   },
+  "formatSessionAliasCommand": {
+   "mangled": "vSe",
+   "line": 90192,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "Hn"
+   ],
+   "refBy": [
+    "checkMainAliasCallerAuthority",
+    "setSessionAliasWithMainRole"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " --clear",
+    " --move",
+    "duoduo session alias "
+   ]
+  },
   "formatSlugLinkLocations": {
    "mangled": "zmt",
    "line": 69704,
@@ -10125,10 +10277,10 @@
    "innerAnonymous": 0,
    "refs": [],
    "refsUnnamed": [],
-   "refBy": [],
-   "refByUnnamed": [
-    "Xdt"
+   "refBy": [
+    "renderActiveSessionsListing"
    ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -10653,6 +10805,27 @@
    "refsUnnamed": [],
    "refBy": [
     "createMetaSession"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "hex",
+    "sha256"
+   ]
+  },
+  "hashDeliveryCursorKey": {
+   "mangled": "Ldt",
+   "line": 65686,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "resolveDeliveryCursorPath"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -11681,12 +11854,12 @@
     "initAgentSdkAdapterModule",
     "initBoardTransclusionModule",
     "initLogLevelModule",
-    "initMailboxDrainRunnerModule"
+    "initMailboxDrainRunnerModule",
+    "initReservedMainAliasModule"
    ],
    "refsUnnamed": [
     "A",
     "Qr",
-    "Rr",
     "UG",
     "_f",
     "ul"
@@ -11901,6 +12074,7 @@
     "ensureSessionDescriptorAndStateFiles",
     "formatYamlErrorMessage",
     "initLogLevelModule",
+    "initReservedMainAliasModule",
     "listFrontmatterKeyAliases",
     "logErrorMessage",
     "logInfoMessage",
@@ -11923,7 +12097,6 @@
     "JH",
     "LU",
     "Qr",
-    "Rr",
     "Tde",
     "Xn",
     "Zn",
@@ -12113,6 +12286,7 @@
     "initPartitionRetirementModule",
     "initQueueOutboundAttachmentModule",
     "initRemindDuoduoToolModule",
+    "initReservedMainAliasModule",
     "initRuntimeInitializationModule",
     "initSkipToolModule",
     "initSpineEventLogModule",
@@ -12127,7 +12301,6 @@
     "Gg",
     "N0e",
     "RTe",
-    "Rr",
     "WN",
     "aK",
     "bTe",
@@ -12156,6 +12329,7 @@
     "initChannelConfigLoaderModule",
     "initLogLevelModule",
     "initOutboxStoreModule",
+    "initReservedMainAliasModule",
     "initSpineEventLogModule"
    ],
    "refsUnnamed": [
@@ -12168,7 +12342,6 @@
     "LEe",
     "N6",
     "NEe",
-    "Rr",
     "TEe",
     "Xn",
     "Zu",
@@ -12623,14 +12796,14 @@
    "innerAnonymous": 1,
    "refs": [
     "initJobManagerModule",
-    "initLogLevelModule"
+    "initLogLevelModule",
+    "initReservedMainAliasModule"
    ],
    "refsUnnamed": [
     "A",
     "Gg",
     "Qr",
     "Rc",
-    "Rr",
     "h6",
     "hS"
    ],
@@ -12902,12 +13075,12 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
-    "initLogLevelModule"
+    "initLogLevelModule",
+    "initReservedMainAliasModule"
    ],
    "refsUnnamed": [
     "A",
     "Rc",
-    "Rr",
     "ht"
    ],
    "refBy": [],
@@ -13012,6 +13185,60 @@
     "mcp__aladuo__RemindDuoduo"
    ]
   },
+  "initReservedMainAliasModule": {
+   "mangled": "Rr",
+   "line": 36996,
+   "kind": "var",
+   "inner": [
+    {
+     "name": "constructor",
+     "line": 37008,
+     "endLine": 37010
+    }
+   ],
+   "innerAnonymous": 1,
+   "refs": [
+    "initLogLevelModule",
+    "initSessionLockAndArchivingModule"
+   ],
+   "refsUnnamed": [
+    "A",
+    "Cr",
+    "Hn",
+    "Qr",
+    "Xn",
+    "Zn",
+    "ni",
+    "ti",
+    "xs"
+   ],
+   "refBy": [
+    "initInstructionsFingerprintModule",
+    "initJobManagerModule",
+    "initMailboxDrainRunnerModule",
+    "initNotifyToolModule",
+    "initQueueOutboundAttachmentModule",
+    "initSkipToolModule",
+    "initViewSessionsToolModule",
+    "initVoidRuntimeModule"
+   ],
+   "refByUnnamed": [
+    "N0e",
+    "bTe",
+    "cTe",
+    "ca",
+    "gTe",
+    "ul"
+   ],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "\" is reserved for the main session and only session.set_alias may set or clear it (session ",
+    "ReservedMainAliasError"
+   ]
+  },
   "initRuntimeInitializationModule": {
    "mangled": "mEe",
    "line": 71066,
@@ -13109,12 +13336,13 @@
    "refsUnnamed": [
     "A"
    ],
-   "refBy": [],
+   "refBy": [
+    "initReservedMainAliasModule"
+   ],
    "refByUnnamed": [
     "CIe",
     "Gg",
     "M6",
-    "Rr",
     "bTe",
     "gO",
     "lK",
@@ -13137,13 +13365,13 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
-    "initLogLevelModule"
+    "initLogLevelModule",
+    "initReservedMainAliasModule"
    ],
    "refsUnnamed": [
     "A",
     "MV",
     "Rc",
-    "Rr",
     "ht"
    ],
    "refBy": [
@@ -13265,12 +13493,12 @@
    "innerAnonymous": 1,
    "refs": [
     "initJobManagerModule",
-    "initLogLevelModule"
+    "initLogLevelModule",
+    "initReservedMainAliasModule"
    ],
    "refsUnnamed": [
     "A",
     "Rc",
-    "Rr",
     "ca",
     "ht",
     "kO",
@@ -13301,11 +13529,11 @@
    "innerAnonymous": 1,
    "refs": [
     "initChannelConfigLoaderModule",
-    "initOutboxStoreModule"
+    "initOutboxStoreModule",
+    "initReservedMainAliasModule"
    ],
    "refsUnnamed": [
     "A",
-    "Rr",
     "_f",
     "ca",
     "ni"
@@ -14034,6 +14262,26 @@
    "paths": [],
    "strings": []
   },
+  "isHostModelEnvKey": {
+   "mangled": "uht",
+   "line": 70275,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "HOST_MODEL_ENV_KEYS"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "removeHostModelEnvLines"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
   "isImageGenerationItemType": {
    "mangled": "$ve",
    "line": 64043,
@@ -14271,10 +14519,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
-   "refs": [],
-   "refsUnnamed": [
-    "Ewe"
+   "refs": [
+    "classifyNotifySessionKind"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "buildNotifyInputSchema",
     "renderNotifyToolDescription"
@@ -14422,20 +14670,40 @@
     "localhost"
    ]
   },
-  "isMainAliasedChannelSession": {
+  "isMailboxMergeReadError": {
+   "mangled": "Yue",
+   "line": 33763,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "sI"
+   ],
+   "refBy": [
+    "drainSessionMailbox"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "isMainSessionCandidate": {
    "mangled": "xue",
    "line": 32689,
    "kind": "function",
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind"
+    "classifySessionKey"
    ],
    "refsUnnamed": [
     "Hn"
    ],
    "refBy": [
-    "resolveMainSessionHolder"
+    "resolveMainSession"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -14752,6 +15020,46 @@
     ".."
    ]
   },
+  "isPlainJsonObject": {
+   "mangled": "dke",
+   "line": 68760,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "readPartitionContract"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "object"
+   ]
+  },
+  "isPlainObjectRecord": {
+   "mangled": "rft",
+   "line": 66330,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "deliverRouteEventToSession"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "object"
+   ]
+  },
   "isProcessAliveByPid": {
    "mangled": "opt",
    "line": 90701,
@@ -14851,7 +15159,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind"
+    "classifySessionKey"
    ],
    "refsUnnamed": [
     "Hn"
@@ -15454,7 +15762,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind"
+    "classifySessionKey"
    ],
    "refsUnnamed": [],
    "refBy": [
@@ -15782,6 +16090,27 @@
     "utf8"
    ]
   },
+  "listMainAliasHolderKeys": {
+   "mangled": "Uft",
+   "line": 90198,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "setSessionAliasWithMainRole"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "ambiguous",
+    "held"
+   ]
+  },
   "listMarkdownSlugsSync": {
    "mangled": "lu",
    "line": 68064,
@@ -15954,20 +16283,19 @@
    ],
    "innerAnonymous": 4,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "filterDeliverableSessions",
     "hasNonEmptyDisplayName",
-    "resolveMainSessionHolder"
+    "resolveMainSession"
    ],
    "refsUnnamed": [
     "Gdt"
    ],
    "refBy": [
-    "createDaemon"
+    "createDaemon",
+    "renderActiveSessionsListing"
    ],
-   "refByUnnamed": [
-    "Xdt"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -16037,7 +16365,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "isVoidRuntimeSession",
     "readAllSessionStateFiles"
    ],
@@ -16558,6 +16886,7 @@
     "createOutboxDeliveryManager",
     "createSessionManager",
     "deliverDaemonRestartWakes",
+    "deliverMainRoleNoticeSafely",
     "deliverRouteEventToSession",
     "drainSessionMailbox",
     "ensureSessionDescriptorAndStateFiles",
@@ -16586,7 +16915,6 @@
     "sweepTombstonedSessionRecords"
    ],
    "refByUnnamed": [
-    "A6",
     "BW",
     "Efe",
     "Fyt",
@@ -17540,6 +17868,26 @@
    "paths": [],
    "strings": [
     "string"
+   ]
+  },
+  "normalizeDirPathForCompare": {
+   "mangled": "FEe",
+   "line": 71716,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "resolveAdditionalDirClaudeMdAutoload"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "win32"
    ]
   },
   "normalizeIncludePathKey": {
@@ -19586,7 +19934,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "isSessionArchiving",
     "resolveSessionByKeyOrAlias"
    ],
@@ -19615,7 +19963,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "isSessionArchiving",
     "resolveSessionByKeyOrAlias"
    ],
@@ -19730,11 +20078,11 @@
    "inner": [],
    "innerAnonymous": 1,
    "refs": [
+    "isPlainJsonObject",
     "normalizeSignalKindVersion"
    ],
    "refsUnnamed": [
     "Er",
-    "dke",
     "pke"
    ],
    "refBy": [
@@ -20178,13 +20526,12 @@
     "extractJobCompletePayload",
     "extractJobCompletionJobId",
     "extractPayloadMediaRefs",
+    "extractStandInOwnerInfo",
     "isWorkerTaskNotifyDelivery",
+    "renderJobCompletionReceipt",
     "renderMailboxEventPrompt"
    ],
-   "refByUnnamed": [
-    "_yt",
-    "aJ"
-   ],
+   "refByUnnamed": [],
    "env": [],
    "logPrefixes": [],
    "dotted": [],
@@ -20272,13 +20619,13 @@
    "innerAnonymous": 1,
    "refs": [
     "announceMainSessionChange",
+    "deliverMainRoleNoticeSafely",
     "logInfoMessage",
     "logWarnMessage",
+    "renderAmbiguousMainAliasNotice",
     "resolveMainSessionFromIndex"
    ],
    "refsUnnamed": [
-    "A6",
-    "Hft",
     "bSe"
    ],
    "refBy": [
@@ -20592,7 +20939,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "isRecord",
     "shouldKeepRouteDeliverEvent",
     "stripSpineEventToEnvelope"
@@ -20819,11 +21166,12 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
+   "refs": [
+    "isHostModelEnvKey"
+   ],
    "refsUnnamed": [
     "axe",
-    "sxe",
-    "uht"
+    "sxe"
    ],
    "refBy": [
     "clearHostModelEnvConfig",
@@ -20923,6 +21271,39 @@
     "window: last "
    ]
   },
+  "renderActiveSessionsListing": {
+   "mangled": "Xdt",
+   "line": 66203,
+   "kind": "async function",
+   "inner": [],
+   "innerAnonymous": 5,
+   "refs": [
+    "buildSessionIndexFromDisk",
+    "formatViewSessionsListLine",
+    "listSessionIndexSummaries"
+   ],
+   "refsUnnamed": [
+    "Jr"
+   ],
+   "refBy": [
+    "runViewSessionsTool"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "(none)",
+    ") is not persisted yet.",
+    "Active sessions: ",
+    "Archived sessions are not listed. Pass session_key to inspect one session.",
+    "Background (",
+    "Foreground (",
+    "Your session (",
+    "channel"
+   ]
+  },
   "renderAgentToml": {
    "mangled": "lEe",
    "line": 70824,
@@ -20949,6 +21330,35 @@
     "\"\ndeveloper_instructions = '''\n",
     "\"\"\"",
     "'''"
+   ]
+  },
+  "renderAmbiguousMainAliasNotice": {
+   "mangled": "Hft",
+   "line": 90307,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "Hn"
+   ],
+   "refBy": [
+    "reconcileMainSessionAtBoot"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " --move",
+    ", ",
+    "More than one session is aliased main: ",
+    "None of them is used as the main session until one remains, so deliveries without a",
+    "Tell the owner and ask them to pick one from their own terminal:",
+    "This notice is for you and the owner; do not repeat the candidate list in a chat others can read.",
+    "better target fall back as if there were no main session.",
+    "duoduo session alias <session_key> "
    ]
   },
   "renderBoardTemperatureSection": {
@@ -21000,6 +21410,32 @@
    "strings": [
     " if you need the fresh version</board-updated>",
     "<board-updated>memory board changed — Read "
+   ]
+  },
+  "renderChannelNotifyModeGuidance": {
+   "mangled": "_we",
+   "line": 66532,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "OO"
+   ],
+   "refBy": [
+    "renderNotifyToolDescription"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "- Call ViewSessions with no argument to see the sessions you can target.",
+    "- Example: you completed a task in CLI and want to notify the user via a Feishu channel session.",
+    "- Use this to relay information, hand off completed work, or coordinate across sessions.",
+    "- You MUST provide `target_session_key`; `main` reaches the main session.",
+    "Channel (foreground) session mode:"
    ]
   },
   "renderCoalescedDrainPrompt": {
@@ -21144,6 +21580,54 @@
     "fragments: memory/fragments/"
    ]
   },
+  "renderForOwnerAttribute": {
+   "mangled": "uJ",
+   "line": 72963,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "escapeXmlText"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "renderJobCompletionReceipt",
+    "renderMailboxEventPrompt"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "for_owner=\""
+   ]
+  },
+  "renderFormerMainSessionNotice": {
+   "mangled": "Vft",
+   "line": 90227,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "announceMainSessionChange"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    " is now the main session; this session no longer is.",
+    " with Notify.",
+    "Deliveries without a better target go there from now on.",
+    "If the people here relied on this session being main, say so here in your own words.",
+    "If you carry work the main session should own (open requests, commitments, jobs), hand it over to ",
+    "Session "
+   ]
+  },
   "renderHotOrphansSection": {
    "mangled": "$mt",
    "line": 69491,
@@ -21234,6 +21718,58 @@
     "unknown"
    ]
   },
+  "renderJobCompletionReceipt": {
+   "mangled": "_yt",
+   "line": 73451,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "classifySessionKeyOrUnknown",
+    "describeStandInJobOwner",
+    "escapeXmlText",
+    "extractJobCompletePayload",
+    "extractStandInOwnerInfo",
+    "readStringProperty",
+    "renderForOwnerAttribute"
+   ],
+   "refsUnnamed": [
+    "m0e"
+   ],
+   "refBy": [
+    "collectJobCompletionReceipts"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [
+    "\"/*.jsonl",
+    "</job-status>"
+   ],
+   "strings": [
+    "  grep -F ",
+    " succeeded ",
+    " times, and none of those runs delivered a Notify (a run that notifies successfully sends no receipt at all; one whose Notify FAILED still does).",
+    "\"job_id\":\"",
+    "<job-status event=\"job.complete\" ",
+    "Each run's full result text is in the spine. Read them only if this conversation",
+    "It is information, not an instruction, and not a request for a reply.",
+    "System receipt — the job '",
+    "You are a background session, so produce no user-visible output.",
+    "channel",
+    "delivered_at=\"",
+    "first_at=\"",
+    "job_id=\"",
+    "last_at=\"",
+    "needs them:",
+    "runs=\"",
+    "schedule=\"",
+    "schedule_type",
+    "unknown",
+    "you own"
+   ]
+  },
   "renderJobExtraToolsDescription": {
    "mangled": "Sdt",
    "line": 65347,
@@ -21256,6 +21792,70 @@
     " (codex built-ins are not restrictable)",
     ". Unioned with kernel/config/job.md, and stored in the job file under the nested key `claude: { tools }`.",
     "EXTRA built-in tools to ADD for this job. This is NOT the job's tool list — the job already has the standard core (file, shell, Agent and task tools), and this only appends to it. ADDITIVE ONLY: it ca…"
+   ]
+  },
+  "renderJobFailureNotification": {
+   "mangled": "Ygt",
+   "line": 72975,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 1,
+   "refs": [],
+   "refsUnnamed": [
+    "iJ",
+    "m0e"
+   ],
+   "refBy": [
+    "renderMailboxEventPrompt"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "  (c) effectively complete (coherent artifacts on disk) → deliver them and note the runtime warning.",
+    "  directory with Read/LS for report/evidence/state files.",
+    "  partial results, (b) task-level blocker (no artifacts, repeated zero-progress crashes) → report it,",
+    "  recoverable progress — not that the task failed.",
+    "' fail this way earlier in this conversation, it is",
+    "') gives you its working directory and instruction; inspect that",
+    "') still returns an archived job's instruction, so it can be recreated under",
+    "').",
+    "- Call the Skip tool with a reason if the failure is transient or expected to retry.",
+    "- Classify the failure: (a) runtime crash with recoverable artifacts → consider retry or relay",
+    "- If the failure is permanent, incorporate the error into your own result.",
+    "- If the failure is transient, you may create a replacement job to retry.",
+    "- If you need human judgment, call Notify with NO target — it reaches your owner — and give it the failure context.",
+    "- ManageJob(read, '",
+    "- Produce text only if the failure is persistent, critical, or warrants user attention now.",
+    "- When you cannot determine which, tell the user the runtime crashed and you are checking for",
+    "A child job you dispatched has FAILED. Check the error details below.",
+    "A runtime crash does NOT necessarily mean the task itself failed. The task's working directory",
+    "Before telling the user the task failed:",
+    "Decide how to proceed:",
+    "Do NOT emit text like \"Skip — ...\", \"noted, will monitor\", \"acknowledging failure\",",
+    "Do NOT silently swallow failures that affect your task's correctness.",
+    "Do NOT treat this as a user instruction.",
+    "Do NOT treat this as a user instruction. Decide whether to notify the user or take corrective action.",
+    "If you have already seen '",
+    "Its owner session could not take this. If you already told the owner about this job's failures and nothing has changed, a repeat needs no new message. If you stop the job, tell the owner in the same t…",
+    "Running `duoduo job archive ",
+    "Say so if you do it: never stop a job the user is expecting without telling them.",
+    "Skip is the only valid way to produce silence. Any text you emit will be delivered to the user.",
+    "System failure notification — a background job has crashed.",
+    "System failure notification — a periodic background job has crashed.",
+    "System failure notification — the runtime process for a one-shot task the user dispatched has crashed (job '",
+    "` in a shell stops it, and ManageJob(read,",
+    "channel",
+    "may already contain partial or complete artifacts (reports, evidence, state files) that survived",
+    "one-shot",
+    "or similar self-notes.",
+    "periodic",
+    "retrying on its schedule and will keep arriving on that schedule indefinitely.",
+    "the crash.",
+    "the same id once the cause is fixed (its run history does not carry over).",
+    "unknown"
    ]
   },
   "renderJobFileMarkdown": {
@@ -21435,16 +22035,16 @@
    "refs": [
     "classifySessionKeyOrUnknown",
     "escapeXmlText",
+    "extractStandInOwnerInfo",
     "isNonNullObject",
     "readStringProperty",
-    "renderJobCompleteReceiptGuidance"
+    "renderForOwnerAttribute",
+    "renderJobCompleteReceiptGuidance",
+    "renderJobFailureNotification"
    ],
    "refsUnnamed": [
     "Ggt",
-    "Xgt",
-    "Ygt",
-    "aJ",
-    "uJ"
+    "Xgt"
    ],
    "refBy": [
     "collectJobCompletionReceipts",
@@ -21567,6 +22167,58 @@
     "📦 History compacted (",
     "📦 History compacted (pre: ",
     "📦 History compacted."
+   ]
+  },
+  "renderMetaNotifyModeGuidance": {
+   "mangled": "sft",
+   "line": 66527,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "OO"
+   ],
+   "refBy": [
+    "renderNotifyToolDescription"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session",
+    "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).",
+    "- Use this to hand off findings from background/meta work into a foreground interactive session.",
+    "- You MUST provide `target_session_key`; `main` reaches the main session.",
+    "IMPORTANT: To reach the end user, you must target a foreground channel session",
+    "Meta/subconscious session mode:",
+    "will NOT produce user-visible output."
+   ]
+  },
+  "renderNewMainSessionNotice": {
+   "mangled": "Bft",
+   "line": 90222,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "announceMainSessionChange"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    ", ",
+    ". It was told of the handover and may send you what it carried.",
+    "Previously main: ",
+    "Tell the owner here, in your own words, that this conversation is now where such things land — when the conversation allows.",
+    "You are now the main session. Deliveries with no better target come here: job outcomes whose owner session is gone or unread, Notify calls that name `main`, chats forwarded to `main`, and setup reques…"
    ]
   },
   "renderNodeConvergeSignalBody": {
@@ -21714,13 +22366,13 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "isJobSessionKeyKind"
+    "isJobSessionKeyKind",
+    "renderChannelNotifyModeGuidance",
+    "renderMetaNotifyModeGuidance",
+    "renderSystemNotifyModeGuidance"
    ],
    "refsUnnamed": [
-    "_we",
-    "aft",
-    "oft",
-    "sft"
+    "oft"
    ],
    "refBy": [
     "buildCodexDynamicTools",
@@ -22111,6 +22763,33 @@
     "when unsure of pre-compact specifics, consult memory/dossiers — don't reconstruct from the summary"
    ]
   },
+  "renderSystemNotifyModeGuidance": {
+   "mangled": "aft",
+   "line": 66537,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [
+    "OO"
+   ],
+   "refBy": [
+    "renderNotifyToolDescription"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session",
+    "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).",
+    "- You MUST provide `target_session_key`; `main` reaches the main session.",
+    "IMPORTANT: To reach the end user, you must target a foreground channel session",
+    "System session mode:",
+    "will NOT produce user-visible output."
+   ]
+  },
   "renderTimeGapContextBlock": {
    "mangled": "ryt",
    "line": 73162,
@@ -22381,10 +23060,10 @@
    "kind": "function",
    "inner": [],
    "innerAnonymous": 1,
-   "refs": [],
-   "refsUnnamed": [
-    "FEe"
+   "refs": [
+    "normalizeDirPathForCompare"
    ],
+   "refsUnnamed": [],
    "refBy": [
     "drainSessionMailbox"
    ],
@@ -22703,11 +23382,10 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
+    "hashDeliveryCursorKey",
     "resolveSessionDir"
    ],
-   "refsUnnamed": [
-    "Ldt"
-   ],
+   "refsUnnamed": [],
    "refBy": [
     "readDeliveryCursorFile",
     "updateDeliveryCursorFile"
@@ -22986,7 +23664,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind"
+    "classifySessionKey"
    ],
    "refsUnnamed": [],
    "refBy": [
@@ -23130,6 +23808,31 @@
     "warn"
    ]
   },
+  "resolveMainSession": {
+   "mangled": "Mb",
+   "line": 32693,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [
+    "isMainSessionCandidate"
+   ],
+   "refsUnnamed": [],
+   "refBy": [
+    "listSessionIndexSummaries",
+    "resolveMainSessionFromIndex"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": [
+    "absent",
+    "ambiguous",
+    "held"
+   ]
+  },
   "resolveMainSessionFromIndex": {
    "mangled": "qc",
    "line": 90188,
@@ -23137,7 +23840,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "resolveMainSessionHolder"
+    "resolveMainSession"
    ],
    "refsUnnamed": [],
    "refBy": [
@@ -23155,31 +23858,6 @@
    "dotted": [],
    "paths": [],
    "strings": []
-  },
-  "resolveMainSessionHolder": {
-   "mangled": "Mb",
-   "line": 32693,
-   "kind": "function",
-   "inner": [],
-   "innerAnonymous": 0,
-   "refs": [
-    "isMainAliasedChannelSession"
-   ],
-   "refsUnnamed": [],
-   "refBy": [
-    "listSessionIndexSummaries",
-    "resolveMainSessionFromIndex"
-   ],
-   "refByUnnamed": [],
-   "env": [],
-   "logPrefixes": [],
-   "dotted": [],
-   "paths": [],
-   "strings": [
-    "absent",
-    "ambiguous",
-    "held"
-   ]
   },
   "resolveMemoryCheckFlags": {
    "mangled": "wW",
@@ -25168,6 +25846,7 @@
    "inner": [],
    "innerAnonymous": 2,
    "refs": [
+    "classifyNotifySessionKind",
     "deliverRouteEventToSession",
     "evaluateNotifyConsumerRefusal",
     "logErrorMessage",
@@ -25177,7 +25856,6 @@
     "resolveNotifyTargetSessionKey"
    ],
    "refsUnnamed": [
-    "Ewe",
     "bwe"
    ],
    "refBy": [
@@ -25219,6 +25897,7 @@
    "inner": [],
    "innerAnonymous": 3,
    "refs": [
+    "extractSessionKeyChannelKind",
     "logErrorMessage",
     "mutateSessionRuntimeState",
     "readSessionRuntimeState"
@@ -25229,7 +25908,6 @@
     "l_t",
     "n_t",
     "o_t",
-    "r_t",
     "s_t"
    ],
    "refBy": [
@@ -25273,12 +25951,12 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
+    "countUnreadableMemoryPaths",
     "logErrorMessage",
     "runMemoryCheckSubStep"
    ],
    "refsUnnamed": [
-    "YSe",
-    "ZSe"
+    "YSe"
    ],
    "refBy": [
     "runMemoryCheckTick"
@@ -25457,11 +26135,11 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "logErrorMessage"
+    "logErrorMessage",
+    "renderActiveSessionsListing"
    ],
    "refsUnnamed": [
-    "Qdt",
-    "Xdt"
+    "Qdt"
    ],
    "refBy": [
     "buildCodexDynamicTools",
@@ -25500,6 +26178,24 @@
     "patchSessionRuntimeState",
     "updateDeliveryCursorFile",
     "updateSessionDisplayName"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
+  },
+  "sanitizeDrainRecordSegment": {
+   "mangled": "Vnt",
+   "line": 38251,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "drainRecordPath"
    ],
    "refByUnnamed": [],
    "env": [],
@@ -25565,11 +26261,11 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
+    "escapeRegExpSource",
     "listEventPartitionDates",
     "recordUnreadableMemoryPath"
    ],
    "refsUnnamed": [
-    "Nke",
     "Rmt",
     "pW",
     "xmt"
@@ -25818,7 +26514,7 @@
    "inner": [],
    "innerAnonymous": 0,
    "refs": [
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "resolveRolePromptText"
    ],
    "refsUnnamed": [],
@@ -25908,8 +26604,10 @@
    "refs": [
     "announceMainSessionChange",
     "checkMainAliasCallerAuthority",
-    "classifySessionKeyKind",
+    "classifySessionKey",
+    "formatSessionAliasCommand",
     "isReservedMainAliasChange",
+    "listMainAliasHolderKeys",
     "logInfoMessage",
     "readSessionMetaFile",
     "refreshSessionIndexEntry",
@@ -25919,9 +26617,7 @@
    ],
    "refsUnnamed": [
     "Hn",
-    "Uft",
-    "bSe",
-    "vSe"
+    "bSe"
    ],
    "refBy": [
     "runSessionSetAliasRpc"
@@ -25943,6 +26639,24 @@
     "main_held",
     "not_found"
    ]
+  },
+  "setSessionArchivedListener": {
+   "mangled": "Hue",
+   "line": 33554,
+   "kind": "function",
+   "inner": [],
+   "innerAnonymous": 0,
+   "refs": [],
+   "refsUnnamed": [],
+   "refBy": [
+    "createDaemon"
+   ],
+   "refByUnnamed": [],
+   "env": [],
+   "logPrefixes": [],
+   "dotted": [],
+   "paths": [],
+   "strings": []
   },
   "shouldKeepRouteDeliverEvent": {
    "mangled": "Qht",
@@ -26644,7 +27358,7 @@
    "innerAnonymous": 2,
    "refs": [
     "checkChannelRuntimeRebindConflict",
-    "classifySessionKeyKind",
+    "classifySessionKey",
     "ensureAbsoluteWorkspaceDir",
     "ensureSessionDescriptorAndStateFiles",
     "isValidChannelId",
@@ -27558,6 +28272,7 @@
    "mergeInboxIntoMailbox"
   ],
   "[main-role]": [
+   "deliverMainRoleNoticeSafely",
    "announceMainSessionChange",
    "setSessionAliasWithMainRole",
    "reconcileMainSessionAtBoot"
@@ -28000,6 +28715,9 @@
   ]
  },
  "byPath": {
+  "\"/*.jsonl": [
+   "renderJobCompletionReceipt"
+  ],
   "*/*": [
    "isMimePattern"
   ],
@@ -28606,7 +29324,8 @@
    "buildDeveloperInstructions"
   ],
   "</job-status>": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "</job-tick>": [
    "renderJobTickBlock"
@@ -28915,11 +29634,17 @@
   "                                              already in progress finishes": [
    "initManageJobToolModule"
   ],
+  "  (c) effectively complete (coherent artifacts on disk) → deliver them and note the runtime warning.": [
+   "renderJobFailureNotification"
+  ],
   "  (effectiveness/ excluded by default — not graph nodes)": [
    "renderOrphanIslandsBody"
   ],
   "  - ## ": [
    "renderNodeConvergeSignalBody"
+  ],
+  "  directory with Read/LS for report/evidence/state files.": [
+   "renderJobFailureNotification"
   ],
   "  duoduo job archive <id>                     stop future scheduling; a run": [
    "initManageJobToolModule"
@@ -28930,6 +29655,9 @@
   "  file before you finish. Anything left only in this run's context is lost.": [
    "renderJobMissionBlock"
   ],
+  "  grep -F ": [
+   "renderJobCompletionReceipt"
+  ],
   "  mission says where). If a file you expected is absent, treat this as a first": [
    "renderJobMissionBlock"
   ],
@@ -28938,6 +29666,12 @@
   ],
   "  move files) — a cheap/fast model. The value is in your instruction, not in": [
    "initManageJobToolModule"
+  ],
+  "  partial results, (b) task-level blocker (no artifacts, repeated zero-progress crashes) → report it,": [
+   "renderJobFailureNotification"
+  ],
+  "  recoverable progress — not that the task failed.": [
+   "renderJobFailureNotification"
   ],
   "  run, not an error.": [
    "renderJobMissionBlock"
@@ -29027,7 +29761,12 @@
   " (you)": [
    "formatViewSessionsListLine"
   ],
+  " --clear": [
+   "formatSessionAliasCommand"
+  ],
   " --move": [
+   "formatSessionAliasCommand",
+   "renderAmbiguousMainAliasNotice",
    "upsertChannelSpawnDescriptor"
   ],
   " / ": [
@@ -29252,6 +29991,9 @@
   " is not active (archived or removed) — state writes are active-only": [
    "initJobManagerModule"
   ],
+  " is now the main session; this session no longer is.": [
+   "renderFormerMainSessionNotice"
+  ],
   " is retained: if the user recalls something from before the reset, use it to look up that session's history.": [
    "executeGatewayCommand"
   ],
@@ -29377,12 +30119,18 @@
   " stale orphan memory nodes": [
    "formatForgetCommitMessage"
   ],
+  " succeeded ": [
+   "renderJobCompletionReceipt"
+  ],
   " the main session instead, the current main session or the owner from their own terminal runs: ": [
    "setSessionAliasWithMainRole"
   ],
   " timed out after ": [
    "createGrokAcpAdapter",
    "initGrokAcpRuntimeModule"
+  ],
+  " times, and none of those runs delivered a Notify (a run that notifies successfully sends no receipt at all; one whose Notify FAILED still does).": [
+   "renderJobCompletionReceipt"
   ],
   " tokens).": [
    "renderManualCompactNotice"
@@ -29404,6 +30152,9 @@
   ],
   " while listing wakes": [
    "initJobManagerModule"
+  ],
+  " with Notify.": [
+   "renderFormerMainSessionNotice"
   ],
   " | dead weight = ": [
    "renderActivationReportHeader"
@@ -29483,6 +30234,9 @@
   "\" is reserved for the main session and cannot be set by channel.spawn. Nothing was written. Spawn with another display name; the owner makes a session main with: duoduo session alias <session_key> ": [
    "upsertChannelSpawnDescriptor"
   ],
+  "\" is reserved for the main session and only session.set_alias may set or clear it (session ": [
+   "initReservedMainAliasModule"
+  ],
   "\" is reserved on duoduo (": [
    "checkReservedRecordSource"
   ],
@@ -29526,6 +30280,9 @@
   "\". Valid levels: ": [
    "executeGatewayCommand"
   ],
+  "\"/*.jsonl": [
+   "renderJobCompletionReceipt"
+  ],
   "\"; channel.spawn does not move a session to another channel.": [
    "upsertChannelSpawnDescriptor"
   ],
@@ -29537,6 +30294,9 @@
   ],
   "\"date\" is required with \"show\": no partition was read. Without a day, show scans every partition and blocks the duoduo host while it runs. Re-run duoduo spine show <id> --date <yyyy-mm-dd>; the day is…": [
    "describeSpineCatProblem"
+  ],
+  "\"job_id\":\"": [
+   "renderJobCompletionReceipt"
   ],
   "\"kind\":\"runner\"": [
    "scanActivationWindowTouches"
@@ -29655,6 +30415,9 @@
   "' does not exist. The directory must be created with a CLAUDE.md context file before creating the job.": [
    "prepareJobExecutionWorkspace"
   ],
+  "' fail this way earlier in this conversation, it is": [
+   "renderJobFailureNotification"
+  ],
   "' failed: ": [
    "retireListedPartitions"
   ],
@@ -29715,6 +30478,9 @@
   "'''": [
    "renderAgentToml"
   ],
+  "') gives you its working directory and instruction; inspect that": [
+   "renderJobFailureNotification"
+  ],
   "') is not installed or not in PATH. Install it and run 'grok login'.": [
    "checkGrokAvailability"
   ],
@@ -29723,6 +30489,12 @@
   ],
   "') not found. Install it from https://github.com/openai/codex and run 'codex login'.": [
    "initCodexAppServerModule"
+  ],
+  "') still returns an archived job's instruction, so it can be recreated under": [
+   "renderJobFailureNotification"
+  ],
+  "').": [
+   "renderJobFailureNotification"
   ],
   "', sdk_session_id ": [
    "checkChannelRuntimeRebindConflict"
@@ -29754,6 +30526,10 @@
   "(default work root)": [
    "executeGatewayCommand"
   ],
+  "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session": [
+   "renderMetaNotifyModeGuidance",
+   "renderSystemNotifyModeGuidance"
+  ],
   "(empty)": [
    "renderCoalescedDrainPrompt"
   ],
@@ -29772,6 +30548,9 @@
   ],
   "(none -- every file touched this window is reachable from the board)": [
    "renderHotOrphansSection"
+  ],
+  "(none)": [
+   "renderActiveSessionsListing"
   ],
   "(reset to default)": [
    "createClaudeStreamingSessionFactory",
@@ -29798,6 +30577,9 @@
   ],
   ") is a job session, but no active job definition matched this session_key.": [
    "resolveJobOwnerNotifyTarget"
+  ],
+  ") is not persisted yet.": [
+   "renderActiveSessionsListing"
   ],
   ") job:": [
    "scanAndSpawnDueJobs"
@@ -29949,6 +30731,19 @@
   "- Any result, cursor, or fact that a FUTURE run will need MUST be written to a": [
    "renderJobMissionBlock"
   ],
+  "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).": [
+   "renderMetaNotifyModeGuidance",
+   "renderSystemNotifyModeGuidance"
+  ],
+  "- Call ViewSessions with no argument to see the sessions you can target.": [
+   "renderChannelNotifyModeGuidance"
+  ],
+  "- Call the Skip tool with a reason if the failure is transient or expected to retry.": [
+   "renderJobFailureNotification"
+  ],
+  "- Classify the failure: (a) runtime crash with recoverable artifacts → consider retry or relay": [
+   "renderJobFailureNotification"
+  ],
   "- Cost (USD): $": [
    "executeGatewayCommand"
   ],
@@ -29961,17 +30756,29 @@
   "- Events (Spine): ": [
    "renderPartitionRuntimeContext"
   ],
+  "- Example: you completed a task in CLI and want to notify the user via a Feishu channel session.": [
+   "renderChannelNotifyModeGuidance"
+  ],
   "- How much time has elapsed since the skip": [
    "initSkipToolModule"
   ],
   "- If no user-visible response is needed, call Skip.": [
    "renderMailboxEventPrompt"
   ],
+  "- If the failure is permanent, incorporate the error into your own result.": [
+   "renderJobFailureNotification"
+  ],
+  "- If the failure is transient, you may create a replacement job to retry.": [
+   "renderJobFailureNotification"
+  ],
   "- If the user needs an actionable update or result, respond here.": [
    "renderMailboxEventPrompt"
   ],
   "- If useful follow-up work remains, perform it.": [
    "renderMailboxEventPrompt"
+  ],
+  "- If you need human judgment, call Notify with NO target — it reaches your owner — and give it the failure context.": [
+   "renderJobFailureNotification"
   ],
   "- If you switch, recover the prior work first: the old session's history is still on disk under id ": [
    "renderRuntimeMismatchGuidance"
@@ -29997,6 +30804,9 @@
   "- Kernel root: ": [
    "renderPartitionRuntimeContext"
   ],
+  "- ManageJob(read, '": [
+   "renderJobFailureNotification"
+  ],
   "- Model ids are canonical `provider/modelId`, and the providers are whatever your pi agent dir configures — `models.json`, or an extension that registers them.": [
    "renderRuntimeUnavailableGuidance"
   ],
@@ -30008,6 +30818,9 @@
   ],
   "- Per-partition directed inboxes (parent): ": [
    "renderPartitionRuntimeContext"
+  ],
+  "- Produce text only if the failure is persistent, critical, or warrants user attention now.": [
+   "renderJobFailureNotification"
   ],
   "- Read whatever prior state you need from the filesystem at the start (the": [
    "renderJobMissionBlock"
@@ -30059,6 +30872,20 @@
   ],
   "- Tokens: Input (": [
    "executeGatewayCommand"
+  ],
+  "- Use this to hand off findings from background/meta work into a foreground interactive session.": [
+   "renderMetaNotifyModeGuidance"
+  ],
+  "- Use this to relay information, hand off completed work, or coordinate across sessions.": [
+   "renderChannelNotifyModeGuidance"
+  ],
+  "- When you cannot determine which, tell the user the runtime crashed and you are checking for": [
+   "renderJobFailureNotification"
+  ],
+  "- You MUST provide `target_session_key`; `main` reaches the main session.": [
+   "renderMetaNotifyModeGuidance",
+   "renderChannelNotifyModeGuidance",
+   "renderSystemNotifyModeGuidance"
   ],
   "- [": [
    "executeGatewayCommand"
@@ -30301,6 +31128,9 @@
   ],
   ". It is applied when the session next starts a turn; if the id is invalid, that turn will say so — `/model reset` recovers.": [
    "executeGatewayCommand"
+  ],
+  ". It was told of the handover and may send you what it carried.": [
+   "renderNewMainSessionNotice"
   ],
   ". Nothing was ": [
    "renderParamsProblem"
@@ -31032,7 +31862,8 @@
    "buildDeveloperInstructions"
   ],
   "</job-status>": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "</job-tick>": [
    "renderJobTickBlock"
@@ -31077,7 +31908,8 @@
    "buildTransientUserBlocks"
   ],
   "<job-status event=\"job.complete\" ": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "<job-status event=\"job.fail\" ": [
    "renderMailboxEventPrompt"
@@ -31129,6 +31961,9 @@
   "A Notify with no target reaches the owner.": [
    "initManageJobToolModule"
   ],
+  "A child job you dispatched has FAILED. Check the error details below.": [
+   "renderJobFailureNotification"
+  ],
   "A follow-up you scheduled is due. This is NOT a direct user message, and it does": [
    "renderMailboxEventPrompt"
   ],
@@ -31137,6 +31972,9 @@
   ],
   "A keepalive job may create jobs, but not another keepalive job.": [
    "initManageJobToolModule"
+  ],
+  "A runtime crash does NOT necessarily mean the task itself failed. The task's working directory": [
+   "renderJobFailureNotification"
   ],
   "A wake record needs an owner session — the caller is always the target.": [
    "initJobManagerModule"
@@ -31295,6 +32133,9 @@
   "Action to perform.\n- create: register a new job\n- list: show all active jobs with status\n- read: show a job's full definition, instruction, and last outcome (success, or failure with its error)\nStoppi…": [
    "initManageJobToolModule"
   ],
+  "Active sessions: ": [
+   "renderActiveSessionsListing"
+  ],
   "Additive only: adds to the standard core (file, shell, Agent and task tools) and can never remove a tool. In practice the useful additions are web/retrieval tools. Claude runtime only. Unioned with ke…": [
    "initManageJobToolModule"
   ],
@@ -31338,8 +32179,14 @@
   "Approximately ": [
    "renderTimeGapContextBlock"
   ],
+  "Archived sessions are not listed. Pass session_key to inspect one session.": [
+   "renderActiveSessionsListing"
+  ],
   "Archived — to recover, `mv` the archived directory back to its original location. To permanently delete, remove the archived directory by hand.": [
    "archiveSessionIfQuiescent"
+  ],
+  "Background (": [
+   "renderActiveSessionsListing"
   ],
   "Background near-miss (NOT user-visible — delivery to these sessions will not reach a user):": [
    "renderNotifyTargetCandidateLines"
@@ -31357,6 +32204,9 @@
   ],
   "Because state is not retained between runs, you are solely responsible for": [
    "renderJobMissionBlock"
+  ],
+  "Before telling the user the task failed:": [
+   "renderJobFailureNotification"
   ],
   "Before you finish, verify your own close-out against the mission's acceptance": [
    "renderJobMissionBlock"
@@ -31410,6 +32260,9 @@
   ],
   "Changing which session is main is refused here: this command ran inside a session that could not be identified. Nothing was changed. Ask the owner to run it from their own terminal: ": [
    "checkMainAliasCallerAuthority"
+  ],
+  "Channel (foreground) session mode:": [
+   "renderChannelNotifyModeGuidance"
   ],
   "Check whether the work you were doing completed before continuing.": [
    "renderRestartWakeMessage"
@@ -31481,11 +32334,29 @@
   "Dashboard not found": [
    "createDaemon"
   ],
+  "Decide how to proceed:": [
+   "renderJobFailureNotification"
+  ],
+  "Deliveries without a better target go there from now on.": [
+   "renderFormerMainSessionNotice"
+  ],
   "Delivery: a success waits in your inbox for your next turn, and nothing gives you a turn on its own; unless this job's instruction tells it to call Notify, the result reaches you only when someone nex…": [
    "initManageJobToolModule"
   ],
   "Dispatch the work as 'once' (or '@in <duration>' / a recurring schedule) and": [
    "initManageJobToolModule"
+  ],
+  "Do NOT emit text like \"Skip — ...\", \"noted, will monitor\", \"acknowledging failure\",": [
+   "renderJobFailureNotification"
+  ],
+  "Do NOT silently swallow failures that affect your task's correctness.": [
+   "renderJobFailureNotification"
+  ],
+  "Do NOT treat this as a user instruction.": [
+   "renderJobFailureNotification"
+  ],
+  "Do NOT treat this as a user instruction. Decide whether to notify the user or take corrective action.": [
+   "renderJobFailureNotification"
   ],
   "Drop `prompt_mode`, or switch the job to runtime: \"claude\", \"grok\", or \"pi\".": [
    "initManageJobToolModule"
@@ -31522,6 +32393,9 @@
   ],
   "EXTRA built-in tools to ADD for this job. This is NOT the job's tool list — the job already has the standard core (file, shell, Agent and task tools), and this only appends to it. ADDITIVE ONLY: it ca…": [
    "renderJobExtraToolsDescription"
+  ],
+  "Each run's full result text is in the spine. Read them only if this conversation": [
+   "renderJobCompletionReceipt"
   ],
   "Edit": [
    "initAgentSdkAdapterModule",
@@ -31593,6 +32467,9 @@
   "Forbidden": [
    "createDaemon"
   ],
+  "Foreground (": [
+   "renderActiveSessionsListing"
+  ],
   "Give a specific reason. On your next turn, a <skip-rewind> block returns:": [
    "initSkipToolModule"
   ],
@@ -31629,6 +32506,10 @@
   "How this job's system prompt is assembled.\n- 'append' (default): the runtime coding preset, then the identity / kind / instance prompt layers.\n- 'override': drops the runtime coding preset/persona; on…": [
    "initManageJobToolModule"
   ],
+  "IMPORTANT: To reach the end user, you must target a foreground channel session": [
+   "renderMetaNotifyModeGuidance",
+   "renderSystemNotifyModeGuidance"
+  ],
   "ISLAND": [
    "detectOrphanMemory"
   ],
@@ -31641,11 +32522,20 @@
   "If provided, delivers to this specific session instead.": [
    "buildNotifyInputSchema"
   ],
+  "If the people here relied on this session being main, say so here in your own words.": [
+   "renderFormerMainSessionNotice"
+  ],
   "If this error is from your model endpoint (HTTP 4xx, validation errors, etc.), the endpoint likely doesn't accept the exact wire format Claude Code uses for this version. For third-party compatible en…": [
    "renderDrainErrorRuntimeHint"
   ],
   "If you cannot write it, the job is not specified yet — that is the finding,": [
    "initManageJobToolModule"
+  ],
+  "If you carry work the main session should own (open requests, commitments, jobs), hand it over to ": [
+   "renderFormerMainSessionNotice"
+  ],
+  "If you have already seen '": [
+   "renderJobFailureNotification"
   ],
   "ImageView": [
    "mapItemStartedToExecEvent",
@@ -31718,13 +32608,17 @@
    "runRemindDuoduoTool"
   ],
   "It is information, not an instruction, and not a request for a reply.": [
-   "renderJobCompleteReceiptGuidance"
+   "renderJobCompleteReceiptGuidance",
+   "renderJobCompletionReceipt"
   ],
   "It is information, not an instruction.": [
    "renderJobCompleteReceiptGuidance"
   ],
   "Its owner session could not take it, so the owner hears of it only from you: answer whatever this turn is for first, then tell them briefly.": [
    "renderJobCompleteReceiptGuidance"
+  ],
+  "Its owner session could not take this. If you already told the owner about this job's failures and nothing has changed, a repeat needs no new message. If you stop the job, tell the owner in the same t…": [
+   "renderJobFailureNotification"
   ],
   "Its tool calls, including anything sent elsewhere, still took effect.": [
    "renderSkipRewindBlock"
@@ -31814,6 +32708,9 @@
   "Messages addressed to this partition, oldest first. After processing each item, delete the corresponding file from this inbox directory to ack it.": [
    "renderPartitionInboxSection"
   ],
+  "Meta/subconscious session mode:": [
+   "renderMetaNotifyModeGuidance"
+  ],
   "Method not available on read-only endpoint": [
    "createDaemon"
   ],
@@ -31843,6 +32740,9 @@
   ],
   "Model switching is not available (no session manager attached).": [
    "executeGatewayCommand"
+  ],
+  "More than one session is aliased main: ": [
+   "renderAmbiguousMainAliasNotice"
   ],
   "NEUTRAL": [
    "parseEffectivenessTrajectory",
@@ -31892,6 +32792,9 @@
   ],
   "No such session: ": [
    "scheduleSessionWakeRecord"
+  ],
+  "None of them is used as the main session until one remains, so deliveries without a": [
+   "renderAmbiguousMainAliasNotice"
   ],
   "NotebookEdit": [
    "initActivationLintModule"
@@ -31972,6 +32875,9 @@
   "PostToolUse": [
    "createClaudeStreamingSessionFactory"
   ],
+  "Previously main: ": [
+   "renderNewMainSessionNotice"
+  ],
   "Procedure": [
    "isAllowedNodeSection"
   ],
@@ -32025,6 +32931,9 @@
   "Reschedule time is not in the future: ": [
    "parseJobRearmTime"
   ],
+  "ReservedMainAliasError": [
+   "initReservedMainAliasModule"
+  ],
   "Respond instead of skipping when:": [
    "initSkipToolModule"
   ],
@@ -32033,6 +32942,9 @@
   ],
   "Retry with the full session_key of the one you mean:": [
    "resolveNotifyTargetSessionKey"
+  ],
+  "Running `duoduo job archive ": [
+   "renderJobFailureNotification"
   ],
   "Runtime control tools provided by the duoduo daemon.": [
    "createCodexAppServerAdapter"
@@ -32094,6 +33006,9 @@
    "parseEffectivenessTrajectory",
    "rankEffectivenessTrajectory"
   ],
+  "Say so if you do it: never stop a job the user is expecting without telling them.": [
+   "renderJobFailureNotification"
+  ],
   "Schedule for this job. Five formats supported:\n- 'once' — run once on next scheduler cycle, then auto-archive (session is archived with it)\n- '@in <duration>' — run once after a delay from now (e.g. '…": [
    "initManageJobToolModule"
   ],
@@ -32108,6 +33023,9 @@
   ],
   "SendMessage": [
    "initAgentSdkAdapterModule"
+  ],
+  "Session ": [
+   "renderFormerMainSessionNotice"
   ],
   "Session cancel is unavailable.": [
    "executeGatewayCommand"
@@ -32239,6 +33157,9 @@
   "Skip is the only valid way to produce silence.": [
    "renderMailboxEventPrompt"
   ],
+  "Skip is the only valid way to produce silence. Any text you emit will be delivered to the user.": [
+   "renderJobFailureNotification"
+  ],
   "Skip is unavailable: runtime bus is not available in this context.": [
    "runSkipTool"
   ],
@@ -32277,8 +33198,21 @@
   "Switch: `/model <provider>/<modelId>` · Reset: `/model reset`": [
    "executeGatewayCommand"
   ],
+  "System failure notification — a background job has crashed.": [
+   "renderJobFailureNotification"
+  ],
+  "System failure notification — a periodic background job has crashed.": [
+   "renderJobFailureNotification"
+  ],
+  "System failure notification — the runtime process for a one-shot task the user dispatched has crashed (job '": [
+   "renderJobFailureNotification"
+  ],
   "System receipt — the job '": [
-   "renderJobCompleteReceiptGuidance"
+   "renderJobCompleteReceiptGuidance",
+   "renderJobCompletionReceipt"
+  ],
+  "System session mode:": [
+   "renderSystemNotifyModeGuidance"
   ],
   "T00:00:00.000Z": [
    "runGapLint",
@@ -32316,6 +33250,12 @@
   ],
   "TaskUpdate": [
    "initAgentSdkAdapterModule"
+  ],
+  "Tell the owner and ask them to pick one from their own terminal:": [
+   "renderAmbiguousMainAliasNotice"
+  ],
+  "Tell the owner here, in your own words, that this conversation is now where such things land — when the conversation allows.": [
+   "renderNewMainSessionNotice"
   ],
   "The `[[slug]]` links in this board are dossier entry points, not footnotes. When a line's trigger fires in your current task and the inline summary is not enough to judge or act on that entity safely,…": [
    "initAgentSdkAdapterModule"
@@ -32407,6 +33347,9 @@
   ],
   "This job's schedule is \"keepalive\", which spawns one long-lived session and": [
    "initManageJobToolModule"
+  ],
+  "This notice is for you and the owner; do not repeat the candidate list in a chat others can read.": [
+   "renderAmbiguousMainAliasNotice"
   ],
   "This pi session has no model yet. Request was not executed.": [
    "renderRuntimeUnavailableGuidance"
@@ -32545,7 +33488,8 @@
    "formatYamlErrorMessage"
   ],
   "You are a background session, so produce no user-visible output.": [
-   "renderJobCompleteReceiptGuidance"
+   "renderJobCompleteReceiptGuidance",
+   "renderJobCompletionReceipt"
   ],
   "You are executing a scheduled job on a FRESH context. The <job-tick> block": [
    "renderJobMissionBlock"
@@ -32553,11 +33497,17 @@
   "You are executing a scheduled job. The mission below is permanent — it": [
    "renderJobMissionBlock"
   ],
+  "You are now the main session. Deliveries with no better target come here: job outcomes whose owner session is gone or unread, Notify calls that name `main`, chats forwarded to `main`, and setup reques…": [
+   "renderNewMainSessionNotice"
+  ],
   "You chose to skip your previous turn without replying to the user.": [
    "renderSkipRewindBlock"
   ],
   "Your duoduo runtime tools (": [
    "buildDeveloperInstructions"
+  ],
+  "Your session (": [
+   "renderActiveSessionsListing"
   ],
   "ZERO_FED": [
    "createJobSessionFinalizer"
@@ -33051,6 +34001,12 @@
   ],
   "[main-role] main_since stamp failed": [
    "announceMainSessionChange"
+  ],
+  "[main-role] role notice failed": [
+   "deliverMainRoleNoticeSafely"
+  ],
+  "[main-role] role notice not delivered": [
+   "deliverMainRoleNoticeSafely"
   ],
   "[main-role] stamping an existing main session": [
    "reconcileMainSessionAtBoot"
@@ -33877,6 +34833,9 @@
   "[v12-observe] pi adapter spawn": [
    "createMetaSession"
   ],
+  "\\$&": [
+   "escapeRegExpSource"
+  ],
   "\\u2028": [
    "stringifyJsonlRecord"
   ],
@@ -33901,6 +34860,9 @@
   ],
   "` cancels it before it fires.": [
    "runRemindDuoduoTool"
+  ],
+  "` in a shell stops it, and ManageJob(read,": [
+   "renderJobFailureNotification"
   ],
   "` namespace, or as `tools.<Name>(…)` inside `exec`.": [
    "buildDeveloperInstructions"
@@ -33941,7 +34903,7 @@
    "renderJobMissionBlock"
   ],
   "absent": [
-   "resolveMainSessionHolder",
+   "resolveMainSession",
    "loadGlobalRuntimeConfig",
    "retirePartitionOnce"
   ],
@@ -34097,9 +35059,10 @@
    "readPiAgentSettings"
   ],
   "ambiguous": [
-   "resolveMainSessionHolder",
+   "resolveMainSession",
    "listSessionIndexSummaries",
    "resolveNotifyTargetSessionKey",
+   "listMainAliasHolderKeys",
    "reconcileMainSessionAtBoot",
    "resolveSessionByKeyOrAlias",
    "scheduleSessionWakeRecord",
@@ -34231,6 +35194,9 @@
   "belongs elsewhere, then call Skip.": [
    "initSkipToolModule"
   ],
+  "better target fall back as if there were no main session.": [
+   "renderAmbiguousMainAliasNotice"
+  ],
   "bin": [
    "resolveRuntimePaths"
   ],
@@ -34312,7 +35278,8 @@
    "main"
   ],
   "cadence:": [
-   "classifySessionKeyKind",
+   "classifySessionKey",
+   "classifyNotifySessionKind",
    "classifySessionKeyOrUnknown",
    "classifySessionPlane",
    "inferActorOriginFromSessionKey",
@@ -34852,7 +35819,8 @@
    "createOutboxDeliveryManager"
   ],
   "delivered_at=\"": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "delivery failed": [
    "createOutboxDeliveryManager"
@@ -34932,6 +35900,12 @@
   ],
   "duoduo session": [
    "initGrokAcpRuntimeModule"
+  ],
+  "duoduo session alias ": [
+   "formatSessionAliasCommand"
+  ],
+  "duoduo session alias <session_key> ": [
+   "renderAmbiguousMainAliasNotice"
   ],
   "duoduo-runtime": [
    "createCodexAppServerAdapter"
@@ -35170,6 +36144,9 @@
   "first-seen": [
    "decideBoardUpdatedInjection"
   ],
+  "first_at=\"": [
+   "renderJobCompletionReceipt"
+  ],
   "flipped": [
    "retirePartitionOnce"
   ],
@@ -35181,6 +36158,9 @@
   ],
   "fold-lint": [
    "runMemoryCheckTick"
+  ],
+  "for_owner=\"": [
+   "renderForOwnerAttribute"
   ],
   "forbidden": [
    "createDaemon"
@@ -35397,11 +36377,12 @@
    "initManageJobToolModule"
   ],
   "held": [
-   "resolveMainSessionHolder",
+   "resolveMainSession",
    "listSessionIndexSummaries",
    "resolveNotifyTargetSessionKey",
    "createJobSessionFinalizer",
    "selectSessionRolePrompt",
+   "listMainAliasHolderKeys",
    "checkMainAliasCallerAuthority",
    "reconcileMainSessionAtBoot",
    "resolveSessionByKeyOrAlias"
@@ -35409,6 +36390,7 @@
   "hex": [
    "hashSessionKey",
    "issueWorkerToolContextToken",
+   "hashDeliveryCursorKey",
    "computeContextProfileSignature",
    "archiveLegacyRegistrySessionsDir",
    "computeInstructionsFingerprint",
@@ -35717,33 +36699,6 @@
   "its file, and the mission's stated done-condition is met. If you cannot satisfy": [
    "renderJobMissionBlock"
   ],
-  "job": [
-   "classifySessionKeyKind",
-   "isSessionListKind",
-   "initProtocolSystemModule",
-   "isUserVisibleSessionKey",
-   "buildJobSessionKey",
-   "initJobManagerModule",
-   "runManageJobTool",
-   "runRemindDuoduoTool",
-   "isJobSessionKeyKind",
-   "renderNotifyToolDescription",
-   "buildNotifyInputSchema",
-   "matchNearMissSessionKey",
-   "runNotifyTool",
-   "computeLegacyJobSessionKey",
-   "classifySessionKeyOrUnknown",
-   "createAladuoMcpServer",
-   "buildCodexDynamicTools",
-   "inferActorOriginFromSessionKey",
-   "classifySessionPoolKind",
-   "createJobSessionFinalizer",
-   "collectInstructionsInputs",
-   "createSessionManager",
-   "isJobOrMetaOutboxRecord",
-   "resolveIsolatedPlaneKind",
-   "createDaemon"
-  ],
   "job interrupt ": [
    "createDaemon"
   ],
@@ -35823,10 +36778,11 @@
    "createSessionManager"
   ],
   "job:": [
-   "classifySessionKeyKind",
+   "classifySessionKey",
    "runManageJobTool",
    "listSessionIndexSummaries",
    "runRemindDuoduoTool",
+   "classifyNotifySessionKind",
    "isOrphanJobSessionKey",
    "classifySessionKeyOrUnknown",
    "inferActorOriginFromSessionKey",
@@ -35839,7 +36795,8 @@
    "extractJobCompletionJobId"
   ],
   "job_id=\"": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "jobs": [
    "resolveRuntimePaths",
@@ -35886,6 +36843,9 @@
   ],
   "last segment differs by ": [
    "matchNearMissSessionKey"
+  ],
+  "last_at=\"": [
+   "renderJobCompletionReceipt"
   ],
   "last_error": [
    "createSessionManager"
@@ -36019,6 +36979,9 @@
    "initProtocolEffortModule",
    "executeGatewayCommand"
   ],
+  "may already contain partial or complete artifacts (reports, evidence, state files) that survived": [
+   "renderJobFailureNotification"
+  ],
   "mcp/sdk_call": [
    "initGrokAcpRuntimeModule"
   ],
@@ -36098,11 +37061,12 @@
   ],
   "meta": [
    "resolveRuntimePaths",
-   "classifySessionKeyKind",
+   "classifySessionKey",
    "isSessionListKind",
    "initProtocolSystemModule",
    "ensureSessionDescriptorAndStateFiles",
    "updateSessionDisplayName",
+   "classifyNotifySessionKind",
    "renderNotifyToolDescription",
    "runNotifyTool",
    "classifySessionKeyOrUnknown",
@@ -36127,7 +37091,8 @@
    "resolveSessionMetaPath"
   ],
   "meta:": [
-   "classifySessionKeyKind",
+   "classifySessionKey",
+   "classifyNotifySessionKind",
    "classifySessionKeyOrUnknown",
    "classifySessionPlane",
    "inferActorOriginFromSessionKey",
@@ -36207,6 +37172,9 @@
   ],
   "need from a prior run as something you must read from a file, not remember.": [
    "renderJobMissionBlock"
+  ],
+  "needs them:": [
+   "renderJobCompletionReceipt"
   ],
   "neutral": [
    "parseEffectivenessCounts"
@@ -36416,6 +37384,7 @@
    "isAutoArchivedJobSchedule"
   ],
   "one-shot": [
+   "renderJobFailureNotification",
    "classifyJobScheduleType"
   ],
   "only `when` and re-arms that job, and from a shell it is": [
@@ -36423,6 +37392,9 @@
   ],
   "optimistic": [
    "advanceOptimisticDeliveryCursor"
+  ],
+  "or similar self-notes.": [
+   "renderJobFailureNotification"
   ],
   "orphan — job archived or recreated, will not run": [
    "formatViewSessionsListLine"
@@ -36593,6 +37565,7 @@
    "archiveSessionIfQuiescent"
   ],
   "periodic": [
+   "renderJobFailureNotification",
    "classifyJobScheduleType"
   ],
   "permission_profile": [
@@ -36928,6 +37901,9 @@
   "retired": [
    "retirePartitionOnce"
   ],
+  "retrying on its schedule and will keep arriving on that schedule indefinitely.": [
+   "renderJobFailureNotification"
+  ],
   "rev-parse": [
    "resolveGitToplevelSync",
    "isKernelGitToplevel"
@@ -36977,6 +37953,9 @@
    "createDrainExecutionEventRecorder",
    "emitDrainOutputRecords",
    "handleDrainError"
+  ],
+  "runs=\"": [
+   "renderJobCompletionReceipt"
   ],
   "runtime": [
    "initChannelConfigLoaderModule",
@@ -37041,10 +38020,12 @@
    "validateJobScheduleExpression"
   ],
   "schedule=\"": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "schedule_type": [
-   "renderMailboxEventPrompt"
+   "renderMailboxEventPrompt",
+   "renderJobCompletionReceipt"
   ],
   "scheduler_create": [
    "initGrokAcpRuntimeModule"
@@ -37285,6 +38266,7 @@
   ],
   "sha256": [
    "hashSessionKey",
+   "hashDeliveryCursorKey",
    "computeContextProfileSignature",
    "archiveLegacyRegistrySessionsDir",
    "computeInstructionsFingerprint",
@@ -37395,6 +38377,9 @@
   "stale-idle-compact": [
    "drainSessionMailbox"
   ],
+  "stand_in_for_owner": [
+   "extractStandInOwnerInfo"
+  ],
   "started": [
    "mapItemStartedToExecEvent"
   ],
@@ -37493,13 +38478,13 @@
   "subconscious": [
    "resolveRuntimePaths",
    "partitionInboxDirFromVar",
-   "classifySessionKeyKind",
+   "classifySessionKey",
    "isSessionListKind",
    "initProtocolSystemModule",
    "createMetaSession"
   ],
   "subconscious:": [
-   "classifySessionKeyKind",
+   "classifySessionKey",
    "appendPartitionToolEvent",
    "createMetaSession"
   ],
@@ -37521,7 +38506,7 @@
    "computeHostBootId"
   ],
   "system": [
-   "classifySessionKeyKind",
+   "classifySessionKey",
    "isSessionListKind",
    "initProtocolSystemModule",
    "createAgentSdkAdapter",
@@ -37529,6 +38514,7 @@
    "prepareJobExecutionWorkspace",
    "mapItemStartedToExecEvent",
    "mapItemCompletedToExecEvent",
+   "classifyNotifySessionKind",
    "renderNotifyToolDescription",
    "drainSessionMailbox",
    "classifySessionKeyOrUnknown",
@@ -37560,7 +38546,8 @@
    "createDaemon"
   ],
   "system:": [
-   "classifySessionKeyKind",
+   "classifySessionKey",
+   "classifyNotifySessionKind",
    "classifySessionKeyOrUnknown",
    "classifySessionPlane",
    "computeStreamEventDedupKey",
@@ -37643,6 +38630,9 @@
   "the command that must exit clean, the question that must be answered, the": [
    "initManageJobToolModule"
   ],
+  "the crash.": [
+   "renderJobFailureNotification"
+  ],
   "the current main session": [
    "checkMainAliasCallerAuthority"
   ],
@@ -37654,6 +38644,9 @@
   ],
   "the runtime default": [
    "executeGatewayCommand"
+  ],
+  "the same id once the cause is fixed (its run history does not carry over).": [
+   "renderJobFailureNotification"
   ],
   "the same right.": [
    "initManageJobToolModule"
@@ -37885,31 +38878,6 @@
   "unhandledRejection": [
    "main"
   ],
-  "unknown": [
-   "buildInitialStatus",
-   "renderPromptLayers",
-   "createAgentSdkAdapter",
-   "initJobManagerModule",
-   "mapItemStartedToExecEvent",
-   "mapItemCompletedToExecEvent",
-   "createGrokAcpAdapter",
-   "runManageJobTool",
-   "resolveNotifyTargetSessionKey",
-   "renderNotifyDeliveryReport",
-   "classifyTopicNodeType",
-   "classifySessionKeyOrUnknown",
-   "renderJobCompleteReceiptGuidance",
-   "createPiWorkerAdapter",
-   "channelKindFromSessionKey",
-   "createModelCommandResolvers",
-   "createClaudeStreamingSessionFactory",
-   "createSessionManager",
-   "scanAndSpawnDueJobs",
-   "computeDedupKey",
-   "executeGatewayCommand",
-   "createDaemon",
-   "main"
-  ],
   "unknown MCP serverId": [
    "createGrokAcpAdapter"
   ],
@@ -38077,7 +39045,12 @@
   "when unsure of pre-compact specifics, consult memory/dossiers — don't reconstruct from the summary": [
    "renderSmartCompactNoticeBlock"
   ],
+  "will NOT produce user-visible output.": [
+   "renderMetaNotifyModeGuidance",
+   "renderSystemNotifyModeGuidance"
+  ],
   "win32": [
+   "normalizeDirPathForCompare",
    "normalizeIncludePathKey"
   ],
   "win32-arm64": [
@@ -38164,6 +39137,9 @@
   ],
   "you have run before, but the content of those earlier runs is NOT in this": [
    "renderJobMissionBlock"
+  ],
+  "you own": [
+   "renderJobCompletionReceipt"
   ],
   "your own durable state:": [
    "renderJobMissionBlock"
@@ -38268,6 +39244,7 @@
     "initProtocolSystemModule",
     "initQueueOutboundAttachmentModule",
     "initRemindDuoduoToolModule",
+    "initReservedMainAliasModule",
     "initRuntimeInitializationModule",
     "initRuntimeValidationModule",
     "initSessionLockAndArchivingModule",
@@ -38314,6 +39291,37 @@
     "initOrphanMemoryModule"
    ]
   },
+  "Hn": {
+   "line": 32707,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "formatSessionAliasCommand",
+    "initReservedMainAliasModule",
+    "isMainSessionCandidate",
+    "isReservedMainAliasChange",
+    "isSessionSetAliasParams",
+    "renderAmbiguousMainAliasNotice",
+    "resolveNotifyTargetSessionKey",
+    "resolveSessionByKeyOrAlias",
+    "setSessionAliasWithMainRole",
+    "upsertChannelSpawnDescriptor"
+   ]
+  },
+  "Xn": {
+   "line": 33176,
+   "kind": "var",
+   "usedBy": [
+    "initJobManagerModule",
+    "initMailboxDrainRunnerModule",
+    "initMaterializedClaudeSettingsModule",
+    "initOutboxStoreModule",
+    "initPartitionRetirementModule",
+    "initPartitionRunStateModule",
+    "initReservedMainAliasModule",
+    "initSpineEventLogModule",
+    "initSubconsciousPlaylistModule"
+   ]
+  },
   "Er": {
    "line": 36743,
    "kind": "var (uninitialised)",
@@ -38342,47 +39350,6 @@
     "initViewSessionsToolModule"
    ]
   },
-  "Rr": {
-   "line": 36996,
-   "kind": "var",
-   "usedBy": [
-    "initInstructionsFingerprintModule",
-    "initJobManagerModule",
-    "initMailboxDrainRunnerModule",
-    "initNotifyToolModule",
-    "initQueueOutboundAttachmentModule",
-    "initSkipToolModule",
-    "initViewSessionsToolModule",
-    "initVoidRuntimeModule"
-   ]
-  },
-  "Xn": {
-   "line": 33176,
-   "kind": "var",
-   "usedBy": [
-    "initJobManagerModule",
-    "initMailboxDrainRunnerModule",
-    "initMaterializedClaudeSettingsModule",
-    "initOutboxStoreModule",
-    "initPartitionRetirementModule",
-    "initPartitionRunStateModule",
-    "initSpineEventLogModule",
-    "initSubconsciousPlaylistModule"
-   ]
-  },
-  "Hn": {
-   "line": 32707,
-   "kind": "var (uninitialised)",
-   "usedBy": [
-    "isMainAliasedChannelSession",
-    "isReservedMainAliasChange",
-    "isSessionSetAliasParams",
-    "resolveNotifyTargetSessionKey",
-    "resolveSessionByKeyOrAlias",
-    "setSessionAliasWithMainRole",
-    "upsertChannelSpawnDescriptor"
-   ]
-  },
   "ni": {
    "line": 36743,
    "kind": "var",
@@ -38392,6 +39359,7 @@
     "initJobManagerModule",
     "initMaterializedClaudeSettingsModule",
     "initPartitionRetirementModule",
+    "initReservedMainAliasModule",
     "initSubconsciousPlaylistModule",
     "initVoidRuntimeModule"
    ]
@@ -38404,20 +39372,9 @@
     "initOutboxStoreModule",
     "initPartitionRetirementModule",
     "initPartitionRunStateModule",
+    "initReservedMainAliasModule",
     "initRuntimeInitializationModule",
     "initSpineEventLogModule"
-   ]
-  },
-  "Gi": {
-   "line": 32732,
-   "kind": "var (uninitialised)",
-   "usedBy": [
-    "executeGatewayCommand",
-    "initManageJobToolModule",
-    "isEffortLevel",
-    "parseJobFileFrontmatter",
-    "runManageJobTool",
-    "validateConfigValue"
    ]
   },
   "Jr": {
@@ -38426,6 +39383,7 @@
    "usedBy": [
     "createDaemon",
     "createSessionManager",
+    "renderActiveSessionsListing",
     "runManageJobTool",
     "runRemindDuoduoTool",
     "scanAndSpawnDueJobs",
@@ -38441,7 +39399,20 @@
     "initJobManagerModule",
     "initManageJobToolModule",
     "initNotifyToolModule",
+    "initReservedMainAliasModule",
     "initRuntimeValidationModule"
+   ]
+  },
+  "Gi": {
+   "line": 32732,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "executeGatewayCommand",
+    "initManageJobToolModule",
+    "isEffortLevel",
+    "parseJobFileFrontmatter",
+    "runManageJobTool",
+    "validateConfigValue"
    ]
   },
   "Rc": {
@@ -38454,6 +39425,30 @@
     "initRemindDuoduoToolModule",
     "initSkipToolModule",
     "initViewSessionsToolModule"
+   ]
+  },
+  "xs": {
+   "line": 36196,
+   "kind": "var",
+   "usedBy": [
+    "initBoardTransclusionModule",
+    "initChannelConfigLoaderModule",
+    "initJobManagerModule",
+    "initPartitionRetirementModule",
+    "initReservedMainAliasModule",
+    "initSubconsciousPlaylistModule"
+   ]
+  },
+  "Zn": {
+   "line": 48,
+   "kind": "function-expr",
+   "usedBy": [
+    "initBoardTransclusionModule",
+    "initChannelConfigLoaderModule",
+    "initJobManagerModule",
+    "initPartitionRetirementModule",
+    "initReservedMainAliasModule",
+    "initSubconsciousPlaylistModule"
    ]
   },
   "Gu": {
@@ -38476,28 +39471,6 @@
     "initMetaSessionModule",
     "initSubconsciousPlaylistModule",
     "main"
-   ]
-  },
-  "xs": {
-   "line": 36196,
-   "kind": "var",
-   "usedBy": [
-    "initBoardTransclusionModule",
-    "initChannelConfigLoaderModule",
-    "initJobManagerModule",
-    "initPartitionRetirementModule",
-    "initSubconsciousPlaylistModule"
-   ]
-  },
-  "Zn": {
-   "line": 48,
-   "kind": "function-expr",
-   "usedBy": [
-    "initBoardTransclusionModule",
-    "initChannelConfigLoaderModule",
-    "initJobManagerModule",
-    "initPartitionRetirementModule",
-    "initSubconsciousPlaylistModule"
    ]
   },
   "$s": {
@@ -38548,6 +39521,16 @@
     "applySessionConfigVerb",
     "loadGlobalRuntimeConfig",
     "upsertChannelSpawnDescriptor"
+   ]
+  },
+  "ti": {
+   "line": 33706,
+   "kind": "var",
+   "usedBy": [
+    "initMailboxDrainRunnerModule",
+    "initNotifyConsumerStalenessModule",
+    "initReservedMainAliasModule",
+    "initViewSessionsToolModule"
    ]
   },
   "Zu": {
@@ -38650,6 +39633,15 @@
     "main"
    ]
   },
+  "OO": {
+   "line": 66517,
+   "kind": "function",
+   "usedBy": [
+    "renderChannelNotifyModeGuidance",
+    "renderMetaNotifyModeGuidance",
+    "renderSystemNotifyModeGuidance"
+   ]
+  },
   "QR": {
    "line": 33522,
    "kind": "var (uninitialised)",
@@ -38675,15 +39667,6 @@
     "claudeUnavailableReason",
     "isClaudeAvailable",
     "probeClaudeAvailability"
-   ]
-  },
-  "ti": {
-   "line": 33706,
-   "kind": "var",
-   "usedBy": [
-    "initMailboxDrainRunnerModule",
-    "initNotifyConsumerStalenessModule",
-    "initViewSessionsToolModule"
    ]
   },
   "ul": {
@@ -38751,14 +39734,6 @@
    "usedBy": [
     "createSessionManager",
     "runManageJobTool"
-   ]
-  },
-  "A6": {
-   "line": 90231,
-   "kind": "async function",
-   "usedBy": [
-    "announceMainSessionChange",
-    "reconcileMainSessionAtBoot"
    ]
   },
   "axe": {
@@ -38887,14 +39862,6 @@
    "usedBy": [
     "buildCodexDynamicTools",
     "createAladuoMcpServer"
-   ]
-  },
-  "Ewe": {
-   "line": 66500,
-   "kind": "function",
-   "usedBy": [
-    "isJobSessionKeyKind",
-    "runNotifyTool"
    ]
   },
   "Fb": {
@@ -39073,6 +40040,14 @@
     "initAgentSdkAdapterModule"
    ]
   },
+  "m0e": {
+   "line": 73447,
+   "kind": "function",
+   "usedBy": [
+    "renderJobCompletionReceipt",
+    "renderJobFailureNotification"
+   ]
+  },
   "Mke": {
    "line": 69603,
    "kind": "var (uninitialised)",
@@ -39241,6 +40216,14 @@
     "readDrainRecords"
    ]
   },
+  "sI": {
+   "line": 34062,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "isMailboxMergeReadError",
+    "mergeInboxIntoMailbox"
+   ]
+  },
   "sxe": {
    "line": 70264,
    "kind": "function",
@@ -39311,14 +40294,6 @@
    "usedBy": [
     "listSessionsWithRecentConsumer",
     "renderNotifyRefusalMessage"
-   ]
-  },
-  "vSe": {
-   "line": 90192,
-   "kind": "function",
-   "usedBy": [
-    "checkMainAliasCallerAuthority",
-    "setSessionAliasWithMainRole"
    ]
   },
   "wC": {
@@ -39497,25 +40472,11 @@
     "runMemoryCheckTick"
    ]
   },
-  "_we": {
-   "line": 66532,
-   "kind": "function",
-   "usedBy": [
-    "renderNotifyToolDescription"
-   ]
-  },
   "_wt": {
    "line": 83930,
    "kind": "var (uninitialised)",
    "usedBy": [
     "resolveBoardIncludes"
-   ]
-  },
-  "_yt": {
-   "line": 73451,
-   "kind": "function",
-   "usedBy": [
-    "collectJobCompletionReceipts"
    ]
   },
   "$0e": {
@@ -39602,13 +40563,6 @@
     "initMailboxDrainRunnerModule"
    ]
   },
-  "aft": {
-   "line": 66537,
-   "kind": "function",
-   "usedBy": [
-    "renderNotifyToolDescription"
-   ]
-  },
   "Aft": {
    "line": 67305,
    "kind": "function",
@@ -39635,13 +40589,6 @@
    "kind": "var",
    "usedBy": [
     "lookupInjectionPrompt"
-   ]
-  },
-  "aJ": {
-   "line": 72957,
-   "kind": "function",
-   "usedBy": [
-    "renderMailboxEventPrompt"
    ]
   },
   "amt": {
@@ -39768,13 +40715,6 @@
    "kind": "async function",
    "usedBy": [
     "drainSessionMailbox"
-   ]
-  },
-  "Bft": {
-   "line": 90222,
-   "kind": "function",
-   "usedBy": [
-    "announceMainSessionChange"
    ]
   },
   "Bg": {
@@ -40071,13 +41011,6 @@
     "applySessionConfigVerb"
    ]
   },
-  "dke": {
-   "line": 68760,
-   "kind": "function",
-   "usedBy": [
-    "readPartitionContract"
-   ]
-  },
   "Dke": {
    "line": 69451,
    "kind": "function",
@@ -40302,13 +41235,6 @@
     "renderManageJobToolDescription"
    ]
   },
-  "FEe": {
-   "line": 71716,
-   "kind": "function",
-   "usedBy": [
-    "resolveAdditionalDirClaudeMdAutoload"
-   ]
-  },
   "fft": {
    "line": 66676,
    "kind": "function",
@@ -40447,6 +41373,13 @@
    "kind": "async function",
    "usedBy": [
     "resolveNotifyTargetSessionKey"
+   ]
+  },
+  "G6": {
+   "line": 68079,
+   "kind": "var (uninitialised)",
+   "usedBy": [
+    "countUnreadableMemoryPaths"
    ]
   },
   "Gde": {
@@ -40631,13 +41564,6 @@
     "buildClaudeSettingsEnvOverrides"
    ]
   },
-  "Hft": {
-   "line": 90307,
-   "kind": "function",
-   "usedBy": [
-    "reconcileMainSessionAtBoot"
-   ]
-  },
   "HH": {
    "line": 62780,
    "kind": "var",
@@ -40678,13 +41604,6 @@
    "kind": "var",
    "usedBy": [
     "initNotifyToolModule"
-   ]
-  },
-  "Hue": {
-   "line": 33554,
-   "kind": "function",
-   "usedBy": [
-    "createDaemon"
    ]
   },
   "hW": {
@@ -40741,6 +41660,13 @@
    "kind": "function",
    "usedBy": [
     "buildNotifyInputSchema"
+   ]
+  },
+  "iJ": {
+   "line": 72971,
+   "kind": "function",
+   "usedBy": [
+    "renderJobFailureNotification"
    ]
   },
   "imt": {
@@ -41065,13 +41991,6 @@
     "runManageJobTool"
    ]
   },
-  "Ldt": {
-   "line": 65686,
-   "kind": "function",
-   "usedBy": [
-    "resolveDeliveryCursorPath"
-   ]
-  },
   "LEe": {
    "line": 71675,
    "kind": "var",
@@ -41322,13 +42241,6 @@
    "kind": "function",
    "usedBy": [
     "runEntityLint"
-   ]
-  },
-  "Nke": {
-   "line": 69387,
-   "kind": "function",
-   "usedBy": [
-    "scanActivationWindowTouches"
    ]
   },
   "nnt": {
@@ -41618,13 +42530,6 @@
     "executeGatewayCommand"
    ]
   },
-  "r_t": {
-   "line": 74744,
-   "kind": "function",
-   "usedBy": [
-    "runQueueOutboundAttachmentTool"
-   ]
-  },
   "r6": {
    "line": 65266,
    "kind": "var (uninitialised)",
@@ -41651,13 +42556,6 @@
    "kind": "var",
    "usedBy": [
     "loadRegistryDedupStore"
-   ]
-  },
-  "rft": {
-   "line": 66330,
-   "kind": "function",
-   "usedBy": [
-    "deliverRouteEventToSession"
    ]
   },
   "Rgt": {
@@ -41758,13 +42656,6 @@
     "listRetryableOutboxRecords"
    ]
   },
-  "sft": {
-   "line": 66527,
-   "kind": "function",
-   "usedBy": [
-    "renderNotifyToolDescription"
-   ]
-  },
   "Sft": {
    "line": 66940,
    "kind": "function",
@@ -41777,13 +42668,6 @@
    "kind": "var (uninitialised)",
    "usedBy": [
     "mergeKernelGitignoreEntries"
-   ]
-  },
-  "sI": {
-   "line": 34062,
-   "kind": "var (uninitialised)",
-   "usedBy": [
-    "mergeInboxIntoMailbox"
    ]
   },
   "sJ": {
@@ -42087,32 +42971,11 @@
     "resolveJobOwnerNotifyTarget"
    ]
   },
-  "Uft": {
-   "line": 90198,
-   "kind": "function",
-   "usedBy": [
-    "setSessionAliasWithMainRole"
-   ]
-  },
   "UG": {
    "line": 81847,
    "kind": "var",
    "usedBy": [
     "initInstructionsFingerprintModule"
-   ]
-  },
-  "uht": {
-   "line": 70275,
-   "kind": "function",
-   "usedBy": [
-    "removeHostModelEnvLines"
-   ]
-  },
-  "uJ": {
-   "line": 72963,
-   "kind": "function",
-   "usedBy": [
-    "renderMailboxEventPrompt"
    ]
   },
   "Unt": {
@@ -42220,13 +43083,6 @@
     "initManageJobToolModule"
    ]
   },
-  "Vft": {
-   "line": 90227,
-   "kind": "function",
-   "usedBy": [
-    "announceMainSessionChange"
-   ]
-  },
   "vgt": {
    "line": 70799,
    "kind": "async function",
@@ -42260,13 +43116,6 @@
    "kind": "var (uninitialised)",
    "usedBy": [
     "runBroadcastFlattenLint"
-   ]
-  },
-  "Vnt": {
-   "line": 38251,
-   "kind": "function",
-   "usedBy": [
-    "drainRecordPath"
    ]
   },
   "vq": {
@@ -42493,13 +43342,6 @@
     "initManageJobToolModule"
    ]
   },
-  "Xdt": {
-   "line": 66203,
-   "kind": "async function",
-   "usedBy": [
-    "runViewSessionsTool"
-   ]
-  },
   "Xft": {
    "line": 90342,
    "kind": "var",
@@ -42661,13 +43503,6 @@
     "retirePartitionOnce"
    ]
   },
-  "Ygt": {
-   "line": 72975,
-   "kind": "function",
-   "usedBy": [
-    "renderMailboxEventPrompt"
-   ]
-  },
   "YN": {
    "line": 88485,
    "kind": "var",
@@ -42722,13 +43557,6 @@
    "kind": "function",
    "usedBy": [
     "recordChannelCapabilityDeclaration"
-   ]
-  },
-  "Yue": {
-   "line": 33763,
-   "kind": "function",
-   "usedBy": [
-    "drainSessionMailbox"
    ]
   },
   "ywe": {
@@ -42806,13 +43634,6 @@
    "kind": "class-expr",
    "usedBy": [
     "runSpineCatRpc"
-   ]
-  },
-  "ZSe": {
-   "line": 68032,
-   "kind": "function",
-   "usedBy": [
-    "runReadAuditedMemoryCheckStep"
    ]
   },
   "zSt": {

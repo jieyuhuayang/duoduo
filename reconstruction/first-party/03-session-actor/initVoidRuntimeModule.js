@@ -12,6 +12,6 @@ var Gu, initVoidRuntimeModule = A(() => {
     ni();
     initOutboxStoreModule();
     ca();
-    Rr();
+    initReservedMainAliasModule();
     Gu = "This session never runs a model (runtime void)."
 });

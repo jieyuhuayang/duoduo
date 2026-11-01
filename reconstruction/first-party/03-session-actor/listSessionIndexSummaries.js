@@ -17,9 +17,9 @@ async function listSessionIndexSummaries(sessionIndex, jobStore, filter, deliver
         liveJobSessionKeys = null
     }
     let isOrphan = sessionKey => liveJobSessionKeys === null || !sessionKey.startsWith("job:") ? !1 : !liveJobSessionKeys.has(sessionKey),
-        matched = sessionIndex.list().filter(entry => !(filter.kind && classifySessionKeyKind(entry.session_key) !== filter.kind || filter.named_only && !hasNonEmptyDisplayName(entry) || !filter.include_orphans && isOrphan(entry.session_key))),
+        matched = sessionIndex.list().filter(entry => !(filter.kind && classifySessionKey(entry.session_key) !== filter.kind || filter.named_only && !hasNonEmptyDisplayName(entry) || !filter.include_orphans && isOrphan(entry.session_key))),
         visibleEntries = filter.deliverable ? await filterDeliverableSessions(deliverableDeps, matched, deliverableOptions) : matched,
-        mainResolution = resolveMainSessionHolder(sessionIndex.list());
+        mainResolution = resolveMainSession(sessionIndex.list());
     return visibleEntries.map(visibleEntry => {
         let summary = Gdt(visibleEntry);
         return mainResolution.state === "held" && mainResolution.session_key === visibleEntry.session_key ? summary = {

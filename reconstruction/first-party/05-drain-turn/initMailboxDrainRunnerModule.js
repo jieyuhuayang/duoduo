@@ -21,7 +21,7 @@ var dJ, fJ, sJ, eyt, iyt, fyt, lJ, xyt, Eyt, initMailboxDrainRunnerModule = A(()
     $Ee();
     initLogLevelModule();
     Bu();
-    Rr();
+    initReservedMainAliasModule();
     Zu();
     AEe();
     NEe();

@@ -20,7 +20,7 @@ async function enqueueSessionCompactCommand(paths, bus, sessionIndex, gatewayCom
         reason: "not_found",
         target: trimmed
     };
-    let sessionKind = classifySessionKeyKind(sessionByKeyOrAlias.session_key);
+    let sessionKind = classifySessionKey(sessionByKeyOrAlias.session_key);
     if (sessionKind !== "channel") return {
         ok: !1,
         reason: "forbidden_kind",

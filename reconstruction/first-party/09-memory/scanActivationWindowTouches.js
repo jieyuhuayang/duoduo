@@ -10,7 +10,7 @@
 function scanActivationWindowTouches(eventsDir, memoryDir, nowMs) {
     let entitiesPrefix = fu.join(memoryDir, "entities") + fu.sep,
         topicsPrefix = fu.join(memoryDir, "topics") + fu.sep,
-        regExp = new RegExp(`${Nke(memoryDir+fu.sep)}(?:entities|topics)${Nke(fu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
+        regExp = new RegExp(`${escapeRegExpSource(memoryDir+fu.sep)}(?:entities|topics)${escapeRegExpSource(fu.sep)}[^\\s"']+\\.md(?=[\\s"']|$)`, "g"),
         result = {
             dates: [],
             interactionDays: 0,

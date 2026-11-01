@@ -9,6 +9,6 @@
 function removeHostModelEnvLines(content) {
     return sxe(content).filter(line => {
         let key = axe(line);
-        return !key || !uht(key)
+        return !key || !isHostModelEnvKey(key)
     })
 }
