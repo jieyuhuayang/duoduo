@@ -68,7 +68,7 @@ daemon（一个常驻进程）
 
 | 目录 | 是什么 | 里面有什么 |
 |---|---|---|
-| `~/aladuo`（内核，kernel；位置可配置，见附录 A.2） | agent 可以修改的设定与记忆，一个 git 仓库 | 内核根提示词、四个引擎的使用说明、全局与各渠道种类的配置和人格、记忆板与档案、后台分区的提示词与轮转表。身份提示 `meta-prompt.md` 不在这里：它随 npm 包分发，不复制进内核（4.2 节） |
+| `~/aladuo`（内核，kernel；位置可配置，见附录 A.2） | agent 可以修改的设定与记忆，一个 git 仓库 | 内核根提示词、四个引擎的使用说明、全局与各渠道种类的配置和人格、记忆板与档案、后台分区的提示词与轮转表。身份提示 `meta-prompt.md` 和角色说明 `roles/` 不在这里：它们随 npm 包分发，不复制进内核（4.2 节） |
 | `~/.aladuo`（运行数据） | daemon 运行时读写的数据 | 事件日志、会话状态与邮箱、outbox、用量账本、job 定义、渠道实例记录、渠道适配器的安装目录，以及锁文件和进程间通信用的 socket 文件 |
 
 不带点的是内核，带点的是运行数据。实际路径以 `duoduo daemon config` 的输出为准。
@@ -316,7 +316,9 @@ Notify 把一段文字作为事件投进目标会话的邮箱，并唤醒目标�
 
 **主会话。** 一台机器上的 duoduo 至多有一个渠道会话是主会话。它是运行这个 duoduo 的用户自己的对话，也是别处放不下的投递的落点：job 的 owner 收不了的结果（3.1 节）、目标写 `main` 的通知都送到它这里。主会话就是显示别名为 `main` 的那个渠道会话。
 
-`main` 这个别名只能用 `duoduo session alias <会话键> main` 设置。如果已有别的会话叫 `main`，命令要加 `--move`，才会把别名从原来的会话转移过来。如果这条命令在某个会话内部执行（例如模型在会话的 shell 里执行），只有当前的主会话自己能改。用户在自己的终端里执行时不受这条限制；但如果 daemon 不是用 `duoduo daemon start` 启动的，CLI 分辨不出命令是不是在会话内部执行，一律按会话内部处理。其他写显示别名的途径一律拒绝 `main`，例如渠道插件建会话时带来的名字。转移成功后，运行时分别通知新旧两个主会话。有两个会话同时叫 `main` 时，两个都不算主会话，投递按没有主会话处理；`duoduo session list`、`duoduo daemon status` 和 daemon 启动时的检查都会指出这一点。目标写 `main` 的通知在每次投递时才确定送给谁，所以主会话转移后自动跟着走。飞书宿主上，bot owner 的第一条私聊会认领空缺的主会话（上游 CHANGELOG 的说法，飞书渠道包不在还原范围内）。
+`main` 这个别名只能经控制面方法 `session.set_alias` 设置；用户执行的是 `duoduo session alias <会话键> main`，飞书渠道认领主会话也经过这个方法。如果已有别的会话叫 `main`，命令要加 `--move`，才会把别名从原来的会话转移过来。如果这条命令在某个会话内部执行（例如模型在会话的 shell 里执行），只有当前的主会话自己能改。用户在自己的终端里执行时不受这条限制；但如果 daemon 不是用 `duoduo daemon start` 启动的，CLI 分辨不出命令是不是在会话内部执行，一律按会话内部处理。其他写显示别名的途径一律拒绝 `main`，例如渠道插件建会话时带来的名字。
+
+转移成功后，运行时分别通知新旧两个主会话。有两个会话同时叫 `main` 时，两个都不算主会话，投递按没有主会话处理；`duoduo session list`、`duoduo daemon status` 和 daemon 启动时的检查都会指出这一点。目标写 `main` 的通知在每次投递时才确定送给谁，所以主会话转移后自动跟着走。在飞书上，飞书配置里指定的机器人所有者第一次私聊机器人时，这个私聊会认领空缺的主会话（上游 CHANGELOG 的说法，飞书渠道包不在还原范围内）。
 
 Notify 投递成功只表示写进了目标邮箱；目标会话长时间没人读取时的拒投规则见 3.1 节。目标是 void 会话（1.4 节）时，通知只写成它的一条出站记录，不唤醒。渠道会话调用 Notify 时还可以填 `in_reply_to`，写明回复的是哪封邮件；它只随事件写进事件日志和出站记录，接收方模型看不到，供把 void 会话接到邮件这类外部系统的渠道插件使用（谁读取它，代码里看不到）。
 
@@ -735,15 +737,15 @@ daemon 启动时如果发现内核还不是 git 仓库，就执行 `git init`、
 
 只补缺失这条规则有三类例外，都是上游所有的文件：
 
-1. **身份提示 `meta-prompt.md` 和仪表盘页面 `dashboard.html` 从不复制进内核。** 仪表盘页面在每次访问 `GET /dashboard` 时从出厂目录读取，出厂目录默认就是包内的 `bootstrap/`。身份提示在每次装配系统提示时从磁盘读取，读取位置见列表后的说明。
+1. **身份提示 `meta-prompt.md`、角色说明目录 `roles/` 和仪表盘页面 `dashboard.html` 从不复制进内核。** 仪表盘页面在每次访问 `GET /dashboard` 时从出厂目录读取，出厂目录默认就是包内的 `bootstrap/`。身份提示和角色说明在每次装配系统提示时从磁盘读取，两者的读取位置由同一对环境变量决定，见列表后的说明。
 2. **`~/.aladuo/var/` 各子目录里的 `DUODUO.md` 每次启动重新复制。** 它们是运行时各个数据目录的使用说明，放在运行时数据目录而不是内核里。身份提示只告诉 agent"去运行时目录里找 `DUODUO.md`"，不把说明内容写死在提示词里。
 3. **内核的 `.gitignore` 每次启动补上缺少的上游条目。** 只追加，不删除用户自己加的行（4.1）。
 
-**身份提示从哪里读取，取决于两个环境变量。** 两个变量都没有设置时，系统提示里没有身份这一层；npm 包里的启动脚本、CLI 和 daemon 的代码都不设置它们，默认安装后 daemon 进程是否带着它们启动，本文没有实测（证据文档 2.1 节）。
+**身份提示从哪里读取，取决于两个环境变量。** 两个变量都没有设置时，系统提示里没有身份这一层，渠道会话的角色说明也读不到；npm 包里的启动脚本、CLI 和 daemon 的代码都不设置它们，默认安装后 daemon 进程是否带着它们启动，本文没有实测（证据文档 2.1 节）。
 
-读取位置指向包内时，升级 npm 包后身份提示立即换成新版。身份提示本身约 14 KB。无论读取位置在哪里，身份提示和仪表盘页面都不在内核里，内核里 agent 自己写的文件不受它们的更新影响；上游提供的文件和 agent 自己写的文件因此在文件层面就分开了。
+读取位置指向包内时，升级 npm 包后身份提示和角色说明立即换成新版。身份提示本身约 14 KB。无论读取位置在哪里，身份提示、角色说明和仪表盘页面都不在内核里，内核里 agent 自己写的文件不受它们的更新影响；上游提供的文件和 agent 自己写的文件因此在文件层面就分开了。
 
-出厂文件里与产品设计关系最大的有三项：记忆板 `memory/CLAUDE.md` 出厂为 0 字节，记忆从零开始积累；四个出厂分区的提示词决定后台的初始行为，合计约 47 KB（gradient-distiller 约 17 KB、intuition-weaver 约 18 KB、pattern-tracker 约 8 KB、memory-committer 约 4 KB），每次分区会话的输入都包含自己那一份去掉 frontmatter 后的全部正文；各 `DUODUO.md` 让 agent 按需查找运行时的能力，而不是把它们全部写进提示词。
+出厂文件里与产品设计关系最大的有三项：记忆板 `memory/CLAUDE.md` 出厂为 0 字节，记忆从零开始积累；四个出厂分区的提示词决定后台的初始行为，合计约 49 KB（gradient-distiller 约 18 KB、intuition-weaver 约 19 KB、pattern-tracker 约 8 KB、memory-committer 约 4 KB），每次分区会话的输入都包含自己那一份去掉 frontmatter 后的全部正文；各 `DUODUO.md` 让 agent 按需查找运行时的能力，而不是把它们全部写进提示词。
 
 **较早安装的内核里可能还留着两个已不在出厂列表里的分区（memory-weaver 和 cadence-executor）；运行时确认目录是官方的那一份后，只把它们的 `schedule.enabled` 改成 `false`，不删目录，只改一次。** 它们的职责在当前出厂配置里由别处承担：记忆板的修改由 gradient-distiller 和 intuition-weaver 两个分区分工完成，任务单由运行时直接写进各分区的收件箱（4.3）。用户想继续运行这个分区，手工改回 `enabled: true` 即可，运行时不会再改第二次。
 
@@ -888,7 +890,7 @@ memory-committer（下称 committer）负责提交。每次运行时，它把工
 
 每次处理之前，运行时从磁盘重新读取"当前这套指令"，对它算一个哈希，即指令指纹。参与计算的有：身份提示（渠道会话包括主会话或成员的角色说明）；渠道会话的种类人格和实例提示；记忆板（展开其中 `@路径` 引用的文件之后的正文）；job 会话的任务书和验收标准。运行时把新指纹与会话存档里的指纹比较，另外单独算一个只针对记忆板的哈希和一个不含记忆板的指纹，用来判断是不是"只有记忆板变了"。
 
-角色说明在身份提示里，所以一个会话成为或不再是主会话时，它的指纹随之改变，按下表"身份提示变了"的那一行处理；升级到 v0.8.7 后的第一轮，所有渠道会话都多出角色说明，因此各付一次这样的代价。
+角色说明在身份提示里，所以一个会话成为或不再是主会话时，它的指纹随之改变，按下表"身份提示变了"的那一行处理；升级到 v0.8.7 后的第一轮，所有渠道会话都多出角色说明，因此各付一次这样的代价。前提是 daemon 读得到角色文件；角色文件的读取位置与身份提示相同（4.2 节）。
 
 因为每次都按文件内容计算，用保留原修改时间的方式覆盖提示词文件，改动也能在下一次处理时被发现；分区的提示词在每次运行分区之前、job 的任务书在每次处理之前，同样从磁盘重新读取。指令指纹与 3.3 节的活动指纹是两个互不相关的机制。
 
@@ -960,7 +962,7 @@ Claude 一列的"续接原会话、换上新系统提示"能生效，是因为 d
 | 后台分区总纲 `subconscious/CLAUDE.md` | 上游 | committer 不提交它；刷新时整份换新 |
 | 渠道种类配置 `config/<种类>.md` | 人：直接编辑，或用 `duoduo session config --kind` 写入 | committer 提交进 git；总纲没有提到它，Claude 分区也能写（4.4） |
 | 全局配置 `config/runtime.md` | 人：直接编辑，或用 `duoduo session config --global` 写入 | 不进 git |
-| 身份提示 `meta-prompt.md`、`~/.aladuo/var/**/DUODUO.md` | 上游 npm 包 | 升级 npm 包后换成新版（身份提示要求读取位置指向包内，见 4.2）；前者不进内核，后者每次启动重新复制 |
+| 身份提示 `meta-prompt.md`、角色说明 `roles/*.md`、`~/.aladuo/var/**/DUODUO.md` | 上游 npm 包 | 升级 npm 包后换成新版（身份提示和角色说明要求读取位置指向包内，见 4.2）；前两者不进内核，`DUODUO.md` 每次启动重新复制 |
 | 锁文件、索引、会话状态 | 运行时 | 任何一方都不应手改 |
 
 **运行时自动写入内核的只有以下几类：**
@@ -983,7 +985,7 @@ Claude 一列的"续接原会话、换上新系统提示"能生效，是因为 d
 | 机制 | 效果 |
 |---|---|
 | 只补缺失文件（4.2） | 内核已存在时，升级只补缺失的文件（包括被删除的出厂文件），不覆盖 memory、subconscious、config 里任何已有的文件。例外只有 4.2 列出的三类上游文件，以及退休分区的 `schedule.enabled`（只改一次） |
-| 身份提示和仪表盘不进内核（4.2） | 读取位置指向包内时，随 npm 升级立即更新，不动内核 |
+| 身份提示、角色说明和仪表盘不进内核（4.2） | 读取位置指向包内时，随 npm 升级立即更新，不动内核 |
 | 分区提示词的刷新由人触发 | 通过 `duoduo-runtime-admin` 技能里的 subconscious refresh 流程进行，会覆盖上游存在的文件，见下文 |
 | 契约声明和提示词写在同一个文件里（4.3） | 分区刷新到哪个版本，运行时就按该版本声明的信号投递，不会把新版的信号投给看不懂它的旧提示词 |
 
@@ -1093,7 +1095,7 @@ duoduo 对每一类失败都规定了处置，并留下记录（日志、事件�
 | RPC `spine.tail`（只读端口可调用） | 读取最近的事件；调用方可以带上上次读到的事件 id，从它之后继续读 | dashboard（每 3 秒调用一次）和其他监控程序 |
 | `duoduo spine cat` 与 `duoduo spine show` | 按日期和时间段读事件日志：一次工具调用与它的结果合成一行，正文不截断，头部和尾部都给出计数，尾部计数出现才说明整段已经读完；`show` 输出单条事件的完整 JSON | 分区会话读自己的历史；排查问题的人 |
 | dashboard（`GET /dashboard`，daemon 自带的一个网页，不引用外部脚本） | 会话、job、用量和事件流，事件流可以点击过滤；每个会话显示实际服务的模型，有待生效的模型时显示为"实际模型 → 待生效模型" | 人 |
-| `duoduo daemon status` | daemon 是否健康、进程号、版本、运行数据目录；心跳的上次时间与间隔；轮转表当前轮次已完成几个分区；此刻正在执行的工具调用（会话、工具名、已运行多久）；输出曾被取走、但现在没有订阅者的渠道会话，以及它们的输出最近一次被取走是多久以前；只读检查与遗忘 GC 是否打开，以及各分区的契约 | 人；判断某个会话为什么拒收 Notify |
+| `duoduo daemon status` | daemon 是否健康、进程号、版本、运行数据目录；心跳的上次时间与间隔；轮转表当前轮次已完成几个分区；此刻正在执行的工具调用（会话、工具名、已运行多久）；输出曾被取走、但现在没有订阅者的渠道会话，以及它们的输出最近一次被取走是多久以前；有多个会话同叫 `main` 时列出它们；只读检查与遗忘 GC 是否打开，以及各分区的契约 | 人；判断某个会话为什么拒收 Notify |
 | RPC `system.status`（只读端口可调用，dashboard 每 5 秒读一次） | 每个会话实际服务的模型，以及已请求但尚未生效的模型；正在执行的工具调用；渠道会话最近一次输出被取走的时间和当前订阅者数 | dashboard 和其他监控程序 |
 | 内核 git 历史 | 记忆板、档案、分区提示词、轮转表和渠道种类配置（`config/` 下的 `.md`）的改动：memory-committer 每次运行把这些改动合成至多一个提交，提交说明写明演化了什么，本次运行期间还在被修改的文件留到下次；遗忘 GC 的删除按设计另有自己的提交（默认目录布局下这次提交会失败，见 5.1 节） | 人回溯"它为什么变成这样"，必要时 revert |
 | daemon 运行日志：macOS 上直接读 `~/.aladuo/run/daemon.stderr.log`（launchd 托管时写入）；其他平台用 `duoduo daemon logs`，它读的是 `~/.aladuo/run/daemon-supervisor.log` | 指令指纹变化时的新旧指纹、会话重建、分区运行结果等 | 人。日志按严重程度分级，指纹变化这类记录属于 info 级，而默认级别是 warn，只写更严重的记录；要看到它们需把日志级别设为 info（附录 A.2） |
@@ -1231,7 +1233,7 @@ orphan-newborn 同时被 intuition-weaver 和 pattern-tracker 接收：运行时
 | 1.3 四个引擎使用同一份系统提示 | 2 系统提示装配 | 包内身份提示 `bootstrap/meta-prompt.md` 与角色说明 `bootstrap/roles/` |
 | 1.4 引擎、模型、推理力度的选择与会话绑定 | 3 引擎；9.3 配置分层（渠道配置里的 runtime）；10.1 定义与创建校验；11.3 分区会话与轮转表 | [`../skills/duoduo-runtime-admin/references/`](../skills/duoduo-runtime-admin/references/) 下的模型默认值与模型切换说明 |
 | 1.5 同名命令在各引擎上分别实现 | 3 引擎；7 Drain 与 turn 控制（关键数据结构中的用量字段） | — |
-| 1.6 追加给模型的六个自操作工具 | 4 自操作工具（含 4.3 Notify 与 `session.notify` 的参数）；8.6 主会话 | 实测：[`11-skip-rewind`](../reconstruction/scenarios/findings/11-skip-rewind.md) |
+| 1.6 追加给模型的六个自操作工具 | 4 自操作工具（`session.notify` 的参数在 4.3 Notify 与拒投规则）；8.6 主会话 | 实测：[`11-skip-rewind`](../reconstruction/scenarios/findings/11-skip-rewind.md) |
 | 1.7 无人值守下的权限与认证 | 3 引擎 | [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) 2.2 认证来源 |
 | 2.1 六个步骤 | 5 事件日志；6 网关与控制面；8 会话 actor、锁与并发池；1 端到端路径 | 实测：[`05-dedup`](../reconstruction/scenarios/findings/05-dedup.md)、[`03-void-session`](../reconstruction/scenarios/findings/03-void-session.md) |
 | 2.2 合并与插话 | 7 Drain 与 turn 控制；8 会话 actor、锁与并发池 | — |
@@ -1239,7 +1241,7 @@ orphan-newborn 同时被 intuition-weaver 和 pattern-tracker 接收：运行时
 | 2.4 稳定内容与每轮内容分开装配 | 2 系统提示装配 | — |
 | 2.5 崩溃恢复 | 5 事件日志；6 网关与控制面；1 端到端路径 | 实测：[`08-restart-reason`](../reconstruction/scenarios/findings/08-restart-reason.md)、[`10-restart-hint`](../reconstruction/scenarios/findings/10-restart-hint.md) |
 | 2.6 渠道适配器 | 9 渠道适配器；ARCHITECTURE 第 6 节（飞书具名实例与转发，依据技能原文）；5.1 追加（`spine.record`）；6.1 三个监听器共用一套路由（新增方法）；6.3 出站：拉取、订阅与能力协商 | 包内 `dist/release/feishu-gateway.js` 的字面量（见表后说明）；实测：[`02-rpc-catalog`](../reconstruction/scenarios/findings/02-rpc-catalog.md)、[`09-spine-redaction`](../reconstruction/scenarios/findings/09-spine-redaction.md) |
-| 3.1 job：用户布置的定时任务 | 10 job 调度（10.3 结果投递与主会话代收）；4.2 ManageJob；4.3 Notify 与拒投规则 | 包内 `bootstrap/var/jobs/DUODUO.md`；[`../skills/duoduo-loop/`](../skills/duoduo-loop/)；实测：[`07-job-socket`](../reconstruction/scenarios/findings/07-job-socket.md) |
+| 3.1 job：用户布置的定时任务 | 10 job 调度（主会话代收在 10.3 结束状态与结果投递）；4.2 ManageJob；4.3 Notify 与拒投规则 | 包内 `bootstrap/var/jobs/DUODUO.md`；[`../skills/duoduo-loop/`](../skills/duoduo-loop/)；实测：[`07-job-socket`](../reconstruction/scenarios/findings/07-job-socket.md) |
 | 3.2 心跳与后台分区会话 | 11 心跳与后台分区 | 后台分区总纲 [`../subconscious/CLAUDE.md`](../subconscious/CLAUDE.md)；实测：[`04-cadence`](../reconstruction/scenarios/findings/04-cadence.md) |
 | 3.3 四个跳过条件 | 11 心跳与后台分区；5.2 落库事件类型（`external.record`） | 实测：[`04-cadence`](../reconstruction/scenarios/findings/04-cadence.md) |
 | 4.1 设定与记忆存放在一个 git 仓库里 | 12 记忆系统；11 心跳与后台分区 | 包内身份提示 `bootstrap/meta-prompt.md` |
@@ -1264,7 +1266,7 @@ orphan-newborn 同时被 intuition-weaver 和 pattern-tracker 接收：运行时
 
 ## 附录 D · 从 v0.7.1 到 v0.8.7 变了什么
 
-下表列出 v0.7.1 之后到 v0.8.7 为止、与本文正文有关的行为变化，按版本排列。正文只描述 v0.8.7 的现状，版本变化只记在这里。"本文位置"指正文中讲到该机制现状的节；写"—"的条目正文没有展开。"依据"一列写"CHANGELOG"的条目已与上游 `CHANGELOG.md` 对照；写"版本对比"的条目 CHANGELOG 没有写或没有写全，来自对相邻两个版本 npm 包里代码或提示词的直接比对，变化前后两侧都已核对；写"代码"的条目以 v0.8.4 代码为准。
+下表列出 v0.7.1 之后到 v0.8.7 为止、与本文正文有关的行为变化，按版本排列。正文只描述 v0.8.7 的现状，版本变化只记在这里。"本文位置"指正文中讲到该机制现状的节；写"—"的条目正文没有展开。"依据"一列写"CHANGELOG"的条目已与上游 `CHANGELOG.md` 对照；写"版本对比"的条目 CHANGELOG 没有写或没有写全，来自对相邻两个版本 npm 包里代码或提示词的直接比对，变化前后两侧都已核对；写"代码"的条目以 v0.8.7 代码为准。
 
 | 变化 | 版本 | 依据 | 本文位置 |
 |---|---|---|---|
@@ -1316,12 +1318,12 @@ orphan-newborn 同时被 intuition-weaver 和 pattern-tracker 接收：运行时
 | 随包的 Claude Agent SDK 依赖范围改为 `^0.3.296`，pi 从 1.0.4 升到 1.2.0 并把配套包固定在同一版本（修正 v0.8.4 新装后 pi 引擎无法启动），MCP SDK 升到 `^1.32.1`；各个包开始附带许可证文件 | 0.8.5 | CHANGELOG；版本对比 | — |
 | duoduo 启动的每个 Claude 会话关闭 Claude Agent SDK 0.3.302 起默认提供的 fork 子代理（继承整段对话、固定使用父会话模型的子代理），工具集合与每轮开销与 0.8.5 相同 | 0.8.6 | CHANGELOG；版本对比 | 1.1 |
 | 安全更新：随包的 Claude Agent SDK 依赖范围改为 `^0.3.309`（它把内嵌的 Claude Code 程序解压到当前用户自己的临时目录，不再用多个用户共享的临时目录），`@anthropic-ai/sdk` 改为由 duoduo 直接声明、限定在 `~0.127.0`（此前 `npm install -g` 会装上它最新的大版本），pi 从 1.2.0 升到 1.4.0，fastify 升到 5.12.7；飞书渠道包里的 HTTP 重定向库修正了跨域重定向时保留认证请求头的问题 | 0.8.6 | CHANGELOG；版本对比 | — |
-| 主会话：显示别名为 `main` 的那个渠道会话，接收 owner 收不了的 job 结果和目标写 `main` 的通知；`main` 只能用 `duoduo session alias <会话键> main --move` 设置或转移，会话内部只有当前主会话能改；两个会话同叫 `main` 时都不算；`duoduo session list` 标出主会话 | 0.8.7 | CHANGELOG；版本对比 | 1.6、3.1 |
-| 渠道会话的身份提示后接一段角色说明，主会话读 `roles/main.md`、其他渠道会话读 `roles/member.md`；角色说明参与指令指纹，升级后的第一轮各渠道会话按系统提示变化重建一次 | 0.8.7 | CHANGELOG；版本对比 | 1.3、4.6 |
+| 主会话：显示别名为 `main` 的那个渠道会话，接收 owner 收不了的 job 结果和目标写 `main` 的通知；`main` 只能用 `duoduo session alias <会话键> main` 设置，已有主会话时加 `--move` 转移，会话内部只有当前主会话能改；两个会话同叫 `main` 时都不算；`duoduo session list` 标出主会话，`duoduo daemon status` 在有多个 `main` 时列出它们 | 0.8.7 | CHANGELOG；版本对比 | 1.6、3.1 |
+| 渠道会话的身份提示后接一段角色说明，主会话读 `roles/main.md`、其他渠道会话读 `roles/member.md`，`roles/` 与身份提示一样不复制进内核；角色说明参与指令指纹，升级后的第一轮各渠道会话按系统提示变化重建一次 | 0.8.7 | CHANGELOG；版本对比 | 1.3、4.6 |
 | Notify 投给此刻有渠道插件连着的会话时不再按"没人读"拒投；被拒时列出的候选会话也包括此刻有连接的会话 | 0.8.7 | CHANGELOG；版本对比 | 3.1 |
-| Skip 的说明改为"Skip 之前不写文字，工具调用照常生效"，下一轮的说明只说文字回复没有送达 | 0.8.7 | CHANGELOG；版本对比 | 1.6 |
+| Skip 的说明改为"Skip 之前不写文字，工具调用照常生效"，下一轮的说明只说文字回复没有送达 | 0.8.7 | CHANGELOG；版本对比 | 1.6、2.4 |
 | 全权限控制面经 HTTP 发送的请求体上限改为与 WebSocket 单条消息上限相同，能经 WebSocket 发的上传经 HTTP 也能发 | 0.8.7 | CHANGELOG；版本对比 | — |
-| 飞书渠道可以用 `--instance <name>` 同时运行第二个飞书或 Lark 应用，凭据放在单独的 `feishu.<name>.env`；`forward` 把一个聊天交给已有会话，`send` 以机器人身份回复被转发的聊天；`duoduo upgrade` 会停下并重启升级前在运行的每个实例 | 0.8.7 | CHANGELOG；技能原文 | 2.6 |
+| 飞书渠道可以用 `--instance <name>` 同时运行第二个飞书或 Lark 应用，凭据放在单独的 `feishu.<name>.env`；`forward` 把一个聊天交给已有会话，`send` 以机器人身份回复被转发的聊天；群的设置卡片可以请主会话接手这个群；`duoduo upgrade` 会停下并重启升级前在运行的每个实例 | 0.8.7 | CHANGELOG；技能原文 | 2.6 |
 | 随包的 Claude Agent SDK 依赖范围改为 `^0.3.312`（Claude Code 2.1.312），undici、zod、MCP SDK 升级以修复依赖安全公告，pi 仍为 1.4.0 | 0.8.7 | CHANGELOG；版本对比 | — |
 
 ## 附录 E · 对本仓库长期目标的启示
