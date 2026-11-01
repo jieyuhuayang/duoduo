@@ -12,20 +12,20 @@
       "distinctNamesInBlocks": 808,
       "firstPartyNamesFromBlocks": 110,
       "namesFromEntryExports": 7,
-      "inferredNames": 746,
-      "renameEntries": 863,
-      "renamesApplied": 863,
-      "referencesRewritten": 3981,
+      "inferredNames": 773,
+      "renameEntries": 890,
+      "renamesApplied": 890,
+      "referencesRewritten": 4066,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 863,
-      "localBindings": 6341,
-      "localNamesApplied": 6294,
+      "indexedSymbols": 890,
+      "localBindings": 6406,
+      "localNamesApplied": 6302,
       "localNamesBySource": {
         "llm": 5037,
-        "rule:callee": 523,
-        "rule:member": 237,
-        "rule:catch": 153,
+        "rule:callee": 528,
+        "rule:member": 239,
+        "rule:catch": 154,
         "rule:destructure": 278,
         "rule:new": 66
       }
@@ -59,20 +59,20 @@
     }
   },
   "firstPartyTree": {
-    "files": 863,
+    "files": 890,
     "subsystems": 12,
     "bySubsystem": {
-      "00-daemon-entry": 28,
+      "00-daemon-entry": 29,
       "01-spine-wal": 42,
-      "02-gateway-rpc": 144,
-      "03-session-actor": 129,
-      "04-cognition-prompt": 40,
-      "05-drain-turn": 76,
-      "06-runtime-claude": 55,
+      "02-gateway-rpc": 152,
+      "03-session-actor": 132,
+      "04-cognition-prompt": 43,
+      "05-drain-turn": 79,
+      "06-runtime-claude": 56,
       "07-runtime-codex": 30,
-      "08-cadence-subconscious": 92,
-      "09-memory": 113,
-      "10-runtime-host": 94,
+      "08-cadence-subconscious": 96,
+      "09-memory": 116,
+      "10-runtime-host": 95,
       "11-runtime-grok": 20
     }
   },
@@ -103,6 +103,6 @@
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 930
+    "firstPartySymbols": 957
   }
 }

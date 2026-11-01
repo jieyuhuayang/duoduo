@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function decideRestartHintInjection(params) {
-    return classifySessionKeyKind(params.sessionKey) !== "channel" ? {
+    return classifySessionKey(params.sessionKey) !== "channel" ? {
         inject: !1,
         writeLastSeenAtEntry: void 0,
         writeLastSeenOnInjectSuccess: void 0,

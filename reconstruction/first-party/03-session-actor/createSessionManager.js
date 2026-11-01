@@ -1336,7 +1336,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
     }
     async function appendChannelAttachedEvent(sessionKey, channelId) {
         let attachWrite = (map3.get(sessionKey) ?? Promise.resolve()).catch(() => {}).then(async () => {
-            if (classifySessionKeyKind(sessionKey) !== "channel") return;
+            if (classifySessionKey(sessionKey) !== "channel") return;
             let channelKind = channelKindFromSessionKey(sessionKey),
                 attachedAt = new Date().toISOString(),
                 spineEvent = createSpineEvent({

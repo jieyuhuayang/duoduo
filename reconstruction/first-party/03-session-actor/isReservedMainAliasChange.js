@@ -6,5 +6,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isReservedMainAliasChange(e, t, n) {
-    return classifySessionKeyKind(e) !== "channel" ? !1 : t?.trim() === Hn || n?.trim() === Hn
+    return classifySessionKey(e) !== "channel" ? !1 : t?.trim() === Hn || n?.trim() === Hn
 }

@@ -10,7 +10,7 @@ var gS, gwe, xO, EO, initViewSessionsToolModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     kO();
     ti();
     ca();

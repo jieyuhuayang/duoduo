@@ -9,6 +9,6 @@
 
 function resolveAdditionalDirClaudeMdAutoload(runtime, boardFile, additionalDirectories, cwd) {
     if (runtime !== "claude" || !boardFile?.content.trim() || !additionalDirectories || additionalDirectories.length === 0) return;
-    let cwdKey = FEe(cwd);
-    return additionalDirectories.some(directory => FEe(directory) !== cwdKey) ? void 0 : !1
+    let cwdKey = normalizeDirPathForCompare(cwd);
+    return additionalDirectories.some(directory => normalizeDirPathForCompare(directory) !== cwdKey) ? void 0 : !1
 }

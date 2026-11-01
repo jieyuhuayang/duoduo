@@ -9,7 +9,7 @@ var P0e, t_t, dp, $0e, zA, UA, initQueueOutboundAttachmentModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     P0e = "application/octet-stream", t_t = {
         ".png": "image/png",
         ".jpg": "image/jpeg",

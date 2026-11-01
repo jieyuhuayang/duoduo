@@ -20,9 +20,9 @@ async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
         reason: `"${ri}" is a reserved name for the global config file (kernel/config/${ri}.md), not a channel kind. Pick a different channel_kind.`
     };
     let sessionKey = params.session_key?.trim();
-    if (sessionKey !== void 0 && classifySessionKeyKind(sessionKey) !== "channel") return {
+    if (sessionKey !== void 0 && classifySessionKey(sessionKey) !== "channel") return {
         ok: !1,
-        reason: `session_key "${sessionKey}" is a ${classifySessionKeyKind(sessionKey)} session key; channel.spawn creates channel sessions only.`
+        reason: `session_key "${sessionKey}" is a ${classifySessionKey(sessionKey)} session key; channel.spawn creates channel sessions only.`
     };
     if (sessionKey !== void 0) {
         let existingChannelId = (await readSessionRuntimeState(paths, sessionKey))?.source_channel_id;

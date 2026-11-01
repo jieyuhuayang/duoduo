@@ -9,7 +9,7 @@ var wS, xwe, bwe, wwe, initNotifyToolModule = A(() => {
     "use strict";
     Rc();
     initLogLevelModule();
-    Rr();
+    initReservedMainAliasModule();
     initJobManagerModule();
     h6();
     Gg();

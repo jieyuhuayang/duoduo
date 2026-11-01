@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveDeliveryCursorPath(paths, sessionKey, consumerId) {
-    return Qve.join(resolveSessionDir(paths, sessionKey), "delivery_cursors", `${Ldt(consumerId)}.json`)
+    return Qve.join(resolveSessionDir(paths, sessionKey), "delivery_cursors", `${hashDeliveryCursorKey(consumerId)}.json`)
 }

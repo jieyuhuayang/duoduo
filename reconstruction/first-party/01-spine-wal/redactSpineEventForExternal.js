@@ -9,7 +9,7 @@
 
 function redactSpineEventForExternal(event, sessionKeys = new Set) {
     if (event.type === Uxe) return event;
-    if (event.session_key === void 0 || classifySessionKeyKind(event.session_key) !== "channel") return null;
+    if (event.session_key === void 0 || classifySessionKey(event.session_key) !== "channel") return null;
     if (Xht.has(event.type) || shouldKeepRouteDeliverEvent(event, sessionKeys)) return event;
     if (event.type === "agent.tool_use" || event.type === "agent.tool_result") {
         let payload = isRecord(event.payload) ? event.payload : {};

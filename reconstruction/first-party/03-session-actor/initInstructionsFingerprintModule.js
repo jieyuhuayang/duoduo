@@ -10,7 +10,7 @@ var UN, iTe, initInstructionsFingerprintModule = A(() => {
     Qr();
     ul();
     _f();
-    Rr();
+    initReservedMainAliasModule();
     initBoardTransclusionModule();
     initLogLevelModule();
     initMailboxDrainRunnerModule();

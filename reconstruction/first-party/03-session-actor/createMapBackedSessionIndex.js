@@ -17,7 +17,7 @@ function createMapBackedSessionIndex(entriesByKey) {
         },
         listByKind(kind) {
             let result = [];
-            for (let entry of entriesByKey.values()) classifySessionKeyKind(entry.session_key) === kind && result.push(entry);
+            for (let entry of entriesByKey.values()) classifySessionKey(entry.session_key) === kind && result.push(entry);
             return result
         },
         listUserVisible() {

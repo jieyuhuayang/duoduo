@@ -55,7 +55,7 @@ Content-Length: 0\r
                 replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta)
             } catch {}
         }).catch(() => {})
-    }), Hue(sessionKey => {
+    }), setSessionArchivedListener(sessionKey => {
         sessionIndex.remove(sessionKey)
     });
     let runtimeInfo = {
@@ -638,7 +638,7 @@ Content-Length: 0\r
                         served: servedModel,
                         pending: pendingModel !== null && pendingModel !== servedModel ? pendingModel : null
                     }
-                }, readDeliveryInfo = async sessionKey => classifySessionKeyKind(sessionKey) !== "channel" ? {} : {
+                }, readDeliveryInfo = async sessionKey => classifySessionKey(sessionKey) !== "channel" ? {} : {
                     last_cursor_advance_at: await readLatestDeliveryCursorUpdate(paths, sessionKey),
                     final_subscriber_count: subscriptions.finalSubscriberCount(sessionKey)
                 };

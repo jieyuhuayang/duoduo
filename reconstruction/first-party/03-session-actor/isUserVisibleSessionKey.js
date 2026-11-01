@@ -6,5 +6,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isUserVisibleSessionKey(sessionKey) {
-    return classifySessionKeyKind(sessionKey) === "channel" || classifySessionKeyKind(sessionKey) === "job"
+    return classifySessionKey(sessionKey) === "channel" || classifySessionKey(sessionKey) === "job"
 }

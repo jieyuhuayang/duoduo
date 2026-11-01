@@ -5,5 +5,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveMainSessionFromIndex(e) {
-    return resolveMainSessionHolder(e.list())
+    return resolveMainSession(e.list())
 }

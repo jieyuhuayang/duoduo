@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function evaluateNotifyConsumerRefusal(paths, sessionKey, finalSubscriberCount) {
-    if (classifySessionKeyKind(sessionKey) !== "channel") return {
+    if (classifySessionKey(sessionKey) !== "channel") return {
         refused: !1
     };
     let consumerInputs = await fwe(paths, sessionKey);

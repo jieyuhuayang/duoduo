@@ -38,7 +38,7 @@
 
 1. **还原源码。** 运行时以压缩 JavaScript 发布。[`reconstruction/`](../reconstruction/) 把 daemon bundle 还原成可读源码 `reconstruction/recon/daemon.recon.js`，它与发布的 bundle 在改名映射下 AST 全等，证明方法见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)。真名来自 esbuild 的 `__export` 表，或是登记在 `reconstruction/maps/inferred_daemon.json` 里的推断名；短名是美化后的 bundle（`daemon.pretty.js`、`cli.pretty.js`）里的 mangled 名，文中代码片段按这个拼写写；cli bundle 里的符号写作 `cli:真名`。`pi-worker.js` 与 `feishu-gateway.js` 不在流水线覆盖范围内，没有真名，它们的字符串字面量以普通引号写出，并注明"pi-worker.js 字面量"或"feishu-gateway.js 字面量"。npm 依赖 `@openduo/protocol` 以 TypeScript 源码发布，引用时写出源文件名。
 2. **提示词原文。** 包内 `bootstrap/` 下的身份提示、种类配置与出厂分区，仓库里的 `subconscious/`、`skills/`，以及上游 `CHANGELOG.md`。CHANGELOG 与代码不一致时以代码为准。
-3. **运行中 daemon 的观测。** 只在注明之处使用。例如在隔离的 `HOME` 下分别启动发布的 daemon 与还原源码，只读 TCP 端口对 `system.status` 返回结果、对 `session.list` 返回 `-32601`，两者输出相同。另有一批 `confirmed` 主张的依据是运行 v0.8.4 的还原 daemon：[`reconstruction/scenarios/`](../reconstruction/scenarios/) 下的场景脚本在隔离的 `HOME` 里启动插桩后的还原 daemon，插桩把每个具名函数的进入与退出写进调用记录；多数场景运行中不调用模型，场景 10-restart-hint 与 11-skip-rewind 经 Agent SDK 调用真实的 Claude 模型；脚本经两个监听器驱动一个场景，再比对 RPC 响应、数据目录与调用记录。正文把这类主张写成"在v0.8.4 的还原 daemon 上实测"，注明场景名，并引用调用记录里出现的函数。
+3. **运行中 daemon 的观测。** 只在注明之处使用。例如在隔离的 `HOME` 下分别启动发布的 daemon 与还原源码，只读 TCP 端口对 `system.status` 返回结果、对 `session.list` 返回 `-32601`，两者输出相同。另有一批 `confirmed` 主张的依据是运行 v0.8.4 的还原 daemon：[`reconstruction/scenarios/`](../reconstruction/scenarios/) 下的场景脚本在隔离的 `HOME` 里启动插桩后的还原 daemon，插桩把每个具名函数的进入与退出写进调用记录；场景 12-main-session 运行的是 v0.8.7 的还原 daemon；多数场景运行中不调用模型，场景 10-restart-hint 与 11-skip-rewind 经 Agent SDK 调用真实的 Claude 模型；脚本经两个监听器驱动一个场景，再比对 RPC 响应、数据目录与调用记录。正文把这类主张写成"在v0.8.4 的还原 daemon 上实测"，注明场景名，并引用调用记录里出现的函数。
 
 **置信标注。**
 
@@ -1491,6 +1491,8 @@ daemon 启动后调用 `reconcileMainSession (ISt)`（`"[pid0] main session reco
 
 `main` 也是一个可以写的目标名。`resolveSessionByKeyOrAlias (bp)` 在给定名字恰好是 `main` 时不按显示名列表匹配，而是取当时的主会话状态：`held` 解析为那个会话，`ambiguous` 返回全部候选，`absent` 为 `not_found`（`state === "ambiguous" ? {`（`resolveSessionByKeyOrAlias`））；Notify 工具的解析函数在每次投递时同样这样取（4.3）（confirmed）。所以目标写 `main` 的通知在主会话转移之后自动发给新的主会话。
 
+上面关于设置、转移、会话内拒绝、启动时多候选核对和目标名 `main` 的说法，已在 v0.8.7 的还原 daemon 上实测（场景 12-main-session，三个 void 渠道会话，角色通知都成为可读的出站记录）：`channel.spawn` 带显示名 `main` 时不写任何文件；从 owner 终端设置后 `state.json` 有 `main_since`；不带 `move` 返回 `main_held`，会话内部认不出调用方返回 `no_caller`，调用方不是主会话返回 `not_main`；主会话自己带 `move` 转移时新旧双方各收到一条通知，新主会话收到的那条还写出前任会话键（`Previously main: ${e.join(`（`renderNewMainSessionNotice`））；手工让两个会话同叫 `main` 后重启，`system.status` 带 `main_session`，`session.list` 把两者都标为 `candidate`，两者各收到一条多候选通知，目标为 `main` 的通知以 `ambiguous` 拒绝；五条角色通知在事件日志里都是来源为 `main-role` 的 `route.deliver` 事件（confirmed，实测）。
+
 上游 CHANGELOG 还写明：飞书宿主上 bot owner（`FEISHU_BOT_OWNER`，或 `FEISHU_ALLOW_FROM` 的第一项）的第一条私聊会认领空缺的主会话，默认实例启动时已有的 owner 私聊也会被认作主会话，具名实例从不认领（未证实推测：这些逻辑在 feishu-gateway bundle 里，不在还原范围内；daemon 侧只能确认认领最终都经过 `session.set_alias` 这一条可以设置 `main` 的路径）。
 
 ### 证据表
@@ -2311,7 +2313,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 6. **void 会话在适配器一侧的呈现（6.3、4.3）。** void 会话在 daemon 一侧的流转已在v0.8.4 的还原 daemon 上实测（6.2、6.3，场景 03-void-session）。渠道适配器收到这类出站记录后怎样呈现，以及 `notify_in_reply_to` 由谁读取，要在装有声明 `void` 的渠道插件的实例上观察。
 7. **`spine.cat` 脱敏对需要模型才能产生的事件（6.1）。** `redact: "external"` 对 `channel.message`、`agent.result`、`external.record`、`route.deliver` 和只留事件头的类型的处理已在v0.8.4 的还原 daemon 上实测（场景 09-spine-redaction）。`body.experience`、`body.mail` 与工具事件需要模型才能写出，它们的保留规则仍只来自静态阅读。验证方法：在能调用模型的实例上产生这几类事件，再比较 `spine.cat` 带与不带 `redact: "external"` 的输出。
 
-8. **主会话的端到端流转（8.6、10.3）。** 设置与转移 `main` 时的调用方检查、新旧主会话收到的通知、启动时的核对、owner 收不了时 job 结果改投主会话，以及飞书 owner 私聊认领主会话，都只来自 v0.8.7 的代码与上游 CHANGELOG，还没有写成场景在还原 daemon 上运行；飞书一侧的认领在 feishu-gateway bundle 里，不在还原范围内。
+8. **主会话流转里还没有实测的两部分（8.6、10.3）。** 控制面上的设置、转移、调用方检查、启动核对和目标名 `main` 已在 v0.8.7 的还原 daemon 上实测（场景 12-main-session）。还没有实测的是 owner 收不了时 job 结果改投主会话（要跑一次 job，需要模型），以及飞书 owner 私聊认领主会话（在 feishu-gateway bundle 里，不在还原范围内）。
 
 ### 14.3 由静态阅读推出、尚未复现的后果
 

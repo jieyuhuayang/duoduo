@@ -112,7 +112,7 @@ async function applySessionConfigVerb(paths, sessionIndex, params) {
         target: trimmed
     };
     let sessionKey = sessionByKeyOrAlias.session_key,
-        sessionKind = classifySessionKeyKind(sessionKey);
+        sessionKind = classifySessionKey(sessionKey);
     if (sessionKind !== "channel") return {
         ok: !1,
         reason: "forbidden_kind",

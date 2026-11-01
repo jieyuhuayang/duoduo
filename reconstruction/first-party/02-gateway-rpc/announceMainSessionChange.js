@@ -6,8 +6,8 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function announceMainSessionChange(e, t, n) {
-    for (let r of n) await A6(e, r, Vft(t));
-    await A6(e, t, Bft(n)), await patchSessionRuntimeState(e.paths, t, {
+    for (let r of n) await deliverMainRoleNoticeSafely(e, r, renderFormerMainSessionNotice(t));
+    await deliverMainRoleNoticeSafely(e, t, renderNewMainSessionNotice(n)), await patchSessionRuntimeState(e.paths, t, {
         main_since: new Date().toISOString()
     }).catch(r => logWarnMessage("[main-role] main_since stamp failed", {
         session_key: t,
