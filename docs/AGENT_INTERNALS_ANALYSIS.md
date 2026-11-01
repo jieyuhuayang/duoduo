@@ -2374,7 +2374,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 |---|---|---|---|
 | system | `system.shutdown` | 内联：先响应，再向自身发 SIGTERM | 6.1 |
 | system | `system.runtime.info` | 内联：返回实例身份；带 `source_kind` 时附该种类的 `new_session_workspace` | 3.2、9.1 |
-| system | `system.status` | 内联：健康状态、心跳、会话、轮转表与记忆检查状态 | 11.1、12.2 |
+| system | `system.status` | 内联：健康状态、心跳、会话、主会话（v0.8.7 起的 `main_session` 字段）、轮转表与记忆检查状态 | 8.6、11.1、12.2 |
 | system | `system.config` | `buildSystemConfigReport (hSt)` | 3.7、4.3、8.3 |
 | channel | `channel.describe` | `describeChannelInstance (kSt)`；渠道 runtime 被拒时以错误返回拒绝说明 | 3.1、9.1 |
 | channel | `channel.spawn` | `upsertChannelSpawnDescriptor (USt)`；可带 `session_key`，只接受渠道会话键，键已属于另一个渠道时拒绝，否则建好会话描述与状态并绑定到这个渠道 | 3.3、9.1 |
@@ -2402,7 +2402,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | 其他 | `spine.record` | `recordExternalSpineEvent (Bxe)`：追加一条 `external.record` 事件，不写邮箱指针、不唤醒任何会话；`source` 是内部来源名或会话键前缀时由 `checkReservedRecordSource (tgt)` 以 `reserved_source` 拒绝；带 `dedup_key` 时经去重表判重，重复时返回首次的事件 id 与 `duplicate: true` | B.1 |
 | 其他 | `memory.read` | `readMemoryFileForRpc (yxe)`：读取记忆目录下的一个文件，路径先按字面、再按 realpath 检查必须在记忆目录内，越界、不存在与目录都以 `-32602` 拒绝 | 12 |
 
-四个 pi worker 回调方法只接受带有效 worker 口令的调用，带口令的调用也只能使用这四个方法（6.1）；实测中不带口令调用这四个方法都返回 `-32001`，不进入工具体。实测还看到两类错误码：`job.interrupt` 找不到 job 时返回 `-32011`；`job.create` 校验失败与对已归档 job 的 `job.archive` 返回 `-32603`，理由放在 `data` 字段（10.1、10.4）。`spine.cat` 用 `show` 指定的事件不存在、或被 `redact: "external"` 丢弃时，也返回 `-32603`，`data` 为 "Event <id> not found in <date>."，而不是参数错误 `-32602`（场景 09-spine-redaction）。其余方法在 unix socket 与远程监听上都可用，本机 TCP 端口只放行 B.3 的六个。
+四个 pi worker 回调方法只接受带有效 worker 口令的调用，带口令的调用也只能使用这四个方法（6.1）；实测中不带口令调用这四个方法都返回 `-32001`，不进入工具体。实测还看到两类错误码：`job.interrupt` 找不到 job 时返回 `-32011`；`job.create` 校验失败与对已归档 job 的 `job.archive` 返回 `-32603`，理由放在 `data` 字段（10.1、10.4）。`spine.cat` 用 `show` 指定的事件不存在、或被 `redact: "external"` 丢弃时，也返回 `-32603`，`data` 为 "Event <id> not found in <date>."，而不是参数错误 `-32602`（场景 09-spine-redaction）。代码里另有三个渠道方法的错误码：`channel.ingress` 与 `channel.command` 在目标会话正在归档时返回 `-32011`、工作目录不可用时返回 `-32010`，`channel.ack` 在会话正在归档时返回 `-32002`（`code: -32010`（`createDaemon`）；`code: -32002`（`createDaemon`）；6.2、6.3）（confirmed）。其余方法在 unix socket 与远程监听上都可用，本机 TCP 端口只放行 B.3 的六个。
 
 ### B.3 只读 TCP 端口放行的方法
 
@@ -2422,6 +2422,7 @@ fold-gap 的重发条件由代码决定，与 intuition-weaver 提示词的说�
 | job、心跳与配置变更的来源种类 | `kind: "job",`（`createJobSessionFinalizer`）；`name: "job-scanner"`（`scanAndSpawnDueJobs`）；`name: "cadence"`（`runCadenceTick`）；`name: "session.config"`（`appendConfigChangedEvent`） | confirmed |
 | 两条 `/compact` 路径的来源种类 | `sourceKind: "rpc",`（`enqueueSessionCompactCommand`）；`let N = R.channel_kind,`（`createIdleCompactSweeper`） | confirmed |
 | 分发函数识别 36 个方法，未匹配的返回 -32601；InvalidRuntimeError 返回 -32603 | `k.method === "system.shutdown"`（`createDaemon`）；`k.method === "spine.tail"`（`createDaemon`）；`message: "Method not found"`（`createDaemon`）；`I instanceof Fb ? C.error = {`（`createDaemon`） | confirmed（`createDaemon` 中 `S.method === "…"` 的比较共 36 个互不相同的方法名） |
+| `system.status` 报告主会话 | `main_session: ESt(f)`（`createDaemon`） | confirmed（报告主会话的函数尚无真名） |
 | 三个新方法的处理函数 | `k.method === "memory.read" ? C.result = await yxe(l, k.params)`（`createDaemon`）；`k.method === "spine.cat" ? C.result = await qxe(l, k.params)`（`createDaemon`）；`k.method === "spine.record" ? C.result = await Bxe(l, k.params)`（`createDaemon`） | confirmed |
 | memory.read 的路径检查 | `is outside duoduo's memory`（`readMemoryFileForRpc`）；`a = await hA.realpath(e.memoryDir), u = await hA.realpath(s)`（`readMemoryFileForRpc`）；`I instanceof Jc \|\| I instanceof up ? C.error = {`（`createDaemon`） | confirmed |
 | spine.cat 的 redact | `s = r.redact === "external" ? await vfe(e) : null;`（`runSpineCatRpc`）；`listVoidChannelSessions (vfe)`；`redactSpineEventForExternal (egt)` | confirmed；各类型的保留与删减规则见 6.1，其中渠道消息、agent.result、external.record、route.deliver 与事件头的规则在v0.8.4 的还原 daemon 上实测（场景 09-spine-redaction） |

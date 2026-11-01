@@ -1,7 +1,7 @@
 # duoduo 部署与运维架构分析
 
 > 对齐版本：`@openduo/duoduo` **v0.8.7**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
-> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.7 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.7 的行为，以代码为准（v0.8.5 与 v0.8.6 的 cli 打包文件都与 v0.8.4 逐字节相同，v0.8.7 的 cli 增加了主会话、渠道具名实例与会话内调用方判定；v0.8.7 的 `bootstrap/` 只比 v0.8.6 多出 `roles/main.md` 与 `roles/member.md`）；其中注明"在 v0.8.4 的还原 daemon 上实测"的结论来自本仓库的场景测试（[`../reconstruction/scenarios/findings/`](../reconstruction/scenarios/findings/)），测试对象是还原源码启动的 daemon，不是本机部署。§7 汇总本机部署的实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1）；这些部署没有在 v0.8.4 上重做，其中控制面探测（§7.5）的结论已在 v0.8.4 的还原 daemon 上复测（§4）。
+> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.7 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.7 的行为，以代码为准（v0.8.5 与 v0.8.6 的 cli 打包文件都与 v0.8.4 逐字节相同，v0.8.7 的 cli 增加了主会话、渠道具名实例与会话内调用方判定；v0.8.7 的 `bootstrap/` 只比 v0.8.6 多出 `roles/main.md` 与 `roles/member.md`）；其中注明"在 v0.8.4 的还原 daemon 上实测"的结论来自本仓库的场景测试（[`../reconstruction/scenarios/findings/`](../reconstruction/scenarios/findings/)），测试对象是还原源码启动的 daemon，不是本机部署。§7 汇总本机部署的实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1）；这些部署没有在 v0.8.x 上重做，其中控制面探测（§7.5）的结论已在 v0.8.4 的还原 daemon 上复测（§4）。
 > 引用写法与置信标注都与 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 相同：`真名 (短名)` 或 `代码片段`（`真名`），不写行号；cli bundle 里的符号写作 `cli:真名`。机制主张标 `confirmed`（主张的核心由可检查的引用、包内文件原文或否定性证据支撑）或 `未证实推测`（写明缺什么证据）。cli bundle 里有一批函数还没有真名，只在这些函数里读到的 CLI 行为，本文照样写出运维结论，但标 `未证实推测` 并注明"cli 函数无真名"，这类项在 INTERNALS 14.4 汇总；这些函数打印的字符串可以直接引用。
 >
 > **姊妹篇**：本文是部署与运维层面的分析。入门与设计思路见 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（下称 GUIDE）；逐机制的代码证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（下称 INTERNALS）；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
@@ -377,7 +377,7 @@ duoduo channel feishu start                       # 或 duoduo channel acp start
 
 **飞书的具名实例与转发（v0.8.7）。**以下内容来自上游技能原文（`skills/duoduo-channel-admin/references/feishu-second-app.md` 与 `feishu-forward.md`），飞书渠道包不在本仓库的还原范围内。一个飞书渠道包可以同时运行多个应用：不带 `--instance` 的是默认实例，与此前的单应用部署相同；另一个应用（另一个租户，或国际版 Lark）是一个具名实例，一个实例对应一个进程，凭据放在 `~/.config/duoduo/feishu.<name>.env`（权限 0600，键名与 `~/.config/duoduo/.env` 相同），实例名进入该应用每个会话的会话键。具名实例从不认领主会话，也不继承默认应用的凭据；同一个人在两个应用里的 open_id 不同。秘钥由 owner 在自己的终端里写进文件，技能要求只用 `stat` 与 `grep -c` 核对，不打印文件。`duoduo channel feishu forward --chat <chat_id> --to <会话|main>` 把一个聊天交给已有的会话，`--clear` 收回：此后该聊天里@机器人的消息（私聊里是每一条）以通知的形式送到目标会话，聊天自己的会话不再被创建或唤醒，所有消息另记一份只追加的聊天记录供目标会话自己读；`--to` 给会话键或别名时只在设置时解析一次，给 `main` 时每次投递都重新解析，job 会话不能做目标。目标会话用 `duoduo channel feishu send --chat <chat_id> --reply-to <id|none> (--text <t> | --file <path>)` 以机器人身份回复，只有该聊天被转发到的会话或 owner 能在那里发送。`forward` 与 `send` 是飞书包声明的动词，cli 在执行前判断调用是否来自会话内部，并把结果交给适配器（`inSession: await o(),`（`cli:runDeclaredChannelVerb`）；飞书以外的渠道用通用判定，飞书用 `defaultCallerVerdict (PB)`，`e !== "feishu" ? await phe()`（`cli:channelVerbInSession`））（confirmed：cli 侧；适配器据此怎样限制发送方，未证实推测）。
 
-**环境与凭据。**渠道凭据放在 `~/.config/duoduo/.env`，CLI 在 `channel <kind> start` 之前读入它（§2.4）；但传给适配器子进程的环境只有一组基础变量（`PATH`、`HOME`、`LANG` 等）、daemon 连接变量，以及适配器包清单 envAllowlist 列出的键（未证实推测，理由同上，见 INTERNALS 9.3）。改了渠道凭据只需重启该渠道；改了 `ALADUO_*` 要重启 daemon（技能原文）。凭据不应写进 Markdown 配置：种类文件的 `<kind>:` 块会随每次入站消息原样返回给适配器（INTERNALS 9.3）。
+**环境与凭据。**渠道凭据放在 `~/.config/duoduo/.env`，CLI 在 `channel <kind> start` 之前读入它（§2.4）；但传给适配器子进程的环境只有一组基础变量（`PATH`、`HOME`、`LANG` 等）、daemon 连接变量，以及适配器包清单 envAllowlist 列出的键（未证实推测，理由同上，见 INTERNALS 9.3）。`@openduo/channel-feishu` 0.8.7 的清单（npm 上该版本 `package.json` 的 `aladuo.channel`）列出凭据、`FEISHU_BOT_OWNER`、准入与 `FEISHU_CS_*` 等键，并声明 `forward`、`send` 两个动词；清单不含 `FEISHU_GROUP_CMD_USERS`、`FEISHU_STREAMING_CARD`、`FEISHU_REACTION_NOTIFICATIONS`、`FEISHU_LOCALE`，所以按上面的规则，经 CLI 启动时这四个变量写在 `.env` 或 shell 里都传不进飞书适配器（清单内容 confirmed；传递规则未证实推测，同上）。改了渠道凭据只需重启该渠道；改了 `ALADUO_*` 要重启 daemon（技能原文）。凭据不应写进 Markdown 配置：种类文件的 `<kind>:` 块会随每次入站消息原样返回给适配器（INTERNALS 9.3）。
 
 ---
 
@@ -449,7 +449,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
                           └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-事件日志里依次出现三条事件：`channel.attached`（stdio 渠道绑定到会话 `stdio:default:28d3ca682f86`）；`channel.message`（入站消息先写入事件日志，再执行）；`agent.result`（模型经 Claude Code 本地认证给出回复 `DUODUO_OK_42`，6×7=42 正确）。`usage.get` RPC 同时记下这次 drain 的账本：`total_drains=1`、`cost_usd≈0.239`、`input_tokens=2806`、`output_tokens=12`、`cache_creation_tokens=22445`。这条记录说明 stdio → 事件日志 → mailbox → drain → outbox 在这次部署上全部可用；v0.8.4 里一条消息经过的各步骤及其代码位置见 INTERNALS 第 1 节。
+事件日志里依次出现三条事件：`channel.attached`（stdio 渠道绑定到会话 `stdio:default:28d3ca682f86`）；`channel.message`（入站消息先写入事件日志，再执行）；`agent.result`（模型经 Claude Code 本地认证给出回复 `DUODUO_OK_42`，6×7=42 正确）。`usage.get` RPC 同时记下这次 drain 的账本：`total_drains=1`、`cost_usd≈0.239`、`input_tokens=2806`、`output_tokens=12`、`cache_creation_tokens=22445`。这条记录说明 stdio → 事件日志 → mailbox → drain → outbox 在这次部署上全部可用；v0.8.7 里一条消息经过的各步骤及其代码位置见 INTERNALS 第 1 节。
 
 ### 7.4 重启后的状态恢复（v0.6.1）
 
@@ -457,7 +457,7 @@ printf 'Reply ...\n' | duoduo chat         # → 模型正确回复（端到端�
 
 ### 7.5 控制面探测（v0.7.1）
 
-在隔离环境（`ALADUO_PORT=20334`）上探测只读端口与 socket，结果与 §4 描述的 v0.8.4 代码行为一致：
+在隔离环境（`ALADUO_PORT=20334`）上探测只读端口与 socket，结果与 §4 描述的 v0.8.7 代码行为一致（只读方法集合自 v0.7.1 以来没有变化）：
 
 ```
 $ curl -s -H 'Content-Type: application/json' -XPOST 127.0.0.1:20334/rpc \
@@ -492,7 +492,7 @@ $ curl -s -H 'Content-Type: application/json' \
 
 ## 8 运维风险
 
-以下七项风险影响日常运维，后六项都对照 v0.8.4 的代码或包内文件确认过；设计上可借鉴的做法见 GUIDE 6.1，这里不重复。
+以下七项风险影响日常运维，后六项都对照 v0.8.7 的代码或包内文件确认过，其中注明"在 v0.8.4 的还原 daemon 上实测"的是 v0.8.4 上的测量；设计上可借鉴的做法见 GUIDE 6.1，这里不重复。
 
 - **压缩发布。**运行时代码对人不可读，调试与审计只能依靠运行时的可观测面（文件、事件日志、RPC、CLI）、官方 issue 流程，以及本仓库的还原源码（[`../reconstruction/`](../reconstruction/)）。
 - **后台模型费用取决于外部事件，job 也算在内。**心跳按 `ALADUO_CADENCE_INTERVAL_MS`（默认 37 分钟）定时触发，不论前台是否活跃（README 所说的 "runs on a cadence regardless of foreground activity" 指的是心跳本身）；但只有外部事件或三个记忆目录（`memory/fragments`、`memory/entities`、`memory/topics`）自上一次心跳以来有变化，心跳才运行分区、调用模型（`activity gate: skipping tick (fingerprint unchanged)`（`createMetaSession`），confirmed）。job 会话启动时写的 `job.spawn` 和结束时写的 `job.complete`、`job.fail` 来源是 `job`，算外部事件（`kind: "job",`（`createJobSessionFinalizer`））；60 秒扫描器为到期 job 写的那条 `job.spawn` 来源是 `cadence`，属于内部来源，不算（`kind: "cadence"`（`scanAndSpawnDueJobs`））。所以一个周期 job 除了自己的模型费用，还会让下一次心跳运行分区；只改记忆板 `memory/CLAUDE.md` 不会，daemon 启动后的第一次心跳总会运行。机制见 GUIDE 3.3 与 5.2，代码证据见 INTERNALS 11.2 与附录 B.1。要降低后台费用，可以调大心跳间隔、减少周期 job，或停用分区。
