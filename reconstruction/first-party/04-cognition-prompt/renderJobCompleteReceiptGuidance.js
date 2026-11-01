@@ -4,6 +4,7 @@
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.8.0, v0.8.7 (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.0 (medium): fix(job): wire system-level notify delivery and fix child job routing (9e7b13b)
+// changelog v0.8.7 (high): A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

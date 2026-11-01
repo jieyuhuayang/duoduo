@@ -10,21 +10,45 @@
 // or changed in that release. The pairing is a reading, not a proof: the
 // `confidence` and `why` fields travel with each entry so a reader can weigh it.
 //
-// Usage: node changelog_merge.mjs <pairs dir> <rename_daemon.json> <out.json>
+// Usage: node changelog_merge.mjs <pairs dir> <rename_daemon.json> <out.json> [--keep <changelog_daemon.json>]
+// The pairing files live under .build, which a new session no longer has. With
+// --keep, the entries (and unexplained lists) of every release that has no file
+// in <pairs dir> are taken from that existing map, so a bump needs only the new
+// release's pairing file: at v0.8.7 the old releases were first rebuilt from the
+// map by hand, and merging them back reproduced the map byte for byte.
 import fs from "node:fs";
 import path from "node:path";
 
-const [DIR, RENAME, OUT] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const ki = argv.indexOf("--keep");
+const KEEP = ki >= 0 ? argv.splice(ki, 2)[1] : null;
+const [DIR, RENAME, OUT] = argv;
 if (!DIR || !RENAME || !OUT) { console.error("usage: node changelog_merge.mjs <pairs dir> <rename_daemon.json> <out.json>"); process.exit(2); }
 const known = new Set(Object.values(JSON.parse(fs.readFileSync(RENAME, "utf8"))));
 const files = fs.readdirSync(DIR).filter(f => f.endsWith(".json")).sort((a, b) => cmp(a, b));
+// --keep: one in-memory pairing per release the directory does not cover
+const kept = {};
+if (KEEP) {
+  const have = new Set(files.map(f => f.replace(/\.json$/, "")));
+  const old = JSON.parse(fs.readFileSync(KEEP, "utf8"));
+  const blank = (v) => (kept[v] ??= { version: v, pairs: [], changedExplained: [], unexplained: [], suspectChain: [] });
+  for (const [s, es] of Object.entries(old.symbols ?? {})) for (const e of es) {
+    if (have.has(e.version)) continue;
+    const d = blank(e.version);
+    (e.kind === "born" ? d.pairs : d.changedExplained).push({ symbol: s, changelog: e.changelog, confidence: e.confidence, why: e.why });
+    if (e.note) d.suspectChain.push(s);
+  }
+  for (const [v, l] of Object.entries(old.unexplained ?? {})) if (!have.has(v)) blank(v).unexplained = l;
+}
+const releases = [...files.map(f => ({ name: f, read: () => JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")) })),
+                  ...Object.keys(kept).map(v => ({ name: `${v}.json`, read: () => kept[v] }))].sort((a, b) => cmp(a.name, b.name));
 function cmp(a, b) { const pa = a.replace(/\.json$/, "").split(".").map(Number), pb = b.replace(/\.json$/, "").split(".").map(Number); for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i] - pb[i]; return 0; }
 
 const symbols = {};
 const counts = { born: 0, changed: 0, high: 0, medium: 0, low: 0, unknownSymbol: 0 };
 const unexplained = {};
-for (const f of files) {
-  const d = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"));
+for (const r of releases) {
+  const d = r.read();
   const v = d.version;
   const suspect = new Set(d.suspectChain ?? []);
   for (const [kind, list] of [["born", d.pairs ?? []], ["changed", d.changedExplained ?? []]]) {

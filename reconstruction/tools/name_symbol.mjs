@@ -661,6 +661,11 @@ if (planned.some(p => p.replaces)) {
     if (!tbl) continue;
     let moved = 0;
     for (const p of planned) if (p.replaces && Object.hasOwn(tbl, p.replaces) && !Object.hasOwn(tbl, p.name)) { tbl[p.name] = tbl[p.replaces]; delete tbl[p.replaces]; moved++; }
+    // changelog_<bundle>.json also lists, per release, the born symbols no entry explains
+    for (const list of Object.values(sub ? j.unexplained ?? {} : {})) for (const p of planned) {
+      const i = p.replaces ? list.indexOf(p.replaces) : -1;
+      if (i >= 0) { list[i] = p.name; list.sort(); moved++; }
+    }
     if (moved) {
       const sorted = sortedKeys(tbl);
       if (sub) j[sub] = sorted;

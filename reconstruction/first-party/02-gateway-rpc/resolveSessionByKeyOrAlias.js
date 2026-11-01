@@ -4,6 +4,7 @@
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // locals: 8 renamed — 0 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (high): `duoduo session notify <target> -m "<msg>"` — wake another session by key or alias
+// changelog v0.8.7 (high): **Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

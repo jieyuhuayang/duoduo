@@ -4,6 +4,7 @@
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.5.0, v0.5.5, v0.8.7 (maps/history_daemon.json)
 // locals: 9 renamed — 3 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (high): Time annotations injected into `<time-context>`, `<job-tick>`, and `<skip-rewind>` prompt blocks now include a daemon wall-clock alongside the UTC timestamp
+// changelog v0.8.7 (high): **Skip texts name what was withheld.** The Skip tool and the notice after a skipped turn now say that the turn's text reply was not delivered, rather than everything the turn did; tool calls before Skip, such as a `send`, still take effect.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

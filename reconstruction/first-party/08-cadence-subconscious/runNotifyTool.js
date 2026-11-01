@@ -4,6 +4,7 @@
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.8.0, v0.8.2, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 30 renamed — 7 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.1 (high): adds `correlation_id` / `reply_to` fields to the Notify MCP tool
+// changelog v0.8.7 (medium): **Notify to a connected channel is no longer refused for slow reading.** A channel session whose plugin holds a live connection counts as reachable, however long its last reply has waited unread.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

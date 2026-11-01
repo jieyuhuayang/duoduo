@@ -5,6 +5,7 @@
 // locals: 20 renamed — 5 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (high): descriptors carry `runtime` (`claude`|`codex`) and spawn provenance; new `channel.describe` / `channel.spawn` RPCs expose the instance lifecycle to channel plugins. Enables per-instance runtime selection without restart.
 // changelog v0.8.4 (high): `channel.spawn` never moves a session to another channel. Naming a session that another channel owns is refused before anything is written.
+// changelog v0.8.7 (high): A channel session can no longer take `main` as its display name any other way.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

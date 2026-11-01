@@ -5,6 +5,7 @@
 // locals: 14 renamed — 0 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.1 (high): The per-session sticky-mission guard now fingerprints identity + kind prompt + instance prompt + memory board + mission, not just the mission.
 // changelog v0.5.2 (medium): injects the rendered import graph into both Claude and Codex sessions through one path.
+// changelog v0.8.7 (medium): **Every channel session gets a role.** The session aliased `main` reads a short main-role text, every other channel session a member-role text.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

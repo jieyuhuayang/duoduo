@@ -2,6 +2,7 @@
 // symbol: renderJobFailureNotification  (minified: Ygt, daemon.pretty.js:72975)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.0 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.3, v0.8.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
+// changelog v0.8.7 (high): A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

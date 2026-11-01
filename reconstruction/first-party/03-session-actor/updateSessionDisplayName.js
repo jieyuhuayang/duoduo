@@ -4,6 +4,7 @@
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.7.0, v0.8.7 (maps/history_daemon.json)
 // locals: 11 renamed — 2 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (medium): `duoduo session alias <key> "<name>"` — give a session a human label
+// changelog v0.8.7 (high): A channel session can no longer take `main` as its display name any other way.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 

@@ -5,6 +5,7 @@
 // locals: 18 renamed — 0 from the code at the binding (rule), 18 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.4.4 (high): Dynamic tools bridge: aladuo MCP tools available to Codex sessions
 // changelog v0.5.1 (high): Codex foreground: register missing tools (`Skip`, `QueueOutboundAttachment`)
+// changelog v0.8.7 (medium): **Skip texts name what was withheld.** The Skip tool and the notice after a skipped turn now say that the turn's text reply was not delivered, rather than everything the turn did; tool calls before Skip, such as a `send`, still take effect.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
