@@ -271,20 +271,20 @@ v0.8.7 的 cli 有三处新用法（confirmed，帮助文本与代码）。`duod
 
 ### 5.2 重启 daemon
 
-daemon 是分离的后台进程，不热加载启动时读取的设置，改了 `.env` 或全局环境后要重启；重启应该用 `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]`，因为 `-r` 的理由会告诉跨越重启的渠道会话，`--wake` 指定的会话会收到一条"daemon 重启过、你那一轮可能被打断"的通知（confirmed：理由与唤醒在 daemon 侧的处理有按名证据；CLI 共用的重启函数没有真名，只在其中读到的行为下文另标未证实推测）。
+daemon 是分离的后台进程，不热加载启动时读取的设置，改了 `.env` 或全局环境后要重启；重启应该用 `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]`，因为 `-r` 的理由会告诉跨越重启的渠道会话，`--wake` 指定的会话会收到一条"daemon 重启过、你那一轮可能被打断"的通知（confirmed）。CLI 一侧，`daemon restart` 与 `upgrade` 共用 `restartDaemonWithReason (QF)` 执行重启；daemon 一侧的处理见下文。
 
-参数由 `parseRestartArgs (Jit)` 解析，`--wake` 可以重复（`t.wake.push(o.trim())`（`cli:parseRestartArgs`））。这两个参数不在 `duoduo daemon --help` 的用法行里，那一行只列 `[--daemon-url <url>]`。从 daemon 派生的会话里执行重启时必须带 `-r`，否则 CLI 拒绝执行（`refusing to restart the daemon without --reason`（`cli:reasonlessRestartRefusal`））。CLI 用 `ps -Ao pid,ppid` 沿父进程链查找 daemon，以此判断自己是否在会话里；`ps` 不可用、或进程被 nohup 与 detach 包过时判断不出来，就按人工调用放行（父进程链判断在没有真名的 cli 函数里，未证实推测）。人工在 shell 里执行不带 `-r` 的重启不受这条限制。
+参数由 `parseRestartArgs (Jit)` 解析，`--wake` 可以重复（`t.wake.push(o.trim())`（`cli:parseRestartArgs`））。这两个参数不在 `duoduo daemon --help` 的用法行里，那一行只列 `[--daemon-url <url>]`。从 daemon 派生的会话里执行重启时必须带 `-r`，否则 CLI 拒绝执行（`refusing to restart the daemon without --reason`（`cli:reasonlessRestartRefusal`））。CLI 用 `ps -Ao pid,ppid` 沿父进程链查找 daemon，以此判断自己是否在会话里；`ps` 不可用、或进程被 nohup 与 detach 包过时判断不出来，就按人工调用放行（父进程链判断在没有真名的 cli 函数里，未证实推测）。这项判断只看父进程链，不看 `ALADUO_CALLER_SESSION`；§5.1 所说的主会话判断先看这个变量，两者不同。人工在 shell 里执行不带 `-r` 的重启不受这条限制。
 
-理由与唤醒目标经重启原因文件交给新 daemon（`"daemon-restart-reason.json"`（`daemonRestartReasonPath`））。CLI 在停止旧 daemon 之前写入它，内容是 `{reason, requested_at, requested_by_agent}`，带 `--wake` 时再加 `wake_targets`，此时即使没给 `-r` 也会写文件（未证实推测，cli 函数无真名）；新 daemon 启动时由 `claimDaemonRestartReason (ESe)` 读取并立即删除，`reason` 与 `wake_targets` 都为空时视为没有文件（confirmed）。
+理由与唤醒目标经重启原因文件交给新 daemon（`"daemon-restart-reason.json"`（`daemonRestartReasonPath`））。CLI 在停止旧 daemon 之前写入它，内容是 `{reason, requested_at, requested_by_agent}`，带 `--wake` 时再加 `wake_targets`；没给 `-r` 而带了 `--wake` 时，CLI 以空字符串作理由照样写文件（`wake_targets: l`（`cli:restartDaemonWithReason`）、`a && g && await h3(a, g)`（`cli:restartDaemonWithReason`），写文件的是 `writeRestartReasonFile (h3)`，confirmed）；新 daemon 启动时由 `claimDaemonRestartReason (ESe)` 读取并立即删除，`reason` 与 `wake_targets` 都为空时视为没有文件（confirmed）。
 
 这个文件不经过事件日志，因为它必须在新 daemon 存在之前写好；代价是它没有事件 id，也不记录应由哪个 daemon 读取，下一次启动的 daemon 会读走当时留在那里的任何这个文件。它不看文件里的时间戳，也不看文件时间：在 v0.8.4 的还原 daemon 上实测，`requested_at` 为 2020 年的旧文件同样被读走，其中的唤醒目标同样被投递；格式错误的文件被删除且不留日志（INTERNALS 6.4）。认领时 daemon 日志只记 `requested_at`、`requested_by_agent` 与 `wake_targets`，不记原因正文；原因正文只经唤醒通知进入事件日志，见下段（在 v0.8.4 的还原 daemon 上实测）。
 
 读到的内容有两个去处：`reason` 只注入渠道会话跨越重启后第一轮的 `daemon-restart-hint` 块，job、后台分区等其他会话不注入（`stage: "out-of-scope"`（`decideRestartHintInjection`））；`wake_targets` 的每个目标在 daemon 启动后收到一条跳过"无读者拒投"检查的通知（`source: "daemon-restart"`（`deliverDaemonRestartWakes`）），投递失败只记日志。每条通知在事件日志里是一条 `route.deliver` 事件，正文含重启原因（在 v0.8.4 的还原 daemon 上实测）。代码证据见 INTERNALS 6.4。
 
-重启的执行方式分两条路径，它们决定了重启不顺利时理由和 `--wake` 是否保留（未证实推测：两条路径都在没有真名的 CLI 重启函数里读到；下一段 `restartWakeReport (jit)` 的三种回执与之一致）：
+重启的执行方式分两条路径，它们决定了重启不顺利时理由和 `--wake` 是否保留（confirmed，`restartDaemonWithReason (QF)`；另注的除外；下一段 `restartWakeReport (jit)` 的三种回执与之一致）：
 
-- **macOS，launchd 服务已加载**：CLI 只执行 `launchctl kickstart -k`（`kickstart (yF)`），不重写 plist，然后轮询健康检查。超时时 CLI 抛出一个专用错误并按失败退出，但不删除原因文件，新 daemon 启动完成后照常读取它。这是 `--wake` 在健康检查超时后仍能送达的唯一路径。
-- **其他情况**（macOS 上服务未加载，或 Linux 等其他平台）：CLI 先停止旧进程，再重新启动；其他平台上直接派生子进程，超时就向子进程发 SIGTERM 并报一般错误。重启没有发生（旧 daemon 仍在应答）或启动失败时，CLI 在原因文件的 `requested_at` 仍是自己写入的值时删除它，理由和唤醒目标随之丢弃。
+- **macOS，launchd 服务已加载**：CLI 只执行 `launchctl kickstart -k`（`kickstart (yF)`），不重写 plist，然后轮询健康检查。超时时 CLI 抛出一个专用错误并按失败退出（`daemon restart timed out waiting for health checks at`（`cli:restartDaemonWithReason`）），但不删除原因文件，新 daemon 启动完成后照常读取它。这是 `--wake` 在健康检查超时后仍能送达的唯一路径。
+- **其他情况**（macOS 上服务未加载，或 Linux 等其他平台）：CLI 先停止旧进程，再重新启动；其他平台上直接派生子进程，超时就向子进程发 SIGTERM 并报一般错误（派生与超时处理在没有真名的 cli 函数里，未证实推测）。重启没有发生（旧 daemon 仍在应答）或启动失败时，CLI 调用 `clearOwnRestartReasonFile (C3)`，在原因文件的 `requested_at` 仍是自己写入的值时删除它，理由和唤醒目标随之丢弃（`a && g && await C3(a, g.requested_at)`（`cli:restartDaemonWithReason`））。
 
 带了 `--wake` 时，CLI 按结果打印三种回执之一（`restartWakeReport (jit)`）：重启成功时是 `wake queued for <target> — delivered by the daemon once it is up`；没有重启时警告 `--wake was dropped`，并给出用 `duoduo session notify` 手工补发的命令；launchd 路径上健康检查超时时提示 `--wake is durable — the daemon delivers it when it finishes booting`。
 
