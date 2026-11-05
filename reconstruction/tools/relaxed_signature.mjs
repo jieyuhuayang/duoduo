@@ -231,8 +231,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const ti = argv.indexOf("--tokens"); const SHOW = ti !== -1; if (SHOW) argv.splice(ti, 1);
   const [A, B, NA, NB] = argv;
   if (!A || !B || !NA || !NB) { console.error("usage: node relaxed_signature.mjs <a.pretty.js> <b.pretty.js> <nameInA> <nameInB> [--rounds 2] [--tokens]"); process.exit(2); }
-  const pa = profilesOf(fs.readFileSync(A, "utf8"), new Set([NA]), { rounds }).get(NA);
-  const pb = profilesOf(fs.readFileSync(B, "utf8"), new Set([NB]), { rounds }).get(NB);
+  // an unreadable bundle is a one-line error, exit 2, like a usage error
+  const read = p => { try { return fs.readFileSync(p, "utf8"); } catch (e) { console.error(`${p}: ${e.message}`); process.exit(2); } };
+  const pa = profilesOf(read(A), new Set([NA]), { rounds }).get(NA);
+  const pb = profilesOf(read(B), new Set([NB]), { rounds }).get(NB);
   if (!pa) { console.error(`${NA}: not a top-level declaration of ${A}`); process.exit(2); }
   if (!pb) { console.error(`${NB}: not a top-level declaration of ${B}`); process.exit(2); }
   const r = relaxedSimilarity(pa, pb);

@@ -17,16 +17,18 @@
 //                      unique on both sides.
 //   2. twin by order   a body several declarations share (`e => X.includes(e)`
 //                      twins): the twin inside the window between the nearest
-//                      layer-1/3 neighbours wins when it is the only unclaimed
-//                      one there; when several new twins have the same old one
-//                      as their only candidate, the one with the narrowest
-//                      window takes it if that window is unique, else none
-//                      does. Accepted pairs shrink the other twins' candidate
-//                      sets and the rule is repeated until nothing changes, so
-//                      the result does not depend on the order the names are
-//                      asked in. Two bodies with the same signature are never
-//                      paired by a later layer: a twin layer 2 cannot settle
-//                      stays unsettled.
+//                      settled neighbours (layer 1, layer 3, and the twins
+//                      this layer accepted in an earlier round) wins when it
+//                      is the only unclaimed one there; when several new twins
+//                      have the same old one as their only candidate, the one
+//                      with the narrowest window takes it if that window is
+//                      unique, else none does. Accepted pairs shrink the other
+//                      twins' candidate sets and narrow their windows, and the
+//                      rule is repeated until nothing changes, so the result
+//                      does not depend on the order the names are asked in.
+//                      Two bodies with the same signature are never paired by
+//                      a later layer: a twin layer 2 cannot settle stays
+//                      unsettled.
 //   3. positional      pair_changes.mjs: a changed declaration between the
 //                      same two matched neighbours, when the counts agree.
 //   4. assignment      among the old declarations no layer claimed and the
@@ -35,11 +37,23 @@
 //                      are out of order is widened by 400 declarations on each
 //                      side), a global minimum-cost assignment instead of a
 //                      greedy best-per-name in bundle order: cost 1 - similarity
-//                      per feasible pair, a dummy row and column per
-//                      declaration at half the creation factor (git range-diff's
-//                      --creation-factor, default 0.6: a pair whose cost exceeds
-//                      the factor is a removal plus an addition), solved with
-//                      the Hungarian algorithm. Similarity is the weighted
+//                      for every comparable pair (not only the pairs above
+//                      `min`), a dummy row and column per declaration at half
+//                      the creation factor, solved with the Hungarian
+//                      algorithm. So a removal plus an addition costs the
+//                      whole factor and a pair is assigned only when its cost
+//                      is below that, i.e. similarity above 1 - creation; the
+//                      factor is the assignment's cutoff, borrowed from git
+//                      range-diff's --creation-factor (which charges the full
+//                      factor per dummy; here each dummy carries half so the
+//                      factor is the price of one unpaired old plus one
+//                      unpaired new declaration). Default 0.6, a parameter.
+//                      At the defaults its cutoff 0.4 lies below `min` 0.5, so
+//                      it decides which pairs occupy rows and columns in the
+//                      assignment but not which are reported: a pair between
+//                      the cutoff and `min` is assigned and then refused by
+//                      the acceptance rule (abstention "below min"); set below
+//                      1 - min it tightens the pairing. Similarity is the weighted
 //                      Jaccard of decl_features.mjs over property names,
 //                      strings, numbers and globals, or, when either side has
 //                      fewer than three features and both carry a relaxed
@@ -158,7 +172,7 @@ export function makeStep({ fp, pairs, FO, FN, min = 0.5, lead = 0.1, creation = 
     const f = FN.decls[name];
     if (!f) return null;
     const order = FN.order, idx = f.i;
-    const oldIdx = n => { const o = identical.get(n) ?? changed.get(n); return o && FO.decls[o] ? FO.decls[o].i : null; };
+    const oldIdx = n => { const o = identical.get(n) ?? changed.get(n) ?? twinOf.get(n); return o && FO.decls[o] ? FO.decls[o].i : null; };
     let lo = null, hi = null;
     for (let j = idx - 1; j >= 0 && lo === null; j--) lo = oldIdx(order[j]);
     for (let j = idx + 1; j < order.length && hi === null; j++) hi = oldIdx(order[j]);
@@ -176,10 +190,13 @@ export function makeStep({ fp, pairs, FO, FN, min = 0.5, lead = 0.1, creation = 
   const twinOf = new Map();
   {
     const windows = new Map();
-    for (const name of twins.keys()) { const w = windowOf(name); if (w) windows.set(name, w); }
     let progress = true;
     while (progress) {
       progress = false;
+      // the windows of the twins still open, between the nearest neighbours
+      // any layer settled so far (layer 1, layer 3, and the twins accepted in
+      // the earlier rounds): a settled twin narrows its neighbours' windows
+      for (const name of twins.keys()) if (!twinOf.has(name)) { const w = windowOf(name); if (w) windows.set(name, w); }
       const want = new Map(); // old -> [new...]
       for (const [name, w] of windows) {
         if (twinOf.has(name)) continue;
@@ -239,12 +256,14 @@ export function makeStep({ fp, pairs, FO, FN, min = 0.5, lead = 0.1, creation = 
       s.byOverlap = s.eff !== s.sim;
     }
     const feasible = s => s && s.eff >= (s.basis === "relaxed" ? relaxedMin : floor);
-    // cost of a feasible pair: 1 - score; a dummy per declaration costs
-    // creation / 2, so a removal plus an addition costs `creation` and a pair
-    // wins when it costs less
+    // the cost matrix holds every comparable pair, not only the feasible ones:
+    // cost 1 - score, and a dummy per declaration at creation / 2, so a
+    // removal plus an addition costs `creation` and a pair is assigned only
+    // when its cost is below that (score above 1 - creation; the creation
+    // factor is the assignment's cutoff, min and lead decide acceptance below)
     const BIG = 1e6, N = R + C;
     const cost = Array.from({ length: N }, () => new Array(N).fill(BIG));
-    for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) if (feasible(S[i][j])) cost[i][j] = 1 - S[i][j].eff;
+    for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) if (S[i][j]) cost[i][j] = 1 - S[i][j].eff;
     for (let i = 0; i < R; i++) cost[i][C + i] = creation / 2;
     for (let j = 0; j < C; j++) cost[R + j][j] = creation / 2;
     for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) cost[R + j][C + i] = 0;
@@ -260,7 +279,7 @@ export function makeStep({ fp, pairs, FO, FN, min = 0.5, lead = 0.1, creation = 
       const j = rowToCol[i];
       if (j < 0 || j >= C) continue;
       const s = S[i][j];
-      if (!feasible(s)) continue;
+      if (!feasible(s)) { abstain.set(cols[j], { best: rows[i], ...record(s), layer, reason: "below min" }); continue; }
       const runner = Math.max(rowRunner(i, j) ?? -1, colRunner(i, j) ?? -1);
       const leads = runner < 0 || s.eff - runner >= lead;
       if (leads) { assigned.set(cols[j], { old: rows[i], how: "similar", layer, ...record(s) }); claimedOld.add(rows[i]); abstain.delete(cols[j]); }

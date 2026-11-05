@@ -432,7 +432,7 @@
 | minified | 还原名 | 来源 | pretty 行 | 首见版本 |
 |---|---|---|---|---|
 | `Oq` | `detectInProcessBreak` | __export | 38243 | v0.5.10 |
-| `Vnt` | `sanitizeDrainRecordSegment` | inferred | 38251 |  |
+| `Vnt` | `sanitizeDrainRecordSegment` | inferred | 38251 | v0.2.0 |
 | `Qa` | `drainRecordPath` | __export | 38255 | v0.2.0 |
 | `Sf` | `appendDrainRecord` | __export | 38258 | v0.2.0 |
 | `Sh` | `readDrainRecords` | __export | 38277 | v0.8.2 |

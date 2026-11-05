@@ -1,10 +1,11 @@
-// The four-layer pairing of two releases, for one version bump.
+// The five-layer pairing of two releases, for one version bump.
 //
 // bump.sh carries inferred names across on structural identity alone
 // (remap_inferred.mjs) and reports the rest as RE-ANCHOR. This writes the
 // full old -> new pairing of release_pairing.mjs (1 identical, 2 twin by
-// order, 3 positional, 4 global assignment on feature or relaxed similarity)
-// so remap_inferred.mjs can propose a new short name for each RE-ANCHOR
+// order, 3 positional, 4 global assignment per window on feature or relaxed
+// similarity, 5 the same assignment without a window for moved code) so
+// remap_inferred.mjs can propose a new short name for each RE-ANCHOR
 // entry, with how it was paired. A proposal is a candidate for review, not a
 // carried name: verify_inferred.mjs check still decides whether the name sits
 // on code of its shape.
@@ -17,7 +18,8 @@
 // unpaired, with the best candidate and why it was not accepted (runner-up
 // too close, below min, assigned elsewhere, no comparable candidate).
 import fs from "node:fs";
-import { CREATION, MOVED_MIN, RELAXED_MIN, loadFeatures, makeStep } from "./release_pairing.mjs";
+import { CREATION, MOVED_MIN, RELAXED_MIN, makeStep } from "./release_pairing.mjs";
+import { declFeatures } from "./decl_features.mjs";
 
 const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf(k); if (i === -1) return d; const v = argv[i + 1]; argv.splice(i, 2); return v; };
@@ -26,9 +28,11 @@ const CREATE = Number(opt("--creation", CREATION)), RMIN = Number(opt("--relaxed
 const [OLD, NEW, FP, PAIRS, OUT] = argv;
 if (!OLD || !NEW || !FP || !PAIRS || !OUT) { console.error("usage: node pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json> [--min 0.5] [--lead 0.1] [--creation 0.6] [--relaxed-min 0.6] [--moved-min 0.6]"); process.exit(2); }
 
-const fp = JSON.parse(fs.readFileSync(FP, "utf8"));
-const pairs = JSON.parse(fs.readFileSync(PAIRS, "utf8"));
-const FO = loadFeatures(OLD), FN = loadFeatures(NEW);
+// an unreadable input is a one-line error, exit 2, like a usage error
+const read = (p, parse) => { try { const t = fs.readFileSync(p, "utf8"); return parse ? JSON.parse(t) : t; } catch (e) { console.error(`${p}: ${e.message}`); process.exit(2); } };
+const fp = read(FP, true);
+const pairs = read(PAIRS, true);
+const FO = declFeatures(read(OLD)), FN = declFeatures(read(NEW));
 const step = makeStep({ fp, pairs, FO, FN, min: MIN, lead: LEAD, creation: CREATE, relaxedMin: RMIN, movedMin: MMIN });
 
 const old = {}, unpairedNew = [], abstained = {};

@@ -22,18 +22,24 @@
 // (fingerprint_match) and pairs/<a>__<b>.json (pair_changes) for each
 // consecutive pair, and the current rename map (mangled -> real).
 //
-// A third pairing, by features (decl_features.mjs: property names, strings,
-// numbers, globals, arity), takes over when a release rewrote a function so
-// much that the positional pairing gave up (unequal window counts): among the
-// previous release's declarations that no identical match claimed, inside the
-// window between the nearest identically-matched neighbours, the candidate
-// with the best weighted Jaccard score wins when it scores at least --min
-// and leads the runner-up by --lead. Each step records how it was made.
+// The pairing of one step is release_pairing.mjs's five layers (the same
+// implementation bump.sh runs through pair_releases.mjs): 1 identical body
+// unique on both sides; 2 a shared body (twins) settled by position between
+// the settled neighbours; 3 the positional pair of pair_changes.mjs; 4 a
+// global minimum-cost assignment per window on the feature similarity of
+// decl_features.mjs (property names, strings, numbers, globals, arity) or,
+// for a declaration with too few features, the relaxed similarity of
+// relaxed_signature.mjs, accepted at --min (relaxed pairs at relaxedMin) when
+// it leads the runner-up by --lead; 5 the same assignment without a window at
+// movedMin for code moved to another module. The creation factor, relaxedMin
+// and movedMin are release_pairing.mjs's defaults here. Each step records how
+// it was made; a walk that reaches a data declaration or a twin no layer
+// settles stops as `untraceable` instead of recording a birth.
 //
 // Usage: node history_chain.mjs <history dir> <rename_daemon.json> <out.json> [--package @openduo/duoduo] [--min 0.5] [--lead 0.1] [--slim]
 import fs from "node:fs";
 import path from "node:path";
-import { makeStep } from "./release_pairing.mjs";
+import { CREATION, MOVED_MIN, RELAXED_MIN, makeStep } from "./release_pairing.mjs";
 
 const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf(k); if (i === -1) return d; const v = argv[i + 1]; argv.splice(i, 2); return v; };
@@ -52,7 +58,7 @@ const current = versions[versions.length - 1];
 const features = new Map(); // version -> decl_features output (loaded lazily)
 const featuresOf = v => { if (!features.has(v)) { const f = path.join(HIST, "features", `${v}.json`); features.set(v, fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null); } return features.get(v); };
 
-// per consecutive pair: the three-layer pairing of release_pairing.mjs
+// per consecutive pair: the five-layer pairing of release_pairing.mjs
 const steps = []; // index i: from versions[i] to versions[i+1]
 for (let i = 0; i + 1 < versions.length; i++) {
   const a = versions[i], b = versions[i + 1];
@@ -96,7 +102,7 @@ for (const v of versions) { byVersion[v].born.sort(); byVersion[v].changed.sort(
 
 const out = {
   generatedBy: "tools/history_chain.mjs (tools/history.sh)",
-  method: "release to release: identical body (fingerprint_match.mjs), else positional pair (pair_changes.mjs), else feature similarity (decl_features.mjs, min " + MIN + ", lead " + LEAD + "); firstSeen is where the walk ends",
+  method: "release to release, five layers (release_pairing.mjs), each accepting only the pairs unique at that layer: 1 identical body unique on both sides (fingerprint_match.mjs); 2 a shared body settled by position between the settled neighbours; 3 positional pair (pair_changes.mjs); 4 per-window minimum-cost assignment (Hungarian, creation " + CREATION + ") on feature similarity (decl_features.mjs, min " + MIN + ", lead " + LEAD + ") or relaxed similarity (relaxed_signature.mjs, min " + RELAXED_MIN + ") for declarations with fewer than three features; 5 the same assignment without a window (min " + MOVED_MIN + ") for moved code. firstSeen is where the walk ends; a data declaration or a twin no layer settles is untraceable",
   package: PACKAGE,
   current,
   versions,

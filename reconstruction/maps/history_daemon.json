@@ -1,6 +1,6 @@
 {
  "generatedBy": "tools/history_chain.mjs (tools/history.sh)",
- "method": "release to release: identical body (fingerprint_match.mjs), else positional pair (pair_changes.mjs), else feature similarity (decl_features.mjs, min 0.5, lead 0.1); firstSeen is where the walk ends",
+ "method": "release to release, five layers (release_pairing.mjs), each accepting only the pairs unique at that layer: 1 identical body unique on both sides (fingerprint_match.mjs); 2 a shared body settled by position between the settled neighbours; 3 positional pair (pair_changes.mjs); 4 per-window minimum-cost assignment (Hungarian, creation 0.6) on feature similarity (decl_features.mjs, min 0.5, lead 0.1) or relaxed similarity (relaxed_signature.mjs, min 0.6) for declarations with fewer than three features; 5 the same assignment without a window (min 0.6) for moved code. firstSeen is where the walk ends; a data declaration or a twin no layer settles is untraceable",
  "package": "@openduo/duoduo",
  "current": "0.8.7",
  "versions": [
@@ -5765,9 +5765,8 @@
   },
   "sanitizeDrainRecordSegment": {
    "mangled": "Vnt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "a body shared with 1 old declaration, none settled by position past v0.3.0"
+   "firstSeen": "0.2.0",
+   "changedIn": []
   },
   "sanitizeUploadFileName": {
    "mangled": "Rft",
@@ -6415,6 +6414,7 @@
     "runNotifyTool",
     "runQueueOutboundAttachmentTool",
     "runSkipTool",
+    "sanitizeDrainRecordSegment",
     "sanitizeUploadFileName",
     "saveChannelUploadToInbox",
     "scanAndSpawnDueJobs",
@@ -8192,7 +8192,6 @@
   "isSystemStatusParams",
   "normalizeOptionalEnvString",
   "renderJobSessionToolDescription",
-  "sanitizeDrainRecordSegment",
   "writeInstanceModelAlias"
  ]
 }
