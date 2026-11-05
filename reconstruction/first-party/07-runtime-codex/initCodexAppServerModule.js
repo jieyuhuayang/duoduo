@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
 // symbol: initCodexAppServerModule  (minified: rp, daemon.pretty.js:64309)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.5.3 — first release whose bundle holds this declaration; body changed in v0.5.6, v0.6.0, v0.7.1, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.4.6, v0.5.1, v0.5.3, v0.5.6, v0.6.0, v0.7.1, v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 49 renamed — 7 from the code at the binding (rule), 42 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).

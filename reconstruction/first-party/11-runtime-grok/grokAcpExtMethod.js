@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
 // symbol: grokAcpExtMethod  (minified: aS, daemon.pretty.js:64584)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
+// since: v0.7.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.1 (medium): It sits behind the same seam as Claude and Codex rather than beside it
 // NOTE: readable extract from daemon.recon.js; references other top-level

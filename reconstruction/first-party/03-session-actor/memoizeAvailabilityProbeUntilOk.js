@@ -1,6 +1,7 @@
 // duoduo reconstruction — subsystem: 03-session-actor
 // symbol: memoizeAvailabilityProbeUntilOk  (minified: yTe, daemon.pretty.js:85256)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
+// since: v0.8.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 4 renamed — 0 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.3 (medium): A failed check is no longer remembered either: the next message checks again, so installing Codex takes effect without a restart.
 // NOTE: readable extract from daemon.recon.js; references other top-level
