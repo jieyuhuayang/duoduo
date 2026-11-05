@@ -8,9 +8,14 @@
 #
 #   0. check that OLD is the release the committed maps describe
 #   1. structural fingerprint match between the two releases
-#   2. carry the inferred names across on structural identity, not on name;
-#      a twin body (one signature, several declarations) by the in-order
-#      alignment of every top-level statement (align_releases.mjs)
+#   2. carry the inferred names across: first by persistent id where
+#      maps/ids_<bundle>.json exists (symbol_ids.mjs resolve on NEW: the id is
+#      a hash of the declaration's content, with a named-callee or ordinal
+#      disambiguator for twins), then, for the names the ids did not resolve,
+#      on structural identity (remap_inferred.mjs); a twin body (one
+#      signature, several declarations) by the in-order alignment of every
+#      top-level statement (align_releases.mjs). Only what neither carries is
+#      RE-ANCHOR.
 #   3. run the module gate on NEW and build NEW's own rename map, then list the
 #      first-party names that still need a subsystem
 #   4. pair the changed/added declarations so the delta is reviewable
@@ -152,6 +157,17 @@ for name in "${NAMES[@]}"; do
     fi
     echo "  $name: maps/inferred_$name.json describes OLD"
   fi
+  # ...and the ids map must resolve to that inferred map on OLD: the two are
+  # one record (rebuild.sh gate idsResolve), and a bump reads the ids
+  IDS="$MAPS/ids_$name.json"
+  if [ -f "$IDS" ] && [ -f "$INF" ]; then
+    if ! node --max-old-space-size=8192 "$HERE/symbol_ids.mjs" check "$OLD/$name.pretty.js" "$IDS" "$INF" >"$OUT/ids_$name.old-check.log" 2>&1; then
+      echo "  $name: maps/ids_$name.json does not resolve to maps/inferred_$name.json on OLD (see $OUT/ids_$name.old-check.log)."
+      echo "  The two maps are out of step: restore both from origin/main (git checkout origin/main -- reconstruction/maps/ids_$name.json reconstruction/maps/inferred_$name.json)"
+      exit 1
+    fi
+    echo "  $name: maps/ids_$name.json resolves to maps/inferred_$name.json on OLD"
+  fi
 done
 
 gate_failed=()
@@ -186,13 +202,62 @@ for name in "${NAMES[@]}"; do
     "$OLD/$name.pretty.js" "$NEW/$name.pretty.js" "$OUT/align_$name.json"
 
   INF="$MAPS/inferred_$name.json"
+  IDS="$MAPS/ids_$name.json"
   NEW_INF="$OUT/inferred_$name.json"
-  rm -f "$NEW_INF"
+  rm -f "$NEW_INF" "$OUT/inferred_$name.ids.json" "$OUT/inferred_$name.unresolved.json" "$OUT/ids_$name.resolve.json"
+  # NEW's export blocks first: the ids' callee sets and the module gate both read them
+  node --max-old-space-size=8192 "$HERE/export_blocks.mjs" "$NEW/$name.pretty.js" --json "$OUT/blocks_$name.new.json"
   if [ -f "$INF" ]; then
-    echo "-- carry inferred names across the bump"
-    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" --align "$OUT/align_$name.json" "$OUT/fp_$name.json" "$INF" "$NEW_INF"
-    echo "   review $NEW_INF (and the PROPOSED entries in $OUT/inferred_$name.proposed.json), then, as the LAST step of the review: cp $NEW_INF $INF"
-    echo "   (afterwards bump.sh refuses to run again until $INF is restored from origin/main)"
+    REMAP_IN="$INF"
+    if [ -f "$IDS" ]; then
+      # the names whose content-derived id still resolves on NEW are carried
+      # here; only the rest goes through the structural carry below, and only
+      # what that cannot place either is RE-ANCHOR
+      echo "-- carry inferred names by persistent id (symbol_ids.mjs resolve on NEW)"
+      node --max-old-space-size=8192 "$HERE/symbol_ids.mjs" resolve "$NEW/$name.pretty.js" "$IDS" "$OUT/inferred_$name.ids.json" \
+        --order "$INF" --blocks "$OUT/blocks_$name.new.json" --report "$OUT/ids_$name.resolve.json" 2>&1 | sed 's/^/   /'
+      node -e '
+        const fs = require("fs");
+        const [infP, idsP, outP] = process.argv.slice(1);
+        const inf = JSON.parse(fs.readFileSync(infP, "utf8"));
+        const byId = new Set(Object.values(JSON.parse(fs.readFileSync(idsP, "utf8"))));
+        const out = {};
+        for (const [s, r] of Object.entries(inf)) if (!byId.has(r)) out[s] = r;
+        fs.writeFileSync(outP, JSON.stringify(out, null, 2) + "\n");
+        console.error(`   ${Object.keys(inf).length - Object.keys(out).length} of ${Object.keys(inf).length} carried by id; ${Object.keys(out).length} go to the structural carry`);
+      ' "$INF" "$OUT/inferred_$name.ids.json" "$OUT/inferred_$name.unresolved.json"
+      REMAP_IN="$OUT/inferred_$name.unresolved.json"
+    fi
+    echo "-- carry inferred names across the bump$([ -f "$IDS" ] && echo " (the names the ids did not resolve)")"
+    node "$HERE/remap_inferred.mjs" --pairing "$OUT/pairing_$name.json" --align "$OUT/align_$name.json" "$OUT/fp_$name.json" "$REMAP_IN" "$NEW_INF"
+    if [ -f "$IDS" ]; then
+      # the carried map: the id-resolved names plus the structural carry of the
+      # rest, in the old map's order. The id is exact identity, so on a clash
+      # (two reals on one new short, or one real placed differently) the
+      # structural carry yields and that name stays RE-ANCHOR.
+      node -e '
+        const fs = require("fs");
+        const [infP, idsP, remapP, outP] = process.argv.slice(1);
+        const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
+        const inf = read(infP), ids = read(idsP), remap = read(remapP);
+        const byReal = new Map(Object.entries(ids).map(([s, r]) => [r, s]));
+        for (const [s, r] of Object.entries(remap)) {
+          if (byReal.has(r)) { if (byReal.get(r) !== s) console.error(`   CONFLICT ${r}: id -> ${byReal.get(r)}, structural carry -> ${s}; keeping the id`); continue; }
+          if (Object.hasOwn(ids, s)) { console.error(`   CONFLICT ${s}: the id puts ${ids[s]} there, the structural carry ${r}; keeping the id, ${r} stays RE-ANCHOR`); continue; }
+          byReal.set(r, s);
+        }
+        const out = {};
+        for (const r of Object.values(inf)) if (byReal.has(r)) out[byReal.get(r)] = r;
+        for (const [r, s] of byReal) if (!Object.hasOwn(out, s)) out[s] = r;
+        fs.writeFileSync(outP, JSON.stringify(out, null, 2) + "\n");
+        console.error(`   carried ${Object.keys(ids).length} by id + ${Object.keys(out).length - Object.keys(ids).length} by structure = ${Object.keys(out).length} of ${Object.keys(inf).length}`);
+      ' "$INF" "$OUT/inferred_$name.ids.json" "$NEW_INF" "$NEW_INF"
+      echo "   review $NEW_INF (and the PROPOSED entries in $OUT/inferred_$name.proposed.json); the hand-off below"
+      echo "   writes maps/ from it through the ids (assign --rekey, then resolve): do not cp it into maps/"
+    else
+      echo "   review $NEW_INF (and the PROPOSED entries in $OUT/inferred_$name.proposed.json), then, as the LAST step of the review: cp $NEW_INF $INF"
+      echo "   (afterwards bump.sh refuses to run again until $INF is restored from origin/main)"
+    fi
   fi
 
   # NEW's own names: its export blocks through the module gate, plus the carried
@@ -202,7 +267,6 @@ for name in "${NAMES[@]}"; do
   echo "-- module gate + rename map on NEW"
   NEW_MAP="$OUT/rename_$name.new.json"
   rm -f "$NEW_MAP"
-  node --max-old-space-size=8192 "$HERE/export_blocks.mjs" "$NEW/$name.pretty.js" --json "$OUT/blocks_$name.new.json"
   if ! node "$HERE/build_rename.mjs" --unmatched "$OUT/unmatched_$name.json" "$OUT/blocks_$name.new.json" "$MAPS/modules_$name.json" "$NEW_INF" "$NEW_MAP"; then
     gate_failed+=("$name")
     rm -f "$NEW_MAP"
@@ -312,6 +376,19 @@ echo "     ones and those you accepted into the bump's map (a dropped or moved n
 for name in daemon cli; do
   [ -f "$OUT/inferred_$name.json" ] && echo "     node $HERE/confirm_reanchor.mjs --impact $OUT/impact.json --bundle $name --proposed $OUT/inferred_$name.proposed.json --write $OUT/inferred_$name.json [--accept <oldShort>[=<newShort>]]... $OLD/$name.pretty.js $NEW/$name.pretty.js"
 done
+echo "  0b. where maps/ids_<bundle>.json exists, the ids map is the record and the short-keyed map is"
+echo "     regenerated from it: give the re-anchored names their new ids (assign --rekey reads the"
+echo "     reviewed bump map; a name you dropped is removed), write maps/inferred_<bundle>.json with"
+echo "     resolve, and check that it is the reviewed map (compare, never cp):"
+for name in daemon cli; do
+  if [ -f "$MAPS/ids_$name.json" ] && [ -f "$OUT/inferred_$name.json" ]; then
+    echo "     node $HERE/symbol_ids.mjs assign --rekey $NEW/$name.pretty.js $OUT/inferred_$name.json $MAPS/ids_$name.json --version $V --blocks $OUT/blocks_$name.new.json"
+    echo "     node $HERE/symbol_ids.mjs resolve $NEW/$name.pretty.js $MAPS/ids_$name.json $MAPS/inferred_$name.json --order $OUT/inferred_$name.json --blocks $OUT/blocks_$name.new.json"
+    echo "     node $HERE/symbol_ids.mjs check $NEW/$name.pretty.js $MAPS/ids_$name.json $OUT/inferred_$name.json --blocks $OUT/blocks_$name.new.json"
+  fi
+done
+echo "     (a bundle without an ids map: cp the reviewed map into maps/ as the last step of its review;"
+echo "     names registered later with name_symbol.mjs get their id at registration)"
 echo "  1. record the reviewed inferred names as the shape baseline (an unrecorded one is"
 echo "     inferredNames=warn, which promote.mjs refuses):"
 echo "     PKG_VERSION=$V node $HERE/verify_inferred.mjs record $NEW/daemon.pretty.js $MAPS/inferred_daemon.json $MAPS/inferred_daemon.shape.json"
