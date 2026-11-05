@@ -1,0 +1,416 @@
+{
+  "yR": {
+    "names": [],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "Cq": {
+    "names": [
+      "resolveUpsertRemove"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "gv": {
+    "names": [
+      "listDaemon"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "NSt": {
+    "names": [
+      "isCommandsEnqueued"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "spt": {
+    "names": [
+      "renderBoottimeKern"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "fI": {
+    "names": [
+      "resolveRegistryStatus"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "Uue": {
+    "names": [
+      "renderIntegerSpine"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "mEe": {
+    "names": [
+      "initRgtXgtModule"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "STe": {
+    "names": [
+      "initDistillerGradientModule"
+    ],
+    "subsystem": "00-daemon-entry",
+    "describe": ""
+  },
+  "zue": {
+    "names": [
+      "listEventAt"
+    ],
+    "subsystem": "01-spine-wal",
+    "describe": ""
+  },
+  "Vu": {
+    "names": [
+      "resolveByteOffset"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "Hu": {
+    "names": [
+      "resolveGeneratedIso"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "Knt": {
+    "names": [
+      "buildOfflineHandled"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "rt": {
+    "names": [
+      "readUtfRead"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "vU": {
+    "names": [
+      "initLowMediumModule"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "Ofe": {
+    "names": [
+      "resolveResetStats"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "To": {
+    "names": [
+      "initConstructorEnoughModule"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "rp": {
+    "names": [
+      "initElicitationFeaturesModule"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "Vg": {
+    "names": [
+      "initGoalOnmessageModule"
+    ],
+    "subsystem": "02-gateway-rpc",
+    "describe": ""
+  },
+  "Fo": {
+    "names": [
+      "resolveHexSha"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "RIe": {
+    "names": [
+      "isOnceStarts"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "FV": {
+    "names": [
+      "BASH_VALUE"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "Fc": {
+    "names": [
+      "renderPromisifyUtil"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "VSe": {
+    "names": [
+      "readRecoveryEdit"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "sTe": {
+    "names": [
+      "resolveMemberHeld"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "mJ": {
+    "names": [
+      "listMediaMime"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "nTe": {
+    "names": [
+      "initAdocAsciidocModule"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "Eg": {
+    "names": [
+      "BASH_VALUE"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "yXe": {
+    "names": [
+      "resolveArchiveSessions"
+    ],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "Oy": {
+    "names": [],
+    "subsystem": "03-session-actor",
+    "describe": ""
+  },
+  "ryt": {
+    "names": [
+      "renderApproximatelyClock"
+    ],
+    "subsystem": "04-cognition-prompt",
+    "describe": ""
+  },
+  "Mat": {
+    "names": [
+      "listOnesFinishing"
+    ],
+    "subsystem": "04-cognition-prompt",
+    "describe": ""
+  },
+  "wfe": {
+    "names": [],
+    "subsystem": "05-drain-turn",
+    "describe": ""
+  },
+  "gyt": {
+    "names": [
+      "renderPrimaryFanout"
+    ],
+    "subsystem": "05-drain-turn",
+    "describe": ""
+  },
+  "jo": {
+    "names": [
+      "initRetentionDaysModule"
+    ],
+    "subsystem": "05-drain-turn",
+    "describe": ""
+  },
+  "cC": {
+    "names": [
+      "resolveBlockStart"
+    ],
+    "subsystem": "06-runtime-claude",
+    "describe": ""
+  },
+  "mC": {
+    "names": [
+      "buildCostUsd"
+    ],
+    "subsystem": "06-runtime-claude",
+    "describe": ""
+  },
+  "lp": {
+    "names": [
+      "isNativeGeneration"
+    ],
+    "subsystem": "06-runtime-claude",
+    "describe": ""
+  },
+  "xW": {
+    "names": [
+      "CLAUDE_CODE_EXECUTABLE"
+    ],
+    "subsystem": "06-runtime-claude",
+    "describe": ""
+  },
+  "uO": {
+    "names": [
+      "ALADUO_VALUE"
+    ],
+    "subsystem": "07-runtime-codex",
+    "describe": ""
+  },
+  "AO": {
+    "names": [
+      "resolveForegroundMeta"
+    ],
+    "subsystem": "07-runtime-codex",
+    "describe": ""
+  },
+  "Cy": {
+    "names": [
+      "buildPropertiesUnwrap"
+    ],
+    "subsystem": "07-runtime-codex",
+    "describe": ""
+  },
+  "Dve": {
+    "names": [
+      "isChangesCollab"
+    ],
+    "subsystem": "07-runtime-codex",
+    "describe": ""
+  },
+  "Mve": {
+    "names": [
+      "isAveChanges"
+    ],
+    "subsystem": "07-runtime-codex",
+    "describe": ""
+  },
+  "dve": {
+    "names": [
+      "isParserExpression"
+    ],
+    "subsystem": "08-cadence-subconscious",
+    "describe": ""
+  },
+  "vke": {
+    "names": [
+      "writeMkdirRecursive"
+    ],
+    "subsystem": "09-memory",
+    "describe": ""
+  },
+  "cmt": {
+    "names": [
+      "parseBkeSke"
+    ],
+    "subsystem": "09-memory",
+    "describe": ""
+  },
+  "eA": {
+    "names": [
+      "renderSlug"
+    ],
+    "subsystem": "09-memory",
+    "describe": ""
+  },
+  "Lpt": {
+    "names": [
+      "renderCallableRule"
+    ],
+    "subsystem": "09-memory",
+    "describe": ""
+  },
+  "Igt": {
+    "names": [
+      "readCopyBootstrap"
+    ],
+    "subsystem": "10-runtime-host",
+    "describe": ""
+  },
+  "fq": {
+    "names": [
+      "buildExpandSnt"
+    ],
+    "subsystem": "10-runtime-host",
+    "describe": ""
+  },
+  "fA": {
+    "names": [
+      "ALADUO_DAEMON_TOKEN"
+    ],
+    "subsystem": "10-runtime-host",
+    "describe": ""
+  },
+  "rc": {
+    "names": [
+      "resolveEofFlush"
+    ],
+    "subsystem": "11-runtime-grok",
+    "describe": ""
+  },
+  "aS": {
+    "names": [
+      "renderGrokAcp"
+    ],
+    "subsystem": "11-runtime-grok",
+    "describe": ""
+  },
+  "Hve": {
+    "names": [
+      "ALADUO_VALUE"
+    ],
+    "subsystem": "11-runtime-grok",
+    "describe": ""
+  },
+  "Wve": {
+    "names": [
+      "listTitleMeta"
+    ],
+    "subsystem": "11-runtime-grok",
+    "describe": ""
+  },
+  "qve": {
+    "names": [
+      "COMPACT_CONVERSATION"
+    ],
+    "subsystem": "11-runtime-grok",
+    "describe": ""
+  },
+  "tl": {
+    "names": [
+      "initAcknowledgementsAddressedModule"
+    ],
+    "subsystem": "-",
+    "describe": ""
+  },
+  "sC": {
+    "names": [
+      "initCallerAladuoModule"
+    ],
+    "subsystem": "-",
+    "describe": ""
+  },
+  "Nve": {
+    "names": [
+      "renderMappingDropping"
+    ],
+    "subsystem": "-",
+    "describe": ""
+  }
+}
