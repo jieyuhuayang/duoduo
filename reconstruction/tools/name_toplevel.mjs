@@ -55,6 +55,9 @@
 //   node name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> <subsys.json> <outdir>
 //        [--new <fp_<bundle>.json>] [--limit <N>] [--min-users <k>]
 //        [--changelog <changelog_daemon.json>] [--protocol <dir>] [--only <short,...|file.json>] [--body-lines <N>]
+//        [--types <types_daemon.json>]
+// --types (type_seed.mjs's output) adds a `signature:` line per candidate whose
+// parameters or return type the TypeScript checker knows.
 //   node name_toplevel.mjs tsv <toplevel.proposals.json> <toplevel.tsv>
 // Writes <outdir>/toplevel.md (instructions, then one section per candidate),
 // <outdir>/toplevel.proposals.json (a skeleton to fill: describe, names, subsystem)
@@ -74,10 +77,23 @@ const KINDS = { "function": "function", "module initialiser": "moduleInit", "lit
 const spelling = { "function": "camelCase (a class: PascalCase)", "module initialiser": "init<Name>Module", "literal constant": "UPPER_SNAKE with an underscore" };
 const isInit = (x) => /^init[A-Z]\w*Module$/.test(x);
 
-// opts: { src, xref, rename, subsys, changelog?, protocol? (loaded vocab), fp?, limit, minUsers, only?: Set, bodyLines }
+// opts: { src, xref, rename, subsys, changelog?, protocol? (loaded vocab), fp?, limit, minUsers, only?: Set, bodyLines,
+//         types? (type_seed.mjs's `unnamed` map, keyed by short name) }
 export function buildTasks(opts) {
   const { src, xref, rename, subsys, changelog, protocol, only } = opts;
   const limit = opts.limit ?? 60, minUsers = opts.minUsers ?? 1, bodyLines = opts.bodyLines ?? 60;
+  // ---- --types <types_daemon.json> (type_seed.mjs): read-only. One `signature:` line per candidate
+  // whose parameters or return the TypeScript checker knows (`unnamed` entries, keyed by short name).
+  const typesUnnamed = opts.types ?? {};
+  const signatureLine = (short) => {
+    const t = typesUnnamed[short];
+    const known = (d) => d && (d.kind === "typed" || d.kind === "propagated");
+    if (!t || !(t.params.some(known) || known(t.returns))) return [];
+    const show = (d) => (known(d) ? `${d.type}${d.kind === "propagated" ? " (from call sites)" : ""}` : "any");
+    const ps = t.params.map((p) => `${p.name}: ${show(p)}`).join(", ");
+    return [`signature (TypeScript checker, type_seed.mjs): (${ps}) => ${show(t.returns)}`];
+  };
+  // ---- end --types ----
   const ast = parse(src, { sourceType: "module", ranges: true });
   const decls = topLevelDeclarations(ast);
   const refs = topLevelReferences(ast);
@@ -253,6 +269,7 @@ export function buildTasks(opts) {
         ...(r.via.length ? [`assigns: ${r.via.join(", ")} (uninitialised vars the code reads; cite their values through this initialiser)`] : []),
         ...(literals(r.short).length ? [`strings: ${literals(r.short).map((s) => JSON.stringify(s)).join(", ")}`] : []),
         ...sharedState(r.short).map((x) => `shares ${x.name}: also used by ${x.users.join(", ")}`),
+        ...signatureLine(r.short), // --types
         ...(related.length ? [`related registered names: ${related.join(", ")}`] : []),
         ...(proto.length ? [`protocol: ${proto.join(", ")}`] : []),
         ...cl.map((x) => `changelog: ${x}`),
@@ -280,7 +297,7 @@ if (isMain) {
   const [CMD, ...args] = process.argv.slice(2);
   const usage = () => {
     console.error("usage: node name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> <subsys.json> <outdir> [--new <fp.json>] [--limit <N>] [--min-users <k>]\n" +
-      "            [--changelog <changelog_daemon.json>] [--protocol <dir>] [--only <short,...|file.json>] [--body-lines <N>]\n" +
+      "            [--changelog <changelog_daemon.json>] [--protocol <dir>] [--only <short,...|file.json>] [--body-lines <N>] [--types <types_daemon.json>]\n" +
       "       node name_toplevel.mjs tsv <toplevel.proposals.json> <toplevel.tsv>");
     process.exit(2);
   };
@@ -309,6 +326,7 @@ if (isMain) {
       fp: opt("--new") ? readJson(opt("--new")) : null,
       limit: Number(opt("--limit") ?? 60), minUsers: Number(opt("--min-users") ?? 1), only,
       bodyLines: Number(opt("--body-lines") ?? 60),
+      types: opt("--types") ? (readJson(opt("--types")).unnamed ?? {}) : undefined, // --types (type_seed.mjs)
     });
     fs.mkdirSync(OUTDIR, { recursive: true });
     fs.writeFileSync(path.join(OUTDIR, "toplevel.md"), res.md);

@@ -330,8 +330,6 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 
 美化输出按版本写到 `$OUT/beautified/<版本>/`，旧的平铺目录里残留的美化文件在每次运行时删除。手工用 `BEAUTIFIED=` 指定的目录仍可能过期，而 `bundle_guard.mjs` 在 `rebuild.sh` 里发现不了它：流水线的符号索引由本次运行从同一份美化文件生成，二者总是一致。流水线内由别的检查暴露它：推断名表以短名为键，放到另一个版本的美化文件上会落到别的声明上，`daemon.inferredNames` 记为 `fail`，构建在第 2b 步停止（2026-09-24 用 v0.8.2 的美化文件对照 v0.8.3 的 `maps/` 实测：236 个推断名被推翻，exit 1）；同时给了 `PKG` 时，美化等价证明也会失败；没给 `PKG` 的运行没有版本号，即使走到第 7 步也只能记 `committedInSync=unverified`。`bundle_guard.mjs` 拒绝的是另一种情形：在流水线之外，拿过期的美化文件对照已提交的 `maps/symbols_*.json` 手工运行检查器时，它以 exit 2 拒绝（第 8.1 节的"错误的 bundle"）。
 
----
-
 ## 10 命名交接的评测
 
 无名代码的名字由人或模型读代码提出，证明链不覆盖名字是否贴切；能衡量的是交接格式（任务文件给了什么上下文）对命名结果的影响。`tools/naming_bench.mjs` 把已知真名当作 ground truth：从改名表里按子系统分层随机抽取已命名的 daemon 符号，隐去这些名字，其余已知名字照常显示，生成与真实升级相同格式的任务，再按 exact match、子词 Token F1 和最多 3 个候选名里的最好者（top-3 oracle）打分。评测对象是交接格式，不是命名者。
@@ -357,6 +355,32 @@ B 的任务文件是 2026-11-05 一个比提交版本早的 `name_toplevel.mjs` 
 `name_toplevel.mjs tasks` 的组顺序在评测之后改为组间拓扑序：一个组排在持有其被调用候选的所有组之后，组互相调用时让净流入调用边最多的组先行，其余被印在调用方后面的候选在 `calls candidates` 行标 `(below, group X)`，文件头的计数行写出这样的候选有几个。在 v0.8.7 的真实任务（60 个候选、11 组）上，按组内最深成员排组时有 4 个候选调用印在它后面的候选（都调用 `08-cadence-subconscious` 的同一个叶子），拓扑序后剩 2 个（`03-session-actor` 与 `08-cadence-subconscious` 互相调用），位置标注与打印顺序一致（0 处不符）。B 的任务文件在这之前生成，不受影响。
 
 规则层单独的效果另测：`name_locals.mjs apply` 以空的 `locals_daemon.json` 运行，改动前的规则给 6406 个局部中的 1273 个命名，改动后 1576 个（新增 rest 14、entries 28、method 44、counter 13、member-chain 5，成员规则因 `?.`、`??`、`\|\|` 从 239 升到 413，callee 因 `?.()` 从 536 升到 561），`ast_equiv.mjs --locals` 对改动后的输出判定 SEMANTICALLY EQUIVALENT；带已提交映射运行时，映射里的名字优先，结果只多命名 1 个局部，另有 3 个由成员规则改为成员链规则（`sessionId` 这类），已提交的 `recon/` 与 `first-party/` 随本次 promote 更新。`tools/fixtures/locals_rules.fixture.js` 覆盖十一条规则各一例和两处碰撞加后缀的情形，`name_locals.mjs rules --expect tools/fixtures/locals_rules.expected.txt` 以 exit 0 通过；它不在 `rebuild.sh` 里，改规则层时手动运行。
+
+## 11 类型播种：protocol 签名经 TypeScript checker 传播
+
+`tools/type_seed.mjs` 不是证明链的一环，它产出命名上下文：把 `@openduo/protocol` 发布的 TypeScript 签名挂到还原 bundle 里对应的符号上，让 TypeScript checker（`allowJs` 加 `checkJs`）推断每个自研声明的参数类型、返回类型和每个局部绑定的类型，写成 `types_daemon.json`，由 `name_locals.mjs tasks --types`、`name_toplevel.mjs tasks --types` 与 `match_published_source.mjs --types` 读取。结论先行：只播种签名几乎没有收益（局部绑定有类型的比例从 30.2% 到 30.6%），因为 checker 对根是 `any` 的属性访问从不收窄，RPC 路由里 `request.params` 经守卫后仍是 `any`；把调用点实参类型沿调用图注入被调函数的参数（包括嵌套函数，`handleRpcRequest` 的 `request` 由此得到 `JsonRpcRequest`）之后，局部绑定有类型的比例到 43.1%，参数从 3.9% 到 42.2%，拿到 protocol 类型别名的局部绑定从 0 到 65。
+
+挂接方式。先试了 `.d.ts` 覆盖：同级 `.d.ts` 里的 `declare function` 不会与 JS 模块自己的声明合并，bundle 里的声明仍是 `(e: any): any`，此路不通。可行的是在 `.build` 下的临时副本里给被播种的声明前插入 JSDoc `/** @type {typeof import("<protocol 文件>").<名字>} */`：checker 以该标签为声明的类型，参数、返回类型与类型谓词（`value is SessionNotifyParams`）都保留，protocol 的 `.ts` 文件在同一个 program 里，别名可解析；副本开头为 protocol 导出的每个类型别名写一条 `@typedef {import(...).T} T`，使注入的类型字符串在副本内可解析。注释插在声明范围之外，局部绑定的序号与 ctx（`local_bindings.mjs`）就是输入文件上算出的那一套，工具把原文件上算出的偏移按插入文本平移，不重新解析。输入文件要与读取方一致：`.build/daemon.recon.js`（局部已改名）与 `.build/daemon.recon.top.js`（局部仍是 esbuild 的名字，`name_locals.mjs tasks` 读的是它）在 v0.8.7 上 6406 个局部绑定的序号全部相同，但 ctx 是周围源码文本的哈希，应用了局部名的地方 ctx 就不同，实测 133 个声明里 1141 个绑定的 ctx 不同（`createSessionManager` 191、`createDaemon` 71、`drainSessionMailbox` 68、`createJobSessionFinalizer` 60、`createSessionSubscriptionRegistry` 48），例如 `resolveRuntimePaths` 序号 41 的窗口在一个文件里读作 `vt.join(n, ...)`、在另一个里读作 `vt.join(homeDir, ...)`。`name_locals.mjs tasks --types` 按序号取类型并核对 ctx 相等，ctx 不等的已知类型丢弃，并在 stderr 上按任务文件打印丢弃数与类型文件的来源文件（输出里的 `source`）；所以给这个读取方用的 `types_daemon.json` 要在 `.build/daemon.recon.top.js` 上生成（两个文件上的覆盖率数字相同，函数类型里的参数名在 top.js 上是 esbuild 的名字）。v0.8.7 上，在 top.js 上生成时 104 个待命名局部中 71 条核对通过、0 条丢弃；在 daemon.recon.js 上生成时也是 71 条通过、0 条丢弃，因为这个版本待命名的局部恰好都不在 ctx 不同的 1141 个之内，下一个版本未必如此。传播每轮取 checker 能解析到声明的标识符调用（顶层或嵌套的函数声明，单声明符的 `const f = function/arrow`），对仍为 `any` 的参数，把各调用点实参类型（排除 `any`、`unknown`、`never` 与带展开实参的调用点）的并集写成 `@param`，再跑一轮，直到一轮没有新增或到 `--rounds`。这样得到的参数类型只是有类型的调用者传入的东西，输出里标为 `propagated`，与 `typed` 分开计数；参数被传播过的函数，其返回类型是在这个并集之下推出来的，也标为 `propagated`（v0.8.7 上 890 个自研声明里 319 个返回如此），经被调函数的 `propagated` 返回间接依赖的情形不追踪。一个实测到的窄化例子：`isReservedMainAliasChange` 序号 1 的参数只有传 `null` 的有类型调用者，得到的类型就是 `null`。副本必须能解析：checker 打印的类型可能含 `*/`（引用正则源码的字符串字面量类型，v0.8.7 上是 vendored marked 的属性模式，注入 2 处，都在 `hn` 的那一行 `@param` 里；副本里共 3 处，1 处是 bundle 原有的正则字面量），它会提前结束 JSDoc 注释，工具写成 `*\/`，并在每一轮断言副本的语法诊断数与原文件相同（都是 0，输出里 `syntacticDiagnostics.copy` 记的是最后一轮实测的数），不同则停止并打印第一条诊断的行号；此前这一检查缺失，副本在 vendored 的 `hn` 处解析失败，checker 在错误恢复后的文件上作答，自研声明的数字恰好没受影响。
+
+v0.8.7 的测量（还原 bundle 取本仓库 check 模式运行的 `.build/daemon.recon.js`，在 `.build/daemon.recon.top.js` 上重跑，覆盖率逐项相同，每个参数、返回与局部绑定的类型 `kind` 相同，只有函数类型里打印的参数名随文件而异，231 个局部与 56 个参数的类型文本因此不同；protocol 源码取 `@openduo/protocol` 0.8.6 的 `src/`，11 个 `.ts`、99 个导出类型别名；TypeScript 5.9.3，Node 22；自研声明 890 个，参数 1396 个，返回 814 个，局部绑定 6406 个；每种配置 10–38 s）：
+
+| 配置 | 参数有类型 | 返回有类型 | 局部绑定有类型 | 带 protocol 别名的局部绑定 / 参数 |
+|------|-----------|-----------|---------------|-------------------------------|
+| 不播种、不传播（基线） | 3.9%（55） | 80.3%（654） | 30.2%（1936） | 0 / 0 |
+| 只播种（43 个符号） | 4.5%（63） | 81.3%（662） | 30.6%（1959） | 13 / 0 |
+| 只传播（4 轮） | 37.5%（524） | 83.3%（678） | 40.9%（2617） | 0 / 0 |
+| 播种 `published_daemon.json` 的 40 个并传播 | 38.3%（535） | 83.9%（683） | 41.2%（2637） | 23 / 3 |
+| 播种 43 个并传播（`--same-name`，默认建议） | 42.2%（589） | 84.0%（684） | 43.1%（2764） | 65 / 16 |
+
+播种的 43 个符号是 `maps/published_daemon.json` 配对的 40 个（3 个模块初始化器没有可播种的声明，6 个名字不是 protocol 当前版本的导出；签名取自映射记的那个 protocol 文件，该文件不导出该名字时取按文件名排序的第一个并在输出里注明，v0.8.7 上 0 处）加 `--same-name` 补上的 3 个与 protocol 导出同名同参数个数的推断名（`isJsonRpcRequest`、`isEffortLevel`、`isJobCreateParams`，输出里标为 `same-name`，与 `published` 分开）。`isJsonRpcRequest` 是关键的一个：没有它，`request` 得不到 `JsonRpcRequest`，`request.params` 不可收窄，路由处理函数的参数拿不到 `Session*Params`。调用了被播种符号的 78 个声明里，参数有类型 41.3%（50/121），返回 97.4%（76/78），局部绑定 45.2%（527/1166）。最后一种配置与基线相比，534 个参数与 828 个局部绑定从无类型变为有类型，其中 60 个局部绑定在还原 bundle 里仍是一两个字母的名字，也就是命名任务要问的那些；传播共给 1211 个函数（747 个顶层）的 1724 个参数写了类型。代价是错误类型（checker 的 error type，注入的类型字符串里有副本内解析不到的名字）从 541 个局部绑定升到 602 个，这些在输出里标为 `error`，不计入有类型。
+
+五个会改变命名决定的例子，类型都是基线上没有的（基线为 `any`），绑定在还原 bundle 里仍是 esbuild 留下的名字：`checkMainAliasCallerAuthority` 序号 0 的 `e` 得到 `SessionSetAliasParams`、序号 2 的 `n` 得到 `MainSessionResolution`（先前只能从 `e.alias`、`n.state` 猜）；`listMainAliasHolderKeys` 序号 0 的 `e` 得到 `MainSessionResolution`；`setSessionAliasWithMainRole` 序号 1 的 `t` 与 `runSessionSetAliasRpc` 序号 3 的 `r` 都得到 `SessionSetAliasParams`，两处可以统一命名为 `params`；`renderActiveSessionsListing` 序号 4 到 13 的 `o`、`l`、`c`、`s`、`a` 得到带 `kind: SessionKeyKind` 的会话索引条目对象类型，说明它们是 `session.list` 行而不是任意记录；`createDaemon` 序号 40 的 `request` 得到 `JsonRpcRequest`，其后序号 66 到 129 的各个 `params` 分别得到 `ChannelDescribeParams`、`SessionArchiveParams`、`SessionListParams`、`SessionNotifyParams` 直到 `JobInterruptParams`。一个反例也值得记：`normalizeReturnMask` 序号 2 的局部已被命名为 `kind`，checker 给它 `ChannelReturnMaskItem`，按类型应叫 `maskItem`。
+
+对三个读取方的实测：`name_locals.mjs tasks --types` 在 v0.8.7 上，35 个仍有未命名局部的声明里 26 个得到类型行，共 104 个待命名局部里 71 个各有一行（34 行标为来自调用点），类型行以注释写在该声明代码块的开头，去掉这些行后 9 个 `.md` 与不带 `--types` 的输出逐字节相同，`.json` 相同；`name_toplevel.mjs tasks --types` 为 60 个候选中的 31 个打印 `signature:` 行（19 行含来自调用点的类型），去掉这些行后 `toplevel.md` 与 `toplevel.tsv` 相同；`match_published_source.mjs --types` 按返回类型类别（boolean、string、number、void，类型谓词算 boolean）排除候选，只用 checker 标为 `typed` 的返回，`propagated` 的不用。v0.8.7 上盲配（不给改名表）排除 898 个候选（涉及 47 个发布声明），给改名表排除 1519 个（48 个），77 个发布声明的 verdict 与最佳候选一个没变，盲配 40 个 `unique` 里 38 个有次优候选的平均领先 0.560 不变、没有一个变大。被排除的候选不曾是最佳候选，但有过次优候选：给改名表时 3 个发布声明的次优候选被排除（`isNonEmptyText` 的次优是与它 token 得分同为 1.0 的 `sv`，checker 推出 `sv` 返回 `string | undefined`，排除是对的；`isSessionArchiveParams` 的 0.75、`describeSpineCatProblem` 的 0.111 各换成下一名），三者 verdict 都是 `confirmed`；盲配时 `isNonEmptyText` 与 `sv` 的 1.0 并列不带 `--types` 由引用语句一步裁定、带 `--types` 由返回类别裁定，结果同为 `unique`。这项特征在这个版本上是对错配的保险，不是增益。
+
+边界：只对流经 protocol 类型的值有效，与 `docs/RECONSTRUCTION_EFFICIENCY_RESEARCH.md` 第 5.2 节调研的预期一致；checker 对 `any` 根的属性访问不收窄，所以凡是 `JSON.parse` 之后没有经过守卫的对象仍是 `any`；传播只看标识符调用，经回调、方法、`.call`、展开实参传入的参数不处理；`types_daemon.json` 与临时副本都是 `.build` 下的产物，不提交，也不进入任何 gate。
+
+---
 
 ## 汇总
 

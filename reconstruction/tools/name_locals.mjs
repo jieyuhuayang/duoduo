@@ -77,6 +77,18 @@
 //            local_bindings.mjs) to the current one. apply resolves both, so
 //            this is housekeeping, not a precondition: it reports how many
 //            entries still use ctx1.
+//
+// tasks also takes `--types <types_daemon.json>` (type_seed.mjs's output, at
+// any position among the flags): read-only, it puts one comment line per
+// pending local whose type the TypeScript checker knows at the top of that
+// declaration's body in the .md, matched by ordinal and checked by ctx. The
+// ctx is a hash of surrounding source text, so the types file must come from
+// a type_seed.mjs run on the same file this command reads (`<top.js>`,
+// normally .build/daemon.recon.top.js; a run on daemon.recon.js differs in
+// ctx for the locals near an applied local name); a known type whose ctx
+// differs is dropped, and one stderr line per task file counts the dropped
+// types and names the file the types were computed on. Nothing else in the
+// output changes; the code is the one `--types` block in the tasks branch.
 import { parse } from "@babel/parser";
 import * as t from "@babel/types";
 import fs from "node:fs";
@@ -407,6 +419,36 @@ if (CMD === "apply") {
     (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body, before: [...new Set(before.get(d.real) || [])],
       tokens, protocol: protocolMatches(protocol, tokens, 8) });
   }
+  // ---- --types <types_daemon.json> (type_seed.mjs): read-only, additive. For every pending
+  // local whose type the checker knows (`typed`, or `propagated` from call sites), one comment
+  // line at the top of the declaration's body, matched by ordinal and checked by ctx. The ctx is
+  // a hash of surrounding source text, so a types file computed on another file than TOP (for
+  // example daemon.recon.js, whose applied local names change the ctx of nearby bindings) loses
+  // the types of those locals: a known type whose ctx differs is dropped, counted, and reported
+  // per task file on stderr (stdout and the .json files stay as without --types).
+  {
+    const typesAt = flags.indexOf("--types");
+    const typesFile = typesAt >= 0 ? JSON.parse(fs.readFileSync(flags[typesAt + 1], "utf8")) : null;
+    const typesOf = typesFile ? (typesFile.decls ?? {}) : null;
+    if (typesOf) for (const [dir, list] of Object.entries(groups)) {
+      let printed = 0, dropped = 0, pendingCount = 0;
+      const droppedIn = [];
+      for (const x of list) {
+        const lines = [];
+        for (const ord of x.pending) {
+          pendingCount++;
+          const t = typesOf[x.real]?.locals?.[ord], e = decls.get(x.real)?.bindings[ord];
+          if (!t || !e || !(t.kind === "typed" || t.kind === "propagated")) continue;
+          if (t.ctx !== e.ctx) { dropped++; droppedIn.push(`${x.real} $${ord}`); continue; }
+          lines.push(`//   $${ord}: ${t.type}${t.kind === "propagated" ? " (from call sites)" : ""}`);
+        }
+        if (lines.length) { printed += lines.length; x.body = `// types (TypeScript checker, type_seed.mjs):\n${lines.join("\n")}\n${x.body}`; }
+      }
+      console.error(`${dir}: --types: ${printed} of ${pendingCount} pending local(s) typed, ${dropped} known type(s) dropped on ctx mismatch` +
+        (dropped ? ` (${droppedIn.join(", ")}; types computed on ${typesFile.source ?? "?"}, this run reads ${path.basename(TOP)}: run type_seed.mjs on that file)` : ""));
+    }
+  }
+  // ---- end --types ----
   for (const [dir, list] of Object.entries(groups)) {
     // the subsystem's vocabulary once per file, then the declarations (a
     // declaration's protocol matches are the field names its locals may be)
