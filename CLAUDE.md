@@ -204,7 +204,7 @@ node tools/replay_score.mjs --old-maps <dir> --new-maps <dir> --bump <bump OUT> 
 
 # bump internals (bump.sh runs these; run by hand to inspect one step)
 node tools/confirm_reanchor.mjs --impact <impact.json> --bundle <daemon|cli> [--proposed <p.json>] [--md <o.md>] [--json <o.json>] [--write <bump inferred.json> [--accept <oldShort>[=<newShort>]]...] <old.pretty.js> <new.pretty.js>
-node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] [--align <align.json>] [--abs <x>] [--rel <x>] [--rounds <n>] [--json <o.json>] <oldShort>[=<cand>,...]...   # rarity-weighted callers/callees/literals, propagated along the call graph; accept or abstain per name
+node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] [--align <align.json>] [--abs <x>] [--rel <x>] [--rounds <n>] [--exclude <new>,...] [--json <o.json>] <oldShort>[=<cand>,...]...   # rarity-weighted callers/callees/literals, propagated along the call graph; accept or abstain per name
 node tools/align_releases.mjs <old.pretty.js> <new.pretty.js> <out.json>
 node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json>
 node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] [--fp <fp.json>] [--old-label v] [--new-label v]
