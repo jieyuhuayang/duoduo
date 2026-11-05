@@ -80,6 +80,7 @@
   "verdicts": {
     "anchorCheckers": "pass",
     "anchorTargetMatches": "pass",
+    "appendixSets": "pass",
     "citations": "pass",
     "cli.astEquivalent": "pass",
     "cli.beautifyEquivalent": "pass",

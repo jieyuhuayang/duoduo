@@ -162,7 +162,9 @@ PKG=<new dist/release> bash tools/rebuild.sh
 # 3. retarget the doc citations mechanically (order below)
 # 3b. bring the release's substance into the docs: split per `## ` section, then run the
 #     saved workflow upgrade-docs (args printed by bump.sh). Name new code with
-#     name_toplevel.mjs tasks -> name_symbol.mjs --batch --build .build (dry-run first).
+#     name_toplevel.mjs tasks (describe, then names into toplevel.proposals.json) ->
+#     name_toplevel.mjs tsv -> name_symbol.mjs --batch --build .build (dry-run first).
+#     The workflow ends with doc_acks.mjs record (maps/doc_acks.json); re-record after any later doc edit.
 node tools/doc_sections.mjs split .build/bump/chunks ../docs/*.md ../CLAUDE.md
 # 3c. after the last name_symbol.mjs, extend the release history from the step-2 run
 bash tools/history.sh --build .build --write
@@ -189,13 +191,13 @@ node tools/type_seed.mjs <daemon.recon.js|daemon.recon.top.js> <symbols_daemon.j
 # naming
 node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <pretty.js> <short> <realName> <NN-subsystem|->
 node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--historical <report.json>] [--dry-run] <pretty.js> --batch <list.tsv|list.json>
-node tools/name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> maps/subsys_daemon.json <outdir> [--new <fp.json>] [--limit N] [--changelog maps/changelog_daemon.json] [--protocol <protocol src dir>]   # unnamed code used by named code, leaf-first, grouped by subsystem, with vocabulary; describe, then up to 3 names into toplevel.proposals.json
+node tools/name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> maps/subsys_daemon.json <outdir> [--new <fp.json>] [--limit N] [--changelog maps/changelog_daemon.json] [--protocol <protocol src dir>] [--types <types_daemon.json>]   # unnamed code used by named code, leaf-first, grouped by subsystem, with vocabulary; describe, then up to 3 names into toplevel.proposals.json
 node tools/name_toplevel.mjs tsv <toplevel.proposals.json> <toplevel.tsv>        # first candidate of each -> the --batch list
 node tools/naming_bench.mjs make <pretty.js> <rename.json> <xref.json> maps/subsys_daemon.json <outdir> --n N --seed S [--mix fn,init,value] [--changelog <json>] [--protocol <dir>] [--exclude <file>...]   # hide N known names, write the task + answers.json + a rule baseline; exit 1 if an answer still appears in the task; --exclude ../CLAUDE.md ../docs/*.md *.md drops names the namer may have read (then only functions remain)
 node tools/naming_bench.mjs score <answers.json> <proposals.json|.tsv> [--embed "<cmd>"] [--label <name>] [--skip <short,...>]   # exact, token F1, optional embedding cosine; @1 and best-of-3
-node tools/match_published_source.mjs --src <dir of *.ts> --package <name@version> [--rename <rename.json>] [--inferred <inferred.json>] [--pick <short>=<name>]... [--report <o.json>] <pretty.js>
+node tools/match_published_source.mjs --src <dir of *.ts> --package <name@version> [--rename <rename.json>] [--inferred <inferred.json>] [--pick <short>=<name>]... [--report <o.json>] [--types <types_daemon.json>] <pretty.js>
 node tools/match_historical_exports.mjs [--history <dir>] [--maps <dir>] --out <report.json>   # needs history.sh's .build/history
-node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...] [--changelog <json>] [--protocol <dir>]   # per subsystem, with its vocabulary; _describe first, then names
+node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...] [--changelog <json>] [--protocol <dir>] [--types <types_daemon.json>]   # per subsystem, with its vocabulary; _describe first, then names
 node tools/name_locals.mjs record|prune|rekey <top.js> <rename.json> maps/locals_daemon.json [answers.json...]
 node tools/name_locals.mjs rules tools/fixtures/locals_rules.fixture.js --expect tools/fixtures/locals_rules.expected.txt   # the rule layer alone on the fixture; exit 1 on a difference
 node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>   # exit 0 pass, 3 warn, 1 fail

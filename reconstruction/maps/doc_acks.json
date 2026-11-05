@@ -1175,18 +1175,18 @@
    {"section":"2 名字大多是恢复出来的，不是编造的","line":83,"hash":"5f039c93ed7be328","cites":["daemon:isJobArchiveParams","daemon:isJobGetParams","daemon:isRecord"]},
    {"section":"2 名字大多是恢复出来的，不是编造的","line":85,"hash":"a9678b584fe98821","cites":["daemon:isAgentRuntime","daemon:isSystemRuntimeInfo"]},
    {"section":"2 名字大多是恢复出来的，不是编造的","line":87,"hash":"f4a61440771cc25c","cites":["daemon:buildInitialStatus","daemon:readStatus","daemon:statusPath","daemon:updateStatus","daemon:writeStatus"]},
-   {"section":"4 跟随上游升级：推断名按结构签名迁移，不沿用旧的短名表","line":179,"hash":"1388cc59e6438461","cites":["daemon:createAgentSdkAdapter","daemon:readGapLintDayEvents","daemon:runGapLint"]},
-   {"section":"6 索引与历史让分析不必从 bundle 重读","line":235,"hash":"378fc60112397dc6","cites":["daemon:drainSessionMailbox"]},
-   {"section":"6 索引与历史让分析不必从 bundle 重读","line":237,"hash":"337910698c559b44","cites":["daemon:createDaemon"]}
+   {"section":"4 跟随上游升级：推断名按结构签名迁移，不沿用旧的短名表","line":181,"hash":"1388cc59e6438461","cites":["daemon:createAgentSdkAdapter","daemon:readGapLintDayEvents","daemon:runGapLint"]},
+   {"section":"6 索引与历史让分析不必从 bundle 重读","line":237,"hash":"378fc60112397dc6","cites":["daemon:drainSessionMailbox"]},
+   {"section":"6 索引与历史让分析不必从 bundle 重读","line":239,"hash":"337910698c559b44","cites":["daemon:createDaemon"]}
   ] },
   "CLAUDE.md": { "paragraphs": [
-   {"section":"Core discipline: the reconstruction must stay *provably equivalent*","line":78,"hash":"e27a3d22bc472dd0","cites":["daemon:createDaemon","daemon:createSpineEvent"]},
-   {"section":"On a version bump, run `bump.sh` before `rebuild.sh`","line":162,"hash":"5107c0cc34e867dd","cites":["cli:main"]},
-   {"section":"Running / verifying the actual runtime","line":239,"hash":"64a2c717d6a0bf65","cites":["daemon:hostDotEnvPath","daemon:resolveRuntimePaths"]},
-   {"section":"Running / verifying the actual runtime","line":276,"hash":"faba464334c315fb","cites":["daemon:loadHostDotEnv"]},
-   {"section":"duoduo runtime architecture (what the docs describe)","line":282,"hash":"b5f25b5a572574b6","cites":["daemon:acquireSessionDrainLock","daemon:appendBeforeExecuteGateway","daemon:atomicAppendEvent","daemon:buildSystemPromptForChannelConfig","daemon:buildTransientUserBlocks","daemon:createSpineEvent","daemon:renderPromptLayers","daemon:resolveDefaultRuntime","daemon:resolveMainSession","daemon:runCadenceTick","daemon:runMemoryCheckTick","daemon:validateKnownRuntimeValue","daemon:validateRunnableRuntimeValue"]},
-   {"section":"Writing / editing the analysis docs","line":293,"hash":"8f61a1a0f7bbb5fa","cites":["cli:main","daemon:atomicAppendEvent","daemon:drainSessionMailbox"]},
-   {"section":"Writing / editing the analysis docs","line":302,"hash":"3cf0fa9b3ba2efa2","cites":["daemon:initMailboxDrainRunnerModule"]}
+   {"section":"Core discipline: the reconstruction must stay *provably equivalent*","line":79,"hash":"91513912b9e7c256","cites":["daemon:createDaemon","daemon:createSpineEvent"]},
+   {"section":"On a version bump, run `bump.sh` before `rebuild.sh`","line":175,"hash":"5107c0cc34e867dd","cites":["cli:main"]},
+   {"section":"Running / verifying the actual runtime","line":261,"hash":"64a2c717d6a0bf65","cites":["daemon:hostDotEnvPath","daemon:resolveRuntimePaths"]},
+   {"section":"Running / verifying the actual runtime","line":298,"hash":"faba464334c315fb","cites":["daemon:loadHostDotEnv"]},
+   {"section":"duoduo runtime architecture (what the docs describe)","line":304,"hash":"b5f25b5a572574b6","cites":["daemon:acquireSessionDrainLock","daemon:appendBeforeExecuteGateway","daemon:atomicAppendEvent","daemon:buildSystemPromptForChannelConfig","daemon:buildTransientUserBlocks","daemon:createSpineEvent","daemon:renderPromptLayers","daemon:resolveDefaultRuntime","daemon:resolveMainSession","daemon:runCadenceTick","daemon:runMemoryCheckTick","daemon:validateKnownRuntimeValue","daemon:validateRunnableRuntimeValue"]},
+   {"section":"Writing / editing the analysis docs","line":315,"hash":"8f61a1a0f7bbb5fa","cites":["cli:main","daemon:atomicAppendEvent","daemon:drainSessionMailbox"]},
+   {"section":"Writing / editing the analysis docs","line":324,"hash":"70d9af56f4d6836a","cites":["daemon:initMailboxDrainRunnerModule"]}
   ] }
  },
  "symbols": {

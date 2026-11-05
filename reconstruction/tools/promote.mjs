@@ -24,7 +24,7 @@
 //                inferred map is what the persistent ids resolve to), and
 //                localNames wherever maps/locals_<b>.json exists
 //   whole run    firstPartyTree, citations, lineAnchors, anchorCheckers,
-//                anchorTargetMatches
+//                anchorTargetMatches, appendixSets
 // each exactly `pass`; plus a release version and a shipped-bundle hash per
 // bundle (both only exist when the run had PKG). `skipped` and a gate that never
 // ran are refused like `fail`: the v0.8.3 promote committed
@@ -77,7 +77,7 @@ function sameReport(fresh, committed) {
 
 // What a report must say before it may be (or may have been) promoted.
 const PER_BUNDLE = ["lossless", "beautifyEquivalent", "syntax", "astEquivalent"];
-const WHOLE_RUN = ["firstPartyTree", "citations", "lineAnchors", "anchorCheckers", "anchorTargetMatches"];
+const WHOLE_RUN = ["firstPartyTree", "citations", "lineAnchors", "anchorCheckers", "anchorTargetMatches", "appendixSets"];
 function unpromotable(report) {
   const v = report.verdicts ?? {};
   const need = [];

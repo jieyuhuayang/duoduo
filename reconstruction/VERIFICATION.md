@@ -9,14 +9,16 @@
 | 节 | 证明什么 | 何时取得 | 记录在 |
 |------|----------|----------|--------|
 | 1 无损拆包 | 模块边界从真实结构切出，拆分没有信息损失 | 每次运行 | verdict `<bundle>.lossless` |
-| 2 名字与归属 | 真名来自 esbuild 导出结构，归属按模块判定，推断名登记在正确的声明上 | 每次运行 | 模块归属检查（失败即停止构建）；verdict `<bundle>.inferredNames` |
+| 2 名字与归属 | 真名来自 esbuild 导出结构，归属按模块判定，推断名登记在正确的声明上 | 每次运行 | 模块归属检查（失败即停止构建）；verdict `<bundle>.inferredNames`、`<bundle>.idsResolve`（5.5 节） |
 | 3 语义全等 | 出厂压缩文件 ≡ 美化文件 ≡ 还原产物（模改名表与局部名字列表） | 每次运行 | verdict `<bundle>.beautifyEquivalent`、`daemon.localNames`、`<bundle>.syntax`、`<bundle>.astEquivalent` |
 | 4 实机运行 | 还原 daemon 与 cli 的运行效果与出厂版相同 | 人工 A/B 对照，不随每次运行重做 | 本文 |
 | 5 跨版本重定向 | 升级时推断名按结构签名迁移，承接不了的全部显式报出；改动的代码与引用它的文档位置全部列出 | 升级时运行 `bump.sh`；改任何升级工具前后用 `replay_bump.sh` 在四对相邻发行版上回放并打分（5.1 节的基线） | 本文；README.md |
 | 6 可读树 | `first-party/` 与 bundle、改名表、推断名表、子系统映射一致 | 每次运行 | verdict `firstPartyTree` |
-| 7 文档引用 | 文档里每一处代码引用指向它声称的符号或代码 | 每次运行 | verdict `citations`、`lineAnchors` |
+| 7 文档引用 | 文档里每一处代码引用指向它声称的符号或代码；附录 B 的三份名单等于 bundle 推出的集合 | 每次运行 | verdict `citations`、`lineAnchors`、`appendixSets` |
 | 8 检查器变异测试 | 各检查器能报出注入的已知错误 | 每次运行，另有一次性故障注入 | verdict `anchorCheckers`；本文 |
 | 9 提交产物绑定出厂字节 | 仓库里的产物就是对应出厂字节生成的产物，文档与 `maps/` 描述同一版本 | 每次运行 | verdict `committedInSync`、`anchorTargetMatches`；报告的 `sha256` |
+| 10 命名交接的评测 | 命名交接格式的改动先在隐去真名的符号上打分再采用 | 改命名交接时运行 `naming_bench.mjs`，不随每次运行重做 | 本文；`tools/fixtures/naming_bench_v0.8.7/` |
+| 11 类型播种 | protocol 签名经 TypeScript checker 传播后，命名任务拿到的参数、返回与局部类型的覆盖率 | 人工测量，不进入任何 gate | 本文 |
 
 ---
 
@@ -326,7 +328,7 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 - **记录绑定到字节**。报告的 `sha256.<bundle>.shipped` 与 `sha256.<bundle>.pretty` 记录了生成它的运行读到的出厂文件与美化文件；check 模式比较报告时，这两个哈希必须与本次运行一致（没给 `PKG` 的运行读不到出厂文件，只比较美化哈希）。
 - **文档与 `maps/` 描述同一版本**（verdict `anchorTargetMatches`）：`docs/.pretty-anchor-target` 必须等于已提交报告的 `package`。
 
-已提交报告里 `committedInSync` 为 `promoted`，表示它由一次写入成功的 `PROMOTE=1` 运行生成；`anchorTargetMatches` 为 `pass`。2026-11-01 用 v0.8.7 出厂包对已提交产物做了一次 check 模式运行（Node v22.23.4），全部 verdict 为 `pass`，其中 `committedInSync=pass`：每个比较过的产物都与已提交版本一致，包括报告里的两组哈希。
+已提交报告里 `committedInSync` 为 `promoted`，表示它由一次写入成功的 `PROMOTE=1` 运行生成；`anchorTargetMatches` 为 `pass`。2026-11-05 六个工具包合并后用 v0.8.7 出厂包做了一次 `PROMOTE=1` 运行（Node v22.23.4）：20 个 verdict 全部 `pass`，写入仓库的产物与合并前逐字节相同（0 个产物改变），已提交报告只多出 `appendixSets` 一行；随后的 check 模式运行 `committedInSync=pass`：每个比较过的产物都与已提交版本一致，包括报告里的两组哈希。
 
 美化输出按版本写到 `$OUT/beautified/<版本>/`，旧的平铺目录里残留的美化文件在每次运行时删除。手工用 `BEAUTIFIED=` 指定的目录仍可能过期，而 `bundle_guard.mjs` 在 `rebuild.sh` 里发现不了它：流水线的符号索引由本次运行从同一份美化文件生成，二者总是一致。流水线内由别的检查暴露它：推断名表以短名为键，放到另一个版本的美化文件上会落到别的声明上，`daemon.inferredNames` 记为 `fail`，构建在第 2b 步停止（2026-09-24 用 v0.8.2 的美化文件对照 v0.8.3 的 `maps/` 实测：236 个推断名被推翻，exit 1）；同时给了 `PKG` 时，美化等价证明也会失败；没给 `PKG` 的运行没有版本号，即使走到第 7 步也只能记 `committedInSync=unverified`。`bundle_guard.mjs` 拒绝的是另一种情形：在流水线之外，拿过期的美化文件对照已提交的 `maps/symbols_*.json` 手工运行检查器时，它以 exit 2 拒绝（第 8.1 节的"错误的 bundle"）。
 
@@ -376,7 +378,7 @@ v0.8.7 的测量（还原 bundle 取本仓库 check 模式运行的 `.build/daem
 
 五个会改变命名决定的例子，类型都是基线上没有的（基线为 `any`），绑定在还原 bundle 里仍是 esbuild 留下的名字：`checkMainAliasCallerAuthority` 序号 0 的 `e` 得到 `SessionSetAliasParams`、序号 2 的 `n` 得到 `MainSessionResolution`（先前只能从 `e.alias`、`n.state` 猜）；`listMainAliasHolderKeys` 序号 0 的 `e` 得到 `MainSessionResolution`；`setSessionAliasWithMainRole` 序号 1 的 `t` 与 `runSessionSetAliasRpc` 序号 3 的 `r` 都得到 `SessionSetAliasParams`，两处可以统一命名为 `params`；`renderActiveSessionsListing` 序号 4 到 13 的 `o`、`l`、`c`、`s`、`a` 得到带 `kind: SessionKeyKind` 的会话索引条目对象类型，说明它们是 `session.list` 行而不是任意记录；`createDaemon` 序号 40 的 `request` 得到 `JsonRpcRequest`，其后序号 66 到 129 的各个 `params` 分别得到 `ChannelDescribeParams`、`SessionArchiveParams`、`SessionListParams`、`SessionNotifyParams` 直到 `JobInterruptParams`。一个反例也值得记：`normalizeReturnMask` 序号 2 的局部已被命名为 `kind`，checker 给它 `ChannelReturnMaskItem`，按类型应叫 `maskItem`。
 
-对三个读取方的实测：`name_locals.mjs tasks --types` 在 v0.8.7 上，35 个仍有未命名局部的声明里 26 个得到类型行，共 104 个待命名局部里 71 个各有一行（34 行标为来自调用点），类型行以注释写在该声明代码块的开头，去掉这些行后 9 个 `.md` 与不带 `--types` 的输出逐字节相同，`.json` 相同；`name_toplevel.mjs tasks --types` 为 60 个候选中的 31 个打印 `signature:` 行（19 行含来自调用点的类型），去掉这些行后 `toplevel.md` 与 `toplevel.tsv` 相同；`match_published_source.mjs --types` 按返回类型类别（boolean、string、number、void，类型谓词算 boolean）排除候选，只用 checker 标为 `typed` 的返回，`propagated` 的不用。v0.8.7 上盲配（不给改名表）排除 898 个候选（涉及 47 个发布声明），给改名表排除 1519 个（48 个），77 个发布声明的 verdict 与最佳候选一个没变，盲配 40 个 `unique` 里 38 个有次优候选的平均领先 0.560 不变、没有一个变大。被排除的候选不曾是最佳候选，但有过次优候选：给改名表时 3 个发布声明的次优候选被排除（`isNonEmptyText` 的次优是与它 token 得分同为 1.0 的 `sv`，checker 推出 `sv` 返回 `string | undefined`，排除是对的；`isSessionArchiveParams` 的 0.75、`describeSpineCatProblem` 的 0.111 各换成下一名），三者 verdict 都是 `confirmed`；盲配时 `isNonEmptyText` 与 `sv` 的 1.0 并列不带 `--types` 由引用语句一步裁定、带 `--types` 由返回类别裁定，结果同为 `unique`。这项特征在这个版本上是对错配的保险，不是增益。
+对三个读取方的实测：`name_locals.mjs tasks --types` 在 v0.8.7 上，35 个仍有未命名局部的声明里 26 个得到类型行，共 104 个待命名局部里 71 个各有一行（34 行标为来自调用点）（六条新规则合入后待命名局部为 103 个，其中 70 个得到类型行，34 行来自调用点，26 个声明不变；在 `.build/daemon.recon.top.js` 上重测，0 个因 ctx 不符被丢弃），类型行以注释写在该声明代码块的开头，去掉这些行后 9 个 `.md` 与不带 `--types` 的输出逐字节相同，`.json` 相同；`name_toplevel.mjs tasks --types` 为 60 个候选中的 31 个打印 `signature:` 行（19 行含来自调用点的类型），去掉这些行后 `toplevel.md` 与 `toplevel.tsv` 相同；`match_published_source.mjs --types` 按返回类型类别（boolean、string、number、void，类型谓词算 boolean）排除候选，只用 checker 标为 `typed` 的返回，`propagated` 的不用。v0.8.7 上盲配（不给改名表）排除 898 个候选（涉及 47 个发布声明），给改名表排除 1519 个（48 个），77 个发布声明的 verdict 与最佳候选一个没变，盲配 40 个 `unique` 里 38 个有次优候选的平均领先 0.560 不变、没有一个变大。被排除的候选不曾是最佳候选，但有过次优候选：给改名表时 3 个发布声明的次优候选被排除（`isNonEmptyText` 的次优是与它 token 得分同为 1.0 的 `sv`，checker 推出 `sv` 返回 `string | undefined`，排除是对的；`isSessionArchiveParams` 的 0.75、`describeSpineCatProblem` 的 0.111 各换成下一名），三者 verdict 都是 `confirmed`；盲配时 `isNonEmptyText` 与 `sv` 的 1.0 并列不带 `--types` 由引用语句一步裁定、带 `--types` 由返回类别裁定，结果同为 `unique`。这项特征在这个版本上是对错配的保险，不是增益。
 
 边界：只对流经 protocol 类型的值有效，与 `docs/RECONSTRUCTION_EFFICIENCY_RESEARCH.md` 第 5.2 节调研的预期一致；checker 对 `any` 根的属性访问不收窄，所以凡是 `JSON.parse` 之后没有经过守卫的对象仍是 `any`；传播只看标识符调用，经回调、方法、`.call`、展开实参传入的参数不处理；`types_daemon.json` 与临时副本都是 `.build` 下的产物，不提交，也不进入任何 gate。
 
@@ -405,7 +407,7 @@ v0.8.7 的测量（还原 bundle 取本仓库 check 模式运行的 `.build/daem
 | 附录 B 三份名单 = bundle 的集合 | `appendixSets` | pass |
 | 检查器变异测试 | `anchorCheckers` | pass |
 | 文档目标版本 = 报告版本 | `anchorTargetMatches` | pass |
-| 已提交产物 = 生成产物 | `committedInSync` | promoted（2026-11-01 的 check 运行为 pass） |
+| 已提交产物 = 生成产物 | `committedInSync` | promoted（2026-11-05 的 check 运行为 pass） |
 | 出厂与美化字节 | `sha256` | daemon、cli 均已记录 |
 | 实机 A/B 对照 | 无 | 人工对照；版本、还原产物所在的提交与覆盖路径见第 4 节 |
 
