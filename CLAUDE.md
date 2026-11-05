@@ -206,7 +206,8 @@ node tools/replay_score.mjs --old-maps <dir> --new-maps <dir> --bump <bump OUT> 
 node tools/confirm_reanchor.mjs --impact <impact.json> --bundle <daemon|cli> [--proposed <p.json>] [--md <o.md>] [--json <o.json>] [--write <bump inferred.json> [--accept <oldShort>[=<newShort>]]...] <old.pretty.js> <new.pretty.js>
 node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] [--align <align.json>] [--abs <x>] [--rel <x>] [--rounds <n>] [--exclude <new>,...] [--json <o.json>] <oldShort>[=<cand>,...]...   # rarity-weighted callers/callees/literals, propagated along the call graph; accept or abstain per name
 node tools/align_releases.mjs <old.pretty.js> <new.pretty.js> <out.json>
-node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json>
+node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json> [--min 0.5] [--lead 0.1] [--creation 0.6] [--relaxed-min 0.6] [--moved-min 0.6]   # five layers: identical, twin by order, positional, assignment per window, moved
+node tools/relaxed_signature.mjs <a.pretty.js> <b.pretty.js> <nameInA> <nameInB> [--rounds 2] [--tokens]   # WL multiset Jaccard and normalised-token LCS ratio of two declarations
 node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] [--fp <fp.json>] [--old-label v] [--new-label v]
 node tools/impact_report.mjs --bump <bump OUT> [--old <dir>] [--new <dir>] [--maps <dir>] [--groups <K>] <doc.md...>
 node tools/retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--old <bundle>=<old pretty.js>,<old symbols.json>]... [--write] [--report <o.json>] <doc.md...>

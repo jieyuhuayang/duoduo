@@ -1,6 +1,6 @@
 {
  "generatedBy": "tools/history_chain.mjs (tools/history.sh)",
- "method": "release to release: identical body (fingerprint_match.mjs), else positional pair (pair_changes.mjs), else feature similarity (decl_features.mjs, min 0.5, lead 0.1); firstSeen is where the walk ends",
+ "method": "release to release, five layers (release_pairing.mjs), each accepting only the pairs unique at that layer: 1 identical body unique on both sides (fingerprint_match.mjs); 2 a shared body settled by position between the settled neighbours; 3 positional pair (pair_changes.mjs); 4 per-window minimum-cost assignment (Hungarian, creation 0.6) on feature similarity (decl_features.mjs, min 0.5, lead 0.1) or relaxed similarity (relaxed_signature.mjs, min 0.6) for declarations with fewer than three features; 5 the same assignment without a window (min 0.6) for moved code. firstSeen is where the walk ends; a data declaration or a twin no layer settles is untraceable",
  "package": "@openduo/duoduo",
  "current": "0.8.7",
  "versions": [
@@ -170,9 +170,8 @@
   },
   "MemoryReadRpcError": {
    "mangled": "Jc",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "class-expr with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "PARTITION_CORE_TOOLS": {
    "mangled": "FV",
@@ -194,33 +193,29 @@
   },
   "SpineRpcParamsError": {
    "mangled": "up",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "class-expr with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "__resetClaudeProbeCacheForTest": {
    "mangled": "Nat",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.3"
+   "firstSeen": "0.5.3",
+   "changedIn": []
   },
   "__setClaudeVerifierForTest": {
    "mangled": "Dat",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.3"
+   "firstSeen": "0.5.3",
+   "changedIn": []
   },
   "__setCodexAvailabilityForTests": {
    "mangled": "Bct",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "__setGrokAvailabilityForTests": {
    "mangled": "Xct",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "untraceable": "a body shared with 1 old declaration, none settled by position past v0.7.1"
   },
   "accumulateDrainRecordIntoSummary": {
    "mangled": "kfe",
@@ -258,9 +253,8 @@
   },
   "addToNumericField": {
    "mangled": "oJ",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.0"
+   "firstSeen": "0.3.0",
+   "changedIn": []
   },
   "advanceConsumerWatermark": {
    "mangled": "Vu",
@@ -280,9 +274,8 @@
   },
   "aggregateSessionDrainSummary": {
    "mangled": "xfe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "announceMainSessionChange": {
    "mangled": "wSe",
@@ -349,9 +342,8 @@
   },
   "appendPiConfigIssues": {
    "mangled": "qwe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "appendSessionMailboxNote": {
    "mangled": "Zb",
@@ -430,9 +422,8 @@
   },
   "assertSessionNotArchiving": {
    "mangled": "oc",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "assertValidChannelId": {
    "mangled": "hh",
@@ -477,9 +468,8 @@
   },
   "bindSessionSourceChannel": {
    "mangled": "OTe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "buildBaseInstructions": {
    "mangled": "Tve",
@@ -505,9 +495,8 @@
   },
   "buildCodexDirectOnlyToolConfig": {
    "mangled": "ZH",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "firstSeen": "0.7.1",
+   "changedIn": []
   },
   "buildCodexDynamicTools": {
    "mangled": "ON",
@@ -602,7 +591,7 @@
    "mangled": "mO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "buildJobSessionKey": {
    "mangled": "Mc",
@@ -633,7 +622,7 @@
    "mangled": "pO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "buildMemoryCheckStatus": {
    "mangled": "SW",
@@ -642,9 +631,8 @@
   },
   "buildNodeSignalKey": {
    "mangled": "eA",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.5"
+   "firstSeen": "0.5.5",
+   "changedIn": []
   },
   "buildNotifyInputSchema": {
    "mangled": "NO",
@@ -695,9 +683,8 @@
   },
   "buildSafeDirectoryGitArgs": {
    "mangled": "Gxe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.2"
+   "firstSeen": "0.5.2",
+   "changedIn": []
   },
   "buildScanGapSignal": {
    "mangled": "lmt",
@@ -770,21 +757,13 @@
   },
   "buildSystemPromptForChannelConfig": {
    "mangled": "Ig",
-   "firstSeen": "0.2.0",
+   "firstSeen": "0.7.1",
    "changedIn": [
-    "0.4.5",
-    "0.5.1",
-    "0.5.2",
-    "0.5.4",
-    "0.5.5",
-    "0.7.1",
     "0.8.0",
     "0.8.7"
    ],
    "similarSteps": [
-    "0.8.0:1",
-    "0.7.1:0.396 (overlap 1)",
-    "0.4.5:1"
+    "0.8.0:1"
    ]
   },
   "buildTransientUserBlocks": {
@@ -893,9 +872,8 @@
   },
   "classifyDrainBatchClass": {
    "mangled": "KEe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.1"
+   "firstSeen": "0.8.1",
+   "changedIn": []
   },
   "classifyGatewayCommandIntent": {
    "mangled": "Mq",
@@ -910,9 +888,8 @@
   },
   "classifyJobScheduleType": {
    "mangled": "Ek",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.4.0"
+   "firstSeen": "0.4.0",
+   "changedIn": []
   },
   "classifyModelContextRequirement": {
    "mangled": "ZW",
@@ -921,8 +898,9 @@
   },
   "classifyNotifySessionKind": {
    "mangled": "Ewe",
-   "firstSeen": "0.8.2",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.2"
   },
   "classifySessionKey": {
    "mangled": "Nt",
@@ -931,8 +909,9 @@
   },
   "classifySessionKeyOrUnknown": {
    "mangled": "uo",
-   "firstSeen": "0.3.0",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 1 old declaration, none settled by position past v0.3.0"
   },
   "classifySessionPlane": {
    "mangled": "Dyt",
@@ -971,9 +950,8 @@
   },
   "clearHostModelEnvVars": {
    "mangled": "RW",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.4.3"
+   "firstSeen": "0.4.3",
+   "changedIn": []
   },
   "clearModelOverrideOnRuntimeFlip": {
    "mangled": "Pyt",
@@ -1004,9 +982,8 @@
   },
   "clearSessionArchiving": {
    "mangled": "oI",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "clearSessionRuntimeStateField": {
    "mangled": "ua",
@@ -1022,8 +999,9 @@
   },
   "codexUnavailableReason": {
    "mangled": "Uct",
-   "firstSeen": "0.2.0",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 4 old declarations, none settled by position past v0.5.0"
   },
   "coerceToPlainObject": {
    "mangled": "ji",
@@ -1071,9 +1049,8 @@
   },
   "compareStringsAscending": {
    "mangled": "Dr",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.5"
+   "firstSeen": "0.5.5",
+   "changedIn": []
   },
   "composeIdentityLayer": {
    "mangled": "yC",
@@ -1150,15 +1127,13 @@
   },
   "computeMissionFingerprint": {
    "mangled": "oTe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.1"
+   "firstSeen": "0.5.1",
+   "changedIn": []
   },
   "computeNonBoardInstructionsFingerprint": {
    "mangled": "tK",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.10"
+   "firstSeen": "0.5.10",
+   "changedIn": []
   },
   "computeOrphanTopicNodes": {
    "mangled": "Zmt",
@@ -1196,9 +1171,8 @@
   },
   "containsWhitespaceChar": {
    "mangled": "DI",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "firstSeen": "0.5.6",
+   "changedIn": []
   },
   "copyBootstrapIntoKernel": {
    "mangled": "Tgt",
@@ -1224,21 +1198,19 @@
   },
   "countDatedStampLines": {
    "mangled": "GSe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.5"
+   "firstSeen": "0.5.5",
+   "changedIn": []
   },
   "countNewlineChars": {
    "mangled": "XO",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.5"
+   "firstSeen": "0.5.5",
+   "changedIn": []
   },
   "countUnreadableMemoryPaths": {
    "mangled": "ZSe",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.7.1"
   },
   "createAbortErrorWithCause": {
    "mangled": "Sg",
@@ -1247,8 +1219,24 @@
   },
   "createAgentSdkAdapter": {
    "mangled": "Jf",
-   "firstSeen": "0.5.10",
+   "firstSeen": "0.2.0",
    "changedIn": [
+    "0.2.2",
+    "0.2.3",
+    "0.3.0",
+    "0.3.2",
+    "0.3.4",
+    "0.3.5",
+    "0.3.7",
+    "0.4.0",
+    "0.4.3",
+    "0.5.0",
+    "0.5.2",
+    "0.5.5",
+    "0.5.6",
+    "0.5.7",
+    "0.5.8",
+    "0.5.10",
     "0.6.0",
     "0.6.2",
     "0.7.0",
@@ -1259,7 +1247,10 @@
    ],
    "similarSteps": [
     "0.8.1:0.995",
-    "0.8.0:0.804"
+    "0.8.0:0.804",
+    "0.5.10:0.933",
+    "0.5.8:0.889",
+    "0.3.0:0.799"
    ]
   },
   "createAladuoMcpServer": {
@@ -1367,9 +1358,8 @@
   },
   "createEmptySessionIndex": {
    "mangled": "gfe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "createEmptyUsageSummary": {
    "mangled": "zI",
@@ -1616,13 +1606,23 @@
   },
   "deliverRouteEventToSession": {
    "mangled": "Ls",
-   "firstSeen": "0.8.0",
+   "firstSeen": "0.2.0",
    "changedIn": [
+    "0.4.5",
+    "0.5.0",
+    "0.5.4",
+    "0.5.6",
+    "0.6.0",
+    "0.8.0",
     "0.8.1",
     "0.8.4"
    ],
    "similarSteps": [
-    "0.8.4:0.855"
+    "0.8.4:0.855",
+    "0.8.0:0.958",
+    "0.5.6:0.973",
+    "0.5.4:0.982",
+    "0.4.5:0.905"
    ]
   },
   "deliverScanGapSignal": {
@@ -1657,15 +1657,13 @@
   },
   "describeConversationProblem": {
    "mangled": "Pue",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "describeMemoryReadProblem": {
    "mangled": "kU",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "describeSpineCatProblem": {
    "mangled": "xU",
@@ -1767,9 +1765,8 @@
   },
   "encodePiWorkerFrame": {
    "mangled": "_J",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "enforceContractGate": {
    "mangled": "sA",
@@ -1845,15 +1842,14 @@
   },
   "ensureSessionMailboxPendingDir": {
    "mangled": "zU",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.1"
+   "firstSeen": "0.3.1",
+   "changedIn": []
   },
   "escapeRegExpSource": {
    "mangled": "Nke",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "untraceable": "a body shared with 1 old declaration, none settled by position past v0.8.0"
   },
   "escapeXmlText": {
    "mangled": "jt",
@@ -1869,9 +1865,8 @@
   },
   "evaluatePredicateOrFalse": {
    "mangled": "iht",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "firstSeen": "0.5.6",
+   "changedIn": []
   },
   "eventToMessageGenerator": {
    "mangled": "BV",
@@ -1969,9 +1964,8 @@
   },
   "extractStandInOwnerInfo": {
    "mangled": "aJ",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "firstSeen": "0.8.7",
+   "changedIn": []
   },
   "extractStreamTextDeltas": {
    "mangled": "uC",
@@ -1990,9 +1984,8 @@
   },
   "extractUrlHost": {
    "mangled": "_Ee",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.0"
+   "firstSeen": "0.7.0",
+   "changedIn": []
   },
   "filterDeliverableSessions": {
    "mangled": "Kdt",
@@ -2018,9 +2011,8 @@
   },
   "findEventInPartitionFile": {
    "mangled": "zue",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "findNewestFragmentMtimeMs": {
    "mangled": "Omt",
@@ -2133,9 +2125,8 @@
   },
   "getCachedHostBootId": {
    "mangled": "FSe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.0"
+   "firstSeen": "0.3.0",
+   "changedIn": []
   },
   "getCachedPartitionContract": {
    "mangled": "iA",
@@ -2156,15 +2147,14 @@
   },
   "grokAcpExtMethod": {
    "mangled": "aS",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "firstSeen": "0.7.1",
+   "changedIn": []
   },
   "grokUnavailableReason": {
    "mangled": "Zct",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.7.1"
   },
   "groupNotifyTargetCandidates": {
    "mangled": "_6",
@@ -2326,27 +2316,23 @@
   },
   "initBroadcastFlattenLintModule": {
    "mangled": "Jke",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "initBroadcastLinkLintModule": {
    "mangled": "Hke",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "initCallerSessionEnvModule": {
    "mangled": "sC",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "initChannelConfigLoaderModule": {
    "mangled": "Xa",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.7.0"
+   "firstSeen": "0.7.0",
+   "changedIn": []
   },
   "initChannelProtocolModule": {
    "mangled": "$ue",
@@ -2363,8 +2349,11 @@
   },
   "initCodexAppServerModule": {
    "mangled": "rp",
-   "firstSeen": "0.5.3",
+   "firstSeen": "0.4.4",
    "changedIn": [
+    "0.4.6",
+    "0.5.1",
+    "0.5.3",
     "0.5.6",
     "0.6.0",
     "0.7.1",
@@ -2373,7 +2362,8 @@
    ],
    "similarSteps": [
     "0.7.1:0.961",
-    "0.6.0:0.944"
+    "0.6.0:0.944",
+    "0.5.3:0.925"
    ]
   },
   "initEntityLintModule": {
@@ -2389,9 +2379,8 @@
   },
   "initFoldGapLintModule": {
    "mangled": "Bke",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "initGapLintModule": {
    "mangled": "Pke",
@@ -2418,15 +2407,18 @@
   },
   "initInstructionsFingerprintModule": {
    "mangled": "Ck",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.7"
+   "firstSeen": "0.8.0",
+   "changedIn": [
+    "0.8.7"
+   ],
+   "similarSteps": [
+    "0.8.7:0.921"
+   ]
   },
   "initInterruptMarkerTextModule": {
    "mangled": "rS",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "initJobManagerModule": {
    "mangled": "sl",
@@ -2495,9 +2487,8 @@
   },
   "initMainSessionAliasModule": {
    "mangled": "bU",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.7"
+   "firstSeen": "0.8.7",
+   "changedIn": []
   },
   "initManageJobToolModule": {
    "mangled": "cS",
@@ -2515,22 +2506,20 @@
   },
   "initMemoryCheckTickModule": {
    "mangled": "kW",
-   "firstSeen": null,
+   "firstSeen": "0.5.6",
    "changedIn": [
     "0.5.8",
     "0.7.1",
     "0.8.0"
-   ],
-   "untraceable": "module-init with too few features to follow past v0.5.6"
+   ]
   },
   "initMemorySignalDeliveryModule": {
    "mangled": "aW",
-   "firstSeen": null,
+   "firstSeen": "0.5.6",
    "changedIn": [
     "0.7.1",
     "0.8.0"
    ],
-   "untraceable": "module-init with too few features to follow past v0.5.6",
    "similarSteps": [
     "0.8.0:0.5"
    ]
@@ -2552,11 +2541,10 @@
   },
   "initNodeLintModule": {
    "mangled": "uke",
-   "firstSeen": null,
+   "firstSeen": "0.5.5",
    "changedIn": [
     "0.5.6"
-   ],
-   "untraceable": "module-init with too few features to follow past v0.5.5"
+   ]
   },
   "initNotifyConsumerStalenessModule": {
    "mangled": "p6",
@@ -2645,11 +2633,17 @@
   },
   "initReservedMainAliasModule": {
    "mangled": "Rr",
-   "firstSeen": null,
+   "firstSeen": "0.2.0",
    "changedIn": [
+    "0.5.0",
+    "0.5.10",
+    "0.7.0",
     "0.8.7"
    ],
-   "untraceable": "module-init with too few features to follow past v0.7.0"
+   "similarSteps": [
+    "0.7.0:0.911",
+    "0.5.0:0.801"
+   ]
   },
   "initRuntimeInitializationModule": {
    "mangled": "mEe",
@@ -2713,9 +2707,8 @@
   },
   "initVoidRuntimeModule": {
    "mangled": "wf",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "module-init with too few features to follow past v0.8.4"
+   "firstSeen": "0.8.4",
+   "changedIn": []
   },
   "initializeRuntime": {
    "mangled": "Pgt",
@@ -2752,19 +2745,19 @@
    "mangled": "OR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "isAgentSdkPromptNotAcceptedAbortError": {
    "mangled": "Lw",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
   },
   "isAgentSdkTurnInterruptedError": {
    "mangled": "jw",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
   },
   "isAllowedNodeSection": {
    "mangled": "Mpt",
@@ -2793,9 +2786,8 @@
   },
   "isBusinessSourceKind": {
    "mangled": "IS",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.0"
+   "firstSeen": "0.7.0",
+   "changedIn": []
   },
   "isChannelAckParams": {
    "mangled": "jR",
@@ -2864,26 +2856,24 @@
   },
   "isClaudeAvailable": {
    "mangled": "UV",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.3"
+   "firstSeen": "0.5.3",
+   "changedIn": []
   },
   "isClaudeRuntimeOrDefault": {
    "mangled": "BS",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "isCodexAvailable": {
    "mangled": "np",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "isCodexPlainObject": {
    "mangled": "iS",
-   "firstSeen": "0.5.0",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.5.0"
   },
   "isDirEmptyOrMissing": {
    "mangled": "Egt",
@@ -2894,25 +2884,23 @@
    "mangled": "Oi",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.0"
   },
   "isGrokAvailable": {
    "mangled": "o6",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "untraceable": "a body shared with 1 old declaration, none settled by position past v0.7.1"
   },
   "isGrokSkipToolCall": {
    "mangled": "idt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "firstSeen": "0.7.1",
+   "changedIn": []
   },
   "isHostModelEnvKey": {
    "mangled": "uht",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.4.3"
+   "firstSeen": "0.4.3",
+   "changedIn": []
   },
   "isImageGenerationItemType": {
    "mangled": "$ve",
@@ -2928,7 +2916,7 @@
    "mangled": "BR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "untraceable": "a body shared with 1 old declaration, none settled by position past v0.8.2"
   },
   "isJobCreateParams": {
    "mangled": "zR",
@@ -2967,8 +2955,15 @@
   },
   "isJobScheduleDue": {
    "mangled": "dve",
-   "firstSeen": "0.5.6",
-   "changedIn": []
+   "firstSeen": "0.2.0",
+   "changedIn": [
+    "0.2.12",
+    "0.4.5",
+    "0.5.6"
+   ],
+   "similarSteps": [
+    "0.5.6:1"
+   ]
   },
   "isJobSessionKeyKind": {
    "mangled": "Rwe",
@@ -2994,7 +2989,7 @@
    "mangled": "ZR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
   },
   "isLiveStreamRebuildRequired": {
    "mangled": "iK",
@@ -3005,9 +3000,13 @@
   },
   "isLogLevelEnabled": {
    "mangled": "eXe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.3"
+   "firstSeen": "0.2.0",
+   "changedIn": [
+    "0.3.3"
+   ],
+   "similarSteps": [
+    "0.3.3:0.873"
+   ]
   },
   "isLoopbackBindHost": {
    "mangled": "VSt",
@@ -3018,7 +3017,7 @@
    "mangled": "Yue",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.5.6"
   },
   "isMainSessionCandidate": {
    "mangled": "xue",
@@ -3047,13 +3046,8 @@
   },
   "isMergeableChannelMessageBatch": {
    "mangled": "myt",
-   "firstSeen": "0.2.0",
-   "changedIn": [
-    "0.5.5"
-   ],
-   "similarSteps": [
-    "0.5.5:0.292 (overlap 1)"
-   ]
+   "firstSeen": "0.5.5",
+   "changedIn": []
   },
   "isMergeableDrainBatch": {
    "mangled": "pyt",
@@ -3069,7 +3063,7 @@
    "mangled": "IU",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "isNonEmptyText": {
    "mangled": "H7e",
@@ -3098,9 +3092,8 @@
   },
   "isOrphanWarningDeliverable": {
    "mangled": "_ke",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "firstSeen": "0.5.6",
+   "changedIn": []
   },
   "isPartitionBackedOff": {
    "mangled": "W6",
@@ -3109,18 +3102,25 @@
   },
   "isPathWithinDir": {
    "mangled": "fve",
-   "firstSeen": "0.8.5",
-   "changedIn": []
+   "firstSeen": "0.2.0",
+   "changedIn": [
+    "0.8.5"
+   ],
+   "similarSteps": [
+    "0.8.5:0.818"
+   ]
   },
   "isPlainJsonObject": {
    "mangled": "dke",
-   "firstSeen": "0.5.6",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.5.6"
   },
   "isPlainObjectRecord": {
    "mangled": "rft",
-   "firstSeen": "0.8.4",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.4"
   },
   "isProcessAliveByPid": {
    "mangled": "opt",
@@ -3129,8 +3129,13 @@
   },
   "isProviderQualifiedModelId": {
    "mangled": "MI",
-   "firstSeen": "0.8.0",
-   "changedIn": []
+   "firstSeen": "0.2.0",
+   "changedIn": [
+    "0.8.0"
+   ],
+   "similarSteps": [
+    "0.8.0:0.75"
+   ]
   },
   "isRecord": {
    "mangled": "lt",
@@ -3151,8 +3156,13 @@
   },
   "isRuntimeWriterLockStale": {
    "mangled": "apt",
-   "firstSeen": "0.3.0",
-   "changedIn": []
+   "firstSeen": "0.2.0",
+   "changedIn": [
+    "0.3.0"
+   ],
+   "similarSteps": [
+    "0.3.0:0.857"
+   ]
   },
   "isSafeMemorySlug": {
    "mangled": "X6",
@@ -3166,15 +3176,13 @@
   },
   "isSessionArchived": {
    "mangled": "zo",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "firstSeen": "0.5.6",
+   "changedIn": []
   },
   "isSessionArchiving": {
    "mangled": "er",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "isSessionCompactParams": {
    "mangled": "IR",
@@ -3255,13 +3263,13 @@
    "mangled": "zb",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
   },
   "isSystemConfigParams": {
    "mangled": "JR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "isSystemRuntimeInfo": {
    "mangled": "_R",
@@ -3276,7 +3284,7 @@
    "mangled": "WR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "isTelemetryEnabled": {
    "mangled": "AXe",
@@ -3295,9 +3303,8 @@
   },
   "isUserVisibleSessionKey": {
    "mangled": "$q",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "isValidChannelId": {
    "mangled": "mh",
@@ -3351,9 +3358,8 @@
   },
   "listFrontmatterKeyAliases": {
    "mangled": "uh",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.10"
+   "firstSeen": "0.5.10",
+   "changedIn": []
   },
   "listMailboxPendingItems": {
    "mangled": "Kb",
@@ -3541,9 +3547,8 @@
   },
   "logTraceMessage": {
    "mangled": "jue",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.6"
+   "firstSeen": "0.3.6",
+   "changedIn": []
   },
   "logWarnMessage": {
    "mangled": "Y",
@@ -3568,9 +3573,8 @@
   },
   "lookupOutboxByIdIndexEntry": {
    "mangled": "la",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.0"
+   "firstSeen": "0.3.0",
+   "changedIn": []
   },
   "main": {
    "mangled": "GSt",
@@ -3669,9 +3673,8 @@
   },
   "memoizeAvailabilityProbeUntilOk": {
    "mangled": "yTe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.3"
+   "firstSeen": "0.8.3",
+   "changedIn": []
   },
   "memoizeIndexLoad": {
    "mangled": "Uu",
@@ -3680,9 +3683,8 @@
   },
   "mergeClaudeToolLists": {
    "mangled": "Mwe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.10"
+   "firstSeen": "0.5.10",
+   "changedIn": []
   },
   "mergeContiguousHourRanges": {
    "mangled": "kke",
@@ -3774,9 +3776,8 @@
   },
   "normalizeBoardIncludeToken": {
    "mangled": "Iwt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.2"
+   "firstSeen": "0.5.2",
+   "changedIn": []
   },
   "normalizeChannelCapabilityDeclarations": {
    "mangled": "_St",
@@ -3811,13 +3812,19 @@
   },
   "normalizeNotifyChannelTarget": {
    "mangled": "$O",
-   "firstSeen": "0.8.0",
-   "changedIn": []
+   "firstSeen": "0.2.0",
+   "changedIn": [
+    "0.8.0"
+   ],
+   "similarSteps": [
+    "0.8.0:0.9"
+   ]
   },
   "normalizeOptionalEnvString": {
    "mangled": "Wf",
-   "firstSeen": "0.8.0",
-   "changedIn": []
+   "firstSeen": null,
+   "changedIn": [],
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.0"
   },
   "normalizePartitionOutputText": {
    "mangled": "vTe",
@@ -3851,15 +3858,13 @@
   },
   "notifySessionFileChanged": {
    "mangled": "lh",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "overlayConfigEntriesByKey": {
    "mangled": "S6",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.0"
+   "firstSeen": "0.7.0",
+   "changedIn": []
   },
   "parseAgentMarkdown": {
    "mangled": "uEe",
@@ -3875,17 +3880,9 @@
   },
   "parseChannelConfigFields": {
    "mangled": "RI",
-   "firstSeen": "0.2.0",
+   "firstSeen": "0.5.10",
    "changedIn": [
-    "0.3.0",
-    "0.4.5",
-    "0.5.0",
-    "0.5.10",
     "0.8.4"
-   ],
-   "similarSteps": [
-    "0.5.10:0.444 (overlap 0.8)",
-    "0.5.0:0.875"
    ]
   },
   "parseChannelRuntimeField": {
@@ -3977,9 +3974,8 @@
   },
   "parseOriginHostname": {
    "mangled": "BSt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.0"
+   "firstSeen": "0.7.0",
+   "changedIn": []
   },
   "parsePartitionDefinition": {
    "mangled": "fpt",
@@ -4037,9 +4033,8 @@
   },
   "partitionInboxDir": {
    "mangled": "Db",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "firstSeen": "0.5.6",
+   "changedIn": []
   },
   "partitionInboxDirFromVar": {
    "mangled": "tc",
@@ -4129,9 +4124,8 @@
   },
   "primeClaudeAvailability": {
    "mangled": "Aat",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.3"
+   "firstSeen": "0.5.3",
+   "changedIn": []
   },
   "primeCodexAvailability": {
    "mangled": "qct",
@@ -4227,9 +4221,8 @@
   },
   "readDrainRecords": {
    "mangled": "Sh",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "readEnvIntegerOrFallback": {
    "mangled": "zTe",
@@ -4291,9 +4284,8 @@
   },
   "readLatestDeliveryCursorUpdate": {
    "mangled": "bO",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "readLatestExternalEventId": {
    "mangled": "Gwt",
@@ -4312,15 +4304,18 @@
   },
   "readMemoryFileSyncOrNull": {
    "mangled": "$n",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.1"
+   "firstSeen": "0.5.5",
+   "changedIn": [
+    "0.7.1"
+   ],
+   "similarSteps": [
+    "0.7.1:0.66"
+   ]
   },
   "readMemoryMaxLinesLimit": {
    "mangled": "lW",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "readNewestMtimeRecursive": {
    "mangled": "ZN",
@@ -4354,13 +4349,8 @@
   },
   "readOutboxRecordsPastCursor": {
    "mangled": "pS",
-   "firstSeen": "0.2.0",
-   "changedIn": [
-    "0.3.0"
-   ],
-   "similarSteps": [
-    "0.3.0:0.277 (overlap 0.818)"
-   ]
+   "firstSeen": "0.3.0",
+   "changedIn": []
   },
   "readPartitionByteRange": {
    "mangled": "q6",
@@ -4424,15 +4414,13 @@
   },
   "readRuntimeEffortSetting": {
    "mangled": "RS",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.1"
+   "firstSeen": "0.8.1",
+   "changedIn": []
   },
   "readRuntimeModelSetting": {
    "mangled": "ES",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.1"
+   "firstSeen": "0.8.1",
+   "changedIn": []
   },
   "readSessionMetaFile": {
    "mangled": "qo",
@@ -4484,9 +4472,8 @@
   },
   "realpathOrSelf": {
    "mangled": "Swt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.2"
+   "firstSeen": "0.5.2",
+   "changedIn": []
   },
   "rebuildPlaylistRound": {
    "mangled": "VSe",
@@ -4495,9 +4482,8 @@
   },
   "reconcileMainSession": {
    "mangled": "ISt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "firstSeen": "0.8.7",
+   "changedIn": []
   },
   "reconcileMainSessionAtBoot": {
    "mangled": "kSe",
@@ -4566,15 +4552,13 @@
   },
   "recordUnreadableUnlessMissing": {
    "mangled": "lA",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "redactJobModelProfileTokens": {
    "mangled": "tp",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.7.0"
+   "firstSeen": "0.7.0",
+   "changedIn": []
   },
   "redactSpineEventForExternal": {
    "mangled": "egt",
@@ -4598,9 +4582,8 @@
   },
   "refreshSessionIndexEntry": {
    "mangled": "vh",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.4"
+   "firstSeen": "0.5.4",
+   "changedIn": []
   },
   "rehydrateSessionState": {
    "mangled": "Jue",
@@ -4627,9 +4610,8 @@
   },
   "removeHostModelEnvLines": {
    "mangled": "uxe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.4.3"
+   "firstSeen": "0.4.3",
+   "changedIn": []
   },
   "removeOrphanMailboxItemFiles": {
    "mangled": "Que",
@@ -4638,9 +4620,8 @@
   },
   "renderActivationReportBody": {
    "mangled": "Cmt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "renderActivationReportHeader": {
    "mangled": "Tmt",
@@ -4672,9 +4653,8 @@
   },
   "renderBoardUpdatedHint": {
    "mangled": "jEe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.10"
+   "firstSeen": "0.5.10",
+   "changedIn": []
   },
   "renderChannelNotifyModeGuidance": {
    "mangled": "_we",
@@ -4691,11 +4671,10 @@
   },
   "renderDaemonRestartHint": {
    "mangled": "PSe",
-   "firstSeen": null,
+   "firstSeen": "0.5.2",
    "changedIn": [
     "0.6.2"
-   ],
-   "untraceable": "function with too few features to follow past v0.5.2"
+   ]
   },
   "renderDrainErrorRuntimeHint": {
    "mangled": "Tyt",
@@ -4813,7 +4792,7 @@
    "mangled": "fO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.0"
+   "untraceable": "a body shared with 5 old declarations, none settled by position past v0.8.0"
   },
   "renderJobTickBlock": {
    "mangled": "oyt",
@@ -4842,11 +4821,10 @@
   },
   "renderManageJobToolDescription": {
    "mangled": "dO",
-   "firstSeen": null,
+   "firstSeen": "0.8.0",
    "changedIn": [
     "0.8.2"
-   ],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   ]
   },
   "renderManualCompactNotice": {
    "mangled": "Syt",
@@ -4940,13 +4918,21 @@
   },
   "renderPromptLayers": {
    "mangled": "__e",
-   "firstSeen": "0.7.1",
+   "firstSeen": "0.2.0",
    "changedIn": [
+    "0.4.5",
+    "0.5.1",
+    "0.5.2",
+    "0.5.4",
+    "0.5.5",
+    "0.7.1",
     "0.8.0",
     "0.8.7"
    ],
    "similarSteps": [
-    "0.8.0:0.921"
+    "0.8.0:0.921",
+    "0.7.1:0.66",
+    "0.4.5:1"
    ]
   },
   "renderRestartWakeMessage": {
@@ -5033,9 +5019,13 @@
   },
   "replaceSessionIndexEntry": {
    "mangled": "Cq",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.4"
+   "firstSeen": "0.5.0",
+   "changedIn": [
+    "0.5.4"
+   ],
+   "similarSteps": [
+    "0.5.4:0.858"
+   ]
   },
   "replayIdempotentSessionNotify": {
    "mangled": "$St",
@@ -5075,9 +5065,8 @@
   },
   "resolveArchivedSessionDir": {
    "mangled": "Km",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.4.5"
+   "firstSeen": "0.4.5",
+   "changedIn": []
   },
   "resolveBoardIncludePath": {
    "mangled": "Pwt",
@@ -5131,12 +5120,14 @@
   },
   "resolveDefaultRuntime": {
    "mangled": "vo",
-   "firstSeen": "0.7.1",
+   "firstSeen": "0.5.3",
    "changedIn": [
+    "0.7.1",
     "0.8.4"
    ],
    "similarSteps": [
-    "0.8.4:0.667"
+    "0.8.4:0.667",
+    "0.7.1:0.9"
    ]
   },
   "resolveDeliveryCursorPath": {
@@ -5214,9 +5205,8 @@
   },
   "resolveIsolatedPlaneKind": {
    "mangled": "BTe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "resolveJobCwdRel": {
    "mangled": "hve",
@@ -5255,9 +5245,8 @@
   },
   "resolveMainSessionFromIndex": {
    "mangled": "qc",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "firstSeen": "0.8.7",
+   "changedIn": []
   },
   "resolveMemoryCheckFlags": {
    "mangled": "wW",
@@ -5322,9 +5311,8 @@
   },
   "resolveOutboxReplayFilePath": {
    "mangled": "Rs",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.0"
+   "firstSeen": "0.3.0",
+   "changedIn": []
   },
   "resolveOutboxSentIdsPath": {
    "mangled": "Kde",
@@ -5388,8 +5376,13 @@
   },
   "resolveRuntimePaths": {
    "mangled": "Sue",
-   "firstSeen": "0.4.3",
+   "firstSeen": "0.2.0",
    "changedIn": [
+    "0.2.5",
+    "0.3.0",
+    "0.3.1",
+    "0.3.3",
+    "0.4.3",
     "0.5.1",
     "0.5.3",
     "0.5.7",
@@ -5400,7 +5393,9 @@
    "similarSteps": [
     "0.8.0:0.894",
     "0.7.0:0.901",
-    "0.5.3:0.973"
+    "0.5.3:0.973",
+    "0.4.3:0.946",
+    "0.3.3:0.991"
    ]
   },
   "resolveRuntimeWriterLockPath": {
@@ -5442,9 +5437,8 @@
   },
   "resolveSessionMailboxDir": {
    "mangled": "Wue",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.1"
+   "firstSeen": "0.3.1",
+   "changedIn": []
   },
   "resolveSessionMailboxMarkdownPath": {
    "mangled": "nI",
@@ -5730,9 +5724,8 @@
   },
   "runSessionSetAliasRpc": {
    "mangled": "RSt",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "firstSeen": "0.8.7",
+   "changedIn": []
   },
   "runSkipTool": {
    "mangled": "oC",
@@ -5750,9 +5743,8 @@
   },
   "runTimedDrainPhase": {
    "mangled": "Oo",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.0"
+   "firstSeen": "0.3.0",
+   "changedIn": []
   },
   "runViewSessionsTool": {
    "mangled": "Wg",
@@ -5763,8 +5755,13 @@
   },
   "runWithSessionMutex": {
    "mangled": "Zi",
-   "firstSeen": "0.5.0",
-   "changedIn": []
+   "firstSeen": "0.3.1",
+   "changedIn": [
+    "0.5.0"
+   ],
+   "similarSteps": [
+    "0.5.0:0.818"
+   ]
   },
   "sanitizeDrainRecordSegment": {
    "mangled": "Vnt",
@@ -5836,15 +5833,13 @@
   },
   "selectInstructionsFingerprint": {
    "mangled": "I0e",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.0"
+   "firstSeen": "0.8.0",
+   "changedIn": []
   },
   "selectInterruptMarkerText": {
    "mangled": "zg",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "selectProfileIssuesForModel": {
    "mangled": "ry",
@@ -5863,14 +5858,18 @@
   },
   "setPendingRestartReason": {
    "mangled": "RSe",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.6.2"
+   "firstSeen": "0.6.2",
+   "changedIn": []
   },
   "setSessionAliasAndReindex": {
    "mangled": "qO",
-   "firstSeen": "0.8.7",
-   "changedIn": []
+   "firstSeen": "0.5.4",
+   "changedIn": [
+    "0.8.7"
+   ],
+   "similarSteps": [
+    "0.8.7:0.667"
+   ]
   },
   "setSessionAliasWithMainRole": {
    "mangled": "SSe",
@@ -5879,9 +5878,8 @@
   },
   "setSessionArchivedListener": {
    "mangled": "Hue",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.5.6"
+   "firstSeen": "0.5.0",
+   "changedIn": []
   },
   "shouldKeepRouteDeliverEvent": {
    "mangled": "Qht",
@@ -5973,9 +5971,8 @@
   },
   "summarizeDrainRecords": {
    "mangled": "gv",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.2"
+   "firstSeen": "0.8.2",
+   "changedIn": []
   },
   "sweepTombstonedSessionRecords": {
    "mangled": "Xwt",
@@ -6147,7 +6144,7 @@
    "mangled": "ySe",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
   },
   "writeJsonFileAtomic": {
    "mangled": "Bt",
@@ -6161,9 +6158,8 @@
   },
   "writePartitionRunState": {
    "mangled": "H6",
-   "firstSeen": null,
-   "changedIn": [],
-   "untraceable": "function with too few features to follow past v0.3.1"
+   "firstSeen": "0.3.1",
+   "changedIn": []
   },
   "writeStatus": {
    "mangled": "BU",
@@ -6206,7 +6202,6 @@
     "buildNotifyInputSchema",
     "buildSessionExecutionPayload",
     "buildSessionInfoFromState",
-    "buildSystemPromptForChannelConfig",
     "buildTransientUserBlocks",
     "buildTurnSdkRunConfig",
     "canonicalizeGatewayCommand",
@@ -6219,7 +6214,6 @@
     "clearPendingInterruptedContext",
     "clearPendingOutboundAttachments",
     "clearPendingSkipRewind",
-    "codexUnavailableReason",
     "computeDedupKey",
     "computeDrainCoalesceKey",
     "computeRuntimeId",
@@ -6228,6 +6222,7 @@
     "copyDirTreeMissingOnly",
     "copyDirTreeOverwrite",
     "createAbortErrorWithCause",
+    "createAgentSdkAdapter",
     "createAladuoMcpServer",
     "createDaemon",
     "createDrainExecutionEventRecorder",
@@ -6238,6 +6233,7 @@
     "createSessionManager",
     "createSessionSubscriptionRegistry",
     "createSpineEvent",
+    "deliverRouteEventToSession",
     "describeWorkspaceProblem",
     "detectEmptyRequiredPartitionOutput",
     "drainRecordPath",
@@ -6273,6 +6269,7 @@
     "initMailboxDrainRunnerModule",
     "initNotifyToolModule",
     "initQueueOutboundAttachmentModule",
+    "initReservedMainAliasModule",
     "initRuntimeInitializationModule",
     "initSkipToolModule",
     "initSubconsciousPlaylistModule",
@@ -6292,16 +6289,20 @@
     "isJobGetParams",
     "isJobListParams",
     "isJobOrMetaOutboxRecord",
+    "isJobScheduleDue",
     "isJobSessionKeyKind",
     "isJsonRpcRequest",
     "isKernelGitToplevel",
-    "isMergeableChannelMessageBatch",
+    "isLogLevelEnabled",
     "isMimePattern",
     "isNonNullObject",
     "isOptionalString",
+    "isPathWithinDir",
     "isProcessAliveByPid",
+    "isProviderQualifiedModelId",
     "isRecord",
     "isRuntimeInfoParams",
+    "isRuntimeWriterLockStale",
     "isSessionLifecycleLoggingEnabled",
     "isSystemRuntimeInfo",
     "isValidChannelId",
@@ -6326,10 +6327,10 @@
     "mergeInterruptedContextTexts",
     "mergeKernelGitignoreEntries",
     "normalizeJobCwdRelText",
+    "normalizeNotifyChannelTarget",
     "normalizePartitionOutputText",
     "normalizePromptMode",
     "normalizeReturnMask",
-    "parseChannelConfigFields",
     "parseEnvBooleanFlag",
     "parseEventTimestampMs",
     "parseGatewayCommandText",
@@ -6350,7 +6351,6 @@
     "readEnvIntegerOrFallback",
     "readFileAsBase64",
     "readOutboxRecord",
-    "readOutboxRecordsPastCursor",
     "readPartitionInboxEntries",
     "readPendingOutboundAttachments",
     "readPlaylistRound",
@@ -6374,6 +6374,7 @@
     "renderNotifyDeliveryReport",
     "renderNotifyToolDescription",
     "renderPartitionRuntimeContext",
+    "renderPromptLayers",
     "renderSkipRewindBlock",
     "renderTurnOutputText",
     "renderWorkspaceUnavailableNotice",
@@ -6398,6 +6399,7 @@
     "resolvePreemptFromCommandText",
     "resolveReplyTargetSessionKeys",
     "resolveRoutingTarget",
+    "resolveRuntimePaths",
     "resolveRuntimeWriterLockPath",
     "resolveSessionDir",
     "resolveSessionDrainLockPath",
@@ -6440,11 +6442,14 @@
   },
   "0.2.2": {
    "born": [],
-   "changed": []
+   "changed": [
+    "createAgentSdkAdapter"
+   ]
   },
   "0.2.3": {
    "born": [],
    "changed": [
+    "createAgentSdkAdapter",
     "createSessionManager",
     "isSystemRuntimeInfo",
     "runSkipTool"
@@ -6459,7 +6464,8 @@
   "0.2.5": {
    "born": [],
    "changed": [
-    "initializeRuntime"
+    "initializeRuntime",
+    "resolveRuntimePaths"
    ]
   },
   "0.2.6": {
@@ -6497,25 +6503,28 @@
    "born": [],
    "changed": [
     "createSessionManager",
+    "isJobScheduleDue",
     "runManageJobTool",
     "scanAndSpawnDueJobs"
    ]
   },
   "0.3.0": {
    "born": [
+    "addToNumericField",
     "advanceOptimisticDeliveryCursor",
     "appendTelemetryRecord",
     "backfillOutboxByIdIndexFromReplay",
-    "classifySessionKeyOrUnknown",
     "computeHostBootId",
     "ensureOutboxRecordInReplay",
     "extractSdkMessageTextChunks",
     "extractStreamTextDeltas",
     "extractStreamThinkingText",
     "formatElapsedDuration",
+    "getCachedHostBootId",
     "initAbortableAsyncQueueModule",
-    "isRuntimeWriterLockStale",
+    "lookupOutboxByIdIndexEntry",
     "mapClaudeResultToDrainUsage",
+    "readOutboxRecordsPastCursor",
     "recordTelemetryMetric",
     "renderChannelNotifyModeGuidance",
     "renderMetaNotifyModeGuidance",
@@ -6523,6 +6532,8 @@
     "renderTimeGapContextBlock",
     "resolveOutboxByIdIndexPath",
     "resolveOutboxReplayDir",
+    "resolveOutboxReplayFilePath",
+    "runTimedDrainPhase",
     "stringifyToolResultContent"
    ],
    "changed": [
@@ -6532,6 +6543,7 @@
     "buildEffectiveChannelConfig",
     "buildNotifyInputSchema",
     "buildTransientUserBlocks",
+    "createAgentSdkAdapter",
     "createAladuoMcpServer",
     "createDaemon",
     "createMetaSession",
@@ -6541,16 +6553,16 @@
     "initMailboxDrainRunnerModule",
     "initNotifyToolModule",
     "initializeRuntime",
+    "isRuntimeWriterLockStale",
     "loadDrainItemEventCached",
     "main",
-    "parseChannelConfigFields",
     "persistOutboxRecord",
     "readDeliveryCursorFile",
-    "readOutboxRecordsPastCursor",
     "renderMailboxEventPrompt",
     "renderNotifyToolDescription",
     "resolveJobOwnerNotifyTarget",
     "resolveNotifyTargetSessionKey",
+    "resolveRuntimePaths",
     "runDrainTurnWithResumeFallback",
     "runNotifyTool",
     "scanAndSpawnDueJobs",
@@ -6562,6 +6574,7 @@
     "appendSessionMailboxNote",
     "computePartitionBackoffUntil",
     "deleteMailboxPendingItemsByEventIds",
+    "ensureSessionMailboxPendingDir",
     "hasUnqueuedPendingOutboxRecords",
     "initOutboxStoreModule",
     "initPartitionRunStateModule",
@@ -6574,8 +6587,11 @@
     "renderSessionMailboxFile",
     "resolveOutboxPendingQueuePath",
     "resolvePartitionStatePath",
+    "resolveSessionMailboxDir",
     "resolveSessionMailboxNotesPath",
-    "resolveSessionMailboxPendingDir"
+    "resolveSessionMailboxPendingDir",
+    "runWithSessionMutex",
+    "writePartitionRunState"
    ],
    "changed": [
     "accumulateDrainRecordIntoSummary",
@@ -6590,7 +6606,8 @@
     "loadSubconsciousPartitions",
     "main",
     "mergeInboxIntoMailbox",
-    "recordOutboxDeliveryAttempt"
+    "recordOutboxDeliveryAttempt",
+    "resolveRuntimePaths"
    ]
   },
   "0.3.2": {
@@ -6603,6 +6620,7 @@
    "changed": [
     "buildSessionExecutionPayload",
     "computeStreamEventDedupKey",
+    "createAgentSdkAdapter",
     "createDaemon",
     "createDrainExecutionEventRecorder",
     "createSessionManager"
@@ -6621,9 +6639,11 @@
     "createDrainExecutionEventRecorder",
     "createMetaSession",
     "initLogLevelModule",
+    "isLogLevelEnabled",
     "main",
     "recordChannelCapabilityDeclaration",
     "renderPartitionRuntimeContext",
+    "resolveRuntimePaths",
     "runQueueOutboundAttachmentTool",
     "stringifyExecutionToolInput",
     "stringifyPartitionToolInput"
@@ -6633,6 +6653,7 @@
    "born": [],
    "changed": [
     "acquireSessionDrainLock",
+    "createAgentSdkAdapter",
     "createDaemon",
     "createSessionManager",
     "drainSessionMailbox",
@@ -6644,6 +6665,7 @@
    "born": [],
    "changed": [
     "acquireSessionDrainLock",
+    "createAgentSdkAdapter",
     "createSessionManager",
     "drainSessionMailbox",
     "readDrainLockFile",
@@ -6651,7 +6673,9 @@
    ]
   },
   "0.3.6": {
-   "born": [],
+   "born": [
+    "logTraceMessage"
+   ],
    "changed": [
     "createDaemon",
     "createSessionManager",
@@ -6663,6 +6687,7 @@
     "prepareDrainTurnContext"
    ],
    "changed": [
+    "createAgentSdkAdapter",
     "createDaemon",
     "createSessionManager",
     "createSessionSubscriptionRegistry",
@@ -6673,6 +6698,7 @@
   },
   "0.4.0": {
    "born": [
+    "classifyJobScheduleType",
     "inferActorOriginFromSessionKey",
     "isAutoArchivedJobSchedule",
     "readAllSessionStateFiles",
@@ -6682,6 +6708,7 @@
    ],
    "changed": [
     "buildSessionInfoFromState",
+    "createAgentSdkAdapter",
     "createAladuoMcpServer",
     "createDaemon",
     "createSessionManager",
@@ -6723,24 +6750,28 @@
     "applyHostModelEnvVars",
     "buildSdkConfigReport",
     "clearHostModelEnvConfig",
+    "clearHostModelEnvVars",
     "hostDotEnvPath",
     "isClaudeAuthSource",
+    "isHostModelEnvKey",
     "loadHostDotEnv",
     "readClaudeAuthSourceEnv",
     "readHostDotEnvFile",
-    "resolveRuntimePaths",
+    "removeHostModelEnvLines",
     "writeHostDotEnvLines",
     "writeHostModelEnvConfig"
    ],
    "changed": [
     "buildSystemConfigReport",
+    "createAgentSdkAdapter",
     "createDaemon",
     "createSessionManager",
     "drainSessionMailbox",
     "initializeRuntime",
     "isSystemRuntimeInfo",
     "main",
-    "normalizeReturnMask"
+    "normalizeReturnMask",
+    "resolveRuntimePaths"
    ]
   },
   "0.4.4": {
@@ -6753,6 +6784,7 @@
     "createCodexAppServerAdapter",
     "ensureAgentsMdSymlink",
     "extractSystemPromptAppend",
+    "initCodexAppServerModule",
     "mapItemCompletedToExecEvent",
     "mapItemStartedToExecEvent",
     "readGlobalUsageTotals",
@@ -6775,39 +6807,47 @@
     "moveSessionDirToArchive",
     "renderJobMissionBlock",
     "renderJobTickBlock",
+    "resolveArchivedSessionDir",
     "resolveSessionsArchiveRoot",
     "runInstructionsFingerprintGuard"
    ],
    "changed": [
     "buildEffectiveChannelConfig",
     "buildSystemConfigReport",
-    "buildSystemPromptForChannelConfig",
     "buildTransientUserBlocks",
     "createSessionManager",
+    "deliverRouteEventToSession",
     "drainSessionMailbox",
     "initMailboxDrainRunnerModule",
-    "parseChannelConfigFields",
+    "isJobScheduleDue",
     "patchSessionRuntimeState",
     "prepareDrainTurnContext",
     "recordTelemetryMetric",
+    "renderPromptLayers",
     "runManageJobTool",
     "scanAndSpawnDueJobs"
    ]
   },
   "0.4.6": {
    "born": [],
-   "changed": []
+   "changed": [
+    "initCodexAppServerModule"
+   ]
   },
   "0.5.0": {
    "born": [
+    "__setCodexAvailabilityForTests",
     "archiveLegacyRegistrySessionsDir",
     "archiveSessionAndArtifacts",
     "archiveSessionIfQuiescent",
+    "assertSessionNotArchiving",
     "buildSessionIndexEntry",
     "buildSessionIndexFromDisk",
     "classifySessionKey",
+    "clearSessionArchiving",
     "clearSessionRuntimeStateField",
     "computeBoundedEditDistance",
+    "createEmptySessionIndex",
     "createMapBackedSessionIndex",
     "describeChannelInstance",
     "extractCodexGeneratedImageAttachment",
@@ -6817,18 +6857,22 @@
     "initSessionLockAndArchivingModule",
     "isChannelDescribeParams",
     "isChannelSpawnParams",
-    "isCodexPlainObject",
+    "isCodexAvailable",
     "isImageGenerationItemType",
     "isSessionArchiveParams",
+    "isSessionArchiving",
+    "isUserVisibleSessionKey",
     "listArchivedCopiesNewestFirst",
     "matchNearMissSessionKey",
     "mergeOutboundAttachmentLists",
     "mutateSessionRuntimeState",
+    "notifySessionFileChanged",
     "primeCodexAvailability",
     "readStateSourceChannelId",
     "renderNotifyTargetCandidateLines",
+    "replaceSessionIndexEntry",
     "runDrainQueryAndCollectOutboundAttachments",
-    "runWithSessionMutex",
+    "setSessionArchivedListener",
     "tryMarkSessionArchiving",
     "upsertChannelSpawnDescriptor",
     "verifyClaudeCodeRuntimeAvailable"
@@ -6838,12 +6882,14 @@
     "buildEffectiveChannelConfig",
     "buildSessionInfoFromState",
     "buildSystemConfigReport",
+    "createAgentSdkAdapter",
     "createCodexAppServerAdapter",
     "createDaemon",
     "createMetaSession",
     "createOutboxDeliveryManager",
     "createSessionManager",
     "createSessionSubscriptionRegistry",
+    "deliverRouteEventToSession",
     "drainSessionMailbox",
     "enqueueSessionInboxLine",
     "ensureSessionDescriptorAndStateFiles",
@@ -6851,11 +6897,11 @@
     "initNotifyToolModule",
     "initPartitionRunStateModule",
     "initQueueOutboundAttachmentModule",
+    "initReservedMainAliasModule",
     "initializeRuntime",
     "main",
     "mapClaudeResultToDrainUsage",
     "moveSessionDirToArchive",
-    "parseChannelConfigFields",
     "patchSessionRuntimeState",
     "readChannelDescriptor",
     "readGlobalUsageTotals",
@@ -6867,12 +6913,14 @@
     "resolveNotifyTargetSessionKey",
     "runInstructionsFingerprintGuard",
     "runManageJobTool",
+    "runWithSessionMutex",
     "scanAndSpawnDueJobs"
    ]
   },
   "0.5.1": {
    "born": [
     "collectInstructionsInputs",
+    "computeMissionFingerprint",
     "removeDotEnvKeyLines",
     "writeHostClaudeCodeExecutableEnvConfig"
    ],
@@ -6881,11 +6929,11 @@
     "buildCodexDynamicTools",
     "buildNotifyInputSchema",
     "buildSessionInfoFromState",
-    "buildSystemPromptForChannelConfig",
     "computeInstructionsFingerprint",
     "createCodexAppServerAdapter",
     "createSessionManager",
     "drainSessionMailbox",
+    "initCodexAppServerModule",
     "initQueueOutboundAttachmentModule",
     "initRuntimeInitializationModule",
     "initializeRuntime",
@@ -6894,6 +6942,7 @@
     "renderJobFailureNotification",
     "renderMailboxEventPrompt",
     "renderPartitionRuntimeContext",
+    "renderPromptLayers",
     "resolveRuntimePaths",
     "runDrainTurnWithResumeFallback",
     "runInstructionsFingerprintGuard",
@@ -6902,13 +6951,17 @@
   },
   "0.5.2": {
    "born": [
+    "buildSafeDirectoryGitArgs",
     "collectBoardIncludePaths",
     "decideRestartHintInjection",
     "initBoardTransclusionModule",
     "isBoardIncludePathCandidate",
+    "normalizeBoardIncludeToken",
     "normalizeDirPathForCompare",
     "normalizeIncludePathKey",
     "parseBoardFileContent",
+    "realpathOrSelf",
+    "renderDaemonRestartHint",
     "renderTranscludedFiles",
     "resolveAdditionalDirClaudeMdAutoload",
     "resolveBoardIncludePath",
@@ -6923,11 +6976,11 @@
     "buildKernelGitEnv",
     "buildSessionIndexEntry",
     "buildSessionInfoFromState",
-    "buildSystemPromptForChannelConfig",
     "buildTransientUserBlocks",
     "canonicalizeGatewayCommand",
     "classifyGatewayCommandIntent",
     "collectInstructionsInputs",
+    "createAgentSdkAdapter",
     "createAladuoMcpServer",
     "createCodexAppServerAdapter",
     "createMetaSession",
@@ -6938,6 +6991,7 @@
     "initMailboxDrainRunnerModule",
     "isKernelGitToplevel",
     "prepareDrainTurnContext",
+    "renderPromptLayers",
     "resolveRoutingTarget",
     "runInstructionsFingerprintGuard",
     "runKernelGitCommand"
@@ -6945,20 +6999,24 @@
   },
   "0.5.3": {
    "born": [
+    "__resetClaudeProbeCacheForTest",
+    "__setClaudeVerifierForTest",
     "claudeUnavailableReason",
     "extractBoardSlugLinks",
     "formatSlugLinkLocations",
     "generateAllPartitionCodexAgents",
     "generatePartitionCodexAgents",
     "initBroadcastBudgetLintModule",
-    "initCodexAppServerModule",
+    "isClaudeAvailable",
     "parseAgentMarkdown",
     "partitionInboxDirFromVar",
+    "primeClaudeAvailability",
     "probeClaudeAvailability",
     "readLatestExternalEventId",
     "readNewestMtimeRecursive",
     "renderAgentToml",
-    "renderPartitionInboxSection"
+    "renderPartitionInboxSection",
+    "resolveDefaultRuntime"
    ],
    "changed": [
     "buildSessionInfoFromState",
@@ -6970,6 +7028,7 @@
     "describeChannelInstance",
     "drainSessionMailbox",
     "executeGatewayCommand",
+    "initCodexAppServerModule",
     "initKernelGitModule",
     "initMailboxDrainRunnerModule",
     "initRuntimeInitializationModule",
@@ -6997,20 +7056,22 @@
     "isSessionSetAliasParams",
     "listSelectableJobRuntimes",
     "listSessionIndexSummaries",
+    "refreshSessionIndexEntry",
     "renderRuntimeUnavailableGuidance",
     "resolveSessionByKeyOrAlias",
+    "setSessionAliasAndReindex",
     "updateSessionDisplayName"
    ],
    "changed": [
     "buildCodexDynamicTools",
     "buildNotifyInputSchema",
-    "buildSystemPromptForChannelConfig",
     "createAladuoMcpServer",
     "createCodexAppServerAdapter",
     "createDaemon",
     "createMetaSession",
     "createSessionManager",
     "deleteMailboxPendingItemsByEventIds",
+    "deliverRouteEventToSession",
     "describeChannelInstance",
     "drainSessionMailbox",
     "enqueueSessionInboxLine",
@@ -7023,6 +7084,8 @@
     "renderJobFileMarkdown",
     "renderJobMissionBlock",
     "renderMailboxEventPrompt",
+    "renderPromptLayers",
+    "replaceSessionIndexEntry",
     "runManageJobTool"
    ]
   },
@@ -7030,6 +7093,7 @@
    "born": [
     "assertJobWorkspaceUsable",
     "buildBoardLintTarget",
+    "buildNodeSignalKey",
     "buildOrphanIslandsSignal",
     "buildOrphanNewbornSignals",
     "bytesToKibCeil",
@@ -7037,8 +7101,11 @@
     "classifyTopicNodeType",
     "collectBoardLintReport",
     "compareBoardLintTargets",
+    "compareStringsAscending",
     "computeMemoryLinkIndegree",
     "computeOrphanTopicNodes",
+    "countDatedStampLines",
+    "countNewlineChars",
     "createMemorySlugReader",
     "detectOrphanMemory",
     "filterOrphanIslands",
@@ -7047,10 +7114,12 @@
     "hasUniformDrainCoalesceKey",
     "initBoardLintModule",
     "initEntityLintModule",
+    "initNodeLintModule",
     "initOrphanMemoryModule",
     "isAllowedNodeSection",
     "isMemoryPathDirectory",
     "isMemoryPathFile",
+    "isMergeableChannelMessageBatch",
     "isSafeMemorySlug",
     "isTruthyEnvFlag",
     "isWorkerTaskNotifyDelivery",
@@ -7061,6 +7130,7 @@
     "parseEffectivenessTrajectory",
     "parseUpdaterGuidanceVerdict",
     "rankEffectivenessTrajectory",
+    "readMemoryFileSyncOrNull",
     "renderEntityConvergeSignalBody",
     "renderManualCompactNotice",
     "renderNodeConvergeSignalBody",
@@ -7080,18 +7150,18 @@
    ],
    "changed": [
     "batchDrainItems",
-    "buildSystemPromptForChannelConfig",
     "buildTransientUserBlocks",
+    "createAgentSdkAdapter",
     "createCodexAppServerAdapter",
     "createDaemon",
     "createSessionManager",
     "drainSessionMailbox",
     "emitDrainOutputRecords",
     "executeGatewayCommand",
-    "isMergeableChannelMessageBatch",
     "loadDrainItemEventCached",
     "mapClaudeResultToDrainUsage",
     "prepareDrainTurnContext",
+    "renderPromptLayers",
     "renderSkipRewindBlock",
     "runCadenceTick"
    ]
@@ -7103,18 +7173,23 @@
     "clearModelOverrideOnRuntimeFlip",
     "computeCacheHitRate",
     "computeCodexTurnUsage",
+    "containsWhitespaceChar",
     "enforceContractGate",
+    "evaluatePredicateOrFalse",
     "getCachedPartitionContract",
     "hasAnyMemorySignalConsumer",
     "hasSkipRewindRecordSince",
+    "initMemoryCheckTickModule",
+    "initMemorySignalDeliveryModule",
     "initMemorySignalKindsModule",
-    "isJobScheduleDue",
-    "isPlainJsonObject",
+    "isOrphanWarningDeliverable",
+    "isSessionArchived",
     "listPendingInboxFiles",
     "moveFileIntoDirectory",
     "normalizeInputTokenTotals",
     "normalizeSignalKindVersion",
     "parseJobRearmTime",
+    "partitionInboxDir",
     "postMemorySignalsToInboxes",
     "readPartitionContract",
     "renderDrainErrorRuntimeHint",
@@ -7132,11 +7207,13 @@
     "canonicalizeGatewayCommand",
     "classifyGatewayCommandIntent",
     "collectInstructionsInputs",
+    "createAgentSdkAdapter",
     "createCodexAppServerAdapter",
     "createDaemon",
     "createOutboxDeliveryManager",
     "createSessionManager",
     "createSessionSubscriptionRegistry",
+    "deliverRouteEventToSession",
     "drainSessionMailbox",
     "executeGatewayCommand",
     "handleDrainError",
@@ -7151,6 +7228,7 @@
     "initOrphanMemoryModule",
     "initSkipToolModule",
     "isChannelCapabilities",
+    "isJobScheduleDue",
     "main",
     "mapClaudeResultToDrainUsage",
     "mergeInboxIntoMailbox",
@@ -7179,6 +7257,7 @@
    "changed": [
     "canonicalizeGatewayCommand",
     "classifyGatewayCommandIntent",
+    "createAgentSdkAdapter",
     "createCodexAppServerAdapter",
     "createMetaSession",
     "createSessionManager",
@@ -7204,6 +7283,7 @@
     "renderScanGapSignalBody"
    ],
    "changed": [
+    "createAgentSdkAdapter",
     "createCodexAppServerAdapter",
     "createDaemon",
     "createMetaSession",
@@ -7227,8 +7307,8 @@
     "applySessionConfigVerb",
     "buildCompactStatsRecord",
     "computeBoardLayerHash",
+    "computeNonBoardInstructionsFingerprint",
     "countCompactGapIntervals",
-    "createAgentSdkAdapter",
     "createIdleCompactSweeper",
     "decideBoardUpdatedInjection",
     "detectInProcessBreak",
@@ -7237,9 +7317,13 @@
     "initAgentSdkAdapterModule",
     "isSessionConfigParams",
     "isStaleIdleCompactEvent",
+    "listFrontmatterKeyAliases",
+    "mergeClaudeToolLists",
+    "parseChannelConfigFields",
     "parseClaudeFrontmatterBlock",
     "readNonNegativeNumberField",
     "recordIdleCompactFireMetric",
+    "renderBoardUpdatedHint",
     "renderSmartCompactNoticeBlock",
     "resolveChannelConfigBySession",
     "resolvePendingCompactNotice",
@@ -7253,6 +7337,7 @@
     "buildTransientUserBlocks",
     "buildTurnSdkRunConfig",
     "clearSessionRuntimeStateField",
+    "createAgentSdkAdapter",
     "createDaemon",
     "createMetaSession",
     "createSessionManager",
@@ -7261,10 +7346,10 @@
     "handleDrainError",
     "ingestChannelCommand",
     "initMailboxDrainRunnerModule",
+    "initReservedMainAliasModule",
     "initSubconsciousPlaylistModule",
     "main",
     "mutateSessionRuntimeState",
-    "parseChannelConfigFields",
     "parsePartitionDefinition",
     "parseSdkConfigFrontmatter",
     "patchSessionRuntimeState",
@@ -7294,6 +7379,7 @@
     "createDaemon",
     "createOutboxDeliveryManager",
     "createSessionManager",
+    "deliverRouteEventToSession",
     "drainSessionMailbox",
     "executeGatewayCommand",
     "formatLocalTimestampWithZone",
@@ -7334,7 +7420,8 @@
     "claimDaemonRestartReason",
     "daemonRestartReasonPath",
     "extractJobSdkConfig",
-    "isOrphanJobSessionKey"
+    "isOrphanJobSessionKey",
+    "setPendingRestartReason"
    ],
    "changed": [
     "buildTransientUserBlocks",
@@ -7363,20 +7450,26 @@
     "computeContextProfileSignature",
     "describeContextProfileSource",
     "extractProfiledEndpointFields",
+    "extractUrlHost",
     "foldConfigLayersByKey",
     "formatLayerModelAliases",
     "formatModelConfigIssues",
     "formatYamlErrorMessage",
+    "initChannelConfigLoaderModule",
     "initMaterializedClaudeSettingsModule",
+    "isBusinessSourceKind",
     "isLoopbackBindHost",
     "listSortedAliasKeys",
     "loadChannelKindConfig",
     "loadGlobalRuntimeConfig",
     "materializeClaudeSettingsFile",
     "mergeGlobalModelConfigLayers",
+    "overlayConfigEntriesByKey",
     "parseHostHeaderHostname",
+    "parseOriginHostname",
     "prepareClaudeContextProfile",
     "readHostDaemonToken",
+    "redactJobModelProfileTokens",
     "resolveClaudeContextRequirement",
     "resolveContextCapToken",
     "resolveDrainContextProfileOrRefuse",
@@ -7400,6 +7493,7 @@
     "initBoardTransclusionModule",
     "initJobManagerModule",
     "initMailboxDrainRunnerModule",
+    "initReservedMainAliasModule",
     "initializeRuntime",
     "isSessionConfigParams",
     "main",
@@ -7425,19 +7519,21 @@
   },
   "0.7.1": {
    "born": [
+    "buildCodexDirectOnlyToolConfig",
+    "buildSystemPromptForChannelConfig",
     "checkGrokAvailability",
     "coerceToPlainObject",
     "collectGrokToolCallNames",
     "createGrokAcpAdapter",
+    "grokAcpExtMethod",
     "initGrokAcpRuntimeModule",
     "initProtocolJobModule",
     "initProtocolSystemModule",
+    "isGrokSkipToolCall",
     "mapGrokUsageToDrainUsage",
     "primeGrokAvailability",
     "reconcileMemorySignalInboxes",
     "recordUnreadableMemoryPath",
-    "renderPromptLayers",
-    "resolveDefaultRuntime",
     "runMemoryCheckSubStep",
     "runReadAuditedMemoryCheckStep"
    ],
@@ -7445,7 +7541,6 @@
     "accumulateDrainRecordIntoSummary",
     "buildDeveloperInstructions",
     "buildJobRuntimeSchemaField",
-    "buildSystemPromptForChannelConfig",
     "createCodexAppServerAdapter",
     "createMetaSession",
     "createSessionManager",
@@ -7466,9 +7561,12 @@
     "normalizeInputTokenTotals",
     "parsePartitionDefinition",
     "prepareClaudeContextProfile",
+    "readMemoryFileSyncOrNull",
     "renderDrainErrorRuntimeHint",
+    "renderPromptLayers",
     "renderRuntimeUnavailableGuidance",
     "replyToGatewayCommandEvent",
+    "resolveDefaultRuntime",
     "runDrainTurnWithResumeFallback",
     "runInstructionsFingerprintGuard",
     "runManageJobTool",
@@ -7478,6 +7576,7 @@
   "0.8.0": {
    "born": [
     "appendGapHandedSpan",
+    "appendPiConfigIssues",
     "attachStreamLineReader",
     "buildGapReadFaultResult",
     "buildJobPromptModeExtraToolsSchema",
@@ -7493,26 +7592,31 @@
     "createModelCommandResolvers",
     "createPiWorkerAdapter",
     "deliverDaemonRestartWakes",
-    "deliverRouteEventToSession",
     "deliverScanGapSignal",
+    "encodePiWorkerFrame",
     "extractJobCompletePayload",
     "extractJobCompletionJobId",
     "findBoardHeadingLines",
+    "findEventInPartitionFile",
     "findNewestFragmentMtimeMs",
     "flagStreamRecreationOnModelReject",
     "getPendingRestartReason",
     "handlePiToolEndObservation",
     "initActivationLintModule",
+    "initBroadcastFlattenLintModule",
+    "initBroadcastLinkLintModule",
+    "initFoldGapLintModule",
     "initGapLintModule",
+    "initInstructionsFingerprintModule",
     "initManageJobToolModule",
     "initMetaSessionModule",
     "initPartitionRetirementModule",
     "initProtocolEffortModule",
     "initSpineEventLogModule",
     "interruptActorQuery",
+    "isClaudeRuntimeOrDefault",
     "isIndexLoadStillCurrent",
     "isLiveStreamRebuildRequired",
-    "isProviderQualifiedModelId",
     "isSessionEffortParams",
     "isSessionModelParams",
     "issueWorkerToolContextToken",
@@ -7523,19 +7627,20 @@
     "memoizeIndexLoad",
     "migrateLegacyJobSessionKeys",
     "narrowToModelSettableAdapter",
-    "normalizeNotifyChannelTarget",
-    "normalizeOptionalEnvString",
     "parsePiToolResultDetails",
     "projectJobPromptContext",
     "pruneEventIdIndexByRetention",
     "readGapLintDayEvents",
     "readIntuitionWeaverLastFinishedMs",
     "readLiveStreamContextToken",
+    "readMemoryMaxLinesLimit",
     "readOrSeedGapHandedDays",
     "readOrSetSessionEffort",
     "readOrSetSessionModel",
     "readPiAgentSettings",
     "readSpineIndexRetentionDays",
+    "recordUnreadableUnlessMissing",
+    "renderActivationReportBody",
     "renderActivationReportHeader",
     "renderBoardTemperatureSection",
     "renderFoldGapBody",
@@ -7544,6 +7649,7 @@
     "renderJobCompletionReceipt",
     "renderJobExtraToolsDescription",
     "renderJobPromptModeDescription",
+    "renderManageJobToolDescription",
     "renderRestartWakeMessage",
     "requestBoundaryAwarePreempt",
     "requestPiWorkerCatalog",
@@ -7560,6 +7666,7 @@
     "runFoldGapLint",
     "runGapLint",
     "scanActivationWindowTouches",
+    "selectInstructionsFingerprint",
     "shutdownActorRuntimeAdapter",
     "snapshotInflightEventIds",
     "stringifyJsonlRecord",
@@ -7610,6 +7717,7 @@
     "createOutboxDeliveryManager",
     "createSessionManager",
     "createSessionSubscriptionRegistry",
+    "deliverRouteEventToSession",
     "describeChannelInstance",
     "detectEmptyRequiredPartitionOutput",
     "drainSessionMailbox",
@@ -7636,6 +7744,7 @@
     "initSubconsciousPlaylistModule",
     "initializeRuntime",
     "isJobCreateParams",
+    "isProviderQualifiedModelId",
     "listMailboxPendingItems",
     "listRetryableOutboxRecords",
     "listSelectableJobRuntimes",
@@ -7649,6 +7758,7 @@
     "mergeInboxIntoMailbox",
     "mergeOutboundAttachmentLists",
     "normalizeInputTokenTotals",
+    "normalizeNotifyChannelTarget",
     "parsePartitionDefinition",
     "parseSdkConfigFrontmatter",
     "postMemorySignalsToInboxes",
@@ -7700,6 +7810,7 @@
   },
   "0.8.1": {
    "born": [
+    "classifyDrainBatchClass",
     "collectJobCompletionReceipts",
     "disableSystemPromptSnapshot",
     "extractServedModelFromUsage",
@@ -7707,6 +7818,8 @@
     "isMergeableDrainBatch",
     "mergeRuntimeEffortLayers",
     "mergeRuntimeModelLayers",
+    "readRuntimeEffortSetting",
+    "readRuntimeModelSetting",
     "renderCoalescedDrainPrompt",
     "resolveTurnEffortWithLayer",
     "resolveTurnModelWithLayer"
@@ -7752,12 +7865,13 @@
   },
   "0.8.2": {
    "born": [
+    "aggregateSessionDrainSummary",
     "classifyConsumerStaleness",
-    "classifyNotifySessionKind",
     "createEmptyUsageSummary",
     "evaluateNotifyConsumerRefusal",
     "fireDueWakeRecords",
     "formatViewSessionsListLine",
+    "initInterruptMarkerTextModule",
     "initNotifyConsumerStalenessModule",
     "initRemindDuoduoToolModule",
     "initViewSessionsToolModule",
@@ -7769,16 +7883,21 @@
     "listSessionsWithRecentConsumer",
     "normalizeTurnAbortReason",
     "prependPendingInterruptMarker",
+    "readDrainRecords",
+    "readLatestDeliveryCursorUpdate",
     "readPartitionByteRange",
     "readPartitionTail",
     "recordPendingInterruptMarker",
     "renderActiveSessionsListing",
     "renderNotifyRefusalMessage",
+    "resolveIsolatedPlaneKind",
     "resolveNotifyUnconsumedHours",
     "resolveTailCursorEndOffset",
     "runRemindDuoduoTool",
     "runViewSessionsTool",
-    "scheduleSessionWakeRecord"
+    "scheduleSessionWakeRecord",
+    "selectInterruptMarkerText",
+    "summarizeDrainRecords"
    ],
    "changed": [
     "accumulateDrainRecordIntoSummary",
@@ -7834,6 +7953,7 @@
   "0.8.3": {
    "born": [
     "checkChannelRuntimeRebindConflict",
+    "memoizeAvailabilityProbeUntilOk",
     "renderRuntimeMismatchGuidance"
    ],
    "changed": [
@@ -7854,17 +7974,23 @@
   },
   "0.8.4": {
    "born": [
+    "MemoryReadRpcError",
+    "SpineRpcParamsError",
+    "bindSessionSourceChannel",
     "buildClaudeCostBaseline",
     "buildEffectiveRuntimeFields",
     "checkReservedRecordSource",
     "createVoidAwareAttachmentCallbacks",
+    "describeConversationProblem",
+    "describeMemoryReadProblem",
     "describeSpineCatProblem",
     "describeSpineRecordProblem",
     "filterDeliverableSessions",
+    "initCallerSessionEnvModule",
     "initGapSpanModule",
     "initRuntimeValidationModule",
+    "initVoidRuntimeModule",
     "isNonEmptyText",
-    "isPlainObjectRecord",
     "isVoidRuntimeSession",
     "listVoidChannelSessions",
     "parseChannelRuntimeField",
@@ -7929,10 +8055,9 @@
    ]
   },
   "0.8.5": {
-   "born": [
-    "isPathWithinDir"
-   ],
+   "born": [],
    "changed": [
+    "isPathWithinDir",
     "resolveJobExecutionWorkspace"
    ]
   },
@@ -7950,19 +8075,23 @@
     "composeIdentityLayer",
     "deliverMainRoleNoticeSafely",
     "describeStandInJobOwner",
+    "extractStandInOwnerInfo",
     "formatSessionAliasCommand",
+    "initMainSessionAliasModule",
     "isMainSessionCandidate",
     "isReservedMainAliasChange",
     "listMainAliasHolderKeys",
+    "reconcileMainSession",
     "reconcileMainSessionAtBoot",
     "renderAmbiguousMainAliasNotice",
     "renderForOwnerAttribute",
     "renderFormerMainSessionNotice",
     "renderNewMainSessionNotice",
     "resolveMainSession",
+    "resolveMainSessionFromIndex",
     "resolveRolePromptText",
+    "runSessionSetAliasRpc",
     "selectSessionRolePrompt",
-    "setSessionAliasAndReindex",
     "setSessionAliasWithMainRole",
     "wsDefaultMaxPayload"
    ],
@@ -7983,6 +8112,7 @@
     "ensureSessionDescriptorAndStateFiles",
     "evaluateNotifyConsumerRefusal",
     "filterDeliverableSessions",
+    "initInstructionsFingerprintModule",
     "initNotifyToolModule",
     "initProtocolSystemModule",
     "initReservedMainAliasModule",
@@ -8008,6 +8138,7 @@
     "resolveSessionByKeyOrAlias",
     "runNotifyTool",
     "runViewSessionsTool",
+    "setSessionAliasAndReindex",
     "updateSessionDisplayName",
     "upsertChannelSpawnDescriptor"
    ]
@@ -8031,128 +8162,36 @@
   "GROK_MCP_SERVER_NAME",
   "HOST_MODEL_ENV_KEYS",
   "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
-  "MemoryReadRpcError",
   "PARTITION_CORE_TOOLS",
   "SESSION_SCHEMA_VERSION",
   "SUN_PATH_MAX_BYTES",
-  "SpineRpcParamsError",
-  "__resetClaudeProbeCacheForTest",
-  "__setClaudeVerifierForTest",
-  "__setCodexAvailabilityForTests",
   "__setGrokAvailabilityForTests",
-  "addToNumericField",
-  "aggregateSessionDrainSummary",
-  "appendPiConfigIssues",
-  "assertSessionNotArchiving",
-  "bindSessionSourceChannel",
-  "buildCodexDirectOnlyToolConfig",
   "buildJobSessionInputSchema",
   "buildManageJobInputSchema",
-  "buildNodeSignalKey",
-  "buildSafeDirectoryGitArgs",
-  "classifyDrainBatchClass",
-  "classifyJobScheduleType",
-  "clearHostModelEnvVars",
-  "clearSessionArchiving",
-  "compareStringsAscending",
-  "computeMissionFingerprint",
-  "computeNonBoardInstructionsFingerprint",
-  "containsWhitespaceChar",
-  "countDatedStampLines",
-  "countNewlineChars",
+  "classifyNotifySessionKind",
+  "classifySessionKeyOrUnknown",
+  "codexUnavailableReason",
   "countUnreadableMemoryPaths",
-  "createEmptySessionIndex",
-  "describeConversationProblem",
-  "describeMemoryReadProblem",
-  "encodePiWorkerFrame",
-  "ensureSessionMailboxPendingDir",
   "escapeRegExpSource",
-  "evaluatePredicateOrFalse",
-  "extractStandInOwnerInfo",
-  "extractUrlHost",
-  "findEventInPartitionFile",
-  "getCachedHostBootId",
-  "grokAcpExtMethod",
   "grokUnavailableReason",
-  "initBroadcastFlattenLintModule",
-  "initBroadcastLinkLintModule",
-  "initCallerSessionEnvModule",
-  "initChannelConfigLoaderModule",
   "initChannelProtocolModule",
-  "initFoldGapLintModule",
-  "initInstructionsFingerprintModule",
-  "initInterruptMarkerTextModule",
-  "initMainSessionAliasModule",
-  "initMemoryCheckTickModule",
-  "initMemorySignalDeliveryModule",
-  "initNodeLintModule",
-  "initReservedMainAliasModule",
-  "initVoidRuntimeModule",
   "isAgentRuntime",
   "isAgentSdkPromptNotAcceptedAbortError",
   "isAgentSdkTurnInterruptedError",
-  "isBusinessSourceKind",
-  "isClaudeAvailable",
-  "isClaudeRuntimeOrDefault",
-  "isCodexAvailable",
+  "isCodexPlainObject",
   "isEffortLevel",
   "isGrokAvailable",
-  "isGrokSkipToolCall",
-  "isHostModelEnvKey",
   "isJobArchiveParams",
   "isKnownRuntimeValue",
-  "isLogLevelEnabled",
   "isMailboxMergeReadError",
   "isModelRuntime",
-  "isOrphanWarningDeliverable",
-  "isSessionArchived",
-  "isSessionArchiving",
+  "isPlainJsonObject",
+  "isPlainObjectRecord",
   "isSupportedRuntime",
   "isSystemConfigParams",
   "isSystemStatusParams",
-  "isUserVisibleSessionKey",
-  "listFrontmatterKeyAliases",
-  "logTraceMessage",
-  "lookupOutboxByIdIndexEntry",
-  "memoizeAvailabilityProbeUntilOk",
-  "mergeClaudeToolLists",
-  "normalizeBoardIncludeToken",
-  "notifySessionFileChanged",
-  "overlayConfigEntriesByKey",
-  "parseOriginHostname",
-  "partitionInboxDir",
-  "primeClaudeAvailability",
-  "readDrainRecords",
-  "readLatestDeliveryCursorUpdate",
-  "readMemoryFileSyncOrNull",
-  "readMemoryMaxLinesLimit",
-  "readRuntimeEffortSetting",
-  "readRuntimeModelSetting",
-  "realpathOrSelf",
-  "reconcileMainSession",
-  "recordUnreadableUnlessMissing",
-  "redactJobModelProfileTokens",
-  "refreshSessionIndexEntry",
-  "removeHostModelEnvLines",
-  "renderActivationReportBody",
-  "renderBoardUpdatedHint",
-  "renderDaemonRestartHint",
+  "normalizeOptionalEnvString",
   "renderJobSessionToolDescription",
-  "renderManageJobToolDescription",
-  "replaceSessionIndexEntry",
-  "resolveArchivedSessionDir",
-  "resolveIsolatedPlaneKind",
-  "resolveMainSessionFromIndex",
-  "resolveOutboxReplayFilePath",
-  "resolveSessionMailboxDir",
-  "runSessionSetAliasRpc",
-  "runTimedDrainPhase",
-  "selectInstructionsFingerprint",
-  "selectInterruptMarkerText",
-  "setPendingRestartReason",
-  "setSessionArchivedListener",
-  "summarizeDrainRecords",
-  "writeInstanceModelAlias",
-  "writePartitionRunState"
+  "writeInstanceModelAlias"
  ]
 }

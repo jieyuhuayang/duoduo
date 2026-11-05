@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: readOutboxRecordsPastCursor  (minified: pS, daemon.pretty.js:65845)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0 (maps/history_daemon.json)
+// since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 22 renamed — 8 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.3.0 (medium): **replay**: Harden session-local cursor fallback and recovery when replay indexes are incomplete or stale.
 // NOTE: readable extract from daemon.recon.js; references other top-level

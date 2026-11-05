@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
 // symbol: setSessionAliasAndReindex  (minified: qO, daemon.pretty.js:90254)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // locals: 6 renamed — 0 from the code at the binding (rule), 6 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.4 (high): `duoduo session alias <key> "<name>"` — give a session a human label so it is legible in `list`
 // changelog v0.8.7 (medium): Elsewhere `duoduo session alias <key> main --move` sets or moves it. `duoduo session list` marks it
