@@ -28,10 +28,19 @@
 // published function that the bundle holds as `var x = <function>` gets the
 // cast form `var x = /** @type {...} */ (<function>)` instead. The comment is
 // inserted before the statement, outside the declaration's range, so the
-// ordinal and ctx of every local (local_bindings.mjs) are the same as in
-// `.build/daemon.recon.top.js`, the file name_locals.mjs reads; the tool
-// shifts the binding offsets it computed on the original by the inserted
-// text instead of re-parsing.
+// ordinal and ctx of every local (local_bindings.mjs) are those of the input
+// file; the tool shifts the binding offsets it computed on the original by
+// the inserted text instead of re-parsing. Which input file matters for one
+// reader: the ordinals are the same in `.build/daemon.recon.js` and
+// `.build/daemon.recon.top.js` (measured at v0.8.7: all 6406 bindings), but
+// the ctx is a hash of the surrounding source text and the applied local
+// names change it (1141 bindings in 133 declarations differ between the two
+// files), and name_locals.mjs tasks --types reads daemon.recon.top.js and
+// takes a type only when ordinal and ctx both agree. So run this tool on
+// `.build/daemon.recon.top.js` when the output is for that reader (the
+// coverage numbers are identical on both files; function types then print
+// mangled parameter names); the output's `source` names the file, and the
+// reader counts and prints the types it drops on a ctx mismatch.
 //
 // Propagation. Seeding alone gains almost nothing (measured: locals with a
 // known type 30.2% -> 30.6% at v0.8.7), for one reason: the checker never
@@ -83,6 +92,8 @@
 //     callsSeeded, seeded, params: [{name, type, kind}], returns: {type, kind},
 //     locals: {"<ordinal>": {name, ctx, occ, type, kind}}}}, unnamed: {short:
 //     {kind, params, returns}} }
+//   `source` is the input file's basename; `syntacticDiagnostics.copy` is the
+//   count measured on the last pass (equal to `original` by the assertion).
 //   `kind` of a type is `typed`, `propagated` (a parameter typed from its
 //   call sites), `any`, `error` (the checker's error type, printed as any) or
 //   `unknown`. `type` is typeToString with aliases kept and no truncation, cut
@@ -226,7 +237,7 @@ const MAX_TYPE = 400, MAX_INJECT = 1500;
 // evidence.
 const jsdocSafe = (type) => type.replace(/\*\//g, "*\\/");
 const originalParseDiagnostics = ts.createSourceFile(path.resolve(BUNDLE), src, options.target, true, ts.ScriptKind.JS).parseDiagnostics.length;
-let passes = 0;
+let passes = 0, copyParseDiagnostics = null; // the last pass's measured count, written to the output
 function pass(inserts) {
   inserts = [...inserts].sort((a, b) => a.at - b.at);
   let text = "", pos = 0;
@@ -242,6 +253,7 @@ function pass(inserts) {
   if (!sf) { console.error("type_seed: the checker did not load the seeded copy"); process.exit(1); }
   passes++;
   const diags = tsProgram.getSyntacticDiagnostics(sf);
+  copyParseDiagnostics = diags.length;
   if (diags.length !== originalParseDiagnostics) {
     const d = diags[0], where = d ? sf.getLineAndCharacterOfPosition(d.start) : null;
     console.error(`type_seed: the seeded copy ${seededPath} has ${diags.length} syntactic diagnostic(s), the original ${originalParseDiagnostics}` +
@@ -440,7 +452,7 @@ const coverage = {
 fs.writeFileSync(OUT, JSON.stringify({
   generatedBy: "type_seed.mjs", bundle: symbols.bundle ?? "daemon", version: symbols.version ?? null, typescript: ts.version,
   source: path.basename(BUNDLE), protocol: { dir: path.resolve(PROTOCOL), files: protoHashes, exportedTypes: protoTypes.size },
-  seeding: { method: NO_SEED ? "none (--no-seed)" : "jsdoc @type {typeof import(...).name} in a temporary copy", seededCopy: seededPath, seeded, notSeeded, rounds, passes, syntacticDiagnostics: { original: originalParseDiagnostics, copy: originalParseDiagnostics } },
+  seeding: { method: NO_SEED ? "none (--no-seed)" : "jsdoc @type {typeof import(...).name} in a temporary copy", seededCopy: seededPath, seeded, notSeeded, rounds, passes, syntacticDiagnostics: { original: originalParseDiagnostics, copy: copyParseDiagnostics } },
   coverage, decls: out, unnamed,
 }, null, 1) + "\n");
 console.log(`type_seed: ${seeded.length} seeded symbol(s), ${rounds.length - 1} propagation round(s); known (typed or propagated) overall: params ${pct(cov.all.params)}, returns ${pct(cov.all.returns)}, locals ${pct(cov.all.locals)}`);
