@@ -1,7 +1,7 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-10-31",
-  "package": "v0.8.7",
+  "recorded": "2026-11-05",
+  "package": "v0.8.8",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -2226,6 +2226,24 @@
         "d01ed979c7f5666e",
         "d4d90374fb92623d",
         "e2e949302663f020"
+      ]
+    },
+    "classifySessionKey": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "cadence:",
+        "channel",
+        "job:",
+        "meta",
+        "meta:",
+        "subconscious",
+        "subconscious:",
+        "system",
+        "system:"
+      ],
+      "props": [
+        "startsWith"
       ]
     },
     "isUserVisibleSessionKey": {
@@ -12029,6 +12047,34 @@
         "state"
       ]
     },
+    "resolveMainSession": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "absent",
+        "ambiguous",
+        "held"
+      ],
+      "props": [
+        "add",
+        "length",
+        "session_key",
+        "sort"
+      ]
+    },
+    "isMainSessionCandidate": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "channel",
+        "string"
+      ],
+      "props": [
+        "display_name",
+        "session_key",
+        "trim"
+      ]
+    },
     "isReservedMainAliasChange": {
       "kind": "function",
       "params": 3,
@@ -12160,52 +12206,6 @@
       ],
       "props": [
         "owner"
-      ]
-    },
-    "classifySessionKey": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "cadence:",
-        "channel",
-        "job:",
-        "meta",
-        "meta:",
-        "subconscious",
-        "subconscious:",
-        "system",
-        "system:"
-      ],
-      "props": [
-        "startsWith"
-      ]
-    },
-    "isMainSessionCandidate": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "channel",
-        "string"
-      ],
-      "props": [
-        "display_name",
-        "session_key",
-        "trim"
-      ]
-    },
-    "resolveMainSession": {
-      "kind": "function",
-      "params": 1,
-      "literals": [
-        "absent",
-        "ambiguous",
-        "held"
-      ],
-      "props": [
-        "add",
-        "length",
-        "session_key",
-        "sort"
       ]
     },
     "initReservedMainAliasModule": {

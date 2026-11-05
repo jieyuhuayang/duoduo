@@ -1,7 +1,7 @@
 {
   "source": "cli.pretty.js",
-  "recorded": "2026-10-31",
-  "package": "v0.8.7",
+  "recorded": "2026-11-05",
+  "package": "v0.8.8",
   "shapes": {
     "runSessionNotifyCommand": {
       "kind": "async function",
