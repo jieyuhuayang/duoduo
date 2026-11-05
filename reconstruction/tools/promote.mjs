@@ -19,7 +19,9 @@
 // is also where "proven" is enforced. It refuses -- before writing anything --
 // unless the fresh pipeline_report.json says every proof passed:
 //   per bundle   lossless, beautifyEquivalent, syntax, astEquivalent, and
-//                inferredNames wherever maps/inferred_<b>.json exists, and
+//                inferredNames wherever maps/inferred_<b>.json exists,
+//                idsResolve wherever maps/ids_<b>.json exists (the short-keyed
+//                inferred map is what the persistent ids resolve to), and
 //                localNames wherever maps/locals_<b>.json exists
 //   whole run    firstPartyTree, citations, lineAnchors, anchorCheckers,
 //                anchorTargetMatches
@@ -82,6 +84,7 @@ function unpromotable(report) {
   for (const b of BUNDLES) {
     for (const g of PER_BUNDLE) need.push(`${b}.${g}`);
     if (fs.existsSync(`${ROOT}/maps/inferred_${b}.json`)) need.push(`${b}.inferredNames`);
+    if (fs.existsSync(`${ROOT}/maps/ids_${b}.json`)) need.push(`${b}.idsResolve`);
     if (fs.existsSync(`${ROOT}/maps/locals_${b}.json`)) need.push(`${b}.localNames`);
   }
   need.push(...WHOLE_RUN);

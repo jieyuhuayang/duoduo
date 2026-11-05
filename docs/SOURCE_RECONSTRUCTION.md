@@ -160,6 +160,8 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 **判断新旧两个声明是不是同一段代码，依据是 `structural_signature.mjs` 计算的结构签名。** 它只把压缩器每次都会重新选择的名字换成按首次出现顺序编号的位置槽：声明内部绑定的标识符（参数、局部变量、内层函数名）、对其他顶层符号的引用、私有类成员名和标签。压缩器改不了的内容原样保留：字面量的值，非计算的属性名、对象键和类成员名（API 的形状），以及全局名（`setTimeout`、`process` 这类在程序里没有绑定的名字）。位置和格式不计入。两个声明的签名相同，就是同一段代码被重新压缩的结果。`fingerprint_match.mjs` 用签名配对两个版本的顶层声明，`remap_inferred.mjs` 沿唯一的配对迁移推断名；一个旧声明对应多个同签名的新声明时报 AMBIGUOUS，由人挑选；函数体改了、找不到配对的报 RE-ANCHOR。同一个签名也写进符号索引的 `signature` 字段，所以比较两个版本的签名就能回答“这个机制到底改了没有”。
 
+**推断名另有一个不随版本失效的键：持久 ID。** 短名表 `maps/inferred_<bundle>.json` 的键是 esbuild 每次构建重新分配的短名，所以它只对一个版本成立。`maps/ids_<bundle>.json` 以真名为键，给每个推断名记一个由声明内容算出的 ID：声明种类（函数、模块初始化器、字面量常量）加上面所说的结构签名的前 16 位十六进制；同一 bundle 里几个声明的签名完全相同（孪生体，例如只是读了不同常量的两个同形谓词）时，才追加区分符，而且能省则省：先取它引用的已命名顶层符号的集合，仍分不开时再取按 bundle 顺序的序号和组大小。这与 Quilt 的 Hashed Mojmap 给 Minecraft 成员按自身描述的哈希取名、只在不唯一时加区分符的做法相同，区别是上游没有发布真名，这里只能哈希结构。于是短名表成了派生物：`symbol_ids.mjs resolve` 在任一版本的 bundle 上解析全部 ID，写出该版本的短名表；`rebuild.sh` 每次运行都检查提交的短名表与解析结果逐条相同，不同即失败。升级时先按 ID 承接：函数体没变的声明 ID 不变，直接落到新版本的同一段代码上；只有 ID 解析不了的名字（函数体改了、孪生体的组变了、代码被删了）才进入上面的结构承接和 `RE-ANCHOR` 流程，复核后由 `assign --rekey` 给它们换上新 ID，再由 `resolve` 重新生成短名表。ID 随内容变化而变化，所以这把跨版本对齐缩小到改动集，不消除它。在 v0.8.3 到 v0.8.7 的四对相邻版本上回放：按旧版本的推断表分配 ID，在新版本上解析，解析到的名字没有一个落到与人工复核不同的声明上，解析不了的名字恰好就是人工曾经重定位或删除的那些（VERIFICATION.md 第 5.5 节）。
+
 **报出而不猜，是因为标错的名字比缺失的名字危害更大**：缺失的名字会让引用检查失败，标错的名字不会。`impact.md` 为每个 RE-ANCHOR 名字列出 `anchor_candidates.mjs` 排序的候选。函数体变了时，声明在调用图里的位置和它的字符串通常没变，所以 `anchor_candidates.mjs` 按调用方、被调用方（都经指纹匹配映射到新版本）和字符串字面量的重合度打分，首选领先不足 1 分的标为 CLOSE。
 
 `bump.sh` 还用第 6 节的分层配对（`pair_releases.mjs`）配对两个版本的全部声明，`remap_inferred.mjs --pairing` 据此为每个 RE-ANCHOR 和 AMBIGUOUS 名字给出一个建议的新短名，注明配对方式、层号与分数，写入 `inferred_<bundle>.proposed.json`。在 v0.8.3→v0.8.4 的真实升级数据上回放，45 个建议中 43 个与人工确认的结果一致；唯一不一致的一个，是三个函数体相同的声明按位置选错了。两种建议互相补充：调用图候选能区分函数体相同的声明，相似度配对能跟住重写过的函数。
@@ -253,7 +255,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 | **恢复出的导出名** | `maps/blocks_<bundle>.json`（按模块分组）、`maps/<bundle>.exports.json`（压平视图） |
 | **自研与第三方的判定** | `maps/modules_<bundle>.json`（逐 `__export` 块，即逐源模块） |
 | **局部变量名** | 规则在 `tools/name_locals.mjs` 里，审核过的名字在 `maps/locals_daemon.json`；某次构建实际应用的全部局部名字在 `.build/locals_daemon.applied.json`，计数见 `maps/pipeline_report.json` 的 `localNamesApplied` |
-| **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/published_daemon.json`、`maps/historical_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建） |
+| **推断名及其检查依据** | `maps/inferred_daemon.json`、`maps/published_daemon.json`、`maps/historical_daemon.json`、`maps/subsys_daemon.json`、`maps/inferred_daemon.shape.json`；人工断言的名字记在 `maps/inferred_daemon.asserted.json`（第一次断言时创建）；每个推断名的持久 ID 在 `maps/ids_daemon.json`、`maps/ids_cli.json` |
 | **遗留行号的上限** | `maps/bare_anchor_baseline.json` |
 | **谁引用它、它引用谁、谁读某个环境变量** | `reconstruction/maps/xref_<bundle>.json`；查询用 `tools/symbol_card.mjs`，覆盖报告用 `tools/doc_coverage.mjs` |
 | **符号的首见版本与上游 CHANGELOG 的说明** | `maps/history_daemon.json`、`maps/changelog_daemon.json`；`first-party/` 文件头的 `// since:` 与 `// changelog` 行 |
