@@ -51,23 +51,35 @@
 // A site whose argument is `any` contributes nothing (it would make the
 // union `any`), so a propagated type is what the typed callers pass, not
 // necessarily everything the function ever receives; the output marks such a
-// parameter `propagated`, counted apart from `typed`. So that alias names
-// print and resolve inside the copy, the copy starts with one `@typedef
-// {import(...).T} T` per type the protocol exports.
+// parameter `propagated`, counted apart from `typed`, and the return type of a
+// function with a propagated parameter `propagated` as well (it was inferred
+// under that union; a transitive dependency through a callee's propagated
+// return is not traced). So that alias names print and resolve inside the
+// copy, the copy starts with one `@typedef {import(...).T} T` per type the
+// protocol exports. A printed type can contain `*/` (a string-literal type
+// quoting a regular expression); it is written `*\/` so the comment does not
+// end early, and every pass asserts that the copy has exactly the syntactic
+// diagnostics of the original (none), else the tool stops with the first
+// diagnostic's line: the checker's answers on an error-recovered file are
+// not evidence.
 //
 // Which symbols are seeded: the published pairing (maps/published_daemon.json,
-// evidence `published`), and with --same-name also every bundle symbol spelled
-// exactly like a protocol export with the same arity (evidence `same-name`:
-// inferred names that match_published_source.mjs confirmed before the
-// published map existed, such as isJsonRpcRequest, without which the router's
-// `request` stays `any`). Both classes are listed in the output.
+// evidence `published`; the protocol file the map names is used when it
+// exports the name, else the first file that does, noted in the record), and
+// with --same-name also every bundle symbol spelled exactly like a protocol
+// export with the same arity (evidence `same-name`: inferred names that
+// match_published_source.mjs confirmed before the published map existed, such
+// as isJsonRpcRequest, without which the router's `request` stays `any`).
+// Both classes are listed in the output.
 //
 // Output (--out), one JSON file:
 //   { generatedBy, bundle, version, typescript, source, protocol: {dir, files:
 //     {file: sha256}, exportedTypes}, seeding: {method, seededCopy, seeded:
-//     [{name, file, form, evidence}], notSeeded: [{name, evidence, why}],
-//     rounds: [{round, declsAdded, paramsAdded}]}, coverage: {all, callsSeeded,
-//     protocolTyped, propagatedParams, propagatedAll}, decls: {realName: {kind,
+//     [{name, file, publishedFile?, fileNote?, form, evidence}], notSeeded:
+//     [{name, evidence, why}], rounds: [{round, propagated, declsAdded,
+//     paramsAdded}], passes, syntacticDiagnostics: {original, copy}}, coverage:
+//     {all, callsSeeded, protocolTyped, propagatedParams, propagatedReturns,
+//     propagatedAll}, decls: {realName: {kind,
 //     callsSeeded, seeded, params: [{name, type, kind}], returns: {type, kind},
 //     locals: {"<ordinal>": {name, ctx, occ, type, kind}}}}, unnamed: {short:
 //     {kind, params, returns}} }
@@ -110,6 +122,9 @@ if (!BUNDLE || !SYMBOLS || !PUBLISHED || !PROTOCOL || !OUT) {
   console.error("usage: node type_seed.mjs <daemon.recon.js> <symbols_daemon.json> <published_daemon.json> --protocol <dir> --out <types.json> [--seeded <copy.js>] [--same-name] [--no-seed] [--rounds N] [--heap <MB>]");
   process.exit(2);
 }
+for (const [what, p, dir] of [["bundle", BUNDLE], ["symbols index", SYMBOLS], ["published map", PUBLISHED], ["--protocol directory", PROTOCOL, true]]) {
+  if (!fs.existsSync(p) || (dir ? !fs.statSync(p).isDirectory() : !fs.statSync(p).isFile())) { console.error(`type_seed: ${what} ${p} is not an existing ${dir ? "directory" : "file"}`); process.exit(2); }
+}
 if (!process.execArgv.some((a) => a.startsWith("--max-old-space-size")) && !process.env.TYPE_SEED_CHILD) {
   const r = spawnSync(process.execPath, [`--max-old-space-size=${HEAP}`, ...process.execArgv, process.argv[1], ...process.argv.slice(2)], { stdio: "inherit", env: { ...process.env, TYPE_SEED_CHILD: "1" } });
   process.exit(r.status ?? 1);
@@ -127,21 +142,22 @@ const sha = (text) => crypto.createHash("sha256").update(text).digest("hex");
 // ---- protocol side: exported declarations and type aliases per file ----------------
 const protoFiles = fs.readdirSync(PROTOCOL).filter((f) => f.endsWith(".ts") && !f.endsWith(".d.ts")).sort();
 if (!protoFiles.length) { console.error(`type_seed: no .ts file in ${PROTOCOL}`); process.exit(2); }
-const protoExports = new Map(); // name -> { file, form: "function" | "var" }
+const protoExports = new Map(); // name -> [{ file, form: "function" | "var", arity }], files in sort order
 const protoTypes = new Map();   // exported type alias / interface name -> file
 const protoHashes = {};
 for (const file of protoFiles) {
   const text = fs.readFileSync(path.join(PROTOCOL, file), "utf8");
   protoHashes[file] = sha(text);
   const ast = parse(text, { sourceType: "module", plugins: ["typescript"], errorRecovery: true });
+  const add = (name, rec) => { if (!protoExports.has(name)) protoExports.set(name, []); protoExports.get(name).push(rec); };
   for (const s of ast.program.body) {
     const decl = s.type === "ExportNamedDeclaration" ? s.declaration : s;
     if (!decl) continue;
     const exported = s.type === "ExportNamedDeclaration";
     if (decl.type === "TSTypeAliasDeclaration" || decl.type === "TSInterfaceDeclaration") { if (exported && !protoTypes.has(decl.id.name)) protoTypes.set(decl.id.name, file); continue; }
     if (!exported) continue;
-    if (decl.type === "FunctionDeclaration" && decl.id) { if (!protoExports.has(decl.id.name)) protoExports.set(decl.id.name, { file, form: "function", arity: decl.params.length }); }
-    else if (decl.type === "VariableDeclaration") for (const d of decl.declarations) if (d.id.type === "Identifier" && !protoExports.has(d.id.name)) protoExports.set(d.id.name, { file, form: "var", arity: d.init && /Function/.test(d.init.type) ? d.init.params.length : null });
+    if (decl.type === "FunctionDeclaration" && decl.id) add(decl.id.name, { file, form: "function", arity: decl.params.length });
+    else if (decl.type === "VariableDeclaration") for (const d of decl.declarations) if (d.id.type === "Identifier") add(d.id.name, { file, form: "var", arity: d.init && /Function/.test(d.init.type) ? d.init.params.length : null });
   }
 }
 const importPath = (file) => path.resolve(PROTOCOL, file.replace(/\.ts$/, "")).replace(/\\/g, "/");
@@ -165,9 +181,14 @@ const seeded = [], notSeeded = [];
 const seedInserts = []; // { at, text }
 const typedefHeader = [...protoTypes].map(([name, file]) => `/** @typedef {import(${JSON.stringify(importPath(file))}).${name}} ${name} */`).join("\n") + "\n";
 seedInserts.push({ at: 0, text: typedefHeader });
-const seedOne = (name, evidence) => {
-  const pe = protoExports.get(name);
-  if (!pe) { notSeeded.push({ name, evidence, why: `not an exported declaration of any file in ${PROTOCOL}` }); return; }
+const seedOne = (name, evidence, publishedFile = null) => {
+  // the published map names the protocol file; it is preferred when that file
+  // exports the name, else the first file in sort order that does (and the
+  // seeded record says which was used and which the map named)
+  const pes = protoExports.get(name);
+  if (!pes) { notSeeded.push({ name, evidence, why: `not an exported declaration of any file in ${PROTOCOL}` }); return; }
+  const pe = pes.find((x) => x.file === publishedFile) ?? pes[0];
+  const fileNote = publishedFile && pe.file !== publishedFile ? `published map names ${publishedFile}; the name is exported by ${pes.map((x) => x.file).join(", ")}` : undefined;
   const top = topStatement.get(name);
   if (!top) { notSeeded.push({ name, evidence, why: "not a top-level declaration of the bundle" }); return; }
   if (NO_SEED) { notSeeded.push({ name, evidence, why: "--no-seed" }); return; }
@@ -176,12 +197,13 @@ const seedOne = (name, evidence) => {
   if (bundleArity === null) { notSeeded.push({ name, evidence, why: `bundle declaration is ${fnNode?.type ?? "uninitialised"}, not a function` }); return; }
   if (pe.arity !== null && pe.arity !== bundleArity) { notSeeded.push({ name, evidence, why: `arity ${bundleArity} in the bundle, ${pe.arity} in the protocol` }); return; }
   const tag = `/** @type {typeof import(${JSON.stringify(importPath(pe.file))}).${name}} */`;
-  if (!top.declarator) { seedInserts.push({ at: top.statement.start, text: tag + "\n" }); seeded.push({ name, file: pe.file, form: "declaration", evidence }); }
-  else { seedInserts.push({ at: top.declarator.init.start, text: tag + " (" }, { at: top.declarator.init.end, text: ")" }); seeded.push({ name, file: pe.file, form: "cast", evidence }); }
+  const rec = { name, file: pe.file, publishedFile: publishedFile ?? undefined, fileNote, evidence };
+  if (!top.declarator) { seedInserts.push({ at: top.statement.start, text: tag + "\n" }); seeded.push({ ...rec, form: "declaration" }); }
+  else { seedInserts.push({ at: top.declarator.init.start, text: tag + " (" }, { at: top.declarator.init.end, text: ")" }); seeded.push({ ...rec, form: "cast" }); }
 };
 for (const [name, rec] of Object.entries(published)) {
   if (rec.verdict === "initialiser") { notSeeded.push({ name, evidence: "published", why: "module initialiser, no protocol declaration" }); continue; }
-  seedOne(name, "published");
+  seedOne(name, "published", typeof rec.file === "string" ? rec.file : null);
 }
 if (SAME_NAME) for (const name of protoExports.keys()) if (!(name in published) && realNames.has(name)) seedOne(name, "same-name");
 const seededSet = new Set(seeded.map((s) => s.name));
@@ -195,6 +217,16 @@ const options = {
 };
 const FMT = ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope;
 const MAX_TYPE = 400, MAX_INJECT = 1500;
+// A printed type can contain `*/` (a string-literal type quoting a regular
+// expression source, as marked's attribute pattern does), which would end the
+// JSDoc comment and leave the copy unparsable. `*\/` reads as `*/` inside a
+// string literal and ends nothing. Every pass still asserts that the copy has
+// exactly the syntactic diagnostics the original has (none, for a bundle
+// esbuild wrote): the checker's answers on an error-recovered file are not
+// evidence.
+const jsdocSafe = (type) => type.replace(/\*\//g, "*\\/");
+const originalParseDiagnostics = ts.createSourceFile(path.resolve(BUNDLE), src, options.target, true, ts.ScriptKind.JS).parseDiagnostics.length;
+let passes = 0;
 function pass(inserts) {
   inserts = [...inserts].sort((a, b) => a.at - b.at);
   let text = "", pos = 0;
@@ -208,6 +240,14 @@ function pass(inserts) {
   const checker = tsProgram.getTypeChecker();
   const sf = tsProgram.getSourceFile(path.resolve(seededPath));
   if (!sf) { console.error("type_seed: the checker did not load the seeded copy"); process.exit(1); }
+  passes++;
+  const diags = tsProgram.getSyntacticDiagnostics(sf);
+  if (diags.length !== originalParseDiagnostics) {
+    const d = diags[0], where = d ? sf.getLineAndCharacterOfPosition(d.start) : null;
+    console.error(`type_seed: the seeded copy ${seededPath} has ${diags.length} syntactic diagnostic(s), the original ${originalParseDiagnostics}` +
+      (d ? `; first at line ${where.line + 1}:${where.character + 1}: ${ts.flattenDiagnosticMessageText(d.messageText, " ")}` : ""));
+    process.exit(1);
+  }
   const identAt = new Map();
   const calls = [];
   const walk = (n) => { if (ts.isIdentifier(n)) identAt.set(n.getStart(sf), n); else if (ts.isCallExpression(n) && ts.isIdentifier(n.expression)) calls.push(n); ts.forEachChild(n, walk); };
@@ -309,25 +349,31 @@ for (let round = 0; round <= ROUNDS; round++) {
       // tag to a destructured parameter by position among all @param tags
       const last = Math.max(...have.tags.map((t) => t.index));
       const lines = [];
-      for (let i = 0; i <= last; i++) { const t = have.tags.find((x) => x.index === i); lines.push(t ? ` * @param {${t.type}} ${t.name}` : ` * @param {*} param${i}`); }
+      for (let i = 0; i <= last; i++) { const t = have.tags.find((x) => x.index === i); lines.push(t ? ` * @param {${jsdocSafe(t.type)}} ${t.name}` : ` * @param {*} param${i}`); }
       inserts = inserts.filter((x) => x.tag !== key).concat({ at: key, text: `/**\n${lines.join("\n")}\n */\n`, tag: key });
     }
   }
-  rounds.push({ round, declsAdded: added.length, paramsAdded: [...propagated.values()].reduce((n, h) => n + h.tags.length, 0) });
-  console.error(`type_seed: round ${round}: program of ${P.programFiles} files, ${added.length} function(s) got call-site parameter types (${secs()})`);
+  // the last record is always declsAdded 0: either this round added nothing
+  // (and P already reflects every tag), or round == ROUNDS checked the tags of
+  // the previous round without propagating (`propagated: false`)
+  rounds.push({ round, propagated: round < ROUNDS, declsAdded: added.length, paramsAdded: [...propagated.values()].reduce((n, h) => n + h.tags.length, 0) });
+  console.error(`type_seed: round ${round}: program of ${P.programFiles} files, ${round < ROUNDS ? `${added.length} function(s) got call-site parameter types` : "check only (--rounds reached)"} (${secs()})`);
   if (!added.length) break;
 }
-if (rounds.length > 1 && rounds[rounds.length - 1].declsAdded) P = pass(inserts); // the final tags were never checked
 for (const have of propagated.values()) for (const t of have.tags) propagatedIds.add(t.idStart);
 const propagatedCount = [...propagated.values()].reduce((n, h) => n + h.tags.length, 0);
 const propagatedTopLevel = [...propagated.keys()].filter((k) => [...topStatement.values()].some((t) => t.statement.start === k)).length;
 console.error(`type_seed: ${propagatedCount} parameter(s) in ${propagated.size} function(s) (${propagatedTopLevel} top-level) typed from call sites (${secs()})`);
 const markProp = (d, idStart) => (d.kind === "typed" && propagatedIds.has(idStart) ? { ...d, kind: "propagated" } : d);
+// a return type inferred in a function whose parameter was typed from its call
+// sites rests on that (possibly narrower than reality) union: `propagated` too,
+// so a reader (match_published_source.mjs --types) can refuse to treat it as solid
+const markReturn = (ret, params) => (ret.kind === "typed" && params.some((p) => p.kind === "propagated") ? { ...ret, kind: "propagated" } : ret);
 
 // ---- first-party declarations ---------------------------------------------------------------
 const out = {};
 const empty = () => ({ params: [0, 0], returns: [0, 0], locals: [0, 0] });
-const cov = { all: empty(), callsSeeded: { ...empty(), decls: 0 }, protocolTyped: { locals: 0, params: 0, returns: 0 }, propagatedParams: 0 };
+const cov = { all: empty(), callsSeeded: { ...empty(), decls: 0 }, protocolTyped: { locals: 0, params: 0, returns: 0 }, propagatedParams: 0, propagatedReturns: 0 };
 const protoTypeRe = protoTypes.size ? new RegExp(`\\b(${[...protoTypes.keys()].join("|")})\\b`) : null;
 const known = (d) => d.kind === "typed" || d.kind === "propagated";
 const count = (bucket, field, d) => { bucket[field][1]++; if (known(d)) bucket[field][0]++; };
@@ -343,7 +389,7 @@ for (const [real, d] of decls) {
     const sig = P.signatureOf(fn);
     if (sig) {
       entry.params = sig.params.map((p, i) => cut(markProp(p, P.unshift(fn.parameters[i].name.getStart(P.sf)))));
-      entry.returns = cut(sig.returns);
+      entry.returns = cut(markReturn(sig.returns, entry.params));
     }
   } else entry.value = cut(P.typeAt(idNode));
   entry.locals = {};
@@ -360,6 +406,7 @@ for (const [real, d] of decls) {
   }
   for (const p of entry.params ?? []) { if (isProto(p)) cov.protocolTyped.params++; if (p.kind === "propagated") cov.propagatedParams++; }
   if (entry.returns && isProto(entry.returns)) cov.protocolTyped.returns++;
+  if (entry.returns?.kind === "propagated") cov.propagatedReturns++;
   for (const l of Object.values(entry.locals)) if (isProto(l)) cov.protocolTyped.locals++;
   out[real] = entry;
 }
@@ -374,7 +421,10 @@ for (const [short, top] of topStatement) {
   const fn = P.functionNodeOf(idNode);
   if (!fn || ts.isClassDeclaration(fn) || ts.isClassExpression(fn)) continue;
   const sig = P.signatureOf(fn);
-  if (sig) unnamed[short] = { kind: "function", params: sig.params.map((p, i) => cut(markProp(p, P.unshift(fn.parameters[i].name.getStart(P.sf))))), returns: cut(sig.returns) };
+  if (sig) {
+    const params = sig.params.map((p, i) => cut(markProp(p, P.unshift(fn.parameters[i].name.getStart(P.sf)))));
+    unnamed[short] = { kind: "function", params, returns: cut(markReturn(sig.returns, params)) };
+  }
 }
 console.error(`type_seed: ${Object.keys(unnamed).length} unnamed top-level functions (${secs()})`);
 
@@ -384,14 +434,15 @@ const coverage = {
   callsSeeded: cov.callsSeeded,
   protocolTyped: cov.protocolTyped,
   propagatedParams: cov.propagatedParams,
+  propagatedReturns: cov.propagatedReturns,
   propagatedAll: { params: propagatedCount, functions: propagated.size, topLevel: propagatedTopLevel },
 };
 fs.writeFileSync(OUT, JSON.stringify({
   generatedBy: "type_seed.mjs", bundle: symbols.bundle ?? "daemon", version: symbols.version ?? null, typescript: ts.version,
   source: path.basename(BUNDLE), protocol: { dir: path.resolve(PROTOCOL), files: protoHashes, exportedTypes: protoTypes.size },
-  seeding: { method: NO_SEED ? "none (--no-seed)" : "jsdoc @type {typeof import(...).name} in a temporary copy", seededCopy: seededPath, seeded, notSeeded, rounds },
+  seeding: { method: NO_SEED ? "none (--no-seed)" : "jsdoc @type {typeof import(...).name} in a temporary copy", seededCopy: seededPath, seeded, notSeeded, rounds, passes, syntacticDiagnostics: { original: originalParseDiagnostics, copy: originalParseDiagnostics } },
   coverage, decls: out, unnamed,
 }, null, 1) + "\n");
 console.log(`type_seed: ${seeded.length} seeded symbol(s), ${rounds.length - 1} propagation round(s); known (typed or propagated) overall: params ${pct(cov.all.params)}, returns ${pct(cov.all.returns)}, locals ${pct(cov.all.locals)}`);
 console.log(`type_seed: in the ${cov.callsSeeded.decls} declaration(s) that call a seeded symbol: params ${pct(cov.callsSeeded.params)}, returns ${pct(cov.callsSeeded.returns)}, locals ${pct(cov.callsSeeded.locals)}`);
-console.log(`type_seed: naming a protocol type: locals ${cov.protocolTyped.locals}, params ${cov.protocolTyped.params}, returns ${cov.protocolTyped.returns}; parameters typed from call sites ${cov.propagatedParams} -> ${OUT} (${secs()})`);
+console.log(`type_seed: naming a protocol type: locals ${cov.protocolTyped.locals}, params ${cov.protocolTyped.params}, returns ${cov.protocolTyped.returns}; parameters typed from call sites ${cov.propagatedParams}, returns resting on them ${cov.propagatedReturns} -> ${OUT} (${secs()})`);

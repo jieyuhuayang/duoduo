@@ -57,8 +57,9 @@ const signatureLine = (short) => {
   const t = typesUnnamed[short];
   const known = (d) => d && (d.kind === "typed" || d.kind === "propagated");
   if (!t || !(t.params.some(known) || known(t.returns))) return [];
-  const ps = t.params.map((p) => `${p.name}: ${known(p) ? p.type : "any"}`).join(", ");
-  return [`signature (TypeScript checker, type_seed.mjs): (${ps}) => ${known(t.returns) ? t.returns.type : "any"}`];
+  const show = (d) => (known(d) ? `${d.type}${d.kind === "propagated" ? " (from call sites)" : ""}` : "any");
+  const ps = t.params.map((p) => `${p.name}: ${show(p)}`).join(", ");
+  return [`signature (TypeScript checker, type_seed.mjs): (${ps}) => ${show(t.returns)}`];
 };
 // ---- end --types ----
 

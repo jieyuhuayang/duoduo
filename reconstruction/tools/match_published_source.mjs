@@ -49,8 +49,10 @@
 // the published declaration's annotation and from the checker's inferred type
 // of each bundle function; a candidate whose class differs from the published
 // one is dropped (`typeDropped` in the report). A type guard counts as boolean.
-// Candidates whose return the checker does not know, or whose class is outside
-// those four, are left to the token score as before.
+// Candidates whose return the checker does not know or marks `propagated`
+// (inferred in a function whose parameter was typed from its call sites, a
+// union that may be narrower than reality), or whose class is outside those
+// four, are left to the token score as before.
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -215,7 +217,7 @@ for (const [short, d] of decls) {
     const f = featuresOf(d.node.type === "ClassDeclaration" || d.node.type === "ClassExpression" ? d.node : d.node.body, (id) => !bound.has(id.name) && !topNames.has(id.name));
     // --types: the checker's return type of this function, by real name when it has one, else by short name
     const ret = types ? (types.decls?.[namedAs(short) ?? ""]?.returns ?? types.unnamed?.[short]?.returns) : null;
-    const returnClass = ret && (ret.kind === "typed" || ret.kind === "propagated") ? returnClassOfString(ret.type) : null;
+    const returnClass = ret && ret.kind === "typed" ? returnClassOfString(ret.type) : null; // not `propagated`: inferred under a call-site union that may be narrower than reality
     bundleFns.push({ short, line: d.line, arity: d.params, tokens: tokensOf(f), returnClass });
   } else if (d.kind === "value") bundleValues.push({ short, line: d.line, canonical: d.canonical });
 }

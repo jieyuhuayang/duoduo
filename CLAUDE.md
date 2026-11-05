@@ -171,6 +171,7 @@ node tools/symbol_card.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] [--body
 node tools/doc_coverage.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] <out.md>   # uncited symbols per subsystem, symbols per doc section, naming queue
 node tools/locate_by_anchor.mjs <pretty.js> <string...>          # top-level declaration (and kind) holding each literal's first occurrence
 node tools/extract_decl.mjs --pkg <dist/release> <realName...>   # $PKG/daemon.harness.mjs: recon bundle exporting those names + prepare() (their module initialisers)
+node tools/type_seed.mjs <daemon.recon.js> <symbols_daemon.json> maps/published_daemon.json --protocol <protocol src dir> --out <types_daemon.json> [--same-name] [--rounds N] [--no-seed]   # TypeScript checker types after seeding the protocol signatures (VERIFICATION §11); name_locals.mjs tasks, name_toplevel.mjs tasks and match_published_source.mjs read it with --types <types_daemon.json>
 
 # naming
 node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <pretty.js> <short> <realName> <NN-subsystem|->
@@ -180,7 +181,6 @@ node tools/match_published_source.mjs --src <dir of *.ts> --package <name@versio
 node tools/match_historical_exports.mjs [--history <dir>] [--maps <dir>] --out <report.json>   # needs history.sh's .build/history
 node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...]
 node tools/name_locals.mjs record|prune|rekey <top.js> <rename.json> maps/locals_daemon.json [answers.json...]
-node tools/type_seed.mjs <daemon.recon.js> <symbols_daemon.json> maps/published_daemon.json --protocol <protocol src dir> --out <types_daemon.json> [--same-name] [--rounds N] [--no-seed]   # TypeScript checker types after seeding the protocol signatures (VERIFICATION §10); name_locals.mjs tasks, name_toplevel.mjs tasks and match_published_source.mjs read it with --types <types_daemon.json>
 node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>   # exit 0 pass, 3 warn, 1 fail
 
 # doc checks and conversions
