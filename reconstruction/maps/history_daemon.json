@@ -2,7 +2,7 @@
  "generatedBy": "tools/history_chain.mjs (tools/history.sh)",
  "method": "release to release, five layers (release_pairing.mjs), each accepting only the pairs unique at that layer: 1 identical body unique on both sides (fingerprint_match.mjs); 2 a shared body settled by position between the settled neighbours; 3 positional pair (pair_changes.mjs); 4 per-window minimum-cost assignment (Hungarian, creation 0.6) on feature similarity (decl_features.mjs, min 0.5, lead 0.1) or relaxed similarity (relaxed_signature.mjs, min 0.6) for declarations with fewer than three features; 5 the same assignment without a window (min 0.6) for moved code. firstSeen is where the walk ends; a data declaration or a twin no layer settles is untraceable",
  "package": "@openduo/duoduo",
- "current": "0.8.7",
+ "current": "0.8.8",
  "versions": [
   "0.2.0",
   "0.2.1",
@@ -55,7 +55,8 @@
   "0.8.4",
   "0.8.5",
   "0.8.6",
-  "0.8.7"
+  "0.8.7",
+  "0.8.8"
  ],
  "symbolCount": 890,
  "symbols": {
@@ -63,19 +64,19 @@
    "mangled": "uO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "AgentSdkPromptNotAcceptedAbortError": {
    "mangled": "Ar",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "AgentSdkTurnInterruptedError": {
    "mangled": "Hr",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "CHANNEL_CONFIG_KEY_TYPES": {
    "mangled": "T6",
@@ -89,79 +90,79 @@
    "mangled": "xW",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "CLAUDE_CORE_TOOLS": {
    "mangled": "Eg",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "DAEMON_TOKEN_ENV_KEY": {
    "mangled": "fA",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_ACP_COMPACT": {
    "mangled": "qve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_ACP_EXT_PREFIX": {
    "mangled": "zve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_ACP_SDK_CALL": {
    "mangled": "Uve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_AGENT_PROFILE": {
    "mangled": "Fve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_DISALLOWED_TOOLS": {
    "mangled": "Lve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_MCP_SDK_META": {
    "mangled": "Bve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_MCP_SERVERS_META": {
    "mangled": "Vve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "GROK_MCP_SERVER_NAME": {
    "mangled": "Hve",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "HOST_MODEL_ENV_KEYS": {
    "mangled": "EW",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "IN_PROCESS_BREAK_HIT_RATIO_FLOOR": {
    "mangled": "wfe",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "JsonRpcInvalidParamsError": {
    "mangled": "It",
@@ -177,19 +178,19 @@
    "mangled": "FV",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "SESSION_SCHEMA_VERSION": {
    "mangled": "Oy",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "SUN_PATH_MAX_BYTES": {
    "mangled": "yR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "var (uninitialised) with too few features to follow past v0.8.7"
+   "untraceable": "var (uninitialised) with too few features to follow past v0.8.8"
   },
   "SpineRpcParamsError": {
    "mangled": "up",
@@ -591,7 +592,7 @@
    "mangled": "mO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "buildJobSessionKey": {
    "mangled": "Mc",
@@ -622,7 +623,7 @@
    "mangled": "pO",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "buildMemoryCheckStatus": {
    "mangled": "SW",
@@ -2745,19 +2746,19 @@
    "mangled": "OR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "isAgentSdkPromptNotAcceptedAbortError": {
    "mangled": "Lw",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.8"
   },
   "isAgentSdkTurnInterruptedError": {
    "mangled": "jw",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.8"
   },
   "isAllowedNodeSection": {
    "mangled": "Mpt",
@@ -2989,7 +2990,7 @@
    "mangled": "ZR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.8"
   },
   "isLiveStreamRebuildRequired": {
    "mangled": "iK",
@@ -3063,7 +3064,7 @@
    "mangled": "IU",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "isNonEmptyText": {
    "mangled": "H7e",
@@ -3263,13 +3264,13 @@
    "mangled": "zb",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 3 old declarations, none settled by position past v0.8.8"
   },
   "isSystemConfigParams": {
    "mangled": "JR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "isSystemRuntimeInfo": {
    "mangled": "_R",
@@ -3284,7 +3285,7 @@
    "mangled": "WR",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "isTelemetryEnabled": {
    "mangled": "AXe",
@@ -6144,7 +6145,7 @@
    "mangled": "ySe",
    "firstSeen": null,
    "changedIn": [],
-   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.7"
+   "untraceable": "a body shared with 2 old declarations, none settled by position past v0.8.8"
   },
   "writeJsonFileAtomic": {
    "mangled": "Bt",
@@ -8142,6 +8143,10 @@
     "updateSessionDisplayName",
     "upsertChannelSpawnDescriptor"
    ]
+  },
+  "0.8.8": {
+   "born": [],
+   "changed": []
   }
  },
  "untraceable": [

@@ -1,7 +1,7 @@
 {
   "bundle": "daemon",
-  "version": "v0.8.7",
-  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.7/daemon.pretty.js",
+  "version": "v0.8.8",
+  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.8/daemon.pretty.js",
   "symbolCount": 890,
   "notTopLevel": [],
   "symbols": {
