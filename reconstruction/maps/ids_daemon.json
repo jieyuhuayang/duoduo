@@ -1,0 +1,4772 @@
+{
+  "CHANNEL_CONFIG_KEY_TYPES": {
+    "id": "v_484ed62c95f9b266",
+    "kind": "value",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "JsonRpcInvalidParamsError": {
+    "id": "f_b8c3418a7cfeb2d8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "MemoryReadRpcError": {
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "SpineRpcParamsError": {
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "accumulateDrainRecordIntoSummary": {
+    "id": "f_2394ef231d23a5aa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "acquireRuntimeWriterLock": {
+    "id": "f_e00dbd3a4123f464",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "acquireSessionDrainLock": {
+    "id": "f_49267f81ab60fb3b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "addToNumericField": {
+    "id": "f_2fb3ad7e0fc5f2ea",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "advanceConsumerWatermark": {
+    "id": "f_433b95da1cae2f2c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "advanceOptimisticDeliveryCursor": {
+    "id": "f_606af2b14d404025",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "aggregateSessionDrainSummary": {
+    "id": "f_7f52ca936b431b74",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "announceMainSessionChange": {
+    "id": "f_a85753ae061412cc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendBeforeExecuteGateway": {
+    "id": "f_88978c8965317292",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendConfigChangedEvent": {
+    "id": "f_57dd586d2bb5d564",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendEventIdIndexEntry": {
+    "id": "f_6d05f0a75bd826f6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendEventToPartition": {
+    "id": "f_17f97cba44df90b4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendGapHandedSpan": {
+    "id": "f_9c93ddfdb70ae89e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendOutboxByEventIndexEntry": {
+    "id": "f_e35c54c2ca04df4a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendPartitionToolEvent": {
+    "id": "f_8597ac14d0d700b7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendPiConfigIssues": {
+    "id": "f_89616d908a70dab8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendSessionMailboxNote": {
+    "id": "f_6e723f2569b5568e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "appendTelemetryRecord": {
+    "id": "f_1114a8250fa9c6eb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "applyJobSdkConfigOverride": {
+    "id": "f_674f4758628308e5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "applySessionConfigVerb": {
+    "id": "f_46cc342992126e0d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "archiveSessionAndArtifacts": {
+    "id": "f_80fb5dc6640f4666",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "archiveSessionDirUnlessAlreadyArchiving": {
+    "id": "f_c4140e536491a61c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "archiveSessionIfQuiescent": {
+    "id": "f_03d243bfa1723c47",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "assertJobWorkspaceUsable": {
+    "id": "f_ab12ebf209439608",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "assertScheduleDurationRepresentable": {
+    "id": "f_512c5ff0009839ed",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "assertSessionNotArchiving": {
+    "id": "f_b2e1877c5de49ff1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "assertValidChannelId": {
+    "id": "f_01a921b70b025d13",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "assertWsChannelIdentityParams": {
+    "id": "f_0800f68580a550d8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "atomicAppendEvent": {
+    "id": "f_481f336630a9ae96",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "attachStreamLineReader": {
+    "id": "f_429fea1b0863531c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "backfillOutboxByIdIndexFromReplay": {
+    "id": "f_10ce9caf0a525277",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "batchDrainItems": {
+    "id": "f_89315a60bb7a9616",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "bindSessionSourceChannel": {
+    "id": "f_952ba5d02045c9ce",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildBoardLintTarget": {
+    "id": "f_056d5de493a31c0b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildClaudeCostBaseline": {
+    "id": "f_d637c1cad8918f2f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildClaudeSettingsEnvOverrides": {
+    "id": "f_037a96942230d231",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildCodexDirectOnlyToolConfig": {
+    "id": "f_7fb166ebf448d8f8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildCodexDynamicTools": {
+    "id": "f_7e96e2f4ea5b0660",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildCodexStringInputSchema": {
+    "id": "f_9d36a34b4ae75644",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildCompactStatsRecord": {
+    "id": "f_11957fb19c58cb87",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildEffectiveChannelConfig": {
+    "id": "f_7546c4e99466e4ab",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildEffectiveRuntimeFields": {
+    "id": "f_da1736b38b162f27",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildGapReadFaultResult": {
+    "id": "f_017ad704b68807ab",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildInitialStatus": {
+    "id": "f_016d71cd940ab0b2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildJobPromptModeExtraToolsSchema": {
+    "id": "f_17ee4fe663771c08",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildJobRuntimeSchemaField": {
+    "id": "f_8c9c326f7cf59ef6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildJobSessionInputSchema": {
+    "id": "f_3e299481decdef48+c:c262a93953fc+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:c262a93953fc+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "buildJobSessionKey": {
+    "id": "f_a09c8b9f38e94b99",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildKernelGitEnv": {
+    "id": "f_8e07310bf5893427",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildMainRoleContext": {
+    "id": "f_1f8a9968238148d0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildManageJobInputSchema": {
+    "id": "f_3e299481decdef48+c:c262a93953fc+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:c262a93953fc+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "buildNodeSignalKey": {
+    "id": "f_fa515f924aefcc47",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildNotifyInputSchema": {
+    "id": "f_8df81e9bedc0dd3a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildOrphanIslandsSignal": {
+    "id": "f_6131c7c17f70c1c7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildOrphanNewbornSignals": {
+    "id": "f_17430034fd7696e1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildPiConfigSignature": {
+    "id": "f_59e0034078fe2c2a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildPiSystemPromptSpec": {
+    "id": "f_dd6e5f27e7da2074",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildProfiledExternalRequirement": {
+    "id": "f_58d0de4369adb71d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSafeDirectoryGitArgs": {
+    "id": "f_632a05a3e3988423",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildScanGapSignal": {
+    "id": "f_8453f5ef247f33ad",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSdkConfigReport": {
+    "id": "f_08d3188e31fbbbca",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSessionExecutionPayload": {
+    "id": "f_9a070bb8f11c456a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSessionIndexEntry": {
+    "id": "f_52fb1600f6594013",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSessionIndexFromDisk": {
+    "id": "f_2fed394b905292ea",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSessionInfoFromState": {
+    "id": "f_3bf56c3fb3352103",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildSystemConfigReport": {
+    "id": "f_0273be4be02d6ef0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildTransientUserBlocks": {
+    "id": "f_61e294a4943a8157",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "buildTurnSdkRunConfig": {
+    "id": "f_c50f48e53f072849",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "bytesToKibCeil": {
+    "id": "f_ddea129442463e71",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "canonicalizeGatewayCommand": {
+    "id": "f_2e055507e99828c9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "canonicalizeJsonValue": {
+    "id": "f_9a2cc864a6bfa904",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "capitalizeFirstChar": {
+    "id": "f_8bada98382aad84f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "channelKindFromSessionKey": {
+    "id": "f_a08576e63726cf2b+c:4f53cda18c2b+p:2/4",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/4"
+    },
+    "since": "v0.8.7"
+  },
+  "checkChannelRuntimeRebindConflict": {
+    "id": "f_8589fc072bdd86b8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "checkMainAliasCallerAuthority": {
+    "id": "f_b1db96e31bd75354",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "checkReservedRecordSource": {
+    "id": "f_eaf6c8b09c5298ae",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "claimDaemonRestartReason": {
+    "id": "f_f3213bfeb12db26d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyConsumerStaleness": {
+    "id": "f_9f9ad633396cf28e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyDrainBatchClass": {
+    "id": "f_1459fee92919b6ac",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyGatewayCommandIntent": {
+    "id": "f_91323c57853845e6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyJobScheduleType": {
+    "id": "f_32b1177275658d4e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyModelContextRequirement": {
+    "id": "f_7e46383f300ccc06",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyNotifySessionKind": {
+    "id": "f_567e2fba77bfa46b+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "classifySessionKey": {
+    "id": "f_e454dfd26774dad9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifySessionKeyOrUnknown": {
+    "id": "f_567e2fba77bfa46b+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "classifySessionPlane": {
+    "id": "f_394e70f54ca48c5e+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "classifySessionPlaneByKey": {
+    "id": "f_394e70f54ca48c5e+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "classifySessionPoolKind": {
+    "id": "f_fecc8dff067cc09b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyTopicNodeFormat": {
+    "id": "f_e5423fb831d36354",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "classifyTopicNodeType": {
+    "id": "f_0f14a608c87a1663",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearModelOverrideOnRuntimeFlip": {
+    "id": "f_27dd21a280b8bfb7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearPendingGatewayNotice": {
+    "id": "f_6f687797485eec97",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearPendingInterruptedContext": {
+    "id": "f_e956eef1126c6e46",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearPendingOutboundAttachments": {
+    "id": "f_456596f73f986d43",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearPendingSkipRewind": {
+    "id": "f_54ddd1b8d8d78843",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearSessionArchiving": {
+    "id": "f_fe053b636fcc8bb3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "clearSessionRuntimeStateField": {
+    "id": "f_d7906bbeca83a4c2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "coerceToPlainObject": {
+    "id": "f_c1e66539a11fc3bc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "collectBoardIncludePaths": {
+    "id": "f_cccfcb52d34d1dbd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "collectBoardLintReport": {
+    "id": "f_fa00528ea974ba61",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "collectGrokToolCallNames": {
+    "id": "f_3cafdc5361b0f500",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "collectInstructionsInputs": {
+    "id": "f_a662d49c933f2a8e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "collectJobCompletionReceipts": {
+    "id": "f_5db2958133516cdb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "compareBoardLintTargets": {
+    "id": "f_33453b62172b3bad",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "compareStringsAscending": {
+    "id": "f_cc1993e8a836817f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeBoundedEditDistance": {
+    "id": "f_d105f65ca62b3809",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeCacheHitRate": {
+    "id": "f_7b8a2bbbd06744e3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeContextProfileSignature": {
+    "id": "f_05e80e14ed38bef2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeDedupKey": {
+    "id": "f_aaecad94d069c4cf",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeDrainCoalesceKey": {
+    "id": "f_70028536038a8195",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeHostBootId": {
+    "id": "f_cf415afd7fe42dc2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeLegacyJobSessionKey": {
+    "id": "f_29c771e747f751b3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeMemoryLinkIndegree": {
+    "id": "f_aa9bbb27ae30a5e7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeOrphanTopicNodes": {
+    "id": "f_233364a8550c8292",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computePartitionBackoffUntil": {
+    "id": "f_ba4f4cc96b748921",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeRuntimeId": {
+    "id": "f_f7310f8001a1707d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeStreamEventDedupKey": {
+    "id": "f_90fedb44497c251f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeStreamingConfigSignature": {
+    "id": "f_22edeb89f1dfb13c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "computeTimeGapContext": {
+    "id": "f_81e1103c3ada6b1a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "containsWhitespaceChar": {
+    "id": "f_38ae0fb7b065b26a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "copyBootstrapIntoKernel": {
+    "id": "f_1745fd4da7eded14",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "copyDirTreeMissingOnly": {
+    "id": "f_2e5c3d7481af8664",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "copyDirTreeOverwrite": {
+    "id": "f_e10a135a8a01880a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "countCompactGapIntervals": {
+    "id": "f_199b3f3bdc9c72b2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "countDatedStampLines": {
+    "id": "f_a47acbcf4c727279",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "countNewlineChars": {
+    "id": "f_50e05184caa4be38",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "countUnreadableMemoryPaths": {
+    "id": "f_8ca000545cca4712+c:4f53cda18c2b+p:5/6",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:5/6"
+    },
+    "since": "v0.8.7"
+  },
+  "createAbortErrorWithCause": {
+    "id": "f_576d2f6f6847d9d0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createAladuoMcpServer": {
+    "id": "f_26aed893edd9ed68",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createClaudeStreamingSessionFactory": {
+    "id": "f_64382df04df5b3be",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createDrainExecutionEventRecorder": {
+    "id": "f_1418ced7be85a2d7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createEmptySessionIndex": {
+    "id": "f_ecb7e8f645a788e4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createEmptyUsageSummary": {
+    "id": "f_2bda044f7fb4a492",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createIdleCompactSweeper": {
+    "id": "f_aa7bc3e83c88fa0f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createJobSessionFinalizer": {
+    "id": "f_fadf2537306b9586",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createMapBackedSessionIndex": {
+    "id": "f_093922e4df57dd61",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createMemorySlugReader": {
+    "id": "f_f33c2c4ff80349a0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createModelCommandResolvers": {
+    "id": "f_57735054b8aa4524",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createOutboxRecord": {
+    "id": "f_8da412796a54b068",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createPiWorkerAdapter": {
+    "id": "f_c0222916fe38deb6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createSessionSubscriptionRegistry": {
+    "id": "f_985b1d20f0a04097",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createSpineEvent": {
+    "id": "f_863613f7d329fb36",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createVoidAwareAttachmentCallbacks": {
+    "id": "f_9fa428c22f72c5e9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "daemonRestartReasonPath": {
+    "id": "f_75743d38543efb5e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "decideBoardUpdatedInjection": {
+    "id": "f_94a8b18d15c4272f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "decideRestartHintInjection": {
+    "id": "f_b529304345ceda01",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "deleteMailboxPendingItemsByEventIds": {
+    "id": "f_cb784a3d2e0a0080",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "deliverExternalSessionNotify": {
+    "id": "f_b8e4e94b8954c7b7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "deliverMainRoleNoticeSafely": {
+    "id": "f_9f18f4ba96450797",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "deliverRouteEventToSession": {
+    "id": "f_908a77d0ff3dcaf1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "deliverScanGapSignal": {
+    "id": "f_d5b93d5c05734fd1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeChannelInstance": {
+    "id": "f_7de81dd95bf5048c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeContextProfileSource": {
+    "id": "f_a7a130b86cebebc5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeConversationProblem": {
+    "id": "f_40388cf4d079138f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeMemoryReadProblem": {
+    "id": "f_3b87e7e866c8cead",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeSpineCatProblem": {
+    "id": "f_20b9c889ab7a8647",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeSpineRecordProblem": {
+    "id": "f_11e375c3da3a6ec8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeStandInJobOwner": {
+    "id": "f_a686c9e763a9eae9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "describeWorkspaceProblem": {
+    "id": "f_1242e73b46780c1d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "detectEmptyRequiredPartitionOutput": {
+    "id": "f_286e051f7bc804d2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "detectOrphanMemory": {
+    "id": "f_e5fc23584b989412",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "disableSystemPromptSnapshot": {
+    "id": "f_c43f823a747a8488",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "drainSessionMailbox": {
+    "id": "f_ae31769895e2df5d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "emitDrainOutputRecords": {
+    "id": "f_fa6f8511048f1f4d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "encodePiWorkerFrame": {
+    "id": "f_5e6b38eaab5b8ed1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "enforceContractGate": {
+    "id": "f_b904227217bbcc65",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "enqueuePartitionAppend": {
+    "id": "f_8a3d5440654ddf49",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "enqueueSessionCompactCommand": {
+    "id": "f_62f41b826e6f3657",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "enqueueSessionInboxLine": {
+    "id": "f_37264a6f23169abc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ensureAbsoluteWorkspaceDir": {
+    "id": "f_3b4081662068ae22",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ensureDirectoryExists": {
+    "id": "f_ac18c30986315904",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ensureKernelGitRepo": {
+    "id": "f_bd54fb503ff4f469",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ensureOutboxRecordInReplay": {
+    "id": "f_915ff32f80e1e288",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ensureSessionDescriptorAndStateFiles": {
+    "id": "f_2736594a75b40a19",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ensureSessionMailboxPendingDir": {
+    "id": "f_74b46c4f3bc6906a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "escapeRegExpSource": {
+    "id": "f_06c76e16ab590444+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "escapeXmlText": {
+    "id": "f_633aae705a729d98",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "evaluateNotifyConsumerRefusal": {
+    "id": "f_4d27ce637edc6f15",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "evaluatePredicateOrFalse": {
+    "id": "f_03cec59d411a3f96",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "executeGatewayCommand": {
+    "id": "f_093cfbf83c64b1b0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "expandInjectionPromptCommand": {
+    "id": "f_9060acde704ebb7d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractBoardSlugLinks": {
+    "id": "f_d508f2e113fc58be",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractJobCompletePayload": {
+    "id": "f_367c00147b136b27",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractJobCompletionJobId": {
+    "id": "f_5a477f767edf06b2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractJobSdkConfig": {
+    "id": "f_a2ff79d9ca2e07b3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractPayloadMediaRefs": {
+    "id": "f_4871a0afbd2b35c1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractProfiledEndpointFields": {
+    "id": "f_00830342ba9075a9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractSdkMessageTextChunks": {
+    "id": "f_94c08f73b0a776e4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractServedModelFromUsage": {
+    "id": "f_e92c50b6d9c5613c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractSessionKeyChannelKind": {
+    "id": "f_a08576e63726cf2b+c:4f53cda18c2b+p:1/4",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/4"
+    },
+    "since": "v0.8.7"
+  },
+  "extractStandInOwnerInfo": {
+    "id": "f_928fb21dfb27362b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractStreamTextDeltas": {
+    "id": "f_48575f12a102502d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractStreamThinkingText": {
+    "id": "f_2e5ab33c74156dde",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "extractUrlHost": {
+    "id": "f_3604febdeeb92ba5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "filterDeliverableSessions": {
+    "id": "f_b405849f4e7dc434",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "filterOrphanIslands": {
+    "id": "f_f0d13686f1565c04",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "findBoardHeadingLines": {
+    "id": "f_c4c4eb9679c79659",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "findEventInPartitionFile": {
+    "id": "f_f68605119d7faaaa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "findNewestFragmentMtimeMs": {
+    "id": "f_4e9f6d16cb28e803",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "findOutboxRecordByEventId": {
+    "id": "f_0a56cce539b16ee4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "fireDueWakeRecords": {
+    "id": "f_d627e7b1eacf6087",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "flagStreamRecreationOnModelReject": {
+    "id": "f_8c6728507d843b8c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "foldConfigLayersByKey": {
+    "id": "f_b3f0038fa3b61f34",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "forgetMemoryEntry": {
+    "id": "f_8223e19ddeb63efd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatElapsedDuration": {
+    "id": "f_6f727ea48072bf43",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatEventPartitionName": {
+    "id": "f_6fe426fe44346f17",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatForgetCommitMessage": {
+    "id": "f_6bf8b2bf1cebb252",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatLayerModelAliases": {
+    "id": "f_e181986b9549e036",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatLocalTimestampWithZone": {
+    "id": "f_fc359cebcf3fd4ae",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatLogPrefix": {
+    "id": "f_02c701fb963f075b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatModelConfigIssues": {
+    "id": "f_aeca610a20357b61",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatSessionAliasCommand": {
+    "id": "f_09b08623ef47a40e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatSlugLinkLocations": {
+    "id": "f_c46fe91b3cbe0d1d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatViewSessionsListLine": {
+    "id": "f_7a45d79bf9f9336e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "formatYamlErrorMessage": {
+    "id": "f_3a73e847805cdd93",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "generateAllPartitionCodexAgents": {
+    "id": "f_712c8bbffcb767c9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "generateOutboxRecordId": {
+    "id": "f_9ef79d92e94ac3a7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "generateSpineEventId": {
+    "id": "f_94d5a318f15665a6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "getCachedHostBootId": {
+    "id": "f_59a8d5c2fa073776",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "getCachedPartitionContract": {
+    "id": "f_5e83e4768e6dc5a1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "getOrCreateEventIdIndexCache": {
+    "id": "f_ee4795340bb128aa+c:343ffb66ae5e",
+    "kind": "function",
+    "disamb": {
+      "by": "c",
+      "value": "c:343ffb66ae5e"
+    },
+    "since": "v0.8.7"
+  },
+  "getPendingRestartReason": {
+    "id": "f_b511e31d1af43c5a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "groupNotifyTargetCandidates": {
+    "id": "f_0d45aa36f961e3dd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "handleDrainError": {
+    "id": "f_bc71b8869865f114",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "handlePiToolEndObservation": {
+    "id": "f_67b24897e291c412",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hasAnyMemorySignalConsumer": {
+    "id": "f_5a598077c5fceae5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hasNonEmptyDisplayName": {
+    "id": "f_b1a995fc0adbdaca",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hasParentToolUseId": {
+    "id": "f_ff37d2f4e472a69d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hasSkipRewindRecordSince": {
+    "id": "f_77ace8441ae85148",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hasUniformDrainCoalesceKey": {
+    "id": "f_906858672109eda0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hasUnqueuedPendingOutboxRecords": {
+    "id": "f_885d1cb01a57bf61",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hashActivityFingerprint": {
+    "id": "f_759381cd3dcfa6be",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "hashDeliveryCursorKey": {
+    "id": "f_83c1b7eb63b88fd1+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "hashSessionKey": {
+    "id": "f_83c1b7eb63b88fd1+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "indexOutboxRecordByEventId": {
+    "id": "f_4de520048c9022a3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "inferActorOriginFromSessionKey": {
+    "id": "f_fe25ddb46aca4dd2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ingestChannelCommand": {
+    "id": "f_6dffa6dc56107363",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "ingestChannelMessage": {
+    "id": "f_73bb59e859a9f07f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initAbortableAsyncQueueModule": {
+    "id": "m_996bdc0dd12e3f1c",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initActivationLintModule": {
+    "id": "m_d85e8bafe41f8944",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initAgentSdkAdapterModule": {
+    "id": "m_c72510485cd6d727",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initBoardLintModule": {
+    "id": "m_1b8f48d6a3ead917",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initBoardTransclusionModule": {
+    "id": "m_49d8c4ea9c278470",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initBroadcastBudgetLintModule": {
+    "id": "m_5e9892eda173de2f",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initBroadcastFlattenLintModule": {
+    "id": "m_2965a597cd4d036b",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initBroadcastLinkLintModule": {
+    "id": "m_0951b1659f366584",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initCallerSessionEnvModule": {
+    "id": "m_d7767e068a0a854a",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initChannelConfigLoaderModule": {
+    "id": "m_6f211b8656826c7c",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initChannelProtocolModule": {
+    "id": "m_7ac1d1b083717104",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initCodexAppServerModule": {
+    "id": "m_23280deb3a4cf3a0",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initEntityLintModule": {
+    "id": "m_a92b5ff222a14919",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initFoldGapLintModule": {
+    "id": "m_b7b6c4a83c2dba9b",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initGapLintModule": {
+    "id": "m_9067607f2bd7e537",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initGapSpanModule": {
+    "id": "m_49aaff5ee09e9464",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initGrokAcpRuntimeModule": {
+    "id": "m_b62d8f237294afbf",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initInstructionsFingerprintModule": {
+    "id": "m_3709dba2fc497ee8",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initInterruptMarkerTextModule": {
+    "id": "m_4f26c92fa30c184f",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initJobManagerModule": {
+    "id": "m_91326810d98eb405",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initJobSchedulerModule": {
+    "id": "m_ec078c7ec8f04d8d",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initKernelGitModule": {
+    "id": "m_73124d9bf26bf4c7",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initLogLevelModule": {
+    "id": "m_a6e6b03b5d1d6755",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMailboxDrainRunnerModule": {
+    "id": "m_f9be42240a9a742b",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMainSessionAliasModule": {
+    "id": "m_1887d963fe10a846",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initManageJobToolModule": {
+    "id": "m_a942e34603dc5781",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMaterializedClaudeSettingsModule": {
+    "id": "m_d162b02d85943d1f",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMemoryCheckTickModule": {
+    "id": "m_4b975a17de086666",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMemorySignalDeliveryModule": {
+    "id": "m_26c1d07c377c5e93",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMemorySignalKindsModule": {
+    "id": "m_268ab96f71bfa485",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initMetaSessionModule": {
+    "id": "m_f7e5867847372201",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initNodeLintModule": {
+    "id": "m_de5645ec9b657ac7",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initNotifyConsumerStalenessModule": {
+    "id": "m_45cabd1065ae7991",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initNotifyToolModule": {
+    "id": "m_0a6955061b98365b",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initOrphanMemoryModule": {
+    "id": "m_ed094ac530e7104f",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initOutboxStoreModule": {
+    "id": "m_ac092ec5be9c9e64",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initPartitionRetirementModule": {
+    "id": "m_90ca219564d9ecb8",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initPartitionRunStateModule": {
+    "id": "m_3b1ee5ef2b211202",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initProtocolEffortModule": {
+    "id": "m_f5c9aaa836d7c52d",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initProtocolJobModule": {
+    "id": "m_fee0c69620fc1a81",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initProtocolSystemModule": {
+    "id": "m_dee23ba02dab8316",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initQueueOutboundAttachmentModule": {
+    "id": "m_c5bcc9eac9b73426",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initRemindDuoduoToolModule": {
+    "id": "m_d3541d400c203860",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initReservedMainAliasModule": {
+    "id": "m_221a6a5c375b791a",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initRuntimeInitializationModule": {
+    "id": "m_c04b21437a8e3a5f",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initRuntimeValidationModule": {
+    "id": "m_4400665777d64320",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initSessionLockAndArchivingModule": {
+    "id": "m_6cfa7d815ad6f11a",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initSkipToolModule": {
+    "id": "m_08922f567bab4b88",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initSpineEventLogModule": {
+    "id": "m_53325612f9a28723",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initSubconsciousPlaylistModule": {
+    "id": "m_ff5d00833142d0bb",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initViewSessionsToolModule": {
+    "id": "m_59f8bc18fd6e6ef6",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initVoidRuntimeModule": {
+    "id": "m_ffea8d6f97a0790c",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "interruptActorQuery": {
+    "id": "f_ba1fe733726a54b1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isAgentRuntime": {
+    "id": "f_0e30a78e45fe23d5+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isAllowedNodeSection": {
+    "id": "f_70ab2fde3a8028c5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isAttachmentArray": {
+    "id": "f_0a9fc4e109f0aaf1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isAutoArchivedJobSchedule": {
+    "id": "f_3850c77160cdbc31",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isAvailableWorkspacePath": {
+    "id": "f_cb7b90de9faa3a08",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isBoardIncludePathCandidate": {
+    "id": "f_451cb5f91528b9c8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isBusinessSourceKind": {
+    "id": "f_0fc8fca5ae4728bd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelAckParams": {
+    "id": "f_cae9d51d7502cf7b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelCapabilities": {
+    "id": "f_2eed1ef1adc3e4e8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelCommandParams": {
+    "id": "f_6cded7e766e1ab63",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelDescribeParams": {
+    "id": "f_a17504cbbc60e3a7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelFileDownloadParams": {
+    "id": "f_05a6842fedb5731c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelFileUploadParams": {
+    "id": "f_d323472fdc4bb633",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelIngressParams": {
+    "id": "f_e01c6c90509a3856",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelMessageEvent": {
+    "id": "f_662b38c98721d1fa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelPullParams": {
+    "id": "f_4588708b49da7c4b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isChannelSpawnParams": {
+    "id": "f_c01927af0c0e4edd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isClaudeAuthSource": {
+    "id": "f_873066527badc08a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isClaudeRuntimeOrDefault": {
+    "id": "f_d20f84a3be6ea7e6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isCodexPlainObject": {
+    "id": "f_d0462577ca221117+c:4f53cda18c2b+p:2/4",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/4"
+    },
+    "since": "v0.8.7"
+  },
+  "isDirEmptyOrMissing": {
+    "id": "f_bf8bf4cde61f3776",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isEffortLevel": {
+    "id": "f_da01e02df35c89ef+c:4f53cda18c2b",
+    "kind": "function",
+    "disamb": {
+      "by": "c",
+      "value": "c:4f53cda18c2b"
+    },
+    "since": "v0.8.7"
+  },
+  "isGrokSkipToolCall": {
+    "id": "f_4fdda0abe650f6ce",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isHostModelEnvKey": {
+    "id": "f_da01e02df35c89ef+c:ae65ece8ffac",
+    "kind": "function",
+    "disamb": {
+      "by": "c",
+      "value": "c:ae65ece8ffac"
+    },
+    "since": "v0.8.7"
+  },
+  "isImageGenerationItemType": {
+    "id": "f_f69015451d35b4c2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isIndexLoadStillCurrent": {
+    "id": "f_2dd07ea74ee2a87e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobArchiveParams": {
+    "id": "f_f4345f621bee964b+c:959b34ce51b4+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:959b34ce51b4+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isJobCreateParams": {
+    "id": "f_dc15710f5fb38162",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobGetParams": {
+    "id": "f_f4345f621bee964b+c:959b34ce51b4+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:959b34ce51b4+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isJobInterruptParams": {
+    "id": "f_5921b0e6033f0c9f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobListParams": {
+    "id": "f_c0a32a515d8a9564",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobOrMetaOutboxRecord": {
+    "id": "f_710e1451704070c7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobRescheduleParams": {
+    "id": "f_97f79adf40e618a6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobScheduleDue": {
+    "id": "f_b3fbd169d7891898",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJobSessionKeyKind": {
+    "id": "f_c238a3a01724ced6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isJsonRpcRequest": {
+    "id": "f_f6b1f77614abb244",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isKernelGitToplevel": {
+    "id": "f_1b73e9aeb94430a7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isKnownRuntimeValue": {
+    "id": "f_df2a27fab0bcc81f+c:948b18d68cd9",
+    "kind": "function",
+    "disamb": {
+      "by": "c",
+      "value": "c:948b18d68cd9"
+    },
+    "since": "v0.8.7"
+  },
+  "isLiveStreamRebuildRequired": {
+    "id": "f_ac6e3193b49a9fd0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isLogLevelEnabled": {
+    "id": "f_e2084d73adad25ad",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isMailboxMergeReadError": {
+    "id": "f_4752be52ad41f5d4+c:4f53cda18c2b",
+    "kind": "function",
+    "disamb": {
+      "by": "c",
+      "value": "c:4f53cda18c2b"
+    },
+    "since": "v0.8.7"
+  },
+  "isMainSessionCandidate": {
+    "id": "f_cafa9f09d8828353",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isMemoryPathDirectory": {
+    "id": "f_09e574c89d394e2c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isMemoryPathFile": {
+    "id": "f_905ecf10c46836f4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isMergeableChannelMessageBatch": {
+    "id": "f_9c92f80abfc8473e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isMergeableDrainBatch": {
+    "id": "f_71fdce71974805a9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isMimePattern": {
+    "id": "f_09ee9366a39e41d3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isModelRuntime": {
+    "id": "f_0e30a78e45fe23d5+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isNonEmptyText": {
+    "id": "f_296ac46e24d1d0ed",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isNonNullObject": {
+    "id": "f_f40a6997a7028a99",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isOneShotJobSchedule": {
+    "id": "f_1eb5d427359a9fb5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isOptionalString": {
+    "id": "f_9c44261e9b7b4e12",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isOrphanJobSessionKey": {
+    "id": "f_2a4b64ae36a01c23",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isOrphanWarningDeliverable": {
+    "id": "f_9c35a9b1c4ba1fdd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isPartitionBackedOff": {
+    "id": "f_4268a24cdb3e42d7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isPathWithinDir": {
+    "id": "f_9d7732a6e910d341+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isPlainJsonObject": {
+    "id": "f_d0462577ca221117+c:4f53cda18c2b+p:4/4",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:4/4"
+    },
+    "since": "v0.8.7"
+  },
+  "isPlainObjectRecord": {
+    "id": "f_d0462577ca221117+c:4f53cda18c2b+p:3/4",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:3/4"
+    },
+    "since": "v0.8.7"
+  },
+  "isProcessAliveByPid": {
+    "id": "f_f58ac12a047db8f1+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isProviderQualifiedModelId": {
+    "id": "f_f8aa9ac0b8c98325",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isRecord": {
+    "id": "f_da96d983dbfac70c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isReservedMainAliasChange": {
+    "id": "f_8f8415a87dc18709",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isRuntimeInfoParams": {
+    "id": "f_6bdf0eedd296afd1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isRuntimeWriterLockStale": {
+    "id": "f_0ae848d8b05a7d20",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSafeMemorySlug": {
+    "id": "f_f682db0aa12b28c1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionArchiveParams": {
+    "id": "f_f7e5b54754496286",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionArchived": {
+    "id": "f_6787aa9b653cc4b5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionArchiving": {
+    "id": "f_d37cc839a11149e4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionCompactParams": {
+    "id": "f_8c9af06328d44df8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionConfigParams": {
+    "id": "f_2d9af6781de0c32d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionEffortParams": {
+    "id": "f_e83e4eac2e43e8c5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionLifecycleLoggingEnabled": {
+    "id": "f_efdc25ce4f6cdafd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionListKind": {
+    "id": "f_3f57e4ab3628b209",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionListParams": {
+    "id": "f_1a4f3100ef7bee96",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionModelParams": {
+    "id": "f_ee07224eef293864",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionNotifyParams": {
+    "id": "f_5bed6365d805c3ef",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionSetAliasParams": {
+    "id": "f_e697c0371d78fc27",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSessionWakeParams": {
+    "id": "f_236f9e23d1f6f9a5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSpineTailParams": {
+    "id": "f_61578f90fa7e3d99",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isStaleIdleCompactEvent": {
+    "id": "f_fc874c5f14ab39bd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSupportedRuntime": {
+    "id": "f_df2a27fab0bcc81f+c:79010c662e75",
+    "kind": "function",
+    "disamb": {
+      "by": "c",
+      "value": "c:79010c662e75"
+    },
+    "since": "v0.8.7"
+  },
+  "isSystemConfigParams": {
+    "id": "f_c5b98e65ec953a13+c:959b34ce51b4+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:959b34ce51b4+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isSystemRuntimeInfo": {
+    "id": "f_4a9f513d3941bc7e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isSystemStatusParams": {
+    "id": "f_c5b98e65ec953a13+c:959b34ce51b4+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:959b34ce51b4+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "isTelemetryEnabled": {
+    "id": "f_cdbe020a697125b4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isTruthyEnvFlag": {
+    "id": "f_1a1f85914dee6e9f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isUsableEventIndexEntry": {
+    "id": "f_353be44cc2ec9989",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isUserVisibleSessionKey": {
+    "id": "f_cc375fbfe8c91c63",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isValidChannelId": {
+    "id": "f_75b59e104cc1f041",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isVoidRuntimeSession": {
+    "id": "f_ff2d49290114f3ee",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "isWorkerTaskNotifyDelivery": {
+    "id": "f_b47dc9ec172b7a5d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "issueWorkerToolContextToken": {
+    "id": "f_17f8e9f4a2d5ccc9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "iteratePartitionLinesBackward": {
+    "id": "f_b394eb4287fad062",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "iterateStreamLines": {
+    "id": "f_1e88248d94624dcb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listAllOutboxRecords": {
+    "id": "f_c786c0d83785a121",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listArchivedCopiesNewestFirst": {
+    "id": "f_fcf177978bdaccad",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listDefaultClaudeToolNames": {
+    "id": "f_c5bba5d7b7555a41",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listEventPartitionDates": {
+    "id": "f_6d08db1d232ef99c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listFrontmatterKeyAliases": {
+    "id": "f_48c274166b6e9122",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listMailboxPendingItems": {
+    "id": "f_9e708c97bc01df9e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listMainAliasHolderKeys": {
+    "id": "f_0d17120564b319c8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listMarkdownSlugsSync": {
+    "id": "f_48d37b29c1bea635",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listMemoryFragmentDates": {
+    "id": "f_ea04de6aad6c94fe",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listMemorySlugReferrers": {
+    "id": "f_782b2438808e987a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listPendingInboxFiles": {
+    "id": "f_c021e79b36f36344",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listRetryableOutboxRecords": {
+    "id": "f_ad3c71387af842b2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listSelectableJobRuntimes": {
+    "id": "f_62fa04eb8691216e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listSessionIndexSummaries": {
+    "id": "f_8eca18adaf56dcc5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listSessionsWithRecentConsumer": {
+    "id": "f_09e78110fea76e0f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listSortedAliasKeys": {
+    "id": "f_e4cb084250c16664",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "listVoidChannelSessions": {
+    "id": "f_031d6d10850aec1e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadChannelKindConfig": {
+    "id": "f_24471dac78ead8c7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadDrainItemEventCached": {
+    "id": "f_d8591915cb262acb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadEventIdIndex": {
+    "id": "f_1c8d12bbe3a1cb4c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadGlobalRuntimeConfig": {
+    "id": "f_7d005854c6333a6d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadOutboxByEventIndex": {
+    "id": "f_220983f1de933461",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadRegistryDedupStore": {
+    "id": "f_fe7c213061a57446",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "loadSubconsciousPartitions": {
+    "id": "f_3419a30778cdc14d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logAlwaysAtLevel": {
+    "id": "f_2ecaf2bda915e901",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logDebugMessage": {
+    "id": "f_e768a835b65c6a0f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logErrorMessage": {
+    "id": "f_a168a2f2bb88673c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logInfoMessage": {
+    "id": "f_98f1c01089fe0c1c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logLatencyStageTelemetry": {
+    "id": "f_c145ad6cf50f79d9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logSessionLifecycleMessage": {
+    "id": "f_06ae54e5e4dfa84c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logTraceMessage": {
+    "id": "f_cbee17ac287e0890",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "logWarnMessage": {
+    "id": "f_2caecce73cc88b48",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "lookupEventIdIndexEntry": {
+    "id": "f_9c7716fb52bb79a4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "lookupInjectionPrompt": {
+    "id": "f_1dbfcff439cbf9eb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "lookupOutboxByIdIndexEntry": {
+    "id": "f_4800b0740b1187db",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mapClaudeResultToDrainUsage": {
+    "id": "f_f7290a027345f5af",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mapGrokUsageToDrainUsage": {
+    "id": "f_9afb0681a4fc070b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "markPlaylistItemExecuted": {
+    "id": "f_4350d6ee6ac1077e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "markTurnSkippedFromSkipRecord": {
+    "id": "f_b28ea3c5f671a6fc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "matchNearMissSessionKey": {
+    "id": "f_7a9bce85c3b4c56d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "materializeClaudeSettingsFile": {
+    "id": "f_8bbdfba41038904a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "measureUtf8ByteLength": {
+    "id": "f_2bfdb5ea28d5f391",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "memoizeAvailabilityProbeUntilOk": {
+    "id": "f_a6b10f085ce6b247",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "memoizeIndexLoad": {
+    "id": "f_f99035943b71196f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeClaudeToolLists": {
+    "id": "f_9841728fa24050c7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeContiguousHourRanges": {
+    "id": "f_b0da0adaab51b9d2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeGlobalModelConfigLayers": {
+    "id": "f_3c83f6e7eb6a2fb4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeInboxIntoMailbox": {
+    "id": "f_cd511ea8fdcde2c5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeInterruptedContextTexts": {
+    "id": "f_dc919e44ad128a4b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeKernelGitignoreEntries": {
+    "id": "f_60bcc0d0a11c8954",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeOutboundAttachmentLists": {
+    "id": "f_d43ffdc25729209e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeRuntimeEffortLayers": {
+    "id": "f_71235de3a894e5fe",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mergeRuntimeModelLayers": {
+    "id": "f_710641cc22c8e37c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "migrateLegacyJobSessionKeys": {
+    "id": "f_34a9511aea7a2102",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "moveFileIntoDirectory": {
+    "id": "f_5396e62791a41b75",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "moveSessionDirToArchive": {
+    "id": "f_10192b09d82862df",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "mutateSessionRuntimeState": {
+    "id": "f_3af193156cce2abf",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "narrowToModelSettableAdapter": {
+    "id": "f_c65299e36cdfe552",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeBoardIncludeToken": {
+    "id": "f_932099befca73013",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeChannelCapabilityDeclarations": {
+    "id": "f_e680020ab640dbbc+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "normalizeDirPathForCompare": {
+    "id": "f_e041b40effc79656+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "normalizeIncludePathKey": {
+    "id": "f_e041b40effc79656+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "normalizeInputTokenTotals": {
+    "id": "f_0f98cf3cacee3762",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeJobCwdRelText": {
+    "id": "f_1179103031bdeeb0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeNotifyChannelTarget": {
+    "id": "f_36b2824b42885af4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeOptionalEnvString": {
+    "id": "f_fcfe338614d7c5f8+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "normalizePartitionOutputText": {
+    "id": "f_e900be2a46569d58",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizePromptMode": {
+    "id": "f_5d35ace52ae6c27f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeReturnMask": {
+    "id": "f_f171f27b6ae22757",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeSignalKindVersion": {
+    "id": "f_aefc7acdc7a516a7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "normalizeTurnAbortReason": {
+    "id": "f_9a217d266ddf888f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "notifySessionFileChanged": {
+    "id": "f_2ae6007c7f3ad353",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "overlayConfigEntriesByKey": {
+    "id": "f_a439b7c7b7d8bb09",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseBoardFileContent": {
+    "id": "f_9d175f6dd3848b3d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseChannelConfigFields": {
+    "id": "f_1920f8bf78821ec1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseChannelRuntimeField": {
+    "id": "f_3a3e180ff19bbf9c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseClaudeFrontmatterBlock": {
+    "id": "f_258a2cc160983e34",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseEffectivenessCounts": {
+    "id": "f_a538f425e6731f93",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseEffectivenessTrajectory": {
+    "id": "f_8b34f5eb3da95552",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseEnvBooleanFlag": {
+    "id": "f_b527912e530c2ba9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseEventTimestampMs": {
+    "id": "f_47594dc4cf7f1bf8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseGatewayCommandText": {
+    "id": "f_a54dc69f8d396ea9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseHostHeaderHostname": {
+    "id": "f_dc9aa9f895706312",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseInjectionPromptCommand": {
+    "id": "f_e6e46a964f349ec5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseInputJsonDelta": {
+    "id": "f_6da750d6792166f9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseJobFileFrontmatter": {
+    "id": "f_12c2d419e480bc9d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseJobRearmTime": {
+    "id": "f_fc53f6311f109860",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseLogLevelName": {
+    "id": "f_019a08ba566ebce3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseOriginHostname": {
+    "id": "f_e8843d8ea976f994",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parsePartitionDefinition": {
+    "id": "f_4958db73e9d865ca",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parsePiToolResultDetails": {
+    "id": "f_74c1ce7852ba2787",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parsePlaylistCurrentRound": {
+    "id": "f_907ae58748d5e32f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseScheduleDurationMs": {
+    "id": "f_aa8c47de8fd2b066",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseSdkConfigFrontmatter": {
+    "id": "f_99f6549000f17c14",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseToolUseBlockStart": {
+    "id": "f_7975143932401809",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "parseUpdaterGuidanceVerdict": {
+    "id": "f_c8a693e64da5732a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "patchSessionRuntimeState": {
+    "id": "f_422fe6e8c02a3b19",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "pathExistsAsync": {
+    "id": "f_b83f44ab9833e509+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "persistOutboxRecord": {
+    "id": "f_4fde39900cddf057",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "postMemorySignalsToInboxes": {
+    "id": "f_f1f553fd31b20006",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "prepareClaudeContextProfile": {
+    "id": "f_dcb0254512af5bc1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "prepareDrainTurnContext": {
+    "id": "f_e24ff7cedae6ad6a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "prepareJobExecutionWorkspace": {
+    "id": "f_9b05efa8366d645c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "prependPendingInterruptMarker": {
+    "id": "f_90c1758296aee3ca",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "probeEventsAppendable": {
+    "id": "f_8c101f70c8db46b2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "probeSessionPendingWork": {
+    "id": "f_d9bba0a533dbc13b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "projectJobPromptContext": {
+    "id": "f_efa5dbba56a58ce7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "pruneEventIdIndexByRetention": {
+    "id": "f_f6293853467423fa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "rankEffectivenessTrajectory": {
+    "id": "f_c50ccf78a8405599",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readAllSessionStateFiles": {
+    "id": "f_f1b77d53978d50f5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readChannelDescriptor": {
+    "id": "f_067512bfdd35b36d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readClaudeAuthSourceEnv": {
+    "id": "f_d0f07a2bc040f520",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readDeliveryCursorFile": {
+    "id": "f_b05165f2a6361f44",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readDrainLockFile": {
+    "id": "f_7d504001d7ebbbf6+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "readEnvIntegerOrFallback": {
+    "id": "f_f9974d9d31bd9c89",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readEventAtIndexedOffset": {
+    "id": "f_78c049e1ee0d7cde",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readEventById": {
+    "id": "f_ff9fda0efb61021a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readFileAsBase64": {
+    "id": "f_e83e6c48f5d95d6c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readGapLintDayEvents": {
+    "id": "f_6e8c12d30c8683b2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readIntuitionWeaverLastFinishedMs": {
+    "id": "f_254e471209ce7f55",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readLatestDeliveryCursorUpdate": {
+    "id": "f_1546c8ea3a8c3601",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readLatestExternalEventId": {
+    "id": "f_7897f8d1eb5ccfae",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readLiveStreamContextToken": {
+    "id": "f_afae6bc13d9e3428",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readMemoryFileForRpc": {
+    "id": "f_d6fbad62f5c53ace",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readMemoryFileSyncOrNull": {
+    "id": "f_6e4722a14b7e51ee",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readMemoryMaxLinesLimit": {
+    "id": "f_517399290e5d6b68",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readNewestMtimeRecursive": {
+    "id": "f_49198431bd1125ce",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readNonNegativeNumberField": {
+    "id": "f_95b7f54e9f6ccb20",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readOrSeedGapHandedDays": {
+    "id": "f_b0d8abd87f18a3be",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readOrSetSessionEffort": {
+    "id": "f_7b6e460f1384d9ff",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readOrSetSessionModel": {
+    "id": "f_57002a9ccd063db7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readOutboxRecord": {
+    "id": "f_e14e560be9caae9f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readOutboxRecordsPastCursor": {
+    "id": "f_289005be46b9dbe8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPartitionByteRange": {
+    "id": "f_e95fe730cfaa3af4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPartitionContract": {
+    "id": "f_f4887a3e70f7b891",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPartitionInboxEntries": {
+    "id": "f_66ad517b8f2328e9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPartitionRunState": {
+    "id": "f_ccbd51dfe959569d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPartitionTail": {
+    "id": "f_cbcc92baaff64038",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPendingOutboundAttachments": {
+    "id": "f_0c475083b742c96e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPiAgentSettings": {
+    "id": "f_58e5896660c60aa0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readPlaylistRound": {
+    "id": "f_4662860c51a2ff99",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readRoutingTarget": {
+    "id": "f_f4a92ac7ed12a9cd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readRuntimeEffortSetting": {
+    "id": "f_ee09842bc1d54848",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readRuntimeModelSetting": {
+    "id": "f_0229574080c9a75d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readSessionMetaFile": {
+    "id": "f_fffc985d42f5436d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readSessionRuntimeState": {
+    "id": "f_c5f1803142de9d35",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readSpineIndexRetentionDays": {
+    "id": "f_3add7ee2d0092dfc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readSpineTail": {
+    "id": "f_3860d00019de0eeb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readStateSourceChannelId": {
+    "id": "f_08e62a09d2da7c32",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readStatus": {
+    "id": "f_9bbb22c4c73a2104",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readStringProperty": {
+    "id": "f_81f0def3b21651d1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "realpathOrSelf": {
+    "id": "f_a2cbc0b31f1bcb01",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "rebuildPlaylistRound": {
+    "id": "f_9c8cdacf8e5baa3c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "reconcileMainSessionAtBoot": {
+    "id": "f_35945b48ca98754f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "reconcileMemorySignalInboxes": {
+    "id": "f_088160367f9bfa95",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordChannelCapabilityDeclaration": {
+    "id": "f_11c5796e2fc7a440",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordExternalSpineEvent": {
+    "id": "f_ae879b8b479e7690",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordIdleCompactFireMetric": {
+    "id": "f_7e8e4823ddf0c9c6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordOutboxDeliveryAttempt": {
+    "id": "f_cd64160821d1214a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordOutboxSentId": {
+    "id": "f_1c42c102e3dd9cb0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordPendingInterruptMarker": {
+    "id": "f_0eb0ccd8f12ce4e8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordTelemetryMetric": {
+    "id": "f_63a6dc18bed302a8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordUnreadableMemoryPath": {
+    "id": "f_fda329a7fad4fb71",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "recordUnreadableUnlessMissing": {
+    "id": "f_f2658d6ade0216dc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "redactJobModelProfileTokens": {
+    "id": "f_f92b8611fb89de0b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "redactSpineEventForExternal": {
+    "id": "f_c8f93587a19f3e9d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "refreshBootstrapDuoduoMdFiles": {
+    "id": "f_b6dd6b7094931d17",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "refreshRuntimeWriterLockHeartbeat": {
+    "id": "f_e8969f132d1718e7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "refreshSessionDrainLockHeartbeat": {
+    "id": "f_e27acab59aa4b354",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "refreshSessionIndexEntry": {
+    "id": "f_2fb2170e12f2d387",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "rehydrateSessionState": {
+    "id": "f_9bd5e9bfafa2129a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "releaseRuntimeWriterLock": {
+    "id": "f_029123cf20dfbcec",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "releaseSessionDrainLock": {
+    "id": "f_9e8af1756378eaa1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "removeDotEnvKeyLines": {
+    "id": "f_703f5e608a65ea58",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "removeHostModelEnvLines": {
+    "id": "f_284bb6ccead7fdb7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "removeOrphanMailboxItemFiles": {
+    "id": "f_8cd1e33297fb46fc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderActivationReportBody": {
+    "id": "f_ebbe1ea81f778e1a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderActivationReportHeader": {
+    "id": "f_b859e287e9d65d11",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderActiveSessionsListing": {
+    "id": "f_22af413d9c4b7d59",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderAmbiguousMainAliasNotice": {
+    "id": "f_2a4e1174d5fc7c15",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderBoardTemperatureSection": {
+    "id": "f_e572e127ca1e9147",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderBoardUpdatedHint": {
+    "id": "f_678e6540284a0185",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderChannelNotifyModeGuidance": {
+    "id": "f_949617008e8ce669",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderCoalescedDrainPrompt": {
+    "id": "f_e2444c96cceb6514",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderDaemonRestartHint": {
+    "id": "f_63b1978f9a6921a3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderDrainErrorRuntimeHint": {
+    "id": "f_22697b856bfee897",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderEntityConvergeSignalBody": {
+    "id": "f_8af2664fbb0be0e6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderFoldGapBody": {
+    "id": "f_b230cadb8ba03c94",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderForOwnerAttribute": {
+    "id": "f_029902e5535cb982",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderFormerMainSessionNotice": {
+    "id": "f_a5263d68907b0e13",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderHotOrphansSection": {
+    "id": "f_af919c292fa49a4a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobAcceptanceBlock": {
+    "id": "f_3a41a7f52082e7ab",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobCompleteReceiptGuidance": {
+    "id": "f_9b7b30c98c780b72",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobCompletionReceipt": {
+    "id": "f_9798cc3a4535ac5d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobExtraToolsDescription": {
+    "id": "f_ab75d2b6bdfbac01",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobFailureNotification": {
+    "id": "f_a0610b79d8e688ae",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobFileMarkdown": {
+    "id": "f_a54081262881701b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobPromptModeDescription": {
+    "id": "f_bce8b86390e9f2e1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderJobSessionToolDescription": {
+    "id": "f_8ca000545cca4712+c:4f53cda18c2b+p:4/6",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:4/6"
+    },
+    "since": "v0.8.7"
+  },
+  "renderJobTickBlock": {
+    "id": "f_981dec2766199d7c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderMailboxEventPrompt": {
+    "id": "f_8bada787568e5b92",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderManageJobToolDescription": {
+    "id": "f_7286ed426cff048a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderManualCompactNotice": {
+    "id": "f_f53740ed3333766b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderMetaNotifyModeGuidance": {
+    "id": "f_bf1d3cdfd0504f07",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderNewMainSessionNotice": {
+    "id": "f_a56d8202a4b0bafa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderNodeConvergeSignalBody": {
+    "id": "f_361197409300f991",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderNotifyDeliveryReport": {
+    "id": "f_b98d7cc27e262abd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderNotifyRefusalMessage": {
+    "id": "f_a4853df51c26e462",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderNotifyTargetCandidateLines": {
+    "id": "f_de468ccdcfc150b3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderNotifyToolDescription": {
+    "id": "f_9bce936d537c75c7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderOrphanIslandsBody": {
+    "id": "f_0801059dfe5ed499",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderParamsProblem": {
+    "id": "f_672d9a01fa3b1273",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderPartitionInboxSection": {
+    "id": "f_ce1753087119864f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderPartitionRuntimeContext": {
+    "id": "f_f07123f6e27d8662",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderRestartWakeMessage": {
+    "id": "f_2a64250b21ba0a99",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderRuntimeMismatchGuidance": {
+    "id": "f_f4930598ffb5249a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderRuntimeUnavailableGuidance": {
+    "id": "f_f528deba3d4e94a2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderScanGapSignalBody": {
+    "id": "f_64cf74f87d2c9485",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderSessionMailboxFile": {
+    "id": "f_1538d9e25a1161a7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderSkipRewindBlock": {
+    "id": "f_711b426014d21fcb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderSmartCompactNoticeBlock": {
+    "id": "f_cf40a1f17b086ee9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderSystemNotifyModeGuidance": {
+    "id": "f_ae56a3b51661a06e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderTimeGapContextBlock": {
+    "id": "f_9fbed80bb876d5af",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderTranscludedFiles": {
+    "id": "f_e7c8a9d481610348",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderTurnOutputText": {
+    "id": "f_5d148d0442ad564f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderWorkspaceUnavailableNotice": {
+    "id": "f_64f3e551afdc1a2e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "replaceSessionIndexEntry": {
+    "id": "f_7a13b5d9832bd03d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "replayIdempotentSessionNotify": {
+    "id": "f_da3548e22c26fd30",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "replayOutboxBacklogToSubscriber": {
+    "id": "f_135d384f5fe85662",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "replyToGatewayCommandEvent": {
+    "id": "f_12baeff03b422425",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "requestBoundaryAwarePreempt": {
+    "id": "f_39be3bcedefd3662",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "requestPiWorkerCatalog": {
+    "id": "f_82186cc6c35c86e6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveAdditionalDirClaudeMdAutoload": {
+    "id": "f_d9f446956c00418c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveArchivedSessionDir": {
+    "id": "f_af481fa10c2944b5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveBoardIncludePath": {
+    "id": "f_3d32e64ccaf1c649",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveBoardIncludes": {
+    "id": "f_c8a676f636b0a310",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveChannelConfigBySession": {
+    "id": "f_634b4920ea90c012",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveClaudeContextRequirement": {
+    "id": "f_6dcbb89a3c6a2ec1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveClaudeCostBaseline": {
+    "id": "f_d2a8bee47997d074",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveCodexSandboxForPermissionMode": {
+    "id": "f_524eeaa627cfeedc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveConsumerOffsetPath": {
+    "id": "f_23cbd648d2c88351",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveContextCapToken": {
+    "id": "f_6b35751ca5ff2149",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveDefaultRuntime": {
+    "id": "f_4b6f01d1a5d79e44",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveDeliveryCursorPath": {
+    "id": "f_241c397b48f0f747",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveDrainContextProfileOrRefuse": {
+    "id": "f_05f3f1a3d8a115ac",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveEffectiveChannelConfig": {
+    "id": "f_c511853505d482d2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveEffectiveChannelConfigForEvent": {
+    "id": "f_38342b65ddba7367",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveEnvConfigEntry": {
+    "id": "f_391ed0c4e83caead",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveEventIdIndexPath": {
+    "id": "f_7a986e07014bb5fa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveEventSourceChannelId": {
+    "id": "f_bf4640c296516f34",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveExistingDirRealpath": {
+    "id": "f_ca506e739ca19d48",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveGitToplevelSync": {
+    "id": "f_84bf97fd709a820a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveIngressWorkspace": {
+    "id": "f_2c03ea2019a59e7c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveIsolatedPlaneKind": {
+    "id": "f_d0d58f284abc7f8d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveJobCwdRel": {
+    "id": "f_28edc32e66af8ce9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveJobExecutionWorkspace": {
+    "id": "f_2525c3ef106cc0ef",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveJobOwnerNotifyTarget": {
+    "id": "f_4ab88fdec466f76c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveLayeredChannelRuntime": {
+    "id": "f_38f04d3d5ab92b06",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveLogLevel": {
+    "id": "f_e30331d01abc0208",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveMainSession": {
+    "id": "f_56d5f596c6e9de3f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveMainSessionFromIndex": {
+    "id": "f_96c953422b9ddfb8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveMemoryDirs": {
+    "id": "f_0c8bb6b838fc4358",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveMemoryLinkTargets": {
+    "id": "f_28d2f0e9af1142d4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveNotifyTargetSessionKey": {
+    "id": "f_50dcf469a7387fff",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveNotifyUnconsumedHours": {
+    "id": "f_5c808674dcc60885",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxByEventIndexPath": {
+    "id": "f_c0a38c331e8bc104",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxByIdIndexPath": {
+    "id": "f_6d0fd81e7d6f29b3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxPendingQueuePath": {
+    "id": "f_65c6885aea939ad1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxRecordPath": {
+    "id": "f_d724ea1facf84ba2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxReplayDir": {
+    "id": "f_2fe878d92cb8a156",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxReplayFilePath": {
+    "id": "f_b26979b43389d003",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveOutboxSentIdsPath": {
+    "id": "f_d2555d52c1fa98e6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolvePartitionStatePath": {
+    "id": "f_c25162b5ea0f4caa",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolvePendingCompactNotice": {
+    "id": "f_d9701ea5ac2f58ca",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolvePendingModelFork": {
+    "id": "f_6e15ffca2021de92",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolvePiAgentDir": {
+    "id": "f_989e64a648876476",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolvePiWorkerCommand": {
+    "id": "f_639e45f1dd20fda7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolvePreemptFromCommandText": {
+    "id": "f_44701a5533d1486e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveReplyTargetSessionKeys": {
+    "id": "f_35da6031488d5acc",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveRoutingTarget": {
+    "id": "f_44aac5e43e6a626f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveRuntimeWriterLockPath": {
+    "id": "f_ab2bc011284e9629",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionByExactKey": {
+    "id": "f_3a98f4c0d5d2bbda",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionByKeyOrAlias": {
+    "id": "f_032bdb36e5acf189",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionChannelRuntime": {
+    "id": "f_6f950469ab85ef44",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionDir": {
+    "id": "f_c80789b86d5fa751",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionDrainLockPath": {
+    "id": "f_4df64e990d837ff6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionInboxDir": {
+    "id": "f_1bf574ee24ba019d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionMailboxDir": {
+    "id": "f_79a713f4446264b6",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionMailboxMarkdownPath": {
+    "id": "f_b0bc6efe78e4adfe",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionMailboxNotesPath": {
+    "id": "f_6585b475e55cd4a4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionMailboxPendingDir": {
+    "id": "f_3d5da4f96b8888b0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionMetaPath": {
+    "id": "f_092ea25b116f7052",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionStatePath": {
+    "id": "f_56f2f5daeb8b88db",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveSessionsArchiveRoot": {
+    "id": "f_1b965ad64e86bd0e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveTailCursorEndOffset": {
+    "id": "f_f4fdb787fc6f4506",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveTurnEffortWithLayer": {
+    "id": "f_4f14b4123e6cbde5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveTurnModelWithLayer": {
+    "id": "f_9e5429a7b7f8a23b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "retireListedPartitions": {
+    "id": "f_8e9db24fb271f005",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "retirePartitionOnce": {
+    "id": "f_13c20c0337a91e48",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "rewriteSessionKeyInStateAndMeta": {
+    "id": "f_31353822088f9d8f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "routeContractDecision": {
+    "id": "f_1724ff7b27485186",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runActivationLint": {
+    "id": "f_26f50182ef08e7a1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runBoardLint": {
+    "id": "f_22fafad393315949",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runBroadcastBudgetLint": {
+    "id": "f_0f77714089ecdd0f",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runBroadcastFlattenLint": {
+    "id": "f_f9319353cb46ae61",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runBroadcastLinkLint": {
+    "id": "f_94eb19c09371b946",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runDrainQueryAndCollectOutboundAttachments": {
+    "id": "f_8786818374885d91",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runDrainTurnWithResumeFallback": {
+    "id": "f_ba186fb8389b4b80",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runEntityLint": {
+    "id": "f_d3f0196620c9f62e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runFoldGapLint": {
+    "id": "f_9f5efd0c8196e994",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runGapLint": {
+    "id": "f_821afa56cab00385",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runHistoryControlCommand": {
+    "id": "f_67170ff25779f0d0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runKernelGitCommand": {
+    "id": "f_2ea21567394e6b52",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runManageJobTool": {
+    "id": "f_80c3fd2286e80a0d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runMemoryCheckSubStep": {
+    "id": "f_182755803edc3ff8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runNodeLint": {
+    "id": "f_00d3a1ba37052cbd",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runNotifyTool": {
+    "id": "f_e934b4d2a8990eac",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runQueueOutboundAttachmentTool": {
+    "id": "f_f4ad018e8b5e309d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runReadAuditedMemoryCheckStep": {
+    "id": "f_c0f3b93843ab825b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runRemindDuoduoTool": {
+    "id": "f_bbe0042553529014",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runSessionSetAliasRpc": {
+    "id": "f_5a9b11448c6553f5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runSkipTool": {
+    "id": "f_625d55c3ab0dc038",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runSpineCatRpc": {
+    "id": "f_12a5797877d46332",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runTimedDrainPhase": {
+    "id": "f_ad531155a86b4fdb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runViewSessionsTool": {
+    "id": "f_0ec5c94470511877",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runWithSessionMutex": {
+    "id": "f_dfb8e242e73d3183+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "sanitizeDrainRecordSegment": {
+    "id": "f_2ee544ced4520e6a+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "sanitizeUploadFileName": {
+    "id": "f_b002972d99138d8e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "saveChannelUploadToInbox": {
+    "id": "f_6c706a69475d6959",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "scanActivationWindowTouches": {
+    "id": "f_72bd8ed707739fa8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "scanPartitionsForEventId": {
+    "id": "f_386bd304b110d9c4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "scanWikiLinkOccurrences": {
+    "id": "f_a9103a08360e37b0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "scheduleSessionWakeRecord": {
+    "id": "f_7ebef8e4b52482a7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "selectDominantModelByInputTokens": {
+    "id": "f_f708755dce6e002a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "selectInstructionsFingerprint": {
+    "id": "f_23c3186b3d3d06af",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "selectInterruptMarkerText": {
+    "id": "f_a3d23c5bbcae936e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "selectProfileIssuesForModel": {
+    "id": "f_49cc00c08f6f5048",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "selectSessionRolePrompt": {
+    "id": "f_da71b730f741deb7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "setPendingInterruptedContext": {
+    "id": "f_287ec4023ff3416a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "setPendingRestartReason": {
+    "id": "f_bc2178e291c7b7f3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "setSessionAliasAndReindex": {
+    "id": "f_b490a146931a131e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "setSessionAliasWithMainRole": {
+    "id": "f_7dd7d32a9f82b5c3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "setSessionArchivedListener": {
+    "id": "f_5e002c7fcaa919f2+c:4f53cda18c2b+p:1/3",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/3"
+    },
+    "since": "v0.8.7"
+  },
+  "shouldKeepRouteDeliverEvent": {
+    "id": "f_ef82d1e18009b236",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "shutdownActorRuntimeAdapter": {
+    "id": "f_af38d879f4567ea1",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "snapshotInflightEventIds": {
+    "id": "f_515458e8a69dc8c9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "spineEventDedupStore": {
+    "id": "f_f81c22f8dfce5d44",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "splitLinesDropTrailingEmpty": {
+    "id": "f_f28de07cd2095c50",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "statusPath": {
+    "id": "f_cd017cb84dc6963e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "stringifyExecutionToolInput": {
+    "id": "f_e5f2785b600f7e27+c:4f53cda18c2b+p:1/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:1/2"
+    },
+    "since": "v0.8.7"
+  },
+  "stringifyJsonlRecord": {
+    "id": "f_558b995a4a9d1262",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "stringifyPartitionToolInput": {
+    "id": "f_e5f2785b600f7e27+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "stringifyToolResultContent": {
+    "id": "f_38274346c0021ed2",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "stripBoardHtmlComments": {
+    "id": "f_71c9739ca737face",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "stripBoardIncludeFrontmatter": {
+    "id": "f_643aec1c97fd9e1a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "stripSpineEventToEnvelope": {
+    "id": "f_0b0e39398f36ae32",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "stripUndefinedFieldsDeep": {
+    "id": "f_15d3f1e315e4d050",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "teardownStreamingSession": {
+    "id": "f_69643234d5f1f774",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "textKeysProblem": {
+    "id": "f_48777a62b6a84c57",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "transcludeBroadcastBoard": {
+    "id": "f_f61efdfe8ff5e836",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "triggerDeferredPreempt": {
+    "id": "f_22ca0357c04df81a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "tryMarkSessionArchiving": {
+    "id": "f_a664a8157e10ba50",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "unknownKeyProblem": {
+    "id": "f_0b5722ac6872b067",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "updateDeliveryCursorFile": {
+    "id": "f_8b61497694f1206b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "updateSessionDisplayName": {
+    "id": "f_37d532875d36a946",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "updateStatus": {
+    "id": "f_4252f632b83e9f5c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "upsertChannelSpawnDescriptor": {
+    "id": "f_9a8977cf3810ee4a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "validateConfigValue": {
+    "id": "f_e36f5f840f2d19c0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "validateJobScheduleExpression": {
+    "id": "f_aca7d8bb79297819",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "validateKnownRuntimeValue": {
+    "id": "f_d90d561e02496111",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "validateRunnableRuntimeValue": {
+    "id": "f_331fcc1773dcf91c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "waitForWakeOrIdleTimeout": {
+    "id": "f_99c8f40fef00f7e5",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "walkReachableMemory": {
+    "id": "f_f070dbe1aa17d479",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "warnUnmappedCodexItemOnce": {
+    "id": "f_30449657c86b0bea",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeConsumerOffsetFile": {
+    "id": "f_691d8c7164a6e257",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeFileAtomic": {
+    "id": "f_d9b3ace2d3ff96b9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeHostDotEnvLines": {
+    "id": "f_51acf3023821d2c4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeIngressSnapshot": {
+    "id": "f_362b182e76a353c7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeInstanceModelAlias": {
+    "id": "f_96e4702eac3d7ef0+c:4f53cda18c2b+p:2/2",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/2"
+    },
+    "since": "v0.8.7"
+  },
+  "writeJsonFileAtomic": {
+    "id": "f_b59060acc78eda0d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeLogLine": {
+    "id": "f_330ac1a174cd0b90",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writePartitionRunState": {
+    "id": "f_16f066588f53be55",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeStatus": {
+    "id": "f_452476ce3d9a0239",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeVoidSessionOutboxRecord": {
+    "id": "f_3d2fd3c4b704eac7",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  }
+}

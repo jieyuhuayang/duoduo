@@ -1,0 +1,110 @@
+{
+  "clearOwnRestartReasonFile": {
+    "id": "f_c97ebbbdc0bd379b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createDaemonToken": {
+    "id": "f_fb6d93d7506d53ac",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "createStdioDaemonClient": {
+    "id": "f_9be8c52967931a2c",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "generateDaemonTokenHex": {
+    "id": "f_c1a659e0171c66a8",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "initCliHostEnvKeysModule": {
+    "id": "m_e06d6d3154de04b0",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "notifyRestartWakeTargets": {
+    "id": "f_4dc35fb7aa42ace4",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "readDaemonTokenFromEnvFile": {
+    "id": "f_a8e9da322ff7a859",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "renderSessionMainColumn": {
+    "id": "f_5354a2f222926f90",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveHostEnvFilePath": {
+    "id": "f_7f5a783cf9b36aa0",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "resolveRestartReasonFilePath": {
+    "id": "f_75743d38543efb5e",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "restartDaemonWithReason": {
+    "id": "f_e09141f31101cc3a",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runChannelCommand": {
+    "id": "f_aa55b3f7177d68a3",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runSessionAliasCommand": {
+    "id": "f_ed8d119a641f433d",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runSessionNotifyCommand": {
+    "id": "f_69393d124a4c8961",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "runUpgradeCommand": {
+    "id": "f_0776390b85f061a9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "sessionHelpText": {
+    "id": "f_a80e0429f5d2c88b",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeDaemonTokenToEnvFile": {
+    "id": "f_ca71b61e81556e81",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  },
+  "writeRestartReasonFile": {
+    "id": "f_452476ce3d9a0239",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.7"
+  }
+}
