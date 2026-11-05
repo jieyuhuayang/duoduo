@@ -63709,17 +63709,17 @@ function createCodexAppServerAdapter(options, instructionContext) {
             }, threadResponse = await requestThread();
             if (threadMethod === "thread/resume" && requestedModel !== void 0 && requestedModel !== null) {
                 let model = threadResponse.model,
-                    id = threadResponse.thread.id;
+                    threadId = threadResponse.thread.id;
                 model !== requestedModel && (logInfoMessage("[codex-adapter] resumed thread runs a different model; forking", {
                     cwd,
-                    resumedThreadId: id,
+                    resumedThreadId: threadId,
                     resumedModel: model,
                     wantedModel: requestedModel
-                }), threadMethod = "thread/fork", threadParams = buildThreadForkParams(id), threadResponse = await requestThread())
+                }), threadMethod = "thread/fork", threadParams = buildThreadForkParams(threadId), threadResponse = await requestThread())
             }
             let model = threadResponse.model,
-                id = threadResponse.thread.id;
-            attachedThreadId = id;
+                threadId = threadResponse.thread.id;
+            attachedThreadId = threadId;
             let textChunks = [],
                 commentaryItemIds = new Set,
                 map = new Map,
@@ -63736,7 +63736,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
                     let codexGeneratedImageAttachment = extractCodexGeneratedImageAttachment(payload);
                     if (!codexGeneratedImageAttachment) {
                         !imageWarningLogged && hasImageGenerationRecord(payload) && (imageWarningLogged = !0, logWarnMessage("[codex] image-generation record present but no attachment extracted", {
-                            threadId: id,
+                            threadId,
                             turnId: currentTurnId,
                             hint: "codex image-event schema may have changed (saved_path/result/type/wrapper-key)"
                         }));
@@ -63753,13 +63753,13 @@ function createCodexAppServerAdapter(options, instructionContext) {
                         onNotification = notification => {
                             if (settled) return;
                             let notificationParams = notification.params ?? {},
-                                threadId = notificationParams.threadId,
+                                threadId2 = notificationParams.threadId,
                                 turnId = notificationParams.turnId;
                             if (codexNotificationFilterDecision({
                                     method: notification.method,
-                                    msgThreadId: threadId,
+                                    msgThreadId: threadId2,
                                     msgTurnId: turnId,
-                                    ownThreadId: id,
+                                    ownThreadId: threadId,
                                     ownTurnId: currentTurnId
                                 }) !== "process") return;
                             let item = notificationParams.item;
@@ -63801,7 +63801,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
                                     break
                                 }
                                 case "turn/completed": {
-                                    threadId === id && settleOnce(() => resolve());
+                                    threadId2 === threadId && settleOnce(() => resolve());
                                     break
                                 }
                                 case "error": {
@@ -63809,7 +63809,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
                                     if (/^(Reconnecting|Connecting)\b/.test(errorMessage)) {
                                         logInfoMessage("[codex-transport] transient reconnect notice", {
                                             message: errorMessage,
-                                            threadId: id,
+                                            threadId,
                                             turnId: currentTurnId
                                         });
                                         break
@@ -63832,7 +63832,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
                             let promise2 = new Promise((resolveTimeout, rejectTimeout) => setTimeout(() => rejectTimeout(new Error("turnId timeout on abort")), 2e3));
                             Promise.race([promise, promise2]).then(resolvedTurnId => {
                                 transport?.request("turn/interrupt", {
-                                    threadId: id,
+                                    threadId,
                                     turnId: resolvedTurnId
                                 }).catch(() => {})
                             }).catch(() => {});
@@ -63857,7 +63857,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
             let turnStartResponse;
             try {
                 turnStartResponse = await transport.request("turn/start", {
-                    threadId: id,
+                    threadId,
                     input: codexTurnInput,
                     model: requestedModel,
                     effort,
@@ -63870,12 +63870,12 @@ function createCodexAppServerAdapter(options, instructionContext) {
                 throw err
             }
             currentTurnId = turnStartResponse.turn?.id, currentTurnId && resolveTurnId?.(currentTurnId), currentTurnId && (activeTurn = {
-                threadId: id,
+                threadId,
                 turnId: currentTurnId,
                 abortSignal: runOptions.abortController?.signal,
                 startedAt: now
             }), runOptions.abortController?.signal.aborted && currentTurnId && transport.request("turn/interrupt", {
-                threadId: id,
+                threadId,
                 turnId: currentTurnId
             }).catch(() => {});
             try {
@@ -63889,7 +63889,7 @@ function createCodexAppServerAdapter(options, instructionContext) {
                     model
                 } : void 0;
             return {
-                sessionId: id,
+                sessionId: threadId,
                 text: text || void 0,
                 attachments: map.size > 0 ? Array.from(map.values()) : void 0,
                 usage,
@@ -90202,14 +90202,14 @@ function listMainAliasHolderKeys(e) {
 function checkMainAliasCallerAuthority(e, t, n) {
     if (!(e.caller_in_session === !0 || e.caller_session !== void 0)) return null;
     let sessionAliasCommand = formatSessionAliasCommand(t, e.display_name, e.move === !0),
-        o = e.caller_session?.trim();
-    if (!o) return {
+        trimmed = e.caller_session?.trim();
+    if (!trimmed) return {
         ok: !1,
         reason: "no_caller",
         session_key: t,
         error: `Changing which session is main is refused here: this command ran inside a session that could not be identified. Nothing was changed. Ask the owner to run it from their own terminal: ${sessionAliasCommand}`
     };
-    if (n.state === "held" && n.session_key === o) return null;
+    if (n.state === "held" && n.session_key === trimmed) return null;
     let s = n.state === "held" ? `the current main session (${n.session_key})` : "the current main session";
     return {
         ok: !1,
@@ -94296,8 +94296,8 @@ Content-Length: 0\r
             })
         }
         hostGuard && app.addHook("onRequest", async (request, reply) => {
-            let url = request.routeOptions.url;
-            if (url !== void 0 && lSt.has(url)) return;
+            let routeOptionsUrl = request.routeOptions.url;
+            if (routeOptionsUrl !== void 0 && lSt.has(routeOptionsUrl)) return;
             let requestUrl = request.url ?? "",
                 host = request.headers.host,
                 hostname = host ? parseHostHeaderHostname(host) : null;

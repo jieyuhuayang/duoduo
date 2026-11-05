@@ -752,8 +752,8 @@ Content-Length: 0\r
             })
         }
         hostGuard && app.addHook("onRequest", async (request, reply) => {
-            let url = request.routeOptions.url;
-            if (url !== void 0 && lSt.has(url)) return;
+            let routeOptionsUrl = request.routeOptions.url;
+            if (routeOptionsUrl !== void 0 && lSt.has(routeOptionsUrl)) return;
             let requestUrl = request.url ?? "",
                 host = request.headers.host,
                 hostname = host ? parseHostHeaderHostname(host) : null;

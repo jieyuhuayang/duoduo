@@ -1,0 +1,182 @@
+{
+ "rt": [
+  "readJsonFile"
+ ],
+ "Fc": [
+  "probeGrokAvailability"
+ ],
+ "Vg": [
+  "initGrokAcpAdapterModule"
+ ],
+ "rc": [
+  "attachStreamReader"
+ ],
+ "Hu": [
+  "updateSnapshotFile"
+ ],
+ "lp": [
+  "resolveClaudeMaxContextTokens"
+ ],
+ "fq": [
+  "parseClaudeConfigFields"
+ ],
+ "cC": [
+  "extractToolUseStart"
+ ],
+ "AO": [
+  "selectSessionContextTools"
+ ],
+ "Uue": [
+  "resolveSpineIndexRetentionDays"
+ ],
+ "yXe": [
+  "sessionsArchiveDir"
+ ],
+ "dve": [
+  "isJobScheduleDue"
+ ],
+ "Mve": [
+  "mapCodexItemToToolResult"
+ ],
+ "Wve": [
+  "collectGrokToolNameCandidates"
+ ],
+ "Lpt": [
+  "renderNodeConvergeSignal"
+ ],
+ "vke": [
+  "appendScanGapSignalLine"
+ ],
+ "Igt": [
+  "copyBootstrapVarDuoduoMd"
+ ],
+ "mEe": [
+  "initRuntimeInitModule"
+ ],
+ "gyt": [
+  "buildDrainCoalesceKey"
+ ],
+ "Cy": [
+  "zodShapeToJsonSchema"
+ ],
+ "STe": [
+  "initSubconsciousRunnerModule"
+ ],
+ "spt": [
+  "computeHostBootId"
+ ],
+ "nTe": [
+  "initBoardIncludeModule"
+ ],
+ "Eg": [
+  "DEFAULT_CLAUDE_TOOL_NAMES"
+ ],
+ "xW": [
+  "CLAUDE_CODE_EXECUTABLE_ENV_KEY"
+ ],
+ "Nve": [
+  "warnUnmappedCodexItemOnce"
+ ],
+ "Oy": [
+  "INSTRUCTIONS_FINGERPRINT_VERSION"
+ ],
+ "sC": [
+  "initCallerSessionEnvModule"
+ ],
+ "uO": [
+  "ALADUO_MCP_SERVER_NAME"
+ ],
+ "fA": [
+  "DAEMON_TOKEN_ENV_KEY"
+ ],
+ "Fo": [
+  "sha256Hex"
+ ],
+ "rp": [
+  "initCodexAppServerModule"
+ ],
+ "To": [
+  "initAgentSdkAdapterModule"
+ ],
+ "Vu": [
+  "writeConsumerOffsetForEvent"
+ ],
+ "fI": [
+  "statusPath"
+ ],
+ "zue": [
+  "scanPartitionForEventId"
+ ],
+ "Cq": [
+  "replaceSessionIndexEntry"
+ ],
+ "gv": [
+  "aggregateDrainRecords"
+ ],
+ "mC": [
+  "buildSdkTurnUsageRecord"
+ ],
+ "mJ": [
+  "extractMediaAttachments"
+ ],
+ "Mat": [
+  "renderJobAcceptanceBlock"
+ ],
+ "Dve": [
+  "mapCodexItemToToolUse"
+ ],
+ "aS": [
+  "buildGrokAcpExtName"
+ ],
+ "VSe": [
+  "rebuildPlaylistRound"
+ ],
+ "eA": [
+  "formatTopicNodeKey"
+ ],
+ "cmt": [
+  "resolveScanGapWindow"
+ ],
+ "ryt": [
+  "renderTimeContextBlock"
+ ],
+ "RIe": [
+  "isOneShotScheduleExpression"
+ ],
+ "sTe": [
+  "resolveSessionRolePrompt"
+ ],
+ "Ofe": [
+  "normalizeGatewayCommandName"
+ ],
+ "Knt": [
+  "handleGatewayCommandEvent"
+ ],
+ "NSt": [
+  "runSessionCompactRpc"
+ ],
+ "vU": [
+  "initEffortLevelsModule"
+ ],
+ "jo": [
+  "initSpineEventIndexModule"
+ ],
+ "qve": [
+  "GROK_ACP_COMPACT"
+ ],
+ "Hve": [
+  "GROK_MCP_SERVER_NAME"
+ ],
+ "yR": [
+  "UNIX_SOCKET_PATH_MAX_BYTES"
+ ],
+ "FV": [
+  "META_SESSION_CORE_TOOLS"
+ ],
+ "tl": [
+  "initSkipToolModule"
+ ],
+ "wfe": [
+  "IN_PROCESS_BREAK_HIT_RATE_FLOOR"
+ ]
+}

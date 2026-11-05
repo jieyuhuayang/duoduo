@@ -6,13 +6,29 @@
 //
 //   rule    derived from the code at the binding, recomputed at every rebuild
 //           and never stored:
-//             destructure  `{ sessionKey: e }`         -> sessionKey
-//             member       `const e = x.status`        -> status
+//             destructure  `{ sessionKey: e }`         -> sessionKey (in a
+//                          parameter list as well as in a declaration)
+//             rest         `{ a, ...e }` -> rest; `(...e)` -> args
+//             entries      `[e, t] of Object.entries(x)` / `.entries()` -> key, value
+//             pair         `[e, t] = useThing()`        -> thing, setThing
+//             member       `const e = x.status`        -> status; also through
+//                          `?.`, `?? d` and `|| d`
+//             member-chain `const e = x.session.id`    -> sessionId, when the
+//                          last property alone says little (id, key, name,
+//                          path, dir, value, type, kind, list, count, items,
+//                          status, text, url, file)
 //             new          `const e = new AbortController()` -> abortController
 //             catch        `catch (e)`                  -> err
+//             counter      `for (let e = 0; ...)`       -> i
 //             callee       `const e = readStatus(...)`  -> status (a first-party
 //                          callee with a verb prefix), or a fixed table of
 //                          builtins (`JSON.parse` -> parsed, `Date.now` -> now)
+//             method       `const e = x.readStatus()`  -> status (a verb-prefixed
+//                          method name, the same table as callee; property
+//                          names survive minification, so this holds across
+//                          releases)
+//           The fixture tools/fixtures/locals_rules.fixture.js exercises every
+//           rule and the collision handling; `rules --expect` checks it.
 //   map     maps/locals_daemon.json: names proposed by reading the code (an
 //           LLM pass over `tasks`, then `record`), keyed by declaration real
 //           name and the binding's ctx (local_bindings.mjs), so a name follows
@@ -35,12 +51,25 @@
 //            map entry no longer locates its binding (stale after a release:
 //            re-name it with `tasks`/`record`, or drop it with `prune`); 1 on
 //            error.
-//   tasks  TOP RENAME LOCALS SUBSYS OUTDIR [--only NN-dir,...]
+//   tasks  TOP RENAME LOCALS SUBSYS OUTDIR [--only NN-dir,...] [--changelog <json>] [--protocol <dir>]
 //            per subsystem, the declarations that still have unnamed locals,
 //            with every unnamed local written as $<ordinal> and every named
-//            one under its name: OUTDIR/<NN-dir>.md plus .json (the ordinals)
+//            one under its name: OUTDIR/<NN-dir>.md plus .json (the ordinals).
+//            Each file opens with the subsystem's vocabulary (naming_context.mjs:
+//            the registered names by verb, the CHANGELOG words paired to them
+//            from --changelog, default maps/changelog_daemon.json next to
+//            SUBSYS, and the protocol package's type and field names sharing a
+//            token with the code, --protocol <@openduo/protocol/src>), and asks
+//            for a one-sentence `_describe` per declaration before the names.
 //   record TOP RENAME LOCALS ANSWERS.json...
-//            merge answers {realName: {ordinal: name}} into LOCALS
+//            merge answers {realName: {ordinal: name}} into LOCALS; keys that
+//            `_describe` is read and not recorded; any other `_` key is refused
+//   rules  FILE.js [--expect <expected.txt>]
+//            the rule layer alone on a plain file: every top-level declaration
+//            is its own real name, and each binding a rule names is printed as
+//            `decl<TAB>ordinal<TAB>from<TAB>to<TAB>rule` (collision suffixes
+//            included). --expect compares with a saved listing: exit 1 on a
+//            difference. No rename map or locals map is read.
 //   prune  TOP RENAME LOCALS
 //            drop the map entries that no longer locate their binding
 //   rekey  TOP RENAME LOCALS
@@ -53,19 +82,33 @@ import * as t from "@babel/types";
 import fs from "node:fs";
 import path from "node:path";
 import { collectLocals } from "./local_bindings.mjs";
+import { loadProtocolVocab, protocolMatches, subsystemVocabulary, vocabularyBlockLines, spanEvidence, LOCALS_PROMPT } from "./naming_context.mjs";
 
-const [CMD, TOP, RENAME, LOCALS, ...rest] = process.argv.slice(2);
-if (!["apply", "tasks", "record", "prune", "rekey"].includes(CMD) || !TOP || !RENAME || !LOCALS) {
-  console.error("usage: node name_locals.mjs apply|tasks|record|prune|rekey <top.js> <rename.json> <locals.json> ...");
+const argv = process.argv.slice(2);
+const CMD = argv[0];
+// `rules FILE [--expect f]` takes no rename or locals map: the file's own
+// top-level declarations are the "real" names
+const [TOP, RENAME, LOCALS, ...rest] = CMD === "rules" ? [argv[1], null, null, ...argv.slice(2)] : argv.slice(1);
+if (!["apply", "tasks", "record", "prune", "rekey", "rules"].includes(CMD) || !TOP || (CMD !== "rules" && (!RENAME || !LOCALS))) {
+  console.error("usage: node name_locals.mjs apply|tasks|record|prune|rekey <top.js> <rename.json> <locals.json> ...\n" +
+                "       node name_locals.mjs rules <file.js> [--expect <expected.txt>]");
   process.exit(2);
 }
 
 const src = fs.readFileSync(TOP, "utf8");
-const rename = JSON.parse(fs.readFileSync(RENAME, "utf8"));
-const realSet = new Set(Object.values(rename));
-const localsMap = fs.existsSync(LOCALS) ? JSON.parse(fs.readFileSync(LOCALS, "utf8")) : {};
 const ast = parse(src, { sourceType: "module" });
+const rename = RENAME ? JSON.parse(fs.readFileSync(RENAME, "utf8")) : identityRename(ast);
+const realSet = new Set(Object.values(rename));
+const localsMap = LOCALS && fs.existsSync(LOCALS) ? JSON.parse(fs.readFileSync(LOCALS, "utf8")) : {};
 const { program, decls } = collectLocals(ast, src, (n) => (realSet.has(n) ? n : undefined));
+function identityRename(ast) {
+  const out = {};
+  for (const s of ast.program.body) {
+    if ((s.type === "FunctionDeclaration" || s.type === "ClassDeclaration") && s.id) out[s.id.name] = s.id.name;
+    else if (s.type === "VariableDeclaration") for (const d of s.declarations) if (d.id.type === "Identifier") out[d.id.name] = d.id.name;
+  }
+  return out;
+}
 
 const FORBIDDEN = new Set(["undefined", "NaN", "Infinity", "arguments", "eval", "let", "static", "yield", "await",
   "implements", "package", "protected", "interface", "private", "public", "async", "of", "get", "set"]);
@@ -99,6 +142,14 @@ const BUILTIN_CALL = {
   ".readdirSync": "dirEntries", ".readdir": "dirEntries", ".split": "parts", ".trim": "trimmed",
 };
 
+// a last property that says little on its own: `x.session.id` -> sessionId
+const GENERIC_PROP = new Set(["id", "key", "name", "path", "dir", "value", "type", "kind", "list", "count", "items", "status", "text", "url", "file"]);
+// method names fromCallee must not read as verbs (`toString` -> "string")
+const METHOD_BLOCK = new Set(["toString", "toJSON", "toISOString", "toDate", "toLowerCase", "toUpperCase", "toFixed", "getTime", "getFullYear",
+  "getMonth", "getDate", "getHours", "getMinutes", "getSeconds", "getDay", "getTimezoneOffset", "getOwnPropertyNames", "getPrototypeOf"]);
+const pascal = (n) => n && n[0].toUpperCase() + n.slice(1);
+const isMember = (n) => !!n && (n.type === "MemberExpression" || n.type === "OptionalMemberExpression") && !n.computed && n.property.type === "Identifier";
+
 const occPath = new Map(); // identifier node -> path
 for (const d of decls.values()) for (const o of d.occurrences) occPath.set(o.node, o.path);
 
@@ -113,26 +164,54 @@ function ruleName(e) {
   if (par.type === "AssignmentPattern" && par.left === id && gp?.type === "ObjectProperty" && gp.value === par &&
       p.parentPath.parentPath.parentPath?.node.type === "ObjectPattern")
     return { name: keyName(gp), rule: "destructure" };
+  if (par.type === "RestElement" && par.argument === id)
+    return { name: gp?.type === "ObjectPattern" || gp?.type === "ArrayPattern" ? "rest" : "args", rule: "rest" };
+  if (par.type === "ArrayPattern" && par.elements.length === 2 && gp?.type === "VariableDeclarator" && gp.id === par) {
+    // the expression the pair comes from: the declarator's init, or a for-of head's iterable
+    const idx = par.elements.indexOf(id);
+    let from = gp.init;
+    const decl = p.parentPath.parentPath.parent, forOf = p.parentPath.parentPath.parentPath?.parent;
+    if (!from && decl?.type === "VariableDeclaration" && forOf?.type === "ForOfStatement" && forOf.left === decl) from = forOf.right;
+    if (from?.type === "AwaitExpression") from = from.argument;
+    if (from?.type === "CallExpression") {
+      const c = from.callee;
+      if (isMember(c) && c.property.name === "entries") return { name: idx === 0 ? "key" : "value", rule: "entries" };
+      const use = c.type === "Identifier" && /^use([A-Z][A-Za-z0-9]*)$/.exec(c.name);
+      if (use) return { name: idx === 0 ? lowerFirst(use[1]) : `set${use[1]}`, rule: "pair" };
+    }
+  }
   if (par.type === "CatchClause" && par.param === id) return { name: "err", rule: "catch" };
   if (par.type === "VariableDeclarator" && par.id === id && par.init) {
     let init = par.init;
     if (init.type === "AwaitExpression") init = init.argument;
-    if (init.type === "MemberExpression" && !init.computed && init.property.type === "Identifier")
-      return { name: init.property.name, rule: "member" };
+    const forStmt = p.parentPath.parentPath?.parent;
+    if (gp?.type === "VariableDeclaration" && forStmt?.type === "ForStatement" && forStmt.init === gp && init.type === "NumericLiteral")
+      return { name: "i", rule: "counter" };
+    // `x.a ?? d`, `x.a || d`: the member names the value, the default does not
+    if (init.type === "LogicalExpression" && (init.operator === "??" || init.operator === "||") && isMember(init.left)) init = init.left;
+    if (isMember(init)) {
+      const prop = init.property.name;
+      if (GENERIC_PROP.has(prop) && isMember(init.object)) return { name: camel(init.object.property.name) + pascal(camel(prop)), rule: "member-chain" };
+      return { name: prop, rule: "member" };
+    }
     if (init.type === "NewExpression" && init.callee.type === "Identifier") {
       const c = init.callee.name;
       if (/^[A-Z]/.test(c) && c.length >= 3 && (realSet.has(c) || !p.scope.getBinding(c))) return { name: lowerFirst(c), rule: "new" };
     }
-    if (init.type === "CallExpression") {
+    if (init.type === "CallExpression" || init.type === "OptionalCallExpression") {
       const c = init.callee;
       if (c.type === "Identifier" && realSet.has(c.name) && p.scope.getBinding(c.name)?.scope === program) {
         const n = fromCallee(c.name);
         if (n) return { name: n, rule: "callee" };
       }
-      if (c.type === "MemberExpression" && !c.computed && c.property.type === "Identifier") {
+      if (isMember(c)) {
         const obj = c.object.type === "Identifier" && !p.scope.getBinding(c.object.name) ? c.object.name : null;
         const n = (obj && BUILTIN_CALL[`${obj}.${c.property.name}`]) || BUILTIN_CALL[`.${c.property.name}`];
         if (n) return { name: n, rule: "callee" };
+        if (!METHOD_BLOCK.has(c.property.name)) {
+          const m = fromCallee(c.property.name);
+          if (m) return { name: m, rule: "method" };
+        }
       }
     }
   }
@@ -292,8 +371,12 @@ if (CMD === "apply") {
   }
 } else if (CMD === "tasks") {
   const [SUBSYS, OUTDIR, ...flags] = rest;
-  const only = flags[0] === "--only" ? new Set(flags[1].split(",")) : null;
+  const flag = (name) => { const i = flags.indexOf(name); return i < 0 ? undefined : flags[i + 1]; };
+  const only = flag("--only") ? new Set(flag("--only").split(",")) : null;
   const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8"));
+  const changelogPath = flag("--changelog") ?? path.join(path.dirname(SUBSYS), "changelog_daemon.json");
+  const changelog = fs.existsSync(changelogPath) ? JSON.parse(fs.readFileSync(changelogPath, "utf8")) : null;
+  const protocol = loadProtocolVocab(flag("--protocol"));
   const { all, unresolved } = plan();
   // the names a declaration's locals had before the code next to them changed:
   // the entries that no longer locate a binding. Printed with the task so the
@@ -320,22 +403,25 @@ if (CMD === "apply") {
     for (const x of ed) { parts.push(src.slice(x.end, end), x.text); end = x.start; }
     parts.push(src.slice(d.start, end));
     const body = parts.reverse().join("");
-    (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body, before: [...new Set(before.get(d.real) || [])] });
+    const tokens = spanEvidence(src, d.start, d.end).tokens;
+    (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body, before: [...new Set(before.get(d.real) || [])],
+      tokens, protocol: protocolMatches(protocol, tokens, 8) });
   }
   for (const [dir, list] of Object.entries(groups)) {
-    const head = "Name every `$<ordinal>` listed under `name:` with a short descriptive lowerCamelCase identifier, from how the binding is used\n" +
-      "(property names, string literals, the real names of callees), in the convention of the locals already named in the same code\n" +
-      "(`paths` for the runtime paths object, `sessionKey`, ...). `previously:` lists names this declaration's locals had before the\n" +
-      "code next to them changed: reuse one when the binding plays the same role. Answer with one JSON file of the form\n" +
-      "{\"<realName>\": {\"<ordinal>\": \"<name>\"}} covering every ordinal in the .json next to this file, then run name_locals.mjs record.\n\n";
+    // the subsystem's vocabulary once per file, then the declarations (a
+    // declaration's protocol matches are the field names its locals may be)
+    const groupTokens = new Set();
+    for (const x of list) for (const t of x.tokens) groupTokens.add(t);
+    const head = LOCALS_PROMPT.join("\n") + vocabularyBlockLines(dir, subsystemVocabulary(dir, subsys, changelog), protocol, groupTokens).join("\n") + "\n";
     const md = head + list.map(x => `### ${x.real}\n\nname: ${x.pending.map(o => `$${o}`).join(" ")}\n` +
-      (x.before.length ? `previously: ${x.before.join(", ")}\n` : "") + `\n\`\`\`js\n${x.body}\n\`\`\`\n`).join("\n");
+      (x.before.length ? `previously: ${x.before.join(", ")}\n` : "") +
+      (x.protocol.length ? `protocol: ${x.protocol.join(", ")}\n` : "") + `\n\`\`\`js\n${x.body}\n\`\`\`\n`).join("\n");
     fs.writeFileSync(path.join(OUTDIR, `${dir}.md`), md);
     writeJson(path.join(OUTDIR, `${dir}.json`), Object.fromEntries(list.map(x => [x.real, x.pending])));
     console.log(`${dir}: ${list.length} declarations, ${list.reduce((n, x) => n + x.pending.length, 0)} locals to name`);
   }
 } else if (CMD === "record") {
-  let added = 0, replaced = 0;
+  let added = 0, replaced = 0, described = 0;
   const problems = [];
   for (const f of rest) {
     const ans = JSON.parse(fs.readFileSync(f, "utf8"));
@@ -343,6 +429,8 @@ if (CMD === "apply") {
       const d = decls.get(real);
       if (!d) { problems.push(`${f}: ${real} is not a renamed declaration`); continue; }
       for (const [ord, name] of Object.entries(names)) {
+        if (ord === "_describe") { described++; continue; }  // the sentence the task asks for first, not a local
+        if (ord.startsWith("_")) { problems.push(`${f}: ${real} has an unknown key "${ord}" (only \`_describe\` is skipped; a local is its ordinal)`); continue; }
         const e = d.bindings[Number(ord)];
         if (!e) { problems.push(`${f}: ${real} has no local #${ord}`); continue; }
         if (!validName(name)) { problems.push(`${f}: ${real} #${ord}: "${name}" is not a usable identifier`); continue; }
@@ -354,7 +442,7 @@ if (CMD === "apply") {
     }
   }
   writeJson(LOCALS, sortMap(localsMap));
-  console.log(`recorded ${added} new, ${replaced} replaced -> ${LOCALS}`);
+  console.log(`recorded ${added} new, ${replaced} replaced${described ? ` (${described} \`_describe\` sentence(s) read and not recorded)` : ""} -> ${LOCALS}`);
   if (problems.length) { console.log(`${problems.length} refused:`); for (const p of problems) console.log("  " + p); process.exit(1); }
 } else if (CMD === "prune") {
   const { unresolved } = plan();
@@ -377,4 +465,24 @@ if (CMD === "apply") {
   }
   writeJson(LOCALS, sortMap(localsMap));
   console.log(`rekeyed ${moved} entries to the current ctx, ${kept} already current, ${lost} locate nothing (prune drops those) -> ${LOCALS}`);
+} else if (CMD === "rules") {
+  // the rule layer alone, through the same plan() and collision-safe assign()
+  // as apply, so the listing shows exactly what a rebuild would write
+  const { all } = plan();
+  const lines = [];
+  for (const { d, done } of all) for (const r of done) if (r.source.startsWith("rule:")) lines.push(`${d.real}\t${r.e.ordinal}\t${r.from}\t${r.to}\t${r.source.slice(5)}`);
+  const text = lines.join("\n") + (lines.length ? "\n" : "");
+  const expectFile = rest[0] === "--expect" ? rest[1] : null;
+  if (!expectFile) { process.stdout.write(text); }
+  else {
+    const expected = fs.readFileSync(expectFile, "utf8");
+    if (expected === text) console.log(`rules: ${lines.length} binding(s) named as expected (${expectFile})`);
+    else {
+      const a = expected.split("\n"), b = text.split("\n");
+      console.log(`rules: listing differs from ${expectFile}:`);
+      for (const l of a) if (!b.includes(l) && l) console.log(`  - ${l}`);
+      for (const l of b) if (!a.includes(l) && l) console.log(`  + ${l}`);
+      process.exit(1);
+    }
+  }
 }
