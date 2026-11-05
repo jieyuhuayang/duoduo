@@ -31,8 +31,15 @@
 //          pairing has its key dropped AND every mention of it in the text of
 //          other symbols' entries replaced (the first run of this benchmark
 //          leaked five answers through the "CHANGELOG words" line, which is
-//          built from the entry text), and after writing toplevel.md `make`
-//          scans it for every answer as a whole word and exits 1 on a hit.
+//          built from the entry text), the protocol vocabulary drops the
+//          entries spelling a hidden name (a published name is exported by
+//          @openduo/protocol under that very name), and after writing
+//          toplevel.md `make` scans it for every answer as a whole word and
+//          exits 1 on a hit. The summary line prints the pool per kind after
+//          --exclude: with docs/*.md excluded the v0.8.7 pool holds 5 module
+//          initialisers and 4 constants, because the analysis docs cite
+//          nearly all of them; a benchmark free of names the namer may have
+//          read in docs/ is therefore a benchmark of functions.
 //   score  compares proposals with answers.json on three layers (REFORGE,
 //          REBENCH, SymLM):
 //            exact     equal after lowercasing and removing separators
@@ -60,7 +67,7 @@ import { spawnSync } from "node:child_process";
 import { parse } from "@babel/parser";
 import { topLevelDeclarations, isFunctionLike } from "./verify_inferred.mjs";
 import { buildTasks } from "./name_toplevel.mjs";
-import { loadProtocolVocab, splitTokens, isStopToken, spanEvidence } from "./naming_context.mjs";
+import { loadProtocolVocab, indexProtocolVocab, splitTokens, isStopToken, spanEvidence } from "./naming_context.mjs";
 
 const [CMD, ...args] = process.argv.slice(2);
 const opt = (name) => { const i = args.indexOf(name); return i < 0 ? undefined : args[i + 1]; };
@@ -158,13 +165,19 @@ function make() {
   // entry text is replaced, because the vocabulary block quotes code-shaped
   // words from that text
   const changelog = opt("--changelog") ? scrubChangelog(readJson(opt("--changelog")), hiddenReal) : null;
+  // protocol vocabulary without the hidden names: a symbol whose real name is
+  // upstream's published spelling (maps/published_daemon.json) is exported by
+  // the protocol package under that name, and the "protocol" lines would print
+  // it (at v0.8.7 isChannelFileDownloadParams, in a run that excluded docs/).
+  // --exclude <protocol src>/*.ts leaves such symbols out of the pool instead
+  const protocol = scrubProtocol(loadProtocolVocab(opt("--protocol")), hiddenReal);
   fs.mkdirSync(OUTDIR, { recursive: true });
   writeJson(path.join(OUTDIR, "answers.json"), Object.fromEntries(picked.map((x) => [x.short, { name: x.real, kind: x.kind, subsystem: x.subsystem }])));
   writeJson(path.join(OUTDIR, "rename.json"), rename2);
   writeJson(path.join(OUTDIR, "xref.json"), xref2);
   writeJson(path.join(OUTDIR, "subsys.json"), subsys2);
   if (changelog) writeJson(path.join(OUTDIR, "changelog.json"), changelog);
-  const res = buildTasks({ src, xref: xref2, rename: rename2, subsys: subsys2, changelog, protocol: loadProtocolVocab(opt("--protocol")),
+  const res = buildTasks({ src, xref: xref2, rename: rename2, subsys: subsys2, changelog, protocol,
     limit: 1e9, minUsers: 0, only: hidden, bodyLines: Number(opt("--body-lines") ?? 60) });
   fs.writeFileSync(path.join(OUTDIR, "toplevel.md"), res.md);
   fs.writeFileSync(path.join(OUTDIR, "toplevel.tsv"), res.tsv);
@@ -179,7 +192,15 @@ function make() {
   }
   writeJson(path.join(OUTDIR, "rules.proposals.json"), ruleProposals(src, decls, res.rows, rename2, subsys2));
   const perKind = {}; for (const x of picked) perKind[x.kind] = (perKind[x.kind] || 0) + 1;
-  console.log(`naming_bench: ${picked.length} symbols hidden (${Object.entries(perKind).map(([k, v]) => `${k} ${v}`).join(", ")}; ${exclude.size} excluded by --exclude; seed ${seed}) -> ${OUTDIR}/answers.json, toplevel.md, rules.proposals.json`);
+  const poolSizes = Object.entries(pool).map(([k, v]) => `${k} ${v.length}`).join(", ");
+  console.log(`naming_bench: ${picked.length} symbols hidden (${Object.entries(perKind).map(([k, v]) => `${k} ${v}`).join(", ")}; pool ${poolSizes}; ${exclude.size} excluded by --exclude; seed ${seed}) -> ${OUTDIR}/answers.json, toplevel.md, rules.proposals.json`);
+}
+
+// the protocol vocabulary with every entry spelling a hidden name removed
+export function scrubProtocol(vocab, hiddenReal) {
+  if (!vocab) return null;
+  const keep = (list) => list.filter((x) => !hiddenReal.has(x.name));
+  return indexProtocolVocab({ types: keep(vocab.types), funcs: keep(vocab.funcs), fields: keep(vocab.fields) });
 }
 
 // the pairing with every trace of the hidden names removed: their keys, and

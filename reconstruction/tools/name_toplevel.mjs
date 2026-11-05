@@ -17,7 +17,11 @@
 //   - candidates are ordered LEAF-FIRST (a candidate that calls no other
 //     candidate comes before its callers, GenNm-style propagation: the name
 //     given to a callee is context for the caller) and GROUPED by subsystem;
-//     within a group, candidates sharing a caller sit together
+//     within a group, candidates sharing a caller sit together, and the groups
+//     are in a topological order (a group after the groups holding its
+//     callees; where groups call each other, the group the most call edges
+//     lead into goes first and the callees still printed after their callers
+//     are marked `(below, group X)`, counted in the file's first line)
 //   - each group opens with the subsystem's VOCABULARY: the real names already
 //     registered there (by verb), the CHANGELOG words paired to them
 //     (--changelog maps/changelog_daemon.json) and the protocol package's type
@@ -186,10 +190,37 @@ export function buildTasks(opts) {
   // groups: subsystem; within a group depth, then shared users, then line
   const groups = new Map();
   for (const r of rows) (groups.get(r.suggested) ?? groups.set(r.suggested, []).get(r.suggested)).push(r);
-  // groups of leaves first (a group's depth is its deepest member), so a callee
-  // in another group is usually above its caller too
+  // a group comes after every group holding one of its callees (a topological
+  // order over the groups; ties by the group's deepest member, "-" last, then
+  // name), so a callee in another group is above its caller too. Only when
+  // groups call each other is the order broken: then the group that the most
+  // remaining call edges lead into, net of the edges leading out of it, goes
+  // first (the fewest callees end up printed after their callers), and those
+  // callees are marked "(below, group X)". Ordering by depth alone left
+  // callees below their callers: at v0.8.7 one leaf in 08-cadence-subconscious
+  // was called from three earlier groups (four edges) while two of its
+  // candidates called 03-session-actor (two edges); this order leaves two
+  const groupOf = new Map(rows.map((r) => [r.short, r.suggested]));
   const groupDepth = (g) => Math.max(...groups.get(g).map((r) => r.depth));
-  const groupOrder = [...groups.keys()].sort((a, b) => groupDepth(a) - groupDepth(b) || (a === "-") - (b === "-") || a.localeCompare(b));
+  const tie = (a, b) => groupDepth(a) - groupDepth(b) || (a === "-") - (b === "-") || a.localeCompare(b);
+  const pending = new Map([...groups.keys()].map((g) => [g, new Map()]));  // group -> callee group -> call edges
+  for (const r of rows) for (const c of r.calls) {
+    const w = pending.get(r.suggested), cg = groupOf.get(c);
+    if (cg !== r.suggested) w.set(cg, (w.get(cg) || 0) + 1);
+  }
+  const groupOrder = [];
+  while (pending.size) {
+    const ready = [...pending].filter(([, w]) => !w.size).map(([g]) => g).sort(tie);
+    let g = ready[0];
+    if (g === undefined) {  // every remaining group waits for another: a cycle
+      const into = (x) => [...pending.values()].reduce((n, w) => n + (w.get(x) || 0), 0);
+      const outOf = (x) => [...pending.get(x).values()].reduce((n, k) => n + k, 0);
+      g = [...pending.keys()].sort((a, b) => (into(b) - outOf(b)) - (into(a) - outOf(a)) || tie(a, b))[0];
+    }
+    groupOrder.push(g);
+    pending.delete(g);
+    for (const w of pending.values()) w.delete(g);
+  }
   for (const g of groups.values()) g.sort((a, b) => a.depth - b.depth || (a.users[0] ?? "").localeCompare(b.users[0] ?? "") || a.line - b.line);
   const ordered = groupOrder.flatMap((g) => groups.get(g));
   const position = new Map(ordered.map((r, i) => [r.short, i]));
@@ -198,7 +229,8 @@ export function buildTasks(opts) {
   // `main` and the module initialisers use everything; their CHANGELOG entries say nothing about one callee
   const informative = (n) => n !== "main" && !isInit(n);
 
-  const md = [...TOPLEVEL_PROMPT, `${rows.length} candidate(s)${opts.fp ? ", new or rewritten in this release" : ""} in ${groups.size} group(s), leaf-first.`, ""];
+  const below = ordered.filter((r) => r.calls.some((c) => position.get(c) > position.get(r.short))).length;
+  const md = [...TOPLEVEL_PROMPT, `${rows.length} candidate(s)${opts.fp ? ", new or rewritten in this release" : ""} in ${groups.size} group(s), leaf-first${below ? ` except ${below} candidate(s) calling a candidate printed below them (marked)` : ""}.`, ""];
   const proposals = {};
   for (const g of groupOrder) {
     const list = groups.get(g);

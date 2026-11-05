@@ -125,6 +125,11 @@ export function loadProtocolVocab(dir) {
       if (current && (m = /^\s+(?:readonly\s+)?([a-z_][\w]*)\??\s*:/.exec(line))) fields.push({ name: m[1], type: current, file: f });
     }
   }
+  return indexProtocolVocab({ types, fields, funcs });
+}
+// the token index over a protocol vocabulary's entries (also used to rebuild
+// the index after naming_bench.mjs removes the entries spelling a hidden name)
+export function indexProtocolVocab({ types, fields, funcs }) {
   const index = new Map(); // token -> Set(entry label)
   const add = (label, name) => { for (const t of splitTokens(name)) if (!isStopToken(t)) (index.get(t) ?? index.set(t, new Set()).get(t)).add(label); };
   for (const x of types) add(`type ${x.name}`, x.name);
@@ -213,9 +218,11 @@ export function vocabularyBlockLines(dir, voc, protocolVocab, protocolTokens) {
 export const TOPLEVEL_PROMPT = [
   "# Naming tasks: unnamed top-level code",
   "",
-  "Candidates are ordered leaf-first (a callee before the code that calls it) and grouped by subsystem, so a name",
-  "you give early is context for the later ones: when a later body calls a candidate you have already named, use",
-  "that name. Each group starts with its vocabulary: the real names already registered in the subsystem, the",
+  "Candidates are grouped by subsystem and ordered leaf-first: within a group a callee comes before the code that",
+  "calls it, and a group comes after the groups holding its callees, so a name you give early is context for the",
+  "later ones: when a later body calls a candidate you have already named, use that name. Only where groups",
+  "call each other is a callee printed after its caller; it is marked `(below, group X)`: read and name it first.",
+  "Each group starts with its vocabulary: the real names already registered in the subsystem, the",
   "CHANGELOG words paired to them, and the protocol package's type and field names that share a token with the code.",
   "The body is printed with every known top-level name applied; only the candidates themselves are still short names.",
   "",
@@ -242,7 +249,8 @@ export const LOCALS_PROMPT = [
   "declaration does, before any name; a name must not repeat a misleading name already in the code. `previously:` lists",
   "names this declaration's locals had before the code next to them changed: reuse one when the binding plays the same",
   "role. Answer with one JSON file of the form {\"<realName>\": {\"_describe\": \"<sentence>\", \"<ordinal>\": \"<name>\"}}",
-  "covering every ordinal in the .json next to this file (keys starting with `_` are ignored by record), then run",
+  "covering every ordinal in the .json next to this file (`_describe` is read and not recorded; any other key",
+  "starting with `_` is refused), then run",
   "name_locals.mjs record.",
   "",
 ];
