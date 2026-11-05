@@ -222,7 +222,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 
 `retarget_symbols.mjs` 按同一个 bundle 两个版本的改名表一次性替换短名，只改写两种位置：整个代码 span 就是 `真名 (短名)`；`真名/短名` 简写。两种配对都只在旧改名表恰好把这个真名与这个短名配成一对时才改写，所以用 daemon 的改名表运行时，cli 的配对原样保留，即使它的短名同时也是某个 daemon 符号的短名，cli 的配对由第二次运行（cli 的改名表加 `--bundle cli`）改写。整个代码 span 只是一个标识符时没有真名可以核对，它可能是引用，也可能是 `cat`、`ps` 这样的命令或普通单词，所以默认不改写，只连同文件和行号列出，由人判断。引用的代码表达式里的局部变量不动。
 
-名字绑定片段 `代码片段`（`真名`）里写的短名在发版后通常会变，由 `retarget_snippets.mjs` 改写，按三种方式依次尝试。第一种：给了 `--old` 时，如果片段所在声明的 `@babel/parser` 记号序列在两版之间只有标识符拼写不同，片段里的每个标识符取新声明同一位置的记号，不做模式匹配。第二种：声明改过时，把片段写成模式（字符串字面量、属性名和长名字原样保留，已迁移的短名固定，其余短标识符作通配，同一个通配出现两次必须匹配同一个名字），在新声明里只有唯一匹配时改写。第三种：模式在新声明里匹配多处时，同一模式在旧声明里也跑一遍，两边次数相同时，片段原来引用旧声明的第 k 处，就取新声明的第 k 处（`byOrdinal`）。每处改写都必须通过 `check_bare_anchors.mjs` 的规则，只改片段里的标识符。改不了的片段列在报告里，它们引用的代码确实变了，要重读。在 v0.8.6→v0.8.7 的回放里，按序号改写把歧义的片段从 37 个降到 1 个。
+名字绑定片段 `代码片段`（`真名`）里写的短名在发版后通常会变，由 `retarget_snippets.mjs` 改写，按三种方式依次尝试。第一种：给了 `--old` 时，如果片段所在声明的 `@babel/parser` 记号序列在两版之间只有标识符拼写不同，片段里的每个标识符取新声明同一位置的记号，不做模式匹配。第二种：声明改过时，把片段写成模式（字符串字面量、属性名和长名字原样保留，已迁移的短名固定，其余短标识符作通配，同一个通配出现两次必须匹配同一个名字），在新声明里只有唯一匹配时改写。第三种：模式在新声明里匹配多处时，同一模式在旧声明里也跑一遍，两边次数相同时，片段原来引用旧声明的第 k 处，就取新声明的第 k 处（`byOrdinal`）。每处改写都必须通过 `check_bare_anchors.mjs` 的规则，只改片段里的标识符。第四种：前三种都不成时做非连续匹配，片段的记号必须按顺序出现在新声明里，相邻两个记号之间最多插入 3 个记号（`--gap`），插入的记号按新声明原文补进片段；唯一匹配时，插入记号数与片段记号数之比低于 0.25 才写入，0.25 到 0.6 之间只打印候选，再高留待重读。改不了的片段列在报告里，它们引用的代码确实变了，要重读。在 v0.8.6→v0.8.7 的回放里，按序号改写把歧义的片段从 37 个降到 1 个；非连续匹配多改写 4 处（都是调用里多传了一个参数），与人工改写的结果逐字相同。
 
 最后 `verify_citations.mjs --fix` 重新生成剩余带真名引用的行号。每少一个行号，这一步就少一处要迁移。
 
@@ -279,7 +279,7 @@ esbuild 把每个函数里的参数和局部变量都改成一两个字母，`re
 | 运行与单函数调用 | `instrument.mjs`、`closure_names.mjs`、`trace_report.mjs`；`scenarios/run.sh`、`scenarios/lib.sh`；`extract_decl.mjs` |
 | 发行历史 | `history.sh`、`decl_features.mjs`、`release_pairing.mjs`、`history_chain.mjs`、`changelog_merge.mjs`（复用 `fingerprint_match.mjs` 与 `pair_changes.mjs`） |
 | 跨版本升级 | `structural_signature.mjs`、`fingerprint_match.mjs`、`pair_changes.mjs`、`pair_releases.mjs`、`align_releases.mjs`、`remap_inferred.mjs`、`anchor_candidates.mjs`、`confirm_reanchor.mjs`、`module_owner_hint.mjs`、`diff_decls.mjs`、`change_kind.mjs`、`plaintext_delta.mjs`、`bundle_literals.mjs`、`impact_report.mjs`；由 `bump.sh` 串起；文档的实质更新用 `doc_sections.mjs` 与 `.claude/workflows/upgrade-docs.js` |
-| 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`check_docs.sh`（只跑这三个检查器，改文档时用）、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs` |
+| 文档引用 | `anchor_forms.mjs`（全部引用写法的唯一定义）、`verify_citations.mjs`、`check_bare_anchors.mjs`、`check_doc_anchors.mjs`、`check_appendix_sets.mjs`（附录 B 的三份名单与 bundle 推出的集合相等）、`check_docs.sh`（只跑这些检查器，改文档时用）、`convert_line_citations.mjs`、`bundle_guard.mjs`、`mutate_anchor_checks.mjs`；遗留行号的迁移用 `remap_doc_anchors.mjs` → `retarget_docs.mjs` → `retarget_symbols.mjs`，名字绑定片段的迁移用 `retarget_snippets.mjs`；每个带引用的段落最近一次对照代码核对的记录在 `maps/doc_acks.json`（`doc_acks.mjs`），升级的影响清单据此把所引代码没变的段落排在后面 |
 
 三条做法可以直接用到别的逆向项目上。
 

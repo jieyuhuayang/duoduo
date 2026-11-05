@@ -95,6 +95,7 @@ import { fileURLToPath } from "node:url";
 import { namePair, nameBound, codeSpans, fencedRanges, snippetTokens, identRe, looksMangled } from "./anchor_forms.mjs";
 import { rankAnchors, describeRanking } from "./anchor_candidates.mjs";
 import { skeletonIn } from "./retarget_snippets.mjs";
+import { declProfile, compareProfiles, declSpans, loadAcks, checkDocs, relDoc as ackDocKey } from "./doc_acks.mjs";
 import { classifyDiff, importAliases } from "./change_kind.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -109,6 +110,9 @@ const OLD_LABEL = opt("--old-label", "old"), NEW_LABEL = opt("--new-label", "new
 const K = Math.max(1, Number(opt("--groups", 4)));
 const OUT = opt("--out", BUMP && path.join(BUMP, "impact.json"));
 const MD = opt("--md", BUMP && path.join(BUMP, "impact.md"));
+// the acknowledgement record (doc_acks.mjs): which paragraph was last read
+// against which version of its cited code. Absent: no paragraph is acked.
+const ACKS = opt("--acks", path.join(MAPS, "doc_acks.json"));
 const DOCS = argv;
 if (!BUMP || !DOCS.length) {
   console.error("usage: node impact_report.mjs --bump <dir> [--old <dir>] [--new <dir>] [--maps <dir>] [--old-label <v>] [--new-label <v>] [--groups <K>] [--out <json>] [--md <md>] <doc.md...>");
@@ -305,6 +309,52 @@ for (const d of docs) {
 
 // --- tiers --------------------------------------------------------------------
 const changeTokens = (c) => new Set([...(c.changedTokens || []), ...c.strAdded, ...c.strRemoved, ...c.propAdded, ...c.propRemoved]);
+
+// per side and bundle: mangled -> real (or null for an unnamed top-level
+// declaration), so a declaration profile can tell a named callee from a local;
+// old names from --maps, new names from bump.sh's carried rename map
+const topLevels = new Map();
+function topLevelOf(side, bundle) {
+  const k = side + ":" + bundle;
+  if (topLevels.has(k)) return topLevels.get(k);
+  const ls = linesOf(side, bundle);
+  const m = new Map();
+  if (ls) {
+    for (const [name] of declSpans(ls.join("\n"))) m.set(name, null);
+    const rename = readJSON(side === "old" ? path.join(MAPS, `rename_${bundle}.json`) : path.join(BUMP, `rename_${bundle}.new.json`), {});
+    for (const [short, real] of Object.entries(rename)) if (m.has(short)) m.set(short, real);
+  }
+  topLevels.set(k, m);
+  return m;
+}
+// unchanged | body-only | changed | null (one side missing): the two profiles
+// of a cited real name across a change
+const stabilities = new Map();
+function stabilityOf(qualReal, change) {
+  const k = change.id + ":" + qualReal;
+  if (stabilities.has(k)) return stabilities.get(k);
+  const real = qualReal.replace(/^(?:daemon|cli):/, "");
+  const prof = (side) => {
+    const h = (byReal.get(`${change.bundle}:${real}`) || []).find((x) => x.change === change && x.side === side);
+    const ls = linesOf(side, change.bundle);
+    return h?.range && ls ? declProfile(ls.slice(h.range[0] - 1, h.range[1]).join("\n"), topLevelOf(side, change.bundle)) : null;
+  };
+  const o = prof("old"), n = prof("new");
+  const v = o && n ? compareProfiles(o, n, sharedNames(change.bundle)) : null;
+  stabilities.set(k, v);
+  return v;
+}
+// the real names both releases have (old: --maps; new: the carried rename map
+// of this bump), so a callee that only one side names does not count as a
+// change of the callee set
+const shareds = new Map();
+function sharedNames(bundle) {
+  if (!shareds.has(bundle)) {
+    const n = new Set(Object.values(readJSON(path.join(BUMP, `rename_${bundle}.new.json`), {})));
+    shareds.set(bundle, new Set(Object.values(readJSON(path.join(MAPS, `rename_${bundle}.json`), {})).filter((r) => n.has(r))));
+  }
+  return shareds.get(bundle);
+}
 for (const ct of citations) {
   const { d } = ct;
   const [pa, pb] = d.block(ct.line);
@@ -351,7 +401,54 @@ for (const ct of citations) {
     else if (size <= SHORT) [ct.tier, ct.why] = [2, `whole declaration, ${size} lines`];
     else [ct.tier, ct.why] = [3, `whole declaration (${size} lines); paragraph shares nothing distinctive with the change`];
   }
+  // STABILITY POLICY (doc_acks.mjs declProfile): a declaration whose body
+  // changed but whose parameter count, named callees and string literals are
+  // all the same is `body-only` -- a reordering, a renamed local, a condition
+  // rewritten over the same data. A citation of the whole declaration (a pair
+  // or a mention) in tier 2 goes to tier 3: the claim names what the function
+  // does, and the three unchanged features are what such a claim rests on. A
+  // snippet stays where its own text put it: a tier-1 snippet quotes code the
+  // new version changed, whatever the rest of the declaration did.
+  ct.stability = stabilityOf(ct.real, change);
+  if (ct.stability === "body-only" && ct.tier === 2)
+    [ct.tier, ct.why] = [3, `${ct.why}; body-only change (same parameter count, named callees and string literals)`];
+  else if (ct.stability === "body-only") ct.why += "; body-only change";
 }
+
+// The ack of the paragraph a citation sits in (doc_acks.mjs checkDocs against
+// the NEW bundle's names and spans): `unchanged` means every declaration the
+// paragraph cites has the token stream it had when the paragraph was last
+// read, so nothing in it rests on changed code. A tier-4 keyword hit on such
+// a paragraph goes to tier 3 (listed, weighed 0.5): the word it shares with
+// the change is in a sentence that was checked against unchanged code. A
+// paragraph that was edited since its ack, or never acked, keeps tier 4.
+const ackOf = (() => {
+  const acks = ACKS && loadAcks(ACKS);
+  const perDoc = new Map();
+  if (acks) {
+    const known = {}, spans = {};
+    for (const bundle of ["daemon", "cli"]) {
+      const rename = readJSON(path.join(BUMP, `rename_${bundle}.new.json`), null);
+      const ls = linesOf("new", bundle);
+      if (!rename || !ls) continue;
+      const all = declSpans(ls.join("\n"));
+      known[bundle] = new Set();
+      spans[bundle] = new Map();
+      for (const [m, real] of Object.entries(rename)) if (all.has(m)) { known[bundle].add(real); spans[bundle].set(real, all.get(m)); }
+    }
+    const profileOf = (cite) => {
+      const [bundle, real] = cite.split(/:(.*)/s);
+      const e = spans[bundle]?.get(real);
+      return e ? declProfile(linesOf("new", bundle).slice(e.line - 1, e.endLine).join("\n"), topLevelOf("new", bundle)) : null;
+    };
+    for (const r of checkDocs(acks, DOCS, known, profileOf)) {
+      if (!perDoc.has(r.doc)) perDoc.set(r.doc, []);
+      perDoc.get(r.doc).push(r);
+    }
+  }
+  return { version: acks?.version ?? null, at: (doc, line) => (perDoc.get(ackDocKey(doc)) || []).find((r) => r.line <= line && line <= r.endLine) ?? null };
+})();
+for (const ct of citations) { const a = ackOf.at(ct.doc, ct.line); ct.ack = a?.verdict ?? null; }
 
 // tier 2c: an unchanged declaration whose direct callee changed. `calleeCited`:
 // the paragraph also names a changed callee, so a tier 1-3 entry may already
@@ -417,6 +514,13 @@ for (const c of changes) {
       subsection: d.sub[l - 1], tier: 4, change: c.id, diff: c.diffPath, matched, paragraph: [a, b],
       why: `uncited change shares ${matched.slice(0, 6).map((w) => "`" + w + "`").join(", ")}`, text: d.lines[l - 1].trim().slice(0, 240) });
   }
+}
+// a keyword hit on a paragraph whose every cited declaration is unchanged
+// since its ack goes to tier 3 (see ackOf)
+for (const c of keywordHits) {
+  const a = ackOf.at(c.doc, c.line);
+  c.ack = a?.verdict ?? null;
+  if (c.ack === "unchanged") { c.tier = 3; c.acked = true; c.form = "keyword"; c.why += `; every declaration the paragraph cites is unchanged since its ${a.ackVersion} ack`; }
 }
 
 // --- inferred names that lost their anchor ------------------------------------
@@ -489,7 +593,7 @@ for (const c of citations) {
 // tier 4 weighs as tier 2: nothing else points a reader at that paragraph
 for (const c of keywordHits) {
   const u = unitOf(c);
-  u.keyword = (u.keyword || 0) + 1; u.weight += 2; u.changes.add(c.change);
+  u.keyword = (u.keyword || 0) + 1; u.weight += c.acked ? 0.5 : 2; u.changes.add(c.change);
 }
 // tier 2c weighs as tier 2, or as tier 3 when every callee it reaches changed
 // only by literal assignments to members; its changes are the callees' (for
@@ -522,7 +626,11 @@ const report = {
       respelled: citations.filter((c) => c.respelled).length,
       calleeChanged: calleeCitations.length, calleeChangedCalleeCited: calleeCitations.filter((c) => c.calleeCited).length,
       calleeChangedQuiet: calleeCitations.filter((c) => c.quiet).length,
-      calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.length },
+      calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.filter((c) => !c.acked).length, keywordAcked: keywordHits.filter((c) => c.acked).length,
+      bodyOnly: citations.filter((c) => c.stability === "body-only").length, bodyOnlySkim: citations.filter((c) => c.stability === "body-only" && c.tier === 3 && c.form !== "snippet").length,
+      acks: ackOf.version, acked: { unchanged: citations.filter((c) => c.ack === "unchanged").length, bodyOnly: citations.filter((c) => c.ack === "body-only").length,
+        changed: citations.filter((c) => c.ack === "changed").length, edited: citations.filter((c) => c.ack === "edited").length,
+        missing: citations.filter((c) => c.ack === "missing").length, none: citations.filter((c) => !c.ack || c.ack === "no-ack").length } },
     uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length, plaintextFiles: plaintext.length,
   },
   changes: changes.map((c) => ({ id: c.id, bundle: c.bundle, real: c.names, oldNames: c.oldNames, newNames: c.newNames, diff: c.diffPath,
@@ -551,7 +659,8 @@ if (MD) {
     `(${s.citations.respelled} of them snippets whose quoted code is in both versions, only renamed: retarget_snippets.mjs rewrites those). ` +
     `${s.citations.calleeChanged} more cite unchanged code whose direct callee changed (tier 2c${graphs.size ? "" : ": no xref in --maps, not computed"}` +
     `${s.citations.calleeChangedQuiet ? `; ${s.citations.calleeChangedQuiet} of them only through callees whose change is literal assignments to members` : ""}). ` +
-    `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4). ` +
+    `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4${s.citations.keywordAcked ? `; ${s.citations.keywordAcked} more are in tier 3: every declaration they cite is unchanged since the ${s.citations.acks} ack` : ""}). ` +
+    `${s.citations.bodyOnly} citations are of declarations whose change is body-only (same parameter count, named callees and strings), ${s.citations.bodyOnlySkim} of them whole-declaration citations put in tier 3 for that reason. ` +
     `${plaintext.length} plain-text files changed.`, "");
   if (plaintext.length) {
     L.push("## Plain text (read first: it states intent)", "", "| source | file | change | mentioned in |", "|---|---|---|---|");
@@ -604,7 +713,8 @@ if (MD) {
     }
     if (t === 4) L.push("Paragraphs that cite none of the changed code but share a distinctive word with a change no doc cites. Read the paragraph against the diff; a description of the old behaviour is often here.", "");
     if (t === 4) { for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] ${c.why} -- \`${c.diff}\``); L.push(""); continue; }
-    for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}: ${c.why}` +
+    for (const c of list) L.push(c.form === "keyword" ? `- ${c.doc}:${c.line} [${c.sectionTitle}] keyword: ${c.why} -- \`${c.diff}\``
+      : `- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}: ${c.why}${c.ack && c.ack !== "no-ack" ? ` [ack: ${c.ack}]` : ""}` +
       (c.callees ? ` -- ${[...new Set(c.callees.map((k) => k.diff).filter(Boolean))].map((x) => "`" + x + "`").join(", ")}` : ""));
     L.push("");
   }
@@ -633,6 +743,6 @@ if (MD) {
 const s = report.summary;
 console.error(`impact: ${s.changedDeclarations} declaration diffs (${s.changedLines} lines in ${s.hunks} hunks); ` +
   `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim} (${s.citations.respelled} only renamed); ` +
-  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}${s.citations.calleeChangedQuiet ? ` (${s.citations.calleeChangedQuiet} through literal assignments only)` : ""}; tier 4 keyword ${s.citations.keyword}; ` +
+  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}${s.citations.calleeChangedQuiet ? ` (${s.citations.calleeChangedQuiet} through literal assignments only)` : ""}; tier 4 keyword ${s.citations.keyword}${s.citations.keywordAcked ? ` (+${s.citations.keywordAcked} acked, in tier 3)` : ""}; body-only ${s.citations.bodyOnly}; ` +
   `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor, ${plaintext.length} plain-text files; ` +
   `${report.groups.length} work groups` + (OUT ? ` -> ${OUT}` : ""));

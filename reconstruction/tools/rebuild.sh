@@ -444,6 +444,21 @@ if [ -d "$DOCS" ]; then
     verdict lineAnchors pass
   else verdict lineAnchors fail; rc=1; fi
 
+  # 10b. APPENDIX SETS (check_appendix_sets.mjs, verdict appendixSets): the
+  #      three enumerations of INTERNALS Appendix B -- event types written
+  #      through createSpineEvent, RPC methods the dispatcher recognises, the
+  #      read-only TCP allowlist -- must equal the sets derived from this
+  #      run's bundle, index and xref. A citation check binds one name to one
+  #      declaration; a claim to list EVERY name is refuted by one the bundle
+  #      has and the table lacks, which nothing else sees. --mutate also runs
+  #      the comparison on six mutated copies of the doc (a name added, a name
+  #      removed, an allowlist name swapped) and requires each to fail.
+  echo "==== appendix sets (event types, RPC methods, read-only allowlist) ===="
+  if [ -f "$DOCS/AGENT_INTERNALS_ANALYSIS.md" ] && node "$HERE/check_appendix_sets.mjs" --index "$OUT/symbols_daemon.json" \
+       --xref "$OUT/xref_daemon.json" --bundle "$BEAUTIFIED/daemon.pretty.js" --mutate "$DOCS/AGENT_INTERNALS_ANALYSIS.md"; then
+    verdict appendixSets pass
+  else verdict appendixSets fail; rc=1; fi
+
   # 11. the anchor checkers themselves: each must pass a clean synthetic doc,
   #     fail each injected error, and refuse a bundle shifted by one line.
   echo "==== anchor checkers (mutation test) ===="

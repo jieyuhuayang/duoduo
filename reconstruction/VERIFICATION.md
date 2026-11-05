@@ -123,6 +123,18 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 什么算退步：同一对版本上，`carried-wrong` 不为 0；任何 `*-wrong` 或 `unresolved` 比基线多，或任何 `*-correct` 比基线少；排序里真值排第一的个数比基线少；某一对在 `bump.sh` 第 0 步被拒绝（`refused.txt`）。`gone` 与 `truth-only` 的数目不是分数，`gone` 的名字变了才需要解释；候选的平均分差只供参考。每次运行的 `score.json` 留在 `.build/replay/runs/<vOLD>__<vNEW>/` 下，不进仓库，基线只记在本节。
 
+### 5.3 文档侧工具的回放（`doc_acks.mjs`、`impact_report.mjs` 的分档、`retarget_snippets.mjs` 的非连续匹配）
+
+结论：在 v0.8.6→v0.8.7 上，段落确认记录与 body-only 判定把第 2 档的 25 处引用、第 4 档的 172 处关键词命中降到第 3 档，而第 1、2 档覆盖的"v0.8.7 人工改写过的段落"一个不少（前后都是 67 个改写段落里的 28 个）；非连续匹配多改写 4 处片段，838 处自动改写与人工做的 v0.8.7 文档逐字相同，错的为 0。输入都是 fixture：v0.8.6 提交的 `docs/` 与 `maps/`、`replay_bump.sh` 的 v0.8.6→v0.8.7 `bump.sh` 产出、v0.8.7 提交的 `docs/`（真值）与 `maps/`（索引）。2026-11-05，Node 22。
+
+`doc_acks.mjs`。在 v0.8.6 的文档上 `record`（v0.8.6 的索引与美化文件）：7 份文档里 1131 个带引用的段落、589 个被引用符号；同一 bundle 上 `check` 全部 unchanged（自检）。对照 v0.8.7（v0.8.7 的索引）：613 unchanged、128 body-only、385 changed、0 edited、5 missing（引用了 v0.8.7 才登记的名字，段落的引用集合因此不同），被引用符号 44 个有变化，其中 9 个 body-only（`createMetaSession`、`drainSessionMailbox`、`buildCodexDynamicTools`、`createAladuoMcpServer`、`prepareDrainTurnContext`、`runNotifyTool`、`buildSessionIndexEntry`、`runViewSessionsTool`、cli 的 `runUpgradeCommand`）。改用 `bump.sh` 承接出的改名表（`--rename`，升级当时 `impact_report.mjs` 能拿到的东西）：615 unchanged、295 changed、221 missing——还没重新定位的 32 个 `RE-ANCHOR` 名字都算 missing，这是设计上的保守一侧。对照人工做的 v0.8.7 文档：1150 个段落里 26 edited、34 no-ack，即人改过或新写的段落共 60 个；其余 1090 个段落的归一化正文与 v0.8.6 相同，机械改指（短名、片段里的标识符）不改变哈希。
+
+`impact_report.mjs` 的分档，同一份 `bump.sh` 产出、v0.8.6 的文档，改动前后：第 1 档 53→53，第 2 档 125→100，第 3 档 861→886，第 2c 档 111→111，第 4 档 520→348（另 172 处降到第 3 档并注明）；203 处引用的声明是 body-only，其中 25 处引用整个声明的从第 2 档降到第 3 档。对照 v0.8.7 文档逐段落核对：第 1 档没有任何降档；降档的 25 处第 2 档引用落在 18 个段落里，其中 2 个段落在 v0.8.7 被人改写（AGENT_INTERNALS_ANALYSIS.md 的 1.2 代码位置表一行与 2 系统提示装配一段，两处都还引用了别的改过的声明，所以仍在第 2 档）；降档的 172 处关键词命中落在 130 个段落里，其中 6 个在 v0.8.7 被人改写（`classifySessionKeyKind` 改拼写为 `classifySessionKey` 的两段、讲 `resolveMetaPromptText` 的两段、`job_id` 一段、`spine.record` 一段），这 6 段仍在第 3 档列出，但读的顺序靠后了。第 1、2 档触及的段落从 126 个降到 111 个，覆盖的改写段落前后都是 28 个；第 4 档触及的段落从 352 个降到 222 个，覆盖的改写段落从 32 个降到 26 个（少的 6 个就是上面那 6 段）。
+
+`retarget_snippets.mjs`，v0.8.6 的文档对 v0.8.7 的索引与美化文件（`--old`、`--fp`、`--rename` 都给），不写入：改动前 860 处过期片段里 834 处改写、23 处 no match、2 处 ambiguous、1 处无法推导；改动后（`--gap 3 --auto 0.25 --propose 0.6`）838 处改写、19 处 no match、其余同前，0 处 PROPOSED。多出的 4 处都是新声明在调用里多传了一个参数（插入 2 个记号，比值 0.05 到 0.1）：`filterDeliverableSessions` 的两处、`main` 的一处、`createSessionManager` 的一处。838 处自动改写逐一与人工做的 v0.8.7 文档比较：838 处逐字相同（其中 36 处所在段落另有别的改动），不同的 0 处，不成立的 0 处。`--gap 6` 结果相同；`--gap 10` 多匹配 `drainSessionMailbox` 的一处（插入 4 个记号），但另一处原本唯一的匹配变成歧义，总数 837，所以默认取 3。
+
+`check_appendix_sets.mjs` 不是回放，但用旧文档验过它能看见什么：v0.8.3 的文档对 v0.8.4 的 bundle，B.1 少 `external.record`，B.2 少 `memory.read`、`spine.cat`、`spine.record`，正是 v0.8.4 新增、当时靠人工数出来的三个方法；v0.8.6 的文档对 v0.8.6 的 bundle 通过。
+
 ## 6 可读树与 bundle 一致
 
 第 1–3 节只证明还原产物，没有一项看 `first-party/`；而人读的是后者，它出错的每一种方式都是静默的。`verify_first_party.mjs` 做六项相互独立的检查，已提交报告中 `firstPartyTree` 为 `pass`：
@@ -144,6 +156,8 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 
 两点决定这项证据的范围。其一，`verify_citations.mjs` 扫描 `docs/*.md`、`reconstruction/*.md` 与 `CLAUDE.md`，而 `check_doc_anchors.mjs` 与 `check_bare_anchors.mjs` 只扫描 `docs/*.md`，所以本目录与 `CLAUDE.md` 里的片段示例和行号不受检查。其二，写成 `真名 (短名)` 却没有登记的推断名会被报为"符号不存在"：真名的写法像真名、又不在索引里，就是一处缺失的符号，而不是一段普通文字。遗留行号每份文档各有多少，打印在运行日志的 `line numbers per doc` 行。
 
+已提交报告中 `appendixSets` 为 `pass`：AGENT_INTERNALS_ANALYSIS.md 附录 B 的三份名单与 bundle 推出的集合相等（`check_appendix_sets.mjs`，README.md"文档引用按符号身份核对"表列出推导方法）。当前版本 B.1 为 14 种事件类型（`createSpineEvent` 的 24 个调用点，其中 `appendBeforeExecuteGateway` 的 `type` 来自参数，按它的自研调用方写出的 `eventType: "…"` 解析），B.2 为 36 个方法，B.3 为 6 个方法。引用检查只核对一个名字对一个声明；"全集"这种主张只有集合比较能反驳。
+
 ## 8 检查器自身的变异测试
 
 前七节的证据都假设检查器本身可靠，这一节反过来检验它们，分两部分：每次运行都重跑的变异测试，和记录在案但没有接入流水线的一次性故障注入。
@@ -161,6 +175,7 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 | 裸行号与上限 | 新增裸行号；倒置的范围；正文里的 `daemon:N`、`daemon.pretty.js:N / N`、`cli.pretty.js:N`；一个代码 span 里写多个行号；以行号开头的代码 span；围栏图里的行号；表格里以空格限定 bundle 的行号；片段后不带反引号的括号行号；新增一个写法正确的 F1 行号（超过上限）；用 `--write-baseline` 调高上限 | `check_bare_anchors` |
 | 错误的 bundle | 整个 bundle 下移一行 | 三个检查器都以 exit 2 拒绝 |
 | 推断名的种类 | 常量的字面量被改；初始化器的名字挪到无关的初始化器、挪到函数上、挪到没有字面量也没有常量的初始化器上、挪到只共享一个常量的初始化器上；只共享默认值且原模块已不存在；没有基线时把函数名放到初始化器上（`check` 失败，`record` 拒绝写入），把常量名放到函数上；两个形状相同的初始化器（期望 `warn`，不能通过）；与另一个常量同值的常量上的名字按读取方通过，挪到那个孪生常量上判失败 | `verify_inferred` |
+| 附录 B 的名单（`check_appendix_sets.mjs --mutate`，verdict `appendixSets` 的一部分） | B.1 表多一种事件类型、少一行；B.2 表多一个方法、少一行；B.3 的一个方法换成只在 B.2 里的方法、去掉一个方法 | `check_appendix_sets` |
 
 ### 8.2 一次性故障注入（没有接入流水线）
 
@@ -214,6 +229,7 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 | 可读树 | `firstPartyTree` | pass |
 | 文档引用身份 | `citations` | pass |
 | 行号、片段与上限 | `lineAnchors` | pass |
+| 附录 B 三份名单 = bundle 的集合 | `appendixSets` | pass |
 | 检查器变异测试 | `anchorCheckers` | pass |
 | 文档目标版本 = 报告版本 | `anchorTargetMatches` | pass |
 | 已提交产物 = 生成产物 | `committedInSync` | promoted（2026-11-01 的 check 运行为 pass） |
