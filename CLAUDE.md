@@ -93,7 +93,7 @@ On every PR and push to `main`: on the Node major in the repo-root `.nvmrc`, ins
 
 ```bash
 # 0) tooling, on the Node major in .nvmrc (rebuild.sh warns on another major)
-cd reconstruction/tools && npm ci             # @babel/{parser,traverse,types} + pinned js-beautify
+cd reconstruction/tools && npm ci             # @babel/{parser,traverse,types} + pinned js-beautify + pinned typescript (type_seed.mjs only)
 
 # 1) a SCRATCH install of the release the committed report records (the one CI installs).
 #    Never point PKG at the global install: the runtime section copies files into $PKG,
@@ -180,6 +180,7 @@ node tools/match_published_source.mjs --src <dir of *.ts> --package <name@versio
 node tools/match_historical_exports.mjs [--history <dir>] [--maps <dir>] --out <report.json>   # needs history.sh's .build/history
 node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...]
 node tools/name_locals.mjs record|prune|rekey <top.js> <rename.json> maps/locals_daemon.json [answers.json...]
+node tools/type_seed.mjs <daemon.recon.js> <symbols_daemon.json> maps/published_daemon.json --protocol <protocol src dir> --out <types_daemon.json> [--same-name] [--rounds N] [--no-seed]   # TypeScript checker types after seeding the protocol signatures (VERIFICATION §10); name_locals.mjs tasks, name_toplevel.mjs tasks and match_published_source.mjs read it with --types <types_daemon.json>
 node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>   # exit 0 pass, 3 warn, 1 fail
 
 # doc checks and conversions

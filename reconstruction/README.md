@@ -247,6 +247,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | `scenarios/run.sh`、`scenarios/lib.sh` | 运行场景：插桩一次，再逐个运行 `scenarios/NN-*.sh`，每个场景在隔离 HOME、独立端口上启动插桩 daemon，用 socket 与只读 TCP 驱动，输出到 `.build/scenarios/<名字>/`；结论记在 `scenarios/findings/`。 |
 | `release_pairing.mjs`、`pair_releases.mjs` | 相邻两个发行版的三层配对（函数体相同、孪生体按位置、位置配对、特征相似），`history_chain.mjs` 与 `bump.sh` 共用；`pair_releases.mjs <旧 pretty> <新 pretty> <fp.json> <pairs.json> <out.json>` 写全量的旧 → 新配对，`remap_inferred.mjs --pairing` 据此为每个 RE-ANCHOR 条目打印 PROPOSED 并写 `inferred_<bundle>.proposed.json`。 |
 | `history.sh`、`decl_features.mjs`、`history_chain.mjs`、`changelog_merge.mjs` | 发行历史：取回并美化每个发行版，相邻版本做指纹匹配、位置配对和特征提取，`history_chain.mjs` 逐版本回溯每个当前符号（`--write` 写 `maps/history_daemon.json`）；`changelog_merge.mjs` 把逐版本的 CHANGELOG 配对合并成 `maps/changelog_daemon.json`。 |
+| `type_seed.mjs` | 类型播种（VERIFICATION.md 第 10 节）：`<daemon.recon.js> <symbols_daemon.json> <published_daemon.json> --protocol <protocol 的 src 目录> --out <types_daemon.json> [--same-name] [--rounds N] [--no-seed]`。在 `.build` 下的临时副本里给 `published_daemon.json` 配对的符号插入 JSDoc `@type {typeof import(...).名字}`（`--same-name` 再加上与 protocol 导出同名同参数个数的推断名），用 TypeScript checker（锁定版本的 `typescript`，`allowJs` 加 `checkJs`）推断每个自研声明的参数、返回与局部绑定的类型，再按轮把调用点实参类型注入被调函数的参数（含嵌套函数），输出按真名与局部序号（附 ctx）组织，无名顶层函数按短名记签名。读取方：`name_locals.mjs tasks --types`（每个待命名局部一行类型，按序号取、按 ctx 核对）、`name_toplevel.mjs tasks --types`（每个候选一行 `signature:`）、`match_published_source.mjs --types`（返回类型类别作为排除候选的特征）。产物不提交，不进入任何 gate。 |
 
 ## 覆盖范围与边界
 
@@ -323,6 +324,7 @@ PKG=/tmp/duoduo-pkg/node_modules/@openduo/duoduo/dist/release bash rebuild.sh
 | 已发布源码改名（`name_symbol.mjs --published` 处理 `conflict`） | 上游已发布源码里对应声明的名字与本仓库的推断名不同时，换成上游的写法；改名时 `locals_`、`history_`、`changelog_<bundle>.json` 里按真名为键的条目一起移动 | `@openduo/protocol` 0.8.6 的 `main-session.ts`：`classifySessionKeyKind`→`classifySessionKey`、`isMainAliasedChannelSession`→`isMainSessionCandidate`、`resolveMainSessionHolder`→`resolveMainSession`，三项得分都是 1，领先第二名分别为 0.19、0.53、0.50（`classifySessionKey` 的第二名是另一个按前缀分类的函数，0.81） |
 | CHANGELOG 对照的增量合并（`changelog_merge.mjs --keep`） | 逐版本对照文件放在 `.build` 下，换一次会话就没了；`--keep` 让目录里没有对照文件的版本沿用已提交映射里的条目，升级时只需写新版本的那一份 | v0.8.7：先由映射反推出 30 个旧版本的对照文件再合并，与原映射逐字节相同（只差一处按旧名记的条目，见下）；只给 0.8.5–0.8.7 三份新文件加 `--keep` 合并，结果与全量合并逐条相同。顺带修正：改名时 `changelog_<bundle>.json` 的 `unexplained` 列表也随之改名（此前 `classifySessionKeyKind` 留在列表里） |
 | 每次运行末尾打印全部 verdict（`rebuild.sh`） | `FAILED` 之前一行列出多少项 pass、不是 pass 的逐项写出，不必再打开 `pipeline_report.json` | 输出多一行 |
+| 类型播种（`type_seed.mjs`，三个 `--types` 读取方） | 命名任务里每个待命名局部附 TypeScript checker 推出的类型，protocol 的类型别名（`SessionSetAliasParams`、`MainSessionResolution`）直接出现在任务文件里；`.d.ts` 覆盖对 bundle 自己的声明无效，用临时副本里的 JSDoc 标签代替 | v0.8.7：只播种 43 个 protocol 签名时局部绑定有类型的比例 30.2%→30.6%（checker 不收窄 `any` 根的属性访问）；加上沿调用图注入参数类型（4 轮，含嵌套函数）后 30.2%→43.1%，参数 3.9%→42.2%，带 protocol 别名的局部 0→65；`name_locals.mjs tasks --types` 为 104 个待命名局部中的 71 个打印类型；`match_published_source.mjs --types` 排除 1337 个候选但 verdict 无一改变（VERIFICATION.md 第 10 节） |
 
 ### 未实现
 

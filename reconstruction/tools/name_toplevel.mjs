@@ -29,7 +29,9 @@
 //
 // Usage:
 //   node name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> <subsys.json> <outdir>
-//        [--new <fp_<bundle>.json>] [--limit <N>] [--min-users <k>]
+//        [--new <fp_<bundle>.json>] [--limit <N>] [--min-users <k>] [--types <types_daemon.json>]
+// --types (type_seed.mjs's output) adds a `signature:` line per candidate whose
+// parameters or return type the TypeScript checker knows.
 // Writes <outdir>/toplevel.md (instructions, then one section per candidate) and
 // <outdir>/toplevel.tsv (one line per candidate: short, empty name, suggested
 // subsystem). Fill in the names, delete the lines you leave unnamed, then:
@@ -47,6 +49,18 @@ if (CMD !== "tasks" || !OUTDIR) {
   process.exit(2);
 }
 const LIMIT = Number(opt("--limit") ?? 60), MIN_USERS = Number(opt("--min-users") ?? 1), FP = opt("--new");
+// ---- --types <types_daemon.json> (type_seed.mjs): read-only. One `signature:` line per candidate
+// whose parameters or return the TypeScript checker knows (`unnamed` entries, keyed by short name).
+const TYPES = opt("--types");
+const typesUnnamed = TYPES ? (JSON.parse(fs.readFileSync(TYPES, "utf8")).unnamed ?? {}) : {};
+const signatureLine = (short) => {
+  const t = typesUnnamed[short];
+  const known = (d) => d && (d.kind === "typed" || d.kind === "propagated");
+  if (!t || !(t.params.some(known) || known(t.returns))) return [];
+  const ps = t.params.map((p) => `${p.name}: ${known(p) ? p.type : "any"}`).join(", ");
+  return [`signature (TypeScript checker, type_seed.mjs): (${ps}) => ${known(t.returns) ? t.returns.type : "any"}`];
+};
+// ---- end --types ----
 
 const src = fs.readFileSync(PRETTY, "utf8");
 const ast = parse(src, { sourceType: "module", ranges: true });
@@ -166,6 +180,7 @@ const md = head.concat(rows.flatMap((r) => [
   ...(r.via.length ? [`assigns: ${r.via.join(", ")} (uninitialised vars the code reads; cite their values through this initialiser)`] : []),
   ...(literals(r.short).length ? [`strings: ${literals(r.short).map((s) => JSON.stringify(s)).join(", ")}`] : []),
   ...sharedState(r.short).map((x) => `shares ${x.name}: also used by ${x.users.join(", ")}`),
+  ...signatureLine(r.short), // --types
   "", "```js", body(r.short), "```", ""]));
 fs.writeFileSync(path.join(OUTDIR, "toplevel.md"), md.join("\n"));
 fs.writeFileSync(path.join(OUTDIR, "toplevel.tsv"), rows.map((r) => `${r.short}\t\t${r.suggested}`).join("\n") + "\n");

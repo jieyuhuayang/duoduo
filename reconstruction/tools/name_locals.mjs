@@ -35,10 +35,12 @@
 //            map entry no longer locates its binding (stale after a release:
 //            re-name it with `tasks`/`record`, or drop it with `prune`); 1 on
 //            error.
-//   tasks  TOP RENAME LOCALS SUBSYS OUTDIR [--only NN-dir,...]
+//   tasks  TOP RENAME LOCALS SUBSYS OUTDIR [--only NN-dir,...] [--types types_daemon.json]
 //            per subsystem, the declarations that still have unnamed locals,
 //            with every unnamed local written as $<ordinal> and every named
-//            one under its name: OUTDIR/<NN-dir>.md plus .json (the ordinals)
+//            one under its name: OUTDIR/<NN-dir>.md plus .json (the ordinals);
+//            --types (type_seed.mjs's output) adds one line per pending local
+//            whose type the TypeScript checker knows
 //   record TOP RENAME LOCALS ANSWERS.json...
 //            merge answers {realName: {ordinal: name}} into LOCALS
 //   prune  TOP RENAME LOCALS
@@ -293,6 +295,22 @@ if (CMD === "apply") {
 } else if (CMD === "tasks") {
   const [SUBSYS, OUTDIR, ...flags] = rest;
   const only = flags[0] === "--only" ? new Set(flags[1].split(",")) : null;
+  // ---- --types <types_daemon.json> (type_seed.mjs; after --only): read-only. One line per pending
+  // binding whose type the checker knows, matched by ordinal and checked by ctx (the file was
+  // computed on recon/daemon.recon.js; a different ctx means another release, and prints nothing).
+  const typesAt = flags.indexOf("--types");
+  const typesOf = typesAt >= 0 ? (JSON.parse(fs.readFileSync(flags[typesAt + 1], "utf8")).decls ?? {}) : null;
+  const typeLines = (real, pendingBindings) => {
+    if (!typesOf || !typesOf[real]) return [];
+    const out = [];
+    for (const e of pendingBindings) {
+      const t = typesOf[real].locals?.[e.ordinal];
+      if (!t || t.ctx !== e.ctx || !(t.kind === "typed" || t.kind === "propagated")) continue;
+      out.push(`$${e.ordinal}: ${t.type}${t.kind === "propagated" ? " (from call sites)" : ""}`);
+    }
+    return out;
+  };
+  // ---- end --types ----
   const subsys = JSON.parse(fs.readFileSync(SUBSYS, "utf8"));
   const { all, unresolved } = plan();
   // the names a declaration's locals had before the code next to them changed:
@@ -320,7 +338,7 @@ if (CMD === "apply") {
     for (const x of ed) { parts.push(src.slice(x.end, end), x.text); end = x.start; }
     parts.push(src.slice(d.start, end));
     const body = parts.reverse().join("");
-    (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body, before: [...new Set(before.get(d.real) || [])] });
+    (groups[dir] ??= []).push({ real: d.real, pending: pending.map(e => e.ordinal), body, before: [...new Set(before.get(d.real) || [])], types: typeLines(d.real, pending) });
   }
   for (const [dir, list] of Object.entries(groups)) {
     const head = "Name every `$<ordinal>` listed under `name:` with a short descriptive lowerCamelCase identifier, from how the binding is used\n" +
@@ -329,7 +347,9 @@ if (CMD === "apply") {
       "code next to them changed: reuse one when the binding plays the same role. Answer with one JSON file of the form\n" +
       "{\"<realName>\": {\"<ordinal>\": \"<name>\"}} covering every ordinal in the .json next to this file, then run name_locals.mjs record.\n\n";
     const md = head + list.map(x => `### ${x.real}\n\nname: ${x.pending.map(o => `$${o}`).join(" ")}\n` +
-      (x.before.length ? `previously: ${x.before.join(", ")}\n` : "") + `\n\`\`\`js\n${x.body}\n\`\`\`\n`).join("\n");
+      (x.before.length ? `previously: ${x.before.join(", ")}\n` : "") +
+      (x.types.length ? `types (TypeScript checker, type_seed.mjs):\n${x.types.map(l => `  ${l}`).join("\n")}\n` : "") + // --types
+      `\n\`\`\`js\n${x.body}\n\`\`\`\n`).join("\n");
     fs.writeFileSync(path.join(OUTDIR, `${dir}.md`), md);
     writeJson(path.join(OUTDIR, `${dir}.json`), Object.fromEntries(list.map(x => [x.real, x.pending])));
     console.log(`${dir}: ${list.length} declarations, ${list.reduce((n, x) => n + x.pending.length, 0)} locals to name`);
