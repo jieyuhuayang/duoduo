@@ -10,10 +10,19 @@
 // rewrite well enough to rank candidates (match_published_source.mjs uses the
 // same idea between the protocol package's TypeScript and the bundle).
 //
-// Output: { version?, order: [mangled...], decls: { mangled: { i, kind, arity, p:[props], s:[strings], n:[numbers], g:[globals] } } }
+// A code declaration (function, class, module initialiser) with fewer than
+// three features cannot be ranked by them; it also carries `r`, its relaxed
+// profile from relaxed_signature.mjs (normalised token stream, Weisfeiler-
+// Lehman label multiset and hash), so release_pairing.mjs can still compare it
+// with the other thin declarations of its window. Data declarations and the
+// ones with enough features do not carry it: the profile of a large body is
+// large, and only thin ones need it.
+//
+// Output: { version?, order: [mangled...], decls: { mangled: { i, kind, arity, p:[props], s:[strings], n:[numbers], g:[globals], r?: { t, w, h, n, capped } } } }
 // Usage: node decl_features.mjs <pretty.js> <out.json>
 import { parse } from "@babel/parser";
 import fs from "node:fs";
+import { relaxedProfile } from "./relaxed_signature.mjs";
 
 import { fileURLToPath } from "node:url";
 
@@ -74,7 +83,12 @@ function featuresOf(node) {
 }
 
 const out = { order: decls.map(d => d[0]), decls: {} };
-decls.forEach(([name, node, kind], i) => { out.decls[name] = { i, kind, ...featuresOf(node) }; });
+const ctx = { topLevel: top };
+decls.forEach(([name, node, kind], i) => {
+  const f = { i, kind, ...featuresOf(node) };
+  if (/function|class|module-init/.test(kind) && f.p.length + f.s.length + f.n.length + f.g.length < 3) f.r = relaxedProfile(node, ctx);
+  out.decls[name] = f;
+});
 return out;
 }
 

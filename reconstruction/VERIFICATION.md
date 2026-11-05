@@ -123,6 +123,37 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 什么算退步：同一对版本上，`carried-wrong` 不为 0；任何 `*-wrong` 或 `unresolved` 比基线多，或任何 `*-correct` 比基线少；排序里真值排第一的个数比基线少；某一对在 `bump.sh` 第 0 步被拒绝（`refused.txt`）。`gone` 与 `truth-only` 的数目不是分数，`gone` 的名字变了才需要解释；候选的平均分差只供参考。每次运行的 `score.json` 留在 `.build/replay/runs/<vOLD>__<vNEW>/` 下，不进仓库，基线只记在本节。
 
+### 5.2 分层配对的全局指派与宽松相似度（`release_pairing.mjs`、`relaxed_signature.mjs`）
+
+结论：`release_pairing.mjs` 从三层贪心配对改为五层逐层下钻、第 4 层每个窗口一次 Hungarian 指派、第 5 层不限窗口再指派一次、特征不足的声明改用宽松相似度之后，四对升级回放的每个判定计数与 5.1 节的基线逐项相同，`carried-wrong` 仍全为 0；与两侧人工推断表直接核对配对本身，v0.8.3→v0.8.4 的 1 个错配变为弃权，v0.8.6→v0.8.7 多配对 2 个，两步都没有一个不一致；发行历史 890 个符号里 `untraceable` 从 140 降到 49，25 个符号的首见版本改变。
+
+测什么。三件事，都在 2026-11-05 的同一份 fixture 上做（Node 22，`.build/replay/` 与 `.build/history/`）。其一，`replay_bump.sh` 的四对回放，改动前后各跑一遍（`.build/replay-before/`、`.build/replay-after2/`），按 5.1 节的判定逐项比较。其二，配对本身的正确率：对 v0.8.3→v0.8.4 与 v0.8.6→v0.8.7 各运行一次 `pair_releases.mjs`（输入是 `history.sh` 产出的 fp 与 pairs），把两侧提交的 `inferred_daemon.json` 按真名连接，旧短名的配对结果与新短名相同记一致、不同记不一致、没有配对记缺配对；这比回放多核对了按结构承接的全部名字。其三，`history_chain.mjs` 在全部 52 个发行版上回溯 `maps/rename_daemon.json` 的 890 个符号，改动前的输出与提交的 `maps/history_daemon.json` 逐字节相同（改动前实现），改动后逐符号比较首见版本、改动版本与链条分叉处。
+
+升级回放，改动前与改动后（每对一行；`bump.sh` 用时改动前 84、52、60、117 s，改动后 111、71、60、100 s）：
+
+| 版本对 | bundle | carried 对/错 | confirmed 对/错 | proposed 对/错 | unresolved | gone | 排序第一 / 前三 | 改动后 |
+|---|---|---|---|---|---|---|---|---|
+| v0.8.3→v0.8.4 | daemon | 454 / 0 | 18 / 0 | 11 / 1 | 0 | 5 | 29 / 30 | 逐项相同 |
+| v0.8.4→v0.8.5 | daemon | 728 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | – | 逐项相同 |
+| v0.8.5→v0.8.6 | daemon | 733 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | – | 逐项相同 |
+| v0.8.6→v0.8.7 | daemon | 701 / 0 | 18 / 0 | 13 / 0 | 0 | 1 | 31 / 31 | 逐项相同 |
+| v0.8.6→v0.8.7 | cli | 12 / 0 | 2 / 0 | 0 / 0 | 0 | 1 | 2 / 2 | 逐项相同 |
+
+计数相同，逐名的来源有三处变化：v0.8.3→v0.8.4 的 `isSupportedRuntime`（三个函数体相同的孪生体）改动前由配对给出错误建议 `NR`，改动后配对弃权，打分退回 `anchor_candidates.mjs` 排序的第一名，仍是 `NR`，所以判定仍是 proposed-wrong；v0.8.6→v0.8.7 的 `initInstructionsFingerprintModule`（模块初始化器，只有两个字符串，特征不足）改动后由宽松相似配对给出建议 `Ck`（wl 0.881，lcs 0.962），`setSessionAliasAndReindex`（上游挪到别的模块，窗口里没有可比候选）由第 5 层给出建议 `qO`（特征 Jaccard 0.667），两者都与真值一致，改动前只有排序候选。
+
+配对与两侧人工推断表核对（daemon，只计两侧都有的真名）：
+
+| 步骤 | 重合的名字 | 改动前 一致 / 不一致 / 缺配对 | 改动后 一致 / 不一致 / 缺配对 | 改动后的配对按层 |
+|---|---|---|---|---|
+| v0.8.3→v0.8.4 | 484 | 481 / 1 / 2 | 481 / 0 / 3 | 第 1 层 439，第 2 层 14，第 3 层 21，第 4 层 7（特征） |
+| v0.8.6→v0.8.7 | 732 | 721 / 0 / 11 | 723 / 0 / 9 | 第 1 层 669，第 2 层 23，第 3 层 25，第 4 层 4（特征）+ 1（宽松），第 5 层 1 |
+
+改动前的唯一不一致是 `isSupportedRuntime`：三个新孪生体中先被问到的那个贪心认领了窗口里唯一的旧候选；改动后同一个旧声明被两个新孪生体同时当作唯一候选，窗口宽度又相同，第 2 层不配，后面的层也不配函数体相同的两个声明，于是弃权。改动后 v0.8.3→v0.8.4 的 3 个缺配对是这个孪生体、`initGapSpanModule`（特征 Jaccard 0.217、重合系数 1，低于重合规则的 0.25 下限，改动前后都不配）和一对相邻的孪生体；v0.8.6→v0.8.7 的 9 个缺配对全是相邻的孪生体（`isAgentRuntime` 与 `isModelRuntime`、`isSystemStatusParams` 与 `isSystemConfigParams` 等），它们在升级时由 `align_releases.mjs` 按语句对齐承接，回放里全部 carried-correct。全部两步没有一个配对与真值不同。
+
+发行历史。改动后 890 个符号里 211 步靠第 4、5 层配对；`untraceable` 从 140 个降到 49 个，其中 21 个是数据声明（未初始化的 `var` 19 个、常量 2 个），28 个是没有一层能按位置分辨的孪生体，改动前这些孪生体记成了回溯停住处的新增。与改动前的实现相比（同一份特征文件，不计宽松画像），25 个符号的首见版本改变、17 个的改动版本改变、8 个从有首见版本变为 `untraceable`（都是孪生体），逐个读过分叉处：12 个是第 4、5 层接上了改动前没有配对的函数（挪过模块、落在窗口之外，或在加宽的窗口里改动前被先问到的别的新声明抢先：`createAgentSdkAdapter` 从 0.5.10 追到 0.2.0，正是 README 原记的已知误差；`resolveRuntimePaths` 从 0.4.3 追到 0.2.0；`deliverRouteEventToSession`、`isJobScheduleDue`、`setSessionAliasAndReindex` 等同类）；3 个是重合规则的配对被指派给了同一窗口里特征 Jaccard 更高的另一个新声明（`readOutboxRecordsPastCursor` 在 0.2.12→0.3.0 的旧声明被 Jaccard 0.759 的声明拿走，它自己只有 0.277）或两个新声明并列而弃权（`isMergeableChannelMessageBatch`、`parseChannelConfigFields`，旧函数被拆成两个）；`buildSystemPromptForChannelConfig` 与 `renderPromptLayers` 在 0.7.0→0.7.1 争同一个旧声明，改动前归前者（Jaccard 0.396），改动后指派给后者（0.66）；8 个变为 `untraceable` 的都是孪生体，其中 `codexUnavailableReason` 改动前靠贪心孪生体配对追到 0.2.0，改动后在 0.4.6→0.5.0 让位给窗口更窄的另一个新孪生体（旧声明在那个窗口的两个相邻锚点之间，Codex 支持也是 0.5.x 才出现的），自己没有一层能配，记为 `untraceable` 而不是 0.2.0。`maps/history_daemon.json` 已用 `history.sh --write` 按改动后的实现重写（特征文件用 `decl_features.mjs` 重新生成，带宽松画像），`first-party/` 文件头的 `// since:` 行随之由 promote 更新。`maps/changelog_daemon.json` 没有重新配对：首见版本改变的符号，其 CHANGELOG 配对可能指向原来的版本。
+
+宽松相似度本身的量级（v0.8.6 与 v0.8.7 的 daemon，`relaxed_signature.mjs` 命令行）：函数体相同的两个声明 wl 1、lcs 1；`isAgentRuntime` 对不相关的单行谓词 `isSystemStatusParams` wl 0.329、lcs 0.645、均值 0.487，低于 0.6 的阈值；`initInstructionsFingerprintModule` 的两个版本 0.921，对同一窗口里另两个模块初始化器 0.292 与 0.148；`setSessionAliasAndReindex` 的两个版本 0.795，对同窗口的无关函数 0.112。`decl_features.mjs` 的输出因宽松画像从 1.09 MB 增至 1.55 MB（v0.8.7），`pair_releases.mjs` 一步用时约 3 s。
+
 ## 6 可读树与 bundle 一致
 
 第 1–3 节只证明还原产物，没有一项看 `first-party/`；而人读的是后者，它出错的每一种方式都是静默的。`verify_first_party.mjs` 做六项相互独立的检查，已提交报告中 `firstPartyTree` 为 `pass`：
