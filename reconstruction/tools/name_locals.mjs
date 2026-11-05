@@ -63,7 +63,7 @@
 //            for a one-sentence `_describe` per declaration before the names.
 //   record TOP RENAME LOCALS ANSWERS.json...
 //            merge answers {realName: {ordinal: name}} into LOCALS; keys that
-//            start with `_` (`_describe`) are ignored
+//            `_describe` is read and not recorded; any other `_` key is refused
 //   rules  FILE.js [--expect <expected.txt>]
 //            the rule layer alone on a plain file: every top-level declaration
 //            is its own real name, and each binding a rule names is printed as
@@ -421,7 +421,7 @@ if (CMD === "apply") {
     console.log(`${dir}: ${list.length} declarations, ${list.reduce((n, x) => n + x.pending.length, 0)} locals to name`);
   }
 } else if (CMD === "record") {
-  let added = 0, replaced = 0;
+  let added = 0, replaced = 0, described = 0;
   const problems = [];
   for (const f of rest) {
     const ans = JSON.parse(fs.readFileSync(f, "utf8"));
@@ -429,7 +429,8 @@ if (CMD === "apply") {
       const d = decls.get(real);
       if (!d) { problems.push(`${f}: ${real} is not a renamed declaration`); continue; }
       for (const [ord, name] of Object.entries(names)) {
-        if (ord.startsWith("_")) continue;  // `_describe`: the sentence the task asks for first, not a local
+        if (ord === "_describe") { described++; continue; }  // the sentence the task asks for first, not a local
+        if (ord.startsWith("_")) { problems.push(`${f}: ${real} has an unknown key "${ord}" (only \`_describe\` is skipped; a local is its ordinal)`); continue; }
         const e = d.bindings[Number(ord)];
         if (!e) { problems.push(`${f}: ${real} has no local #${ord}`); continue; }
         if (!validName(name)) { problems.push(`${f}: ${real} #${ord}: "${name}" is not a usable identifier`); continue; }
@@ -441,7 +442,7 @@ if (CMD === "apply") {
     }
   }
   writeJson(LOCALS, sortMap(localsMap));
-  console.log(`recorded ${added} new, ${replaced} replaced -> ${LOCALS}`);
+  console.log(`recorded ${added} new, ${replaced} replaced${described ? ` (${described} \`_describe\` sentence(s) read and not recorded)` : ""} -> ${LOCALS}`);
   if (problems.length) { console.log(`${problems.length} refused:`); for (const p of problems) console.log("  " + p); process.exit(1); }
 } else if (CMD === "prune") {
   const { unresolved } = plan();

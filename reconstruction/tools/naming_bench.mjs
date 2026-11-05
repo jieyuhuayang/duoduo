@@ -26,7 +26,13 @@
 //          name_toplevel.mjs) for an A/B comparison. --exclude <file>... drops
 //          symbols whose real name occurs in those files (the namer's own
 //          context, e.g. CLAUDE.md), so a name already in front of the namer
-//          is not scored as recovered.
+//          is not scored as recovered. A hidden name must reach the task
+//          through no channel: the derived maps leave it out, the CHANGELOG
+//          pairing has its key dropped AND every mention of it in the text of
+//          other symbols' entries replaced (the first run of this benchmark
+//          leaked five answers through the "CHANGELOG words" line, which is
+//          built from the entry text), and after writing toplevel.md `make`
+//          scans it for every answer as a whole word and exits 1 on a hit.
 //   score  compares proposals with answers.json on three layers (REFORGE,
 //          REBENCH, SymLM):
 //            exact     equal after lowercasing and removing separators
@@ -37,13 +43,15 @@
 //          A proposal may list up to 3 candidates; `top1` scores the first,
 //          `top3` the best of them (the oracle for "a person picks from the
 //          list"). Reported per kind and per subsystem, with a one-line
-//          summary; written to <outdir>/score.json and score.md.
+//          summary; written to <outdir>/score.json and score.md. --skip
+//          <short,...> leaves symbols out of the scoring (e.g. ones a later
+//          check showed leaked into the task that was measured).
 //
 // Usage:
 //   node naming_bench.mjs make <pretty.js> <rename.json> <xref.json> <subsys.json> <outdir>
 //        --n <N> --seed <S> [--kind function|moduleInit|value] [--mix <functions,inits,values>]
 //        [--changelog <changelog_daemon.json>] [--protocol <dir>] [--exclude <file>...] [--body-lines <N>]
-//   node naming_bench.mjs score <answers.json> <proposals.json|.tsv> [--embed "<cmd>"] [--out <dir>] [--label <name>]
+//   node naming_bench.mjs score <answers.json> <proposals.json|.tsv> [--embed "<cmd>"] [--out <dir>] [--label <name>] [--skip <short,...>]
 // Proposal formats: {short: {names: [..]}} (name_toplevel.mjs's proposals file),
 // {short: "name"}, {short: ["a","b"]}, or a TSV `short<TAB>name` (the batch list).
 import fs from "node:fs";
@@ -62,7 +70,7 @@ const writeJson = (f, o) => fs.writeFileSync(f, JSON.stringify(o, null, 2) + "\n
 const usage = () => {
   console.error("usage: node naming_bench.mjs make <pretty.js> <rename.json> <xref.json> <subsys.json> <outdir> --n <N> --seed <S>\n" +
     "            [--kind function|moduleInit|value] [--mix <fn,init,value>] [--changelog <json>] [--protocol <dir>] [--exclude <file>...] [--body-lines <N>]\n" +
-    "       node naming_bench.mjs score <answers.json> <proposals.json|.tsv> [--embed \"<cmd>\"] [--out <dir>] [--label <name>]");
+    "       node naming_bench.mjs score <answers.json> <proposals.json|.tsv> [--embed \"<cmd>\"] [--out <dir>] [--label <name>] [--skip <short,...>]");
   process.exit(2);
 };
 
@@ -145,8 +153,11 @@ function make() {
   }
   // subsys without the hidden names: a hidden name must not appear in the vocabulary
   const subsys2 = Object.fromEntries(Object.entries(subsys).filter(([n]) => !hiddenReal.has(n)));
-  const changelog = opt("--changelog") ? readJson(opt("--changelog")) : null;
-  if (changelog?.symbols) changelog.symbols = Object.fromEntries(Object.entries(changelog.symbols).filter(([n]) => !hiddenReal.has(n)));
+  // CHANGELOG pairing without the hidden names: the hidden symbols' own
+  // entries go, and every mention of a hidden name inside another symbol's
+  // entry text is replaced, because the vocabulary block quotes code-shaped
+  // words from that text
+  const changelog = opt("--changelog") ? scrubChangelog(readJson(opt("--changelog")), hiddenReal) : null;
   fs.mkdirSync(OUTDIR, { recursive: true });
   writeJson(path.join(OUTDIR, "answers.json"), Object.fromEntries(picked.map((x) => [x.short, { name: x.real, kind: x.kind, subsystem: x.subsystem }])));
   writeJson(path.join(OUTDIR, "rename.json"), rename2);
@@ -160,9 +171,40 @@ function make() {
   writeJson(path.join(OUTDIR, "toplevel.proposals.json"), res.proposals);
   const missing = picked.filter((x) => !res.rows.some((r) => r.short === x.short));
   if (missing.length) console.error(`naming_bench: ${missing.length} picked symbol(s) not in the task: ${missing.map((x) => x.short).join(", ")}`);
+  const leaks = findLeaks(res.md, picked);
+  if (leaks.length) {
+    console.error(`naming_bench: ${leaks.length} hidden name(s) appear in ${OUTDIR}/toplevel.md; the task would score a name it shows:`);
+    for (const l of leaks) console.error(`  ${l.short} ${l.name} at line ${l.line}: ${l.text}`);
+    process.exit(1);
+  }
   writeJson(path.join(OUTDIR, "rules.proposals.json"), ruleProposals(src, decls, res.rows, rename2, subsys2));
   const perKind = {}; for (const x of picked) perKind[x.kind] = (perKind[x.kind] || 0) + 1;
   console.log(`naming_bench: ${picked.length} symbols hidden (${Object.entries(perKind).map(([k, v]) => `${k} ${v}`).join(", ")}; ${exclude.size} excluded by --exclude; seed ${seed}) -> ${OUTDIR}/answers.json, toplevel.md, rules.proposals.json`);
+}
+
+// the pairing with every trace of the hidden names removed: their keys, and
+// their spelling inside the `changelog` and `why` text of every other entry
+function scrubChangelog(changelog, hiddenReal) {
+  if (!changelog?.symbols) return changelog;
+  const names = [...hiddenReal].sort((a, b) => b.length - a.length);
+  const re = names.length ? new RegExp(`\\b(?:${names.map((n) => n.replace(/[$]/g, "\\$&")).join("|")})\\b`, "g") : null;
+  const scrub = (t) => (typeof t === "string" && re ? t.replace(re, "<hidden>") : t);
+  const symbols = {};
+  for (const [n, list] of Object.entries(changelog.symbols)) {
+    if (hiddenReal.has(n)) continue;
+    symbols[n] = (list ?? []).map((e) => ({ ...e, changelog: scrub(e.changelog), why: scrub(e.why) }));
+  }
+  return { ...changelog, symbols, unexplained: Array.isArray(changelog.unexplained) ? changelog.unexplained.filter((n) => !hiddenReal.has(n)) : changelog.unexplained };
+}
+// every line of a task text that contains a hidden name as a whole word
+export function findLeaks(text, picked) {
+  const out = [];
+  const lines = text.split("\n");
+  for (const x of picked) {
+    const re = new RegExp(`(?<![\\w$])${x.real.replace(/[$]/g, "\\$&")}(?![\\w$])`);
+    lines.forEach((l, i) => { if (re.test(l)) out.push({ short: x.short, name: x.real, line: i + 1, text: l.length > 120 ? l.slice(0, 120) + " …" : l }); });
+  }
+  return out;
 }
 
 // ---- rule baseline ------------------------------------------------------------
@@ -280,7 +322,9 @@ function embedCosines(cmd, pairs) {
 function score() {
   const [ANSWERS, PROPOSALS] = args;
   if (!ANSWERS || !PROPOSALS) usage();
-  const answers = readJson(ANSWERS), proposals = readProposals(PROPOSALS);
+  const proposals = readProposals(PROPOSALS);
+  const skip = new Set((opt("--skip") ?? "").split(",").filter(Boolean));
+  const answers = Object.fromEntries(Object.entries(readJson(ANSWERS)).filter(([s]) => !skip.has(s)));
   const embed = opt("--embed"), outDir = opt("--out") ?? path.dirname(PROPOSALS), label = opt("--label") ?? path.basename(PROPOSALS);
   const rows = [];
   for (const [short, a] of Object.entries(answers)) {
@@ -293,7 +337,8 @@ function score() {
   if (embed) {
     const pairs = [];
     for (const r of rows) for (const n of r.proposals) pairs.push({ a: n, b: r.answer });
-    const cos = embedCosines(embed, pairs);
+    let cos;
+    try { cos = embedCosines(embed, pairs); } catch (e) { console.error(`naming_bench: ${e.message}`); process.exit(1); }
     let i = 0;
     for (const r of rows) { const c = r.proposals.map(() => cos[i++]); r.embed1 = c[0] ?? 0; r.embed3 = c.length ? Math.max(...c) : 0; }
   }
@@ -306,19 +351,22 @@ function score() {
   const pct = (x) => `${(100 * x).toFixed(1)}%`, f = (x) => x.toFixed(3);
   const line = (t) => `| ${t.group} | ${t.n} | ${t.answered} | ${pct(t.exact1)} | ${f(t.f1_1)} | ${pct(t.exact3)} | ${f(t.f1_3)} |${embed ? ` ${f(t.embed1)} | ${f(t.embed3)} |` : ""}`;
   const head = `| group | n | answered | exact@1 | tokenF1@1 | exact@3 | tokenF1@3 |${embed ? " embed@1 | embed@3 |" : ""}\n|---|---|---|---|---|---|---|${embed ? "---|---|" : ""}`;
-  const summary = `${label}: n=${rows.length} answered=${all.answered} exact@1=${pct(all.exact1)} tokenF1@1=${f(all.f1_1)} exact@3=${pct(all.exact3)} tokenF1@3=${f(all.f1_3)}${embed ? ` embed@1=${f(all.embed1)} embed@3=${f(all.embed3)}` : ""}`;
+  const summary = `${label}: n=${rows.length}${skip.size ? ` (${skip.size} skipped)` : ""} answered=${all.answered} exact@1=${pct(all.exact1)} tokenF1@1=${f(all.f1_1)} exact@3=${pct(all.exact3)} tokenF1@3=${f(all.f1_3)}${embed ? ` embed@1=${f(all.embed1)} embed@3=${f(all.embed3)}` : ""}`;
   const md = [`# naming benchmark score: ${label}`, "", summary, "", "## by kind", "", head, ...byKind.map(line), "", "## by subsystem", "", head, ...bySub.map(line), "",
     "## per symbol", "", "| short | answer | kind | proposals | exact@3 | tokenF1@3 |", "|---|---|---|---|---|---|",
     ...rows.map((r) => `| ${r.short} | ${r.answer} | ${r.kind} | ${r.proposals.join(", ") || "(none)"} | ${r.exact3} | ${f(r.f1_3)} |`), ""].join("\n");
   fs.mkdirSync(outDir, { recursive: true });
   const stem = label.replace(/[^\w.-]+/g, "_");
-  writeJson(path.join(outDir, `score.${stem}.json`), { label, answers: ANSWERS, proposals: PROPOSALS, embed: embed ?? null, all, byKind, bySubsystem: bySub, rows });
+  writeJson(path.join(outDir, `score.${stem}.json`), { label, answers: ANSWERS, proposals: PROPOSALS, skip: [...skip], embed: embed ?? null, all, byKind, bySubsystem: bySub, rows });
   fs.writeFileSync(path.join(outDir, `score.${stem}.md`), md);
   console.log(summary);
   console.log(`  by kind: ${byKind.map((t) => `${t.group} exact@1=${pct(t.exact1)} F1@1=${f(t.f1_1)} exact@3=${pct(t.exact3)} F1@3=${f(t.f1_3)}`).join("; ")}`);
   console.log(`  -> ${path.join(outDir, `score.${stem}.md`)}`);
 }
 
-if (CMD === "make") make();
-else if (CMD === "score") score();
-else usage();
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+if (isMain) {
+  if (CMD === "make") make();
+  else if (CMD === "score") score();
+  else usage();
+}
