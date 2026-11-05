@@ -34,11 +34,16 @@
 //        [--proposed <inferred_<bundle>.proposed.json>] [--md <out.md>] [--json <out.json>]
 //        [--write <bump's inferred_<bundle>.json> [--accept <oldShort>[=<newShort>]]...]
 //        <old.pretty.js> <new.pretty.js>
-// The candidate for each name is its proposal (remap_inferred.mjs) when there is
-// one, else impact.json's top-ranked pick. --write adds every `confirmed` entry
-// to the bump's inferred map, plus each --accept (a name the reader confirmed by
-// the bodies; `=<newShort>` overrides the candidate), refusing a key or a real
-// name already present. Nothing else is written; exit 0, or 1 on a refusal.
+// The candidate for each name is, in this order: the reader's --accept; the
+// declaration the candidate scorer accepted (anchor_candidates.mjs through
+// impact.json, `status: "accept"`), treated like a proposal, so the witnesses
+// still decide and a pairing proposal that disagrees is named; the pairing
+// proposal (remap_inferred.mjs); impact.json's top-ranked pick. --write adds
+// every `confirmed` entry to the bump's inferred map, plus each --accept (a
+// name the reader confirmed by the bodies; `=<newShort>` overrides the
+// candidate), refusing a key or a real name already present. A scorer-accepted
+// candidate the witnesses contradict is reported and never written. Nothing
+// else is written; exit 0, or 1 on a refusal.
 import fs from "node:fs";
 import crypto from "node:crypto";
 import { parse } from "@babel/parser";
@@ -110,10 +115,19 @@ if (!entries.length) { console.log(`confirm_reanchor: no RE-ANCHOR entries for $
 const O = load(OLD), N = load(NEW);
 const results = [];
 for (const r of entries) {
-  const cand = ACCEPT.get(r.oldShort) || proposalOf.get(r.oldShort) || r.ranking?.[0]?.name || null;
+  // the candidate: the reader's --accept, else the declaration the candidate
+  // scorer accepted (impact.json `status: "accept"`, treated like a proposal:
+  // the witnesses still decide, and it is written only when they confirm it or
+  // the reader accepts it), else the pairing proposal, else the top-ranked pick
+  const scorer = r.status === "accept" ? r.accepted : null;
+  const proposal = proposalOf.get(r.oldShort) || null;
+  const cand = ACCEPT.get(r.oldShort) || scorer || proposal || r.ranking?.[0]?.name || null;
   const od = O.kinds.get(r.oldShort), nd = cand ? N.kinds.get(cand) : null;
-  const res = { real: r.real, old: r.oldShort, candidate: cand, source: ACCEPT.get(r.oldShort) ? "accepted" : proposalOf.has(r.oldShort) ? "proposal" : "ranking",
+  const res = { real: r.real, old: r.oldShort, candidate: cand,
+                source: ACCEPT.get(r.oldShort) ? "accepted" : scorer ? "scorer" : proposal ? "proposal" : "ranking",
                 oldKind: nameableKind(od), newKind: nameableKind(nd), params: [od?.params ?? null, nd?.params ?? null] };
+  if (scorer) { res.scorer = { accepted: scorer, score: r.score, margin: r.margin, round: r.round }; if (proposal && proposal !== scorer) res.proposal = proposal; }
+  else if (r.status === "abstain") res.scorer = { abstained: r.reason, score: r.score ?? null, margin: r.margin ?? null };
   // witnesses: literals that only the old declaration has
   const witnesses = [...O.lits].filter(([, m]) => m.size === 1 && m.has(r.oldShort)).map(([v]) => v);
   const tally = new Map();
@@ -153,14 +167,20 @@ for (const r of entries) {
 const counts = new Map();
 for (const r of results) counts.set(r.verdict, (counts.get(r.verdict) || 0) + 1);
 console.log(`confirm_reanchor ${BUNDLE}: ${results.length} RE-ANCHOR name(s): ` + [...counts].map(([k, v]) => `${v} ${k}`).join(", "));
-for (const r of results) if (r.verdict !== "confirmed") console.log(`  ${r.verdict.padEnd(31)} ${r.real} (${r.old} -> ${r.candidate ?? "?"}, ${r.source})${r.note ? "  " + r.note : ""}`);
+for (const r of results) if (r.verdict !== "confirmed") console.log(`  ${r.verdict.padEnd(31)} ${r.real} (${r.old} -> ${r.candidate ?? "?"}, ${r.source})${r.note ? "  " + r.note : ""}` +
+  (r.source === "scorer" && r.verdict === "contradicted" ? "  [the candidate scorer accepted this; the witnesses refute it: not written]" : "") +
+  (r.proposal ? `  [pairing proposal ${r.proposal} differs]` : ""));
+const scored = results.filter((r) => r.scorer?.accepted);
+if (scored.length) console.log(`  candidate scorer accepted ${scored.length}: ${scored.filter((r) => r.verdict === "confirmed").length} witness-confirmed, ${scored.filter((r) => r.verdict === "contradicted").length} contradicted, ${scored.filter((r) => r.proposal).length} differing from the pairing proposal`);
 
 if (MD) {
   const L = [`# RE-ANCHOR confirmation (${BUNDLE})`, "",
     "Witnesses are string literals (6+ characters) that only the old declaration has; `landing` is where they are in NEW. " +
     "`confirmed`: every witness still present is in the candidate alone. `read bodies`: no witness; decide from the two bodies below, then pass `--accept <old>`.", "",
-    "| name | old → candidate | source | verdict | witnesses (gone) | landing | kind | params |", "|---|---|---|---|---|---|---|---|"];
-  for (const r of results) L.push(`| ${r.real} | \`${r.old}\` → \`${r.candidate ?? "?"}\` | ${r.source} | ${r.verdict}${r.note ? ": " + r.note : ""} | ${r.witnesses} (${r.gone}) | ${r.landing.slice(0, 3).map((l) => `\`${l.in}\`:${l.count}`).join(" ") || "-"} | ${r.oldKind === r.newKind ? r.oldKind : `${r.oldKind} → ${r.newKind}`} | ${r.params[0]} → ${r.params[1]} |`);
+    "`source` scorer: the declaration anchor_candidates.mjs accepted (impact.json); it is treated like a proposal, and a disagreeing pairing proposal is named.", "",
+    "| name | old → candidate | source | scorer | verdict | witnesses (gone) | landing | kind | params |", "|---|---|---|---|---|---|---|---|---|"];
+  const scorerCell = (r) => !r.scorer ? "-" : r.scorer.accepted ? `accept ${r.scorer.score?.toFixed(2)} (margin ${r.scorer.margin?.toFixed(2)}, round ${r.scorer.round})${r.proposal ? `; proposal \`${r.proposal}\` differs` : ""}` : `abstain: ${r.scorer.abstained}${r.scorer.score != null ? ` (${r.scorer.score.toFixed(2)})` : ""}`;
+  for (const r of results) L.push(`| ${r.real} | \`${r.old}\` → \`${r.candidate ?? "?"}\` | ${r.source} | ${scorerCell(r)} | ${r.verdict}${r.note ? ": " + r.note : ""} | ${r.witnesses} (${r.gone}) | ${r.landing.slice(0, 3).map((l) => `\`${l.in}\`:${l.count}`).join(" ") || "-"} | ${r.oldKind === r.newKind ? r.oldKind : `${r.oldKind} → ${r.newKind}`} | ${r.params[0]} → ${r.params[1]} |`);
   for (const r of results.filter((x) => x.verdict !== "confirmed")) {
     L.push("", `## ${r.real}: ${r.verdict}`, "", "old:", "```js", body(O, r.old), "```", "new candidate:", "```js", r.candidate ? body(N, r.candidate) : "(none)", "```");
   }

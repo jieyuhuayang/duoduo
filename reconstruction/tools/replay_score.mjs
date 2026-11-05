@@ -36,7 +36,11 @@
 // For the names the truth re-anchored (not carried, truth has them), the ranking
 // of anchor_candidates.mjs (impact.json's reanchor[].ranking) is scored too:
 // how many have the truth's declaration ranked first, in the top 3, and the mean
-// margin of the first over the runner-up.
+// margin of the first over the runner-up (scores are in [0, 1] since the
+// rarity-weighted scorer; older runs scored on a 0..5 scale). When impact.json
+// carries the scorer's decision (`status`, `accepted`, `reason`, `round`), the
+// `scorer` block counts its acceptances (and how many are the truth), its
+// abstentions with their reasons, and the `gone` names it accepted.
 //
 // Inputs are bump.sh's outputs ($OUT), the OLD maps bump.sh read, and the NEW
 // maps. A bundle whose OLD map has no inferred_<bundle>.json (v0.8.3 has none for
@@ -87,6 +91,8 @@ for (const bundle of BUNDLES) {
   const confirm = new Map(readJSON(path.join(BUMP, `reanchor_${bundle}.json`), []).map((r) => [r.old, r]));
   const impact = readJSON(path.join(BUMP, "impact.json"), {});
   const rankingOf = new Map((impact.reanchor || []).filter((r) => r.bundle === bundle).map((r) => [r.oldShort, r.ranking || []]));
+  // the candidate scorer's decision per name (anchor_candidates.mjs through impact.json; absent in older impact files)
+  const decisionOf = new Map((impact.reanchor || []).filter((r) => r.bundle === bundle && r.status).map((r) => [r.oldShort, { status: r.status, accepted: r.accepted ?? null, reason: r.reason ?? null, round: r.round ?? null }]));
   const fp = readJSON(fpFile, { matched: {} });
 
   const truthByReal = invert(truth);
@@ -109,6 +115,7 @@ for (const bundle of BUNDLES) {
       const cand = c?.candidate ?? p?.new ?? ranking[0]?.name ?? null;
       rec.candidate = cand;
       rec.candidateSource = c ? c.source : p ? "proposal" : ranking[0] ? "ranking" : null;
+      if (decisionOf.has(oldShort)) rec.scorer = decisionOf.get(oldShort);
       if (c) rec.confirm = c.verdict + (c.note ? `: ${c.note}` : "");
       if (p) rec.proposal = { new: p.new, how: p.how, ...(p.score != null ? { score: p.score } : {}) };
       if (ranking.length) {
@@ -141,7 +148,21 @@ for (const bundle of BUNDLES) {
     meanMargin: margins.length ? +(margins.reduce((a, b) => a + b, 0) / margins.length).toFixed(3) : null,
     meanMarginWhenFirst: (() => { const m = ranked.filter((r) => r.ranking.rankOfTruth === 1).map((r) => r.ranking.margin); return m.length ? +(m.reduce((a, b) => a + b, 0) / m.length).toFixed(3) : null; })(),
   };
+  // the candidate scorer's decisions (anchor_candidates.mjs accept / abstain) over
+  // the same names, plus how many `gone` names it accepted (not an error: the
+  // truth dropped or respelled the name, the placement is judged by the note)
+  const decided = re.filter((r) => r.scorer);
+  if (decided.length) B.scorer = {
+    decided: decided.length,
+    accepted: decided.filter((r) => r.scorer.status === "accept").length,
+    acceptedCorrect: decided.filter((r) => r.scorer.status === "accept" && r.scorer.accepted === r.truthShort).length,
+    acceptedWrong: decided.filter((r) => r.scorer.status === "accept" && r.scorer.accepted !== r.truthShort).map((r) => r.real),
+    abstained: decided.filter((r) => r.scorer.status === "abstain").map((r) => `${r.real} (${r.scorer.reason})`),
+    acceptedGone: Object.values(B.names).filter((r) => r.verdict === "gone" && r.scorer?.status === "accept").map((r) => r.real),
+    maxRound: Math.max(0, ...decided.map((r) => r.scorer.round || 0)),
+  };
 }
+const scorerText = (B) => B.scorer ? `; scorer: accept ${B.scorer.accepted}/${B.scorer.decided} (${B.scorer.acceptedCorrect} correct, ${B.scorer.acceptedWrong.length} wrong), abstain ${B.scorer.abstained.length}, rounds ${B.scorer.maxRound}` : "";
 
 // --- print ----------------------------------------------------------------------
 const pad = (s, n) => String(s).padEnd(n);
@@ -150,7 +171,7 @@ const summaryLine = (bundle, B) => {
   const c = B.counts, r = B.ranking;
   return `${OLD_LABEL}->${NEW_LABEL} ${bundle}: ${Object.keys(B.names).length} names: carried ${c["carried-correct"]}/${c["carried-wrong"]} (correct/wrong), ` +
     `confirmed ${c["confirmed-correct"]}/${c["confirmed-wrong"]}, proposed ${c["proposed-correct"]}/${c["proposed-wrong"]}, unresolved ${c.unresolved}, gone ${c.gone}${c.goneRespelled ? ` (${c.goneRespelled} respelled)` : ""}; ` +
-    `truth-only ${B.truthOnly.length}; ranking: truth first ${r.truthFirst}/${r.ranked}, top3 ${r.truthTop3}/${r.ranked}, mean margin ${r.meanMargin ?? "-"}` +
+    `truth-only ${B.truthOnly.length}; ranking: truth first ${r.truthFirst}/${r.ranked}, top3 ${r.truthTop3}/${r.ranked}, mean margin ${r.meanMargin ?? "-"}` + scorerText(B) +
     (B.status !== "scored" ? ` ${B.status.slice("scored ".length)}` : "");
 };
 const lines = [];
@@ -163,6 +184,7 @@ for (const [bundle, B] of Object.entries(result.bundles)) {
     if (B.counts.goneRespelled) lines.push(`  ${pad("(gone: respelled)", 18)} ${B.counts.goneRespelled}`);
     const r = B.ranking;
     lines.push(`  ranking over the ${r.reanchored} re-anchored names: ${r.ranked} ranked, truth first ${r.truthFirst}, top3 ${r.truthTop3}, absent ${r.truthAbsent}, mean margin ${r.meanMargin ?? "-"} (when first: ${r.meanMarginWhenFirst ?? "-"})`);
+    if (B.scorer) lines.push(`  candidate scorer: accepted ${B.scorer.accepted} of ${B.scorer.decided} (${B.scorer.acceptedCorrect} correct${B.scorer.acceptedWrong.length ? `, wrong: ${B.scorer.acceptedWrong.join(", ")}` : ""}), abstained ${B.scorer.abstained.length}${B.scorer.abstained.length ? `: ${B.scorer.abstained.join(", ")}` : ""}, gone accepted ${B.scorer.acceptedGone.length}${B.scorer.acceptedGone.length ? `: ${B.scorer.acceptedGone.join(", ")}` : ""}, rounds ${B.scorer.maxRound}`);
     for (const rec of Object.values(B.names).filter((x) => !["carried-correct", "confirmed-correct", "proposed-correct"].includes(x.verdict))) {
       lines.push(`  ${pad(rec.verdict, 18)} ${rec.real} (${rec.oldShort} -> ${rec.truthShort ?? "-"})${rec.note ? "  " + rec.note : ""}${rec.confirm ? `  [${rec.confirm}]` : ""}`);
     }
@@ -185,6 +207,7 @@ if (MD_OUT) {
       L.push("");
       const r = B.ranking;
       L.push(`Ranking over the ${r.reanchored} names the truth re-anchored: ${r.ranked} ranked, truth first ${r.truthFirst}, in top 3 ${r.truthTop3}, absent ${r.truthAbsent}, mean margin ${r.meanMargin ?? "-"} (when first: ${r.meanMarginWhenFirst ?? "-"}).`, "");
+      if (B.scorer) L.push(`Candidate scorer (anchor_candidates.mjs): accepted ${B.scorer.accepted} of ${B.scorer.decided} (${B.scorer.acceptedCorrect} correct${B.scorer.acceptedWrong.length ? `; wrong: ${B.scorer.acceptedWrong.join(", ")}` : ""}), abstained ${B.scorer.abstained.length}${B.scorer.abstained.length ? ` (${B.scorer.abstained.join(", ")})` : ""}, gone names accepted ${B.scorer.acceptedGone.length}${B.scorer.acceptedGone.length ? ` (${B.scorer.acceptedGone.join(", ")})` : ""}, rounds ${B.scorer.maxRound}.`, "");
       const rows = Object.values(B.names).filter((x) => x.verdict !== "carried-correct");
       if (rows.length) {
         L.push("| name | verdict | old | truth | candidate | source | confirm | rank of truth | margin | note |", "|---|---|---|---|---|---|---|---|---|---|");

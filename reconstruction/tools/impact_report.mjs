@@ -72,8 +72,9 @@
 // Also reported: what no doc covers yet (declarations with no old
 // counterpart; strings and properties the release added that no doc
 // mentions), inferred names that lost their anchor, with the candidates
-// anchor_candidates.mjs ranks for each (and the declaration the positional
-// pairing suggests); the plain-text delta (plaintext_delta.mjs) with
+// anchor_candidates.mjs ranks for each and its decision (`status` accept or
+// abstain, `reason`, `score`, `margin`, `round`; the positional pairing's and
+// the alignment's suggestions beside it); the plain-text delta (plaintext_delta.mjs) with
 // the doc lines that mention each file; and the affected doc sections (`## `
 // headings) packed into at most --groups work packages, each section in exactly
 // one -- the unit the upgrade workflow hands to one agent.
@@ -435,22 +436,31 @@ for (const bundle of ["daemon", "cli"]) {
     reanchor.push({ bundle, real, oldShort: short, suggestion: P.pairs?.[short] ? [P.pairs[short]] : block ? block.newNames : [],
       basis: P.pairs?.[short] ? "positional pair" : block ? "the reshaped block it sat in" : "none" });
   }
-  // rank every candidate on callers, callees and strings (anchor_candidates.mjs)
+  // rank every candidate on callers, callees and strings, propagating the
+  // accepted pairs along the call graph, and decide accept or abstain
+  // (anchor_candidates.mjs); the alignment (align_releases.mjs) seeds the
+  // accepted set and its pair for the name is one more candidate
   const mine = reanchor.filter((r) => r.bundle === bundle);
   const fp = readJSON(path.join(BUMP, `fp_${bundle}.json`), null);
+  const A = readJSON(path.join(BUMP, `align_${bundle}.json`), { pairs: {} });
   const oldP = path.join(OLDD, `${bundle}.pretty.js`), newP = path.join(NEWD, `${bundle}.pretty.js`);
   if (mine.length && fp && fs.existsSync(oldP) && fs.existsSync(newP)) {
     const ranked = rankAnchors(oldP, newP, fp, mine.map((r) => {
       const m = fp.matched?.[r.oldShort];
-      return { short: r.oldShort, candidates: [...(m && Array.isArray(m.new) ? m.new : []), ...r.suggestion] };
-    }), { pairs: P.pairs || {} });
+      const al = A.pairs?.[r.oldShort];
+      if (al && typeof al.new === "string") r.alignment = { name: al.new, anchored: !!al.anchored };
+      return { short: r.oldShort, candidates: [...(m && Array.isArray(m.new) ? m.new : []), ...r.suggestion, ...(r.alignment ? [r.alignment.name] : [])] };
+    }), { pairs: P.pairs || {}, align: A.pairs || {} });
     mine.forEach((r, i) => {
       const k = ranked[i];
       r.ranking = k.ranked.map(({ name, score }) => ({ name, score }));
       r.rankingText = describeRanking(k);
-      // a pick is clear when it scores and leads the runner-up by at least 1
-      // (one full overlap of the callers or the strings)
-      r.clear = !!k.ranked[0] && k.ranked[0].score > 0 && (!k.ranked[1] || k.ranked[0].score - k.ranked[1].score >= 1);
+      // the decision: accept (top at least ABS and the runner-up below
+      // top * (1 - REL), no other name picking the same declaration) or
+      // abstain with the reason; `clear` keeps its old meaning as the same flag
+      r.status = k.status; r.reason = k.reason; r.accepted = k.accepted;
+      r.score = k.score; r.margin = k.margin; r.round = k.round; r.pool = k.pool;
+      r.clear = k.status === "accept";
     });
   }
 }
@@ -523,7 +533,8 @@ const report = {
       calleeChanged: calleeCitations.length, calleeChangedCalleeCited: calleeCitations.filter((c) => c.calleeCited).length,
       calleeChangedQuiet: calleeCitations.filter((c) => c.quiet).length,
       calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.length },
-    uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length, plaintextFiles: plaintext.length,
+    uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length,
+    reanchorAccepted: reanchor.filter((r) => r.status === "accept").length, plaintextFiles: plaintext.length,
   },
   changes: changes.map((c) => ({ id: c.id, bundle: c.bundle, real: c.names, oldNames: c.oldNames, newNames: c.newNames, diff: c.diffPath,
     changedLines: c.diff?.changedLines ?? null, hunks: c.diff?.hunks?.length ?? null, localOnly: c.localOnly,
@@ -615,14 +626,19 @@ if (MD) {
     L.push("");
   }
   if (reanchor.length) {
+    const acc = reanchor.filter((r) => r.status === "accept").length, abst = reanchor.filter((r) => r.status === "abstain").length;
     L.push("## Inferred names to re-anchor", "",
-      "Confirm each pick against the old body with locate_by_anchor.mjs before writing it into maps/. " +
-      "Ranked by anchor_candidates.mjs (callers and callees mapped across the bump, strings); " +
-      "a name marked CLOSE has no candidate leading by 1 or more: read the bodies.", "");
+      "Confirm each pick with confirm_reanchor.mjs (reanchor_<bundle>.md: witnesses, bodies) before writing it into maps/. " +
+      "Ranked by anchor_candidates.mjs: callers, callees and strings weighted by rarity, the accepted pairs propagated along the call graph " +
+      "(round N = accepted after N rounds); `accept` means the top candidate scores at least the absolute threshold, leads the runner-up by the " +
+      "relative threshold and no other name picked it; a name marked ABSTAIN says why: read the bodies. " +
+      `${acc} accepted, ${abst} abstained.`, "");
     const byDoubt = [...reanchor].sort((a, b) => (a.clear === b.clear ? 0 : a.clear ? 1 : -1));
-    for (const r of byDoubt) L.push(`- ${r.clear === false ? "CLOSE " : ""}${r.real} (${r.bundle}, was \`${r.oldShort}\`): ` +
+    for (const r of byDoubt) L.push(`- ${r.status === "abstain" ? "ABSTAIN " : ""}${r.real} (${r.bundle}, was \`${r.oldShort}\`): ` +
       (r.rankingText ? `${r.rankingText}; ` : "") +
-      `positional: ${r.suggestion.length ? r.suggestion.map((x) => "`" + x + "`").join(" or ") + ` (${r.basis})` : "none"}`);
+      (r.score != null ? `score ${r.score.toFixed(2)}, margin ${r.margin.toFixed(2)}; ` : "") +
+      `positional: ${r.suggestion.length ? r.suggestion.map((x) => "`" + x + "`").join(" or ") + ` (${r.basis})` : "none"}` +
+      (r.alignment ? `; alignment: \`${r.alignment.name}\`${r.alignment.anchored ? "" : " (unanchored)"}` : ""));
     L.push("");
   }
   L.push(`## Work groups (${report.groups.length})`, "");
@@ -634,5 +650,5 @@ const s = report.summary;
 console.error(`impact: ${s.changedDeclarations} declaration diffs (${s.changedLines} lines in ${s.hunks} hunks); ` +
   `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim} (${s.citations.respelled} only renamed); ` +
   `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}${s.citations.calleeChangedQuiet ? ` (${s.citations.calleeChangedQuiet} through literal assignments only)` : ""}; tier 4 keyword ${s.citations.keyword}; ` +
-  `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor, ${plaintext.length} plain-text files; ` +
+  `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor (${s.reanchorAccepted} accepted by the candidate scorer), ${plaintext.length} plain-text files; ` +
   `${report.groups.length} work groups` + (OUT ? ` -> ${OUT}` : ""));
