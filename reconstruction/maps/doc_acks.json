@@ -1181,7 +1181,7 @@
   ] },
   "CLAUDE.md": { "paragraphs": [
    {"section":"Core discipline: the reconstruction must stay *provably equivalent*","line":78,"hash":"e27a3d22bc472dd0","cites":["daemon:createDaemon","daemon:createSpineEvent"]},
-   {"section":"On a version bump, run `bump.sh` before `rebuild.sh`","line":162,"hash":"b29e5a2421d8dbed","cites":["cli:main"]},
+   {"section":"On a version bump, run `bump.sh` before `rebuild.sh`","line":162,"hash":"5107c0cc34e867dd","cites":["cli:main"]},
    {"section":"Running / verifying the actual runtime","line":239,"hash":"64a2c717d6a0bf65","cites":["daemon:hostDotEnvPath","daemon:resolveRuntimePaths"]},
    {"section":"Running / verifying the actual runtime","line":276,"hash":"faba464334c315fb","cites":["daemon:loadHostDotEnv"]},
    {"section":"duoduo runtime architecture (what the docs describe)","line":282,"hash":"b5f25b5a572574b6","cites":["daemon:acquireSessionDrainLock","daemon:appendBeforeExecuteGateway","daemon:atomicAppendEvent","daemon:buildSystemPromptForChannelConfig","daemon:buildTransientUserBlocks","daemon:createSpineEvent","daemon:renderPromptLayers","daemon:resolveDefaultRuntime","daemon:resolveMainSession","daemon:runCadenceTick","daemon:runMemoryCheckTick","daemon:validateKnownRuntimeValue","daemon:validateRunnableRuntimeValue"]},
