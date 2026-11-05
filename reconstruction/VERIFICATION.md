@@ -123,6 +123,42 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 什么算退步：同一对版本上，`carried-wrong` 不为 0；任何 `*-wrong` 或 `unresolved` 比基线多，或任何 `*-correct` 比基线少；排序里真值排第一的个数比基线少；某一对在 `bump.sh` 第 0 步被拒绝（`refused.txt`）。`gone` 与 `truth-only` 的数目不是分数，`gone` 的名字变了才需要解释；候选的平均分差只供参考。每次运行的 `score.json` 留在 `.build/replay/runs/<vOLD>__<vNEW>/` 下，不进仓库，基线只记在本节。
 
+### 5.2 持久 ID 承接（`symbol_ids.mjs`，verdict `<bundle>.idsResolve`）
+
+结论：以 `maps/ids_<bundle>.json` 的内容派生 ID 承接推断名，在四对相邻发行版上解析到的名字没有一个落到与人工复核不同的声明上（moved 为 0），解析不了的名字恰好是 `bump.sh` 原来也承接不了、人工重定位或删除的那些；`bump.sh` 改为先按 ID 承接后，5.1 节的回放分数逐项不变。
+
+测什么。ID 是 `<种类>_<结构签名 sha256 的前 16 位 hex>`，只在同一 bundle 里几个声明签名相同时追加区分符（`c:` 已命名被调用方集合的哈希，`p:` 在 `c:` 也相同的孪生体里的序号与组大小）。对每一对 OLD→NEW：用 OLD 提交的 `inferred_<bundle>.json` 在 OLD 的美化 bundle 上 `assign`，再在 NEW 的美化 bundle 上 `check`，比较对象是 NEW 提交的推断表（人工复核的真值）。`check` 的 moved 与 extra 是解析错了（resolved-wrong），missing 是有 ID 但解析不了（unresolved），"without an id" 是 NEW 新登记的名字（truth-only，不计分）。
+
+2026-11-05 的结果（Node 22，两侧美化文件取自 5.1 节回放的 `pretty_old`、`pretty_new`）：
+
+| 版本对 | bundle | OLD 的 ID 数（无区分符 / `c:` / `p:`） | 解析到且与真值相同 | moved | extra | unresolved（原因） | 5.1 节 `bump.sh` 未承接的名字 |
+|---|---|---|---|---|---|---|---|
+| v0.8.3→v0.8.4 | daemon | 489（473 / 3 / 13） | 454 | 0 | 3（`isDaemonRuntimeInfo`、`resolveRegistryStatusPath`、`updateRegistryStatus`，落在真值改用上游拼写 `isSystemRuntimeInfo`、`statusPath`、`updateStatus` 的同一声明上） | 30（签名消失 29，孪生体组变化 1）；另有 `isRuntimeKind`、`IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 解析不了而真值已去掉 | 31（含 `IDLE_COMPACT_FIRE_CAP_PER_SWEEP`） |
+| v0.8.4→v0.8.5 | daemon | 728（697 / 4 / 27） | 728 | 0 | 0 | 0 | 0 |
+| v0.8.4→v0.8.5 | cli | 15（15 / 0 / 0） | 15 | 0 | 0 | 0 | 0 |
+| v0.8.5→v0.8.6 | daemon | 733（701 / 4 / 28） | 733 | 0 | 0 | 0 | 0 |
+| v0.8.5→v0.8.6 | cli | 15（15 / 0 / 0） | 15 | 0 | 0 | 0 | 0 |
+| v0.8.6→v0.8.7 | daemon | 733（701 / 4 / 28） | 701 | 0 | 1（`classifySessionKeyKind`，落在真值叫 `classifySessionKey` 的同一声明上） | 31（签名消失 31） | 31 |
+| v0.8.6→v0.8.7 | cli | 15（15 / 0 / 0） | 12 | 0 | 0 | 2（签名消失 2）；另有 `CLI_DAEMON_TOKEN_ENV_KEY` 解析不了而真值已去掉 | 3（含 `CLI_DAEMON_TOKEN_ENV_KEY`） |
+
+逐名比较过：每一对上"有 ID 但解析不了"的名字集合与 5.1 节 `bump.sh` 没有承接（`carried-` 以外）的名字集合相同，两边都没有对方没有的名字；按 ID 解析到的集合与 `bump.sh` 按指纹和语句对齐承接的集合也相同。所以 ID 承接的准确率与原来的结构承接相同，它换来的是：键不再随短名失效，`maps/inferred_<bundle>.json` 成了每次运行都核对的派生物，升级时解析不了的名字直接就是 RE-ANCHOR 清单。`c:` 区分符解析是不动点迭代，四对都在 2 到 3 轮内收敛。设计原稿里排在 `c:` 之前的"函数体内最稀有的字符串字面量"区分符没有实现：结构签名原样保留全部字符串字面量，签名相同的声明字面量也相同，这个区分符永远分不开孪生体。
+
+当前仓库：在 v0.8.7 上 `assign` 得到 daemon 773 个 ID（无区分符 729、`c:` 6、`p:` 38）、cli 18 个（全部无区分符）；`rebuild.sh` 的 `daemon.idsResolve` 与 `cli.idsResolve` 为 pass（见汇总）。
+
+`bump.sh` 改为先按 ID 承接之后，用 5.1 节同一 fixture 外加按 OLD 分配的 ID 表重跑四对回放，每对每个 bundle 的全部计数与 5.1 节的基线逐项相同：
+
+| 版本对 | bundle | 按 ID 承接 / 再按结构承接 | carried 对/错 | confirmed 对/错 | proposed 对/错 | unresolved | gone | 排序第一 / 前三 | `bump.sh` |
+|---|---|---|---|---|---|---|---|---|---|
+| v0.8.3→v0.8.4 | daemon | 457 / 1 | 454 / 0 | 18 / 0 | 11 / 1 | 0 | 5（4 respelled） | 29 / 30（共 30） | exit 0，94 s |
+| v0.8.4→v0.8.5 | daemon | 728 / 0 | 728 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | – | exit 0，76 s |
+| v0.8.4→v0.8.5 | cli | –（bundle 逐字节相同） | 15 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | – | – |
+| v0.8.5→v0.8.6 | daemon | 733 / 0 | 733 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | – | exit 1（模块归属检查，预期），75 s |
+| v0.8.5→v0.8.6 | cli | –（bundle 逐字节相同） | 15 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | – | – |
+| v0.8.6→v0.8.7 | daemon | 702 / 0 | 701 / 0 | 18 / 0 | 13 / 0 | 0 | 1（1 respelled） | 31 / 31（共 31） | exit 0，128 s |
+| v0.8.6→v0.8.7 | cli | 12 / 0 | 12 / 0 | 2 / 0 | 0 / 0 | 0 | 1 | 2 / 2（共 2） | exit 0 |
+
+"按 ID 承接"里多出 5.1 节 carried 数的部分是落在真值改用了别的拼写的声明上的名字（v0.8.3→v0.8.4 的 3 个、v0.8.6→v0.8.7 的 1 个，计入 gone respelled）；v0.8.3→v0.8.4 再由结构承接的 1 个是 `isRuntimeKind`（ID 因孪生体组变化解析不了，语句对齐把它承接到真值叫 `isModelRuntime` 的声明上，与基线相同）。两次承接之间没有冲突。回放时 fixture 里 OLD 版本的 `maps/` 加上了按该版本 `assign` 的 `ids_<bundle>.json`（v0.8.3 只有 daemon 的推断表，所以只有 daemon 的 ID 表）。升级手续也在 v0.8.6→v0.8.7 上走过一遍：以 v0.8.6 的 ID 表和 v0.8.7 提交的推断表（当作复核后的升级推断表）运行 `assign` 先被拒绝（31 个 ID 会变），`assign --rekey` 后 41 个新增、701 个保持、31 个换 ID、1 个删除，`resolve --order` 写出的短名表与 v0.8.7 提交的逐字节相同，`check` 为 pass。
+
 ## 6 可读树与 bundle 一致
 
 第 1–3 节只证明还原产物，没有一项看 `first-party/`；而人读的是后者，它出错的每一种方式都是静默的。`verify_first_party.mjs` 做六项相互独立的检查，已提交报告中 `firstPartyTree` 为 `pass`：
@@ -205,6 +241,7 @@ check 模式检查已提交的树；`PROMOTE=1` 或 `MAPS` 覆盖时检查 `$OUT
 | 出厂 ≡ 美化 | `<bundle>.beautifyEquivalent` | pass | pass |
 | 模块归属检查 | 无（失败即停止构建） | 通过 | 通过 |
 | 推断名 | `<bundle>.inferredNames` | pass | pass |
+| 推断名的持久 ID | `<bundle>.idsResolve` | pass | pass |
 | 局部变量名 | `<bundle>.localNames` | pass | 无局部名字表 |
 | 语法（按 ESM 解析） | `<bundle>.syntax` | pass | pass |
 | AST 全等 | `<bundle>.astEquivalent` | pass | pass |
