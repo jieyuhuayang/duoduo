@@ -2,7 +2,7 @@
 
 > 调研日期：2026-10-16。
 > 调研问题：duoduo 怎样把 Claude Code 和 Codex 当作推理引擎来使用，[botmux](https://github.com/deepcoldy/botmux) 怎样使用同样两个工具，两种做法各自的长处与代价是什么。
-> 版本对齐：duoduo 的陈述对齐 `@openduo/duoduo` **v0.8.7**，证据是本仓库的还原源码，按名字引用（`真名 (短名)`）；机制细节见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 第 2、3、7 节，本文只引用结论所需的部分。botmux 的陈述对齐调研当天的 master 快照（commit `f77f32e`，2026-10-16），证据是该快照的源码路径；botmux 是 MIT 许可的 TypeScript 开源项目，不需要还原。
+> 版本对齐：duoduo 的陈述对齐 `@openduo/duoduo` **v0.8.8**（daemon 打包文件与 v0.8.7 逐字节相同），证据是本仓库的还原源码，按名字引用（`真名 (短名)`）；机制细节见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 第 2、3、7 节，本文只引用结论所需的部分。botmux 的陈述对齐调研当天的 master 快照（commit `f77f32e`，2026-10-16），证据是该快照的源码路径；botmux 是 MIT 许可的 TypeScript 开源项目，不需要还原。
 > 置信标记：每条机制主张标 `confirmed`（读过对应代码）或 `未证实推测`（写明缺什么证据）。本文没有运行任何一方的 daemon，所有结论来自静态阅读。
 
 ---
