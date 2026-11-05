@@ -64,5 +64,24 @@ else
     "$BEAUTIFIED/daemon.pretty.js" "$OUT/blocks_daemon.json" "$MAPS/modules_daemon.json" "${ANCHOR[@]}" || rc=1
 fi
 
-[ "$rc" -eq 0 ] && echo "docs: pass (citations, line anchors; rebuild.sh is still the gate)" || echo "docs: FAIL"
+# the three enumerations of INTERNALS Appendix B against the sets the bundle
+# holds (rebuild.sh step 10b, verdict appendixSets); only when that doc is in
+# the set given
+echo "==== appendix sets (event types, RPC methods, read-only allowlist) ===="
+APPX="$(readlink -f "$DOCS/AGENT_INTERNALS_ANALYSIS.md")"
+# compared by resolved path, so a relative or absolute spelling of the doc
+# counts; the name of a check that did not run is not in the pass line
+RAN="citations"
+[ "${#ANCHOR[@]}" -gt 0 ] && RAN="$RAN, line anchors"
+WANT_APPX=0
+if [ "$#" -eq 0 ]; then WANT_APPX=1; else for d in "$@"; do [ "$(readlink -f "$d")" = "$APPX" ] && WANT_APPX=1; done; fi
+if [ "$WANT_APPX" -eq 1 ]; then
+  node "$HERE/check_appendix_sets.mjs" --index "$OUT/symbols_daemon.json" --xref "$OUT/xref_daemon.json" \
+    --bundle "$BEAUTIFIED/daemon.pretty.js" "$APPX" || rc=1
+  RAN="$RAN, appendix sets"
+else
+  echo "  (docs/AGENT_INTERNALS_ANALYSIS.md not given: skipped)"
+fi
+
+[ "$rc" -eq 0 ] && echo "docs: pass ($RAN; rebuild.sh is still the gate)" || echo "docs: FAIL"
 exit "$rc"

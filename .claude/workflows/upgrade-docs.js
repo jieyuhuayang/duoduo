@@ -4,7 +4,7 @@ export const meta = {
   whenToUse: 'Step 3b of a version bump (reconstruction/tools/bump.sh prints the args), after the mechanical doc retarget and `doc_sections.mjs split`. Not for restructuring or restyling docs.',
   phases: [
     { title: 'Survey', detail: 'one agent reads the plain-text delta and every readable diff, and says what changed and where the docs must follow' },
-    { title: 'Update', detail: 'per work group: a writer edits its own section files, a verifier tries to refute each change, a fixer applies what survives' },
+    { title: 'Update', detail: 'per work group: a writer edits its own section files, a verifier judges each citation on its own diff and ack (doc_acks.mjs briefs), a fixer applies what survives' },
     { title: 'Integrate', detail: 'join the sections, register new names, run the check-mode rebuild, update the GUIDE and its version appendix' },
   ],
 }
@@ -63,10 +63,20 @@ const WRITE_SCHEMA = { type: 'object', properties: {
   unresolved: { type: 'array', items: { type: 'string' } },
   checks: { type: 'string', description: 'last summary line of each check on your files' } },
   required: ['edited', 'names', 'unresolved', 'checks'] }
-const ISSUES_SCHEMA = { type: 'object', properties: { issues: { type: 'array', items: { type: 'object', properties: {
+const ISSUE_ITEMS = { type: 'array', items: { type: 'object', properties: {
   file: { type: 'string' }, where: { type: 'string' }, problem: { type: 'string' }, evidence: { type: 'string' }, fix: { type: 'string' },
-  severity: { type: 'string', enum: ['high', 'medium', 'low'] } }, required: ['file', 'where', 'problem', 'evidence', 'fix', 'severity'] } } },
-  required: ['issues'] }
+  severity: { type: 'string', enum: ['high', 'medium', 'low'] } }, required: ['file', 'where', 'problem', 'evidence', 'fix', 'severity'] } }
+// the verifier's answer: one verdict per citation of the group's sections
+// (judged against that citation's own diff and ack, not the section text),
+// plus the section-level issues the fixer consumes
+const VERIFY_SCHEMA = { type: 'object', properties: {
+  citations: { type: 'array', items: { type: 'object', properties: {
+    doc: { type: 'string' }, line: { type: 'number' }, real: { type: 'string', description: 'the cited real name, or "keyword" for a tier-4 paragraph' },
+    verdict: { type: 'string', enum: ['holds', 'must change', 'cannot judge'] },
+    reason: { type: 'string', description: 'one sentence; for "must change" and "cannot judge", what in the diff or the new code decides it' } },
+    required: ['doc', 'line', 'real', 'verdict', 'reason'] } },
+  issues: ISSUE_ITEMS },
+  required: ['citations', 'issues'] }
 
 const chunk = (key) => { const [doc, n] = key.split('#'); return `${B}/chunks/${doc.split('/').pop().replace(/\.md$/, '')}/${String(n).padStart(2, '0')}.md` }
 
@@ -123,23 +133,36 @@ Work tier 1 first: re-read the code each citation names in the new version (its 
   },
   (w, g) => w && agent(CONTEXT + `
 
-YOUR TASK: verify one work group's edits, adversarially. The writer owned ${g.units.map((u) => chunk(u.key)).join(', ')} and reports: ${JSON.stringify(w)}
-Try to refute every edited statement and every tier-1 citation of these sections (list them from impact.json as the writer did: doc#section in ${JSON.stringify(g.units.map((u) => u.key))}) against the ${A.to} code, not against the writer's summary. Also look for statements in these files that a diff contradicts and nobody edited, confirmed tags on claims the code does not show, and edits that break the doc rules. Report only real problems, each with evidence from the code. Do not edit any file.`,
-    { label: `verify:${g.id}`, phase: 'Update', schema: ISSUES_SCHEMA }).then((v) => ({ w, v })),
+YOUR TASK: verify one work group's edits, one citation at a time. The writer owned ${g.units.map((u) => chunk(u.key)).join(', ')} and reports: ${JSON.stringify(w)}
+First build the briefs: node ${T}/doc_acks.mjs briefs --impact ${B}/impact.json --units ${g.units.map((u) => u.key).join(',')} --json ${B}/briefs_${g.id}.json
+It lists every citation of these sections that the release touches, each with: the cited declaration's readable diff (cut; the full file is named), the paragraph's ack (\`unchanged\`: every declaration the paragraph cites has the token stream it had when the paragraph was last read against the code; \`body-only\`: a cited declaration changed in body but not in parameter count, named callees or string literals; \`changed\`; \`edited\`: the paragraph was edited since its ack, so the ack says nothing; \`missing\`: a cited name is not in the new release's names yet; null: no record) and \`stability\` of the cited declaration itself. Judge EACH citation on its own brief, against the diff and, where the diff is not enough, the ${A.to} code: \`holds\` (the statement and its snippet are true of ${A.to}), \`must change\` (say what in the diff or the new code refutes it), \`cannot judge\` (say what is missing: the diff is cut, the claim depends on code the brief does not show, a runtime measurement). An \`unchanged\` ack on a paragraph the writer did not edit may be answered \`holds\` from the brief alone; a \`body-only\` or \`changed\` one needs the diff read; a tier-1 snippet always needs the new code read. Do not judge from the section text or the writer's summary. Then list section-level issues in \`issues\`: statements in these files that a diff contradicts and nobody edited, confirmed tags on claims the code does not show, edits that break the doc rules; only real problems, each with evidence from the code. Do not edit any file.`,
+    { label: `verify:${g.id}`, phase: 'Update', schema: VERIFY_SCHEMA }).then((v) => ({ w, v })),
   (x, g) => {
     if (!x) return null
+    // a citation the verifier says must change becomes an issue for the fixer,
+    // so the fixer's input keeps one shape; the rest of the verdicts travel in
+    // the group's result
+    const verdicts = x.v ? x.v.citations || [] : []
+    const byDoc = new Map(g.units.map((u) => [u.doc, u]))
+    const fromCitations = verdicts.filter((c) => c.verdict === 'must change').map((c) => ({
+      file: chunk([...byDoc.values()].find((u) => c.doc.endsWith(u.doc) || u.doc.endsWith(c.doc))?.key || g.units[0].key),
+      where: `${c.doc}:${c.line} ${c.real}`, problem: c.reason, evidence: c.reason, fix: 'correct the statement, its snippet and its confidence tag so they hold for the new release', severity: 'high' }))
+    if (x.v) x.v.issues = [...(x.v.issues || []), ...fromCitations]
+    x.verdicts = { holds: verdicts.filter((c) => c.verdict === 'holds').length, mustChange: fromCitations.length, cannotJudge: verdicts.filter((c) => c.verdict === 'cannot judge') }
     const todo = (x.v ? x.v.issues : []).filter((i) => i.severity !== 'low')
-    if (!todo.length) return { group: g.id, write: x.w, issues: x.v ? x.v.issues : null, fixed: null }
+    if (!todo.length) return { group: g.id, write: x.w, issues: x.v ? x.v.issues : null, verdicts: x.verdicts, fixed: null }
     return agent(CONTEXT + `
 
 YOUR TASK: settle a verifier's findings on files you own: ${g.units.map((u) => chunk(u.key)).join(', ')}. Findings: ${JSON.stringify(todo)}
 For each, re-read the code; fix it if it holds, reject it with evidence if it does not. Rerun both checks on your files. Return what you changed, any names (as the writer did; the writer already proposed ${JSON.stringify(x.w.names)}), and what stays unresolved.`,
-      { label: `fix:${g.id}`, phase: 'Update', schema: WRITE_SCHEMA }).then((f) => ({ group: g.id, write: x.w, issues: x.v.issues, fixed: f }))
+      { label: `fix:${g.id}`, phase: 'Update', schema: WRITE_SCHEMA }).then((f) => ({ group: g.id, write: x.w, issues: x.v.issues, verdicts: x.verdicts, fixed: f }))
   })
 const done = results.filter(Boolean)
 const names = done.flatMap((r) => [...(r.write?.names || []), ...(r.fixed?.names || [])])
-const unresolved = done.flatMap((r) => [...(r.write?.unresolved || []), ...(r.fixed?.unresolved || [])].map((u) => `${r.group}: ${u}`))
-log(`groups done: ${done.length}/${groups.length}; ${names.length} names proposed; ${unresolved.length} unresolved items`)
+const unresolved = done.flatMap((r) => [...(r.write?.unresolved || []), ...(r.fixed?.unresolved || []),
+  ...((r.verdicts?.cannotJudge || []).map((c) => `verifier could not judge ${c.doc}:${c.line} ${c.real}: ${c.reason}`))].map((u) => `${r.group}: ${u}`))
+log(`groups done: ${done.length}/${groups.length}; ${names.length} names proposed; ${unresolved.length} unresolved items; ` +
+  `citation verdicts: ${done.reduce((n, r) => n + (r.verdicts?.holds || 0), 0)} hold, ${done.reduce((n, r) => n + (r.verdicts?.mustChange || 0), 0)} must change, ${done.reduce((n, r) => n + (r.verdicts?.cannotJudge?.length || 0), 0)} cannot judge`)
 
 // --- integrate ----------------------------------------------------------------
 phase('Integrate')
@@ -151,7 +174,8 @@ YOUR TASK: finish the doc update. In order:
 3. Run the check-mode rebuild: OUT=${BUILD} PKG=${A.pkg} bash ${T}/rebuild.sh (1 to 3 minutes: give the Bash call a 600000 ms timeout). Before PROMOTE these verdicts are expected and are not yours to fix: committedInSync=retarget-pending, anchorTargetMatches=pass or retarget-pending, firstPartyTree=fail (the committed first-party/ is the old release until PROMOTE; never edit it). Every other verdict must pass; fix what fails in the docs (citations, snippets, line anchors) and rerun until it does. If a step dies with exit 137 or "Killed", rerun with JOBS=1 before concluding anything.
 4. Update docs/DUODUO_FRAMEWORK_GUIDE.md for these changes, in plain language with no code names (its rules are in CLAUDE.md), and record the release in its Appendix D: ${JSON.stringify(survey ? survey.guide : [])}
    Also update the facts in CLAUDE.md "duoduo runtime architecture" and in docs/README.md if a note changes one.
-5. Leave PROMOTE, git and the unresolved items to the person running the bump.
+5. Record the acknowledgements for the docs as they now stand (every paragraph with citations, against ${A.to}): node ${T}/doc_acks.mjs record ${BUILD}/symbols_daemon.json,${BUILD}/symbols_cli.json --bundle daemon=${PRETTY}/daemon.pretty.js --bundle cli=${PRETTY}/cli.pretty.js --version ${A.to} docs/*.md CLAUDE.md  (writes reconstruction/maps/doc_acks.json, the one map this step may write; the next bump reads it)
+6. Leave PROMOTE, git and the unresolved items to the person running the bump.
 Unresolved items from the groups: ${JSON.stringify(unresolved)}
 Return a short report: the verdict line of the last rebuild, what you changed in step 4, and everything still open.`,
   { label: 'integrate', phase: 'Integrate' })
