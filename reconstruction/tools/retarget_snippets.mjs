@@ -342,7 +342,7 @@ export function lexSnippet(code) {
 // rather than a stale quote; but a match that skips half as many tokens as
 // it quotes is a different piece of code that happens to share its words, and
 // writing it would make a false citation pass the checker.
-// -> { status: "rewritten"|"proposed"|"ambiguous"|"no match"|"too far", to?, ratio?, inserted?, matches? }
+// -> { status: "rewritten"|"proposed"|"ambiguous"|"no match"|"too far"|"too complex", to?, ratio?, inserted?, matches? }
 export function nonContiguous(code, span, migration, { gap = 3, auto = 0.25, propose = 0.6, limit = 64, steps = 2e5 } = {}) {
   const toks = tokenize(code);
   if (!toks.some((t) => t.role !== "gap")) return { status: "no match" };
@@ -375,7 +375,9 @@ export function nonContiguous(code, span, migration, { gap = 3, auto = 0.25, pro
     }
   };
   rec(0, new Map(), [], 0, false);
-  if (budget <= 0 && !matches.length) return { status: "too complex" };
+  // the search was cut short: whatever it found so far may not be the only
+  // match, so `unique` cannot be claimed and nothing is written
+  if (budget <= 0) return { status: "too complex", matches: matches.length };
   if (!matches.length) return { status: "no match" };
   // the rewrite of one match: the snippet's text with its identifiers
   // substituted; where the declaration inserts tokens between two snippet

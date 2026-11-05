@@ -23,13 +23,20 @@
 //     re-mangling of locals and top-level names does not count as a change);
 //   - arity: the parameter count of a function, null otherwise;
 //   - callees: the real names of the top-level declarations it calls, and how
-//     many unnamed ones;
+//     many distinct unnamed ones it calls (counted by mangled name, so a
+//     second call of the same unnamed declaration is not a second callee);
 //   - strings: sha1 of the sorted set of its string literals.
 // The paragraph hash ignores what a bump rewrites mechanically: short names in
-// `真名 (短名)` pairs, identifiers of 1-4 characters inside code spans (what
-// retarget_snippets.mjs re-derives) and 4-6 digit line numbers. So the
-// retargeted v(N+1) docs hash the same as the v(N) docs they were made from,
-// and a hash that differs means a person edited the paragraph.
+// `真名 (短名)` pairs and identifiers of 1-4 characters inside code spans that
+// quote code (two or more tokens: what retarget_snippets.mjs re-derives). So
+// the retargeted v(N+1) docs hash the same as the v(N) docs they were made
+// from, and a hash that differs means a person edited the paragraph. The
+// limit of this: inside a quoted snippet, an edit that only replaces one
+// such identifier by another (`job` -> `main`) keeps the hash, because the
+// hash cannot tell it from esbuild's re-mangling; a span that is one word
+// (`pi`, `job`) and every number are kept as written, so an edit of those is
+// seen. The docs carry no line numbers any more, so numbers are not
+// neutralised.
 //
 // What is reported (`check`, against a new bundle): for every current
 // paragraph with citations, one verdict:
@@ -126,8 +133,7 @@ export function declProfile(span, topLevel) {
   } catch {
     toks = [...span.matchAll(FALLBACK)].map((m) => ({ text: m[0], name: /^[A-Za-z_$][\w$]*$/.test(m[0]), string: /^["'`]/.test(m[0]) }));
   }
-  const norm = [], strings = new Set(), callees = new Set();
-  let unnamed = 0;
+  const norm = [], strings = new Set(), callees = new Set(), unnamed = new Set();
   for (let i = 0; i < toks.length; i++) {
     const t = toks[i], prev = toks[i - 1]?.text, next = toks[i + 1]?.text;
     if (t.string) { strings.add(t.text); norm.push(t.text); continue; }
@@ -136,7 +142,7 @@ export function declProfile(span, topLevel) {
     const key = next === ":" && (prev === "{" || prev === ",");
     if (member || key) { norm.push(t.text); continue; }
     norm.push("_");
-    if (next === "(" && topLevel && topLevel.has(t.text)) { const r = topLevel.get(t.text); if (r) callees.add(r); else unnamed++; }
+    if (next === "(" && topLevel && topLevel.has(t.text)) { const r = topLevel.get(t.text); if (r) callees.add(r); else unnamed.add(t.text); }
   }
   let arity = null;
   if (ast) {
@@ -154,7 +160,7 @@ export function declProfile(span, topLevel) {
     tokens: sha1(norm.join(" ")),
     arity,
     callees: [...callees].sort(),
-    unnamedCallees: unnamed,
+    unnamedCallees: unnamed.size,
     strings: sha1([...strings].sort().join("\n")),
   };
 }
@@ -163,7 +169,12 @@ export function declProfile(span, topLevel) {
 // names both releases know; a callee named on one side only (an inferred name
 // not yet re-anchored, a name registered later) is folded into the unnamed
 // count on that side, so the comparison does not depend on which side has
-// more names.
+// more names. Both counts are of distinct declarations (named callees are a
+// set of real names, unnamed ones a set of mangled names), so the fold adds
+// like to like. What the fold cannot see: a callee that only one side names
+// is compared by count, not identity, so dropping one such callee and adding
+// a call of an unnamed declaration leaves the count equal; the shared named
+// set, the arity and the string set still have to agree.
 export function compareProfiles(a, b, shared = null) {
   if (!a || !b) return "missing";
   if (a.tokens === b.tokens) return "unchanged";
@@ -230,19 +241,20 @@ export function paragraphCites(text, known) {
 }
 
 // the text a paragraph is hashed by: whitespace collapsed; short names of
-// `real (short)` pairs, 1-4 character identifiers inside code spans (locals and
-// top-level short names, which every build re-mangles) and 4-6 digit numbers in
-// code spans replaced by `_`
+// `real (short)` pairs and, inside a code span of two or more tokens (quoted
+// code, not a word), 1-4 character identifiers (locals and top-level short
+// names, which every build re-mangles) replaced by `_`
 export function normaliseParagraph(text) {
   let out = "";
   let from = 0;
   for (const sp of codeSpans(text)) {
     out += text.slice(from, sp.start);
     const toks = tokenize(sp.content);
+    const quoted = toks.length > 1;
     let code = "", at = 0;
     for (const t of toks) {
       code += sp.content.slice(at, t.at);
-      code += t.role === "var" ? "_" : /^\d{4,6}$/.test(t.text) ? "_" : t.text;
+      code += quoted && t.role === "var" ? "_" : t.text;
       at = t.at + t.text.length;
     }
     out += "`" + code + sp.content.slice(at) + "`";
@@ -441,6 +453,7 @@ function main() {
     "       node doc_acks.mjs check  <symbols.json[,...]> --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--rename <bundle>=<rename.json>] [--acks <doc_acks.json>] [--json <o.json>] <doc.md...>\n" +
     "       node doc_acks.mjs briefs --impact <impact.json> [--units docs/X.md#N,...] [--diff-lines N] [--json <o.json>]"); process.exit(2); };
   if (!["record", "check"].includes(mode) || !BUNDLES.daemon || !DOCS.length || (mode === "record" && !VERSION)) usage();
+  for (const d of DOCS) if (!fs.existsSync(d)) { console.error(`no such doc: ${d}`); process.exit(2); }
   const B = loadBundles(INDEX === "-" ? "" : INDEX, BUNDLES, RENAMES);
   if (!B.daemon) { console.error("no daemon index or rename map"); process.exit(2); }
   const known = knownNames(B), profileOf = profiler(B);
