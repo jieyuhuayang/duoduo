@@ -402,16 +402,19 @@ for (const ct of citations) {
     else [ct.tier, ct.why] = [3, `whole declaration (${size} lines); paragraph shares nothing distinctive with the change`];
   }
   // STABILITY POLICY (doc_acks.mjs declProfile): a declaration whose body
-  // changed but whose parameter count, named callees and string literals are
-  // all the same is `body-only` -- a reordering, a renamed local, a condition
-  // rewritten over the same data. A citation of the whole declaration (a pair
-  // or a mention) in tier 2 goes to tier 3: the claim names what the function
-  // does, and the three unchanged features are what such a claim rests on. A
-  // snippet stays where its own text put it: a tier-1 snippet quotes code the
-  // new version changed, whatever the rest of the declaration did.
+  // changed but whose signature, top-level references (calls and reads) and
+  // literals are all the same is `body-only` -- a reordering, a renamed
+  // local, a condition rewritten over the same data. A citation of the whole
+  // declaration (a pair or a mention) in tier 2 goes to tier 3: the claim
+  // names what the function does, and the three unchanged features are what
+  // such a claim rests on. A snippet never moves for this reason, even one
+  // tiered as a whole-declaration citation because none of its tokens can be
+  // located: a tier-1 snippet quotes code the new version changed, whatever
+  // the rest of the declaration did, and a tier-2 snippet quotes text whose
+  // place in the new declaration is not known.
   ct.stability = stabilityOf(ct.real, change);
-  if (ct.stability === "body-only" && ct.tier === 2)
-    [ct.tier, ct.why] = [3, `${ct.why}; body-only change (same parameter count, named callees and string literals)`];
+  if (ct.stability === "body-only" && ct.tier === 2 && ct.form !== "snippet")
+    [ct.tier, ct.why] = [3, `${ct.why}; body-only change (same signature, top-level references and literals)`];
   else if (ct.stability === "body-only") ct.why += "; body-only change";
 }
 
@@ -660,7 +663,7 @@ if (MD) {
     `${s.citations.calleeChanged} more cite unchanged code whose direct callee changed (tier 2c${graphs.size ? "" : ": no xref in --maps, not computed"}` +
     `${s.citations.calleeChangedQuiet ? `; ${s.citations.calleeChangedQuiet} of them only through callees whose change is literal assignments to members` : ""}). ` +
     `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4${s.citations.keywordAcked ? `; ${s.citations.keywordAcked} more are in tier 3: every declaration they cite is unchanged since the ${s.citations.acks} ack` : ""}). ` +
-    `${s.citations.bodyOnly} citations are of declarations whose change is body-only (same parameter count, named callees and strings), ${s.citations.bodyOnlySkim} of them whole-declaration citations put in tier 3 for that reason. ` +
+    `${s.citations.bodyOnly} citations are of declarations whose change is body-only (same signature, top-level references and literals), ${s.citations.bodyOnlySkim} of them whole-declaration citations put in tier 3 for that reason. ` +
     `${plaintext.length} plain-text files changed.`, "");
   if (plaintext.length) {
     L.push("## Plain text (read first: it states intent)", "", "| source | file | change | mentioned in |", "|---|---|---|---|");

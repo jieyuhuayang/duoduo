@@ -342,17 +342,34 @@ export function lexSnippet(code) {
 // rather than a stale quote; but a match that skips half as many tokens as
 // it quotes is a different piece of code that happens to share its words, and
 // writing it would make a false citation pass the checker.
+//
+// Three edges of the search, so the thresholds are read right. An alignment
+// whose inserted-token ratio has already reached --propose is abandoned
+// where it stands (inserted only grows along a match), so only alignments
+// under --propose exist for the uniqueness test: an alignment that binds a
+// 1-4 character identifier of the snippet to some unrelated identifier far
+// away cannot make a genuine match `ambiguous`. --gap bounds the tokens
+// inserted before each snippet token; a 1-4 character identifier may bind to
+// an inserted identifier, which splits one long insertion into two shorter
+// ones (`x` -> `log` in the example above gives inserted 5 at gap 3) -- the
+// ratio, not --gap, is what refuses such an alignment, and the rewrite is
+// still the code as it reads. The enumeration stops at `limit` alignments or
+// `steps` steps, and either stop is reported `too complex`, because the
+// alignments found so far cannot prove uniqueness.
 // -> { status: "rewritten"|"proposed"|"ambiguous"|"no match"|"too far"|"too complex", to?, ratio?, inserted?, matches? }
 export function nonContiguous(code, span, migration, { gap = 3, auto = 0.25, propose = 0.6, limit = 64, steps = 2e5 } = {}) {
   const toks = tokenize(code);
   if (!toks.some((t) => t.role !== "gap")) return { status: "no match" };
   const S = [...span.matchAll(TOKEN)].map((m) => ({ text: m[0], at: m.index }));
   const want = toks.filter((t) => t.role !== "gap").length;
+  const maxInserted = Math.ceil(propose * want) - 1;   // inserted / want < propose
   const matches = [];
-  let budget = steps;
+  let budget = steps, pruned = false, overflow = false;
   // depth-first over the snippet's tokens; `bind`: snippet identifier -> span text
   const rec = (i, bind, picks, inserted, afterGap) => {
-    if (matches.length >= limit || budget <= 0) return;
+    if (budget <= 0) return;
+    if (matches.length >= limit) { overflow = true; return; }
+    if (inserted > maxInserted) { pruned = true; return; }
     if (i === toks.length) { matches.push({ picks, bind, inserted }); return; }
     const t = toks[i];
     if (t.role === "gap") { rec(i + 1, bind, picks, inserted, true); return; }
@@ -375,10 +392,11 @@ export function nonContiguous(code, span, migration, { gap = 3, auto = 0.25, pro
     }
   };
   rec(0, new Map(), [], 0, false);
-  // the search was cut short: whatever it found so far may not be the only
-  // match, so `unique` cannot be claimed and nothing is written
-  if (budget <= 0) return { status: "too complex", matches: matches.length };
-  if (!matches.length) return { status: "no match" };
+  // the search was cut short (step budget, or `limit` alignments found):
+  // whatever it found so far may not be the only match, so `unique` cannot
+  // be claimed and nothing is written
+  if (budget <= 0 || overflow) return { status: "too complex", matches: matches.length };
+  if (!matches.length) return pruned ? { status: "too far" } : { status: "no match" };
   // the rewrite of one match: the snippet's text with its identifiers
   // substituted; where the declaration inserts tokens between two snippet
   // tokens, the declaration's own text between them replaces the snippet's
@@ -404,8 +422,7 @@ export function nonContiguous(code, span, migration, { gap = 3, auto = 0.25, pro
   const ratio = want ? m.inserted / want : 1;
   const r = { to, ratio: Math.round(ratio * 1000) / 1000, inserted: m.inserted, how: "non-contiguous" };
   if (ratio < auto) return { status: "rewritten", ...r };
-  if (ratio < propose) return { status: "proposed", ...r };
-  return { status: "too far", ...r };
+  return { status: "proposed", ...r };   // ratio < propose: every alignment above it was abandoned in the search
 }
 
 // Is the snippet's code in a span, whatever its identifiers of 1-4 characters

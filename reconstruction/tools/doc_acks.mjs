@@ -21,11 +21,15 @@
 //     that is not a member name or an object key spelled `_` (the same
 //     normalisation align_releases.mjs aligns statements by, so esbuild's
 //     re-mangling of locals and top-level names does not count as a change);
-//   - arity: the parameter count of a function, null otherwise;
-//   - callees: the real names of the top-level declarations it calls, and how
-//     many distinct unnamed ones it calls (counted by mangled name, so a
-//     second call of the same unnamed declaration is not a second callee);
-//   - strings: sha1 of the sorted set of its string literals.
+//   - arity: the parameter count of the first function or arrow in the span,
+//     or, for a class, its constructor's count and each method's name and
+//     count; null when the span holds none;
+//   - refs: the real names of the top-level declarations it refers to (called
+//     or read; a name the span itself binds, as a parameter or a local, is
+//     not a reference), and how many distinct unnamed ones it refers to
+//     (counted by mangled name, so a second call of the same unnamed
+//     declaration is not a second reference);
+//   - literals: sha1 of the sorted set of its string and number literals.
 // The paragraph hash ignores what a bump rewrites mechanically: short names in
 // `真名 (短名)` pairs and identifiers of 1-4 characters inside code spans that
 // quote code (two or more tokens: what retarget_snippets.mjs re-derives). So
@@ -40,13 +44,17 @@
 //
 // What is reported (`check`, against a new bundle): for every current
 // paragraph with citations, one verdict:
-//   unchanged     every cited declaration's token hash equals the recorded one
+//   unchanged     every cited declaration's token hash and set of top-level
+//                 references equal the recorded ones (the token stream alone
+//                 cannot tell which top-level declaration is called or read)
 //   body-only     some cited declaration's body changed, but its arity, its
-//                 named callees and its string literals did not (the
+//                 top-level references and its literals did not (the
 //                 stability policy: a reordering, a renamed local, a changed
 //                 condition on the same data; impact_report.mjs reads this as
-//                 tier 3 unless a snippet sits on a changed line)
-//   changed       a cited declaration changed in signature, callees or strings
+//                 tier 3 for a citation of the whole declaration, never for a
+//                 snippet)
+//   changed       a cited declaration changed in signature, references or
+//                 literals
 //   edited        the paragraph's hash differs from the recorded one: the ack
 //                 no longer applies, whatever the code did
 //   missing       a cited symbol is not in the new bundle's names
@@ -118,8 +126,82 @@ const PARSE_OPTS = { tokens: true, errorRecovery: true, sourceType: "script", al
                      allowAwaitOutsideFunction: true, allowSuperOutsideMethod: true, allowNewTargetOutsideFunction: true };
 const FALLBACK = /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|[A-Za-z_$][A-Za-z0-9_$]*|\d[\w.]*|\S/g;
 
+// Every identifier a span binds (parameters, `let`/`const`/`var` ids, nested
+// function and class names, catch parameters, and the declaration's own id),
+// so a local that happens to share a top-level name is not read as a
+// reference to it. `walk` visits every node of a @babel/parser AST in source
+// order.
+function walk(node, fn, parent = null, key = null) {
+  if (!node || typeof node.type !== "string") return;
+  fn(node, parent, key);
+  for (const k in node) {
+    if (k === "loc" || k === "range" || k === "leadingComments" || k === "trailingComments" || k === "innerComments" || k === "extra") continue;
+    const v = node[k];
+    if (Array.isArray(v)) { for (const c of v) walk(c, fn, node, k); } else if (v && typeof v.type === "string") walk(v, fn, node, k);
+  }
+}
+// the identifiers of a span that refer to something: not a member name, an
+// object or class key, a label, or a contextual keyword (`of` in `for (x of
+// y)` is no Identifier node, which is why this is read from the AST and not
+// from the token stream: a release whose mangled name for some declaration is
+// `of` would otherwise make every for-of loop a reference to it)
+function referencedNames(ast) {
+  const out = new Set();
+  walk(ast, (n, parent, key) => {
+    if (n.type !== "Identifier") return;
+    if (parent && !parent.computed && key === "property" && /MemberExpression$/.test(parent.type)) return;
+    if (parent && !parent.computed && key === "key" && /^(?:ObjectProperty|ObjectMethod|ClassMethod|ClassProperty|ClassPrivateMethod|ClassAccessorProperty)$/.test(parent.type)) return;
+    if (parent && (key === "label" || parent.type === "MetaProperty" || /Specifier$/.test(parent.type))) return;
+    out.add(n.name);
+  });
+  return out;
+}
+function patternNames(p, out) {
+  if (!p) return out;
+  switch (p.type) {
+    case "Identifier": out.add(p.name); break;
+    case "AssignmentPattern": patternNames(p.left, out); break;
+    case "RestElement": patternNames(p.argument, out); break;
+    case "ArrayPattern": for (const e of p.elements) patternNames(e, out); break;
+    case "ObjectPattern": for (const q of p.properties) patternNames(q.type === "RestElement" ? q.argument : q.value, out); break;
+    default: break;
+  }
+  return out;
+}
+function boundNames(ast) {
+  const out = new Set();
+  walk(ast, (n) => {
+    if (/^(?:Function|Class)(?:Declaration|Expression)$/.test(n.type) && n.id) out.add(n.id.name);
+    if (/Function/.test(n.type) || n.type === "ClassMethod" || n.type === "ObjectMethod" || n.type === "ClassPrivateMethod") for (const p of n.params || []) patternNames(p, out);
+    if (n.type === "VariableDeclarator") patternNames(n.id, out);
+    if (n.type === "CatchClause") patternNames(n.param, out);
+  });
+  return out;
+}
+// the signature of the first function, arrow or class in the span, in source
+// order: a function's parameter count; for a class, its constructor's count
+// and every method's name with its count (`2;m/1;get x/0`), since a class
+// without a constructor still changes signature when a method does; null when
+// the span holds none
+function firstArity(ast) {
+  let found = null;
+  walk(ast, (n) => {
+    if (found !== null) return;
+    if (/^(?:FunctionDeclaration|FunctionExpression|ArrowFunctionExpression)$/.test(n.type)) found = n.params.length;
+    else if (n.type === "ClassDeclaration" || n.type === "ClassExpression") {
+      const methods = (n.body?.body || []).filter((m) => m.type === "ClassMethod" || m.type === "ClassPrivateMethod");
+      const ctor = methods.find((m) => m.kind === "constructor");
+      const rest = methods.filter((m) => m.kind !== "constructor")
+        .map((m) => `${m.static ? "static " : ""}${m.kind === "method" ? "" : m.kind + " "}${m.key.name ?? m.key.id?.name ?? m.key.value ?? "?"}/${m.params.length}`).sort();
+      found = [ctor ? ctor.params.length : 0, ...rest].join(";");
+    }
+  });
+  return found;
+}
+
 // The profile of one declaration's text. `topLevel`: mangled -> real (or null
-// for an unnamed top-level declaration), to tell a callee from a local.
+// for an unnamed top-level declaration), to tell a reference to a top-level
+// declaration from a local.
 export function declProfile(span, topLevel) {
   let toks, ast = null;
   try {
@@ -128,65 +210,62 @@ export function declProfile(span, topLevel) {
     for (const t of ast.tokens) {
       if (typeof t.type === "string" || t.end === t.start) continue;
       const label = t.type.label;
-      toks.push({ text: span.slice(t.start, t.end), name: label === "name", string: label === "string" || label === "template" });
+      toks.push({ text: span.slice(t.start, t.end), name: label === "name", literal: label === "string" || label === "template" || label === "num" || label === "bigint" });
     }
   } catch {
-    toks = [...span.matchAll(FALLBACK)].map((m) => ({ text: m[0], name: /^[A-Za-z_$][\w$]*$/.test(m[0]), string: /^["'`]/.test(m[0]) }));
+    toks = [...span.matchAll(FALLBACK)].map((m) => ({ text: m[0], name: /^[A-Za-z_$][\w$]*$/.test(m[0]), literal: /^["'`\d]/.test(m[0]) }));
   }
-  const norm = [], strings = new Set(), callees = new Set(), unnamed = new Set();
+  const norm = [], literals = new Set(), refs = new Set(), unnamed = new Set();
   for (let i = 0; i < toks.length; i++) {
     const t = toks[i], prev = toks[i - 1]?.text, next = toks[i + 1]?.text;
-    if (t.string) { strings.add(t.text); norm.push(t.text); continue; }
+    if (t.literal) { literals.add(t.text); norm.push(t.text); continue; }
     if (!t.name) { norm.push(t.text); continue; }
     const member = prev === "." || prev === "?.";
     const key = next === ":" && (prev === "{" || prev === ",");
-    if (member || key) { norm.push(t.text); continue; }
-    norm.push("_");
-    if (next === "(" && topLevel && topLevel.has(t.text)) { const r = topLevel.get(t.text); if (r) callees.add(r); else unnamed.add(t.text); }
+    norm.push(member || key ? t.text : "_");
   }
-  let arity = null;
-  if (ast) {
-    const fn = (() => {
-      for (const s of ast.program.body) {
-        if (s.type === "FunctionDeclaration") return s;
-        if (s.type === "ExpressionStatement" && s.expression.type === "AssignmentExpression" && /Function/.test(s.expression.right.type)) return s.expression.right;
-        if (s.type === "ExpressionStatement" && /Function/.test(s.expression.type)) return s.expression;
-      }
-      return null;
-    })();
-    if (fn) arity = fn.params.length;
+  // references to top-level declarations: from the AST when the span parses
+  // (names the span binds excluded), else from the token stream, where only
+  // a called name is safe to read as a reference
+  if (topLevel) {
+    const names = ast ? [...referencedNames(ast)].filter((n) => !boundNames(ast).has(n))
+      : toks.filter((t, i) => t.name && toks[i + 1]?.text === "(" && toks[i - 1]?.text !== "." && toks[i - 1]?.text !== "?.").map((t) => t.text);
+    for (const n of names) if (topLevel.has(n)) { const r = topLevel.get(n); if (r) refs.add(r); else unnamed.add(n); }
   }
   return {
     tokens: sha1(norm.join(" ")),
-    arity,
-    callees: [...callees].sort(),
-    unnamedCallees: unnamed.size,
-    strings: sha1([...strings].sort().join("\n")),
+    arity: ast ? firstArity(ast) : null,
+    refs: [...refs].sort(),
+    unnamedRefs: unnamed.size,
+    literals: sha1([...literals].sort().join("\n")),
   };
 }
 
-// changed | body-only | unchanged, from two profiles. `shared`: the real
-// names both releases know; a callee named on one side only (an inferred name
-// not yet re-anchored, a name registered later) is folded into the unnamed
-// count on that side, so the comparison does not depend on which side has
-// more names. Both counts are of distinct declarations (named callees are a
-// set of real names, unnamed ones a set of mangled names), so the fold adds
-// like to like. What the fold cannot see: a callee that only one side names
-// is compared by count, not identity, so dropping one such callee and adding
-// a call of an unnamed declaration leaves the count equal; the shared named
-// set, the arity and the string set still have to agree.
+// unchanged | body-only | changed, from two profiles. `shared`: the real
+// names both releases know; a reference named on one side only (an inferred
+// name not yet re-anchored, a name registered later) is folded into the
+// unnamed count on that side, so the comparison does not depend on which side
+// has more names. Both counts are of distinct declarations (named references
+// are a set of real names, unnamed ones a set of mangled names), so the fold
+// adds like to like. `unchanged` needs the token hash AND the folded
+// reference sets to agree: the token stream spells every top-level name `_`,
+// so a declaration that now calls or reads another top-level declaration
+// hashes the same, and only the reference sets tell. What the fold cannot
+// see: a reference that only one side names is compared by count, not
+// identity, so dropping one such reference and adding one to an unnamed
+// declaration leaves the count equal; the shared named set, the arity and the
+// literal set still have to agree.
 export function compareProfiles(a, b, shared = null) {
   if (!a || !b) return "missing";
-  if (a.tokens === b.tokens) return "unchanged";
   const fold = (p) => {
-    if (!shared) return { named: p.callees, unnamed: p.unnamedCallees };
-    const named = p.callees.filter((c) => shared.has(c));
-    return { named, unnamed: p.unnamedCallees + (p.callees.length - named.length) };
+    if (!shared) return { named: p.refs, unnamed: p.unnamedRefs };
+    const named = p.refs.filter((c) => shared.has(c));
+    return { named, unnamed: p.unnamedRefs + (p.refs.length - named.length) };
   };
   const x = fold(a), y = fold(b);
-  const same = a.arity === b.arity && a.strings === b.strings && x.unnamed === y.unnamed &&
-    x.named.length === y.named.length && x.named.every((c, i) => c === y.named[i]);
-  return same ? "body-only" : "changed";
+  const sameRefs = x.unnamed === y.unnamed && x.named.length === y.named.length && x.named.every((c, i) => c === y.named[i]);
+  if (a.tokens === b.tokens && sameRefs) return "unchanged";
+  return sameRefs && a.arity === b.arity && a.literals === b.literals ? "body-only" : "changed";
 }
 
 // --- the docs --------------------------------------------------------------------
@@ -419,10 +498,16 @@ function briefs(multi, argv) {
     }
     return diffs.get(p);
   };
-  const want = new Set(UNITS);
+  // a unit is `<doc>#<section>`; the doc part matches the citation's doc as
+  // impact.json spells it (the path bump.sh passed, usually absolute) or any
+  // suffix of it at a path boundary (`docs/X.md#2`), so the workflow's keys
+  // and a hand-typed relative path both work
+  const unitOf = (u) => { const m = u.match(/^(.*)#([^#]*)$/); return m ? { doc: m[1], section: m[2] } : { doc: u, section: null }; };
+  const units = UNITS.map((u) => ({ ...unitOf(u), spelled: u, hits: 0 }));
+  const inUnit = (c) => { let any = false; for (const u of units) { const d = c.doc === u.doc || c.doc.endsWith("/" + u.doc); if (d && (u.section === null || String(c.section) === u.section)) { u.hits++; any = true; } } return any; };
   const out = [];
   for (const c of impact.citations) {
-    if (want.size && !want.has(`${c.doc}#${c.section}`)) continue;
+    if (units.length && !inUnit(c)) continue;
     const ch = c.change ? changes.get(c.change) : null;
     const diffPaths = ch ? [ch.diff] : [...new Set((c.callees || []).map((k) => k.diff))];
     out.push({ doc: c.doc, line: c.line, section: c.section, sectionTitle: c.sectionTitle, tier: c.tier, form: c.form ?? "keyword", real: c.real ?? null,
@@ -433,7 +518,8 @@ function briefs(multi, argv) {
   out.sort((a, b) => (a.doc < b.doc ? -1 : a.doc > b.doc ? 1 : a.line - b.line));
   const text = JSON.stringify({ impact: IMPACT, units: UNITS, citations: out }, null, 1) + "\n";
   if (JSON_OUT) fs.writeFileSync(JSON_OUT, text); else process.stdout.write(text);
-  console.error(`briefs: ${out.length} citations${want.size ? ` in ${want.size} unit(s)` : ""}, ${[...new Set(out.flatMap((c) => c.diff.map((d) => d.file)))].length} diffs`);
+  for (const u of units) if (!u.hits) console.error(`briefs: warning: unit ${u.spelled} matches no citation (units are <doc>#<section index>; the doc is matched as impact.json spells it or by path suffix)`);
+  console.error(`briefs: ${out.length} citations${units.length ? ` in ${units.length} unit(s)` : ""}, ${[...new Set(out.flatMap((c) => c.diff.map((d) => d.file)))].length} diffs`);
 }
 
 function main() {
