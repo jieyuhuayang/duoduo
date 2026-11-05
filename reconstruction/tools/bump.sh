@@ -69,13 +69,16 @@
 # beautify-fidelity proof and stamps the build "unrecorded".
 # Only daemon and cli are processed -- the same NAMES as rebuild.sh; the other
 # bundles carry no first-party export table to retarget.
+# MAPS=<dir> reads the committed maps from elsewhere and DOCS=<dir> the docs the
+# impact report cites (replay_bump.sh: the record of the OLD release).
 # Writes only under $OUT (default reconstruction/.build/bump); never into maps/.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${OUT:-$HERE/../.build/bump}"
 MAPS="${MAPS:-$HERE/../maps}"
-DOCS="$(cd "$HERE/../.." && pwd)/docs"
+# DOCS= points the impact report at another docs tree (replay_bump.sh: the docs of OLD)
+DOCS="${DOCS:-$(cd "$HERE/../.." && pwd)/docs}"
 NAMES=(daemon cli)
 mkdir -p "$OUT"
 BEAUTIFY="$HERE/node_modules/.bin/js-beautify"

@@ -196,6 +196,12 @@ PKG=<dist/release> bash scenarios/run.sh [NN-name ...]            # instrument o
 node tools/instrument.mjs <daemon.recon.js> <symbols_daemon.json> <out.js> [--all] [--inner]
 node tools/trace_report.mjs <trace.jsonl> [--depth N] [--filter regex] [--out report.md] [--json o.json]
 
+# replay a past bump against the committed record of both releases and score the automatic
+# re-anchoring against the hand-reviewed maps of the new one (baseline: reconstruction/VERIFICATION.md §5.1);
+# run all four pairs (v0.8.3..v0.8.7) before and after changing any bump tool
+bash tools/replay_bump.sh <vOLD> <vNEW> [--out <dir>] [--fixture <dir>]   # writes .build/replay/runs/<vOLD>__<vNEW>/{bump,score.json,score.md}
+node tools/replay_score.mjs --old-maps <dir> --new-maps <dir> --bump <bump OUT> [--old-label v] [--new-label v] [--json <o.json>] [--md <o.md>]
+
 # bump internals (bump.sh runs these; run by hand to inspect one step)
 node tools/confirm_reanchor.mjs --impact <impact.json> --bundle <daemon|cli> [--proposed <p.json>] [--md <o.md>] [--json <o.json>] [--write <bump inferred.json> [--accept <oldShort>[=<newShort>]]...] <old.pretty.js> <new.pretty.js>
 node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] <oldShort>[=<cand>,...]...

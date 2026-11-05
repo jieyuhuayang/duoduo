@@ -12,7 +12,7 @@
 | 2 名字与归属 | 真名来自 esbuild 导出结构，归属按模块判定，推断名登记在正确的声明上 | 每次运行 | 模块归属检查（失败即停止构建）；verdict `<bundle>.inferredNames` |
 | 3 语义全等 | 出厂压缩文件 ≡ 美化文件 ≡ 还原产物（模改名表与局部名字列表） | 每次运行 | verdict `<bundle>.beautifyEquivalent`、`daemon.localNames`、`<bundle>.syntax`、`<bundle>.astEquivalent` |
 | 4 实机运行 | 还原 daemon 与 cli 的运行效果与出厂版相同 | 人工 A/B 对照，不随每次运行重做 | 本文 |
-| 5 跨版本重定向 | 升级时推断名按结构签名迁移，承接不了的全部显式报出；改动的代码与引用它的文档位置全部列出 | 升级时运行 `bump.sh`；2026-09 的 `bump.sh` 在 v0.8.2→v0.8.3 上完整回放过，此后加入的步骤各自的回放见 README.md「已实现」表 | 本文；README.md |
+| 5 跨版本重定向 | 升级时推断名按结构签名迁移，承接不了的全部显式报出；改动的代码与引用它的文档位置全部列出 | 升级时运行 `bump.sh`；改任何升级工具前后用 `replay_bump.sh` 在四对相邻发行版上回放并打分（5.1 节的基线） | 本文；README.md |
 | 6 可读树 | `first-party/` 与 bundle、改名表、推断名表、子系统映射一致 | 每次运行 | verdict `firstPartyTree` |
 | 7 文档引用 | 文档里每一处代码引用指向它声称的符号或代码 | 每次运行 | verdict `citations`、`lineAnchors` |
 | 8 检查器变异测试 | 各检查器能报出注入的已知错误 | 每次运行，另有一次性故障注入 | verdict `anchorCheckers`；本文 |
@@ -96,9 +96,32 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 `doc_sections.mjs` 对 `docs/*.md` 与 `CLAUDE.md` 拆分后立即拼回，与原文逐字节相同；拼回时拒绝拆分后被直接改过的文档。`upgrade-docs` workflow 只用模拟的 agent 跑过控制流（从 `impact.json` 加载分组、把 survey 指定的新节分给负载最轻的组、只在核验报出问题时运行修正、汇总待登记的名字），还没有在一次真实升级上运行过。
 
-这次回放之后 `bump.sh` 又加入了几个步骤：按顺序对齐全部顶层语句承接孪生推断名（`align_releases.mjs`），第 2c 档与第 4 档影响清单，其余四个 bundle 的字面量差异（`bundle_literals.mjs`），模块归属检查失败时的证据（`module_owner_hint.mjs`），以及 RE-ANCHOR 候选的证人核对（`confirm_reanchor.mjs`）。它们各自的回放记录在 README.md「已实现」表里，没有在一次完整的 `bump.sh` 运行里重新汇总。
+这次回放之后 `bump.sh` 又加入了几个步骤：按顺序对齐全部顶层语句承接孪生推断名（`align_releases.mjs`），第 2c 档与第 4 档影响清单，其余四个 bundle 的字面量差异（`bundle_literals.mjs`），模块归属检查失败时的证据（`module_owner_hint.mjs`），以及 RE-ANCHOR 候选的证人核对（`confirm_reanchor.mjs`）。它们各自的回放记录在 README.md「已实现」表里；5.1 节的回放基线把它们放进同一次完整的 `bump.sh` 运行里重新计量，结果与各自的记录一致。
 
 已提交的映射不依赖这些回放：它们的正确性由对齐版本上第 2、6、7 节的证据成立（推断名检查、可读树与引用检查全部 `pass`）。
+
+### 5.1 升级回放基线（`replay_bump.sh`、`replay_score.mjs`）
+
+结论：在 v0.8.3→v0.8.4、v0.8.4→v0.8.5、v0.8.5→v0.8.6、v0.8.6→v0.8.7 四对相邻发行版上，`bump.sh` 自动承接的推断名没有一个落到与人工复核结果不同的声明上（`carried-wrong` 全部为 0）；人工重定位过的 63 个名字里，自动给出的候选有 62 个与人工一致，唯一不一致的是 v0.8.3→v0.8.4 的 `isSupportedRuntime`（三个函数体相同的孪生体，按位置配对选错，与 README.md「已实现」表记录的相同）；没有一个名字落入 `unresolved`。改任何升级工具之前先跑这四对，改完再跑，以下表为基线。
+
+测什么。`tools/replay_bump.sh <vOLD> <vNEW>` 以 OLD 版本提交的 `reconstruction/maps/` 为输入（`MAPS=`），以 OLD 版本提交的 `docs/` 为影响清单的输入（`DOCS=`），对两个出厂包运行 `bump.sh`；再对每个 bundle 运行不带 `--write`、不带 `--accept` 的 `confirm_reanchor.mjs --json`，得到证人核实的集合；最后由 `replay_score.mjs` 把产出与 NEW 版本提交的 `maps/inferred_<bundle>.json`（人工复核后的结果，作为真值）按真名逐个比较，写出 `score.json`（每个名字的判定）与 `score.md`。某个发行版的提交记录不在 fixture 里时，它从 `origin/main` 上最后一个 `docs/.pretty-anchor-target` 与 `maps/pipeline_report.json` 都记录该版本的提交导出（v0.8.3 到 v0.8.7 的导出与 fixture 逐字节相同）；出厂包缺少时用 `npm install --ignore-scripts` 装进 fixture。每个旧推断名得到一个判定：`carried-correct`/`carried-wrong`，按结构指纹或语句对齐承接到的声明与真值相同/不同；`confirmed-correct`/`confirmed-wrong`，没有承接，证人核实的候选与真值相同/不同（`--write` 不加 `--accept` 写入的正是这些）；`proposed-correct`/`proposed-wrong`，没有承接也没有核实，给复核人看的候选（配对建议，没有建议时取打分第一名）与真值相同/不同；`unresolved`，真值里有这个名字，但没有任何候选；`gone`，真值里没有这个名字（上游删了代码，或复核时去掉了名字、改了拼写），其中承接到的声明在真值里有另一个拼写的另计为 respelled。NEW 有而 OLD 没有的名字记为 `truth-only`，只计数。对人工重定位过的名字另外统计 `anchor_candidates.mjs` 的排序里真值声明排第一、进前三的个数，以及第一名领先第二名的平均分差。
+
+2026-11-05 的基线（Node 22，fixture 为 `.build/replay/`，每对 `bump.sh` 用时 53 到 97 s）：
+
+| 版本对 | bundle | 旧名 | carried 对/错 | confirmed 对/错 | proposed 对/错 | unresolved | gone | truth-only | 排序第一 / 前三 | 平均分差 | `bump.sh` |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| v0.8.3→v0.8.4 | daemon | 489 | 454 / 0 | 18 / 0 | 11 / 1 | 0 | 5（4 respelled） | 244 | 29 / 30（共 30） | 2.452 | exit 0 |
+| v0.8.3→v0.8.4 | cli | – | – | – | – | – | – | 15 | – | – | OLD 没有 `inferred_cli.json` |
+| v0.8.4→v0.8.5 | daemon | 728 | 728 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | 5 | –（无重定位） | – | exit 0 |
+| v0.8.4→v0.8.5 | cli | 15 | 15 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 | – | – | bundle 逐字节相同，旧表原样保留 |
+| v0.8.5→v0.8.6 | daemon | 733 | 733 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 | –（无重定位） | – | exit 1（NEW 的模块归属检查失败，预期） |
+| v0.8.5→v0.8.6 | cli | 15 | 15 / 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 | – | – | bundle 逐字节相同，旧表原样保留 |
+| v0.8.6→v0.8.7 | daemon | 733 | 701 / 0 | 18 / 0 | 13 / 0 | 0 | 1（1 respelled） | 41 | 31 / 31（共 31） | 2.417 | exit 0 |
+| v0.8.6→v0.8.7 | cli | 15 | 12 / 0 | 2 / 0 | 0 / 0 | 0 | 1 | 4 | 2 / 2（共 2） | 2.357 | exit 0 |
+
+`gone` 的名字逐个核对过，没有一个是工具的错误：v0.8.3→v0.8.4 的 4 个 respelled（`isDaemonRuntimeInfo`、`isRuntimeKind`、`resolveRegistryStatusPath`、`updateRegistryStatus`）承接到的声明在 v0.8.4 的真值里分别叫 `isSystemRuntimeInfo`、`isModelRuntime`、`statusPath`、`updateStatus`，是复核时改用上游拼写；`IDLE_COMPACT_FIRE_CAP_PER_SWEEP` 证人核实了候选，但 v0.8.4 的真值没有保留这个名字；v0.8.6→v0.8.7 的 `classifySessionKeyKind` 在真值里叫 `classifySessionKey`；cli 的 `CLI_DAEMON_TOKEN_ENV_KEY` 报为"常量挪进模块初始化器"，真值正是去掉了它。v0.8.5→v0.8.6 的 `bump.sh` 以 exit 1 结束是 NEW 的模块归属检查对 OLD 的 `modules_daemon.json` 失败，承接、配对与核实的产出照常存在，回放照常打分。
+
+什么算退步：同一对版本上，`carried-wrong` 不为 0；任何 `*-wrong` 或 `unresolved` 比基线多，或任何 `*-correct` 比基线少；排序里真值排第一的个数比基线少；某一对在 `bump.sh` 第 0 步被拒绝（`refused.txt`）。`gone` 与 `truth-only` 的数目不是分数，`gone` 的名字变了才需要解释；候选的平均分差只供参考。每次运行的 `score.json` 留在 `.build/replay/runs/<vOLD>__<vNEW>/` 下，不进仓库，基线只记在本节。
 
 ## 6 可读树与 bundle 一致
 
