@@ -12,9 +12,13 @@
 // What does survive a change of body is the declaration's place in the call
 // graph and its strings. So each candidate is scored on three feature classes
 // against the old declaration:
-//   callers   the top-level declarations that reference it (resolved through
-//             Babel's scopes, so a local `e` is not a reference to a top-level
-//             `e`), the old ones mapped forward through the accepted pairs
+//   callers   the top-level declarations that reference it (Babel's
+//             ReferencedIdentifier resolved to the program scope, so an
+//             assignment to a top-level `var` inside a module initialiser is
+//             not a reference: 721 (declaration, name) pairs fewer than a walk
+//             over every Identifier on v0.8.4's daemon; esbuild gives no nested
+//             binding a top-level name in v0.8.3-v0.8.7, so shadowing never
+//             occurs there), the old ones mapped forward through the accepted pairs
 //   callees   the top-level declarations it references, mapped the same way
 //   literals  its string literals of 4+ characters
 // Three mechanisms come from binary diffing and the Java mapping tools
@@ -69,21 +73,24 @@
 // literal features, so two constants read by the same function still differ when
 // their values do.
 //
-// For a literal constant the callers are usually everything: two constants
-// with the same value (v0.8.4's IDLE_COMPACT_FIRE_CAP_PER_SWEEP and another 8)
-// differ only in who reads them.
+// For a literal constant the value feature is what tells twins apart: v0.8.4's
+// `Oct` (= 8, where IDLE_COMPACT_FIRE_CAP_PER_SWEEP moved) and `$ct` (= 60000)
+// are both read by `gwe` alone, so their callers class is identical and only
+// the `=8` literal separates them, 1.00 against 0.50.
 //
 // Library:
 //   loadGraph(prettyPath) -> the per-declaration features of one bundle (cached by path)
 //   rankAnchors(oldPretty, newPretty, fp, [{ short, candidates? }],
-//               { pairs?, align?, top?, abs?, rel?, rounds? }) ->
+//               { pairs?, align?, top?, abs?, rel?, rounds?, exclude? }) ->
 //     [{ short, kind, line, status: "accept"|"abstain", reason, accepted, score, margin, round,
 //        pool, ranked: [{ name, score, callers, callees, literals, line }] }]
 //   each class in `ranked` is { shared, of, w } -- shared and total feature counts,
 //   and the weighted Jaccard w.
+//   `exclude`: new declarations kept out of every pool, as if claimed (the
+//   removed-declaration simulation below: a name scored with its truth absent).
 // CLI: node anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>]
-//        [--align <align.json>] [--abs <x>] [--rel <x>] [--rounds <n>] [--json <out>]
-//        <oldShort>[=<cand>,<cand>...]...
+//        [--align <align.json>] [--abs <x>] [--rel <x>] [--rounds <n>] [--exclude <new>,<new>...]
+//        [--json <out>] <oldShort>[=<cand>,<cand>...]...
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
@@ -92,14 +99,20 @@ import { topLevelDeclarations, nameKind } from "./verify_inferred.mjs";
 
 const traverse = _traverse.default || _traverse;
 
-// Defaults from the replay sweep (VERIFICATION.md 5.2, 2026-11-05): over the 63
-// re-anchored names of the four fixture pairs no cell of the ABS x REL grid
-// accepts a wrong pick; ABS <= 0.25 with REL <= 0.25 accepts all 63, ABS in
-// [0.30, 0.40] accepts 62 (the one left is a three-line predicate scoring 0.28:
-// one caller, one callee, one one-word string), REL 0.30 drops two near-identical
-// functions scoring 0.95 against a runner-up at 0.71. 0.25 / 0.15 is on the
-// all-correct plateau with REL kept away from its 0.25 edge.
-export const DEFAULT_ABS = 0.25;
+// Defaults from two replays over the 63 re-anchored names of the four fixture
+// pairs (VERIFICATION.md 5.2, 2026-11-05). With the truth present, no cell of
+// the ABS x REL grid accepts a wrong pick, because every truth ranks first: that
+// sweep fixes REL (0.30 drops two near-identical functions scoring 0.95 against
+// a runner-up at 0.71) but cannot constrain ABS, which only trades abstentions.
+// What ABS is for is the declaration upstream removed: scored with its truth
+// excluded (`exclude`), a name is accepted for a wrong neighbour 14 times of 63
+// at ABS 0.25, 10 at 0.40, 2 at 0.45, 1 at 0.50, 0 at 0.60, while the correct
+// acceptances with the truth present are 63, 62, 61, 56, 52. The wrong
+// neighbours score 0.25-0.50 and the thinnest truths 0.28-0.49, so no ABS
+// separates them; 0.45 is where the two counts add up to the least (61 + 2),
+// abstaining on isSessionSetAliasParams (0.28, a three-line predicate) and
+// initGapSpanModule (0.43), both still ranked first for the reader.
+export const DEFAULT_ABS = 0.45;
 export const DEFAULT_REL = 0.15;
 export const DEFAULT_ROUNDS = 8;
 const CLASS_WEIGHT = { callers: 2, callees: 1, literals: 2 };
@@ -222,14 +235,16 @@ function scoreCandidate(O, N, short, cand, ctx) {
   return { name: cand, score: den ? +(num / den).toFixed(3) : 0, callers: strip(callers), callees: strip(callees), literals: strip(literals), line: ni.line };
 }
 
-export function rankAnchors(oldPretty, newPretty, fp, names, { pairs = {}, align = {}, top = 3, abs = DEFAULT_ABS, rel = DEFAULT_REL, rounds = DEFAULT_ROUNDS } = {}) {
+export function rankAnchors(oldPretty, newPretty, fp, names, { pairs = {}, align = {}, top = 3, abs = DEFAULT_ABS, rel = DEFAULT_REL, rounds = DEFAULT_ROUNDS, exclude = [] } = {}) {
   const O = loadGraph(oldPretty), Nn = loadGraph(newPretty);
   const asking = new Set(names.map((n) => n.short));
   // the accepted set: unique fingerprint matches and anchored alignment pairs
   // (trusted: their targets are claimed), then the positional pairs of changed
   // declarations (context only); a pair whose old side is a name being scored
   // is the question, not an answer
-  const fwd = new Map(), claimed = new Set();
+  // `exclude`: new declarations kept out of every pool, as if already claimed
+  // (the removed-declaration simulation: score a name with its truth absent)
+  const fwd = new Map(), claimed = new Set(exclude);
   const trust = (o, n) => { if (asking.has(o) || fwd.has(o)) return; fwd.set(o, n); claimed.add(n); };
   for (const [o, m] of Object.entries(fp.matched || {})) if (m.unique && typeof m.new === "string") trust(o, m.new);
   for (const [o, a] of Object.entries(align)) if (a && a.anchored && typeof a.new === "string") trust(o, a.new);
@@ -310,18 +325,18 @@ function main() {
   const opt = (name) => { const i = argv.indexOf(name); if (i < 0) return undefined; const v = argv[i + 1]; argv.splice(i, 2); return v; };
   const readJ = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
   const pairsFile = opt("--pairs"), alignFile = opt("--align"), jsonOut = opt("--json");
-  const abs = opt("--abs"), rel = opt("--rel"), rounds = opt("--rounds");
+  const abs = opt("--abs"), rel = opt("--rel"), rounds = opt("--rounds"), excl = opt("--exclude");
   const [OLD, NEW, FP, ...specs] = argv;
   if (!OLD || !NEW || !FP || !specs.length) {
     console.error("usage: node anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] [--align <align.json>]\n" +
-                  "         [--abs <x>] [--rel <x>] [--rounds <n>] [--json <out>] <oldShort>[=<cand>,<cand>...]...");
+                  "         [--abs <x>] [--rel <x>] [--rounds <n>] [--exclude <new>,<new>...] [--json <out>] <oldShort>[=<cand>,<cand>...]...");
     process.exit(2);
   }
   const fp = readJ(FP);
   const pairs = pairsFile ? readJ(pairsFile).pairs || {} : {};
   const align = alignFile ? readJ(alignFile).pairs || {} : {};
   const names = specs.map((s) => { const [short, c] = s.split("="); return { short, candidates: c ? c.split(",") : null }; });
-  const out = rankAnchors(OLD, NEW, fp, names, { pairs, align,
+  const out = rankAnchors(OLD, NEW, fp, names, { pairs, align, exclude: excl ? excl.split(",") : [],
     ...(abs !== undefined ? { abs: Number(abs) } : {}), ...(rel !== undefined ? { rel: Number(rel) } : {}), ...(rounds !== undefined ? { rounds: Number(rounds) } : {}) });
   for (const r of out) console.log(`${r.short} [${r.kind ?? "not a top-level declaration"}]: ${describeRanking(r)}`);
   if (jsonOut) fs.writeFileSync(jsonOut, JSON.stringify(out, null, 2) + "\n");
