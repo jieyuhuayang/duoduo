@@ -20,6 +20,7 @@ Docs (`docs/README.md` is the reading map and the maintainers' conventions; read
 - `docs/DUODUO_FRAMEWORK_GUIDE.md` (GUIDE) — the product-manager entry point, written for a reader who only knows what an LLM is. **No anchors and no short names, on purpose**; Appendix C maps each section to INTERNALS sections, Appendix D lists the upstream changes it absorbed.
 - `docs/SOURCE_RECONSTRUCTION.md` — why the reconstruction is credible and how doc citations are checked.
 - `docs/AGENT_FRAMEWORKS_COMPARISON.md` (duoduo vs hermes-agent vs pi) and `docs/DUODUO_VS_BOTMUX.md` (how duoduo and botmux drive Claude Code and Codex) — comparisons; their duoduo facts rest on the three docs above.
+- `docs/RECONSTRUCTION_EFFICIENCY_RESEARCH.md` — a research record, not an analysis of duoduo: what the internet offers for the two pain points of this reconstruction (names that cannot be recovered exactly; re-anchoring every release), by direction, with a ranked list of recommendations and the verification status of every claim. No code citations.
 
 Reconstruction (`reconstruction/README.md` is the full reference: generated artifacts, hand-maintained maps, the bump procedure step by step with the measured results of each tool, the tool table; `reconstruction/VERIFICATION.md` is the evidence log per proof):
 

@@ -1,6 +1,6 @@
 # duoduo 分析文档
 
-**duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。本目录是这个运行时（npm 包 `@openduo/duoduo`）的分析文档：六篇文档里，四篇分别写给产品经理、核对代码的工程师、部署运维的人和做框架选型的人，一篇对比 duoduo 与 botmux 驱动 Claude Code / Codex 的方式，一篇说明代码证据本身为什么可信。**
+**duoduo 是一个让大语言模型无人值守持续运行的程序；模型自身做不到的事（保存状态、调度、并发、边界检查）由运行时代码完成，需要判断的事交给模型。本目录是这个运行时（npm 包 `@openduo/duoduo`）的分析文档：七篇文档里，四篇分别写给产品经理、核对代码的工程师、部署运维的人和做框架选型的人，一篇对比 duoduo 与 botmux 驱动 Claude Code / Codex 的方式，一篇说明代码证据本身为什么可信，一篇是关于还原工作本身如何提效的调研。**
 
 证据来自三处：把 npm 包里的压缩运行时还原成的可读源码（在改名映射下与出厂 bundle 的 AST 全等，产物在 [`../reconstruction/`](../reconstruction/)，方法见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md)）；同一版本 npm 包内的提示词原文，以及本仓库的 [`../subconscious/`](../subconscious/) 与 [`../skills/`](../skills/)；运行观测，只在注明之处使用：一类是早期版本在本机部署上的实测，另一类是 `reconstruction/scenarios/` 在隔离环境里驱动插桩后的还原 daemon 所做的可重复实验，结论记在 `reconstruction/scenarios/findings/`。
 
@@ -21,6 +21,7 @@
 | 做技术选型，比较 duoduo、hermes-agent、pi | [COMPARISON](./AGENT_FRAMEWORKS_COMPARISON.md) §0 的结论与三项目速览、§4 的十维度对比、§6 的融合架构建议 |
 | 想知道 duoduo 与 botmux 在驱动 Claude Code、Codex 上的差异与优劣 | [DUODUO_VS_BOTMUX](./DUODUO_VS_BOTMUX.md) 第 0 节的结论与速览 |
 | 想知道还原源码为什么可信、文档里的代码引用怎样被核对 | [SOURCE_RECONSTRUCTION](./SOURCE_RECONSTRUCTION.md) 的"结论"与"5 文档引用按符号名核对，不按行号"一节；各产物的位置见它的"产物地图" |
+| 要改进还原流水线本身：推断名怎样少靠人、升级时怎样少重新锚定、文档引用怎样少人工迁移 | [RECONSTRUCTION_EFFICIENCY_RESEARCH](./RECONSTRUCTION_EFFICIENCY_RESEARCH.md) 第 0 节的结论与第 8 节的建议清单；每条建议写明依据、与现有工具的结合点和验证方式 |
 | 要写或核对某个机制，先查一个符号的调用方、被调用方、读取的环境变量、携带的字符串和已经引用它的文档节 | `node reconstruction/tools/symbol_card.mjs <真名>`，以及 `env:`、`dotted:`、`string:` 等反向查询；工具说明见 SOURCE_RECONSTRUCTION 第 6 节 |
 | 要修改这些文档 | 本文末尾的"维护约定" |
 
@@ -54,6 +55,7 @@ GUIDE 与 INTERNALS 整篇对齐 v0.8.7；ARCHITECTURE 与 COMPARISON 各有一�
 | [AGENT_FRAMEWORKS_COMPARISON.md](./AGENT_FRAMEWORKS_COMPARISON.md) | duoduo、hermes-agent、pi 三个框架的设计哲学、十个维度的横向对比与优劣总评，以及面向"充分运用贝叶斯第一性原理、可持续自我迭代、擅长 long-horizon 金融预测任务的 agent"的融合架构建议与落地路线 | 关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 v0.8.7，已对照 v0.8.7 的还原源码与出厂分区提示词核实；标"实测"的 duoduo 运行行为来自早期版本的部署或 v0.8.4 还原 daemon 上的场景测试，未在 v0.8.7 上重测；hermes-agent 与 pi 的事实来自调研时的源码快照（见其附录），未随两者的上游更新 |
 | [DUODUO_VS_BOTMUX.md](./DUODUO_VS_BOTMUX.md) | duoduo 与 botmux 驱动 Claude Code、Codex 的方式对比：集成边界（Agent SDK 与 app-server RPC，对比 tmux 里的交互式 CLI）、输入与 turn 结束的判断方式、两条路线各自的长处与代价，以及对 duoduo 的借鉴 | duoduo 的陈述对齐 v0.8.7，按名字引用；botmux 的陈述对齐 2026-10-16 的 master 快照（commit `f77f32e`），未随其上游更新 |
 | [SOURCE_RECONSTRUCTION.md](./SOURCE_RECONSTRUCTION.md) | 还原方法：排版与拆包不改变语义；导出名从 esbuild 的 `__export` 块读出，推断名逐个登记并在每次构建时核对；改名按作用域进行并由 AST 全等证明；上游升级时按结构签名迁移推断名；文档引用按符号身份核对；第 3 节末尾说明在插桩的还原 daemon 上运行的场景，第 6 节说明交叉引用索引与发行历史。末尾有产物地图 | 不绑定版本；产物对应的版本、各项计数与每道检查的结论以 [`reconstruction/maps/pipeline_report.json`](../reconstruction/maps/pipeline_report.json) 为准 |
+| [RECONSTRUCTION_EFFICIENCY_RESEARCH.md](./RECONSTRUCTION_EFFICIENCY_RESEARCH.md) | 调研记录：针对"源码无法精确还原"与"每次升级都要重新锚定"两个痛点，调研 JS 反压缩与 LLM 命名工具、跨版本声明匹配（二进制 diffing 与 Java 混淆映射工具）、社区长期维护映射的范式、名字与类型恢复研究、文档联动与引用校验五个方向，记录 esbuild 改名器的事实，给出按预期收益排序的建议清单；每条结论标注多源核实、单源或被否决。不描述 duoduo 的运行机制，不含代码引用 | 不绑定版本；调研日期 2026-11-04，对现有流水线的描述和本地核实以 v0.8.7 为准 |
 
 ## 维护约定
 
