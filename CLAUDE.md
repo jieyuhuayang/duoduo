@@ -36,7 +36,8 @@ Hand-maintained maps. Everything else in `maps/` is generated and enters the rep
 | Map | What it holds | Written by |
 |---|---|---|
 | `modules_<bundle>.json` | per esbuild `__export` block (= one source module): first-party or vendored, by marker export names | hand, one decision per new upstream module |
-| `inferred_<bundle>.json` | our names for unnamed code (functions, `init<Name>Module` initialisers, UPPER_SNAKE constants), **keyed by mangled name**, so every release needs `bump.sh` | `name_symbol.mjs`, `confirm_reanchor.mjs --write` mid-bump |
+| `inferred_<bundle>.json` | our names for unnamed code (functions, `init<Name>Module` initialisers, UPPER_SNAKE constants), **keyed by mangled name**, so every release needs `bump.sh`; where `ids_<bundle>.json` exists it is derived from it (`symbol_ids.mjs resolve`) and the gate `<bundle>.idsResolve` checks that | `name_symbol.mjs`, `confirm_reanchor.mjs --write` mid-bump, `symbol_ids.mjs resolve` at the end of a bump |
+| `ids_<bundle>.json` | the persistent id of each inferred name: `<kind>_<16 hex of the structural signature>`, plus, only for twins (one signature, several declarations), the named-callee set `c:` and the ordinal `p:`; keyed by real name, so it survives re-mangling, and a bump carries by it first (`resolve` on NEW; only the unresolved go to `remap_inferred`/RE-ANCHOR) | `symbol_ids.mjs assign` (`--rekey` for re-anchored names); `name_symbol.mjs` on registration |
 | `inferred_<bundle>.shape.json` | the reviewed shape of each inferred name, compared at every rebuild | `verify_inferred.mjs record` after review |
 | `inferred_<bundle>.asserted.json` | names registered with `--allow-unproven`; never evidence for a later registration | `name_symbol.mjs` |
 | `published_daemon.json` | inferred names confirmed as upstream's spelling from `@openduo/protocol`'s TypeScript source | `name_symbol.mjs --published` |
@@ -46,6 +47,7 @@ Hand-maintained maps. Everything else in `maps/` is generated and enters the rep
 | `history_daemon.json` | per symbol `firstSeen`, `changedIn`, `untraceable` across every npm release | `tools/history.sh --write` (not part of `rebuild.sh`) |
 | `changelog_daemon.json` | upstream CHANGELOG entries paired with the symbols they describe, with confidence; a reading, not a proof | `changelog_merge.mjs`; a bump writes only the new release's pairing file and merges with `--keep maps/changelog_daemon.json` (`.build` does not outlive a session) |
 | `bare_anchor_baseline.json` | per-doc ceilings on legacy line numbers; may only fall | `check_bare_anchors.mjs --write-baseline` |
+| `doc_acks.json` | per paragraph with citations: doc, `## ` section, normalised-text hash, cited symbols; per cited symbol a declaration profile (token-stream hash with identifiers as `_`; signature: parameter count, or for a class its constructor's and every method's; the top-level declarations it refers to, called or read, named by real name plus the number of distinct unnamed ones; hash of its string and number literals); the version it was read against. `unchanged` needs both the token hash and the reference set to agree. `impact_report.mjs` reads it (tier 4 → 3 when every cited declaration is unchanged) | `doc_acks.mjs record`, after the docs pass every check (last step of a bump, or after a doc edit) |
 
 The cli has `inferred_cli.*` but no first-party tree, so no subsystem or locals map.
 
@@ -77,11 +79,13 @@ The gates `rebuild.sh` runs, each a verdict in `pipeline_report.json`:
 - **Lossless split** (`<bundle>.lossless`): the split module files concatenate back to the beautified bundle byte for byte. Segment file names are case-insensitively unique, because minified names differ only by case and macOS/Windows would overwrite.
 - **Beautify fidelity** (`<bundle>.beautifyEquivalent`): shipped minified bundle and `*.pretty.js` have identical ASTs. Needs `PKG`; without it the verdict is `skipped`.
 - **Inferred names** (`<bundle>.inferredNames`): `verify_inferred.mjs check`, the only gate that catches a mis-anchored inferred name: right kind of code, right spelling for the kind, shape unchanged, no other recorded shape fitting better. Exit 0 pass, 1 fail, 3 warn (shape changed: re-read the body, then `record`).
+- **Persistent ids** (`<bundle>.idsResolve`): `symbol_ids.mjs check`, `maps/inferred_<bundle>.json` is exactly what `maps/ids_<bundle>.json` resolves to on this bundle (every name, on the same declaration); `skipped` while a bundle has no ids map, and then not required by `PROMOTE=1`.
 - **Local names** (`daemon.localNames`): `warn` when a `locals_daemon.json` entry no longer matches its code.
 - **Syntax and rename equivalence** (`<bundle>.syntax`, `<bundle>.astEquivalent`): identical ASTs modulo the rename map, identifiers compared by resolved binding; only mapped top-level bindings and the locals listed in `$OUT/locals_daemon.applied.json` may change name.
 - **Committed = generated** (`committedInSync`, `anchorTargetMatches`): committed `recon/`, `maps/`, `first-party/` equal the generated ones for the version the committed report claims, that report is itself promotable, and `docs/.pretty-anchor-target` names the same release. A run for another version records `retarget-pending`; a run without `PKG`/`PKG_VERSION` or with `MAPS` records `unverified`.
 - **First-party tree** (`firstPartyTree`, `verify_first_party.mjs`): every file is exactly its symbol's whole declaration, its header agrees with the maps, and the file set equals the renamed symbols in their subsystem directories. Nothing else checks this tree.
 - **Citations and anchors** (`citations`, `lineAnchors`, `anchorCheckers`): see "Writing / editing the analysis docs". `anchorCheckers` is a mutation test that the checkers catch injected errors.
+- **Appendix sets** (`appendixSets`, `check_appendix_sets.mjs`): the three enumerations of INTERNALS Appendix B (event types written through `createSpineEvent`, RPC methods `createDaemon`'s dispatcher recognises, the read-only TCP allowlist) equal the sets derived from the bundle; six mutants of the doc (a name added, removed, swapped) must each fail.
 
 `PROMOTE=1` is the only way generated artifacts enter the repo, and it writes only a run in which **every** proof verdict is exactly `pass` (`skipped`, `warn`, `fail`, or a gate that never ran are all refused) and both hashes exist for every bundle. It is refused before anything is written unless `PKG` points at `dist/release` inside an installed `@openduo/duoduo` (version from its `package.json`, a release `vX.Y.Z`), `BEAUTIFIED` and `MAPS` are unset, and `docs/.pretty-anchor-target` already names that version.
 
@@ -94,6 +98,7 @@ On every PR and push to `main`: on the Node major in the repo-root `.nvmrc`, ins
 ```bash
 # 0) tooling, on the Node major in .nvmrc (rebuild.sh warns on another major)
 cd reconstruction/tools && npm ci             # @babel/{parser,traverse,types} + pinned js-beautify
+                                              # (also a pinned typescript, used by type_seed.mjs only)
 
 # 1) a SCRATCH install of the release the committed report records (the one CI installs).
 #    Never point PKG at the global install: the runtime section copies files into $PKG,
@@ -132,11 +137,19 @@ PKG_OLD=<old dist/release> PKG_NEW=<new dist/release> bash tools/bump.sh
 node tools/confirm_reanchor.mjs --impact .build/bump/impact.json --bundle daemon \
   --proposed .build/bump/inferred_daemon.proposed.json --write .build/bump/inferred_daemon.json \
   [--accept <oldShort>[=<newShort>]]... .build/bump/pretty_old/daemon.pretty.js .build/bump/pretty_new/daemon.pretty.js
+#    bump.sh carried every name whose persistent id resolves on NEW (maps/ids_<bundle>.json,
+#    counts printed); only the rest went through remap_inferred and is RE-ANCHOR here.
 #    Review .build/bump/inferred_<bundle>.json (proposals in *.proposed.json: read each body),
 #    run verify_inferred.mjs check on NEW against the OLD shape baseline and settle every
 #    finding, add every name listed under "need a subsystem" to maps/subsys_daemon.json,
-#    decide any module-gate failure in maps/modules_<bundle>.json. Copy LAST:
-cp .build/bump/inferred_daemon.json maps/inferred_daemon.json   # (and inferred_cli.json)
+#    decide any module-gate failure in maps/modules_<bundle>.json. Then write maps/ THROUGH
+#    the ids (bump.sh prints the three commands per bundle): assign --rekey gives the
+#    re-anchored names their new ids and drops the names you dropped, resolve regenerates
+#    maps/inferred_<bundle>.json, check proves it equals the reviewed bump map. Do not cp
+#    the bump map into maps/ (a bundle without an ids map: cp it, as the LAST step).
+node tools/symbol_ids.mjs assign --rekey .build/bump/pretty_new/daemon.pretty.js .build/bump/inferred_daemon.json maps/ids_daemon.json --version v<new> --blocks .build/bump/blocks_daemon.new.json
+node tools/symbol_ids.mjs resolve .build/bump/pretty_new/daemon.pretty.js maps/ids_daemon.json maps/inferred_daemon.json --order .build/bump/inferred_daemon.json --blocks .build/bump/blocks_daemon.new.json
+node tools/symbol_ids.mjs check .build/bump/pretty_new/daemon.pretty.js maps/ids_daemon.json .build/bump/inferred_daemon.json --blocks .build/bump/blocks_daemon.new.json   # (and the cli)
 #    From here maps/ is keyed by NEW; bump.sh refuses to rerun until maps/ is restored from origin/main.
 # 1. record the reviewed shapes
 PKG_VERSION=v<new> node tools/verify_inferred.mjs record \
@@ -149,7 +162,9 @@ PKG=<new dist/release> bash tools/rebuild.sh
 # 3. retarget the doc citations mechanically (order below)
 # 3b. bring the release's substance into the docs: split per `## ` section, then run the
 #     saved workflow upgrade-docs (args printed by bump.sh). Name new code with
-#     name_toplevel.mjs tasks -> name_symbol.mjs --batch --build .build (dry-run first).
+#     name_toplevel.mjs tasks (describe, then names into toplevel.proposals.json) ->
+#     name_toplevel.mjs tsv -> name_symbol.mjs --batch --build .build (dry-run first).
+#     The workflow ends with doc_acks.mjs record (maps/doc_acks.json); re-record after any later doc edit.
 node tools/doc_sections.mjs split .build/bump/chunks ../docs/*.md ../CLAUDE.md
 # 3c. after the last name_symbol.mjs, extend the release history from the step-2 run
 bash tools/history.sh --build .build --write
@@ -157,7 +172,7 @@ bash tools/history.sh --build .build --write
 PROMOTE=1 PKG=<new dist/release> bash tools/rebuild.sh
 ```
 
-**Step 3 has one correct order, because the line step is one-shot.** For each bundle that changed, `retarget_docs.mjs collect --scope <bundle>` → `remap_doc_anchors.mjs`; then `retarget_docs.mjs apply --stamp v<new>` (not idempotent; it stamps `docs/.pretty-anchor-target` next to the first doc argument, so pass `docs/*.md` first; if no bundle changed, write the stamp by hand) → `retarget_symbols.mjs --bundle daemon maps/rename_daemon.json .build/rename_daemon.json` and the same with `--bundle cli` → `retarget_snippets.mjs --write` (with the `--old` arguments bump.sh prints) → `verify_citations.mjs --fix` (residue). Pass `CLAUDE.md` and `reconstruction/*.md` to the citation tools too. Pass `--bundle daemon=<pretty.js>` to `verify_citations.mjs`: without it every line check passes **vacuously**. `retarget_symbols.mjs` moves a `real (short)` pair only where one code span is exactly that pair and the old map pairs exactly those two names, and a prefixed pair (`cli:main (sot)`) only in the run for that bundle; it never rewrites a bare one-identifier span (it lists them for you to decide) or identifiers inside quoted code. Stale snippets are `retarget_snippets.mjs`'s job, and what it cannot settle is listed in its report for re-reading.
+**Step 3 has one correct order, because the line step is one-shot.** For each bundle that changed, `retarget_docs.mjs collect --scope <bundle>` → `remap_doc_anchors.mjs`; then `retarget_docs.mjs apply --stamp v<new>` (not idempotent; it stamps `docs/.pretty-anchor-target` next to the first doc argument, so pass `docs/*.md` first; if no bundle changed, write the stamp by hand) → `retarget_symbols.mjs --bundle daemon maps/rename_daemon.json .build/rename_daemon.json` and the same with `--bundle cli` → `retarget_snippets.mjs --write` (with the `--old` arguments bump.sh prints) → `verify_citations.mjs --fix` (residue). Pass `CLAUDE.md` and `reconstruction/*.md` to the citation tools too. Pass `--bundle daemon=<pretty.js>` to `verify_citations.mjs`: without it every line check passes **vacuously**. `retarget_symbols.mjs` moves a `real (short)` pair only where one code span is exactly that pair and the old map pairs exactly those two names, and a prefixed pair (`cli:main (sot)`) only in the run for that bundle; it never rewrites a bare one-identifier span (it lists them for you to decide) or identifiers inside quoted code. Stale snippets are `retarget_snippets.mjs`'s job: it writes a rewrite only when the quoted code is in the new declaration (token for token, by unique pattern, by ordinal, or non-contiguously with at most `--gap` inserted tokens and an inserted-token ratio below `--auto`), prints a `PROPOSED` candidate without writing it between `--auto` and `--propose`, and lists the rest in its report for re-reading. `impact_report.mjs` reads `maps/doc_acks.json` (`--acks`): a whole-declaration citation (never a snippet) of a `body-only` change (same signature, top-level references and literals) goes to tier 3, and so does a tier-4 keyword hit on a paragraph whose every cited declaration is unchanged since its ack; a tier-1 snippet never moves. After the docs pass, `doc_acks.mjs record … --version v<new> docs/*.md CLAUDE.md` writes the new record (the upgrade-docs workflow's last integration step does this).
 
 **The work of a bump should scale with what upstream changed, not with the size of the docs.** Step 3 only makes citations point at the right code again. For step 3b, `impact.md` lists every doc citation of a changed declaration by tier: 1 re-read (a snippet on a changed line or gone), 2 check, 2c `callee-changed` (cites an unchanged declaration whose direct callee changed; one call deep only, so cite the callee too), 3 skim (including `respelled` snippets left to `retarget_snippets.mjs`), and 4 `keyword` (paragraphs sharing a distinctive word with a change no doc cites). It drops nothing; the tier orders the reading. Per changed declaration, `diff_decls.mjs` writes a readable `.diff` with locals spelled `_` so esbuild's renaming does not show as change; `plaintext_delta.mjs` and `bundle_literals.mjs` (`.build/bump/literals/`) cover the package's non-bundle files, upstream's repo between tags, and the four bundles outside the pipeline.
 
@@ -171,16 +186,24 @@ node tools/symbol_card.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] [--body
 node tools/doc_coverage.mjs [--maps <dir>] [--build <OUT>] [--docs <dir>] <out.md>   # uncited symbols per subsystem, symbols per doc section, naming queue
 node tools/locate_by_anchor.mjs <pretty.js> <string...>          # top-level declaration (and kind) holding each literal's first occurrence
 node tools/extract_decl.mjs --pkg <dist/release> <realName...>   # $PKG/daemon.harness.mjs: recon bundle exporting those names + prepare() (their module initialisers)
+node tools/type_seed.mjs <daemon.recon.js|daemon.recon.top.js> <symbols_daemon.json> maps/published_daemon.json --protocol <protocol src dir> --out <types_daemon.json> [--same-name] [--rounds N] [--no-seed]   # TypeScript checker types after seeding the protocol signatures (VERIFICATION §11); name_locals.mjs tasks, name_toplevel.mjs tasks and match_published_source.mjs read it with --types <types_daemon.json>; for name_locals.mjs tasks run it on .build/daemon.recon.top.js, the file that command reads (ctx is a hash of the surrounding text, so a types file from the other file loses the locals near an applied local name; the hook counts what it drops)
 
 # naming
 node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--published <report.json>] [--dry-run] [--allow-unproven] <pretty.js> <short> <realName> <NN-subsystem|->
 node tools/name_symbol.mjs [--bundle daemon|cli] [--maps <dir>] [--build <dir>] [--historical <report.json>] [--dry-run] <pretty.js> --batch <list.tsv|list.json>
-node tools/name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> maps/subsys_daemon.json <outdir> [--new <fp.json>] [--limit N]   # unnamed code used by named code; TSV for --batch
-node tools/match_published_source.mjs --src <dir of *.ts> --package <name@version> [--rename <rename.json>] [--inferred <inferred.json>] [--pick <short>=<name>]... [--report <o.json>] <pretty.js>
+node tools/name_toplevel.mjs tasks <pretty.js> <xref.json> <rename.json> maps/subsys_daemon.json <outdir> [--new <fp.json>] [--limit N] [--changelog maps/changelog_daemon.json] [--protocol <protocol src dir>] [--types <types_daemon.json>]   # unnamed code used by named code, leaf-first, grouped by subsystem, with vocabulary; describe, then up to 3 names into toplevel.proposals.json
+node tools/name_toplevel.mjs tsv <toplevel.proposals.json> <toplevel.tsv>        # first candidate of each -> the --batch list
+node tools/naming_bench.mjs make <pretty.js> <rename.json> <xref.json> maps/subsys_daemon.json <outdir> --n N --seed S [--mix fn,init,value] [--changelog <json>] [--protocol <dir>] [--exclude <file>...]   # hide N known names, write the task + answers.json + a rule baseline; exit 1 if an answer still appears in the task; --exclude ../CLAUDE.md ../docs/*.md *.md drops names the namer may have read (then only functions remain)
+node tools/naming_bench.mjs score <answers.json> <proposals.json|.tsv> [--embed "<cmd>"] [--label <name>] [--skip <short,...>]   # exact, token F1, optional embedding cosine; @1 and best-of-3
+node tools/match_published_source.mjs --src <dir of *.ts> --package <name@version> [--rename <rename.json>] [--inferred <inferred.json>] [--pick <short>=<name>]... [--report <o.json>] [--types <types_daemon.json>] <pretty.js>
 node tools/match_historical_exports.mjs [--history <dir>] [--maps <dir>] --out <report.json>   # needs history.sh's .build/history
-node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...]
+node tools/name_locals.mjs tasks <top.js> <rename.json> maps/locals_daemon.json maps/subsys_daemon.json <outdir> [--only NN-dir,...] [--changelog <json>] [--protocol <dir>] [--types <types_daemon.json>]   # per subsystem, with its vocabulary; _describe first, then names
 node tools/name_locals.mjs record|prune|rekey <top.js> <rename.json> maps/locals_daemon.json [answers.json...]
+node tools/name_locals.mjs rules tools/fixtures/locals_rules.fixture.js --expect tools/fixtures/locals_rules.expected.txt   # the rule layer alone on the fixture; exit 1 on a difference
 node tools/verify_inferred.mjs check|record <pretty.js> <inferred.json> <shape.json>   # exit 0 pass, 3 warn, 1 fail
+node tools/symbol_ids.mjs assign <pretty.js> <inferred.json> <ids.json> --version v<X.Y.Z> [--rekey] [--carry <old>=<new>]... [--blocks <blocks.json>] [--report <o.json>]   # ids for the names the ids map lacks; --rekey for a changed declaration
+node tools/symbol_ids.mjs resolve <pretty.js> <ids.json> <out inferred.json> [--order <inferred.json>] [--blocks <blocks.json>] [--report <o.json>]   # the short-keyed map the ids resolve to on this bundle
+node tools/symbol_ids.mjs check <pretty.js> <ids.json> <inferred.json> [--blocks <blocks.json>] [--report <o.json>]   # exit 0 when resolve reproduces the map exactly
 
 # doc checks and conversions
 node tools/verify_citations.mjs <symbols.json>[,...] [--bundle <name>=<pretty.js>]... <doc.md...> [--fix]
@@ -190,17 +213,28 @@ node tools/check_bare_anchors.mjs [--index <symbols.json>[,...]] [--bundle cli=<
      <daemon.pretty.js> maps/blocks_daemon.json maps/modules_daemon.json <doc.md...>
 node tools/convert_line_citations.mjs --index <symbols_daemon.json>[,<symbols_cli.json>] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--write] [--report <o.json>] <doc.md...>
 node tools/doc_sections.mjs split <dir> <doc.md...>   |   node tools/doc_sections.mjs join <dir> [--force]
+node tools/check_appendix_sets.mjs --index <symbols_daemon.json> --xref <xref_daemon.json> --bundle <daemon.pretty.js> [--mutate] [--json <o.json>] <AGENT_INTERNALS_ANALYSIS.md>
+node tools/doc_acks.mjs record <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] --version v<X.Y.Z> [--out maps/doc_acks.json] <doc.md...>   # writes maps/doc_acks.json
+node tools/doc_acks.mjs check <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--rename <bundle>=<rename.json>] [--acks maps/doc_acks.json] [--json <o.json>] <doc.md...>
+node tools/doc_acks.mjs briefs --impact <impact.json> [--units docs/X.md#N,...] [--diff-lines N] [--json <o.json>]   # per-citation diff + ack + stability, for the upgrade-docs verifier
 
 # runtime experiments
 PKG=<dist/release> bash scenarios/run.sh [NN-name ...]            # instrument once, run scenarios; outputs under $OUT/scenarios/
 node tools/instrument.mjs <daemon.recon.js> <symbols_daemon.json> <out.js> [--all] [--inner]
 node tools/trace_report.mjs <trace.jsonl> [--depth N] [--filter regex] [--out report.md] [--json o.json]
 
+# replay a past bump against the committed record of both releases and score the automatic
+# re-anchoring against the hand-reviewed maps of the new one (baseline: reconstruction/VERIFICATION.md §5.1);
+# run all four pairs (v0.8.3..v0.8.7) before and after changing any bump tool
+bash tools/replay_bump.sh <vOLD> <vNEW> [--out <dir>] [--fixture <dir>]   # writes .build/replay/runs/<vOLD>__<vNEW>/{bump,score.json,score.md}
+node tools/replay_score.mjs --old-maps <dir> --new-maps <dir> --bump <bump OUT> [--old-label v] [--new-label v] [--json <o.json>] [--md <o.md>]
+
 # bump internals (bump.sh runs these; run by hand to inspect one step)
 node tools/confirm_reanchor.mjs --impact <impact.json> --bundle <daemon|cli> [--proposed <p.json>] [--md <o.md>] [--json <o.json>] [--write <bump inferred.json> [--accept <oldShort>[=<newShort>]]...] <old.pretty.js> <new.pretty.js>
-node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] <oldShort>[=<cand>,...]...
+node tools/anchor_candidates.mjs <old.pretty.js> <new.pretty.js> <fp.json> [--pairs <pairs.json>] [--align <align.json>] [--abs <x>] [--rel <x>] [--rounds <n>] [--exclude <new>,...] [--json <o.json>] <oldShort>[=<cand>,...]...   # rarity-weighted callers/callees/literals, propagated along the call graph; accept or abstain per name
 node tools/align_releases.mjs <old.pretty.js> <new.pretty.js> <out.json>
-node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json>
+node tools/pair_releases.mjs <old.pretty.js> <new.pretty.js> <fp.json> <pairs.json> <out.json> [--min 0.5] [--lead 0.1] [--creation 0.6] [--relaxed-min 0.6] [--moved-min 0.6]   # five layers: identical, twin by order, positional, assignment per window, moved
+node tools/relaxed_signature.mjs <a.pretty.js> <b.pretty.js> <nameInA> <nameInB> [--rounds 2] [--tokens]   # WL multiset Jaccard and normalised-token LCS ratio of two declarations
 node tools/diff_decls.mjs <old.pretty.js> <new.pretty.js> <pairs.json> <outdir> [old_rename] [new_rename] [--fp <fp.json>] [--old-label v] [--new-label v]
 node tools/impact_report.mjs --bump <bump OUT> [--old <dir>] [--new <dir>] [--maps <dir>] [--groups <K>] <doc.md...>
 node tools/retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>] [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--old <bundle>=<old pretty.js>,<old symbols.json>]... [--write] [--report <o.json>] <doc.md...>
@@ -289,8 +323,8 @@ duoduo keeps a large language model running unattended. Runtime code does the de
 
 - Spelling by kind: function camelCase (a class may be PascalCase), module initialiser `init<Name>Module`, literal constant UPPER_SNAKE; ≥ 8 characters, unused anywhere. An uninitialised `var` is refused: name the initialiser that assigns it and cite the value through it, as in `` `dJ = 5, fJ = 180 * 1e3`（`initMailboxDrainRunnerModule`） `` with `initMailboxDrainRunnerModule (HS)`.
 - Evidence: the code must refer to or be referred to by first-party code; any vendor evidence refuses. Prefer upstream's own spelling: `--published <match_published_source.mjs report>` (TypeScript source of `@openduo/protocol`, accepted on a `unique` or `ordered` match, and able to rename one of ours to upstream's on `conflict`) or `--historical <match_historical_exports.mjs report>` (an older release's export block). `--allow-unproven` only after reading the body; it is recorded in `inferred_daemon.asserted.json`. A rename carries the real-name-keyed entries in `locals_`, `history_` and `changelog_daemon.json` along.
-- Reaching the repo: the tool writes `maps/inferred_*.json`, `subsys_daemon.json` and the shape entries; the name reaches `recon/`, `first-party/` and `symbols_daemon.json` only through `PROMOTE=1 PKG=… bash rebuild.sh`. Commit the maps and the promoted artifacts together, or `committedInSync` fails. With `--build reconstruction/.build` the tool also updates that run's rename map and index, so `check_docs.sh` can check the new citation at once; mid-bump, `--build` is required (with `.build/beautified/v<new>/daemon.pretty.js`), because `maps/symbols_daemon.json` still indexes the old release.
-- Many at once (code a bump added): `name_toplevel.mjs tasks` lists unnamed declarations that named code uses (`--new <fp.json>` for this release's), with callers, strings, shared variables and body, plus a TSV for `--batch`; fill it in one naming pass, `--dry-run` it, and spot-check the thin bodies by hand before the real run.
+- Reaching the repo: the tool writes `maps/inferred_*.json`, `subsys_daemon.json`, the shape entries and, where `maps/ids_<bundle>.json` exists, the name's persistent id (`symbol_ids.mjs assign`, on the pretty bundle; a rename carries the entry); the name reaches `recon/`, `first-party/` and `symbols_daemon.json` only through `PROMOTE=1 PKG=… bash rebuild.sh`. Commit the maps and the promoted artifacts together, or `committedInSync` fails. With `--build reconstruction/.build` the tool also updates that run's rename map and index, so `check_docs.sh` can check the new citation at once; mid-bump, `--build` is required (with `.build/beautified/v<new>/daemon.pretty.js`), because `maps/symbols_daemon.json` still indexes the old release.
+- Many at once (code a bump added): `name_toplevel.mjs tasks` lists unnamed declarations that named code uses (`--new <fp.json>` for this release's), leaf-first and grouped by subsystem, each group with its vocabulary (registered names, CHANGELOG words, protocol types and fields with `--protocol`), each candidate with callers, the candidates it calls, strings, shared variables and the body with known names applied. Name them in file order (a callee's name is context for its caller): one sentence on what the code does, then up to 3 candidates in `toplevel.proposals.json`; `name_toplevel.mjs tsv` keeps the first for `--batch`, `--dry-run` it, and spot-check the thin bodies by hand before the real run. `naming_bench.mjs` measures a change to this hand-off before it is adopted (VERIFICATION.md §10).
 
 **Line numbers are legacy and may only disappear.** The older forms `` `真名 (短名)`（`N`） `` (F1), `` `短名`（`N`） `` (F2, `check_doc_anchors.mjs --resolve`: the short name on line N, or line N inside its declaration; `cli.pretty.js:N` checks the cli) and `` `代码片段`（`N`） `` (F3) are checked while they exist; any other line number is unbound. `maps/bare_anchor_baseline.json` caps each doc's `lineNumbers` and holds `unbound` at 0, so adding any line number, even a correct F1, fails the build. Retire them with `convert_line_citations.mjs --write` (it reverts any rewrite the checkers refute and ranks the unnamed code whose naming would convert the most), then lower the ceilings in the same commit with `check_bare_anchors.mjs … --baseline maps/bare_anchor_baseline.json --write-baseline` over all of `docs/*.md` (`--allow-raise` is for a genuinely new doc only). When a claim's evidence cannot be re-found, drop the citation and, if nothing else supports the claim, downgrade it to `未证实推测`. Diagrams in fences carry no citations: cite in the prose below them.
 

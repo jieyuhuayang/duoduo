@@ -34,11 +34,21 @@
 //        [--proposed <inferred_<bundle>.proposed.json>] [--md <out.md>] [--json <out.json>]
 //        [--write <bump's inferred_<bundle>.json> [--accept <oldShort>[=<newShort>]]...]
 //        <old.pretty.js> <new.pretty.js>
-// The candidate for each name is its proposal (remap_inferred.mjs) when there is
-// one, else impact.json's top-ranked pick. --write adds every `confirmed` entry
-// to the bump's inferred map, plus each --accept (a name the reader confirmed by
-// the bodies; `=<newShort>` overrides the candidate), refusing a key or a real
-// name already present. Nothing else is written; exit 0, or 1 on a refusal.
+// The candidate for each name is, in this order: the reader's --accept; the
+// declaration the candidate scorer accepted (anchor_candidates.mjs through
+// impact.json, `status: "accept"`), treated like a proposal, so the witnesses
+// still decide and a pairing proposal that disagrees is named; the pairing
+// proposal (remap_inferred.mjs); impact.json's top-ranked pick. When the
+// witnesses do not confirm the scorer's pick and the pairing proposal differs,
+// the proposal is judged by the same witnesses too, both verdicts are reported
+// (`scorerPick` or `proposalVerdict` in the JSON, the scorer column of the
+// table), and a `confirmed` proposal becomes the candidate, so a wrong scorer
+// pick never costs a confirmation the proposal would have had. --write adds
+// every `confirmed` entry to the bump's inferred map, plus each --accept (a
+// name the reader confirmed by the bodies; `=<newShort>` overrides the
+// candidate), refusing a key or a real name already present. A scorer-accepted
+// candidate the witnesses contradict is reported and never written. Nothing
+// else is written; exit 0, or 1 on a refusal.
 import fs from "node:fs";
 import crypto from "node:crypto";
 import { parse } from "@babel/parser";
@@ -110,10 +120,13 @@ if (!entries.length) { console.log(`confirm_reanchor: no RE-ANCHOR entries for $
 const O = load(OLD), N = load(NEW);
 const results = [];
 for (const r of entries) {
-  const cand = ACCEPT.get(r.oldShort) || proposalOf.get(r.oldShort) || r.ranking?.[0]?.name || null;
-  const od = O.kinds.get(r.oldShort), nd = cand ? N.kinds.get(cand) : null;
-  const res = { real: r.real, old: r.oldShort, candidate: cand, source: ACCEPT.get(r.oldShort) ? "accepted" : proposalOf.has(r.oldShort) ? "proposal" : "ranking",
-                oldKind: nameableKind(od), newKind: nameableKind(nd), params: [od?.params ?? null, nd?.params ?? null] };
+  // the candidate: the reader's --accept, else the declaration the candidate
+  // scorer accepted (impact.json `status: "accept"`, treated like a proposal:
+  // the witnesses still decide, and it is written only when they confirm it or
+  // the reader accepts it), else the pairing proposal, else the top-ranked pick
+  const scorer = r.status === "accept" ? r.accepted : null;
+  const proposal = proposalOf.get(r.oldShort) || null;
+  const od = O.kinds.get(r.oldShort);
   // witnesses: literals that only the old declaration has
   const witnesses = [...O.lits].filter(([, m]) => m.size === 1 && m.has(r.oldShort)).map(([v]) => v);
   const tally = new Map();
@@ -124,28 +137,49 @@ for (const r of entries) {
     const key = [...m.keys()].sort().join("|");
     tally.set(key, (tally.get(key) || 0) + 1);
   }
-  res.witnesses = witnesses.length; res.gone = gone;
-  res.landing = [...tally].sort((a, b) => b[1] - a[1]).map(([k, c]) => ({ in: k, count: c }));
-  const inCand = cand ? (tally.get(cand) || 0) : 0;
-  const elsewhere = res.landing.filter((l) => l.in !== cand && !l.in.split("|").includes(cand));
-  // a literal constant is its literal: the candidate must hold the same one
-  if (od?.kind === "value" && nd?.kind === "value" && nd.canonical === od.canonical) res.verdict = "confirmed";
-  else if (od?.kind === "value") {
-    // where does NEW assign the old constant's literal?
-    // the same hash verify_inferred.mjs gives a module initialiser's assigned literals
-    const h = crypto.createHash("sha256").update(od.canonical).digest("hex").slice(0, 16);
-    const holders = [...N.kinds].filter(([, d]) => d.kind === "moduleInit" && (d.values || []).includes(h));
-    if (holders.length) { res.verdict = "constant moved into initialiser"; res.note = `assigned in ${holders.map(([n]) => n).join(", ")}: drop the name, cite the value through the initialiser`; }
-    else { res.verdict = "contradicted"; res.note = `the candidate does not hold the literal ${od.canonical.slice(0, 40)}`; }
+  const landing = [...tally].sort((a, b) => b[1] - a[1]).map(([k, c]) => ({ in: k, count: c }));
+  // the witness verdict on one candidate
+  const judge = (cand) => {
+    const nd = cand ? N.kinds.get(cand) : null;
+    const J = { candidate: cand, newKind: nameableKind(nd), params: nd?.params ?? null, verdict: null, note: null };
+    const inCand = cand ? (tally.get(cand) || 0) : 0;
+    const elsewhere = landing.filter((l) => l.in !== cand && !l.in.split("|").includes(cand));
+    // a literal constant is its literal: the candidate must hold the same one
+    if (od?.kind === "value" && nd?.kind === "value" && nd.canonical === od.canonical) J.verdict = "confirmed";
+    else if (od?.kind === "value") {
+      // where does NEW assign the old constant's literal?
+      // the same hash verify_inferred.mjs gives a module initialiser's assigned literals
+      const h = crypto.createHash("sha256").update(od.canonical).digest("hex").slice(0, 16);
+      const holders = [...N.kinds].filter(([, d]) => d.kind === "moduleInit" && (d.values || []).includes(h));
+      if (holders.length) { J.verdict = "constant moved into initialiser"; J.note = `assigned in ${holders.map(([n]) => n).join(", ")}: drop the name, cite the value through the initialiser`; }
+      else { J.verdict = "contradicted"; J.note = `the candidate does not hold the literal ${od.canonical.slice(0, 40)}`; }
+    }
+    if (!J.verdict) {
+      if (!cand || !nd) J.verdict = "no candidate";
+      else if (nameableKind(od) !== J.newKind) J.verdict = "kind mismatch";
+      else if (elsewhere.length && elsewhere[0].count > inCand) J.verdict = "contradicted";
+      else if (inCand > 0 && !elsewhere.length) J.verdict = "confirmed";
+      else if (inCand > 0) J.verdict = "mostly confirmed";
+      else J.verdict = "read bodies";
+    }
+    return J;
+  };
+  let source = ACCEPT.get(r.oldShort) ? "accepted" : scorer ? "scorer" : proposal ? "proposal" : "ranking";
+  let J = judge(ACCEPT.get(r.oldShort) || scorer || proposal || r.ranking?.[0]?.name || null);
+  const res = { real: r.real, old: r.oldShort, oldKind: nameableKind(od), witnesses: witnesses.length, gone, landing };
+  if (scorer) { res.scorer = { accepted: scorer, score: r.score, margin: r.margin, round: r.round }; if (proposal && proposal !== scorer) res.proposal = proposal; }
+  else if (r.status === "abstain") res.scorer = { abstained: r.reason, score: r.score ?? null, margin: r.margin ?? null };
+  // a scorer pick the witnesses do not confirm must not cost the pairing
+  // proposal its own check: when the two differ, the proposal is judged too,
+  // both verdicts are reported, and the proposal takes over only when it is
+  // `confirmed` (then it is written, exactly as it was before the scorer)
+  if (source === "scorer" && proposal && proposal !== scorer && J.verdict !== "confirmed") {
+    const JP = judge(proposal);
+    if (JP.verdict === "confirmed") { res.scorerPick = { candidate: scorer, verdict: J.verdict, note: J.note }; J = JP; source = "proposal"; }
+    else res.proposalVerdict = { candidate: proposal, verdict: JP.verdict, note: JP.note };
   }
-  if (!res.verdict) {
-    if (!cand || !nd) res.verdict = "no candidate";
-    else if (res.oldKind !== res.newKind) res.verdict = "kind mismatch";
-    else if (elsewhere.length && elsewhere[0].count > inCand) res.verdict = "contradicted";
-    else if (inCand > 0 && !elsewhere.length) res.verdict = "confirmed";
-    else if (inCand > 0) res.verdict = "mostly confirmed";
-    else res.verdict = "read bodies";
-  }
+  Object.assign(res, { candidate: J.candidate, source, newKind: J.newKind, params: [od?.params ?? null, J.params], verdict: J.verdict });
+  if (J.note) res.note = J.note;
   if (ACCEPT.has(r.oldShort) && res.verdict !== "confirmed") res.accepted = true;
   results.push(res);
 }
@@ -153,14 +187,21 @@ for (const r of entries) {
 const counts = new Map();
 for (const r of results) counts.set(r.verdict, (counts.get(r.verdict) || 0) + 1);
 console.log(`confirm_reanchor ${BUNDLE}: ${results.length} RE-ANCHOR name(s): ` + [...counts].map(([k, v]) => `${v} ${k}`).join(", "));
-for (const r of results) if (r.verdict !== "confirmed") console.log(`  ${r.verdict.padEnd(31)} ${r.real} (${r.old} -> ${r.candidate ?? "?"}, ${r.source})${r.note ? "  " + r.note : ""}`);
+for (const r of results) if (r.verdict !== "confirmed" || r.scorerPick) console.log(`  ${r.verdict.padEnd(31)} ${r.real} (${r.old} -> ${r.candidate ?? "?"}, ${r.source})${r.note ? "  " + r.note : ""}` +
+  (r.source === "scorer" && r.verdict === "contradicted" ? "  [the candidate scorer accepted this; the witnesses refute it: not written]" : "") +
+  (r.scorerPick ? `  [the candidate scorer accepted ${r.scorerPick.candidate}: ${r.scorerPick.verdict}; the pairing proposal is confirmed and written instead]` : "") +
+  (r.proposalVerdict ? `  [pairing proposal ${r.proposalVerdict.candidate} differs: ${r.proposalVerdict.verdict}]` : r.proposal && !r.scorerPick ? `  [pairing proposal ${r.proposal} differs]` : ""));
+const scored = results.filter((r) => r.scorer?.accepted);
+if (scored.length) console.log(`  candidate scorer accepted ${scored.length}: ${scored.filter((r) => r.verdict === "confirmed" && !r.scorerPick).length} witness-confirmed, ${scored.filter((r) => (r.scorerPick ? r.scorerPick.verdict : r.verdict) === "contradicted").length} contradicted, ${scored.filter((r) => r.proposal).length} differing from the pairing proposal${scored.filter((r) => r.scorerPick).length ? ` (${scored.filter((r) => r.scorerPick).length} replaced by the confirmed proposal)` : ""}`);
 
 if (MD) {
   const L = [`# RE-ANCHOR confirmation (${BUNDLE})`, "",
     "Witnesses are string literals (6+ characters) that only the old declaration has; `landing` is where they are in NEW. " +
     "`confirmed`: every witness still present is in the candidate alone. `read bodies`: no witness; decide from the two bodies below, then pass `--accept <old>`.", "",
-    "| name | old → candidate | source | verdict | witnesses (gone) | landing | kind | params |", "|---|---|---|---|---|---|---|---|"];
-  for (const r of results) L.push(`| ${r.real} | \`${r.old}\` → \`${r.candidate ?? "?"}\` | ${r.source} | ${r.verdict}${r.note ? ": " + r.note : ""} | ${r.witnesses} (${r.gone}) | ${r.landing.slice(0, 3).map((l) => `\`${l.in}\`:${l.count}`).join(" ") || "-"} | ${r.oldKind === r.newKind ? r.oldKind : `${r.oldKind} → ${r.newKind}`} | ${r.params[0]} → ${r.params[1]} |`);
+    "`source` scorer: the declaration anchor_candidates.mjs accepted (impact.json); it is treated like a proposal. When the witnesses do not confirm it and the pairing proposal differs, the proposal is judged too (its verdict is in the scorer column), and a `confirmed` proposal is the candidate instead.", "",
+    "| name | old → candidate | source | scorer | verdict | witnesses (gone) | landing | kind | params |", "|---|---|---|---|---|---|---|---|---|"];
+  const scorerCell = (r) => !r.scorer ? "-" : r.scorer.accepted ? `accept \`${r.scorer.accepted}\` ${r.scorer.score?.toFixed(2)} (margin ${r.scorer.margin?.toFixed(2)}, round ${r.scorer.round})${r.scorerPick ? `: ${r.scorerPick.verdict}; proposal \`${r.candidate}\` confirmed instead` : r.proposalVerdict ? `; proposal \`${r.proposalVerdict.candidate}\` differs: ${r.proposalVerdict.verdict}` : r.proposal ? `; proposal \`${r.proposal}\` differs` : ""}` : `abstain: ${r.scorer.abstained}${r.scorer.score != null ? ` (${r.scorer.score.toFixed(2)})` : ""}`;
+  for (const r of results) L.push(`| ${r.real} | \`${r.old}\` → \`${r.candidate ?? "?"}\` | ${r.source} | ${scorerCell(r)} | ${r.verdict}${r.note ? ": " + r.note : ""} | ${r.witnesses} (${r.gone}) | ${r.landing.slice(0, 3).map((l) => `\`${l.in}\`:${l.count}`).join(" ") || "-"} | ${r.oldKind === r.newKind ? r.oldKind : `${r.oldKind} → ${r.newKind}`} | ${r.params[0]} → ${r.params[1]} |`);
   for (const r of results.filter((x) => x.verdict !== "confirmed")) {
     L.push("", `## ${r.real}: ${r.verdict}`, "", "old:", "```js", body(O, r.old), "```", "new candidate:", "```js", r.candidate ? body(N, r.candidate) : "(none)", "```");
   }

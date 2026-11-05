@@ -1,0 +1,482 @@
+{
+ "spt": {
+  "describe": "Computes a host boot identifier: hostname plus the Linux boot_id or the macOS kern.boottime seconds, else a fallback from the uptime in minutes.",
+  "names": [
+   "computeHostBootId",
+   "buildHostBootId",
+   "resolveHostBootId"
+  ]
+ },
+ "Uue": {
+  "describe": "Reads the spine index retention-days env var as a positive integer, logging a [spine] warning and returning the default otherwise.",
+  "names": [
+   "resolveSpineIndexRetentionDays",
+   "readSpineIndexRetentionDays",
+   "parseSpineIndexRetentionDays"
+  ]
+ },
+ "mEe": {
+  "describe": "Initialises the runtime-initialisation module: the subconscious playlist template and the sets of bootstrap directories and files copied into the kernel.",
+  "names": [
+   "initRuntimeInitializerModule",
+   "initInitializeRuntimeModule",
+   "initKernelBootstrapModule"
+  ]
+ },
+ "STe": {
+  "describe": "Initialises the subconscious partition runner module: imports the scheduler dependencies and defines the set of partitions whose required output is checked for emptiness.",
+  "names": [
+   "initSubconsciousRunnerModule",
+   "initPartitionRunnerModule",
+   "initSubconsciousSchedulerModule"
+  ]
+ },
+ "Hu": {
+  "describe": "Reads the status file (or builds the initial one), applies a mutation, stamps generated_at and writes it back, returning the new status.",
+  "names": [
+   "updateStatus",
+   "mutateStatus",
+   "updateStatusFile"
+  ]
+ },
+ "rt": {
+  "describe": "Reads and JSON-parses a session state file resolved by resolveSessionStatePath, returning null on any error.",
+  "names": [
+   "readSessionStateFile",
+   "readSessionStateJson",
+   "readSessionState"
+  ]
+ },
+ "Vg": {
+  "describe": "Initialises the Grok ACP adapter module: the Grok tool and profile constants, the x.ai MCP meta keys and the in-process MCP transport class.",
+  "names": [
+   "initGrokAcpAdapterModule",
+   "initGrokAcpModule",
+   "initGrokMcpTransportModule"
+  ]
+ },
+ "Fc": {
+  "describe": "Probes whether the Grok CLI is installed by running `<bin> --version` with a timeout, returning ok or a reason text.",
+  "names": [
+   "checkGrokAvailability",
+   "probeGrokAvailability",
+   "probeGrokCli"
+  ]
+ },
+ "nTe": {
+  "describe": "Initialises the board-includes module: the include depth limit and the set of text file extensions a board may transclude.",
+  "names": [
+   "initBoardIncludesModule",
+   "initBoardTransclusionModule",
+   "initBoardIncludeModule"
+  ]
+ },
+ "Eg": {
+  "describe": "The default Claude tool names list returned by listDefaultClaudeToolNames.",
+  "names": [
+   "DEFAULT_CLAUDE_TOOL_NAMES",
+   "CLAUDE_DEFAULT_TOOLS",
+   "CLAUDE_CORE_TOOLS"
+  ]
+ },
+ "yXe": {
+  "describe": "Returns the sessions-archive directory under varDir.",
+  "names": [
+   "resolveSessionsArchiveDir",
+   "sessionsArchiveDir",
+   "resolveSessionArchiveRoot"
+  ]
+ },
+ "Oy": {
+  "describe": "The current instructions-fingerprint schema version (2) that runInstructionsFingerprintGuard compares against.",
+  "names": [
+   "INSTRUCTIONS_FINGERPRINT_SCHEMA_VERSION",
+   "INSTRUCTIONS_SCHEMA_VERSION",
+   "FINGERPRINT_SCHEMA_VERSION"
+  ]
+ },
+ "gyt": {
+  "describe": "Builds the coalesce key of a drain item from its primary target session key, fanout targets and source channel id.",
+  "names": [
+   "computeDrainCoalesceKey",
+   "buildDrainCoalesceKey",
+   "resolveDrainCoalesceKey"
+  ]
+ },
+ "cC": {
+  "describe": "Extracts index, toolUseId and toolName from a content_block_start stream event whose block is a tool_use, else null.",
+  "names": [
+   "extractToolUseStart",
+   "parseToolUseBlockStart",
+   "extractToolUseBlockStart"
+  ]
+ },
+ "lp": {
+  "describe": "Resolves the max-context-tokens value for a Claude session from its context requirement kind and the host limit.",
+  "names": [
+   "resolveMaxContextTokensValue",
+   "resolveClaudeMaxContextTokens",
+   "resolveContextTokenLimit"
+  ]
+ },
+ "xW": {
+  "describe": "The env key name CLAUDE_CODE_EXECUTABLE that writeHostClaudeCodeExecutableEnvConfig persists into the host .env.",
+  "names": [
+   "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
+   "CLAUDE_CODE_EXECUTABLE_KEY",
+   "HOST_CLAUDE_CODE_EXECUTABLE_KEY"
+  ]
+ },
+ "uO": {
+  "describe": "The namespace/server name 'aladuo' under which duoduo's own tools are mounted for Codex.",
+  "names": [
+   "ALADUO_TOOL_NAMESPACE",
+   "ALADUO_MCP_NAMESPACE",
+   "ALADUO_MCP_SERVER_NAME"
+  ]
+ },
+ "AO": {
+  "describe": "Selects the notify-mode guidance text for a session context kind (job, meta, foreground, system).",
+  "names": [
+   "renderNotifyModeGuidance",
+   "resolveNotifyModeGuidance",
+   "selectNotifyModeGuidance"
+  ]
+ },
+ "Cy": {
+  "describe": "Converts a zod shape into a JSON-schema object with string properties and the required keys.",
+  "names": [
+   "zodShapeToJsonSchema",
+   "buildJsonSchemaFromZodShape",
+   "convertZodShapeToSchema"
+  ]
+ },
+ "Mve": {
+  "describe": "Maps a Codex thread item (commandExecution, fileChange, mcpToolCall, ...) to a tool_result execution event, or null for items without one.",
+  "names": [
+   "mapCodexItemToToolResult",
+   "codexItemToToolResultEvent",
+   "buildCodexToolResultEvent"
+  ]
+ },
+ "dve": {
+  "describe": "Decides whether a job schedule (once, keepalive, @in, @every or cron) is due at a given time, given its last run and rearm time.",
+  "names": [
+   "isJobScheduleDue",
+   "isJobDue",
+   "isScheduleDue"
+  ]
+ },
+ "vke": {
+  "describe": "Appends one gap-handed-days line to the memory/<file> under a directory, creating memory/ if needed.",
+  "names": [
+   "appendGapHandedDay",
+   "appendGapHandedDays",
+   "writeGapHandedDay"
+  ]
+ },
+ "Lpt": {
+  "describe": "Renders the node-converge signal body for a topic node: line count, unexpected sections, reachability and escalation.",
+  "names": [
+   "renderNodeConvergeSignalBody",
+   "renderNodeConvergeSignal",
+   "buildNodeConvergeSignal"
+  ]
+ },
+ "Igt": {
+  "describe": "Copies every DUODUO.md under the bootstrap var/ tree into the runtime varDir, creating the directories.",
+  "names": [
+   "copyBootstrapVarDuoduoMd",
+   "copyBootstrapDuoduoMdFiles",
+   "seedVarDuoduoMd"
+  ]
+ },
+ "fq": {
+  "describe": "Parses the Claude-related frontmatter fields (allowedTools, disallowedTools, additionalDirectories, the claude block and other blocks) of a config.",
+  "names": [
+   "parseClaudeToolFields",
+   "parseClaudeConfigFields",
+   "parseRuntimeToolFields"
+  ]
+ },
+ "fA": {
+  "describe": "The env key name ALADUO_DAEMON_TOKEN read and written by the host daemon-token helpers.",
+  "names": [
+   "DAEMON_TOKEN_ENV_KEY",
+   "ALADUO_DAEMON_TOKEN_KEY",
+   "HOST_DAEMON_TOKEN_ENV_KEY"
+  ]
+ },
+ "rc": {
+  "describe": "Attaches data/end/close listeners to a readable stream, feeding a line framer, and returns a close() that detaches them.",
+  "names": [
+   "attachStreamLineReader",
+   "attachStreamReader",
+   "readStreamLines"
+  ]
+ },
+ "Wve": {
+  "describe": "Collects the candidate tool-call names from a Grok tool call's x.ai/tool meta, name, toolName, title and kind.",
+  "names": [
+   "collectGrokToolCallNames",
+   "collectGrokToolNames",
+   "listGrokToolCallNames"
+  ]
+ },
+ "sC": {
+  "describe": "Initialises the caller-session env module: the ALADUO_CALLER_SESSION env key.",
+  "names": [
+   "initCallerSessionEnvModule",
+   "initCallerSessionModule",
+   "initCallerSessionEnvKeyModule"
+  ]
+ },
+ "Nve": {
+  "describe": "Logs once per phase:type that a Codex item has no execution-event mapping and is dropped.",
+  "names": [
+   "warnUnmappedCodexItemOnce",
+   "logUnmappedCodexItemOnce",
+   "noteUnmappedCodexItem"
+  ]
+ },
+ "yR": {
+  "describe": "The maximum byte length of a unix socket path (104, sun_path) that createDaemon checks the socket file against.",
+  "names": [
+   "UNIX_SOCKET_PATH_MAX_BYTES",
+   "SUN_PATH_MAX_BYTES",
+   "SOCKET_PATH_MAX_LENGTH"
+  ]
+ },
+ "Cq": {
+  "describe": "Replaces a session index entry: removes it and upserts the rebuilt entry, or removes only when the entry builder returns null.",
+  "names": [
+   "replaceSessionIndexEntry",
+   "upsertSessionIndexEntry",
+   "rebuildSessionIndexEntry"
+  ]
+ },
+ "gv": {
+  "describe": "Aggregates a list of drain records into one usage summary.",
+  "names": [
+   "aggregateDrainRecords",
+   "summarizeDrainRecords",
+   "buildUsageSummary"
+  ]
+ },
+ "NSt": {
+  "describe": "Handles the session.compact RPC: resolves the target by key or alias, refuses non-channel, void or archiving sessions, ingests a /compact gateway command and wakes the session.",
+  "names": [
+   "runSessionCompactRpc",
+   "handleSessionCompactRpc",
+   "compactSessionByTarget"
+  ]
+ },
+ "fI": {
+  "describe": "Returns the status.json path under registryDir.",
+  "names": [
+   "statusPath",
+   "resolveStatusPath",
+   "statusFilePath"
+  ]
+ },
+ "zue": {
+  "describe": "Scans a partition file line by line for the event with a given id, returning it or null.",
+  "names": [
+   "scanPartitionForEventId",
+   "findEventInPartition",
+   "readEventFromPartition"
+  ]
+ },
+ "Vu": {
+  "describe": "Writes a consumer offset file pointing at an event id's indexed partition and byte offset, returning whether the id was found.",
+  "names": [
+   "writeConsumerOffsetForEventId",
+   "advanceConsumerOffset",
+   "commitConsumerOffset"
+  ]
+ },
+ "Knt": {
+  "describe": "Handles a gateway command event: parses it, executes it, records a pending notice, persists an outbox record and an agent.result spine event, and emits session.output.",
+  "names": [
+   "handleGatewayCommandEvent",
+   "executeGatewayCommandEvent",
+   "routeGatewayCommandEvent"
+  ]
+ },
+ "vU": {
+  "describe": "Initialises the effort-level module: the ordered list of effort levels (low to max).",
+  "names": [
+   "initEffortLevelsModule",
+   "initEffortLevelModule",
+   "initProtocolEffortModule"
+  ]
+ },
+ "Ofe": {
+  "describe": "Normalises a slash-command word to its canonical command (/reset to /clear, #debug to /debug), else undefined.",
+  "names": [
+   "normalizeGatewayCommandName",
+   "canonicalizeGatewayCommand",
+   "resolveGatewayCommandName"
+  ]
+ },
+ "To": {
+  "describe": "Initialises the Claude Agent SDK adapter module: default tool lists, the preset system-prompt text, SDK error classes, the runtime probe and timeouts.",
+  "names": [
+   "initAgentSdkAdapterModule",
+   "initClaudeSdkAdapterModule",
+   "initAgentSdkModule"
+  ]
+ },
+ "rp": {
+  "describe": "Initialises the Codex app-server module: the tool namespace, default options and the app-server JSON-RPC client class.",
+  "names": [
+   "initCodexAppServerModule",
+   "initCodexAdapterModule",
+   "initCodexRuntimeModule"
+  ]
+ },
+ "Fo": {
+  "describe": "Returns the hex sha256 digest of a string.",
+  "names": [
+   "sha256Hex",
+   "hashSha256Hex",
+   "computeSha256Hex"
+  ]
+ },
+ "RIe": {
+  "describe": "Whether a job schedule expression is one-shot (once or @in).",
+  "names": [
+   "isOneShotScheduleExpression",
+   "isOnceOrInSchedule",
+   "isOneShotScheduleKind"
+  ]
+ },
+ "FV": {
+  "describe": "The core tool name list given to the meta session.",
+  "names": [
+   "META_SESSION_CORE_TOOLS",
+   "PARTITION_CORE_TOOLS",
+   "CORE_TOOL_NAMES"
+  ]
+ },
+ "VSe": {
+  "describe": "Rebuilds the Current Round section of the subconscious playlist from the enabled partitions, writes it atomically and returns their count.",
+  "names": [
+   "rebuildPlaylistRound",
+   "rebuildSubconsciousPlaylistRound",
+   "writePlaylistCurrentRound"
+  ]
+ },
+ "sTe": {
+  "describe": "Resolves the role prompt text (main or member) for a channel session key from the main-alias state.",
+  "names": [
+   "resolveSessionRolePrompt",
+   "resolveChannelRolePrompt",
+   "selectRolePromptForSession"
+  ]
+ },
+ "mJ": {
+  "describe": "Extracts the media attachments (path, mime) of an event payload, or undefined when there are none.",
+  "names": [
+   "extractMediaAttachments",
+   "readMediaAttachments",
+   "extractPayloadMedia"
+  ]
+ },
+ "ryt": {
+  "describe": "Renders the <time-context> block when the gap since the last interaction exceeds the threshold.",
+  "names": [
+   "renderTimeGapContextBlock",
+   "renderTimeContextBlock",
+   "renderTimeGapBlock"
+  ]
+ },
+ "Mat": {
+  "describe": "Renders the <acceptance> block of a job mission from its acceptance text.",
+  "names": [
+   "renderJobAcceptanceBlock",
+   "renderAcceptanceBlock",
+   "renderMissionAcceptanceBlock"
+  ]
+ },
+ "wfe": {
+  "describe": "The cache-hit-rate floor (0.5) below which detectInProcessBreak reports an in-process break.",
+  "names": [
+   "IN_PROCESS_BREAK_HIT_RATE_FLOOR",
+   "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
+   "CACHE_HIT_RATE_FLOOR"
+  ]
+ },
+ "jo": {
+  "describe": "Initialises the spine event-id index module: partition append queues, the partition file-name pattern, the index cache and the retention env key with its default.",
+  "names": [
+   "initSpineEventIndexModule",
+   "initSpineEventLogModule",
+   "initEventIdIndexModule"
+  ]
+ },
+ "mC": {
+  "describe": "Builds the SDK turn usage record (sdk_session_id, total_cost_usd, model_usage) when all three are present.",
+  "names": [
+   "buildSdkTurnUsageRecord",
+   "buildClaudeTurnUsage",
+   "extractSdkResultUsage"
+  ]
+ },
+ "Dve": {
+  "describe": "Maps a Codex thread item to a tool_use execution event with the tool's input, or null for items without one.",
+  "names": [
+   "mapCodexItemToToolUse",
+   "codexItemToToolUseEvent",
+   "buildCodexToolUseEvent"
+  ]
+ },
+ "cmt": {
+  "describe": "Selects the gap to lint: the current day's unhandled span after the handed-days cutoff, else the latest earlier day's span, with its merged hour ranges.",
+  "names": [
+   "resolveScanGapWindow",
+   "selectGapLintWindow",
+   "computeScanGap"
+  ]
+ },
+ "eA": {
+  "describe": "Builds a topic node key from its type and slug.",
+  "names": [
+   "formatTopicNodeKey",
+   "buildTopicNodeKey",
+   "topicNodeKey"
+  ]
+ },
+ "aS": {
+  "describe": "Prefixes an x.ai tool or method name with the Grok ACP extension prefix.",
+  "names": [
+   "buildGrokAcpExtName",
+   "grokAcpExtMethod",
+   "prefixGrokAcpExtension"
+  ]
+ },
+ "Hve": {
+  "describe": "The MCP server name 'aladuo' under which duoduo's tools are offered to Grok.",
+  "names": [
+   "GROK_MCP_SERVER_NAME",
+   "GROK_ALADUO_SERVER_NAME",
+   "GROK_MCP_ALADUO_NAME"
+  ]
+ },
+ "qve": {
+  "describe": "The Grok ACP extension method name for compacting the conversation.",
+  "names": [
+   "GROK_ACP_COMPACT",
+   "GROK_ACP_COMPACT_CONVERSATION",
+   "GROK_COMPACT_METHOD"
+  ]
+ },
+ "tl": {
+  "describe": "Initialises the Skip tool module: the tool name, its MCP name, the description texts and the input schema.",
+  "names": [
+   "initSkipToolModule",
+   "initSkipModule",
+   "initSkipToolSchemaModule"
+  ]
+ }
+}

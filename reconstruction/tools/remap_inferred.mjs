@@ -12,10 +12,12 @@
 // Entries whose function actually CHANGED have no fingerprint match and are
 // reported for manual re-anchoring via locate_by_anchor.mjs.
 //
-// With --pairing <pair_releases.json> (the three-layer pairing of the two
-// releases: twins resolved by order, positional pairs, feature similarity),
-// every RE-ANCHOR and AMBIGUOUS entry gets a PROPOSED new short name, printed
-// with how it was paired and written to <out>.proposed.json. Proposals are not
+// With --pairing <pair_releases.json> (the layered pairing of the two
+// releases: 1 identical, 2 twins resolved by order, 3 positional pairs, 4 a
+// global assignment per window on feature or relaxed similarity, 5 the same
+// over what is left, for moved declarations), every RE-ANCHOR and AMBIGUOUS
+// entry gets a PROPOSED new short name, printed with how it was paired (the
+// layer, the basis and the score) and written to <out>.proposed.json. Proposals are not
 // carried: the reviewer merges them, and verify_inferred.mjs check then judges
 // each by shape. On the v0.8.3 -> v0.8.4 replay the proposals agreed with the
 // hand-made re-anchoring for every entry the pairing could reach (see
@@ -80,8 +82,8 @@ const proposed = {};
 const propose = (o, r) => {
   const p = pairing?.[o];
   if (!p) return "";
-  proposed[p.new] = { real: r, old: o, how: p.how, ...(p.score != null ? { score: p.score } : {}), ...(p.overlap != null ? { overlap: p.overlap } : {}) };
-  return ` PROPOSED -> ${p.new} (${p.how}${p.score != null ? ` ${p.score}` : ""}${p.overlap != null ? `, overlap ${p.overlap}` : ""})`;
+  proposed[p.new] = { real: r, old: o, how: p.how, ...(p.layer != null ? { layer: p.layer } : {}), ...(p.basis ? { basis: p.basis } : {}), ...(p.score != null ? { score: p.score } : {}), ...(p.overlap != null ? { overlap: p.overlap } : {}), ...(p.wl != null ? { wl: p.wl, lcs: p.lcs } : {}) };
+  return ` PROPOSED -> ${p.new} (${p.how}${p.layer != null ? `, layer ${p.layer}` : ""}${p.basis ? ` ${p.basis}` : ""}${p.score != null ? ` ${p.score}` : ""}${p.overlap != null ? `, overlap ${p.overlap}` : ""}${p.wl != null ? ` (wl ${p.wl}, lcs ${p.lcs})` : ""})`;
 };
 for (const [o, r] of conflicts) propose(o, r);
 for (const [o, r, cands] of ambiguous) console.error(`  AMBIGUOUS ${o} (${r}) -> ${JSON.stringify(cands)} — pick one by hand${propose(o, r)}`);

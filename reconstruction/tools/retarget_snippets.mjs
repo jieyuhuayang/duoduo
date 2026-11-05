@@ -46,16 +46,26 @@
 // all 9 that the pattern left `ambiguous` quoted unchanged code, and were
 // rewritten by hand exactly this way.
 //
+// After those, a NON-CONTIGUOUS match (nonContiguous below): the snippet's
+// tokens in order in the new declaration with at most --gap tokens inserted
+// between two consecutive ones. A unique match is written when the ratio of
+// inserted tokens to snippet tokens is below --auto, printed as PROPOSED (with
+// the candidate text, not written) below --propose, and left otherwise. At
+// v0.8.6 -> v0.8.7 this settled 4 more snippets (a call that gained an
+// argument), each identical to what the hand-made docs ended up with
+// (VERIFICATION.md 5.3).
+//
 // Usage:
 //   node retarget_snippets.mjs --index <symbols_daemon.json>[,<symbols_cli.json>]
 //        --bundle daemon=<new daemon.pretty.js> [--bundle cli=<new cli.pretty.js>]
 //        [--fp daemon=<fp_daemon.json>] [--fp cli=<fp_cli.json>]
 //        [--rename daemon=<old rename.json>,<new rename.json>] [--rename cli=...]
 //        [--old daemon=<old daemon.pretty.js>,<old symbols_daemon.json>] [--old cli=...]
-//        [--write] [--report <out.json>] <doc.md...>
+//        [--gap N] [--auto R] [--propose R] [--write] [--report <out.json>] <doc.md...>
 // The index and bundles are the NEW release's (the step-2 check-mode run's
 // .build); --fp is bump.sh's fingerprint match; --rename the old maps/ and new
-// .build rename maps. Without --write it changes nothing.
+// .build rename maps. --gap defaults to 3, --auto to 0.25, --propose to 0.6.
+// Without --write it changes nothing; a PROPOSED candidate is never written.
 import fs from "node:fs";
 import { parse } from "@babel/parser";
 import { fileURLToPath } from "node:url";
@@ -314,6 +324,107 @@ export function lexSnippet(code) {
   return out;
 }
 
+// NON-CONTIGUOUS match (Swimm's auto-sync rule, research record §6): the
+// snippet's tokens must appear in the declaration in order, with at most `gap`
+// tokens of the declaration inserted between two consecutive snippet tokens
+// (a `…` in the snippet allows any number). The rewrite keeps the snippet's
+// own text, substitutes its identifiers as the match binds them, and splices
+// the inserted tokens in as the declaration spells them, so the result is
+// the code as it now reads and passes snippetVerbatim. Two thresholds on the
+// inserted-token ratio (inserted / snippet tokens) decide what to do with a
+// unique match: below `auto` it is rewritten; between `auto` and `propose`
+// it is proposed (listed with the candidate text, never written); above, the
+// snippet is left for re-reading. A match that is not unique is never used.
+//
+// Why both: a snippet that quotes `a = f(x); return a` still proves its claim
+// when the new code reads `a = f(x); log(a); return a` (one statement
+// inserted, ratio low), and the reader should see the inserted statement
+// rather than a stale quote; but a match that skips half as many tokens as
+// it quotes is a different piece of code that happens to share its words, and
+// writing it would make a false citation pass the checker.
+//
+// Three edges of the search, so the thresholds are read right. An alignment
+// whose inserted-token ratio has already reached --propose is abandoned
+// where it stands (inserted only grows along a match), so only alignments
+// under --propose exist for the uniqueness test: an alignment that binds a
+// 1-4 character identifier of the snippet to some unrelated identifier far
+// away cannot make a genuine match `ambiguous`. --gap bounds the tokens
+// inserted before each snippet token; a 1-4 character identifier may bind to
+// an inserted identifier, which splits one long insertion into two shorter
+// ones (`x` -> `log` in the example above gives inserted 5 at gap 3) -- the
+// ratio, not --gap, is what refuses such an alignment, and the rewrite is
+// still the code as it reads. The enumeration stops at `limit` alignments or
+// `steps` steps, and either stop is reported `too complex`, because the
+// alignments found so far cannot prove uniqueness.
+// -> { status: "rewritten"|"proposed"|"ambiguous"|"no match"|"too far"|"too complex", to?, ratio?, inserted?, matches? }
+export function nonContiguous(code, span, migration, { gap = 3, auto = 0.25, propose = 0.6, limit = 64, steps = 2e5 } = {}) {
+  const toks = tokenize(code);
+  if (!toks.some((t) => t.role !== "gap")) return { status: "no match" };
+  const S = [...span.matchAll(TOKEN)].map((m) => ({ text: m[0], at: m.index }));
+  const want = toks.filter((t) => t.role !== "gap").length;
+  const maxInserted = Math.ceil(propose * want) - 1;   // inserted / want < propose
+  const matches = [];
+  let budget = steps, pruned = false, overflow = false;
+  // depth-first over the snippet's tokens; `bind`: snippet identifier -> span text
+  const rec = (i, bind, picks, inserted, afterGap) => {
+    if (budget <= 0) return;
+    if (matches.length >= limit) { overflow = true; return; }
+    if (inserted > maxInserted) { pruned = true; return; }
+    if (i === toks.length) { matches.push({ picks, bind, inserted }); return; }
+    const t = toks[i];
+    if (t.role === "gap") { rec(i + 1, bind, picks, inserted, true); return; }
+    const first = !picks.length;
+    const from = first ? 0 : picks[picks.length - 1] + 1;
+    const upto = first || afterGap ? S.length - 1 : Math.min(S.length - 1, from + gap);
+    for (let p = from; p <= upto; p++) {
+      if (--budget <= 0) return;
+      const s = S[p];
+      let ok = false, nb = bind;
+      if (t.role === "lit") ok = s.text === t.text;
+      else if (isIdent(s.text) && !KEYWORDS.has(s.text)) {
+        const pinned = migration.get(t.text);
+        if (bind.has(t.text)) ok = bind.get(t.text) === s.text;
+        else if (pinned !== undefined && pinned !== s.text) ok = false;
+        else { ok = true; nb = new Map(bind); nb.set(t.text, s.text); }
+      }
+      if (!ok) continue;
+      rec(i + 1, nb, [...picks, p], inserted + (first || afterGap ? 0 : p - from), false);
+    }
+  };
+  rec(0, new Map(), [], 0, false);
+  // the search was cut short (step budget, or `limit` alignments found):
+  // whatever it found so far may not be the only match, so `unique` cannot
+  // be claimed and nothing is written
+  if (budget <= 0 || overflow) return { status: "too complex", matches: matches.length };
+  if (!matches.length) return pruned ? { status: "too far" } : { status: "no match" };
+  // the rewrite of one match: the snippet's text with its identifiers
+  // substituted; where the declaration inserts tokens between two snippet
+  // tokens, the declaration's own text between them replaces the snippet's
+  // spacing there
+  const rewrite = (m) => {
+    let out = "", from = 0, k = 0, prevTok = null;
+    for (const t of toks) {
+      if (t.role === "gap") { prevTok = t; continue; }
+      const p = m.picks[k++];
+      const sub = t.role === "var" && m.bind.has(t.text) ? m.bind.get(t.text) : t.text;
+      const prev = k > 1 ? m.picks[k - 2] : -1;
+      if (prevTok && prevTok.role !== "gap" && p - prev > 1) out += span.slice(S[prev].at + S[prev].text.length, S[p].at).replace(/\s+/g, " ") + sub;
+      else out += code.slice(from, t.at) + sub;
+      from = t.at + t.text.length;
+      prevTok = t;
+    }
+    return out + code.slice(from);
+  };
+  const outs = new Map();
+  for (const m of matches) { const to = rewrite(m); if (!outs.has(to)) outs.set(to, m); }
+  if (outs.size > 1) return { status: "ambiguous", matches: outs.size };
+  const [to, m] = [...outs][0];
+  const ratio = want ? m.inserted / want : 1;
+  const r = { to, ratio: Math.round(ratio * 1000) / 1000, inserted: m.inserted, how: "non-contiguous" };
+  if (ratio < auto) return { status: "rewritten", ...r };
+  return { status: "proposed", ...r };   // ratio < propose: every alignment above it was abandoned in the search
+}
+
 // Is the snippet's code in a span, whatever its identifiers of 1-4 characters
 // are called? (every such identifier a wildcard, the same one twice the same
 // name; literals, properties and long names as written). impact_report.mjs asks
@@ -335,10 +446,15 @@ function main() {
   const OLDS = multi("--old").map((s) => s.split(/=(.*)/s).slice(0, 2));
   const REPORT = multi("--report")[0];
   const WRITE = flag("--write");
+  // non-contiguous match: at most --gap inserted tokens between two snippet
+  // tokens; a unique match is written below --auto (inserted/snippet tokens),
+  // proposed below --propose, left above
+  const GAP = Number(multi("--gap")[0] ?? 3), AUTO = Number(multi("--auto")[0] ?? 0.25), PROPOSE = Number(multi("--propose")[0] ?? 0.6);
   const DOCS = argv;
   if (!INDEX || !BUNDLES.daemon || !DOCS.length) {
     console.error("usage: node retarget_snippets.mjs --index <symbols.json>[,...] --bundle daemon=<pretty.js> [--bundle cli=<pretty.js>]\n" +
-                  "         [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--write] [--report <o.json>] <doc.md...>");
+                  "         [--fp <bundle>=<fp.json>]... [--rename <bundle>=<old.json>,<new.json>]... [--old <bundle>=<old pretty.js>,<old symbols.json>]...\n" +
+                  "         [--gap N] [--auto R] [--propose R] [--write] [--report <o.json>] <doc.md...>");
     process.exit(2);
   }
 
@@ -408,6 +524,15 @@ function main() {
         if (o.status === "rewritten") r = o;
         else if (o.ordinal) r = { ...r, ordinal: o.ordinal };
       }
+      // the quoted code is in the declaration with tokens inserted (nonContiguous)
+      if (r.status !== "rewritten") {
+        const nc = nonContiguous(code, span, b.migration, { gap: GAP, auto: AUTO, propose: PROPOSE });
+        if (nc.status === "rewritten" || nc.status === "proposed") {
+          const to = escaped ? nc.to.replace(/\|/g, "\\|") : nc.to;
+          if (to === raw || to.includes("`") || !snippetHolds(to, b.lines, e.line, e.endLine, true)?.ok) r = { ...r, nonContiguous: `${nc.status} but refuted (ratio ${nc.ratio})` };
+          else r = { ...nc, prior: r.status };
+        } else if (nc.status !== "no match") r = { ...r, nonContiguous: nc.status + (nc.ratio !== undefined ? ` (ratio ${nc.ratio})` : "") };
+      }
       if (r.status === "rewritten") {
         const to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
         const ok = to !== raw && !to.includes("`") && snippetHolds(to, b.lines, e.line, e.endLine, true);
@@ -420,11 +545,15 @@ function main() {
       }
       const line = text.slice(0, m.index).split("\n").length;
       tally.set(r.status, (tally.get(r.status) || 0) + 1);
+      if (r.status === "proposed") r.to = escaped ? r.to.replace(/\|/g, "\\|") : r.to;
       report.push({ doc, line, symbol: (qual ? qual + ":" : "") + name, from: raw, ...(r.to ? { to: r.to } : {}), status: r.status,
-                   ...(r.how ? { how: r.how } : {}), ...(r.ordinal ? { ordinal: r.ordinal } : {}),
+                   ...(r.how ? { how: r.how } : {}), ...(r.ratio !== undefined ? { ratio: r.ratio, inserted: r.inserted } : {}),
+                   ...(r.prior ? { prior: r.prior } : {}), ...(r.ordinal ? { ordinal: r.ordinal } : {}),
+                   ...(r.nonContiguous ? { nonContiguous: r.nonContiguous } : {}),
                    ...(viaOld && r.status !== "rewritten" ? { old: viaOld } : {}) });
-      if (r.status !== "rewritten") console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）` + (viaOld ? `  [--old: ${viaOld}]` : ""));
-      else console.log(`  rewritten              ${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 50)}\``);
+      if (r.status === "rewritten") console.log(`  rewritten${r.how === "non-contiguous" ? ` (+${r.inserted} tokens)` : ""}`.padEnd(25) + `${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 50)}\``);
+      else if (r.status === "proposed") console.log(`  PROPOSED (ratio ${r.ratio})`.padEnd(25) + `${doc}:${line}  \`${raw.slice(0, 50)}\` -> \`${r.to.slice(0, 80)}\`  (not written: check, then paste)`);
+      else console.log(`  ${r.status.padEnd(22)} ${doc}:${line}  \`${raw.slice(0, 70)}\`（\`${name}\`）` + (viaOld ? `  [--old: ${viaOld}]` : "") + (r.nonContiguous ? `  [non-contiguous: ${r.nonContiguous}]` : ""));
     }
     if (WRITE && edits.length) {
       let out = text;
@@ -436,6 +565,7 @@ function main() {
   const total = report.length;
   console.error(`\n${total} refuted name-bound snippet(s): ` + [...tally].map(([k, v]) => `${v} ${k}`).join(", ") +
     (WRITE ? "" : "  (dry run: --write applies the rewrites)"));
-  if (total - (tally.get("rewritten") || 0)) console.error("the rest need a person: re-read the declaration and quote what proves the claim now (prefer string literals)");
+  if (tally.get("proposed")) console.error(`${tally.get("proposed")} proposed: the quoted code is in the declaration with tokens inserted (ratio between ${AUTO} and ${PROPOSE}); read the candidate, then paste it or re-quote`);
+  if (total - (tally.get("rewritten") || 0) - (tally.get("proposed") || 0)) console.error("the rest need a person: re-read the declaration and quote what proves the claim now (prefer string literals)");
 }
 if (process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url))) main();

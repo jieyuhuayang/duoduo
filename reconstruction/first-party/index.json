@@ -45,7 +45,7 @@
     "mangled": "JSt",
     "origLine": 93555,
     "inferred": false,
-    "bytes": 59963
+    "bytes": 59999
   },
   {
     "subsystem": "00-daemon-entry",
@@ -677,7 +677,7 @@
     "mangled": "qft",
     "origLine": 90202,
     "inferred": true,
-    "bytes": 1033
+    "bytes": 1051
   },
   {
     "subsystem": "02-gateway-rpc",
@@ -4365,7 +4365,7 @@
     "mangled": "oS",
     "origLine": 63564,
     "inferred": false,
-    "bytes": 26368
+    "bytes": 26395
   },
   {
     "subsystem": "07-runtime-codex",

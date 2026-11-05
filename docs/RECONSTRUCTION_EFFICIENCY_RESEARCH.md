@@ -181,7 +181,7 @@ DocPrism（2025）用不微调的 LLM 检测"文档说错了"类不一致，裸 
 
 **建议 8：`upgrade-docs` workflow 的校验 agent 改为"逐引用局部判定"；INTERNALS 附录 B 这类本应生成的表改为生成区并在 CI 用 check 模式比对。** 依据：DocPrism 的误报教训、RepoAgent 只更新受影响对象、cog 的 `--check` 与校验和。结合点：xref 已有事件类型与 RPC 方法索引。验证：一次升级中附录 B 的人工改动次数降为零。
 
-**建议 9：向上游提一个具体、低成本的请求，优先级依次为随 npm 包发布 `external` 且关闭 `sourcesContent` 的 source map、开启 `keepNames`、发布 metafile；不索要 mangle cache。** 依据：第 7 节的事实与本地核实；Mojang 自 1.14 起发布 ProGuard mapping 的先例说明上游发布 name map 对其自身也有可读 stack trace 的直接好处，这是提请求时的理由。请求是否成功不可控，所以它与建议 1 到 3 并行而不是替代。
+**建议 9：向上游提一个具体、低成本的请求，优先级依次为随 npm 包发布 `external` 且关闭 `sourcesContent` 的 source map、开启 `keepNames`、发布 metafile；不索要 mangle cache。** 依据：第 7 节的事实与本地核实；Mojang 自 1.14 起发布 ProGuard mapping 的先例说明上游发布 name map 对其自身也有可读 stack trace 的直接好处，这是提请求时的理由。请求是否成功不可控，所以它与建议 1 到 3 并行而不是替代。可直接提交的 issue 文本在 `reconstruction/UPSTREAM_REQUEST.md`；它没有被提交，是否提交由仓库所有者决定。
 
 **低优先级两项**：把 rename map 额外导出为 ECMA-426 Scopes 格式的 source map，让调试上游原始 bundle 时直接看到恢复的名字，只是展示层，不影响证明链；若要做全局一致性求解，QBinDiff 可直接用于本仓库的相似度矩阵加调用图，但它是实验性工具且需调参，放在建议 2 之后再考虑。webcrack 的语法还原变换可用于生成一份更易读的阅读副本，但不能进入 provably-equivalent 链。
 

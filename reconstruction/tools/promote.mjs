@@ -19,10 +19,12 @@
 // is also where "proven" is enforced. It refuses -- before writing anything --
 // unless the fresh pipeline_report.json says every proof passed:
 //   per bundle   lossless, beautifyEquivalent, syntax, astEquivalent, and
-//                inferredNames wherever maps/inferred_<b>.json exists, and
+//                inferredNames wherever maps/inferred_<b>.json exists,
+//                idsResolve wherever maps/ids_<b>.json exists (the short-keyed
+//                inferred map is what the persistent ids resolve to), and
 //                localNames wherever maps/locals_<b>.json exists
 //   whole run    firstPartyTree, citations, lineAnchors, anchorCheckers,
-//                anchorTargetMatches
+//                anchorTargetMatches, appendixSets
 // each exactly `pass`; plus a release version and a shipped-bundle hash per
 // bundle (both only exist when the run had PKG). `skipped` and a gate that never
 // ran are refused like `fail`: the v0.8.3 promote committed
@@ -75,13 +77,14 @@ function sameReport(fresh, committed) {
 
 // What a report must say before it may be (or may have been) promoted.
 const PER_BUNDLE = ["lossless", "beautifyEquivalent", "syntax", "astEquivalent"];
-const WHOLE_RUN = ["firstPartyTree", "citations", "lineAnchors", "anchorCheckers", "anchorTargetMatches"];
+const WHOLE_RUN = ["firstPartyTree", "citations", "lineAnchors", "anchorCheckers", "anchorTargetMatches", "appendixSets"];
 function unpromotable(report) {
   const v = report.verdicts ?? {};
   const need = [];
   for (const b of BUNDLES) {
     for (const g of PER_BUNDLE) need.push(`${b}.${g}`);
     if (fs.existsSync(`${ROOT}/maps/inferred_${b}.json`)) need.push(`${b}.inferredNames`);
+    if (fs.existsSync(`${ROOT}/maps/ids_${b}.json`)) need.push(`${b}.idsResolve`);
     if (fs.existsSync(`${ROOT}/maps/locals_${b}.json`)) need.push(`${b}.localNames`);
   }
   need.push(...WHOLE_RUN);

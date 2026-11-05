@@ -147,6 +147,15 @@
 //                               over, for every allow-unproven name; keys
 //                               sorted, created on the first one. Keyed by real
 //                               name, so it needs no remapping on a bump.
+//   ids_daemon.json             where it exists: the new name's persistent id
+//                               (symbol_ids.mjs assign on the pretty bundle;
+//                               a rename carries the entry with --carry), so
+//                               rebuild.sh's idsResolve gate keeps passing.
+//                               A recon bundle cannot be hashed for this
+//                               (its identifiers are the real names), so the
+//                               pretty bundle the index records is used, and
+//                               when that is not on disk the command to run
+//                               is printed instead
 // then prints the citation form `realName (shortName)`. The name reaches recon/,
 // first-party/ and the symbol index on the next rebuild.sh (PROMOTE=1 after
 // review).
@@ -693,6 +702,20 @@ else {
   for (const [f, text] of writes) fs.writeFileSync(mapPath(f), text);
   console.error(`\nregistered ${planned.length} name(s) in ${writes.map(w => w[0]).join(", ")}`);
   if (!nextShape) console.error("  no shape baseline in this maps dir: run `verify_inferred.mjs record` after review");
+  // the persistent ids (header): assign for the new names, carry a renamed one
+  const IDS = mapPath(`ids_${B}.json`);
+  if (fs.existsSync(IDS)) {
+    const pretty = !isRecon ? BUNDLE : fs.existsSync(index.source) ? index.source : null;
+    const carry = planned.filter(p => p.replaces).flatMap(p => ["--carry", `${p.replaces}=${p.name}`]);
+    const args = ["assign", pretty ?? index.source, mapPath(F.inferred), IDS, "--version", index.version, "--blocks", path.join(GEN, `blocks_${B}.json`), ...carry];
+    if (!pretty) {
+      console.error(`  ${path.basename(IDS)}: cannot hash ${path.basename(BUNDLE)} (a renamed bundle) and ${index.source} is not on disk; run on the pretty bundle:\n    node ${path.join(HERE, "symbol_ids.mjs")} ${args.join(" ")}`);
+    } else {
+      const r = spawnSync(process.execPath, ["--max-old-space-size=8192", path.join(HERE, "symbol_ids.mjs"), ...args], { encoding: "utf8" });
+      if (r.status !== 0) { console.error(`  symbol_ids.mjs assign failed (exit ${r.status}):\n${r.stderr}\n  the names are registered, but ${path.basename(IDS)} lacks their ids: the idsResolve gate fails until assign succeeds`); process.exit(1); }
+      console.error(`  ${r.stderr.trim().split("\n").join("\n  ")}`);
+    }
+  }
   if (GEN !== MAPS) {
     // header: bring --build's rename map and index up to date
     const run = (args) => spawnSync(process.execPath, ["--max-old-space-size=8192", ...args], { encoding: "utf8" });

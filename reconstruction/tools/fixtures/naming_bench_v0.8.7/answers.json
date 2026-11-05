@@ -1,0 +1,302 @@
+{
+  "dve": {
+    "name": "isJobScheduleDue",
+    "kind": "function",
+    "subsystem": "08-cadence-subconscious"
+  },
+  "Mve": {
+    "name": "mapItemCompletedToExecEvent",
+    "kind": "function",
+    "subsystem": "07-runtime-codex"
+  },
+  "fI": {
+    "name": "statusPath",
+    "kind": "function",
+    "subsystem": "00-daemon-entry"
+  },
+  "Lpt": {
+    "name": "renderNodeConvergeSignalBody",
+    "kind": "function",
+    "subsystem": "09-memory"
+  },
+  "ryt": {
+    "name": "renderTimeGapContextBlock",
+    "kind": "function",
+    "subsystem": "04-cognition-prompt"
+  },
+  "cC": {
+    "name": "parseToolUseBlockStart",
+    "kind": "function",
+    "subsystem": "06-runtime-claude"
+  },
+  "mJ": {
+    "name": "extractPayloadMediaRefs",
+    "kind": "function",
+    "subsystem": "05-drain-turn"
+  },
+  "Ofe": {
+    "name": "canonicalizeGatewayCommand",
+    "kind": "function",
+    "subsystem": "02-gateway-rpc"
+  },
+  "fq": {
+    "name": "parseSdkConfigFrontmatter",
+    "kind": "function",
+    "subsystem": "10-runtime-host"
+  },
+  "rt": {
+    "name": "readSessionRuntimeState",
+    "kind": "function",
+    "subsystem": "03-session-actor"
+  },
+  "Wve": {
+    "name": "collectGrokToolCallNames",
+    "kind": "function",
+    "subsystem": "11-runtime-grok"
+  },
+  "Uue": {
+    "name": "readSpineIndexRetentionDays",
+    "kind": "function",
+    "subsystem": "01-spine-wal"
+  },
+  "VSe": {
+    "name": "rebuildPlaylistRound",
+    "kind": "function",
+    "subsystem": "08-cadence-subconscious"
+  },
+  "Nve": {
+    "name": "warnUnmappedCodexItemOnce",
+    "kind": "function",
+    "subsystem": "07-runtime-codex"
+  },
+  "Hu": {
+    "name": "updateStatus",
+    "kind": "function",
+    "subsystem": "00-daemon-entry"
+  },
+  "vke": {
+    "name": "appendGapHandedSpan",
+    "kind": "function",
+    "subsystem": "09-memory"
+  },
+  "sTe": {
+    "name": "selectSessionRolePrompt",
+    "kind": "function",
+    "subsystem": "04-cognition-prompt"
+  },
+  "mC": {
+    "name": "buildClaudeCostBaseline",
+    "kind": "function",
+    "subsystem": "06-runtime-claude"
+  },
+  "gv": {
+    "name": "summarizeDrainRecords",
+    "kind": "function",
+    "subsystem": "05-drain-turn"
+  },
+  "Knt": {
+    "name": "replyToGatewayCommandEvent",
+    "kind": "function",
+    "subsystem": "02-gateway-rpc"
+  },
+  "rc": {
+    "name": "attachStreamLineReader",
+    "kind": "function",
+    "subsystem": "10-runtime-host"
+  },
+  "Fo": {
+    "name": "hashSessionKey",
+    "kind": "function",
+    "subsystem": "03-session-actor"
+  },
+  "aS": {
+    "name": "grokAcpExtMethod",
+    "kind": "function",
+    "subsystem": "11-runtime-grok"
+  },
+  "zue": {
+    "name": "findEventInPartitionFile",
+    "kind": "function",
+    "subsystem": "01-spine-wal"
+  },
+  "AO": {
+    "name": "renderNotifyToolDescription",
+    "kind": "function",
+    "subsystem": "08-cadence-subconscious"
+  },
+  "Dve": {
+    "name": "mapItemStartedToExecEvent",
+    "kind": "function",
+    "subsystem": "07-runtime-codex"
+  },
+  "spt": {
+    "name": "computeHostBootId",
+    "kind": "function",
+    "subsystem": "00-daemon-entry"
+  },
+  "eA": {
+    "name": "buildNodeSignalKey",
+    "kind": "function",
+    "subsystem": "09-memory"
+  },
+  "Mat": {
+    "name": "renderJobAcceptanceBlock",
+    "kind": "function",
+    "subsystem": "04-cognition-prompt"
+  },
+  "lp": {
+    "name": "resolveContextCapToken",
+    "kind": "function",
+    "subsystem": "06-runtime-claude"
+  },
+  "gyt": {
+    "name": "computeDrainCoalesceKey",
+    "kind": "function",
+    "subsystem": "05-drain-turn"
+  },
+  "NSt": {
+    "name": "enqueueSessionCompactCommand",
+    "kind": "function",
+    "subsystem": "02-gateway-rpc"
+  },
+  "Igt": {
+    "name": "refreshBootstrapDuoduoMdFiles",
+    "kind": "function",
+    "subsystem": "10-runtime-host"
+  },
+  "yXe": {
+    "name": "resolveSessionsArchiveRoot",
+    "kind": "function",
+    "subsystem": "03-session-actor"
+  },
+  "Fc": {
+    "name": "checkGrokAvailability",
+    "kind": "function",
+    "subsystem": "11-runtime-grok"
+  },
+  "Vu": {
+    "name": "advanceConsumerWatermark",
+    "kind": "function",
+    "subsystem": "01-spine-wal"
+  },
+  "RIe": {
+    "name": "isAutoArchivedJobSchedule",
+    "kind": "function",
+    "subsystem": "08-cadence-subconscious"
+  },
+  "Cy": {
+    "name": "buildCodexStringInputSchema",
+    "kind": "function",
+    "subsystem": "07-runtime-codex"
+  },
+  "Cq": {
+    "name": "replaceSessionIndexEntry",
+    "kind": "function",
+    "subsystem": "00-daemon-entry"
+  },
+  "cmt": {
+    "name": "runGapLint",
+    "kind": "function",
+    "subsystem": "09-memory"
+  },
+  "vU": {
+    "name": "initProtocolEffortModule",
+    "kind": "moduleInit",
+    "subsystem": "02-gateway-rpc"
+  },
+  "rp": {
+    "name": "initCodexAppServerModule",
+    "kind": "moduleInit",
+    "subsystem": "07-runtime-codex"
+  },
+  "tl": {
+    "name": "initSkipToolModule",
+    "kind": "moduleInit",
+    "subsystem": "05-drain-turn"
+  },
+  "jo": {
+    "name": "initSpineEventLogModule",
+    "kind": "moduleInit",
+    "subsystem": "01-spine-wal"
+  },
+  "To": {
+    "name": "initAgentSdkAdapterModule",
+    "kind": "moduleInit",
+    "subsystem": "06-runtime-claude"
+  },
+  "Vg": {
+    "name": "initGrokAcpRuntimeModule",
+    "kind": "moduleInit",
+    "subsystem": "11-runtime-grok"
+  },
+  "STe": {
+    "name": "initMetaSessionModule",
+    "kind": "moduleInit",
+    "subsystem": "08-cadence-subconscious"
+  },
+  "mEe": {
+    "name": "initRuntimeInitializationModule",
+    "kind": "moduleInit",
+    "subsystem": "10-runtime-host"
+  },
+  "sC": {
+    "name": "initCallerSessionEnvModule",
+    "kind": "moduleInit",
+    "subsystem": "03-session-actor"
+  },
+  "nTe": {
+    "name": "initBoardTransclusionModule",
+    "kind": "moduleInit",
+    "subsystem": "04-cognition-prompt"
+  },
+  "Eg": {
+    "name": "CLAUDE_CORE_TOOLS",
+    "kind": "value",
+    "subsystem": "06-runtime-claude"
+  },
+  "Oy": {
+    "name": "SESSION_SCHEMA_VERSION",
+    "kind": "value",
+    "subsystem": "03-session-actor"
+  },
+  "uO": {
+    "name": "ALADUO_TOOL_NAMESPACE",
+    "kind": "value",
+    "subsystem": "07-runtime-codex"
+  },
+  "fA": {
+    "name": "DAEMON_TOKEN_ENV_KEY",
+    "kind": "value",
+    "subsystem": "02-gateway-rpc"
+  },
+  "qve": {
+    "name": "GROK_ACP_COMPACT",
+    "kind": "value",
+    "subsystem": "11-runtime-grok"
+  },
+  "FV": {
+    "name": "PARTITION_CORE_TOOLS",
+    "kind": "value",
+    "subsystem": "08-cadence-subconscious"
+  },
+  "wfe": {
+    "name": "IN_PROCESS_BREAK_HIT_RATIO_FLOOR",
+    "kind": "value",
+    "subsystem": "05-drain-turn"
+  },
+  "yR": {
+    "name": "SUN_PATH_MAX_BYTES",
+    "kind": "value",
+    "subsystem": "10-runtime-host"
+  },
+  "xW": {
+    "name": "CLAUDE_CODE_EXECUTABLE_ENV_KEY",
+    "kind": "value",
+    "subsystem": "06-runtime-claude"
+  },
+  "Hve": {
+    "name": "GROK_MCP_SERVER_NAME",
+    "kind": "value",
+    "subsystem": "11-runtime-grok"
+  }
+}

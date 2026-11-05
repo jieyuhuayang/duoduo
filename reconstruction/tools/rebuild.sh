@@ -16,6 +16,9 @@
 #             by real name + structural signature, so line numbers are derived
 #             rather than hand-maintained; every other line number must be
 #             bound to a short name or a quoted snippet (anchor_forms.mjs)
+#             and how an inferred name points at code -> maps/ids_<bundle>.json
+#             (symbol_ids.mjs): a content-derived id per name, from which the
+#             short-keyed inferred map is regenerated and checked (step 2c)
 #
 # Everything else here proves one of those three was done right.
 #
@@ -225,6 +228,22 @@ run_bundle() {
       3) verdict "$name.inferredNames" warn ;;
       *) verdict "$name.inferredNames" fail; return 1 ;;
     esac
+  fi
+
+  # 2c. the short-keyed inferred map must be what the persistent ids resolve
+  #     to (symbol_ids.mjs check). An id is a hash of the declaration's own
+  #     content plus, for twins, its named callees or ordinal, so this is the
+  #     one record that ties each inferred name to code in a form that
+  #     outlives the release; maps/inferred_<bundle>.json is derived from it.
+  #     Skipped while a bundle has no ids map; promote.mjs then does not ask
+  #     for the verdict.
+  if [ -f "$MAPS/ids_$name.json" ] && [ -f "$MAPS/inferred_$name.json" ]; then
+    if node --max-old-space-size=8192 "$HERE/symbol_ids.mjs" check "$PRETTY" \
+         "$MAPS/ids_$name.json" "$MAPS/inferred_$name.json" --blocks "$OUT/blocks_$name.json"; then
+      verdict "$name.idsResolve" pass
+    else verdict "$name.idsResolve" fail; return 1; fi
+  else
+    verdict "$name.idsResolve" skipped
   fi
 
   # 3. scope-safe, formatting-preserving rename (line numbers are preserved,
@@ -443,6 +462,21 @@ if [ -d "$DOCS" ]; then
        "$BEAUTIFIED/daemon.pretty.js" "$OUT/blocks_daemon.json" "$MAPS/modules_daemon.json" "$DOCS"/*.md; then
     verdict lineAnchors pass
   else verdict lineAnchors fail; rc=1; fi
+
+  # 10b. APPENDIX SETS (check_appendix_sets.mjs, verdict appendixSets): the
+  #      three enumerations of INTERNALS Appendix B -- event types written
+  #      through createSpineEvent, RPC methods the dispatcher recognises, the
+  #      read-only TCP allowlist -- must equal the sets derived from this
+  #      run's bundle, index and xref. A citation check binds one name to one
+  #      declaration; a claim to list EVERY name is refuted by one the bundle
+  #      has and the table lacks, which nothing else sees. --mutate also runs
+  #      the comparison on six mutated copies of the doc (a name added, a name
+  #      removed, an allowlist name swapped) and requires each to fail.
+  echo "==== appendix sets (event types, RPC methods, read-only allowlist) ===="
+  if [ -f "$DOCS/AGENT_INTERNALS_ANALYSIS.md" ] && node "$HERE/check_appendix_sets.mjs" --index "$OUT/symbols_daemon.json" \
+       --xref "$OUT/xref_daemon.json" --bundle "$BEAUTIFIED/daemon.pretty.js" --mutate "$DOCS/AGENT_INTERNALS_ANALYSIS.md"; then
+    verdict appendixSets pass
+  else verdict appendixSets fail; rc=1; fi
 
   # 11. the anchor checkers themselves: each must pass a clean synthetic doc,
   #     fail each injected error, and refuse a bundle shifted by one line.

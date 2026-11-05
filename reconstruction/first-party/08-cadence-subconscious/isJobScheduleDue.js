@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
 // symbol: isJobScheduleDue  (minified: dve, daemon.pretty.js:62626)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.4.5, v0.5.6 (maps/history_daemon.json)
 // locals: 15 renamed — 4 from the code at the binding (rule), 11 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.6 (medium): The loop runs as a job, paces itself via `ScheduleWakeup`
 // NOTE: readable extract from daemon.recon.js; references other top-level

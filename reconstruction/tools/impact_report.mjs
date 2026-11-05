@@ -72,8 +72,9 @@
 // Also reported: what no doc covers yet (declarations with no old
 // counterpart; strings and properties the release added that no doc
 // mentions), inferred names that lost their anchor, with the candidates
-// anchor_candidates.mjs ranks for each (and the declaration the positional
-// pairing suggests); the plain-text delta (plaintext_delta.mjs) with
+// anchor_candidates.mjs ranks for each and its decision (`status` accept or
+// abstain, `reason`, `score`, `margin`, `round`; the positional pairing's and
+// the alignment's suggestions beside it); the plain-text delta (plaintext_delta.mjs) with
 // the doc lines that mention each file; and the affected doc sections (`## `
 // headings) packed into at most --groups work packages, each section in exactly
 // one -- the unit the upgrade workflow hands to one agent.
@@ -95,6 +96,7 @@ import { fileURLToPath } from "node:url";
 import { namePair, nameBound, codeSpans, fencedRanges, snippetTokens, identRe, looksMangled } from "./anchor_forms.mjs";
 import { rankAnchors, describeRanking } from "./anchor_candidates.mjs";
 import { skeletonIn } from "./retarget_snippets.mjs";
+import { declProfile, compareProfiles, declSpans, loadAcks, checkDocs, relDoc as ackDocKey } from "./doc_acks.mjs";
 import { classifyDiff, importAliases } from "./change_kind.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -109,6 +111,9 @@ const OLD_LABEL = opt("--old-label", "old"), NEW_LABEL = opt("--new-label", "new
 const K = Math.max(1, Number(opt("--groups", 4)));
 const OUT = opt("--out", BUMP && path.join(BUMP, "impact.json"));
 const MD = opt("--md", BUMP && path.join(BUMP, "impact.md"));
+// the acknowledgement record (doc_acks.mjs): which paragraph was last read
+// against which version of its cited code. Absent: no paragraph is acked.
+const ACKS = opt("--acks", path.join(MAPS, "doc_acks.json"));
 const DOCS = argv;
 if (!BUMP || !DOCS.length) {
   console.error("usage: node impact_report.mjs --bump <dir> [--old <dir>] [--new <dir>] [--maps <dir>] [--old-label <v>] [--new-label <v>] [--groups <K>] [--out <json>] [--md <md>] <doc.md...>");
@@ -305,6 +310,52 @@ for (const d of docs) {
 
 // --- tiers --------------------------------------------------------------------
 const changeTokens = (c) => new Set([...(c.changedTokens || []), ...c.strAdded, ...c.strRemoved, ...c.propAdded, ...c.propRemoved]);
+
+// per side and bundle: mangled -> real (or null for an unnamed top-level
+// declaration), so a declaration profile can tell a named callee from a local;
+// old names from --maps, new names from bump.sh's carried rename map
+const topLevels = new Map();
+function topLevelOf(side, bundle) {
+  const k = side + ":" + bundle;
+  if (topLevels.has(k)) return topLevels.get(k);
+  const ls = linesOf(side, bundle);
+  const m = new Map();
+  if (ls) {
+    for (const [name] of declSpans(ls.join("\n"))) m.set(name, null);
+    const rename = readJSON(side === "old" ? path.join(MAPS, `rename_${bundle}.json`) : path.join(BUMP, `rename_${bundle}.new.json`), {});
+    for (const [short, real] of Object.entries(rename)) if (m.has(short)) m.set(short, real);
+  }
+  topLevels.set(k, m);
+  return m;
+}
+// unchanged | body-only | changed | null (one side missing): the two profiles
+// of a cited real name across a change
+const stabilities = new Map();
+function stabilityOf(qualReal, change) {
+  const k = change.id + ":" + qualReal;
+  if (stabilities.has(k)) return stabilities.get(k);
+  const real = qualReal.replace(/^(?:daemon|cli):/, "");
+  const prof = (side) => {
+    const h = (byReal.get(`${change.bundle}:${real}`) || []).find((x) => x.change === change && x.side === side);
+    const ls = linesOf(side, change.bundle);
+    return h?.range && ls ? declProfile(ls.slice(h.range[0] - 1, h.range[1]).join("\n"), topLevelOf(side, change.bundle)) : null;
+  };
+  const o = prof("old"), n = prof("new");
+  const v = o && n ? compareProfiles(o, n, sharedNames(change.bundle)) : null;
+  stabilities.set(k, v);
+  return v;
+}
+// the real names both releases have (old: --maps; new: the carried rename map
+// of this bump), so a callee that only one side names does not count as a
+// change of the callee set
+const shareds = new Map();
+function sharedNames(bundle) {
+  if (!shareds.has(bundle)) {
+    const n = new Set(Object.values(readJSON(path.join(BUMP, `rename_${bundle}.new.json`), {})));
+    shareds.set(bundle, new Set(Object.values(readJSON(path.join(MAPS, `rename_${bundle}.json`), {})).filter((r) => n.has(r))));
+  }
+  return shareds.get(bundle);
+}
 for (const ct of citations) {
   const { d } = ct;
   const [pa, pb] = d.block(ct.line);
@@ -351,7 +402,57 @@ for (const ct of citations) {
     else if (size <= SHORT) [ct.tier, ct.why] = [2, `whole declaration, ${size} lines`];
     else [ct.tier, ct.why] = [3, `whole declaration (${size} lines); paragraph shares nothing distinctive with the change`];
   }
+  // STABILITY POLICY (doc_acks.mjs declProfile): a declaration whose body
+  // changed but whose signature, top-level references (calls and reads) and
+  // literals are all the same is `body-only` -- a reordering, a renamed
+  // local, a condition rewritten over the same data. A citation of the whole
+  // declaration (a pair or a mention) in tier 2 goes to tier 3: the claim
+  // names what the function does, and the three unchanged features are what
+  // such a claim rests on. A snippet never moves for this reason, even one
+  // tiered as a whole-declaration citation because none of its tokens can be
+  // located: a tier-1 snippet quotes code the new version changed, whatever
+  // the rest of the declaration did, and a tier-2 snippet quotes text whose
+  // place in the new declaration is not known.
+  ct.stability = stabilityOf(ct.real, change);
+  if (ct.stability === "body-only" && ct.tier === 2 && ct.form !== "snippet")
+    [ct.tier, ct.why] = [3, `${ct.why}; body-only change (same signature, top-level references and literals)`];
+  else if (ct.stability === "body-only") ct.why += "; body-only change";
 }
+
+// The ack of the paragraph a citation sits in (doc_acks.mjs checkDocs against
+// the NEW bundle's names and spans): `unchanged` means every declaration the
+// paragraph cites has the token stream it had when the paragraph was last
+// read, so nothing in it rests on changed code. A tier-4 keyword hit on such
+// a paragraph goes to tier 3 (listed, weighed 0.5): the word it shares with
+// the change is in a sentence that was checked against unchanged code. A
+// paragraph that was edited since its ack, or never acked, keeps tier 4.
+const ackOf = (() => {
+  const acks = ACKS && loadAcks(ACKS);
+  const perDoc = new Map();
+  if (acks) {
+    const known = {}, spans = {};
+    for (const bundle of ["daemon", "cli"]) {
+      const rename = readJSON(path.join(BUMP, `rename_${bundle}.new.json`), null);
+      const ls = linesOf("new", bundle);
+      if (!rename || !ls) continue;
+      const all = declSpans(ls.join("\n"));
+      known[bundle] = new Set();
+      spans[bundle] = new Map();
+      for (const [m, real] of Object.entries(rename)) if (all.has(m)) { known[bundle].add(real); spans[bundle].set(real, all.get(m)); }
+    }
+    const profileOf = (cite) => {
+      const [bundle, real] = cite.split(/:(.*)/s);
+      const e = spans[bundle]?.get(real);
+      return e ? declProfile(linesOf("new", bundle).slice(e.line - 1, e.endLine).join("\n"), topLevelOf("new", bundle)) : null;
+    };
+    for (const r of checkDocs(acks, DOCS, known, profileOf)) {
+      if (!perDoc.has(r.doc)) perDoc.set(r.doc, []);
+      perDoc.get(r.doc).push(r);
+    }
+  }
+  return { version: acks?.version ?? null, at: (doc, line) => (perDoc.get(ackDocKey(doc)) || []).find((r) => r.line <= line && line <= r.endLine) ?? null };
+})();
+for (const ct of citations) { const a = ackOf.at(ct.doc, ct.line); ct.ack = a?.verdict ?? null; }
 
 // tier 2c: an unchanged declaration whose direct callee changed. `calleeCited`:
 // the paragraph also names a changed callee, so a tier 1-3 entry may already
@@ -418,6 +519,13 @@ for (const c of changes) {
       why: `uncited change shares ${matched.slice(0, 6).map((w) => "`" + w + "`").join(", ")}`, text: d.lines[l - 1].trim().slice(0, 240) });
   }
 }
+// a keyword hit on a paragraph whose every cited declaration is unchanged
+// since its ack goes to tier 3 (see ackOf)
+for (const c of keywordHits) {
+  const a = ackOf.at(c.doc, c.line);
+  c.ack = a?.verdict ?? null;
+  if (c.ack === "unchanged") { c.tier = 3; c.acked = true; c.form = "keyword"; c.why += `; every declaration the paragraph cites is unchanged since its ${a.ackVersion} ack`; }
+}
 
 // --- inferred names that lost their anchor ------------------------------------
 const reanchor = [];
@@ -435,22 +543,31 @@ for (const bundle of ["daemon", "cli"]) {
     reanchor.push({ bundle, real, oldShort: short, suggestion: P.pairs?.[short] ? [P.pairs[short]] : block ? block.newNames : [],
       basis: P.pairs?.[short] ? "positional pair" : block ? "the reshaped block it sat in" : "none" });
   }
-  // rank every candidate on callers, callees and strings (anchor_candidates.mjs)
+  // rank every candidate on callers, callees and strings, propagating the
+  // accepted pairs along the call graph, and decide accept or abstain
+  // (anchor_candidates.mjs); the alignment (align_releases.mjs) seeds the
+  // accepted set and its pair for the name is one more candidate
   const mine = reanchor.filter((r) => r.bundle === bundle);
   const fp = readJSON(path.join(BUMP, `fp_${bundle}.json`), null);
+  const A = readJSON(path.join(BUMP, `align_${bundle}.json`), { pairs: {} });
   const oldP = path.join(OLDD, `${bundle}.pretty.js`), newP = path.join(NEWD, `${bundle}.pretty.js`);
   if (mine.length && fp && fs.existsSync(oldP) && fs.existsSync(newP)) {
     const ranked = rankAnchors(oldP, newP, fp, mine.map((r) => {
       const m = fp.matched?.[r.oldShort];
-      return { short: r.oldShort, candidates: [...(m && Array.isArray(m.new) ? m.new : []), ...r.suggestion] };
-    }), { pairs: P.pairs || {} });
+      const al = A.pairs?.[r.oldShort];
+      if (al && typeof al.new === "string") r.alignment = { name: al.new, anchored: !!al.anchored };
+      return { short: r.oldShort, candidates: [...(m && Array.isArray(m.new) ? m.new : []), ...r.suggestion, ...(r.alignment ? [r.alignment.name] : [])] };
+    }), { pairs: P.pairs || {}, align: A.pairs || {} });
     mine.forEach((r, i) => {
       const k = ranked[i];
       r.ranking = k.ranked.map(({ name, score }) => ({ name, score }));
       r.rankingText = describeRanking(k);
-      // a pick is clear when it scores and leads the runner-up by at least 1
-      // (one full overlap of the callers or the strings)
-      r.clear = !!k.ranked[0] && k.ranked[0].score > 0 && (!k.ranked[1] || k.ranked[0].score - k.ranked[1].score >= 1);
+      // the decision: accept (top at least ABS and the runner-up below
+      // top * (1 - REL), no other name picking the same declaration) or
+      // abstain with the reason; `clear` keeps its old meaning as the same flag
+      r.status = k.status; r.reason = k.reason; r.accepted = k.accepted;
+      r.score = k.score; r.margin = k.margin; r.round = k.round; r.pool = k.pool;
+      r.clear = k.status === "accept";
     });
   }
 }
@@ -489,7 +606,7 @@ for (const c of citations) {
 // tier 4 weighs as tier 2: nothing else points a reader at that paragraph
 for (const c of keywordHits) {
   const u = unitOf(c);
-  u.keyword = (u.keyword || 0) + 1; u.weight += 2; u.changes.add(c.change);
+  u.keyword = (u.keyword || 0) + 1; u.weight += c.acked ? 0.5 : 2; u.changes.add(c.change);
 }
 // tier 2c weighs as tier 2, or as tier 3 when every callee it reaches changed
 // only by literal assignments to members; its changes are the callees' (for
@@ -522,8 +639,13 @@ const report = {
       respelled: citations.filter((c) => c.respelled).length,
       calleeChanged: calleeCitations.length, calleeChangedCalleeCited: calleeCitations.filter((c) => c.calleeCited).length,
       calleeChangedQuiet: calleeCitations.filter((c) => c.quiet).length,
-      calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.length },
-    uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length, plaintextFiles: plaintext.length,
+      calleeChangedBundles: [...graphs.keys()], keyword: keywordHits.filter((c) => !c.acked).length, keywordAcked: keywordHits.filter((c) => c.acked).length,
+      bodyOnly: citations.filter((c) => c.stability === "body-only").length, bodyOnlySkim: citations.filter((c) => c.stability === "body-only" && c.tier === 3 && c.form !== "snippet").length,
+      acks: ackOf.version, acked: { unchanged: citations.filter((c) => c.ack === "unchanged").length, bodyOnly: citations.filter((c) => c.ack === "body-only").length,
+        changed: citations.filter((c) => c.ack === "changed").length, edited: citations.filter((c) => c.ack === "edited").length,
+        missing: citations.filter((c) => c.ack === "missing").length, none: citations.filter((c) => !c.ack || c.ack === "no-ack").length } },
+    uncoveredDeclarations: uncoveredDecls.length, reanchor: reanchor.length,
+    reanchorAccepted: reanchor.filter((r) => r.status === "accept").length, plaintextFiles: plaintext.length,
   },
   changes: changes.map((c) => ({ id: c.id, bundle: c.bundle, real: c.names, oldNames: c.oldNames, newNames: c.newNames, diff: c.diffPath,
     changedLines: c.diff?.changedLines ?? null, hunks: c.diff?.hunks?.length ?? null, localOnly: c.localOnly,
@@ -551,7 +673,8 @@ if (MD) {
     `(${s.citations.respelled} of them snippets whose quoted code is in both versions, only renamed: retarget_snippets.mjs rewrites those). ` +
     `${s.citations.calleeChanged} more cite unchanged code whose direct callee changed (tier 2c${graphs.size ? "" : ": no xref in --maps, not computed"}` +
     `${s.citations.calleeChangedQuiet ? `; ${s.citations.calleeChangedQuiet} of them only through callees whose change is literal assignments to members` : ""}). ` +
-    `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4). ` +
+    `${s.citations.keyword} paragraphs share a keyword with changed code no doc cites (tier 4${s.citations.keywordAcked ? `; ${s.citations.keywordAcked} more are in tier 3: every declaration they cite is unchanged since the ${s.citations.acks} ack` : ""}). ` +
+    `${s.citations.bodyOnly} citations are of declarations whose change is body-only (same signature, top-level references and literals), ${s.citations.bodyOnlySkim} of them whole-declaration citations put in tier 3 for that reason. ` +
     `${plaintext.length} plain-text files changed.`, "");
   if (plaintext.length) {
     L.push("## Plain text (read first: it states intent)", "", "| source | file | change | mentioned in |", "|---|---|---|---|");
@@ -604,7 +727,8 @@ if (MD) {
     }
     if (t === 4) L.push("Paragraphs that cite none of the changed code but share a distinctive word with a change no doc cites. Read the paragraph against the diff; a description of the old behaviour is often here.", "");
     if (t === 4) { for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] ${c.why} -- \`${c.diff}\``); L.push(""); continue; }
-    for (const c of list) L.push(`- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}: ${c.why}` +
+    for (const c of list) L.push(c.form === "keyword" ? `- ${c.doc}:${c.line} [${c.sectionTitle}] keyword: ${c.why} -- \`${c.diff}\``
+      : `- ${c.doc}:${c.line} [${c.sectionTitle}] \`${c.real}\` ${c.form}${c.code ? ` \`${c.code.slice(0, 60)}\`` : ""}: ${c.why}${c.ack && c.ack !== "no-ack" ? ` [ack: ${c.ack}]` : ""}` +
       (c.callees ? ` -- ${[...new Set(c.callees.map((k) => k.diff).filter(Boolean))].map((x) => "`" + x + "`").join(", ")}` : ""));
     L.push("");
   }
@@ -615,14 +739,19 @@ if (MD) {
     L.push("");
   }
   if (reanchor.length) {
+    const acc = reanchor.filter((r) => r.status === "accept").length, abst = reanchor.filter((r) => r.status === "abstain").length;
     L.push("## Inferred names to re-anchor", "",
-      "Confirm each pick against the old body with locate_by_anchor.mjs before writing it into maps/. " +
-      "Ranked by anchor_candidates.mjs (callers and callees mapped across the bump, strings); " +
-      "a name marked CLOSE has no candidate leading by 1 or more: read the bodies.", "");
+      "Confirm each pick with confirm_reanchor.mjs (reanchor_<bundle>.md: witnesses, bodies) before writing it into maps/. " +
+      "Ranked by anchor_candidates.mjs: callers, callees and strings weighted by rarity, the accepted pairs propagated along the call graph " +
+      "(round N = accepted after N rounds); `accept` means the top candidate scores at least the absolute threshold, leads the runner-up by the " +
+      "relative threshold and no other name picked it; a name marked ABSTAIN says why: read the bodies. " +
+      `${acc} accepted, ${abst} abstained.`, "");
     const byDoubt = [...reanchor].sort((a, b) => (a.clear === b.clear ? 0 : a.clear ? 1 : -1));
-    for (const r of byDoubt) L.push(`- ${r.clear === false ? "CLOSE " : ""}${r.real} (${r.bundle}, was \`${r.oldShort}\`): ` +
+    for (const r of byDoubt) L.push(`- ${r.status === "abstain" ? "ABSTAIN " : ""}${r.real} (${r.bundle}, was \`${r.oldShort}\`): ` +
       (r.rankingText ? `${r.rankingText}; ` : "") +
-      `positional: ${r.suggestion.length ? r.suggestion.map((x) => "`" + x + "`").join(" or ") + ` (${r.basis})` : "none"}`);
+      (r.score != null ? `score ${r.score.toFixed(2)}, margin ${r.margin.toFixed(2)}; ` : "") +
+      `positional: ${r.suggestion.length ? r.suggestion.map((x) => "`" + x + "`").join(" or ") + ` (${r.basis})` : "none"}` +
+      (r.alignment ? `; alignment: \`${r.alignment.name}\`${r.alignment.anchored ? "" : " (unanchored)"}` : ""));
     L.push("");
   }
   L.push(`## Work groups (${report.groups.length})`, "");
@@ -633,6 +762,6 @@ if (MD) {
 const s = report.summary;
 console.error(`impact: ${s.changedDeclarations} declaration diffs (${s.changedLines} lines in ${s.hunks} hunks); ` +
   `${s.citations.total} citations of changed code -- tier 1 re-read ${s.citations.reread}, tier 2 check ${s.citations.check}, tier 3 skim ${s.citations.skim} (${s.citations.respelled} only renamed); ` +
-  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}${s.citations.calleeChangedQuiet ? ` (${s.citations.calleeChangedQuiet} through literal assignments only)` : ""}; tier 4 keyword ${s.citations.keyword}; ` +
-  `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor, ${plaintext.length} plain-text files; ` +
+  `tier 2c callee changed ${s.citations.calleeChanged}${graphs.size ? "" : " (no xref)"}${s.citations.calleeChangedQuiet ? ` (${s.citations.calleeChangedQuiet} through literal assignments only)` : ""}; tier 4 keyword ${s.citations.keyword}${s.citations.keywordAcked ? ` (+${s.citations.keywordAcked} acked, in tier 3)` : ""}; body-only ${s.citations.bodyOnly}; ` +
+  `${uncoveredDecls.length} uncovered declaration sets, ${uncoveredLiterals.length} with undocumented literals, ${reanchor.length} to re-anchor (${s.reanchorAccepted} accepted by the candidate scorer), ${plaintext.length} plain-text files; ` +
   `${report.groups.length} work groups` + (OUT ? ` -> ${OUT}` : ""));

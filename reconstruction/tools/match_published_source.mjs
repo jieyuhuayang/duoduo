@@ -39,11 +39,20 @@
 // Usage:
 //   node match_published_source.mjs --src <dir with *.ts> --package <name@version> \
 //        [--rename <rename.json>] [--inferred <inferred.json>] [--min 0.6] [--lead 0.15] \
-//        [--pick <short>=<name>]... [--report <out.json>] <pretty.js>
+//        [--pick <short>=<name>]... [--report <out.json>] [--types <types_daemon.json>] <pretty.js>
 // Prints one line per published declaration; --report writes the full result,
 // which name_symbol.mjs --published reads: {package, source: {dir, files:
 // {file: sha256}}, bundle, matches: [{name, file, line, kind, exported, arity,
 // features, verdict, thin, best: {short, line, score, named}, candidates: [...]}]}.
+// --types (type_seed.mjs's output for the same release) adds one feature: the
+// class of a function's return type (boolean, string, number, void), read from
+// the published declaration's annotation and from the checker's inferred type
+// of each bundle function; a candidate whose class differs from the published
+// one is dropped (`typeDropped` in the report). A type guard counts as boolean.
+// Candidates whose return the checker does not know or marks `propagated`
+// (inferred in a function whose parameter was typed from its call sites, a
+// union that may be narrower than reality), or whose class is outside those
+// four, are left to the token score as before.
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -56,8 +65,35 @@ const argv = process.argv.slice(2);
 const opt = (name, dflt = null) => { const i = argv.indexOf(name); if (i < 0) return dflt; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const multi = (name) => { const out = []; for (let i; (i = argv.indexOf(name)) >= 0;) { out.push(argv[i + 1]); argv.splice(i, 2); } return out; };
 const SRC = opt("--src"), PACKAGE = opt("--package"), RENAME = opt("--rename"), INFERRED = opt("--inferred");
-const MIN = +opt("--min", "0.6"), LEAD = +opt("--lead", "0.15"), REPORT = opt("--report");
+const MIN = +opt("--min", "0.6"), LEAD = +opt("--lead", "0.15"), REPORT = opt("--report"), TYPES = opt("--types");
 const PICKS = new Map(multi("--pick").map(p => { const [s, n] = p.split("="); return [n, s]; })); // real name -> short
+// ---- --types: return-type classes ----------------------------------------------------------
+// Published side: the TS return annotation. Bundle side: type_seed.mjs's
+// typeToString of the checker's inferred return (a string union of literals
+// is `string`, `string | null` likewise; a Promise or object is no class).
+const types = TYPES ? JSON.parse(fs.readFileSync(TYPES, "utf8")) : null;
+function returnClassOfAnnotation(node) {
+  if (!node) return null;
+  if (node.type === "TSTypeAnnotation") node = node.typeAnnotation;
+  if (node.type === "TSTypePredicate" || node.type === "TSBooleanKeyword") return "boolean";
+  if (node.type === "TSStringKeyword") return "string";
+  if (node.type === "TSNumberKeyword") return "number";
+  if (node.type === "TSVoidKeyword" || node.type === "TSUndefinedKeyword") return "void";
+  if (node.type === "TSLiteralType") return typeof node.literal.value === "string" ? "string" : typeof node.literal.value === "number" ? "number" : typeof node.literal.value === "boolean" ? "boolean" : null;
+  if (node.type === "TSUnionType") {
+    const classes = new Set(node.types.map(t => (t.type === "TSNullKeyword" || t.type === "TSUndefinedKeyword") ? null : returnClassOfAnnotation(t)).filter(Boolean));
+    return classes.size === 1 ? [...classes][0] : null;
+  }
+  return null;
+}
+function returnClassOfString(s) {
+  if (!s || /[(){}<>\[\]]/.test(s)) return null; // object, function, generic, array: no class
+  const classes = new Set(s.split("|").map(x => x.trim()).filter(x => x !== "null" && x !== "undefined").map(x =>
+    x === "boolean" || x === "true" || x === "false" ? "boolean" : x === "string" || /^["'`]/.test(x) ? "string" : x === "number" || /^-?\d/.test(x) ? "number" : x === "void" ? "void" : "other"));
+  return classes.size === 1 && !classes.has("other") ? [...classes][0] : null;
+}
+let typeDropped = 0;
+// ---- end --types ----
 const [BUNDLE] = argv;
 if (!SRC || !PACKAGE || !BUNDLE) { console.error("usage: node match_published_source.mjs --src <dir> --package <name@version> [--rename r.json] [--inferred i.json] [--min 0.6] [--lead 0.15] [--pick short=name]... [--report o.json] <pretty.js>"); process.exit(2); }
 
@@ -130,7 +166,7 @@ for (const file of files) {
     if (decl.type === "FunctionDeclaration" && decl.id) {
       boundNames = collectBound(decl);
       const f = featuresOf(decl.body, isGlobal);
-      published.push({ name: decl.id.name, file, line: decl.loc.start.line, kind: "function", exported, arity: decl.params.length, features: f, tokens: tokensOf(f), thin: isThin(f) });
+      published.push({ name: decl.id.name, file, line: decl.loc.start.line, kind: "function", exported, arity: decl.params.length, features: f, tokens: tokensOf(f), thin: isThin(f), returnClass: types ? returnClassOfAnnotation(decl.returnType) : null });
     } else if (decl.type === "VariableDeclaration") {
       for (const d of decl.declarations) {
         if (d.id.type !== "Identifier" || !d.init) continue;
@@ -138,7 +174,7 @@ for (const file of files) {
         if (init.type === "ArrowFunctionExpression" || init.type === "FunctionExpression") {
           boundNames = collectBound(init);
           const f = featuresOf(init.body, isGlobal);
-          published.push({ name: d.id.name, file, line: d.loc.start.line, kind: "function", exported, arity: init.params.length, features: f, tokens: tokensOf(f), thin: isThin(f) });
+          published.push({ name: d.id.name, file, line: d.loc.start.line, kind: "function", exported, arity: init.params.length, features: f, tokens: tokensOf(f), thin: isThin(f), returnClass: types ? returnClassOfAnnotation(init.returnType) : null });
         } else {
           const c = canonicalLiteral(init);
           if (c !== null) published.push({ name: d.id.name, file, line: d.loc.start.line, kind: "value", exported, canonical: c });
@@ -179,7 +215,10 @@ for (const [short, d] of decls) {
   if (isFunctionLike(d)) {
     const bound = d.node.type === "ClassDeclaration" || d.node.type === "ClassExpression" ? new Set() : collectBound(d.node);
     const f = featuresOf(d.node.type === "ClassDeclaration" || d.node.type === "ClassExpression" ? d.node : d.node.body, (id) => !bound.has(id.name) && !topNames.has(id.name));
-    bundleFns.push({ short, line: d.line, arity: d.params, tokens: tokensOf(f) });
+    // --types: the checker's return type of this function, by real name when it has one, else by short name
+    const ret = types ? (types.decls?.[namedAs(short) ?? ""]?.returns ?? types.unnamed?.[short]?.returns) : null;
+    const returnClass = ret && ret.kind === "typed" ? returnClassOfString(ret.type) : null; // not `propagated`: inferred under a call-site union that may be narrower than reality
+    bundleFns.push({ short, line: d.line, arity: d.params, tokens: tokensOf(f), returnClass });
   } else if (d.kind === "value") bundleValues.push({ short, line: d.line, canonical: d.canonical });
 }
 // referencing statements of a short name, for telling twins apart
@@ -215,11 +254,15 @@ for (const [file, pubs] of byFile) {
       if (fileInit && fileInit.values.has(h)) { matches.push({ ...pub, verdict: "in-initialiser", best: { short: fileInit.short, line: fileInit.line, score: 1, named: namedAs(fileInit.short), assigned: true }, candidates: bundleValues.filter(v => v.canonical === pub.canonical).map(v => ({ short: v.short, line: v.line, score: 1, named: namedAs(v.short), topLevelTwin: true })) }); continue; }
       for (const v of bundleValues) if (v.canonical === pub.canonical) candidates.push({ short: v.short, line: v.line, score: 1 });
     } else {
+      let droppedHere = 0;
       for (const fn of bundleFns) {
         if (pub.kind === "function" && fn.arity !== pub.arity) continue;
         const s = score(pub.tokens, fn.tokens);
-        if (s > 0) candidates.push({ short: fn.short, line: fn.line, score: +s.toFixed(3) });
+        if (s <= 0) continue;
+        if (pub.returnClass && fn.returnClass && fn.returnClass !== pub.returnClass) { droppedHere++; continue; } // --types
+        candidates.push({ short: fn.short, line: fn.line, score: +s.toFixed(3) });
       }
+      if (droppedHere) { typeDropped += droppedHere; pub.typeDropped = droppedHere; }
     }
     candidates.sort((a, b) => b.score - a.score || a.line - b.line);
     candidates = candidates.slice(0, 5);
@@ -314,7 +357,8 @@ for (const m of matches) {
 }
 for (const [file, fi] of Object.entries(fileInits)) console.log(`module    ${file}: ${fi.span ? `bundle span ${fi.span[0]}-${fi.span[1]}` : "no span (no anchor)"}; initialiser ${fi.initialiser ? `${fi.initialiser.short} @${fi.initialiser.line} assigns ${fi.initialiser.hits} of ${fi.initialiser.of} constants${fi.initialiser.named ? ` (named ${fi.initialiser.named})` : ` -> suggested ${fi.initialiser.suggestedName}`}` : "none found"}${fi.runnersUp.length ? ` (runners-up ${fi.runnersUp.map(r => `${r.short} @${r.line}: ${r.hits}`).join(", ")})` : ""}`);
 console.error(`\n${published.length} published declarations in ${files.length} files: ${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(", ")}`);
+if (types) console.error(`--types: ${typeDropped} candidate(s) dropped by return-type class, over ${matches.filter(m => m.typeDropped).length} published declaration(s); published functions with a class ${published.filter(p => p.returnClass).length}, bundle functions with a class ${bundleFns.filter(f => f.returnClass).length} of ${bundleFns.length}`);
 if (REPORT) {
-  fs.writeFileSync(REPORT, JSON.stringify({ generatedBy: "match_published_source.mjs", package: PACKAGE, source: { dir: SRC, files: fileHashes }, bundle: path.basename(BUNDLE), min: MIN, lead: LEAD, counts, files: fileInits, matches }, null, 1) + "\n");
+  fs.writeFileSync(REPORT, JSON.stringify({ generatedBy: "match_published_source.mjs", package: PACKAGE, source: { dir: SRC, files: fileHashes }, bundle: path.basename(BUNDLE), min: MIN, lead: LEAD, types: types ? { file: TYPES, typeDropped } : undefined, counts, files: fileInits, matches }, null, 1) + "\n");
   console.error(`report: ${REPORT}`);
 }

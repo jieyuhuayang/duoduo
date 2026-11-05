@@ -20,14 +20,15 @@
       "renamesSkippedCollision": 0,
       "indexedSymbols": 890,
       "localBindings": 6406,
-      "localNamesApplied": 6302,
+      "localNamesApplied": 6303,
       "localNamesBySource": {
         "llm": 5037,
-        "rule:callee": 528,
-        "rule:member": 239,
+        "rule:callee": 529,
+        "rule:member": 236,
         "rule:catch": 154,
         "rule:destructure": 278,
-        "rule:new": 66
+        "rule:new": 66,
+        "rule:member-chain": 3
       }
     },
     "cli": {
@@ -79,15 +80,18 @@
   "verdicts": {
     "anchorCheckers": "pass",
     "anchorTargetMatches": "pass",
+    "appendixSets": "pass",
     "citations": "pass",
     "cli.astEquivalent": "pass",
     "cli.beautifyEquivalent": "pass",
+    "cli.idsResolve": "pass",
     "cli.inferredNames": "pass",
     "cli.lossless": "pass",
     "cli.syntax": "pass",
     "committedInSync": "promoted",
     "daemon.astEquivalent": "pass",
     "daemon.beautifyEquivalent": "pass",
+    "daemon.idsResolve": "pass",
     "daemon.inferredNames": "pass",
     "daemon.localNames": "pass",
     "daemon.lossless": "pass",
@@ -96,7 +100,7 @@
     "lineAnchors": "pass"
   },
   "environment": {
-    "node": "v22.22.0",
+    "node": "v22.23.4",
     "@babel/parser": "7.29.7",
     "@babel/traverse": "7.29.7",
     "js-beautify": "2.0.3"
