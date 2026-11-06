@@ -17,12 +17,13 @@ codex login
 ## Host-Mode Availability
 
 Codex is **auto-detected**. There is no `ALADUO_CODEX_ENABLED` env
-var. If `codex` is installed on `PATH` and `codex login status`
-reports "logged in", the daemon exposes Codex as an available runtime
-alongside Claude. Otherwise Codex is hidden from runtime choices.
+var. If the `codex` binary is on `PATH` (`codex --version` succeeds), the
+daemon exposes Codex as an available runtime alongside Claude. Otherwise
+Codex is hidden from runtime choices. Login is not probed: an install
+that is not signed in shows codex's own auth error on the first turn.
 
 **Codex has no silent Claude fallback.** A session or job configured for
-codex while codex is unavailable (CLI missing, or not logged in) has its
+codex while codex is unavailable (CLI missing) has its
 turn refused with the reason named — the same posture as grok and pi. It
 never runs on Claude instead.
 
@@ -31,17 +32,17 @@ Optional persistent key:
 - `ALADUO_CODEX_SANDBOX=workspace-write` (or `read-only` /
   `danger-full-access`) — sandbox mode for codex-runtime jobs.
 
-A failed probe is not cached: after the user installs codex or runs
-`codex login`, sending the message again is enough — no daemon restart
-for message routing. The runtime lists offered by channel setup cards
-still come from the daemon's boot probe; to make codex appear there, restart:
+A failed probe is not cached: after the user installs codex, sending the
+message again is enough — no daemon restart for message routing. The
+runtime lists offered by channel setup cards and ManageJob still come from
+the daemon's boot probe; to make codex appear there, restart:
 
 ```bash
-duoduo daemon restart -r "codex login refreshed — re-probing runtimes"
+duoduo daemon restart -r "codex installed — re-probing runtimes"
 ```
 
-If a refusal persists after login, check with `codex login status`
-directly to confirm the CLI side.
+`codex login` needs no restart. If a codex turn fails with an
+authentication error, run `codex login status` to check the CLI side.
 
 ## Runtime Selection
 

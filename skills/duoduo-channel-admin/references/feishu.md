@@ -95,7 +95,7 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   `claude`). No card, no dropped message. The first message flows
   through ingress as normal.
 - Setup cards only show runtimes that the daemon reported as available
-  at boot. If Codex is missing from the card after `codex login`, restart
+  at boot. If Codex is missing from the card after installing codex, restart
   the daemon so the card list re-probes (message routing does not need it).
 - Changing an existing chat's runtime through the setup card is refused
   while that chat's session is bound to another runtime; the refusal lists
