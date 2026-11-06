@@ -61,11 +61,23 @@ outbox-replay + descriptor to their `var/<kind>-archive/` siblings
 [reset-feishu-session.md](reset-feishu-session.md) for what it does
 and why each step matters.
 
+### Symptom: "The bot answers nobody" (or replies 没有权限)
+
+Both access policies default to `allowlist`. A DM is admitted only from
+`FEISHU_BOT_OWNER` or an open_id in `FEISHU_ALLOW_FROM`; a group message
+only from a chat in `FEISHU_ALLOW_GROUPS` or a sender in `FEISHU_ALLOW_FROM`.
+The gateway logs `effective access policy` at startup, with a warn naming
+the env file when a list is empty or a policy value is invalid (it then
+falls back to `allowlist`). For a named instance the keys live in
+`~/.config/duoduo/feishu.<name>.env`; they are not inherited from `.env`,
+and open_ids differ per app. Fix: add the ids, then restart that instance.
+
 ### Symptom: "Strangers can DM my bot and it responds"
 
-Zero-config mode is active (no `FEISHU_BOT_OWNER`, default
-`dmPolicy=open`). Any first DM sender auto-spawns an owner-style DM
-session (it never becomes the main session in this mode).
+`FEISHU_DM_POLICY` is set to `open` or `pairing` (pairing currently
+behaves as open). With no owner configured (zero-config), any first DM
+sender auto-spawns an owner-style DM session (it never becomes the main
+session in this mode).
 Fix:
 
 ```bash

@@ -145,9 +145,10 @@ off `duoduo daemon status` and carry on with the branch decision.
 Then decide the branch by hand:
 
 - No feishu channel installed → **Branch B**.
-- Feishu installed AND `FEISHU_BOT_OWNER` set AND
-  `FEISHU_DM_POLICY=allowlist` → **Branch C**.
-- Feishu installed AND any of those keys missing → **Branch D**.
+- Feishu installed AND `FEISHU_BOT_OWNER` set AND `FEISHU_DM_POLICY` not
+  `open` → **Branch C**.
+- Feishu installed AND `FEISHU_BOT_OWNER` missing, or `FEISHU_DM_POLICY=open`
+  → **Branch D**.
 
 ## Step 2 — Pick the branch
 
@@ -205,10 +206,12 @@ full behavior matrix if the user wants to see every case.
 
 ### Branch D — upgrade with Feishu but missing security env
 
-⚠️ **Discuss with the user BEFORE running the upgrade.** After
-upgrade, zero-config mode means any first DM sender triggers
-auto-spawn into an owner-style DM session. With `dmPolicy=open` (the
-default), strangers who reach the bot get that unrestricted DM session.
+⚠️ **Discuss with the user BEFORE running the upgrade.** Both access
+policies default to `allowlist`: with no `FEISHU_BOT_OWNER` and an empty
+`FEISHU_ALLOW_FROM`, the bot answers nobody after the upgrade. With an
+explicit `FEISHU_DM_POLICY=open` (or `pairing`, which behaves the same),
+any first DM sender auto-spawns an owner-style DM session, so strangers who
+reach the bot get that unrestricted session.
 
 Walk the user through:
 

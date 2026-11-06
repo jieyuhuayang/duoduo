@@ -107,8 +107,10 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   see [pi-runtime.md](../../duoduo-runtime-admin/references/pi-runtime.md).
 - The owner is the open_id the plugin reads at startup:
   `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → none.
-- When there is none (zero-config), ANY first DM sender triggers auto-spawn
-  but `bound_by` is NOT persisted — see "Security hygiene" below.
+- When there is none (zero-config), every DM is denied unless
+  `FEISHU_DM_POLICY` is explicitly `open` or `pairing`; then ANY first DM
+  sender triggers auto-spawn but `bound_by` is NOT persisted — see
+  "Security hygiene" below.
 - **Main claim.** A configured owner's DM on the default instance also
   claims the main role when nobody holds it (checked again at every start).
   Zero-config and named instances never claim. Role details:
@@ -122,21 +124,22 @@ reset: `duoduo-runtime-admin` → `references/main-session.md`.
 
 ## Security hygiene
 
-v0.5 auto-spawn on owner DM changes the implicit trust boundary.
-Zero-config defaults are meant for bootstrap only.
+Both access policies default to `allowlist`, and `FEISHU_BOT_OWNER` is
+always admitted in direct messages. An explicit `open` (or `pairing`,
+which behaves the same) admits everyone and is meant for bootstrap only.
 
 Production `~/.config/duoduo/.env` should have:
 
 ```bash
 FEISHU_BOT_OWNER=ou_yourOpenId       # explicit owner — locks the owner DM, lets it claim main
 FEISHU_ALLOW_FROM=ou_you,ou_friend,… # additional DMs allowed as secondary
-FEISHU_DM_POLICY=allowlist           # refuse DMs from users not in ALLOW_FROM
-FEISHU_GROUP_POLICY=allowlist        # same for groups (see FEISHU_ALLOW_GROUPS)
+FEISHU_ALLOW_GROUPS=oc_…             # groups the bot answers in (policy allowlist is the default)
 FEISHU_GROUP_CMD_USERS=ou_you,…      # grants /setup in groups whose descriptor has no bound_by
 ```
 
-When the user reports "strangers can DM my bot", check `dmPolicy`
-first. When the user reports "/setup does nothing on my bot's DM",
+When the user reports "strangers can DM my bot", check for an explicit
+`FEISHU_DM_POLICY=open` first; when "the bot answers nobody", read the
+startup `effective access policy` line. When the user reports "/setup does nothing on my bot's DM",
 check whether their open_id matches `FEISHU_BOT_OWNER` (the refusal
 message says "This is the owner's DM, bound to …", which is the
 intended behavior).

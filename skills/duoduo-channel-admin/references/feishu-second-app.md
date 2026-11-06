@@ -39,7 +39,7 @@ context, several bots), finish this file, then read
    FEISHU_APP_SECRET=xxx
    FEISHU_DOMAIN=lark          # only for a Lark (international) app; omit for Feishu
    FEISHU_BOT_OWNER=ou_xxx     # optional; the owner's open_id IN THIS APP
-   # FEISHU_DM_POLICY / FEISHU_GROUP_POLICY / FEISHU_ALLOW_FROM / FEISHU_ALLOW_GROUPS as needed
+   # FEISHU_ALLOW_FROM / FEISHU_ALLOW_GROUPS: required for anyone but the owner to reach it
    ```
 
    Hand the secret over without chat: have the owner run, in their own
@@ -58,9 +58,11 @@ context, several bots), finish this file, then read
    An open_id is per app: the owner's open_id in the Lark app differs from
    the one in the Feishu app. Copy it from the new app, not from `.env`.
 
-   The owner DM of a named instance auto-spawns and locks exactly like the
-   default app's (and zero-config admits any first sender); it only never
-   claims `main`.
+   Nothing is inherited from `.env`: both policies default to `allowlist`,
+   so without these lists the instance answers only its owner's DMs (and
+   nobody when `FEISHU_BOT_OWNER` is unset too). The owner DM of a named
+   instance auto-spawns and locks exactly like the default app's; it only
+   never claims `main`.
 
 3. **Start it:**
 

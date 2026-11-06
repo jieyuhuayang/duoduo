@@ -149,17 +149,18 @@ if [ "$HAS_FEISHU" = "no" ]; then
 else
   MISSING_KEYS=""
   if [ -r "$DUODUO_ENV_FILE" ]; then
-    for KEY in FEISHU_BOT_OWNER FEISHU_DM_POLICY; do
-      if ! grep -qE "^${KEY}=" "$DUODUO_ENV_FILE" 2>/dev/null; then
-        MISSING_KEYS="${MISSING_KEYS}${KEY} "
-      fi
-    done
+    if ! grep -qE "^FEISHU_BOT_OWNER=." "$DUODUO_ENV_FILE" 2>/dev/null; then
+      MISSING_KEYS="${MISSING_KEYS}FEISHU_BOT_OWNER "
+    fi
+    if grep -qE "^FEISHU_DM_POLICY=(open|pairing)$" "$DUODUO_ENV_FILE" 2>/dev/null; then
+      MISSING_KEYS="${MISSING_KEYS}FEISHU_DM_POLICY(open) "
+    fi
   fi
   if [ -n "$MISSING_KEYS" ]; then
     echo "- **Branch D** (feishu + missing security env): MUST discuss"
-    echo "  with the user BEFORE the upgrade — after upgrade, zero-config"
-    echo "  behavior means strangers who can reach the bot auto-spawn into"
-    echo "  the main session. Missing keys: \`${MISSING_KEYS}\`. See"
+    echo "  with the user BEFORE the upgrade — with no owner and no"
+    echo "  FEISHU_ALLOW_FROM the bot answers nobody; with an open DM policy strangers who reach the"
+    echo "  bot auto-spawn a DM session. Keys: \`${MISSING_KEYS}\`. See"
     echo "  \`references/upgrade-playbook.md\` → 'Branch D'."
   else
     echo "- **Branch C** (feishu + env configured): safe to proceed with"
