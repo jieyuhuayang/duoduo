@@ -129,8 +129,8 @@ duoduo --version                       # installed version (see note below)
 npm view @openduo/duoduo version       # latest published
 duoduo daemon status                   # daemon running?
 duoduo channel list                    # any feishu / acp?
-grep -E '^FEISHU_(BOT_OWNER|ALLOW_FROM|DM_POLICY|GROUP_POLICY|GROUP_CMD_USERS)=' \
-  ~/.config/duoduo/.env                # security env snapshot
+grep -E '^[[:space:]]*FEISHU_(BOT_OWNER|ALLOW_FROM|ALLOW_GROUPS|DM_POLICY|GROUP_POLICY|GROUP_CMD_USERS)[[:space:]]*=' \
+  ~/.config/duoduo/.env                # security env snapshot; the last line of a key wins
 ls ~/.aladuo/var/channels/feishu-*/descriptor.md 2>/dev/null
 for d in ~/.aladuo/var/channels/feishu-*/; do
   grep -E '^bound_by:' "${d}descriptor.md" || echo "  (no bound_by — pre-v0.5)"
@@ -145,10 +145,34 @@ off `duoduo daemon status` and carry on with the branch decision.
 Then decide the branch by hand:
 
 - No feishu channel installed → **Branch B**.
-- Feishu installed AND `FEISHU_BOT_OWNER` set AND `FEISHU_DM_POLICY` not
-  `open` → **Branch C**.
-- Feishu installed AND `FEISHU_BOT_OWNER` missing, or `FEISHU_DM_POLICY=open`
-  → **Branch D**.
+- Feishu installed AND any of these → **Branch D**:
+  - `FEISHU_BOT_OWNER` unset. If `FEISHU_ALLOW_FROM` is set, its first
+    entry acts as owner: confirm that is the owner and set
+    `FEISHU_BOT_OWNER` explicitly. If both are unset, every DM is denied;
+  - `FEISHU_DM_POLICY` is `open` or `pairing`;
+  - at least one bound group, `FEISHU_ALLOW_GROUPS` empty, and
+    `FEISHU_GROUP_POLICY` not `open`.
+- Feishu installed and none of the above (`FEISHU_BOT_OWNER` set and
+  `FEISHU_DM_POLICY` neither `open` nor `pairing`) → **Branch C**.
+
+These keys are the default instance's, in `~/.config/duoduo/.env`. A named
+instance reads only `~/.config/duoduo/feishu.<name>.env`, and its
+descriptors are `feishu-<name>-oc_<chat_id>/`; check it the same way.
+
+A bound group is a `var/channels/feishu-oc_<chat_id>/` descriptor whose
+chat is a group. The directory name does not say so — a DM chat id also
+starts with `oc_`. A group's session key has no `ou_` part:
+
+```bash
+for d in ~/.aladuo/var/channels/feishu-oc_*/; do
+  id="${d%/}"; id="${id##*/feishu-}"
+  grep -lE "\"session_key\": *\"lark:${id}:[0-9a-f]{12}\"" \
+    ~/.aladuo/var/sessions/*/state.json >/dev/null 2>&1 && echo "group: ${id}"
+done
+```
+
+A group that has never run a session does not show up; it needs listing
+all the same.
 
 ## Step 2 — Pick the branch
 
@@ -207,11 +231,17 @@ full behavior matrix if the user wants to see every case.
 ### Branch D — upgrade with Feishu but missing security env
 
 ⚠️ **Discuss with the user BEFORE running the upgrade.** Both access
-policies default to `allowlist`: with no `FEISHU_BOT_OWNER` and an empty
-`FEISHU_ALLOW_FROM`, the bot answers nobody after the upgrade. With an
-explicit `FEISHU_DM_POLICY=open` (or `pairing`, which behaves the same),
-any first DM sender auto-spawns an owner-style DM session, so strangers who
-reach the bot get that unrestricted session.
+policies default to `allowlist`. A denied message gets the plain-text reply
+「抱歉，您没有权限与此机器人对话。如需访问，请联系管理员。」.
+
+- No `FEISHU_BOT_OWNER` and an empty `FEISHU_ALLOW_FROM`: every DM gets
+  that reply after the upgrade.
+- Bound groups with `FEISHU_ALLOW_GROUPS` empty: every bound group gets
+  that reply (to every message the bot receives there) until its chat_id is
+  listed. Senders in `FEISHU_ALLOW_FROM` still get through.
+- An explicit `FEISHU_DM_POLICY=open` (or `pairing`, which behaves the
+  same): any first DM sender auto-spawns an owner-style DM session, so
+  strangers who reach the bot get that unrestricted session.
 
 Walk the user through:
 
@@ -221,8 +251,11 @@ Walk the user through:
    ```bash
    FEISHU_BOT_OWNER=ou_<theirOpenId>
    FEISHU_ALLOW_FROM=ou_<theirOpenId>,ou_<friend>,...   # if not already set
-   FEISHU_DM_POLICY=allowlist                           # if not already set
+   FEISHU_ALLOW_GROUPS=oc_<group>,...                   # every bound group to keep
    ```
+   For `FEISHU_ALLOW_GROUPS`, the chat ids are the `feishu-oc_<chat_id>`
+   descriptor names of the groups found above. Remove an explicit
+   `FEISHU_DM_POLICY=open` or `pairing` line; unset means `allowlist`.
 3. Show the diff with the existing `.env` and ask for confirmation
    before writing (sensitive file).
 4. Write the additions using
@@ -289,9 +322,10 @@ v0.5.3 treats Claude and Codex as peer runtime choices when both are
 available on the host. Claude remains the default fallback, so existing
 operators do not need to change anything unless they want Codex routing.
 
-- To enable Codex availability, install the `codex` CLI and run
-  `codex login`. Message routing re-probes on its own; restart the
-  daemon only if channel setup cards should list Codex.
+- Codex is listed as available when `codex --version` succeeds. Turns
+  also need `codex login`, which takes no restart. Message routing
+  re-probes while codex is unavailable; restart the daemon only so
+  channel setup cards and ManageJob list codex.
 - To route one channel kind to Codex, set `runtime: codex` in
   `kernel/config/<kind>.md`.
 - To route one channel instance to Codex, prefer the channel setup flow

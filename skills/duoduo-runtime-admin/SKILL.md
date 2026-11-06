@@ -81,9 +81,10 @@ Be precise:
   is skipped — each with a sentence naming the value and the valid ones.
   `void` is a channel value meant for plugins such as tether whose sessions
   never run a model; it is refused as the default, on a job, and on a partition.
-- Verify `codex` is installed and authenticated before routing work to it.
-  For `grok`, duoduo only checks the binary — verify the login yourself
-  before routing work to it. Explicit codex or grok that cannot be served
+- duoduo checks only the binary for both `codex` and `grok`
+  (`<cli> --version`), never the login. Verify the login yourself before
+  routing work to either: `codex login status` for codex; for grok, run a
+  first session and read its reply. Explicit codex or grok that cannot be served
   is a hard failure — the turn is refused with the reason, never run on
   Claude. Pi is the same posture: a pi session with no resolvable model
   fails with the fix named in the reply, never a silent Claude run.

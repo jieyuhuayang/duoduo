@@ -61,14 +61,24 @@ outbox-replay + descriptor to their `var/<kind>-archive/` siblings
 [reset-feishu-session.md](reset-feishu-session.md) for what it does
 and why each step matters.
 
-### Symptom: "The bot answers nobody" (or replies 没有权限)
+### Symptom: the bot replies 「抱歉，您没有权限与此机器人对话。如需访问，请联系管理员。」
 
-Both access policies default to `allowlist`. A DM is admitted only from
-`FEISHU_BOT_OWNER` or an open_id in `FEISHU_ALLOW_FROM`; a group message
-only from a chat in `FEISHU_ALLOW_GROUPS` or a sender in `FEISHU_ALLOW_FROM`.
-The gateway logs `effective access policy` at startup, with a warn naming
-the env file when a list is empty or a policy value is invalid (it then
-falls back to `allowlist`). For a named instance the keys live in
+The access policy denied the message. Both policies default to `allowlist`.
+A DM is admitted only from `FEISHU_BOT_OWNER` or an open_id in
+`FEISHU_ALLOW_FROM`; a group message only from a chat in
+`FEISHU_ALLOW_GROUPS` or a sender in `FEISHU_ALLOW_FROM`. The check runs
+before the @mention check, so an unlisted group gets this reply to every
+message the bot receives there.
+
+Read the startup line `[policy] effective access policy` in
+`duoduo channel feishu logs [--instance <name>]`. It carries the policies
+and `allowFromCount`, `allowGroupsCount`, `botOwnerSet`. Warns follow it:
+
+- an empty allowlist: the warn names the env file to edit;
+- an invalid policy value: the warn names the key and the value used instead
+  (`allowlist`), but no file — check `.env` or `feishu.<name>.env` yourself.
+
+For a named instance the keys live in
 `~/.config/duoduo/feishu.<name>.env`; they are not inherited from `.env`,
 and open_ids differ per app. Fix: add the ids, then restart that instance.
 

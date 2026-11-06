@@ -59,8 +59,10 @@ context, several bots), finish this file, then read
    the one in the Feishu app. Copy it from the new app, not from `.env`.
 
    Nothing is inherited from `.env`: both policies default to `allowlist`,
-   so without these lists the instance answers only its owner's DMs (and
-   nobody when `FEISHU_BOT_OWNER` is unset too). The owner DM of a named
+   so without these lists the instance admits only its owner's DMs (and no
+   message at all when `FEISHU_BOT_OWNER` is unset too). Every other message
+   gets the plain-text reply
+   「抱歉，您没有权限与此机器人对话。如需访问，请联系管理员。」. The owner DM of a named
    instance auto-spawns and locks exactly like the default app's; it only
    never claims `main`.
 

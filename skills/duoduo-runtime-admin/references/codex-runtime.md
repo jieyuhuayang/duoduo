@@ -10,9 +10,12 @@ Use this reference before enabling or explaining Codex support.
 Useful checks:
 
 ```bash
-codex --version
-codex login
+codex --version        # what the daemon probes: binary present
+codex login status     # what turns need: an authenticated CLI
 ```
+
+If `codex login status` reports no login, run `codex login`; no daemon
+restart is needed.
 
 ## Host-Mode Availability
 

@@ -11,6 +11,7 @@
 #   * key FEISHU_* env settings
 #   * whether any Feishu channel already has a descriptor on disk, and
 #     whether each descriptor is v0.5-shaped (has bound_by) or pre-v0.5
+#   * which descriptors belong to groups (for the FEISHU_ALLOW_GROUPS check)
 #
 # Output is markdown. Each section header is stable so the agent can
 # grep for it. Missing tools / permission errors are reported inline
@@ -30,6 +31,31 @@ set -u
 # consumes whatever sections produce output.
 DUODUO_HOME="${ALADUO_HOME:-$HOME/.aladuo}"
 DUODUO_ENV_FILE="${DUODUO_ENV_FILE:-$HOME/.config/duoduo/.env}"
+
+# Read KEY from the env file the way duoduo's loader does: lines are
+# trimmed (CRLF included), whitespace around the key and `=` is ignored,
+# one pair of surrounding quotes is stripped, the last assignment wins.
+# The loader does NOT strip a trailing `# comment`; it stays in the value.
+env_val() {
+  [ -r "$DUODUO_ENV_FILE" ] || return 0
+  tr -d '\r' < "$DUODUO_ENV_FILE" | awk -v k="$1" '
+    {
+      line = $0
+      sub(/^[ \t]+/, "", line); sub(/[ \t]+$/, "", line)
+      if (line == "" || substr(line, 1, 1) == "#") next
+      eq = index(line, "=")
+      if (eq < 2) next
+      key = substr(line, 1, eq - 1); sub(/[ \t]+$/, "", key)
+      if (key != k) next
+      v = substr(line, eq + 1); sub(/^[ \t]+/, "", v)
+      if (length(v) >= 2) {
+        q = substr(v, 1, 1)
+        if ((q == "\"" || q == "\047") && substr(v, length(v), 1) == q) v = substr(v, 2, length(v) - 2)
+      }
+      val = v; found = 1
+    }
+    END { if (found) print val }'
+}
 
 echo "# duoduo v0.5 upgrade preflight"
 echo
@@ -93,10 +119,13 @@ if [ "$HAS_FEISHU" = "yes" ]; then
   echo "### env keys (in \`${DUODUO_ENV_FILE}\`)"
   echo
   if [ -r "$DUODUO_ENV_FILE" ]; then
-    for KEY in FEISHU_BOT_OWNER FEISHU_ALLOW_FROM FEISHU_DM_POLICY FEISHU_GROUP_POLICY FEISHU_GROUP_CMD_USERS; do
-      VAL="$(grep -E "^${KEY}=" "$DUODUO_ENV_FILE" 2>/dev/null | head -n1 || true)"
+    for KEY in FEISHU_BOT_OWNER FEISHU_ALLOW_FROM FEISHU_ALLOW_GROUPS FEISHU_DM_POLICY FEISHU_GROUP_POLICY FEISHU_GROUP_CMD_USERS; do
+      VAL="$(env_val "$KEY")"
       if [ -n "$VAL" ]; then
-        echo "- \`${VAL}\`"
+        echo "- \`${KEY}=${VAL}\`"
+        case "$VAL" in
+          *"#"*) echo "  - warning: the value contains \`#\`; the loader keeps a trailing comment as part of the value" ;;
+        esac
       else
         echo "- \`${KEY}\`: (not set)"
       fi
@@ -108,6 +137,7 @@ if [ "$HAS_FEISHU" = "yes" ]; then
   echo "### descriptors on disk"
   echo
   DESC_DIR="${DUODUO_HOME}/var/channels"
+  BOUND_GROUPS=""
   if [ -d "$DESC_DIR" ]; then
     FOUND_DESC=no
     for d in "${DESC_DIR}"/feishu-*/; do
@@ -125,7 +155,20 @@ if [ "$HAS_FEISHU" = "yes" ]; then
         else
           SHAPE="pre-v0.5 (no bound_by — legacy binding)"
         fi
-        echo "- \`${CHANNEL_ID}\`: ${SHAPE}"
+        # A DM chat id also starts with oc_; a group's session key has
+        # no ou_ segment (lark:<chat_id>:<12-hex workspace hash>).
+        KIND=""
+        case "$CHANNEL_ID" in
+          feishu-oc_*)
+            CHAT_ID="${CHANNEL_ID#feishu-}"
+            if grep -qE "\"session_key\": *\"lark:${CHAT_ID}:[0-9a-f]{12}\"" \
+                "${DUODUO_HOME}"/var/sessions/*/state.json 2>/dev/null; then
+              KIND=", group"
+              BOUND_GROUPS="${BOUND_GROUPS}${CHAT_ID} "
+            fi
+            ;;
+        esac
+        echo "- \`${CHANNEL_ID}\`: ${SHAPE}${KIND}"
       else
         echo "- \`${CHANNEL_ID}\`: (descriptor not readable)"
       fi
@@ -147,21 +190,37 @@ if [ "$HAS_FEISHU" = "no" ]; then
   echo "  special v0.5 configuration needed. See"
   echo "  \`references/upgrade-playbook.md\` → 'Branch B'."
 else
-  MISSING_KEYS=""
-  if [ -r "$DUODUO_ENV_FILE" ]; then
-    if ! grep -qE "^FEISHU_BOT_OWNER=." "$DUODUO_ENV_FILE" 2>/dev/null; then
-      MISSING_KEYS="${MISSING_KEYS}FEISHU_BOT_OWNER "
-    fi
-    if grep -qE "^FEISHU_DM_POLICY=(open|pairing)$" "$DUODUO_ENV_FILE" 2>/dev/null; then
-      MISSING_KEYS="${MISSING_KEYS}FEISHU_DM_POLICY(open) "
+  BOT_OWNER="$(env_val FEISHU_BOT_OWNER)"
+  ALLOW_FROM="$(env_val FEISHU_ALLOW_FROM)"
+  ALLOW_GROUPS="$(env_val FEISHU_ALLOW_GROUPS)"
+  DM_POLICY="$(env_val FEISHU_DM_POLICY)"
+  GROUP_POLICY="$(env_val FEISHU_GROUP_POLICY)"
+  REFUSAL="「抱歉，您没有权限与此机器人对话。如需访问，请联系管理员。」"
+  REASONS=""
+  if [ -z "$BOT_OWNER" ]; then
+    if [ -n "$ALLOW_FROM" ]; then
+      REASONS="${REASONS}  - FEISHU_BOT_OWNER unset: the first FEISHU_ALLOW_FROM entry acts as owner; confirm it and set FEISHU_BOT_OWNER explicitly.
+"
+    else
+      REASONS="${REASONS}  - FEISHU_BOT_OWNER and FEISHU_ALLOW_FROM unset: every DM gets the reply ${REFUSAL}
+"
     fi
   fi
-  if [ -n "$MISSING_KEYS" ]; then
-    echo "- **Branch D** (feishu + missing security env): MUST discuss"
-    echo "  with the user BEFORE the upgrade — with no owner and no"
-    echo "  FEISHU_ALLOW_FROM the bot answers nobody; with an open DM policy strangers who reach the"
-    echo "  bot auto-spawn a DM session. Keys: \`${MISSING_KEYS}\`. See"
-    echo "  \`references/upgrade-playbook.md\` → 'Branch D'."
+  case "$DM_POLICY" in
+    open|pairing)
+      REASONS="${REASONS}  - FEISHU_DM_POLICY=${DM_POLICY}: every DM sender is admitted, and with no owner any first DM sender auto-spawns an owner-style DM session.
+"
+      ;;
+  esac
+  if [ -n "$BOUND_GROUPS" ] && [ -z "$ALLOW_GROUPS" ] && [ "$GROUP_POLICY" != "open" ]; then
+    REASONS="${REASONS}  - bound groups (${BOUND_GROUPS% }) and FEISHU_ALLOW_GROUPS empty: each bound group gets the reply ${REFUSAL} until its chat_id is listed.
+"
+  fi
+  if [ -n "$REASONS" ]; then
+    echo "- **Branch D** (feishu + security env to settle): MUST discuss"
+    echo "  with the user BEFORE the upgrade. Reasons:"
+    printf '%s' "$REASONS"
+    echo "  See \`references/upgrade-playbook.md\` → 'Branch D'."
   else
     echo "- **Branch C** (feishu + env configured): safe to proceed with"
     echo "  the standard upgrade sequence, then verify /setup behavior"
