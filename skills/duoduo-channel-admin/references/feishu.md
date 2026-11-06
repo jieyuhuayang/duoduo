@@ -137,6 +137,27 @@ FEISHU_ALLOW_GROUPS=oc_…             # groups the bot answers in (policy allow
 FEISHU_GROUP_CMD_USERS=ou_you,…      # grants /setup in groups whose descriptor has no bound_by
 ```
 
+### A new group (created with lark-cli or by hand)
+
+Under the default group `allowlist`, a group the bot was just added to is
+silent: a message there is admitted only when the group's `chat_id` is in
+`FEISHU_ALLOW_GROUPS`, or when the sender's open_id is in `FEISHU_ALLOW_FROM`
+(then only that sender, in any group). `FEISHU_BOT_OWNER` alone does not
+reach groups. So after creating a group the bot should answer:
+
+1. Take the `chat_id` (`oc_…`) from the create response or from the chat.
+2. Append it to `FEISHU_ALLOW_GROUPS` (comma-separated) in the env file of
+   the instance whose bot is in the group: `~/.config/duoduo/.env` for the
+   default app, `~/.config/duoduo/feishu.<name>.env` for a named one. Keep
+   the existing entries, and make sure the file ends with a newline before
+   appending a line.
+3. Restart that instance (`duoduo channel feishu stop` + `start`, with
+   `--instance <name>` for a named one); the lists are read at startup.
+   Its `effective access policy` line shows the new `allowGroupsCount`.
+
+Ask the owner before adding a group: every member of a listed group can
+use the bot there.
+
 When the user reports "strangers can DM my bot", check for an explicit
 `FEISHU_DM_POLICY=open` first; when "the bot answers nobody", read the
 startup `effective access policy` line. When the user reports "/setup does nothing on my bot's DM",
