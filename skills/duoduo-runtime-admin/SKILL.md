@@ -1,6 +1,6 @@
 ---
 name: duoduo-runtime-admin
-description: "Manage host-mode duoduo daemon settings, diagnostics, and the `duoduo session` / `duoduo job` / `duoduo spine` CLIs. Use for: daemon status, config, logs; runtime selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious prompts; the `duoduo memory` CLI; reading the Spine log; pruning the usage ledger; model profiles for third-party models (context caps, routing, subagent tiers); codex tool trimming; pi compaction sizing; session management (list, alias, notify or wake by name, archive); the main session (find, set, move, duplicates); job lifecycle from the CLI (list, read, archive, interrupt, reschedule). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 读 spine, 清理 usage, 给会话起名, 设置/迁移主会话, 唤醒/通知 session, 归档会话, 归档任务, 打断任务, 让任务再跑一次, 模型 profile, 裁剪 codex 工具, pi 只回一个字. Does NOT handle channel-kind settings (Feishu/ACP) — see duoduo-channel-admin."
+description: "Manage host-mode duoduo daemon settings, diagnostics, and the `duoduo session` / `duoduo job` / `duoduo spine` CLIs. Use for: daemon status, config, logs; runtime selection (Claude/Codex/Grok/Pi, ALADUO_DEFAULT_RUNTIME); ALADUO_* keys in ~/.config/duoduo/.env; refreshing subconscious prompts; the `duoduo memory` CLI; reading the Spine log; pruning the usage ledger; third-party model profiles (context caps, routing); codex tool trimming; pi compaction sizing; session management (list, alias, notify or wake by name, archive); the main session (find, set, move, duplicates); job lifecycle from the CLI (list, read, archive, interrupt, reschedule); temporary remote dashboard links (`duoduo dashboard share`). Chinese triggers: 启用 codex/grok/pi runtime, 设置默认 runtime, 打开 debug log, 关闭 telemetry, 调 cadence 频率, 查 daemon 配置/日志, 刷新潜意识, 读 spine, 清理 usage, 给会话起名, 设置/迁移主会话, 唤醒/通知 session, 归档会话, 归档任务, 打断任务, 让任务再跑一次, 模型 profile, 裁剪 codex 工具, pi 只回一个字, 远程/飞书侧边栏看 dashboard. Feishu/ACP channel settings: duoduo-channel-admin."
 ---
 
 # Duoduo Runtime Admin
@@ -81,9 +81,10 @@ Be precise:
   is skipped — each with a sentence naming the value and the valid ones.
   `void` is a channel value meant for plugins such as tether whose sessions
   never run a model; it is refused as the default, on a job, and on a partition.
-- Verify `codex` is installed and authenticated before routing work to it.
-  For `grok`, duoduo only checks the binary — verify the login yourself
-  before routing work to it. Explicit codex or grok that cannot be served
+- duoduo checks only the binary for both `codex` and `grok`
+  (`<cli> --version`), never the login. Verify the login yourself before
+  routing work to either: `codex login status` for codex; for grok, run a
+  first session and read its reply. Explicit codex or grok that cannot be served
   is a hard failure — the turn is refused with the reason, never run on
   Claude. Pi is the same posture: a pi session with no resolvable model
   fails with the fix named in the reply, never a silent Claude run.
@@ -324,6 +325,41 @@ partitions — a single day can be 10-30MB with megabyte-long tool results, and
 - `missing_partitions=` / `skipped_malformed=` in the header are disclosures,
   not errors: a day with no events writes no partition file, and a torn final
   line is a normal crash artifact.
+
+## Remote Dashboard (`duoduo dashboard share`, 0.8.9+)
+
+The owner can open this host's dashboard from any browser, or in the Feishu /
+Lark sidebar, without logging in to the host. The daemon starts a temporary
+tailcat tunnel to its read-only port; the page at `dashboard.openduo.app`
+connects through it. The link carries the key: whoever holds it can read the
+dashboard, event text included, until the share ends.
+
+```bash
+duoduo dashboard share              # start (or replace) a share for 60 minutes
+duoduo dashboard share --ttl 15     # a shorter share, in minutes
+duoduo dashboard share --status     # is one running, until when
+duoduo dashboard share --stop       # end it now
+```
+
+It prints three links and the expiry. Send the owner exactly one:
+
+| the owner is talking to you from | send |
+| --- | --- |
+| Feishu | the `feishu:` link (desktop opens it in the sidebar, mobile in a web view) |
+| Lark | the `lark:` link |
+| anywhere else | the `browser:` link |
+
+Rules:
+
+- Send the link to the owner's direct chat only. Never post it in a group,
+  a shared document, or a job's output.
+- Say when it expires, in the owner's time zone.
+- A new `share` replaces the previous one; the old link stops working.
+- A daemon restart ends the share.
+- `tailcat` must be installed at the version the daemon pins (the error names
+  it). On macOS: `brew install tailcat`.
+- An "upgrade it" screen on the page means this host's duoduo predates the
+  remote dashboard; the share itself is fine.
 
 ## Operating Rules
 

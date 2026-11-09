@@ -78,8 +78,9 @@ binary or env from your shell.
   means `claude`. Any other value, `void` included, stops the daemon at boot
   with a sentence naming it (before v0.8.4 it fell back to `claude` silently). Use a channel kind
   descriptor when only one surface should change. `grok` or `codex` here is a
-  hard failure (the turn is refused) if the CLI is missing or, for codex, not
-  logged in — neither falls back to Claude. Changing this key does not move
+  hard failure (the turn is refused) if the CLI is missing — neither falls
+  back to Claude; a codex that is not logged in fails its first turn with
+  codex's own authentication error. Changing this key does not move
   existing sessions: a session bound to another runtime refuses its next turn
   until it is `/clear`ed or the key is reverted (see SKILL.md, "Switching a
   session's runtime").

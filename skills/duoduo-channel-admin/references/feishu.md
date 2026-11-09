@@ -65,7 +65,7 @@ operator identity). Read the matrix top-to-bottom; the first match wins.
 | group    | yes         | bound_by present  | other              | plain-text refusal                                              |
 | group    | yes         | no bound_by       | allowlisted        | compact rebind card                                             |
 | group    | yes         | no bound_by       | not allowlisted    | plain-text refusal                                              |
-| p2p      | no          | —                 | owner (or zero-config) | auto-spawn to defaultWorkDir (owner DM; see below)           |
+| p2p      | no          | —                 | owner (zero-config: any sender, only with explicit `FEISHU_DM_POLICY=open\|pairing`) | auto-spawn to defaultWorkDir (owner DM; see below)           |
 | p2p      | no          | —                 | non-owner          | setup card (no ⌂)                                              |
 | p2p      | yes         | bound_by==owner   | owner              | plain-text refusal — "This is the owner's DM, bound to …"       |
 | p2p      | yes         | bound_by≠owner   | owner              | setup card (no ⌂) — descriptor drifted, let owner reassign      |
@@ -95,7 +95,7 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   `claude`). No card, no dropped message. The first message flows
   through ingress as normal.
 - Setup cards only show runtimes that the daemon reported as available
-  at boot. If Codex is missing from the card after `codex login`, restart
+  at boot. If Codex is missing from the card after installing codex, restart
   the daemon so the card list re-probes (message routing does not need it).
 - Changing an existing chat's runtime through the setup card is refused
   while that chat's session is bound to another runtime; the refusal lists
@@ -107,8 +107,10 @@ The bot owner's DM is the **zero-prerequisite control surface**:
   see [pi-runtime.md](../../duoduo-runtime-admin/references/pi-runtime.md).
 - The owner is the open_id the plugin reads at startup:
   `FEISHU_BOT_OWNER` env → fallback `FEISHU_ALLOW_FROM[0]` → none.
-- When there is none (zero-config), ANY first DM sender triggers auto-spawn
-  but `bound_by` is NOT persisted — see "Security hygiene" below.
+- When there is none (zero-config), every DM is denied unless
+  `FEISHU_DM_POLICY` is explicitly `open` or `pairing`; then ANY first DM
+  sender triggers auto-spawn but `bound_by` is NOT persisted — see
+  "Security hygiene" below.
 - **Main claim.** A configured owner's DM on the default instance also
   claims the main role when nobody holds it (checked again at every start).
   Zero-config and named instances never claim. Role details:
@@ -122,21 +124,59 @@ reset: `duoduo-runtime-admin` → `references/main-session.md`.
 
 ## Security hygiene
 
-v0.5 auto-spawn on owner DM changes the implicit trust boundary.
-Zero-config defaults are meant for bootstrap only.
+Both access policies default to `allowlist`, and `FEISHU_BOT_OWNER` is
+always admitted in direct messages. `FEISHU_DM_POLICY=open` or
+`FEISHU_DM_POLICY=pairing` (they behave the same) admits every DM sender;
+`FEISHU_GROUP_POLICY=open` admits every member of every group the bot is in.
+Use either for bootstrap only.
 
 Production `~/.config/duoduo/.env` should have:
 
 ```bash
 FEISHU_BOT_OWNER=ou_yourOpenId       # explicit owner — locks the owner DM, lets it claim main
-FEISHU_ALLOW_FROM=ou_you,ou_friend,… # additional DMs allowed as secondary
-FEISHU_DM_POLICY=allowlist           # refuse DMs from users not in ALLOW_FROM
-FEISHU_GROUP_POLICY=allowlist        # same for groups (see FEISHU_ALLOW_GROUPS)
+FEISHU_ALLOW_FROM=ou_you,ou_friend,… # extra DM senders; each may also use the bot in any group
+FEISHU_ALLOW_GROUPS=oc_…             # groups the bot answers in (policy allowlist is the default)
 FEISHU_GROUP_CMD_USERS=ou_you,…      # grants /setup in groups whose descriptor has no bound_by
 ```
 
-When the user reports "strangers can DM my bot", check `dmPolicy`
-first. When the user reports "/setup does nothing on my bot's DM",
+### A new group (created with lark-cli or by hand)
+
+Under the default group `allowlist`, a message in a group is admitted only
+when the group's `chat_id` is in `FEISHU_ALLOW_GROUPS`, or when the sender's
+open_id is in `FEISHU_ALLOW_FROM` (then only that sender, in any group).
+`FEISHU_BOT_OWNER` alone does not reach groups. A denied message gets the
+plain-text reply 「抱歉，您没有权限与此机器人对话。如需访问，请联系管理员。」.
+The access check runs before the @mention check, so in an unlisted group
+the bot sends that reply to every message it receives, mentioned or not.
+For a new group the bot should answer:
+
+1. Take the `chat_id` (`oc_…`) from the create response or from the chat.
+2. Add it to `FEISHU_ALLOW_GROUPS` in the env file of the instance whose
+   bot is in the group: `~/.config/duoduo/.env` for the default app,
+   `~/.config/duoduo/feishu.<name>.env` for a named one (named instances
+   inherit no `FEISHU_*` key from `.env`).
+   - The key exists: append `,oc_…` to its value. Never drop an entry.
+   - The key is absent: make sure the file ends with a newline, then add
+     one `FEISHU_ALLOW_GROUPS=oc_…` line.
+   - Never write a second `FEISHU_ALLOW_GROUPS` line.
+   `duoduo-runtime-admin`'s
+   [scripts/update_host_env.py](../../duoduo-runtime-admin/scripts/update_host_env.py)
+   does both safely: read with `--file <env file> get FEISHU_ALLOW_GROUPS`,
+   then write the full list with `--file <env file> set FEISHU_ALLOW_GROUPS
+   <old>,oc_…` (`set` replaces the value in place).
+3. Restart that instance (`duoduo channel feishu stop` + `start`, with
+   `--instance <name>` for a named one); the lists are read at startup.
+4. Check its startup line in `duoduo channel feishu logs [--instance <name>]`:
+   `[policy] effective access policy` shows the new `allowGroupsCount`.
+
+Ask the owner before adding a group: every member of a listed group can
+use the bot there.
+
+When the user reports "strangers can DM my bot", check for an explicit
+`FEISHU_DM_POLICY=open` or `pairing` first. When the bot replies
+「抱歉，您没有权限与此机器人对话。如需访问，请联系管理员。」, read the
+`[policy] effective access policy` line in
+`duoduo channel feishu logs [--instance <name>]`. When the user reports "/setup does nothing on my bot's DM",
 check whether their open_id matches `FEISHU_BOT_OWNER` (the refusal
 message says "This is the owner's DM, bound to …", which is the
 intended behavior).
