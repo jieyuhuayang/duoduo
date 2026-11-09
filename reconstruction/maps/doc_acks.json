@@ -1146,12 +1146,13 @@
    {"section":"5 日常运维命令","line":340,"hash":"d9709c0426541684","cites":["cli:runMemoryCommand"]},
    {"section":"5 日常运维命令","line":342,"hash":"e658d256afcd99c9","cites":["daemon:forgetMemoryEntry"]},
    {"section":"5 日常运维命令","line":346,"hash":"3221f4ee4431f959","cites":["cli:runSpineCommand"]},
-   {"section":"6 渠道适配器的安装与运维","line":374,"hash":"c104f184e4d20998","cites":["cli:isInstallTargetFilePath"]},
-   {"section":"6 渠道适配器的安装与运维","line":376,"hash":"cdfe1a12f9c39d23","cites":["cli:runUpgradeChannelPhase"]},
-   {"section":"6 渠道适配器的安装与运维","line":378,"hash":"afc5829a6506610e","cites":["cli:renderChannelNotInstalled","cli:runDeclaredChannelVerb"]},
-   {"section":"6 渠道适配器的安装与运维","line":380,"hash":"29c7f6a648d5ffa0","cites":["cli:channelVerbInSession","cli:defaultCallerVerdict","cli:runDeclaredChannelVerb"]},
-   {"section":"7 实测记录","line":480,"hash":"5bf8841d6ddba272","cites":["daemon:createDaemon"]},
-   {"section":"8 运维风险","line":501,"hash":"c165dbc9d7c86d53","cites":["daemon:createJobSessionFinalizer","daemon:createMetaSession","daemon:loadRegistryDedupStore","daemon:scanAndSpawnDueJobs","daemon:spineEventDedupStore"]}
+   {"section":"5 日常运维命令","line":363,"hash":"075d9da428362780","cites":["daemon:checkCodexAvailability"]},
+   {"section":"6 渠道适配器的安装与运维","line":376,"hash":"c104f184e4d20998","cites":["cli:isInstallTargetFilePath"]},
+   {"section":"6 渠道适配器的安装与运维","line":378,"hash":"cdfe1a12f9c39d23","cites":["cli:runUpgradeChannelPhase"]},
+   {"section":"6 渠道适配器的安装与运维","line":380,"hash":"afc5829a6506610e","cites":["cli:renderChannelNotInstalled","cli:runDeclaredChannelVerb"]},
+   {"section":"6 渠道适配器的安装与运维","line":382,"hash":"29c7f6a648d5ffa0","cites":["cli:channelVerbInSession","cli:defaultCallerVerdict","cli:runDeclaredChannelVerb"]},
+   {"section":"7 实测记录","line":482,"hash":"5bf8841d6ddba272","cites":["daemon:createDaemon"]},
+   {"section":"8 运维风险","line":503,"hash":"c165dbc9d7c86d53","cites":["daemon:createJobSessionFinalizer","daemon:createMetaSession","daemon:loadRegistryDedupStore","daemon:scanAndSpawnDueJobs","daemon:spineEventDedupStore"]}
   ] },
   "docs/DUODUO_FRAMEWORK_GUIDE.md": { "paragraphs": [
   ] },
