@@ -1,0 +1,38 @@
+{
+  "name": "duoduo-channel-telegram",
+  "version": "0.1.0",
+  "description": "Telegram channel adapter for duoduo (unofficial, private chats only)",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20.3"
+  },
+  "files": [
+    "plugin.mjs",
+    "config/",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "bash test/e2e.sh"
+  },
+  "aladuo": {
+    "channel": {
+      "type": "telegram",
+      "bin": "plugin.mjs",
+      "envAllowlist": [
+        "ALADUO_DAEMON_URL",
+        "ALADUO_DAEMON_SOCKET",
+        "ALADUO_DAEMON_TOKEN",
+        "ALADUO_RUNTIME_DIR",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_ALLOW_FROM",
+        "TELEGRAM_API_BASE",
+        "TELEGRAM_PROXY",
+        "TELEGRAM_STATE_DIR",
+        "TELEGRAM_LOG_LEVEL",
+        "TELEGRAM_OUTBOX_POLL_MS"
+      ]
+    }
+  }
+}
