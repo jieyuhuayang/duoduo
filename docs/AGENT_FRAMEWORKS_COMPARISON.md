@@ -2,7 +2,7 @@
 
 > 调研日期：2026-07-03。
 > 调研目标：理解三个项目各自的设计思路与实现逻辑，比较优劣，为构建**充分运用贝叶斯第一性原理、可持续自我迭代、擅长 long-horizon 金融预测任务的 agent** 提供选型与融合架构依据。
-> 版本对齐：本文关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 `@openduo/duoduo` **v0.8.8**，已逐条对照本仓库的还原源码 `reconstruction/recon/daemon.recon.js` 与出厂分区提示词 `subconscious/`（与 v0.8.8 npm 包 `bootstrap/subconscious/` 的内容相同）核实；v0.8.8 的 daemon 打包文件与 v0.8.7 逐字节相同。标"实测"的 duoduo 运行行为有两个来源：注明"早期版本"的来自 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) 记录的本机部署，v0.8.8 没有重新实测；注明"v0.8.4 的还原 daemon"的来自本仓库的场景测试（`reconstruction/scenarios/findings/`），v0.8.8 没有重跑这些场景，只静态核对了相关代码。hermes-agent 与 pi 的全部事实来自 2026-07-03 的调研（源码快照见附录），未随其上游更新，也未重新核实；横向对比（§4–§7）中涉及这两个项目的判断以该快照为准。
+> 版本对齐：本文关于 duoduo 机制的陈述（速览表的 duoduo 列、§1、§4 与 §5 的 duoduo 部分、§6 对 duoduo 机制的引用）对齐 `@openduo/duoduo` **v0.8.9**，已逐条对照本仓库的还原源码 `reconstruction/recon/daemon.recon.js` 与出厂分区提示词 `subconscious/` 核实；v0.8.9 相对 v0.8.8 改动的 daemon 代码（Claude 子进程环境、Codex 探测、job 到期计算、dashboard 用的新方法）不涉及本文引用的机制。标"实测"的 duoduo 运行行为有两个来源：注明"早期版本"的来自 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md) 记录的本机部署，v0.8.9 没有重新实测；注明"v0.8.4 的还原 daemon"的来自本仓库的场景测试（`reconstruction/scenarios/findings/`），v0.8.9 没有重跑这些场景，只静态核对了相关代码。hermes-agent 与 pi 的全部事实来自 2026-07-03 的调研（源码快照见附录），未随其上游更新，也未重新核实；横向对比（§4–§7）中涉及这两个项目的判断以该快照为准。
 >
 > 取证方式：duoduo 的事实来自本仓库对压缩运行时的还原源码（入门读 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)，逐机制证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)，部署与运维见 [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)，下文分别简称 GUIDE、INTERNALS、ARCHITECTURE）。本文按符号名引用 duoduo 代码，写作 `真名 (短名)` 或 `代码片段`（`真名`），短名是 beautify 后 `daemon.pretty.js` 中的 mangled 名，两种写法都由构建中的验证工具核对。hermes-agent 与 pi 的事实来自克隆源码后由独立分析 agent 的系统阅读，关键论断带 `文件:行号` 证据。
 
@@ -40,7 +40,7 @@ duoduo 是一个让大语言模型无人值守持续运行的程序；模型自�
 
 ### 1.2 架构与核心机制
 
-duoduo 是一个 daemon 进程，使用两个根目录：`~/aladuo` 是内核，存放 agent 的设定、提示词与记忆，由 git 管理，每个提交都是回滚点；`~/.aladuo` 是运行时数据（`var/`、`run/`）。控制面有三个入口：完整控制 JSON-RPC 走 unix socket（`~/.aladuo/run/daemon.sock`，文件权限 0600，所在目录必须归当前用户所有且权限为 0700，否则 daemon 拒绝启动）；`127.0.0.1:20233` 的 `/rpc` 只放行 6 个只读方法，同一端口的 `/dashboard` 返回包内的单文件页面 `dashboard.html`；带 bearer token 的远程完整控制监听只有在 `ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项同时设置时才开启（`resolveRemoteListenerConfig (Tkt)`）。
+duoduo 是一个 daemon 进程，使用两个根目录：`~/aladuo` 是内核，存放 agent 的设定、提示词与记忆，由 git 管理，每个提交都是回滚点；`~/.aladuo` 是运行时数据（`var/`、`run/`）。控制面有三个入口：完整控制 JSON-RPC 走 unix socket（`~/.aladuo/run/daemon.sock`，文件权限 0600，所在目录必须归当前用户所有且权限为 0700，否则 daemon 拒绝启动）；`127.0.0.1:20233` 的 `/rpc` 只放行 7 个只读方法，同一端口的 `/dashboard` 返回包内的单文件页面 `dashboard.html`；带 bearer token 的远程完整控制监听只有在 `ALADUO_DAEMON_HOST`、`ALADUO_DAEMON_TOKEN`、`ALADUO_REMOTE_PORT` 三项同时设置时才开启（`resolveRemoteListenerConfig (Tkt)`）。
 
 **机制一：事件日志先追加、后执行（`atomicAppendEvent (nn)`；网关入口 `appendBeforeExecuteGateway (Hfe)`，confirmed）。** 每条入站事件先由 `appendEventToPartition (AXe)` 追加一行到 `var/events/YYYY-MM-DD.jsonl`，再追加一行 by_id 索引，之后才写邮箱指针、唤醒会话执行；发给不运行模型的 void 会话的事件不写指针、不唤醒，改写成该会话的出站记录（INTERNALS 6.2）。这是两次写，不是原子事务：函数名里的 atomic 不表示两次写构成一个事务，进程在两次写之间退出时，事件在日志里有、索引里没有，按 id 读取时退回按日期扫描分区文件。
 
@@ -56,7 +56,7 @@ duoduo 是一个 daemon 进程，使用两个根目录：`~/aladuo` 是内核，
 
 后台分区总纲（`subconscious/CLAUDE.md`）的说法是：每次心跳通常唤醒一个分区，系统空闲时调度器可以按配置的上限多唤醒几个，每个分区做完就结束，除了写进文件的内容，不记得上一次。代码里这个上限固定为每次心跳至多两个分区：`main` 构造后台分区调度器时不传这个参数，也没有对应的环境变量（`e.maxPartitionsPerIdleTick ?? 2`（`createMetaSession`））。分区的运行顺序由纯文本轮转表 `playlist.md` 决定，agent 自己可以改写它。
 
-**机制五：记忆系统，代码测量、模型修改（INTERNALS 第 12 节，后台分区见第 11 节，confirmed）。** 一条记忆是否还在被使用，用图可达性度量：记忆板 `memory/CLAUDE.md`（上游 broadcast board）是唯一的根，沿 `[[slug]]` 链接走不到的节点是孤儿。daemon 只做两件事：只读检查（行数、行长、断链等测量，结果以任务单投给声明消费该信号的分区），以及默认关闭的遗忘 GC（`forgetMemoryEntry (gxe)`：两个实验开关都打开，文件在 `memory/topics/` 下、不可达、没有其他文件引用、最后修改已满 48 小时，才用 `git rm` 删除，被删文件可以从 git 历史找回）。在 v0.8.4 的还原 daemon 上实测，遗忘 GC 在默认的内核布局下提交失败：`git rm` 已经删除文件，带路径的 commit 因 pathspec 不匹配失败，删除停在暂存区，没有 "forget:" 提交，心跳日志也不报告（INTERNALS 12.3）；`forgetMemoryEntry` 的代码从 v0.5.5 到 v0.8.8 没有改动，v0.8.8 上没有重测。daemon 不修改任何记忆内容，内容的全部修改交给后台分区。
+**机制五：记忆系统，代码测量、模型修改（INTERNALS 第 12 节，后台分区见第 11 节，confirmed）。** 一条记忆是否还在被使用，用图可达性度量：记忆板 `memory/CLAUDE.md`（上游 broadcast board）是唯一的根，沿 `[[slug]]` 链接走不到的节点是孤儿。daemon 只做两件事：只读检查（行数、行长、断链等测量，结果以任务单投给声明消费该信号的分区），以及默认关闭的遗忘 GC（`forgetMemoryEntry (gxe)`：两个实验开关都打开，文件在 `memory/topics/` 下、不可达、没有其他文件引用、最后修改已满 48 小时，才用 `git rm` 删除，被删文件可以从 git 历史找回）。在 v0.8.4 的还原 daemon 上实测，遗忘 GC 在默认的内核布局下提交失败：`git rm` 已经删除文件，带路径的 commit 因 pathspec 不匹配失败，删除停在暂存区，没有 "forget:" 提交，心跳日志也不报告（INTERNALS 12.3）；`forgetMemoryEntry` 的代码从 v0.5.5 到 v0.8.9 没有改动，v0.8.9 上没有重测。daemon 不修改任何记忆内容，内容的全部修改交给后台分区。
 
 出厂四个分区的分工写在各自的提示词里：gradient-distiller 读事件日志、写证据碎片（fragment），此外只写自己的 `scan-gap.cursor`（任务单没读完时的续读进度，不是记忆证据），读完后删除自己收件箱里的这张任务单作为确认；pattern-tracker 是 `lesson-`、`groove-` 规则节点的唯一写者；intuition-weaver 是记忆板、效果记录（effectiveness）与实体档案的唯一写者；memory-committer 把记忆板、档案与规则节点的改动提交进 git，碎片与效果记录被 `.gitignore` 排除，不进 git。"事件 → 碎片 → 效果记录 → 修改记忆板"每一步都留下文件，提示词要求报告里的计数能从磁盘重新数出来（运行时不检查），用来防止模型编造统计数字。实体档案里的陈述带六种认知状态标签：`[observation]`、`[inference]`、`[instruction]`、`[conditional]`、`[hypothesis (unratified)]`、`[superseded]`。完整的循环是：经验写进事件日志，后台分区把它加工成碎片、效果记录和记忆板的修改，下一次会话经系统提示读到记忆板。
 

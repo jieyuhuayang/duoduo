@@ -12571,6 +12571,238 @@
         "kind",
         "ms"
       ]
+    },
+    "computeJobNextDue": {
+      "kind": "function",
+      "params": 5,
+      "literals": [
+        "@in ",
+        "never",
+        "once",
+        "string"
+      ],
+      "props": [
+        "getTime",
+        "isFinite",
+        "kind",
+        "length",
+        "min",
+        "ms",
+        "startsWith"
+      ]
+    },
+    "computeScheduleNextDue": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        "@every ",
+        "@in ",
+        "keepalive",
+        "once",
+        "string"
+      ],
+      "props": [
+        "CronExpressionParser",
+        "NaN",
+        "getTime",
+        "isFinite",
+        "isNaN",
+        "length",
+        "next",
+        "parse",
+        "startsWith",
+        "substring",
+        "toDate",
+        "trim"
+      ]
+    },
+    "resolveJobScheduleAnchor": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "failure",
+        "unknown"
+      ],
+      "props": [
+        "NaN",
+        "getTime",
+        "isFinite",
+        "last_result",
+        "last_run_at",
+        "last_run_started_at",
+        "last_scheduled_at"
+      ]
+    },
+    "computeJobNextRunAt": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "never"
+      ],
+      "props": [
+        "created_at",
+        "cron",
+        "getTime",
+        "isNaN",
+        "kind",
+        "ms",
+        "run_at",
+        "toISOString"
+      ]
+    },
+    "initJobScheduleModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "never"
+      ],
+      "props": [],
+      "values": [
+        "55490425ad7a1ea1",
+        "6567c5a2b7cd6794",
+        "b0021989cc6760e7"
+      ]
+    },
+    "isSpineActivityParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "window"
+      ]
+    },
+    "isDashboardShareParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "number"
+      ],
+      "props": [
+        "isInteger",
+        "ttl_minutes"
+      ]
+    },
+    "readSpineActivityWindow": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        ".jsonl"
+      ],
+      "props": [
+        "getTime",
+        "reverse",
+        "slice",
+        "toISOString"
+      ]
+    },
+    "DashboardShareError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "createDashboardShareManager": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " does not match the pinned ",
+        " the remote page is built from; install tailcat ",
+        "(unknown version)",
+        "SIGTERM",
+        "exit",
+        "tailcat ",
+        "the share was stopped or replaced while it was starting",
+        "ttl_minutes must be a positive integer",
+        "ttl_minutes must be at most "
+      ],
+      "props": [
+        "child",
+        "deps",
+        "expiresAt",
+        "floor",
+        "isInteger",
+        "kill",
+        "now",
+        "once",
+        "readTailcatVersion",
+        "spawnTailcat",
+        "tcpPort",
+        "timer",
+        "toISOString",
+        "trim",
+        "unref"
+      ]
+    },
+    "TAILCAT_PINNED_VERSION": {
+      "kind": "value",
+      "params": null,
+      "value": "cf615f279b096695",
+      "preview": "\"v0.7.0\"",
+      "readers": [
+        "lit: does not match the pinned ",
+        "lit: the remote page is built from; install tailcat ",
+        "lit:(unknown version)",
+        "lit:); install tailcat ",
+        "lit:SIGTERM",
+        "lit:cannot run `tailcat version` (",
+        "lit:exit",
+        "lit:ignore",
+        "lit:pipe",
+        "lit:tailcat",
+        "lit:tailcat ",
+        "lit:the share was stopped or replaced while it was starting",
+        "lit:ttl_minutes must be a positive integer",
+        "lit:ttl_minutes must be at most ",
+        "lit:version",
+        "prop:child",
+        "prop:deps",
+        "prop:expiresAt",
+        "prop:floor",
+        "prop:isInteger",
+        "prop:kill",
+        "prop:message",
+        "prop:now",
+        "prop:once",
+        "prop:readTailcatVersion",
+        "prop:spawnTailcat",
+        "prop:tcpPort",
+        "prop:timer",
+        "prop:toISOString",
+        "prop:trim",
+        "prop:unref"
+      ]
+    },
+    "DASHBOARD_SHARE_DEFAULT_TTL_MINUTES": {
+      "kind": "value",
+      "params": null,
+      "value": "39fa9ec190eee7b6",
+      "preview": "60",
+      "readers": [
+        "lit: does not match the pinned ",
+        "lit: the remote page is built from; install tailcat ",
+        "lit:(unknown version)",
+        "lit:SIGTERM",
+        "lit:exit",
+        "lit:tailcat ",
+        "lit:the share was stopped or replaced while it was starting",
+        "lit:ttl_minutes must be a positive integer",
+        "lit:ttl_minutes must be at most ",
+        "prop:child",
+        "prop:deps",
+        "prop:expiresAt",
+        "prop:floor",
+        "prop:isInteger",
+        "prop:kill",
+        "prop:now",
+        "prop:once",
+        "prop:readTailcatVersion",
+        "prop:spawnTailcat",
+        "prop:tcpPort",
+        "prop:timer",
+        "prop:toISOString",
+        "prop:trim",
+        "prop:unref"
+      ]
     }
   }
 }

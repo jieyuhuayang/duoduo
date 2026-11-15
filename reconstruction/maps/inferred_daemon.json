@@ -771,5 +771,17 @@
   "bpt": "renderAmbiguousMainAliasNotice",
   "To": "initAgentSdkAdapterModule",
   "op": "initCodexAppServerModule",
-  "kve": "isJobScheduleDue"
+  "kve": "isJobScheduleDue",
+  "Sve": "computeJobNextDue",
+  "Yct": "computeScheduleNextDue",
+  "e6": "resolveJobScheduleAnchor",
+  "xve": "computeJobNextRunAt",
+  "oS": "initJobScheduleModule",
+  "QR": "isSpineActivityParams",
+  "jU": "isDashboardShareParams",
+  "ske": "readSpineActivityWindow",
+  "ns": "DashboardShareError",
+  "jxe": "createDashboardShareManager",
+  "kA": "TAILCAT_PINNED_VERSION",
+  "Hht": "DASHBOARD_SHARE_DEFAULT_TTL_MINUTES"
 }
