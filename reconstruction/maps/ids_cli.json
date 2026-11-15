@@ -60,10 +60,10 @@
     "since": "v0.8.7"
   },
   "restartDaemonWithReason": {
-    "id": "f_e09141f31101cc3a",
+    "id": "f_810d0707b970bc59",
     "kind": "function",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "runChannelCommand": {
     "id": "f_aa55b3f7177d68a3",
@@ -102,9 +102,12 @@
     "since": "v0.8.7"
   },
   "writeRestartReasonFile": {
-    "id": "f_452476ce3d9a0239",
+    "id": "f_452476ce3d9a0239+c:f263e66f5495",
     "kind": "function",
-    "disamb": null,
-    "since": "v0.8.7"
+    "disamb": {
+      "by": "c",
+      "value": "c:f263e66f5495"
+    },
+    "since": "v0.8.9"
   }
 }

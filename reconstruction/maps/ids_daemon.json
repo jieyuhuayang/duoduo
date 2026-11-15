@@ -12,22 +12,22 @@
     "since": "v0.8.7"
   },
   "MemoryReadRpcError": {
-    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:1/2",
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:1/3",
     "kind": "function",
     "disamb": {
       "by": "p",
-      "value": "c:4f53cda18c2b+p:1/2"
+      "value": "c:4f53cda18c2b+p:1/3"
     },
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "SpineRpcParamsError": {
-    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:2/2",
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:3/3",
     "kind": "function",
     "disamb": {
       "by": "p",
-      "value": "c:4f53cda18c2b+p:2/2"
+      "value": "c:4f53cda18c2b+p:3/3"
     },
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "accumulateDrainRecordIntoSummary": {
     "id": "f_2394ef231d23a5aa",
@@ -1509,10 +1509,10 @@
     "since": "v0.8.7"
   },
   "initAgentSdkAdapterModule": {
-    "id": "m_c72510485cd6d727",
+    "id": "m_1d770568eaae1c53",
     "kind": "moduleInit",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "initBoardLintModule": {
     "id": "m_1b8f48d6a3ead917",
@@ -1563,10 +1563,10 @@
     "since": "v0.8.7"
   },
   "initCodexAppServerModule": {
-    "id": "m_23280deb3a4cf3a0",
+    "id": "m_2de02137b71bdf7e",
     "kind": "moduleInit",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "initEntityLintModule": {
     "id": "m_a92b5ff222a14919",
@@ -2031,10 +2031,10 @@
     "since": "v0.8.7"
   },
   "isJobScheduleDue": {
-    "id": "f_b3fbd169d7891898",
+    "id": "f_18d073ed3dff8fbd",
     "kind": "function",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "isJobSessionKeyKind": {
     "id": "f_c238a3a01724ced6",
