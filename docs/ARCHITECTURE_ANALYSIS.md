@@ -1,7 +1,7 @@
 # duoduo 部署与运维架构分析
 
 > 对齐版本：`@openduo/duoduo` **v0.8.8**（npm 运行时）与 `openduo/duoduo` GitHub 仓库。
-> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.8 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.8 的行为，以代码为准（v0.8.5 与 v0.8.6 的 cli 打包文件都与 v0.8.4 逐字节相同，v0.8.7 的 cli 增加了主会话、渠道具名实例与会话内调用方判定；v0.8.7 的 `bootstrap/` 只比 v0.8.6 多出 `roles/main.md` 与 `roles/member.md`；v0.8.8 的 daemon 与 cli 打包文件都与 v0.8.7 逐字节相同，`bootstrap/` 只改了 `roles/main.md` 与 `config/feishu.md`）；其中注明"在 v0.8.4 的还原 daemon 上实测"的结论来自本仓库的场景测试（[`../reconstruction/scenarios/findings/`](../reconstruction/scenarios/findings/)），测试对象是还原源码启动的 daemon，不是本机部署。§7 汇总本机部署的实测记录，每条注明测量时的版本（v0.6.1 或 v0.7.1）；这些部署没有在 v0.8.x 上重做，其中控制面探测（§7.5）的结论已在 v0.8.4 的还原 daemon 上复测（§4）。
+> 证据来源：上游仓库的 README 与运维技能（`skills/`）；v0.8.8 包内文件（`bin/duoduo`、`bootstrap/`）；还原源码（[`../reconstruction/`](../reconstruction/)）；本机部署实测。§1–§6 与 §8 描述 v0.8.8 的行为，以代码为准（v0.8.5 与 v0.8.6 的 cli 打包文件都与 v0.8.4 逐字节相同，v0.8.7 的 cli 增加了主会话、渠道具名实例与会话内调用方判定；v0.8.7 的 `bootstrap/` 只比 v0.8.6 多出 `roles/main.md` 与 `roles/member.md`；v0.8.8 的 daemon 与 cli 打包文件都与 v0.8.7 逐字节相同，`bootstrap/` 只改了 `roles/main.md` 与 `config/feishu.md`）；其中注明"在 v0.8.4 的还原 daemon 上实测"的结论来自本仓库的场景测试（[`../reconstruction/scenarios/findings/`](../reconstruction/scenarios/findings/)），测试对象是还原源码启动的 daemon，不是本机部署。§7 汇总本机部署的实测记录，每条注明测量时的版本（v0.6.1、v0.7.1 或 v0.8.8）；§7.1–§7.6 的部署没有在 v0.8.x 上重做，其中控制面探测（§7.5）的结论已在 v0.8.4 的还原 daemon 上复测（§4）；§7.7 是 v0.8.8 上的重装与 systemd 开机自启记录。
 > 引用写法与置信标注都与 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md) 相同：`真名 (短名)` 或 `代码片段`（`真名`），不写行号；cli bundle 里的符号写作 `cli:真名`。机制主张标 `confirmed`（主张的核心由可检查的引用、包内文件原文或否定性证据支撑）或 `未证实推测`（写明缺什么证据）。cli bundle 里有一批函数还没有真名，只在这些函数里读到的 CLI 行为，本文照样写出运维结论，但标 `未证实推测` 并注明"cli 函数无真名"，这类项在 INTERNALS 14.4 汇总；这些函数打印的字符串可以直接引用。
 >
 > **姊妹篇**：本文是部署与运维层面的分析。入门与设计思路见 [`DUODUO_FRAMEWORK_GUIDE.md`](./DUODUO_FRAMEWORK_GUIDE.md)（下称 GUIDE）；逐机制的代码证据见 [`AGENT_INTERNALS_ANALYSIS.md`](./AGENT_INTERNALS_ANALYSIS.md)（下称 INTERNALS）；还原方法与可运行产物见 [`SOURCE_RECONSTRUCTION.md`](./SOURCE_RECONSTRUCTION.md) 与 [`../reconstruction/`](../reconstruction/)。
@@ -385,6 +385,10 @@ duoduo channel feishu start                       # 或 duoduo channel acp start
 
 **环境与凭据。**渠道凭据放在 `~/.config/duoduo/.env`，CLI 在 `channel <kind> start` 之前读入它（§2.4）；但传给适配器子进程的环境只有一组基础变量（`PATH`、`HOME`、`LANG` 等）、daemon 连接变量，以及适配器包清单 envAllowlist 列出的键（未证实推测，理由同上，见 INTERNALS 9.3）。`@openduo/channel-feishu` 0.8.8 的清单（npm 上该版本 `package.json` 的 `aladuo.channel`，envAllowlist 与 0.8.7 相同）列出凭据、`FEISHU_BOT_OWNER`、准入与 `FEISHU_CS_*` 等键，并声明 `forward`、`send`、`ask` 三个动词（0.8.7 只有前两个）；清单不含 `FEISHU_GROUP_CMD_USERS`、`FEISHU_STREAMING_CARD`、`FEISHU_REACTION_NOTIFICATIONS`、`FEISHU_LOCALE`，所以按上面的规则，经 CLI 启动时这四个变量写在 `.env` 或 shell 里都传不进飞书适配器，CHANGELOG 说提问卡片的文字跟随的 `FEISHU_LOCALE` 也在其中（清单内容 confirmed；传递规则未证实推测，同上）。改了渠道凭据只需重启该渠道；改了 `ALADUO_*` 要重启 daemon（技能原文）。凭据不应写进 Markdown 配置：种类文件的 `<kind>:` 块会随每次入站消息原样返回给适配器（INTERNALS 9.3）。
 
+**飞书适配器的状态目录与默认工作目录（v0.8.8）。**飞书适配器把自己的状态写在运行时目录之外。它的缓存目录默认是 `~/.cache/feishu-channel`，`FEISHU_MESSAGE_CACHE_DIR` 可以改这个位置（`messageCacheDir:"~/.cache/feishu-channel"`，feishu-gateway.js 字面量，confirmed）。目录里的 `watched-sessions.json` 记录适配器关注的会话键，`messages-*.jsonl` 缓存收到的消息（confirmed：字面量 `"watched-sessions.json"` 与本机目录内容）。所以移走或重建 `~/.aladuo` 不会清除适配器的状态。适配器每次启动都为 `watched-sessions.json` 里的会话做一次修复（日志 `watched session self-repair complete`），并向 daemon 声明渠道能力。在 v0.8.8 的本机部署上，这一步在一个新建的运行时目录里为旧会话键建了一个会话目录，其中的 `state.json` 只有 `channel_capabilities`，没有 `cwd`（§7.7）。如果重装时要从干净状态开始，就把这个缓存目录一起移走。
+
+适配器的默认工作目录在它与 daemon 握手时决定：先取渠道种类配置的 `new_session_workspace`，没有时取 daemon 报告的 `work_dir`（日志 `daemon handshake: resolved workspace` 同时打印这两个值；feishu-gateway.js，confirmed）。适配器自己环境里的 `ALADUO_WORK_DIR`（没有时取进程的当前目录，`workDir:process.cwd()`）只是握手前的初值，跳过握手的 `FEISHU_CS_MODE` 部署才一直使用它（confirmed，同上）。owner 私聊自动建会话时，`cwd_abs` 用的就是这个默认工作目录（confirmed，同上）。所以要改飞书会话的工作目录，应改 daemon 的 `work_dir` 或种类的 `new_session_workspace`，不必给适配器另设变量。`duoduo channel feishu doctor` 连不上 daemon 时，它的 "project discovery" 一项按后备值列目录；在 v0.8.8 的本机部署上，daemon 停止、`.env` 里没有 `ALADUO_WORK_DIR` 时，这一项列出的是适配器包目录，这不代表运行中的适配器用错了目录。
+
 ---
 
 ## 7 实测记录
@@ -494,6 +498,50 @@ $ curl -s -H 'Content-Type: application/json' \
 | 重启恢复 | 重启后 `runtime_id` 不变，会话与事件日志从文件重建 |
 | 后台分区 | 4 个分区加载，心跳 every 37min |
 
+### 7.7 Linux 上的开机自启与重装（v0.8.8，2026-11-15）
+
+Linux 上没有服务管理器托管 daemon 和渠道适配器，主机重启后两者都不会自己回来。CLI 在 Linux 上直接派生 daemon，再派生适配器，然后退出（§5.2、§6）。本机在 v0.6.1 部署后的一次主机重启就是这样：daemon 停了，没有任何提示。本机的做法是用一个用户级 systemd 服务，在开机时依次执行 CLI 的两条启动命令。服务调用 CLI，不直接运行 `daemon.js`，因为 CLI 在启动 daemon 之前会把 `config.json` 里的 `authSource` 与 `workDir` 放进 daemon 的环境（§2.4）；直接运行 `daemon.js` 就要把这些值另写进服务的环境。
+
+```ini
+# ~/.config/systemd/user/duoduo.service
+[Unit]
+Description=duoduo daemon and Feishu channel
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=<工作目录>
+Environment=PATH=<node 所在目录>:/usr/local/bin:/usr/bin:/bin
+Environment=DUODUO_NODE_BIN=<node 所在目录>/node
+# 开机时网络可能晚于用户级 systemd 就绪：最多等 2 分钟，直到能解析飞书域名
+ExecStartPre=/bin/sh -c 'for i in $(seq 60); do getent hosts open.feishu.cn >/dev/null && exit 0; sleep 2; done; exit 0'
+ExecStart=<node 所在目录>/duoduo daemon start
+ExecStart=<node 所在目录>/duoduo channel feishu start
+ExecStop=-<node 所在目录>/duoduo channel feishu stop
+ExecStop=-<node 所在目录>/duoduo daemon stop
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target
+```
+
+这个服务的几个取值各有原因。`Type=oneshot` 加 `RemainAfterExit=yes` 让服务在 CLI 退出后保持 active；CLI 派生的两个 detached 进程留在服务的 cgroup 里，`systemctl --user stop duoduo` 先执行两条 stop 命令，再结束 cgroup 里剩下的进程。`PATH` 要写明 node 所在的目录，因为开机时的用户级 systemd 没有 shell 启动文件设置的 `PATH`，nvm 安装的 node 不在默认路径里；`DUODUO_NODE_BIN` 也写在服务里，因为只有 `bin/duoduo` wrapper 读它（§2.4）。开机后不登录也要启动，就要为这个用户开启 linger（`loginctl enable-linger <用户>`）。启用服务用 `systemctl --user daemon-reload` 再 `systemctl --user enable --now duoduo`。
+
+在 v0.8.8 上实测了以下结果；主机重启后的行为未实测。
+
+- `enable --now` 之后，`systemctl --user status duoduo` 显示 daemon（`daemon.js`）与飞书适配器（`plugin.js`）两个进程都在服务的 cgroup 里。
+- `stop` 之后两个进程都退出；再 `start`，`duoduo daemon status` 报告 `version: 0.8.8`、`healthy: yes`，`work_dir` 是 `config.json` 里的值，与执行命令时所在的目录无关。
+- 适配器日志出现 `ws client ready`，握手解析出的工作目录也是 daemon 的 `work_dir`（§6）。
+
+用这个服务托管之后，日常运维按下面的规则操作：
+
+1. 重启 daemon 与适配器时，执行 `systemctl --user restart duoduo`，不执行 `duoduo daemon restart`。从终端执行 CLI 命令派生的新进程属于那个终端，不在服务的 cgroup 里；服务仍显示 active，但 `systemctl --user status` 不再列出这些进程。
+2. 执行 `duoduo upgrade` 之后，再执行一次 `systemctl --user restart duoduo`，原因同上。
+3. 运行 `duoduo channel feishu doctor` 之前，先执行 `duoduo channel feishu stop`（`doctor` 要求适配器已停止，§6），完成后执行 `systemctl --user restart duoduo`。
+4. 这个服务只在开机时启动一次，不在进程崩溃后拉起（§8）。如果怀疑进程已经退出，执行 `duoduo daemon status` 与 `duoduo channel feishu status` 检查。
+
+同一天的重装中还观察到两件事。第一，本机 npm 的全局安装默认拦截安装脚本，被拦下的包括 `@openduo/duoduo` 自己的 `postinstall`。这个脚本只检查 Claude Code 的原生二进制是否在 `node_modules` 里，只打印警告，不安装任何东西（包内 `scripts/postinstall.mjs` 原文），所以被拦下不影响运行；需要确认时，在包目录里执行 `node scripts/postinstall.mjs`。第二，把旧的 `~/aladuo`、`~/.aladuo` 和 `~/.config/duoduo` 移走后，飞书适配器的旧状态仍在 `~/.cache/feishu-channel` 里，新适配器读到了旧会话键（§6）；重装时把这个目录一起移走。
+
 ---
 
 ## 8 运维风险
@@ -503,7 +551,7 @@ $ curl -s -H 'Content-Type: application/json' \
 - **压缩发布。**运行时代码对人不可读，调试与审计只能依靠运行时的可观测面（文件、事件日志、RPC、CLI）、官方 issue 流程，以及本仓库的还原源码（[`../reconstruction/`](../reconstruction/)）。
 - **后台模型费用取决于外部事件，job 也算在内。**心跳按 `ALADUO_CADENCE_INTERVAL_MS`（默认 37 分钟）定时触发，不论前台是否活跃（README 所说的 "runs on a cadence regardless of foreground activity" 指的是心跳本身）；但只有外部事件或三个记忆目录（`memory/fragments`、`memory/entities`、`memory/topics`）自上一次心跳以来有变化，心跳才运行分区、调用模型（`activity gate: skipping tick (fingerprint unchanged)`（`createMetaSession`），confirmed）。job 会话启动时写的 `job.spawn` 和结束时写的 `job.complete`、`job.fail` 来源是 `job`，算外部事件（`kind: "job",`（`createJobSessionFinalizer`））；60 秒扫描器为到期 job 写的那条 `job.spawn` 来源是 `cadence`，属于内部来源，不算（`kind: "cadence"`（`scanAndSpawnDueJobs`））。所以一个周期 job 除了自己的模型费用，还会让下一次心跳运行分区；只改记忆板 `memory/CLAUDE.md` 不会，daemon 启动后的第一次心跳总会运行。机制见 GUIDE 3.3 与 5.2，代码证据见 INTERNALS 11.2 与附录 B.1。要降低后台费用，可以调大心跳间隔、减少周期 job，或停用分区。
 - **分区提示词不随升级更新。**npm 升级不覆盖内核里已有的分区提示词，需要按 §5.3 的流程显式刷新；不刷新时，新版运行时新增的记忆检查对带旧契约声明的分区不生效。
-- **渠道适配器没有自动重启。**适配器进程由 CLI 以 detached 方式启动，之后没有任何进程在它崩溃或主机重启后把它拉起来：daemon bundle 里没有启动渠道适配器的代码，macOS 的 launchd 服务只托管 daemon 本身（confirmed，否定性证据：daemon bundle 中不含适配器的 `pid.json`、`plugin.log` 路径；主机重启后的行为未实测）。`duoduo upgrade` 只重启它升级过的渠道，`duoduo channel install` 不重启任何进程（§6）。所以要在主机重启、适配器崩溃或 daemon 重启之后用 `duoduo channel <kind> status` 检查。
+- **渠道适配器没有自动重启。**适配器进程由 CLI 以 detached 方式启动，之后没有任何进程在它崩溃或主机重启后把它拉起来：daemon bundle 里没有启动渠道适配器的代码，macOS 的 launchd 服务只托管 daemon 本身（confirmed，否定性证据：daemon bundle 中不含适配器的 `pid.json`、`plugin.log` 路径；主机重启后的行为未实测）。`duoduo upgrade` 只重启它升级过的渠道，`duoduo channel install` 不重启任何进程（§6）。所以要在主机重启、适配器崩溃或 daemon 重启之后用 `duoduo channel <kind> status` 检查。Linux 上可以用 systemd 用户服务在开机时启动 daemon 与适配器（§7.7），但这个服务同样不在进程崩溃后拉起它们。
 - **usage 账本没有自动保留。**`var/usage/<session_key>.jsonl` 只追加、不清理，长驻主机上会累积到几百 MB，需要按 `duoduo-runtime-admin` 技能的 usage 账本维护流程（`references/usage-archive.md`）手动归档。
 - **去重文件只增不减。**`var/registry/dedup.jsonl` 为每个带幂等键的入站消息追加一行，v0.8.4 起带 `idempotency_key` 的 `session.notify` 与带 `dedup_key` 的 `spine.record` 也各追加一行，没有淘汰或清空的代码，首次使用时整个文件被装进内存（`spineEventDedupStore (lI)`、`loadRegistryDedupStore (_v)`，confirmed；代码证据见 INTERNALS 5.3）。每个不同的键只写一行、重发不加行，已在 v0.8.4 的还原 daemon 上实测；文件的增长速度取决于渠道是否为每条消息提供幂等键，长期增长本文未实测。
 - **只读端口能读到全部事件正文。**本机 TCP 端口放行的 `spine.tail` 不做脱敏，返回事件日志里的原始事件（§4；confirmed，在 v0.8.4 的还原 daemon 上实测，见 INTERNALS 6.1）。端口只监听 `127.0.0.1`，但本机任何用户的任何进程都能连上它，这与 unix socket 只对同一操作系统用户开放不同。在多用户主机上，需要用防火墙规则或进程隔离限制谁能连这个端口。
@@ -524,6 +572,8 @@ $ curl -s -H 'Content-Type: application/json' \
 | 默认端口 | 20233（只读 TCP，只监听 127.0.0.1） |
 | 默认心跳间隔 | 37 分钟（`ALADUO_CADENCE_INTERVAL_MS`，默认 2220000 毫秒） |
 | daemon 日志 | macOS：`run/daemon.stderr.log`；其他平台：`duoduo daemon logs`（`run/daemon-supervisor.log`） |
+| 开机自启（Linux） | 用户级 systemd 服务依次执行 `duoduo daemon start` 与 `duoduo channel <kind> start`；托管后用 `systemctl --user restart <服务>` 重启，`duoduo upgrade` 之后也要执行一次（§7.7） |
+| 飞书适配器状态 | `~/.cache/feishu-channel`（`FEISHU_MESSAGE_CACHE_DIR` 可改），在运行时目录之外，重装时一起移走（§6） |
 | 读事件日志 | `duoduo spine cat …`（对话记录）、`duoduo spine show <event-id>`（单条事件） |
 | 重启 | `duoduo daemon restart -r "<改了什么>" [--wake <会话或别名>]` |
 | 升级 | `duoduo upgrade [version] [--wake <会话或别名>]`；手工等价步骤不升级渠道包；升级到 v0.8.4 前先核对所有写下的 `runtime` 值与 pi 的 DeepSeek Flash 模型 id，升级到 v0.8.5 前核对所有 job 的 `cwd_rel`；升级到 v0.8.6 要同时重装飞书渠道包；升级到 v0.8.7 要重装核心包、`@openduo/protocol` 0.8.6 与飞书渠道包，并重启 daemon 和每一个飞书实例（§5.3） |

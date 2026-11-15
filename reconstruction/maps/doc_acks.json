@@ -1151,8 +1151,8 @@
    {"section":"6 渠道适配器的安装与运维","line":378,"hash":"cdfe1a12f9c39d23","cites":["cli:runUpgradeChannelPhase"]},
    {"section":"6 渠道适配器的安装与运维","line":380,"hash":"afc5829a6506610e","cites":["cli:renderChannelNotInstalled","cli:runDeclaredChannelVerb"]},
    {"section":"6 渠道适配器的安装与运维","line":382,"hash":"29c7f6a648d5ffa0","cites":["cli:channelVerbInSession","cli:defaultCallerVerdict","cli:runDeclaredChannelVerb"]},
-   {"section":"7 实测记录","line":482,"hash":"5bf8841d6ddba272","cites":["daemon:createDaemon"]},
-   {"section":"8 运维风险","line":503,"hash":"c165dbc9d7c86d53","cites":["daemon:createJobSessionFinalizer","daemon:createMetaSession","daemon:loadRegistryDedupStore","daemon:scanAndSpawnDueJobs","daemon:spineEventDedupStore"]}
+   {"section":"7 实测记录","line":486,"hash":"5bf8841d6ddba272","cites":["daemon:createDaemon"]},
+   {"section":"8 运维风险","line":551,"hash":"ba4c7b16ada8ec2d","cites":["daemon:createJobSessionFinalizer","daemon:createMetaSession","daemon:loadRegistryDedupStore","daemon:scanAndSpawnDueJobs","daemon:spineEventDedupStore"]}
   ] },
   "docs/DUODUO_FRAMEWORK_GUIDE.md": { "paragraphs": [
   ] },
@@ -1185,9 +1185,9 @@
    {"section":"On a version bump, run `bump.sh` before `rebuild.sh`","line":175,"hash":"5107c0cc34e867dd","cites":["cli:main"]},
    {"section":"Running / verifying the actual runtime","line":261,"hash":"64a2c717d6a0bf65","cites":["daemon:hostDotEnvPath","daemon:resolveRuntimePaths"]},
    {"section":"Running / verifying the actual runtime","line":298,"hash":"faba464334c315fb","cites":["daemon:loadHostDotEnv"]},
-   {"section":"duoduo runtime architecture (what the docs describe)","line":304,"hash":"b5f25b5a572574b6","cites":["daemon:acquireSessionDrainLock","daemon:appendBeforeExecuteGateway","daemon:atomicAppendEvent","daemon:buildSystemPromptForChannelConfig","daemon:buildTransientUserBlocks","daemon:createSpineEvent","daemon:renderPromptLayers","daemon:resolveDefaultRuntime","daemon:resolveMainSession","daemon:runCadenceTick","daemon:runMemoryCheckTick","daemon:validateKnownRuntimeValue","daemon:validateRunnableRuntimeValue"]},
-   {"section":"Writing / editing the analysis docs","line":315,"hash":"8f61a1a0f7bbb5fa","cites":["cli:main","daemon:atomicAppendEvent","daemon:drainSessionMailbox"]},
-   {"section":"Writing / editing the analysis docs","line":324,"hash":"70d9af56f4d6836a","cites":["daemon:initMailboxDrainRunnerModule"]}
+   {"section":"duoduo runtime architecture (what the docs describe)","line":306,"hash":"b5f25b5a572574b6","cites":["daemon:acquireSessionDrainLock","daemon:appendBeforeExecuteGateway","daemon:atomicAppendEvent","daemon:buildSystemPromptForChannelConfig","daemon:buildTransientUserBlocks","daemon:createSpineEvent","daemon:renderPromptLayers","daemon:resolveDefaultRuntime","daemon:resolveMainSession","daemon:runCadenceTick","daemon:runMemoryCheckTick","daemon:validateKnownRuntimeValue","daemon:validateRunnableRuntimeValue"]},
+   {"section":"Writing / editing the analysis docs","line":317,"hash":"8f61a1a0f7bbb5fa","cites":["cli:main","daemon:atomicAppendEvent","daemon:drainSessionMailbox"]},
+   {"section":"Writing / editing the analysis docs","line":326,"hash":"70d9af56f4d6836a","cites":["daemon:initMailboxDrainRunnerModule"]}
   ] }
  },
  "symbols": {
