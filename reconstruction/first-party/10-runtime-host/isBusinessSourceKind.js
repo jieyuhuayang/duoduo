@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: isBusinessSourceKind  (minified: IS, daemon.pretty.js:67295)
+// symbol: isBusinessSourceKind  (minified: CS, daemon.pretty.js:67480)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isBusinessSourceKind(kind) {
-    return !!kind && !Cft.has(kind)
+    return !!kind && !opt.has(kind)
 }

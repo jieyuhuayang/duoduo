@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: readGapLintDayEvents  (minified: wke, daemon.pretty.js:69073)
+// symbol: readGapLintDayEvents  (minified: Fke, daemon.pretty.js:69258)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.4 (maps/history_daemon.json)
 // locals: 8 renamed — 1 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,7 +11,7 @@ function readGapLintDayEvents(filePath) {
     let events = [],
         content;
     try {
-        content = du.readFileSync(filePath, "utf8")
+        content = fu.readFileSync(filePath, "utf8")
     } catch (err) {
         return {
             events,
@@ -28,12 +28,12 @@ function readGapLintDayEvents(filePath) {
             continue
         }
         if (typeof event.ts != "string") continue;
-        let msOfDay = tA(event.ts);
+        let msOfDay = aA(event.ts);
         if (msOfDay === null) continue;
         let sourceKind = event.source?.kind;
-        typeof sourceKind != "string" || sourceKind === "" || Qg.has(sourceKind) || events.push({
+        typeof sourceKind != "string" || sourceKind === "" || ry.has(sourceKind) || events.push({
             msOfDay,
-            interaction: emt.has(event.type ?? "")
+            interaction: Pmt.has(event.type ?? "")
         })
     }
     return {

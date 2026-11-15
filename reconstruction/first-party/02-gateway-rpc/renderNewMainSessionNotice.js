@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: renderNewMainSessionNotice  (minified: Bft, daemon.pretty.js:90222)
+// symbol: renderNewMainSessionNotice  (minified: ypt, daemon.pretty.js:90404)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.7 (high): The session is told when it becomes main and tells its owner in its own words.

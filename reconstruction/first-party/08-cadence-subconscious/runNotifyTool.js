@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: runNotifyTool  (minified: Kg, daemon.pretty.js:66790)
+// symbol: runNotifyTool  (minified: Qg, daemon.pretty.js:66975)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.5.1, v0.8.0, v0.8.2, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 30 renamed — 7 from the code at the binding (rule), 23 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -21,7 +21,7 @@ async function runNotifyTool(input, ctx) {
         let notifyContent = input.notify_content?.trim();
         if (!notifyContent) throw new Error("notify_content is required and must not be empty.");
         let notifyDepth = ctx.notifyDepth ?? 0;
-        if (notifyDepth >= bwe) throw new Error(`Notify depth limit exceeded (max ${bwe}). This notification chain is too deep — likely a loop.`);
+        if (notifyDepth >= Owe) throw new Error(`Notify depth limit exceeded (max ${Owe}). This notification chain is too deep — likely a loop.`);
         if (input.target_session_key?.trim() === sessionKey) throw new Error(`Cannot notify self (session_key=${sessionKey}). Notify must target a different session.`);
         let sourceKind = sessionContextKind ? sessionContextKind === "foreground" ? "channel" : sessionContextKind : classifyNotifySessionKind(sessionKey),
             inReplyTo = input.in_reply_to?.trim() || void 0,

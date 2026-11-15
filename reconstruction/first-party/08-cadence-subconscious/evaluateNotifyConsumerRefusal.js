@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: evaluateNotifyConsumerRefusal  (minified: al, daemon.pretty.js:66041)
+// symbol: evaluateNotifyConsumerRefusal  (minified: ul, daemon.pretty.js:66226)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // locals: 8 renamed — 3 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,7 +12,7 @@ async function evaluateNotifyConsumerRefusal(paths, sessionKey, finalSubscriberC
     if (classifySessionKey(sessionKey) !== "channel") return {
         refused: !1
     };
-    let consumerInputs = await fwe(paths, sessionKey);
+    let consumerInputs = await Ewe(paths, sessionKey);
     if (finalSubscriberCount(sessionKey) > 0) return {
         refused: !1,
         inputs: consumerInputs

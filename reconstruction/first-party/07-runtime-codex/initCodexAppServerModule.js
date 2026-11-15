@@ -1,19 +1,20 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: initCodexAppServerModule  (minified: rp, daemon.pretty.js:64309)
+// symbol: initCodexAppServerModule  (minified: op, daemon.pretty.js:64493)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
-// since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.4.6, v0.5.1, v0.5.3, v0.5.6, v0.6.0, v0.7.1, v0.8.0, v0.8.2 (maps/history_daemon.json)
+// since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.4.6, v0.5.1, v0.5.3, v0.5.6, v0.6.0, v0.7.1, v0.8.0, v0.8.2, v0.8.9 (maps/history_daemon.json)
 // locals: 49 renamed — 7 from the code at the binding (rule), 42 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule = A(() => {
+var ALADUO_TOOL_NAMESPACE, pdt, c6, d6, ydt, _dt, pO, jve, initCodexAppServerModule = A(() => {
     "use strict";
-    ic();
+    ac();
     initLogLevelModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    ALADUO_TOOL_NAMESPACE = "aladuo", zct = "features.code_mode.direct_only_tool_namespaces";
-    Vct = {
+    ALADUO_TOOL_NAMESPACE = "aladuo", pdt = "features.code_mode.direct_only_tool_namespaces";
+    ydt = 5e3;
+    _dt = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -22,7 +23,7 @@ var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule =
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, aO = class extends Fct {
+    }, pO = class extends fdt {
         constructor(binary, cwd, env) {
             super();
             this.binary = binary;
@@ -38,7 +39,7 @@ var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule =
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = Mct(this.binary, ["app-server"], {
+            this.alive || (this.proc = ldt(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -215,5 +216,5 @@ var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule =
             for (let [id, pendingRequest] of this.pending) pendingRequest.reject(error), this.pending.delete(id)
         }
     };
-    xve = new Set
+    jve = new Set
 });

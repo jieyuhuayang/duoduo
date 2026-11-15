@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createSessionManager  (minified: Lwt, daemon.pretty.js:85263)
+// symbol: createSessionManager  (minified: wSt, daemon.pretty.js:85448)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.3, v0.2.12, v0.3.0, v0.3.2, v0.3.4, v0.3.5, v0.3.6, v0.3.7, v0.4.0, v0.4.1, v0.4.2, v0.4.3, v0.4.4, v0.4.5, v0.5.0, v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.1, v0.6.2, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 414 renamed — 89 from the code at the binding (rule), 325 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,7 +14,7 @@ function createSessionManager(options) {
         sdk,
         idleTimeoutMs = 36e5,
         heartbeatIntervalMs = 3e4
-    } = options, resolvedSdk = sdk ?? createAgentSdkAdapter(), jobManager = new Jr(paths), {
+    } = options, resolvedSdk = sdk ?? createAgentSdkAdapter(), jobManager = new Wr(paths), {
         listSessionInboxPendingNames,
         sessionInboxFreshNameVerdict,
         finalizeJobSession
@@ -443,7 +443,7 @@ function createSessionManager(options) {
                     })), job) {
                     jobScheduleType = classifyJobScheduleType(job.frontmatter.cron), jobCron = job.frontmatter.cron;
                     let stateless = job.frontmatter.stateless === !0;
-                    if (stateless && job.frontmatter.cron === "keepalive") throw new Error(a6);
+                    if (stateless && job.frontmatter.cron === "keepalive") throw new Error(b6);
                     jobStateless = stateless, actor.jobStateless = jobStateless, jobModel = job.frontmatter.model, jobEffort = job.frontmatter.effort, jobPiConfig = {
                         piExtensions: job.frontmatter.piExtensions,
                         piSkills: job.frontmatter.piSkills,
@@ -476,7 +476,7 @@ function createSessionManager(options) {
                         sessionKey,
                         sourceChannelId,
                         reason: sessionChannelRuntime.reason
-                    })), sessionChannelRuntime.ok && sessionChannelRuntime.runtime === "void" && (runtimeRefusal = `${Gu} A message queued before it became void was not run.`);
+                    })), sessionChannelRuntime.ok && sessionChannelRuntime.runtime === "void" && (runtimeRefusal = `${Ku} A message queued before it became void was not run.`);
                     let runtime = sessionChannelRuntime.ok ? sessionChannelRuntime.runtime ?? resolveDefaultRuntime() : actor.runtime,
                         runtimeSource = sessionChannelRuntime.ok ? sessionChannelRuntime.source : "explicit";
                     actor.runtime = runtime;
@@ -560,8 +560,8 @@ function createSessionManager(options) {
                 actor.currentAbortController = abortController;
                 let drainResult;
                 try {
-                    let allowedTools = [...actor.origin === "system" ? [] : [Jve, ywe], gwe, xwe];
-                    actor.origin === "channel" && (allowedTools.push($0e), allowedTools.push(Ic));
+                    let allowedTools = [...actor.origin === "system" ? [] : [swe, $we], Pwe, jwe];
+                    actor.origin === "channel" && (allowedTools.push(Z0e), allowedTools.push($c));
                     let sessionContextKind = actor.origin === "job" ? "job" : actor.origin === "system" ? "system" : "foreground",
                         notifyDepth = 0,
                         defaultClaudeToolNames = listDefaultClaudeToolNames();
@@ -573,8 +573,8 @@ function createSessionManager(options) {
                                 await renderSessionMailboxFile(paths, sessionKey, mailboxPendingItems);
                                 let perf = {},
                                     drainBatch = await batchDrainItems(paths, mailboxPendingItems, {
-                                        fallbackBatchSize: dJ,
-                                        mergeWindowMs: fJ,
+                                        fallbackBatchSize: kJ,
+                                        mergeWindowMs: xJ,
                                         perf
                                     }),
                                     sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey),
@@ -752,7 +752,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         sessionCwd && await ensureAgentsMdSymlink(sessionCwd).catch(() => {}), actor.adapter = codexAdapterFactory({
                             sandbox: resolveCodexSandbox(),
                             env: {
-                                [nl]: sessionKey
+                                [rl]: sessionKey
                             },
                             ephemeral: !1,
                             model: jobModel,
@@ -778,7 +778,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         actor.adapter = grokAdapterFactory({
                             cwd: sessionState?.cwd ?? paths.workDir,
                             env: {
-                                [nl]: sessionKey
+                                [rl]: sessionKey
                             },
                             sdkSessionId: jobStateless ? void 0 : sessionState?.sdk_session_id,
                             mcpServerFactory: () => createAladuoMcpServer(paths, {
@@ -854,18 +854,18 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                         if (!actor.adapter)
                             if (!piModel) runtimeUnavailableReason = "pi binds its model when the worker is built, and this session has none. Send `/model <provider>/<modelId>` (channel sessions), or set `model: <provider>/<modelId>` in the job frontmatter, then send the message again.";
                             else {
-                                let piSessionDir = od.join(resolveSessionDir(paths, sessionKey), "pi"),
+                                let piSessionDir = ld.join(resolveSessionDir(paths, sessionKey), "pi"),
                                     toolContext = {
                                         session_context_kind: sessionContextKind
                                     };
                                 actor.adapter = piAdapterFactory({
                                     cwd: sessionState?.cwd ?? paths.workDir,
-                                    sdkSessionId: (jobStateless ? void 0 : sessionState?.sdk_session_id) ?? Mwt(),
+                                    sdkSessionId: (jobStateless ? void 0 : sessionState?.sdk_session_id) ?? bSt(),
                                     sessionDir: piSessionDir,
                                     agentDir: piAgentDir,
-                                    authPath: od.join(piAgentDir, "auth.json"),
-                                    modelsPath: od.join(piAgentDir, "models.json"),
-                                    modelsStorePath: od.join(piSessionDir, "models-store.json"),
+                                    authPath: ld.join(piAgentDir, "auth.json"),
+                                    modelsPath: ld.join(piAgentDir, "models.json"),
+                                    modelsStorePath: ld.join(piSessionDir, "models-store.json"),
                                     settingsSeed,
                                     resources: {
                                         extensions: piExtensions,
@@ -876,15 +876,15 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                                     thinkingLevel,
                                     workerCommand: resolvePiWorkerCommand(),
                                     env: {
-                                        [nl]: sessionKey,
-                                        [vC]: paths.daemonSocketPath,
-                                        [wC]: issueWorkerToolContextToken({
+                                        [rl]: sessionKey,
+                                        [EC]: paths.daemonSocketPath,
+                                        [RC]: issueWorkerToolContextToken({
                                             session_key: sessionKey,
                                             job_cron: jobCron,
                                             job_schedule_type: jobScheduleType,
                                             ...toolContext
                                         }),
-                                        [SC]: JSON.stringify(toolContext)
+                                        [IC]: JSON.stringify(toolContext)
                                     },
                                     onToolEnd: observation => handlePiToolEndObservation(paths, sessionKey, observation),
                                     logDebug: message => logDebugMessage(message, {
@@ -1222,7 +1222,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                     actor.status = "ended"
                 }
             } else actor.status = "ended";
-            if (actor.pendingWake = !1, running && Awt(resolveSessionDir(paths, sessionKey)) && !isSessionArchiving(sessionKey)) {
+            if (actor.pendingWake = !1, running && gSt(resolveSessionDir(paths, sessionKey)) && !isSessionArchiving(sessionKey)) {
                 let inboxVerdict = await sessionInboxFreshNameVerdict(sessionKey, inboxSnapshotNames);
                 inboxVerdict === "fresh" ? (actor.consecutiveConservativeRedrive = !1, logSessionLifecycleMessage("[session-manager] post-finalize wake re-check: fresh inbox arrival — re-entering wake path", {
                     sessionKey,
@@ -1378,7 +1378,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
     async function fetchPiModelCatalog(sessionKey) {
         let tempDir;
         try {
-            tempDir = Nwt(od.join(jwt(), "aladuo-pi-catalog-"));
+            tempDir = ySt(ld.join(vSt(), "aladuo-pi-catalog-"));
             let piAgentDir = resolvePiAgentDir(),
                 {
                     settingsSeed,
@@ -1389,9 +1389,9 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
                 catalog = await requestPiWorkerCatalog({
                     cwd: sessionState?.cwd ?? paths.workDir,
                     agentDir: piAgentDir,
-                    authPath: od.join(piAgentDir, "auth.json"),
-                    modelsPath: od.join(piAgentDir, "models.json"),
-                    modelsStorePath: od.join(tempDir, "models-store.json"),
+                    authPath: ld.join(piAgentDir, "auth.json"),
+                    modelsPath: ld.join(piAgentDir, "models.json"),
+                    modelsStorePath: ld.join(tempDir, "models-store.json"),
                     settingsSeed,
                     resources: {
                         extensions: channelConfig?.piExtensions ?? "all",
@@ -1409,7 +1409,7 @@ ${trimmed}`, pendingSteer.eventIds.push(...consumedEventIds), pendingSteer.claim
             return
         } finally {
             try {
-                tempDir && Dwt(tempDir, {
+                tempDir && _St(tempDir, {
                     recursive: !0,
                     force: !0
                 })

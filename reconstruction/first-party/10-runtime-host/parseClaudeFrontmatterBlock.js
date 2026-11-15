@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: parseClaudeFrontmatterBlock  (minified: uv, daemon.pretty.js:36534)
+// symbol: parseClaudeFrontmatterBlock  (minified: pv, daemon.pretty.js:36652)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.10 — first release whose bundle holds this declaration; body changed in v0.7.0 (maps/history_daemon.json)
 // locals: 7 renamed — 5 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,13 +19,13 @@ function parseClaudeFrontmatterBlock(frontmatter) {
         {
             profiles,
             issues
-        } = ont(claudeBlock.model_profiles),
+        } = Cnt(claudeBlock.model_profiles),
         {
             aliases,
             issues: issues2
-        } = lq(claudeBlock.model_aliases);
+        } = _q(claudeBlock.model_aliases);
     return {
-        claudeTools: Ode(claudeBlock.tools),
+        claudeTools: qde(claudeBlock.tools),
         claudeModelProfiles: profiles,
         claudeModelProfileIssues: issues.length > 0 ? issues : void 0,
         claudeModelAliases: aliases,

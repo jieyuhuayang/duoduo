@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: normalizeNotifyChannelTarget  (minified: $O, daemon.pretty.js:66314)
+// symbol: normalizeNotifyChannelTarget  (minified: MO, daemon.pretty.js:66499)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,5 +14,5 @@ function normalizeNotifyChannelTarget(target) {
     if (colonIndex <= 0 || colonIndex === trimmed.length - 1) return null;
     let prefix = trimmed.slice(0, colonIndex),
         rest = trimmed.slice(colonIndex + 1);
-    return `${nft[prefix]??prefix}:${rest}`
+    return `${$ft[prefix]??prefix}:${rest}`
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: isLogLevelEnabled  (minified: eXe, daemon.pretty.js:33227)
+// symbol: isLogLevelEnabled  (minified: RXe, daemon.pretty.js:33345)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.3 (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isLogLevelEnabled(level) {
-    return NU[level] <= NU[resolveLogLevel()]
+    return BU[level] <= BU[resolveLogLevel()]
 }

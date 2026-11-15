@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: initLogLevelModule  (minified: mt, daemon.pretty.js:33272)
+// symbol: initLogLevelModule  (minified: mt, daemon.pretty.js:33390)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.3, v0.3.6 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var NU, initLogLevelModule = A(() => {
+var BU, initLogLevelModule = A(() => {
     "use strict";
-    NU = {
+    BU = {
         error: 0,
         warn: 1,
         info: 2,

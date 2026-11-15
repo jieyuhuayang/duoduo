@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: resolveJobExecutionWorkspace  (minified: yve, daemon.pretty.js:62737)
+// symbol: resolveJobExecutionWorkspace  (minified: $ve, daemon.pretty.js:62938)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.5 (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveJobExecutionWorkspace(paths, jobId, cwdRelText) {
-    let runtimeWorkspaceDir = VH(paths, jobId);
+    let runtimeWorkspaceDir = n6(paths, jobId);
     if (!cwdRelText || !cwdRelText.trim()) return {
         cwdRel: null,
         cwd: runtimeWorkspaceDir,

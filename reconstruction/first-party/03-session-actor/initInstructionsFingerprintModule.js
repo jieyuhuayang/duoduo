@@ -1,20 +1,20 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: initInstructionsFingerprintModule  (minified: Ck, daemon.pretty.js:84184)
+// symbol: initInstructionsFingerprintModule  (minified: Dk, daemon.pretty.js:84369)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var UN, iTe, initInstructionsFingerprintModule = A(() => {
+var GN, xTe, initInstructionsFingerprintModule = A(() => {
     "use strict";
     initAgentSdkAdapterModule();
     Qr();
-    ul();
-    _f();
+    ll();
+    vf();
     initReservedMainAliasModule();
     initBoardTransclusionModule();
     initLogLevelModule();
     initMailboxDrainRunnerModule();
-    UG();
-    UN = "claudeDelivery", iTe = "impliedModel"
+    QG();
+    GN = "claudeDelivery", xTe = "impliedModel"
 });

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: replaceSessionIndexEntry  (minified: Cq, daemon.pretty.js:38142)
+// symbol: replaceSessionIndexEntry  (minified: zq, daemon.pretty.js:38260)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.4 (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function replaceSessionIndexEntry(sessionIndex, sessionKey, runtimeState, meta) {
-    let entry = Unt(sessionKey, runtimeState, meta);
+    let entry = prt(sessionKey, runtimeState, meta);
     if (entry === null) {
         sessionIndex.remove(sessionKey);
         return

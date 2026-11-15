@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: extractSessionKeyChannelKind  (minified: r_t, daemon.pretty.js:74744)
+// symbol: extractSessionKeyChannelKind  (minified: z_t, daemon.pretty.js:74929)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: findBoardHeadingLines  (minified: Jmt, daemon.pretty.js:69746)
+// symbol: findBoardHeadingLines  (minified: Sht, daemon.pretty.js:69931)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,11 +12,11 @@ function findBoardHeadingLines(text) {
 `),
         inFence = !1;
     for (let index = 0; index < parts.length; index += 1) {
-        if (Wmt.test(parts[index])) {
+        if (wht.test(parts[index])) {
             inFence = !inFence;
             continue
         }
-        inFence || Hmt.test(parts[index]) && headings.push({
+        inFence || vht.test(parts[index]) && headings.push({
             line: index + 1,
             text: parts[index]
         })

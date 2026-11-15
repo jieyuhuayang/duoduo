@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: ensureAbsoluteWorkspaceDir  (minified: UTe, daemon.pretty.js:92188)
+// symbol: ensureAbsoluteWorkspaceDir  (minified: aPe, daemon.pretty.js:92553)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 async function ensureAbsoluteWorkspaceDir(dirPath) {
     if (!po.isAbsolute(dirPath)) return null;
     let resolvedPath = po.resolve(dirPath);
-    return await Hs.mkdir(resolvedPath, {
+    return await Ws.mkdir(resolvedPath, {
         recursive: !0
     }).catch(() => null), resolveExistingDirRealpath(resolvedPath)
 }

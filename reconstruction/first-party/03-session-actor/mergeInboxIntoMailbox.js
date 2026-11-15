@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: mergeInboxIntoMailbox  (minified: aI, daemon.pretty.js:33859)
+// symbol: mergeInboxIntoMailbox  (minified: fI, daemon.pretty.js:33977)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1, v0.5.4, v0.5.6, v0.8.0 (maps/history_daemon.json)
 // locals: 20 renamed — 8 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -13,7 +13,7 @@ async function mergeInboxIntoMailbox(paths, sessionKey) {
     try {
         pendingFiles = (await listPendingInboxFiles(sessionInboxDir)).sort()
     } catch (err) {
-        throw new sI(err)
+        throw new dI(err)
     }
     if (pendingFiles.length === 0) return await ensureSessionMailboxPendingDir(paths, sessionKey), {
         merged: 0
@@ -21,13 +21,13 @@ async function mergeInboxIntoMailbox(paths, sessionKey) {
     let sessionMailboxPendingDir = await ensureSessionMailboxPendingDir(paths, sessionKey),
         merged = 0;
     for (let fileName of pendingFiles) {
-        let filePath = sa.join(sessionInboxDir, fileName),
+        let filePath = aa.join(sessionInboxDir, fileName),
             raw;
         try {
             raw = await xr.readFile(filePath, "utf8")
         } catch (err) {
             let code = err.code,
-                quarantine = Gue(code);
+                quarantine = ile(code);
             if (!quarantine && code === "ENOENT") try {
                 quarantine = (await xr.lstat(filePath)).isSymbolicLink()
             } catch (err) {
@@ -39,7 +39,7 @@ async function mergeInboxIntoMailbox(paths, sessionKey) {
             }
             logErrorMessage(`[mailbox] unprocessable inbox item — quarantining: ${filePath}`, err);
             try {
-                await moveFileIntoDirectory(filePath, sa.join(sessionInboxDir, "quarantine"))
+                await moveFileIntoDirectory(filePath, aa.join(sessionInboxDir, "quarantine"))
             } catch (err) {
                 logErrorMessage(`[mailbox] failed to quarantine inbox item — skipped for this merge: ${filePath}`, err)
             }
@@ -50,16 +50,16 @@ async function mergeInboxIntoMailbox(paths, sessionKey) {
             await xr.unlink(filePath);
             continue
         }
-        let eventId = ele(trimmed) ?? void 0,
-            replySessionKey = tle(trimmed) ?? void 0,
+        let eventId = cle(trimmed) ?? void 0,
+            replySessionKey = dle(trimmed) ?? void 0,
             itemFileName = `${fileName.replace(/\.pending$/,"")}.item.json`,
             item = {
                 line: trimmed,
                 event_id: eventId,
                 reply_session_key: replySessionKey,
-                created_at: SXe(fileName) ?? new Date().toISOString()
+                created_at: GXe(fileName) ?? new Date().toISOString()
             };
-        await writeFileAtomic(sa.join(sessionMailboxPendingDir, itemFileName), JSON.stringify(item) + `
+        await writeFileAtomic(aa.join(sessionMailboxPendingDir, itemFileName), JSON.stringify(item) + `
 `), await xr.unlink(filePath), merged += 1
     }
     return {

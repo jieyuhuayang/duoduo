@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: isOrphanWarningDeliverable  (minified: _ke, daemon.pretty.js:68916)
+// symbol: isOrphanWarningDeliverable  (minified: Mke, daemon.pretty.js:69101)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isOrphanWarningDeliverable(ctx, partition) {
-    return enforceContractGate(Jn.ORPHAN_NEWBORN, getCachedPartitionContract(ctx, partition), ctx.flagFallback) === null
+    return enforceContractGate(Kn.ORPHAN_NEWBORN, getCachedPartitionContract(ctx, partition), ctx.flagFallback) === null
 }

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createMetaSession  (minified: Ywt, daemon.pretty.js:87481)
+// symbol: createMetaSession  (minified: NSt, daemon.pretty.js:87666)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.3.1, v0.3.3, v0.5.0, v0.5.2, v0.5.3, v0.5.4, v0.5.7, v0.5.8, v0.5.10, v0.7.1, v0.8.0, v0.8.1, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 154 renamed — 44 from the code at the binding (rule), 110 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -33,7 +33,7 @@ function createMetaSession(options) {
                 settingsSeed,
                 defaultProjectTrust
             } = readPiAgentSettings(piAgentDir),
-            piSessionDir = zwt(Ay.join(qwt(), "aladuo-pi-partition-")),
+            piSessionDir = kSt(jy.join(ESt(), "aladuo-pi-partition-")),
             workerToolContext = {
                 session_context_kind: "system"
             },
@@ -42,9 +42,9 @@ function createMetaSession(options) {
                 sdkSessionId: crypto.randomUUID(),
                 sessionDir: piSessionDir,
                 agentDir: piAgentDir,
-                authPath: Ay.join(piAgentDir, "auth.json"),
-                modelsPath: Ay.join(piAgentDir, "models.json"),
-                modelsStorePath: Ay.join(piSessionDir, "models-store.json"),
+                authPath: jy.join(piAgentDir, "auth.json"),
+                modelsPath: jy.join(piAgentDir, "models.json"),
+                modelsStorePath: jy.join(piSessionDir, "models-store.json"),
                 settingsSeed,
                 resources: {
                     extensions: "all",
@@ -56,12 +56,12 @@ function createMetaSession(options) {
                 inMemorySession: !0,
                 workerCommand: resolvePiWorkerCommand(),
                 env: {
-                    [vC]: paths.daemonSocketPath,
-                    [wC]: issueWorkerToolContextToken({
+                    [EC]: paths.daemonSocketPath,
+                    [RC]: issueWorkerToolContextToken({
                         session_key: sessionKey,
                         ...workerToolContext
                     }),
-                    [SC]: JSON.stringify(workerToolContext)
+                    [IC]: JSON.stringify(workerToolContext)
                 },
                 logDebug: message => logDebugMessage(message, {
                     sessionKey
@@ -73,14 +73,14 @@ function createMetaSession(options) {
                 try {
                     await piWorkerAdapter.shutdown()
                 } finally {
-                    Uwt(piSessionDir, {
+                    xSt(piSessionDir, {
                         recursive: !0,
                         force: !0
                     })
                 }
             }
         }
-    }), maxPartitionsPerIdleTick = options.maxPartitionsPerIdleTick ?? 2, cadenceIntervalMs = options.cadenceIntervalMs ?? Yg, processing = !1, stopRequested = !1, inFlightTick = null, listening = !1, lastActivityFingerprint = null, tickCount = 0, map = new Map;
+    }), maxPartitionsPerIdleTick = options.maxPartitionsPerIdleTick ?? 2, cadenceIntervalMs = options.cadenceIntervalMs ?? ty, processing = !1, stopRequested = !1, inFlightTick = null, listening = !1, lastActivityFingerprint = null, tickCount = 0, map = new Map;
     async function runNextPartition(partitions, runtimeContext, currentTick) {
         let runStateEntries = await Promise.all(partitions.map(async partition => [partition.name, await readPartitionRunState(paths, partition.name)])),
             map = new Map(runStateEntries);

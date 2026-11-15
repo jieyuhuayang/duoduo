@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: archiveSessionAndArtifacts  (minified: MSe, daemon.pretty.js:67461)
+// symbol: archiveSessionAndArtifacts  (minified: KSe, daemon.pretty.js:67646)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0 (maps/history_daemon.json)
 // locals: 15 renamed — 0 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,8 +12,8 @@ async function archiveSessionAndArtifacts(paths, sessionKey) {
     let archivedPaths = [],
         sessionHash = hashSessionKey(sessionKey),
         timestamp = () => new Date().toISOString().replace(/[:.]/g, "-"),
-        channelId = await Yft(paths, sessionKey, sessionHash),
-        archivedSessionPath = Gft(paths.sessionsDir, "sessions", sessionHash),
+        channelId = await Ept(paths, sessionKey, sessionHash),
+        archivedSessionPath = Spt(paths.sessionsDir, "sessions", sessionHash),
         probe = {
             state: "clear"
         },
@@ -24,15 +24,15 @@ async function archiveSessionAndArtifacts(paths, sessionKey) {
         archivedPaths: []
     };
     moveResult && archivedPaths.push(archivedSessionPath);
-    let ingressArchivePath = await CSe(rr.join(paths.varIngressDir, sessionHash), rr.join(paths.varDir, "ingress-archive"), sessionHash, timestamp);
+    let ingressArchivePath = await VSe(or.join(paths.varIngressDir, sessionHash), or.join(paths.varDir, "ingress-archive"), sessionHash, timestamp);
     ingressArchivePath && archivedPaths.push(ingressArchivePath);
-    let replayPath = rr.join(paths.outboxDir, "replay", `${sessionKey}.jsonl`),
-        replayArchiveDir = rr.join(paths.varDir, "outbox-archive", "replay"),
-        replayArchivePath = await Kft(replayPath, replayArchiveDir, `${sessionKey}.jsonl`, timestamp);
+    let replayPath = or.join(paths.outboxDir, "replay", `${sessionKey}.jsonl`),
+        replayArchiveDir = or.join(paths.varDir, "outbox-archive", "replay"),
+        replayArchivePath = await kpt(replayPath, replayArchiveDir, `${sessionKey}.jsonl`, timestamp);
     replayArchivePath && archivedPaths.push(replayArchivePath);
-    let extraArchivedPaths = await Zft(paths, sessionKey);
+    let extraArchivedPaths = await xpt(paths, sessionKey);
     if (archivedPaths.push(...extraArchivedPaths), channelId) {
-        let channelArchivePath = await CSe(rr.join(paths.channelsDir, channelId), rr.join(paths.varDir, "channels-archive"), channelId, timestamp);
+        let channelArchivePath = await VSe(or.join(paths.channelsDir, channelId), or.join(paths.varDir, "channels-archive"), channelId, timestamp);
         channelArchivePath && archivedPaths.push(channelArchivePath)
     }
     return archivedPaths.length === 0 ? {

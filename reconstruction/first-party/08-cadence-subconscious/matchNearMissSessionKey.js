@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: matchNearMissSessionKey  (minified: dft, daemon.pretty.js:66643)
+// symbol: matchNearMissSessionKey  (minified: Fft, daemon.pretty.js:66828)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 11 renamed — 1 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,8 +9,8 @@
 
 function matchNearMissSessionKey(target, entry) {
     if (entry.session_key === target) return null;
-    let targetSegments = Swe(target),
-        entrySegments = Swe(entry.session_key);
+    let targetSegments = Dwe(target),
+        entrySegments = Dwe(entry.session_key);
     if (targetSegments.length === 0 || entrySegments.length === 0) return null;
     if (targetSegments.length === entrySegments.length && targetSegments.length >= 2) {
         let i = 0;
@@ -18,8 +18,8 @@ function matchNearMissSessionKey(target, entry) {
         if (i === targetSegments.length - 1) {
             let targetLast = targetSegments[targetSegments.length - 1],
                 entryLast = entrySegments[entrySegments.length - 1],
-                boundedEditDistance = computeBoundedEditDistance(targetLast, entryLast, wwe);
-            if (boundedEditDistance <= wwe) return {
+                boundedEditDistance = computeBoundedEditDistance(targetLast, entryLast, Nwe);
+            if (boundedEditDistance <= Nwe) return {
                 entry,
                 note: `last segment differs by ${boundedEditDistance} char${boundedEditDistance===1?"":"s"}`
             };

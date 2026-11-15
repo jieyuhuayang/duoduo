@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexDynamicTools  (minified: ON, daemon.pretty.js:81638)
+// symbol: buildCodexDynamicTools  (minified: FN, daemon.pretty.js:81823)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.4 — first release whose bundle holds this declaration; body changed in v0.5.1, v0.5.4, v0.8.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
 // locals: 18 renamed — 0 from the code at the binding (rule), 18 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -17,7 +17,7 @@ function buildCodexDynamicTools(ctx) {
     if (!isMetaOrSystem) {
         let jobInputSchema = isJob ? buildJobSessionInputSchema(runtime) : buildManageJobInputSchema(runtime);
         tools.push({
-            name: lS,
+            name: pS,
             description: isJob ? renderJobSessionToolDescription() : renderManageJobToolDescription(),
             inputSchema: buildCodexStringInputSchema(jobInputSchema),
             handler: async input => {
@@ -36,9 +36,9 @@ function buildCodexDynamicTools(ctx) {
         })
     }
     return tools.push({
-        name: gS,
-        description: xO,
-        inputSchema: buildCodexStringInputSchema(EO),
+        name: vS,
+        description: $O,
+        inputSchema: buildCodexStringInputSchema(CO),
         handler: async input => {
             let output = await runViewSessionsTool(input, {
                 paths: ctx.paths,
@@ -52,7 +52,7 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), tools.push({
-        name: wS,
+        name: ES,
         description: renderNotifyToolDescription({
             sessionKey: ctx.sessionKey,
             sessionContextKind: ctx.sessionContextKind
@@ -78,9 +78,9 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), ctx.sessionContextKind === "foreground" && (tools.push({
-        name: dp,
-        description: zA,
-        inputSchema: buildCodexStringInputSchema(UA),
+        name: pp,
+        description: JA,
+        inputSchema: buildCodexStringInputSchema(GA),
         handler: async input => {
             let output = await runQueueOutboundAttachmentTool(input, {
                 paths: ctx.paths,
@@ -92,9 +92,9 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     }), tools.push({
-        name: $s,
-        description: s_e,
-        inputSchema: buildCodexStringInputSchema(iC),
+        name: Os,
+        description: g_e,
+        inputSchema: buildCodexStringInputSchema(lC),
         handler: async input => {
             let output = await runSkipTool(input, {
                 paths: ctx.paths,
@@ -107,9 +107,9 @@ function buildCodexDynamicTools(ctx) {
             }
         }
     })), isMetaOrSystem || tools.push({
-        name: _S,
-        description: isJob ? TO : RO,
-        inputSchema: buildCodexStringInputSchema(isJob ? PO : IO),
+        name: SS,
+        description: isJob ? NO : OO,
+        inputSchema: buildCodexStringInputSchema(isJob ? DO : AO),
         handler: async input => {
             let output = await runRemindDuoduoTool(input, {
                 paths: ctx.paths,

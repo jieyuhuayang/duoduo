@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: listDefaultClaudeToolNames  (minified: IIe, daemon.pretty.js:81819)
+// symbol: listDefaultClaudeToolNames  (minified: JIe, daemon.pretty.js:82004)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level

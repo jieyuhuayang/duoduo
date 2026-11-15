@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: isAvailableWorkspacePath  (minified: PIe, daemon.pretty.js:81839)
+// symbol: isAvailableWorkspacePath  (minified: KIe, daemon.pretty.js:82024)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,5 +7,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function isAvailableWorkspacePath(workspacePath) {
-    return !workspacePath || !Avt.isAbsolute(workspacePath) ? !1 : Ovt(workspacePath)
+    return !workspacePath || !gwt.isAbsolute(workspacePath) ? !1 : hwt(workspacePath)
 }

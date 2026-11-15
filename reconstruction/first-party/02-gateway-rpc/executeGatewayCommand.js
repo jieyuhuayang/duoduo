@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: executeGatewayCommand  (minified: ert, daemon.pretty.js:89183)
+// symbol: executeGatewayCommand  (minified: Rrt, daemon.pretty.js:89365)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.5.0, v0.5.3, v0.5.5, v0.5.6, v0.5.7, v0.6.0, v0.7.0, v0.7.1, v0.8.0, v0.8.1, v0.8.3, v0.8.4 (maps/history_daemon.json)
 // locals: 92 renamed — 12 from the code at the binding (rule), 80 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,7 +12,7 @@ async function executeGatewayCommand(paths, command, sessionKey, gatewayCommands
         command: command.raw,
         command_name: command.name
     }), {
-        responseText: [`Unsupported command: ${command.raw}`, Tfe].join(`
+        responseText: [`Unsupported command: ${command.raw}`, Lfe].join(`
 `)
     };
     if (command.name === "injection-usage") return {
@@ -68,7 +68,7 @@ async function executeGatewayCommand(paths, command, sessionKey, gatewayCommands
     if (command.name === "/stats") {
         let {
             readAllSessionSummaries
-        } = await Promise.resolve().then(() => (Zu(), Dq)), date = new Date(Date.now() - 1440 * 60 * 1e3), sessionSummaries = await readAllSessionSummaries(paths, date), totalDrains = 0, totalInputTokens = 0, totalOutputTokens = 0, totalCostUsd = 0, totalSdkSeconds = 0;
+        } = await Promise.resolve().then(() => (Yu(), Vq)), date = new Date(Date.now() - 1440 * 60 * 1e3), sessionSummaries = await readAllSessionSummaries(paths, date), totalDrains = 0, totalInputTokens = 0, totalOutputTokens = 0, totalCostUsd = 0, totalSdkSeconds = 0;
         for (let summary of Object.values(sessionSummaries)) totalDrains += summary.total_drains, totalInputTokens += summary.total_input_tokens, totalOutputTokens += summary.total_output_tokens, totalCostUsd += summary.total_cost_usd, totalSdkSeconds += summary.total_sdk_duration_ms / 1e3;
         return {
             responseText: ["ALADUO Usage Statistics (Last 24h)", `- Drains (Tasks): ${totalDrains}`, `- Tokens: Input (${totalInputTokens.toLocaleString()}) | Output (${totalOutputTokens.toLocaleString()})`, `- Cost (USD): $${totalCostUsd.toFixed(4)}`, `- SDK Duration: ${totalSdkSeconds.toFixed(1)}s`].join(`
@@ -78,7 +78,7 @@ async function executeGatewayCommand(paths, command, sessionKey, gatewayCommands
     if (command.name === "/task") {
         let {
             readRecentDrainRecords
-        } = await Promise.resolve().then(() => (Zu(), Dq)), taskActors = gatewayCommands?.listActors?.(), taskPersistentSessions = gatewayCommands?.listPersistentSessions?.() ?? [], map = new Map(taskPersistentSessions.map(session => [session.session_key, session])), activeTasks = [];
+        } = await Promise.resolve().then(() => (Yu(), Vq)), taskActors = gatewayCommands?.listActors?.(), taskPersistentSessions = gatewayCommands?.listPersistentSessions?.() ?? [], map = new Map(taskPersistentSessions.map(session => [session.session_key, session])), activeTasks = [];
         if (taskActors)
             for (let actor of taskActors.values()) {
                 if (actor.status !== "active" || actor.sessionKey === sessionKey) continue;
@@ -167,10 +167,10 @@ async function executeGatewayCommand(paths, command, sessionKey, gatewayCommands
                 responseText: sessionModel.refusal
             };
             if (sessionModel.runtime === "pi") return {
-                responseText: [sessionModel.storedModel ? `Session model: ${sessionModel.storedModel}` : sessionModel.configModel ? `Session model: (${sessionModel.configModel.model}, from the ${sessionModel.configModel.source} config)` : "Session model: (none set — a pi session cannot run a turn until one is set)", ...lastServedModelLines(sessionModel), ...Xnt(sessionModel.piProviders), "", "Pi session — a switch is stored and the worker rebuilds with it on the next turn.", "", "Switch: `/model <provider>/<modelId>` · Reset: `/model reset`"].join(`
+                responseText: [sessionModel.storedModel ? `Session model: ${sessionModel.storedModel}` : sessionModel.configModel ? `Session model: (${sessionModel.configModel.model}, from the ${sessionModel.configModel.source} config)` : "Session model: (none set — a pi session cannot run a turn until one is set)", ...lastServedModelLines(sessionModel), ...xrt(sessionModel.piProviders), "", "Pi session — a switch is stored and the worker rebuilds with it on the next turn.", "", "Switch: `/model <provider>/<modelId>` · Reset: `/model reset`"].join(`
 `)
             };
-            let extraModelLines = Qnt(sessionModel);
+            let extraModelLines = Ert(sessionModel);
             if (sessionModel.runtime === "grok") return {
                 responseText: [describeSessionModel(sessionModel), ...lastServedModelLines(sessionModel), "", "Grok session — a switch applies to the live session.", "", switchHint].join(`
 `)
@@ -212,13 +212,13 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             } : setResult.applied === "stored" && sessionModelAfter?.runtime === "grok" ? {
                 responseText: "Session model override cleared. The live grok session keeps its current model until the session is recreated (`/clear`)."
             } : configDefaultLabel ? {
-                responseText: setResult.applied === "live" ? `Session model reset to ${configDefaultLabel}, applied to the live session.` : `Session model override cleared. ${$fe(configDefaultLabel)} applies from the next turn.`
+                responseText: setResult.applied === "live" ? `Session model reset to ${configDefaultLabel}, applied to the live session.` : `Session model override cleared. ${zfe(configDefaultLabel)} applies from the next turn.`
             } : {
                 responseText: setResult.applied === "live" ? "Session model reset to the runtime default (applied to the live session)." : "Session model override cleared. The runtime default applies from the next turn."
             }
         }
         let unlistedNote = setResult.listed === !1 ? "\n\nNote: this id is not in the session's known-models list (run /model to see it). If it is invalid, the next turn will say so — `/model reset` recovers." : "",
-            contextNote = setResult.contextWindow ? ` ${Ynt(setResult.contextWindow)}` : setResult.contextProfile === "unprofiled" ? " No context profile is known; using the host/Claude CLI default." : "";
+            contextNote = setResult.contextWindow ? ` ${krt(setResult.contextWindow)}` : setResult.contextProfile === "unprofiled" ? " No context profile is known; using the host/Claude CLI default." : "";
         return setResult.applied === "stored_pending_rebuild" ? {
             responseText: `Session model set to ${setResult.model}. ${rebuildNote}${contextNote}${unlistedNote}`
         } : {
@@ -273,7 +273,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             if (defaultConfigEffort) {
                 let configDefaultLabel = `the ${defaultConfigEffort.source} config default (${defaultConfigEffort.effort})`;
                 return {
-                    responseText: resetResult.applied === "live" ? `Session effort reset to ${configDefaultLabel}, applied to the live session.` : `Session effort override cleared. ${$fe(configDefaultLabel)} applies from the next message.`
+                    responseText: resetResult.applied === "live" ? `Session effort reset to ${configDefaultLabel}, applied to the live session.` : `Session effort override cleared. ${zfe(configDefaultLabel)} applies from the next message.`
                 }
             }
             return {
@@ -303,7 +303,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
             sessionRuntimeState = await readSessionRuntimeState(paths, sessionKey),
             sessionKeyHash = hashSessionKey(sessionKey);
         return {
-            responseText: ["ALADUO Session Debug", `- session_key: ${sessionKey}`, `- current_cwd: ${sessionRuntimeState?.cwd??paths.workDir}`, `- workspace_rel: ${sessionMetaFile?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${sessionRuntimeState?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${sessionRuntimeState?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(paths,sessionKey)}`, `- session_state: ${resolveSessionStatePath(paths,sessionKey)}`, `- ingress_snapshots: ${kf.join(paths.varIngressDir,sessionKeyHash)}`, `- work_root: ${paths.workDir}`, `- jobs_active: ${kf.join(paths.jobsDir,"active")}`].join(`
+            responseText: ["ALADUO Session Debug", `- session_key: ${sessionKey}`, `- current_cwd: ${sessionRuntimeState?.cwd??paths.workDir}`, `- workspace_rel: ${sessionMetaFile?.workspace_rel??"(default work root)"}`, `- sdk_session_id: ${sessionRuntimeState?.sdk_session_id??"unknown"}`, `- pending_gateway_notice: ${sessionRuntimeState?.pending_gateway_notice?"yes":"no"}`, "", "Filesystem Pointers", `- session_meta: ${resolveSessionMetaPath(paths,sessionKey)}`, `- session_state: ${resolveSessionStatePath(paths,sessionKey)}`, `- ingress_snapshots: ${Ef.join(paths.varIngressDir,sessionKeyHash)}`, `- work_root: ${paths.workDir}`, `- jobs_active: ${Ef.join(paths.jobsDir,"active")}`].join(`
 `)
         }
     }
@@ -311,7 +311,7 @@ Fix the offending claude.model_profiles entry (global = kernel/config/runtime.md
         command: command.raw,
         command_name: command.name
     }), {
-        responseText: [`Unsupported command: ${command.raw}`, Tfe].join(`
+        responseText: [`Unsupported command: ${command.raw}`, Lfe].join(`
 `)
     }
 }

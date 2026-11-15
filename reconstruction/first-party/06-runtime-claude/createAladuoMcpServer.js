@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAladuoMcpServer  (minified: $y, daemon.pretty.js:81488)
+// symbol: createAladuoMcpServer  (minified: Ny, daemon.pretty.js:81673)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.0, v0.4.0, v0.4.4, v0.5.2, v0.5.4, v0.8.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
 // locals: 12 renamed — 0 from the code at the binding (rule), 12 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -7,7 +7,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createAladuoMcpServer(paths, options) {
-    let server = new CN({
+    let server = new LN({
             name: "aladuo",
             version: "1.0.0"
         }, {
@@ -19,8 +19,8 @@ function createAladuoMcpServer(paths, options) {
             "anthropic/alwaysLoad": !0
         }),
         isJobSession = options.sessionContextKind === "job";
-    return options.sessionContextKind === "meta" || options.sessionContextKind === "system" || (server.registerTool(lS, {
-        title: lS,
+    return options.sessionContextKind === "meta" || options.sessionContextKind === "system" || (server.registerTool(pS, {
+        title: pS,
         description: isJobSession ? renderJobSessionToolDescription() : renderManageJobToolDescription(),
         inputSchema: isJobSession ? buildJobSessionInputSchema(options.callerRuntime) : buildManageJobInputSchema(options.callerRuntime),
         _meta: toolMeta
@@ -35,10 +35,10 @@ function createAladuoMcpServer(paths, options) {
                 bus: options.bus
             })
         }]
-    })), server.registerTool(_S, {
-        title: _S,
-        description: isJobSession ? TO : RO,
-        inputSchema: isJobSession ? PO : IO,
+    })), server.registerTool(SS, {
+        title: SS,
+        description: isJobSession ? NO : OO,
+        inputSchema: isJobSession ? DO : AO,
         _meta: toolMeta
     }, async args => ({
         content: [{
@@ -49,10 +49,10 @@ function createAladuoMcpServer(paths, options) {
                 sessionContextKind: options.sessionContextKind
             })
         }]
-    }))), server.registerTool(gS, {
-        title: gS,
-        description: xO,
-        inputSchema: EO,
+    }))), server.registerTool(vS, {
+        title: vS,
+        description: $O,
+        inputSchema: CO,
         _meta: toolMeta
     }, async args => ({
         content: [{
@@ -64,10 +64,10 @@ function createAladuoMcpServer(paths, options) {
                 finalSubscriberCount: options.finalSubscriberCount
             })
         }]
-    })), options.sessionContextKind === "foreground" && (server.registerTool(dp, {
-        title: dp,
-        description: zA,
-        inputSchema: UA,
+    })), options.sessionContextKind === "foreground" && (server.registerTool(pp, {
+        title: pp,
+        description: JA,
+        inputSchema: GA,
         _meta: toolMeta
     }, async args => ({
         content: [{
@@ -77,10 +77,10 @@ function createAladuoMcpServer(paths, options) {
                 sessionKey: options.sessionKey
             })
         }]
-    })), server.registerTool($s, {
-        title: $s,
-        description: MV,
-        inputSchema: iC,
+    })), server.registerTool(Os, {
+        title: Os,
+        description: HV,
+        inputSchema: lC,
         _meta: toolMeta
     }, async args => ({
         content: [{
@@ -91,8 +91,8 @@ function createAladuoMcpServer(paths, options) {
                 sessionKey: options.sessionKey
             })
         }]
-    }))), server.registerTool(wS, {
-        title: wS,
+    }))), server.registerTool(ES, {
+        title: ES,
         description: renderNotifyToolDescription({
             sessionKey: options.sessionKey,
             sessionContextKind: options.sessionContextKind

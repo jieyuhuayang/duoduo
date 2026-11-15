@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 11-runtime-grok
-// symbol: createGrokAcpAdapter  (minified: uS, daemon.pretty.js:64708)
+// symbol: createGrokAcpAdapter  (minified: fS, daemon.pretty.js:64893)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in v0.8.0, v0.8.2 (maps/history_daemon.json)
 // locals: 156 renamed — 15 from the code at the binding (rule), 141 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,7 +19,7 @@ function createGrokAcpAdapter(options) {
         map = new Map,
         shuttingDown = !1,
         connectPromise = null,
-        mcpServerId = Jct(),
+        mcpServerId = wdt(),
         mcpTransport = null,
         mcpServer = null,
         runInFlight = !1,
@@ -52,7 +52,7 @@ function createGrokAcpAdapter(options) {
                 update = coerceToPlainObject(params.update),
                 updateKind = String(update.sessionUpdate ?? "");
             if (updateKind === "agent_message_chunk") {
-                let text = cO(update.content);
+                let text = gO(update.content);
                 if (!text) return;
                 if (activeTurn) {
                     activeTurn.markFirstToken(), activeTurn.textParts.push(text), activeTurn.onStream?.(text);
@@ -71,7 +71,7 @@ function createGrokAcpAdapter(options) {
             }
             if (activeTurn) {
                 if (updateKind === "agent_thought_chunk") {
-                    let thought = cO(update.content);
+                    let thought = gO(update.content);
                     thought && activeTurn.onExecutionEvent?.({
                         type: "thought_chunk",
                         text: thought
@@ -80,7 +80,7 @@ function createGrokAcpAdapter(options) {
                 }
                 if (updateKind === "tool_call") {
                     let toolCallId = String(update.toolCallId ?? update.tool_call_id ?? ""),
-                        toolName = rdt(update);
+                        toolName = Cdt(update);
                     if (!toolCallId) return;
                     isGrokSkipToolCall(update) && (skipObserved = !0), toolCallsInFlight.add(toolCallId), activeTurn.onExecutionEvent?.({
                         type: "tool_use",
@@ -99,7 +99,7 @@ function createGrokAcpAdapter(options) {
                         type: "tool_result",
                         toolUseId: toolCallId,
                         isError: status === "failed",
-                        summary: cO(update.content) || status
+                        summary: gO(update.content) || status
                     })
                 }
             }
@@ -139,9 +139,9 @@ function createGrokAcpAdapter(options) {
                 }),
                 loadedSessionId = extractSessionId(loadResponse);
             if (loadedSessionId !== void 0 && loadedSessionId !== activeSessionId) throw new Error(`session/load did not resume ${activeSessionId} (got ${String(loadedSessionId)}); refusing to fork`);
-            currentModelId = lO(loadResponse) ?? currentModelId, markOverrideLoaded()
+            currentModelId = hO(loadResponse) ?? currentModelId, markOverrideLoaded()
         }, attachMcpServer = async () => {
-            !options.mcpServerFactory || mcpTransport || (mcpServer = options.mcpServerFactory(), mcpTransport = new n6, await mcpServer.instance.connect(mcpTransport))
+            !options.mcpServerFactory || mcpTransport || (mcpServer = options.mcpServerFactory(), mcpTransport = new m6, await mcpServer.instance.connect(mcpTransport))
         }, detachMcpServer = async () => {
             let transport = mcpTransport,
                 server = mcpServer;
@@ -257,7 +257,7 @@ function createGrokAcpAdapter(options) {
                     return
                 }
                 if (typeof parsed.method == "string" && parsed.id !== void 0) {
-                    if (edt(parsed.method)) {
+                    if (Tdt(parsed.method)) {
                         logDebugMessage(`grok ACP ${parsed.method}`), handleSdkCall(parsed.id, parsed.params);
                         return
                     }
@@ -273,8 +273,8 @@ function createGrokAcpAdapter(options) {
                 }
                 if (typeof parsed.method == "string") {
                     let params = coerceToPlainObject(parsed.params),
-                        modelState = udt(params.update);
-                    modelState && (modelState.modelId && (currentModelId = modelState.modelId), reportedReasoningEffort = modelState.reasoningEffort), sdt(parsed.method) && handleSessionUpdate(parsed), options.onNotification?.(parsed.method), logDebugMessage(`grok ACP notification ${parsed.method}`);
+                        modelState = Mdt(params.update);
+                    modelState && (modelState.modelId && (currentModelId = modelState.modelId), reportedReasoningEffort = modelState.reasoningEffort), Ndt(parsed.method) && handleSessionUpdate(parsed), options.onNotification?.(parsed.method), logDebugMessage(`grok ACP notification ${parsed.method}`);
                     return
                 }
                 if (typeof parsed.id == "number") {
@@ -290,7 +290,7 @@ function createGrokAcpAdapter(options) {
                 ...extraEnv
             };
             delete env.GROK_HOME;
-            let proc = Gct(grokBinary, ["agent", "--always-approve", "--no-leader", "stdio"], {
+            let proc = Sdt(grokBinary, ["agent", "--always-approve", "--no-leader", "stdio"], {
                 cwd,
                 env,
                 stdio: ["pipe", "pipe", "pipe"]
@@ -352,7 +352,7 @@ function createGrokAcpAdapter(options) {
                         }),
                         loadedSessionId = extractSessionId(loadResponse);
                     if (loadedSessionId !== sdkSessionId) throw new Error(`session/load did not resume ${sdkSessionId} (got ${String(loadedSessionId)}); refusing to session/new`);
-                    return activeSessionId = loadedSessionId, currentModelId = lO(loadResponse) ?? currentModelId, markOverrideLoaded(), activeSessionId
+                    return activeSessionId = loadedSessionId, currentModelId = hO(loadResponse) ?? currentModelId, markOverrideLoaded(), activeSessionId
                 }
                 let newResponse = await request("session/new", {
                         cwd,
@@ -361,7 +361,7 @@ function createGrokAcpAdapter(options) {
                     }),
                     sessionId = (newResponse.result ?? newResponse).sessionId;
                 if (typeof sessionId != "string" || sessionId.length === 0) throw new Error("session/new did not return sessionId");
-                return activeSessionId = sessionId, sdkSessionId = sessionId, currentModelId = lO(newResponse) ?? currentModelId, markOverrideLoaded(), activeSessionId
+                return activeSessionId = sessionId, sdkSessionId = sessionId, currentModelId = hO(newResponse) ?? currentModelId, markOverrideLoaded(), activeSessionId
             })();
             try {
                 return await connectPromise
@@ -395,11 +395,11 @@ function createGrokAcpAdapter(options) {
                 reasoningEffort: modelParams.reasoningEffort
             });
             let setModelResponse = await request("session/set_model", setModelParams);
-            if (currentModelId = sS(lO(setModelResponse), modelParams.modelId) ?? currentModelId, typeof modelParams.reasoningEffort != "string") {
+            if (currentModelId = cS(hO(setModelResponse), modelParams.modelId) ?? currentModelId, typeof modelParams.reasoningEffort != "string") {
                 appliedReasoningEffort = void 0;
                 return
             }
-            let confirmedEffort = adt(setModelResponse) ?? reportedReasoningEffort;
+            let confirmedEffort = Ddt(setModelResponse) ?? reportedReasoningEffort;
             if (confirmedEffort !== modelParams.reasoningEffort) throw new Error(`grok did not apply reasoningEffort=${modelParams.reasoningEffort}` + (confirmedEffort === void 0 ? " (RPC succeeded with no confirmation; grok warns-and-ignores unsupported effort)" : ` (got ${confirmedEffort})`));
             appliedReasoningEffort = modelParams.reasoningEffort
         }, errorMessage = err => err instanceof Error ? err.message : String(err);
@@ -440,7 +440,7 @@ function createGrokAcpAdapter(options) {
         activeTurnSkipObserved: () => skipObserved,
         steerActiveTurn: async (text, turnId, attachments) => {
             if (!activeSessionId || activeTurnId !== turnId) return !1;
-            let attachmentBlocks = await jve(attachments);
+            let attachmentBlocks = await Zve(attachments);
             if (!activeSessionId || activeTurnId !== turnId) return !1;
             let interjectParams = {
                 sessionId: activeSessionId,
@@ -457,8 +457,8 @@ function createGrokAcpAdapter(options) {
             }
         },
         run: async input => {
-            let promptText = await tdt(input.prompt),
-                attachmentBlocks = await jve(input.attachments),
+            let promptText = await Pdt(input.prompt),
+                attachmentBlocks = await Zve(input.attachments),
                 promptBlocks = [...promptText.trim() ? [{
                     type: "text",
                     text: promptText

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: requestPiWorkerCatalog  (minified: k0e, daemon.pretty.js:74208)
+// symbol: requestPiWorkerCatalog  (minified: B0e, daemon.pretty.js:74393)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 9 renamed — 0 from the code at the binding (rule), 9 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -12,12 +12,12 @@ async function requestPiWorkerCatalog(options) {
             finish = providers => {
                 settled || (settled = !0, resolve(providers))
             },
-            child = S0e(options.workerCommand.command, options.workerCommand.args, {
+            child = q0e(options.workerCommand.command, options.workerCommand.args, {
                 cwd: options.cwd,
                 stdio: ["pipe", "pipe", "pipe"]
             });
         child.on("error", () => finish([])), child.on("close", () => finish([])), child.stdin.once("error", () => finish([])), child.stderr.on("data", chunk => options.logDebug?.(String(chunk).trimEnd())), attachStreamLineReader(child.stdout, line => {
-            let frame = yJ(line);
+            let frame = PJ(line);
             frame?.type === "catalog_result" && finish(frame.providers)
         }), child.stdin.write(encodePiWorkerFrame({
             type: "catalog",

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: isHostModelEnvKey  (minified: uht, daemon.pretty.js:70275)
+// symbol: isHostModelEnvKey  (minified: jht, daemon.pretty.js:70460)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.3 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
