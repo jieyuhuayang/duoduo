@@ -146,7 +146,20 @@ for (const c of changes) {
   c.oldNames.forEach((s, i) => note(c.bundle, c.realOld[i], { change: c, side: "old", short: s, range: c.oldRanges?.[s] }));
   c.newNames.forEach((s, i) => note(c.bundle, (c.realByPairing || c.realNew)[i], { change: c, side: "new", short: s, range: c.newRanges?.[s] }));
 }
-const resolve = (qual, real) => byReal.get(`${qual || "daemon"}:${real}`) || (!qual && byReal.get(`cli:${real}`)) || null;
+// The doc rule (CLAUDE.md, citation forms): an unprefixed real name is the
+// daemon's symbol when the daemon has one by that name, in either release; only
+// then the cli's. A name both bundles have (`main`) means the cli's only with
+// the `cli:` prefix. Falling back to the cli whenever the daemon's declaration
+// did not CHANGE put every bare `main` citation on the cli's changed `main`
+// at v0.8.9 (snippets of the daemon's `main` reported "found in neither
+// version"). The name set is every real name of the old (--maps) and new
+// (carried) rename maps, plus the names of this bump's changed declarations.
+const daemonNames = new Set([
+  ...Object.values(readJSON(path.join(MAPS, "rename_daemon.json"), {})),
+  ...Object.values(readJSON(path.join(BUMP, "rename_daemon.new.json"), {})),
+  ...changes.filter((c) => c.bundle === "daemon").flatMap((c) => c.names),
+]);
+const resolve = (qual, real) => byReal.get(`${qual || "daemon"}:${real}`) || (!qual && !daemonNames.has(real) && byReal.get(`cli:${real}`)) || null;
 
 const bundleLines = new Map();
 const linesOf = (side, bundle) => {
@@ -217,7 +230,8 @@ const QUIET = new Set(["member-literal-assignments", "none"]);
 
 // a cited real name that did not change, with the changed callees it refers to
 function calleeChanged(qual, real) {
-  for (const bundle of qual ? [qual] : ["daemon", "cli"]) {
+  // same rule as resolve(): a bare name the daemon has is never the cli's
+  for (const bundle of qual ? [qual] : daemonNames.has(real) ? ["daemon"] : ["daemon", "cli"]) {
     const g = graphs.get(bundle), sym = g?.xref.symbols[real];
     if (!sym) continue;
     if (g.gone.has(sym.mangled)) return null;
