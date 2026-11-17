@@ -259,6 +259,22 @@ daemon 日志同时记录 `[WARN] [daemon] rejected write method on read-only po
 
 `check_appendix_sets.mjs` 不是回放，但用旧文档验过它能看见什么：v0.8.3 的文档对 v0.8.4 的 bundle，B.1 少 `external.record`，B.2 少 `memory.read`、`spine.cat`、`spine.record`，正是 v0.8.4 新增、当时靠人工数出来的三个方法；v0.8.6 的文档对 v0.8.6 的 bundle 通过。
 
+### 5.7 影响清单里裸真名的 bundle 归属（`impact_report.mjs` 的 `resolve`）
+
+结论：两个 bundle 都有的真名（目前只有 `main`）不带前缀时，`impact_report.mjs` 现在按文档规则把它归到 daemon，只有 `cli:` 前缀才归到 cli；这在 v0.8.8→v0.8.9 上把第 1 档从 46 降到 17、第 2 档从 135 降到 39，去掉的全是误报，而 v0.8.3 到 v0.8.7 的四对回放 `impact.md` 与 `score.md` 逐字节不变。2026-11-17，Node 22，fixture 为 `.build/replay/`，改动前后各跑一遍 `replay_bump.sh`。
+
+原因。旧实现查 `daemon:<真名>` 的改动记录，查不到就退到 `cli:<真名>`；查不到的意思是 daemon 的这个声明没有改动，而不是 daemon 没有这个名字。v0.8.9 里 cli 的 `main` 加了 `dashboard` 子命令、daemon 的 `main` 没变，于是文档里每一处裸 `main` 都按 cli 的 `main` 分档：daemon `main` 的片段（如 `"[pid0] available runtimes at boot"`）在 cli 的声明里找不到，报"snippet found in neither version"，而这些片段全部通过 `check_docs.sh`。现在只有 daemon 在旧版本（`--maps` 的 `rename_daemon.json`）、新版本（`bump.sh` 承接出的 `rename_daemon.new.json`）和本次改动声明里都没有这个名字时，裸名才退到 cli；第 2c 档的 `calleeChanged` 用同一条规则。
+
+| 版本对 | 第 1 档 | 第 2 档 | 第 3 档 | 第 2c 档 | 第 4 档 | 承接打分 |
+|---|---|---|---|---|---|---|
+| v0.8.3→v0.8.4 | 20→20 | 79→79 | 823→823 | 0→0 | 566→566 | 不变 |
+| v0.8.4→v0.8.5 | 0→0 | 0→0 | 0→0 | 0→0 | 0→0 | 不变 |
+| v0.8.5→v0.8.6 | 1→1 | 5→5 | 55→55 | 467→467 | 0→0 | 不变 |
+| v0.8.6→v0.8.7 | 53→53 | 102→102 | 885→885 | 111→111 | 520→520 | 不变 |
+| v0.8.8→v0.8.9 | 46→17 | 135→39 | 311→295 | 521→662 | 36→36 | 不变 |
+
+v0.8.8→v0.8.9 上，改动前第 1 档里的 29 处、第 2 档里的 96 处、第 3 档里的 16 处是裸 `main` 被算到 cli 的 `main`；改动后它们都不在第 1 到 3 档，其中 141 处进入第 2c 档，经过的改动被调用方都是 `createDaemon`（daemon `main` 直接调用它，v0.8.9 改了它），这是这些段落应有的位置。仍在第 2 档的 2 处 `main` 带 `cli:` 前缀，指的正是改了的 cli `main`。前四对没有变化，因为那几次要么 daemon 的 `main` 本身改了（v0.8.3→v0.8.4、v0.8.6→v0.8.7），要么 cli 的 `main` 没改。五对的承接判定（`score.md`）改动前后逐字节相同；与 5.1 节基线比，v0.8.3→v0.8.4 的 daemon 是 proposed 12 / 0（基线 11 / 1，5.2 节之后的改进），其余各格与基线相同，没有 `*-wrong` 增加、没有 `*-correct` 减少。v0.8.8→v0.8.9 的 daemon 有 1 个 proposed-wrong，改动前后相同，与本节改动无关。
+
 ## 6 可读树与 bundle 一致
 
 第 1–3 节只证明还原产物，没有一项看 `first-party/`；而人读的是后者，它出错的每一种方式都是静默的。`verify_first_party.mjs` 做六项相互独立的检查，已提交报告中 `firstPartyTree` 为 `pass`：
