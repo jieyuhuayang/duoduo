@@ -51,6 +51,15 @@
       ],
       "names": 1,
       "note": "spine subcommand"
+    },
+    {
+      "marker": [
+        "dashboardHelp",
+        "parseDashboardCli",
+        "runDashboardSubcommand"
+      ],
+      "names": 6,
+      "note": "dashboard subcommand (new in v0.8.9): `duoduo dashboard share [--ttl] | --status | --stop`, a temporary tailcat tunnel to the read-only port. First-party: no installed package exports these names, and the block refers to the first-party renderRpcError."
     }
   ]
 }

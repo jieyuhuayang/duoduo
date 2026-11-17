@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: findEventInPartitionFile  (minified: zue, daemon.pretty.js:33460)
+// symbol: findEventInPartitionFile  (minified: Zue, daemon.pretty.js:33578)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 0 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,10 +9,10 @@
 
 async function findEventInPartitionFile(filePath, eventId) {
     try {
-        let stream = jU(filePath);
+        let stream = WU(filePath);
         for await (let line of iterateStreamLines(stream)) {
             if (!line) continue;
-            let event = MU(line);
+            let event = HU(line);
             if (event?.id === eventId) return event
         }
     } catch {

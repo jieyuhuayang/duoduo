@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: createMemorySlugReader  (minified: Vc, daemon.pretty.js:68337)
+// symbol: createMemorySlugReader  (minified: Gc, daemon.pretty.js:68522)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 3 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,11 +9,11 @@
 function createMemorySlugReader(memoryDirs) {
     return slug => {
         if (!isSafeMemorySlug(slug)) return null;
-        let memoryFile = readMemoryFileSyncOrNull(Y6.join(memoryDirs.topicsDir, `${slug}.md`)),
-            memoryFile2 = readMemoryFileSyncOrNull(Y6.join(memoryDirs.entitiesDir, `${slug}.md`)),
+        let memoryFile = readMemoryFileSyncOrNull(lW.join(memoryDirs.topicsDir, `${slug}.md`)),
+            memoryFile2 = readMemoryFileSyncOrNull(lW.join(memoryDirs.entitiesDir, `${slug}.md`)),
             parts = [];
         if (memoryFile !== null && parts.push(memoryFile), memoryFile2 !== null && parts.push(memoryFile2), parts.length > 0) {
-            let memoryFile = readMemoryFileSyncOrNull(Y6.join(memoryDirs.effectivenessDir, `${slug}.md`));
+            let memoryFile = readMemoryFileSyncOrNull(lW.join(memoryDirs.effectivenessDir, `${slug}.md`));
             memoryFile !== null && parts.push(memoryFile)
         }
         return parts.length > 0 ? parts.join(`

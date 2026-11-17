@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: buildMainRoleContext  (minified: qTe, daemon.pretty.js:92409)
+// symbol: buildMainRoleContext  (minified: uPe, daemon.pretty.js:92774)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.7 (medium): The session is told when it becomes main and tells its owner in its own words.

@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: readMemoryFileSyncOrNull  (minified: $n, daemon.pretty.js:68040)
+// symbol: readMemoryFileSyncOrNull  (minified: $n, daemon.pretty.js:68225)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.7.1 (maps/history_daemon.json)
 // locals: 2 renamed — 1 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 
 function readMemoryFileSyncOrNull(filePath) {
     try {
-        return ZO.readFileSync(filePath, "utf8")
+        return nA.readFileSync(filePath, "utf8")
     } catch (err) {
         return recordUnreadableMemoryPath(err), null
     }

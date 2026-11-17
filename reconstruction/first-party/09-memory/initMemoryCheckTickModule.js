@@ -1,11 +1,11 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: initMemoryCheckTickModule  (minified: kW, daemon.pretty.js:70201)
+// symbol: initMemoryCheckTickModule  (minified: DW, daemon.pretty.js:70386)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.6 — first release whose bundle holds this declaration; body changed in v0.5.8, v0.7.1, v0.8.0 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var _W, initMemoryCheckTickModule = A(() => {
+var $W, initMemoryCheckTickModule = A(() => {
     "use strict";
     initLogLevelModule();
     initPartitionRunStateModule();
@@ -20,8 +20,8 @@ var _W, initMemoryCheckTickModule = A(() => {
     initBroadcastFlattenLintModule();
     initOrphanMemoryModule();
     initMemorySignalDeliveryModule();
-    rA();
+    lA();
     oo();
-    Bu();
-    _W = 1
+    Vu();
+    $W = 1
 });

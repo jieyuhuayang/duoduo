@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: runViewSessionsTool  (minified: Wg, daemon.pretty.js:66236)
+// symbol: runViewSessionsTool  (minified: Zg, daemon.pretty.js:66421)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // locals: 6 renamed — 3 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,7 +14,7 @@ async function runViewSessionsTool(input, ctx) {
     } = ctx;
     try {
         let targetSessionKey = input && typeof input.session_key == "string" ? input.session_key.trim() : "";
-        return targetSessionKey.length === 0 ? await renderActiveSessionsListing(paths, ctx.finalSubscriberCount, sessionKey) : await Qdt(paths, targetSessionKey, ctx.getSessionStatus)
+        return targetSessionKey.length === 0 ? await renderActiveSessionsListing(paths, ctx.finalSubscriberCount, sessionKey) : await Ift(paths, targetSessionKey, ctx.getSessionStatus)
     } catch (err) {
         return logErrorMessage("[ViewSessions] Tool execution failed", err), `Error: ${err instanceof Error?err.message:String(err)}`
     }

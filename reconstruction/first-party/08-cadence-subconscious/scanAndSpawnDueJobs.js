@@ -1,25 +1,22 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: scanAndSpawnDueJobs  (minified: uK, daemon.pretty.js:88164)
+// symbol: scanAndSpawnDueJobs  (minified: vK, daemon.pretty.js:88349)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.3.0, v0.4.5, v0.5.0, v0.5.6, v0.8.0, v0.8.2 (maps/history_daemon.json)
-// locals: 19 renamed — 3 from the code at the binding (rule), 16 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.12, v0.3.0, v0.4.5, v0.5.0, v0.5.6, v0.8.0, v0.8.2, v0.8.9 (maps/history_daemon.json)
+// locals: 16 renamed — 3 from the code at the binding (rule), 13 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.5.0 (medium): Cadence scheduler skips due jobs whose session is being archived
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function scanAndSpawnDueJobs(paths, sessionManager, options) {
-    let jobManager = new Jr(paths);
+    let jobManager = new Wr(paths);
     await jobManager.init();
     let jobs = await jobManager.listJobs(),
         now = options?.now ?? new Date,
         spawned = [],
         wakesFired = await fireDueWakeRecords(paths, jobManager, now, options?.bus);
     for (let job of jobs) {
-        let lastRunAt = job.state.last_scheduled_at ?? job.state.last_run_at,
-            lastScheduledMs = job.state.last_scheduled_at ? new Date(job.state.last_scheduled_at).getTime() : Number.NaN,
-            lastRunStartedMs = job.state.last_run_started_at ? new Date(job.state.last_run_started_at).getTime() : Number.NaN,
-            claimNotStarted = !Number.isFinite(lastRunStartedMs) || Number.isFinite(lastScheduledMs) && lastRunStartedMs < lastScheduledMs;
-        if (isOneShotJobSchedule(job.frontmatter.cron) && job.state.last_scheduled_at && claimNotStarted && (job.state.last_result === "unknown" || job.state.last_result === "failure") && (lastRunAt = null), !isJobScheduleDue(job.frontmatter.cron, lastRunAt, now, job.frontmatter.created_at, job.state.run_at ?? null)) continue;
+        let lastRunAt = resolveJobScheduleAnchor(job.frontmatter.cron, job.state);
+        if (!isJobScheduleDue(job.frontmatter.cron, lastRunAt, now, job.frontmatter.created_at, job.state.run_at ?? null)) continue;
         if (job.state.last_result === "failure" && job.state.last_scheduled_at) {
             let failureScheduledMs = new Date(job.state.last_scheduled_at).getTime();
             if (now.getTime() - failureScheduledMs < 3e5) {

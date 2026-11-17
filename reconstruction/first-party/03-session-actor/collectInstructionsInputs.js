@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: collectInstructionsInputs  (minified: aTe, daemon.pretty.js:84149)
+// symbol: collectInstructionsInputs  (minified: ITe, daemon.pretty.js:84334)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.1 — first release whose bundle holds this declaration; body changed in v0.5.2, v0.5.6, v0.8.0, v0.8.7 (maps/history_daemon.json)
 // locals: 14 renamed — 0 from the code at the binding (rule), 14 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

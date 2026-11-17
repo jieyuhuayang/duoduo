@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: renderMetaNotifyModeGuidance  (minified: sft, daemon.pretty.js:66527)
+// symbol: renderMetaNotifyModeGuidance  (minified: Nft, daemon.pretty.js:66712)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in v0.4.0, v0.8.2, v0.8.7 (maps/history_daemon.json)
 // changelog v0.8.7 (high): **Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.
@@ -7,6 +7,6 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function renderMetaNotifyModeGuidance() {
-    return [OO(), "", "Meta/subconscious session mode:", "- You MUST provide `target_session_key`; `main` reaches the main session.", "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).", "- Use this to hand off findings from background/meta work into a foreground interactive session.", "", "IMPORTANT: To reach the end user, you must target a foreground channel session", "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session", "will NOT produce user-visible output."].join(`
+    return [LO(), "", "Meta/subconscious session mode:", "- You MUST provide `target_session_key`; `main` reaches the main session.", "- Call ViewSessions with no argument to see the sessions you can target (prefer active foreground sessions).", "- Use this to hand off findings from background/meta work into a foreground interactive session.", "", "IMPORTANT: To reach the end user, you must target a foreground channel session", "(e.g., lark:oc_xxx:ou_yyy, stdio:default). Notifying another background session", "will NOT produce user-visible output."].join(`
 `)
 }

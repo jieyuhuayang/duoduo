@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: recordOutboxDeliveryAttempt  (minified: vf, daemon.pretty.js:37368)
+// symbol: recordOutboxDeliveryAttempt  (minified: Sf, daemon.pretty.js:37486)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.3.1 (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -16,9 +16,9 @@ async function recordOutboxDeliveryAttempt(paths, record, attempt) {
             last_error: attempt.error ?? null
         },
         outboxRecordPath = resolveOutboxRecordPath(paths, record.channel_kind, record.id);
-    await ensureDirectoryExists(qr.dirname(outboxRecordPath)), await writeJsonFileAtomic(outboxRecordPath, updatedRecord);
+    await ensureDirectoryExists(Ur.dirname(outboxRecordPath)), await writeJsonFileAtomic(outboxRecordPath, updatedRecord);
     try {
-        attempt.status === "sent" ? await Ont(paths, record.id) : attempt.status === "failed" && await Ant(paths, {
+        attempt.status === "sent" ? await irt(paths, record.id) : attempt.status === "failed" && await ort(paths, {
             record_id: record.id,
             channel_kind: record.channel_kind,
             session_key: record.session_key,

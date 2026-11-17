@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: upsertChannelSpawnDescriptor  (minified: USt, daemon.pretty.js:93381)
+// symbol: upsertChannelSpawnDescriptor  (minified: xkt, daemon.pretty.js:93746)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.6.0, v0.7.0, v0.8.3, v0.8.4, v0.8.7 (maps/history_daemon.json)
 // locals: 20 renamed — 5 from the code at the binding (rule), 15 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -42,9 +42,9 @@ async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
         ok: !1,
         reason: "runtime is required on first-time channel.spawn (no prior descriptor to inherit from)."
     };
-    if (!DTe.includes(runtime)) return {
+    if (!tPe.includes(runtime)) return {
         ok: !1,
-        reason: `Unsupported runtime "${runtime}". Must be one of: ${DTe.join(", ")}.`
+        reason: `Unsupported runtime "${runtime}". Must be one of: ${tPe.join(", ")}.`
     };
     if (channelDescriptor && runtime !== channelDescriptor.runtime) {
         let conflict = await checkChannelRuntimeRebindConflict(paths, sessionIndex, trimmed, runtime);
@@ -69,14 +69,14 @@ async function upsertChannelSpawnDescriptor(paths, sessionIndex, params) {
     };
     let requireMention = params.require_mention !== void 0 ? params.require_mention : channelDescriptor?.require_mention,
         displayName = params.display_name ?? channelDescriptor?.display_name;
-    if (displayName?.trim() === Hn) return {
+    if (displayName?.trim() === Jn) return {
         ok: !1,
-        reason: `"${Hn}" is reserved for the main session and cannot be set by channel.spawn. Nothing was written. Spawn with another display name; the owner makes a session main with: duoduo session alias <session_key> ${Hn} --move`
+        reason: `"${Jn}" is reserved for the main session and cannot be set by channel.spawn. Nothing was written. Spawn with another display name; the owner makes a session main with: duoduo session alias <session_key> ${Jn} --move`
     };
     let boundBy = params.bound_by?.trim() || channelDescriptor?.bound_by,
         boundAt = new Date().toISOString();
     try {
-        await qde(paths, {
+        await Xde(paths, {
             channel_id: trimmed,
             channel_kind: channelKind,
             display_name: displayName,

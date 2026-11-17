@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: listEventPartitionDates  (minified: Emt, daemon.pretty.js:69372)
+// symbol: listEventPartitionDates  (minified: eht, daemon.pretty.js:69557)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,13 +10,13 @@
 function listEventPartitionDates(eventsDir) {
     let fileNames;
     try {
-        fileNames = mW.readdirSync(eventsDir)
+        fileNames = RW.readdirSync(eventsDir)
     } catch (err) {
         return recordUnreadableMemoryPath(err), []
     }
     let dates = [];
     for (let fileName of fileNames) {
-        let match = kmt.exec(fileName);
+        let match = Xmt.exec(fileName);
         match && dates.push(match[1])
     }
     return dates.sort(), dates

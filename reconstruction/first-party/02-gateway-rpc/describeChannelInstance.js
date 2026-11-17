@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: describeChannelInstance  (minified: kSt, daemon.pretty.js:92263)
+// symbol: describeChannelInstance  (minified: skt, daemon.pretty.js:92628)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.0 — first release whose bundle holds this declaration; body changed in v0.5.3, v0.5.4, v0.7.1, v0.8.0, v0.8.4 (maps/history_daemon.json)
 // locals: 20 renamed — 10 from the code at the binding (rule), 10 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -14,13 +14,13 @@ async function describeChannelInstance(paths, actors, params) {
         sessionKey = params.session_key?.trim(),
         {
             isClaudeAvailable
-        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), bC)),
+        } = await Promise.resolve().then(() => (initAgentSdkAdapterModule(), xC)),
         {
             isCodexAvailable
-        } = await Promise.resolve().then(() => (initCodexAppServerModule(), t6)),
+        } = await Promise.resolve().then(() => (initCodexAppServerModule(), p6)),
         {
             isGrokAvailable
-        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), s6)),
+        } = await Promise.resolve().then(() => (initGrokAcpRuntimeModule(), _6)),
         runtimes = [];
     isClaudeAvailable() && runtimes.push("claude"), isCodexAvailable() && runtimes.push("codex"), isGrokAvailable() && runtimes.push("grok"), runtimes.push("pi");
     let availableRuntimes = runtimes,

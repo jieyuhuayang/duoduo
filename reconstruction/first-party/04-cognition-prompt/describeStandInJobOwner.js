@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: describeStandInJobOwner  (minified: s0e, daemon.pretty.js:72967)
+// symbol: describeStandInJobOwner  (minified: R0e, daemon.pretty.js:73152)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.7 (high): A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.

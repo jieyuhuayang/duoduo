@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: parseEffectivenessCounts  (minified: wpt, daemon.pretty.js:68117)
+// symbol: parseEffectivenessCounts  (minified: Zpt, daemon.pretty.js:68302)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,9 +9,9 @@
 function parseEffectivenessCounts(text) {
     for (let line of splitLinesDropTrailingEmpty(text))
         if (/strengthening\s*=/i.test(line)) return {
-            s: K6(line, "strengthening"),
-            n: K6(line, "neutral"),
-            w: K6(line, "weakening")
+            s: aW(line, "strengthening"),
+            n: aW(line, "neutral"),
+            w: aW(line, "weakening")
         };
     return {
         s: 0,

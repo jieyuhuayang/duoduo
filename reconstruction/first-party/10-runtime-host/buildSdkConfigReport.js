@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: buildSdkConfigReport  (minified: mSt, daemon.pretty.js:92035)
+// symbol: buildSdkConfigReport  (minified: YSt, daemon.pretty.js:92400)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.3 — first release whose bundle holds this declaration; body changed in v0.6.0 (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -19,9 +19,9 @@ function buildSdkConfigReport() {
             value: authSource,
             source: "env"
         }, authSource === "claude_code_local") return report;
-    for (let envKey of fSt) {
+    for (let envKey of KSt) {
         let envConfigEntry = resolveEnvConfigEntry(envKey, null);
-        envConfigEntry.source !== "unset" && (report[pSt(envKey)] = envConfigEntry)
+        envConfigEntry.source !== "unset" && (report[ZSt(envKey)] = envConfigEntry)
     }
     return report
 }

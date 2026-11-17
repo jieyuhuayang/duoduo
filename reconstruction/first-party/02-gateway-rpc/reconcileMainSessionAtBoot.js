@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: reconcileMainSessionAtBoot  (minified: kSe, daemon.pretty.js:90311)
+// symbol: reconcileMainSessionAtBoot  (minified: MSe, daemon.pretty.js:90493)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 2 from the code at the binding (rule), 0 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,7 +8,7 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 async function reconcileMainSessionAtBoot(e) {
-    await bSe(async () => {
+    await OSe(async () => {
         let mainSessionFromIndex = resolveMainSessionFromIndex(e.sessionIndex);
         if (mainSessionFromIndex.state === "ambiguous") {
             logWarnMessage("[main-role] ambiguous main session at boot", {

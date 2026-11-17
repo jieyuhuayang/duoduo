@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 05-drain-turn
-// symbol: selectInterruptMarkerText  (minified: zg, daemon.pretty.js:63370)
+// symbol: selectInterruptMarkerText  (minified: Vg, daemon.pretty.js:63571)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 2 renamed — 0 from the code at the binding (rule), 2 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function selectInterruptMarkerText(abortReason, interrupted) {
-    return abortReason === "user-cancel" ? Nct : interrupted ? Dct : null
+    return abortReason === "user-cancel" ? adt : interrupted ? udt : null
 }

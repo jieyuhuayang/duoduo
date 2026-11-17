@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: createJobSessionFinalizer  (minified: $Ie, daemon.pretty.js:81852)
+// symbol: createJobSessionFinalizer  (minified: ZIe, daemon.pretty.js:82037)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1, v0.8.7 (maps/history_daemon.json)
 // locals: 82 renamed — 30 from the code at the binding (rule), 52 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -43,12 +43,12 @@ function createJobSessionFinalizer(deps) {
                 consumeRunAt,
                 expectedClaimCursor
             });
-            return result === JH ? (logInfoMessage(`[session-manager] job gone at finalize (${label}) — state frozen`, {
+            return result === o6 ? (logInfoMessage(`[session-manager] job gone at finalize (${label}) — state frozen`, {
                 jobId,
                 sessionKey
             }), {
                 kind: "gone"
-            }) : result === GH ? (logWarnMessage(`[session-manager] stale finalize (${label}) — a fresh claim owns the sidecar; nothing written`, {
+            }) : result === s6 ? (logWarnMessage(`[session-manager] stale finalize (${label}) — a fresh claim owns the sidecar; nothing written`, {
                 jobId,
                 sessionKey,
                 claimCursor: expectedClaimCursor

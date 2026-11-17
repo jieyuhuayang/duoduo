@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 01-spine-wal
-// symbol: getOrCreateEventIdIndexCache  (minified: dXe, daemon.pretty.js:33410)
+// symbol: getOrCreateEventIdIndexCache  (minified: jXe, daemon.pretty.js:33528)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.0 (maps/history_daemon.json)
 // locals: 4 renamed — 1 from the code at the binding (rule), 3 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,10 +8,10 @@
 
 function getOrCreateEventIdIndexCache(paths) {
     let eventIdIndexPath = resolveEventIdIndexPath(paths),
-        existing = QR.get(eventIdIndexPath);
+        existing = iI.get(eventIdIndexPath);
     if (existing) return existing;
     let cache = {
         map: new Map
     };
-    return QR.set(eventIdIndexPath, cache), cache
+    return iI.set(eventIdIndexPath, cache), cache
 }

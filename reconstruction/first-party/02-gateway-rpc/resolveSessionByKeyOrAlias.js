@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveSessionByKeyOrAlias  (minified: bp, daemon.pretty.js:92438)
+// symbol: resolveSessionByKeyOrAlias  (minified: wp, daemon.pretty.js:92803)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.4 — first release whose bundle holds this declaration; body changed in v0.8.7 (maps/history_daemon.json)
 // locals: 8 renamed — 0 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -15,18 +15,18 @@ function resolveSessionByKeyOrAlias(sessionIndex, keyOrAlias) {
         session_key: exactEntry.session_key,
         display_name: hasNonEmptyDisplayName(exactEntry) ? exactEntry.display_name ?? null : null
     };
-    if (keyOrAlias === Hn) {
+    if (keyOrAlias === Jn) {
         let mainHolder = resolveMainSessionFromIndex(sessionIndex);
         return mainHolder.state === "held" ? {
             ok: !0,
             session_key: mainHolder.session_key,
-            display_name: Hn
+            display_name: Jn
         } : mainHolder.state === "ambiguous" ? {
             ok: !1,
             reason: "ambiguous",
             candidates: mainHolder.candidates.map(candidateKey => ({
                 session_key: candidateKey,
-                display_name: Hn
+                display_name: Jn
             }))
         } : {
             ok: !1,

@@ -1,23 +1,31 @@
 // duoduo reconstruction — subsystem: 00-daemon-entry
-// symbol: createDaemon  (minified: JSt, daemon.pretty.js:93555)
+// symbol: createDaemon  (minified: $kt, daemon.pretty.js:93920)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10, v0.3.0, v0.3.2, v0.3.3, v0.3.4, v0.3.6, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.4, v0.5.0, v0.5.4, v0.5.5, v0.5.6, v0.5.8, v0.5.10, v0.6.0, v0.7.0, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4, v0.8.7 (maps/history_daemon.json)
-// locals: 260 renamed — 72 from the code at the binding (rule), 188 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.10, v0.3.0, v0.3.2, v0.3.3, v0.3.4, v0.3.6, v0.3.7, v0.4.0, v0.4.2, v0.4.3, v0.4.4, v0.5.0, v0.5.4, v0.5.5, v0.5.6, v0.5.8, v0.5.10, v0.6.0, v0.7.0, v0.8.0, v0.8.1, v0.8.2, v0.8.3, v0.8.4, v0.8.7, v0.8.9 (maps/history_daemon.json)
+// locals: 267 renamed — 75 from the code at the binding (rule), 192 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.7.0 (high): That interface now lives on a socket file that carries owner-only permissions, so the operating system enforces what nothing was enforcing before.
 // changelog v0.8.7 (high): **Uploads over `/rpc` match WebSocket.** The full-access HTTP `/rpc` body limit now equals the WebSocket message limit, so an upload that works over WebSocket also works over `/rpc`.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function createDaemon(options) {
-    let app = (0, YN.default)({
+    let app = (0, iD.default)({
             logger: !1
         }),
         maxPayload = wsDefaultMaxPayload(),
-        socketApp = (0, YN.default)({
+        socketApp = (0, iD.default)({
             logger: !1,
             bodyLimit: maxPayload
         }),
         remoteApp = null,
+        tcpPort = null,
+        readTcpPort = () => {
+            if (tcpPort === null) throw new DashboardShareError("the read-only TCP port is not listening");
+            return tcpPort
+        },
+        dashboardShare = options.dashboardShare ? options.dashboardShare(readTcpPort) : createDashboardShareManager({
+            tcpPort: readTcpPort
+        }),
         allowedHostnames = new Set(["127.0.0.1", "localhost", "::1"]),
         rejectRequest = (request, reply, statusCode, statusText, payload) => {
             if (String(request.headers.upgrade ?? "").toLowerCase() === "websocket") {
@@ -43,9 +51,9 @@ Content-Length: 0\r
             paths,
             bus
         } = options,
-        jobStore = new Jr(paths),
+        jobStore = new Wr(paths),
         sessionIndex = options.sessionIndex ?? createEmptySessionIndex();
-    Lde((sessionKey, changeKind) => {
+    Gde((sessionKey, changeKind) => {
         if (changeKind === "removed") {
             sessionIndex.remove(sessionKey);
             return
@@ -60,7 +68,7 @@ Content-Length: 0\r
         sessionIndex.remove(sessionKey)
     });
     let runtimeInfo = {
-            version: oSt(import.meta.url)("../../package.json").version,
+            version: qSt(import.meta.url)("../../package.json").version,
             runtime_id: computeRuntimeId(paths.runtimeDir),
             runtime_mode: "host",
             runtime_dir: po.resolve(paths.runtimeDir),
@@ -93,13 +101,13 @@ Content-Length: 0\r
                 worker_token: workerToken,
                 ...restParams
             } = request.params;
-            if (piWorkerContext = w_e(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
+            if (piWorkerContext = C_e(workerToken), !piWorkerContext) return logWarnMessage("[daemon] rejected pi worker RPC: unknown token", {
                 method: request.method
             }), response.error = {
                 code: -32001,
                 message: "invalid pi worker token"
             }, response;
-            if (!v_e.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
+            if (!$_e.has(request.method)) return logWarnMessage("[daemon] rejected pi worker RPC: method not whitelisted", {
                 method: request.method,
                 session_key: piWorkerContext.session_key
             }), response.error = {
@@ -432,8 +440,8 @@ Content-Length: 0\r
                     channelKind = colonIndex > 0 ? params.session_key.slice(0, colonIndex) : null,
                     outboxRecord = null;
                 if (channelKind && (outboxRecord = await readOutboxRecord(paths, channelKind, trimmed2)), !outboxRecord || outboxRecord.session_key !== params.session_key) {
-                    let fallbackCursorRecord = await Gde(paths, params.session_key, trimmed2);
-                    return fallbackCursorRecord ? (await l6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
+                    let fallbackCursorRecord = await ife(paths, params.session_key, trimmed2);
+                    return fallbackCursorRecord ? (await w6(paths, params.session_key, trimmed, fallbackCursorRecord), response.result = {
                         session_key: params.session_key,
                         consumer_id: trimmed,
                         committed_cursor: fallbackCursorRecord.id,
@@ -447,7 +455,7 @@ Content-Length: 0\r
                 if (!outboxByIdIndexEntry) try {
                     await backfillOutboxByIdIndexFromReplay(paths, params.session_key), outboxByIdIndexEntry = await lookupOutboxByIdIndexEntry(paths, trimmed2)
                 } catch {}
-                outboxByIdIndexEntry ? await iwe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await l6(paths, params.session_key, trimmed, outboxRecord), response.result = {
+                outboxByIdIndexEntry ? await ywe(paths, params.session_key, trimmed, outboxByIdIndexEntry) : await w6(paths, params.session_key, trimmed, outboxRecord), response.result = {
                     session_key: params.session_key,
                     consumer_id: trimmed,
                     committed_cursor: outboxRecord.id,
@@ -497,7 +505,7 @@ Content-Length: 0\r
                     kind: "active"
                 };
                 else if (jobClassification.kind === "invalid") response.error = {
-                    code: Hm.INVALID_ACTIVE,
+                    code: Gm.INVALID_ACTIVE,
                     message: `Job '${params.id}' active job file exists but is invalid: ${jobClassification.reason}`
                 };
                 else {
@@ -507,16 +515,18 @@ Content-Length: 0\r
                         kind: "archived",
                         archived: !0
                     } : response.error = {
-                        code: Hm.NOT_FOUND,
+                        code: Gm.NOT_FOUND,
                         message: "Job not found"
                     }
                 }
             } else if (request.method === "job.list") {
                 if (!isJobListParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
                 await jobStore.init();
-                let jobs = kve(await jobStore.listJobs()).map(job => ({
+                let date = new Date,
+                    jobs = Mve(await jobStore.listJobs()).map(job => ({
                         type: "job",
-                        ...job
+                        ...job,
+                        next_run_at: computeJobNextRunAt(job.frontmatter, job.state, date)
                     })),
                     wakes = (await jobStore.listWakeRecords()).map(wakeRecord => ({
                         type: "wake",
@@ -573,7 +583,7 @@ Content-Length: 0\r
                 await jobStore.init();
                 let job = await jobStore.getJob(params.id) ?? await jobStore.getArchivedJob(params.id);
                 if (!job) response.error = {
-                    code: Hm.NOT_FOUND,
+                    code: Gm.NOT_FOUND,
                     message: `Job '${params.id}' not found`
                 };
                 else if (!options.sessionManager) response.error = {
@@ -689,7 +699,7 @@ Content-Length: 0\r
                         interval_ms: cadenceIntervalMs
                     },
                     sessions,
-                    main_session: ESt(sessionIndex),
+                    main_session: ukt(sessionIndex),
                     subconscious: {
                         partitions: playlistRound.items.map(partition => ({
                             name: partition.name,
@@ -710,7 +720,15 @@ Content-Length: 0\r
                         after_id: tailParams.after_id
                     });
                 response.result = spineTail
-            } else request.method === "memory.read" ? response.result = await readMemoryFileForRpc(paths, request.params) : request.method === "spine.cat" ? response.result = await runSpineCatRpc(paths, request.params) : request.method === "spine.record" ? response.result = await recordExternalSpineEvent(paths, request.params) : response.error = {
+            } else if (request.method === "spine.activity") {
+                if (!isSpineActivityParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params");
+                let params = request.params;
+                response.result = await readSpineActivityWindow(paths, params.window)
+            } else if (request.method === "dashboard.share") {
+                if (!isDashboardShareParams(request.params)) throw new JsonRpcInvalidParamsError("Invalid params: ttl_minutes must be a positive integer");
+                let params = request.params ?? {};
+                response.result = await dashboardShare.share(params.ttl_minutes)
+            } else request.method === "dashboard.share_status" ? response.result = dashboardShare.status() : request.method === "dashboard.share_stop" ? response.result = dashboardShare.stop() : request.method === "memory.read" ? response.result = await readMemoryFileForRpc(paths, request.params) : request.method === "spine.cat" ? response.result = await runSpineCatRpc(paths, request.params) : request.method === "spine.record" ? response.result = await recordExternalSpineEvent(paths, request.params) : response.error = {
                 code: -32601,
                 message: "Method not found"
             }
@@ -721,7 +739,10 @@ Content-Length: 0\r
             } : err instanceof MemoryReadRpcError || err instanceof SpineRpcParamsError ? response.error = {
                 code: -32602,
                 message: err.message
-            } : err instanceof Fb ? response.error = {
+            } : err instanceof DashboardShareError ? response.error = {
+                code: -32603,
+                message: err.message
+            } : err instanceof Vb ? response.error = {
                 code: -32603,
                 message: err.message
             } : response.error = {
@@ -738,7 +759,7 @@ Content-Length: 0\r
         bearerToken
     }) => {
         if (bearerToken) {
-            let sha256 = value => XN.createHash("sha256").update(value).digest(),
+            let sha256 = value => oD.createHash("sha256").update(value).digest(),
                 expectedTokenHash = sha256(bearerToken);
             app.addHook("onRequest", async (request, reply) => {
                 let authorization = request.headers.authorization,
@@ -746,14 +767,14 @@ Content-Length: 0\r
                 if (!presentedToken) return logWarnMessage("[daemon] rejected request: missing/invalid bearer", {
                     url: request.url
                 }), sendUnauthorized(request, reply);
-                if (!XN.timingSafeEqual(sha256(presentedToken), expectedTokenHash)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
+                if (!oD.timingSafeEqual(sha256(presentedToken), expectedTokenHash)) return logWarnMessage("[daemon] rejected request: bearer mismatch", {
                     url: request.url
                 }), sendUnauthorized(request, reply)
             })
         }
         hostGuard && app.addHook("onRequest", async (request, reply) => {
             let routeOptionsUrl = request.routeOptions.url;
-            if (routeOptionsUrl !== void 0 && lSt.has(routeOptionsUrl)) return;
+            if (routeOptionsUrl !== void 0 && WSt.has(routeOptionsUrl)) return;
             let requestUrl = request.url ?? "",
                 host = request.headers.host,
                 hostname = host ? parseHostHeaderHostname(host) : null;
@@ -776,10 +797,10 @@ Content-Length: 0\r
             error: "upgrade_required",
             message: "This TCP port serves the daemon's read-only HTTP surface; it has no WebSocket endpoint and rejects all write methods. Full-access clients (the duoduo CLI and channel gateways) connect over the daemon's unix socket instead. If a channel gateway is stuck retrying this port, reinstall/upgrade the channel and restart it (`duoduo channel <kind> stop`, then `start`) so it picks up the socket transport.",
             socket_path: paths.daemonSocketPath
-        }))) : app.register(FTe.default), app.get("/healthz", async () => jfe()), app.get("/dashboard", async (request, reply) => {
+        }))) : app.register(oPe.default), app.get("/healthz", async () => Jfe()), app.get("/dashboard", async (request, reply) => {
             let dashboardPath = po.join(paths.bootstrapDir, "dashboard.html");
             try {
-                let content = await Hs.readFile(dashboardPath, "utf8");
+                let content = await Ws.readFile(dashboardPath, "utf8");
                 return reply.type("text/html").send(content)
             } catch {
                 return reply.code(404).send("Dashboard not found")
@@ -793,7 +814,7 @@ Content-Length: 0\r
             if (!isJsonRpcRequest(body)) return logWarnMessage("[daemon] invalid JSON-RPC request"), reply.code(400).send({
                 error: "Invalid JSON-RPC request"
             });
-            if (readOnly && !uSt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
+            if (readOnly && !HSt.has(body.method)) return logWarnMessage("[daemon] rejected write method on read-only port", {
                 method: body.method,
                 id: body.id ?? null
             }), reply.code(200).send({
@@ -1007,7 +1028,7 @@ Content-Length: 0\r
                 let socketDir = po.dirname(daemonSocketPath),
                     socketDirStat;
                 try {
-                    socketDirStat = await Hs.stat(socketDir)
+                    socketDirStat = await Ws.stat(socketDir)
                 } catch (err) {
                     throw new Error(`daemon socket directory is not accessible: ${socketDir} (${String(err)}). Point ALADUO_DAEMON_SOCKET at an absolute path inside a directory you own with mode 0700.`)
                 }
@@ -1016,19 +1037,21 @@ Content-Length: 0\r
                 if (dirMode !== 448 || uid !== void 0 && socketDirStat.uid !== uid) throw new Error(`daemon socket directory must be owned by this user and mode 0700 (found mode 0${dirMode.toString(8)}, uid ${socketDirStat.uid}): ${socketDir}. Use the default ALADUO_RUNTIME_DIR/run or point ALADUO_DAEMON_SOCKET at a 0700 directory you own.`);
                 let existingStat = null;
                 try {
-                    existingStat = await Hs.lstat(daemonSocketPath)
+                    existingStat = await Ws.lstat(daemonSocketPath)
                 } catch {
                     existingStat = null
                 }
                 if (existingStat)
-                    if (existingStat.isSocket()) await Hs.unlink(daemonSocketPath);
+                    if (existingStat.isSocket()) await Ws.unlink(daemonSocketPath);
                     else throw new Error(`daemon socket path is occupied by a non-socket file: ${daemonSocketPath}. Refusing to delete it — check ALADUO_DAEMON_SOCKET.`);
                 await socketApp.listen({
                     path: daemonSocketPath
-                }), socketListening = !0, await Hs.chmod(daemonSocketPath, 384), await app.listen({
+                }), socketListening = !0, await Ws.chmod(daemonSocketPath, 384), await app.listen({
                     port,
                     host: "127.0.0.1"
-                }), remoteListenerConfig.enabled && (remoteApp = (0, YN.default)({
+                });
+                let tcpAddress = app.server.address();
+                tcpPort = tcpAddress && typeof tcpAddress == "object" ? tcpAddress.port : null, remoteListenerConfig.enabled && (remoteApp = (0, iD.default)({
                     logger: !1,
                     bodyLimit: maxPayload
                 }), registerRoutes(remoteApp, {
@@ -1040,7 +1063,7 @@ Content-Length: 0\r
                     host: remoteListenerConfig.host
                 }), logAlwaysAtLevel("info", `[daemon] remote full-access listener on ${remoteListenerConfig.host}:${remoteListenerConfig.port} (bearer-gated)`))
             } catch (err) {
-                throw await app.close().catch(() => {}), await socketApp.close().catch(() => {}), remoteApp && (await remoteApp.close().catch(() => {}), remoteApp = null), socketListening && await Hs.unlink(daemonSocketPath).catch(() => {}), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1), err
+                throw await app.close().catch(() => {}), await socketApp.close().catch(() => {}), remoteApp && (await remoteApp.close().catch(() => {}), remoteApp = null), socketListening && await Ws.unlink(daemonSocketPath).catch(() => {}), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1), err
             }
             let envIntegerOrFallback = readEnvIntegerOrFallback("ALADUO_RUNTIME_LOCK_HEARTBEAT_MS", 3e4, 1e3);
             lockHeartbeatTimer = setInterval(() => {
@@ -1048,9 +1071,9 @@ Content-Length: 0\r
             }, envIntegerOrFallback), lockHeartbeatTimer.unref?.()
         },
         async stop() {
-            subscriptions.stop();
+            dashboardShare.stop(), tcpPort = null, subscriptions.stop();
             let closePromises = [app.close(), socketApp.close()];
-            remoteApp && closePromises.push(remoteApp.close()), await Promise.all(closePromises), remoteApp = null, await Promise.allSettled(map2.values()), await Promise.allSettled(map.values()), await Hs.unlink(daemonSocketPath).catch(() => {}), lockHeartbeatTimer && (clearInterval(lockHeartbeatTimer), lockHeartbeatTimer = null), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1)
+            remoteApp && closePromises.push(remoteApp.close()), await Promise.all(closePromises), remoteApp = null, await Promise.allSettled(map2.values()), await Promise.allSettled(map.values()), await Ws.unlink(daemonSocketPath).catch(() => {}), lockHeartbeatTimer && (clearInterval(lockHeartbeatTimer), lockHeartbeatTimer = null), runtimeLockHeld && (await releaseRuntimeWriterLock(paths), runtimeLockHeld = !1)
         }
     }
 }

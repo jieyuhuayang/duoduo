@@ -1,10 +1,10 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: SESSION_SCHEMA_VERSION  (minified: Oy, daemon.pretty.js:81847)
+// symbol: SESSION_SCHEMA_VERSION  (minified: My, daemon.pretty.js:82032)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var SESSION_SCHEMA_VERSION, UG = A(() => {
+var SESSION_SCHEMA_VERSION, QG = A(() => {
     "use strict";
     SESSION_SCHEMA_VERSION = 2
 });

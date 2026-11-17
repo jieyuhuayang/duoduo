@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: readPlaylistRound  (minified: Zg, daemon.pretty.js:67726)
+// symbol: readPlaylistRound  (minified: ey, daemon.pretty.js:67911)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 5 renamed — 1 from the code at the binding (rule), 4 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 async function readPlaylistRound(paths) {
     let source;
     try {
-        source = await ll.readFile(paths.subconsciousPlaylistPath, "utf8")
+        source = await cl.readFile(paths.subconsciousPlaylistPath, "utf8")
     } catch {
         return {
             items: [],

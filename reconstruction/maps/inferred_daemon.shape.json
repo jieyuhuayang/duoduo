@@ -1,7 +1,7 @@
 {
   "source": "daemon.pretty.js",
-  "recorded": "2026-11-05",
-  "package": "v0.8.8",
+  "recorded": "2026-11-15",
+  "package": "v0.8.9",
   "shapes": {
     "createSpineEvent": {
       "kind": "function",
@@ -1706,45 +1706,6 @@
         "usage"
       ]
     },
-    "initAgentSdkAdapterModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        "Agent",
-        "AgentSdkPromptNotAcceptedAbortError",
-        "AgentSdkTurnInterruptedError",
-        "Bash",
-        "Codebase and user instructions are shown below. Be sure to adhere to these instructions. IMPORTANT: These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.",
-        "Edit",
-        "Glob",
-        "Grep",
-        "Read",
-        "SDK query aborted before the prompt was accepted",
-        "SDK turn interrupted during execution",
-        "SendMessage",
-        "Skill",
-        "TaskCreate",
-        "TaskGet",
-        "TaskList",
-        "TaskStop",
-        "TaskUpdate",
-        "The `[[slug]]` links in this board are dossier entry points, not footnotes. When a line's trigger fires in your current task and the inline summary is not enough to judge or act on that entity safely, read the linked dossier before committing — do not stitch a plausible judgment from the summary alone. Most turns resolve from the summary; expand only when it would otherwise leave you guessing on a consequential call.",
-        "ToolSearch",
-        "Write"
-      ],
-      "props": [
-        "name"
-      ],
-      "values": [
-        "046d1a579eb19a27",
-        "0f8eb4b72b6e0c9e",
-        "142b14d0dcf7084b",
-        "62274d35cd3b319d",
-        "82c8f69f6f2d0ed4",
-        "8921a68035df61c6",
-        "972dcafa6fb4c2c8"
-      ]
-    },
     "parseScheduleDurationMs": {
       "kind": "function",
       "params": 1,
@@ -1957,102 +1918,6 @@
       "params": 0,
       "literals": [],
       "props": []
-    },
-    "initCodexAppServerModule": {
-      "kind": "moduleInit",
-      "params": 0,
-      "literals": [
-        " aborted",
-        " signal=",
-        "') not found. Install it from https://github.com/openai/codex and run 'codex login'.",
-        "AbortError",
-        "Approval",
-        "Codex CLI ('",
-        "ENOENT",
-        "Error: ",
-        "SIGTERM",
-        "[codex-stderr]",
-        "[codex-transport] server request:",
-        "[codex-transport] unparseable line:",
-        "abort",
-        "accept",
-        "aladuo",
-        "app-server",
-        "approval",
-        "approve",
-        "codex",
-        "codex app-server exited (code=",
-        "codex app-server is not running",
-        "codex app-server shut down",
-        "codex rpc error: ",
-        "duoduo adapter does not handle "
-      ],
-      "props": [
-        "aborted",
-        "addEventListener",
-        "alive",
-        "arguments",
-        "assign",
-        "binary",
-        "catch",
-        "close",
-        "code",
-        "cwd",
-        "data",
-        "delete",
-        "emit",
-        "end",
-        "env",
-        "error",
-        "exitCode",
-        "get",
-        "handleLine",
-        "handleServerRequest",
-        "id",
-        "includes",
-        "kill",
-        "message",
-        "method",
-        "name",
-        "nextId",
-        "on",
-        "onToolCallObserved",
-        "onToolCallSettled",
-        "once",
-        "params",
-        "parse",
-        "pending",
-        "pid",
-        "proc",
-        "reject",
-        "rejectAllPending",
-        "resolve",
-        "respond",
-        "respondError",
-        "result",
-        "rl",
-        "send",
-        "set",
-        "signalCode",
-        "slice",
-        "stderr",
-        "stdin",
-        "stdout",
-        "stringify",
-        "success",
-        "text",
-        "then",
-        "tool",
-        "toolHandlers",
-        "trim",
-        "writable",
-        "write"
-      ],
-      "values": [
-        "028d8925df79b951",
-        "92ddbf284e3d9267",
-        "a4b3daf428a0e4f0"
-      ]
     },
     "collectGrokToolCallNames": {
       "kind": "function",
@@ -6155,31 +6020,6 @@
         "substring",
         "test",
         "toISOString",
-        "trim"
-      ]
-    },
-    "isJobScheduleDue": {
-      "kind": "function",
-      "params": 5,
-      "literals": [
-        "@every ",
-        "@in ",
-        "keepalive",
-        "once",
-        "string"
-      ],
-      "props": [
-        "CronExpressionParser",
-        "NaN",
-        "getTime",
-        "isFinite",
-        "isNaN",
-        "length",
-        "next",
-        "parse",
-        "startsWith",
-        "substring",
-        "toDate",
         "trim"
       ]
     },
@@ -12582,6 +12422,386 @@
       ],
       "props": [
         "join"
+      ]
+    },
+    "initAgentSdkAdapterModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "Agent",
+        "AgentSdkPromptNotAcceptedAbortError",
+        "AgentSdkTurnInterruptedError",
+        "Bash",
+        "Codebase and user instructions are shown below. Be sure to adhere to these instructions. IMPORTANT: These instructions OVERRIDE any default behavior and you MUST follow them exactly as written.",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "SDK query aborted before the prompt was accepted",
+        "SDK turn interrupted during execution",
+        "SendMessage",
+        "Skill",
+        "TaskCreate",
+        "TaskGet",
+        "TaskList",
+        "TaskStop",
+        "TaskUpdate",
+        "The `[[slug]]` links in this board are dossier entry points, not footnotes. When a line's trigger fires in your current task and the inline summary is not enough to judge or act on that entity safely, read the linked dossier before committing — do not stitch a plausible judgment from the summary alone. Most turns resolve from the summary; expand only when it would otherwise leave you guessing on a consequential call.",
+        "ToolSearch",
+        "Write"
+      ],
+      "props": [
+        "name"
+      ],
+      "values": [
+        "046d1a579eb19a27",
+        "0f8eb4b72b6e0c9e",
+        "142b14d0dcf7084b",
+        "62274d35cd3b319d",
+        "82c8f69f6f2d0ed4",
+        "8921a68035df61c6",
+        "972dcafa6fb4c2c8"
+      ]
+    },
+    "initCodexAppServerModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        " aborted",
+        " signal=",
+        "') not found. Install it from https://github.com/openai/codex and run 'codex login'.",
+        "AbortError",
+        "Approval",
+        "Codex CLI ('",
+        "ENOENT",
+        "Error: ",
+        "SIGTERM",
+        "[codex-stderr]",
+        "[codex-transport] server request:",
+        "[codex-transport] unparseable line:",
+        "abort",
+        "accept",
+        "aladuo",
+        "app-server",
+        "approval",
+        "approve",
+        "codex",
+        "codex app-server exited (code=",
+        "codex app-server is not running",
+        "codex app-server shut down",
+        "codex rpc error: ",
+        "duoduo adapter does not handle "
+      ],
+      "props": [
+        "aborted",
+        "addEventListener",
+        "alive",
+        "arguments",
+        "assign",
+        "binary",
+        "catch",
+        "close",
+        "code",
+        "cwd",
+        "data",
+        "delete",
+        "emit",
+        "end",
+        "env",
+        "error",
+        "exitCode",
+        "get",
+        "handleLine",
+        "handleServerRequest",
+        "id",
+        "includes",
+        "kill",
+        "message",
+        "method",
+        "name",
+        "nextId",
+        "on",
+        "onToolCallObserved",
+        "onToolCallSettled",
+        "once",
+        "params",
+        "parse",
+        "pending",
+        "pid",
+        "proc",
+        "reject",
+        "rejectAllPending",
+        "resolve",
+        "respond",
+        "respondError",
+        "result",
+        "rl",
+        "send",
+        "set",
+        "signalCode",
+        "slice",
+        "stderr",
+        "stdin",
+        "stdout",
+        "stringify",
+        "success",
+        "text",
+        "then",
+        "tool",
+        "toolHandlers",
+        "trim",
+        "writable",
+        "write"
+      ],
+      "values": [
+        "028d8925df79b951",
+        "0f8eb4b72b6e0c9e",
+        "92ddbf284e3d9267",
+        "a4b3daf428a0e4f0"
+      ]
+    },
+    "isJobScheduleDue": {
+      "kind": "function",
+      "params": 5,
+      "literals": [
+        "never"
+      ],
+      "props": [
+        "getTime",
+        "kind",
+        "ms"
+      ]
+    },
+    "computeJobNextDue": {
+      "kind": "function",
+      "params": 5,
+      "literals": [
+        "@in ",
+        "never",
+        "once",
+        "string"
+      ],
+      "props": [
+        "getTime",
+        "isFinite",
+        "kind",
+        "length",
+        "min",
+        "ms",
+        "startsWith"
+      ]
+    },
+    "computeScheduleNextDue": {
+      "kind": "function",
+      "params": 4,
+      "literals": [
+        "@every ",
+        "@in ",
+        "keepalive",
+        "once",
+        "string"
+      ],
+      "props": [
+        "CronExpressionParser",
+        "NaN",
+        "getTime",
+        "isFinite",
+        "isNaN",
+        "length",
+        "next",
+        "parse",
+        "startsWith",
+        "substring",
+        "toDate",
+        "trim"
+      ]
+    },
+    "resolveJobScheduleAnchor": {
+      "kind": "function",
+      "params": 2,
+      "literals": [
+        "failure",
+        "unknown"
+      ],
+      "props": [
+        "NaN",
+        "getTime",
+        "isFinite",
+        "last_result",
+        "last_run_at",
+        "last_run_started_at",
+        "last_scheduled_at"
+      ]
+    },
+    "computeJobNextRunAt": {
+      "kind": "function",
+      "params": 3,
+      "literals": [
+        "never"
+      ],
+      "props": [
+        "created_at",
+        "cron",
+        "getTime",
+        "isNaN",
+        "kind",
+        "ms",
+        "run_at",
+        "toISOString"
+      ]
+    },
+    "initJobScheduleModule": {
+      "kind": "moduleInit",
+      "params": 0,
+      "literals": [
+        "never"
+      ],
+      "props": [],
+      "values": [
+        "55490425ad7a1ea1",
+        "6567c5a2b7cd6794",
+        "b0021989cc6760e7"
+      ]
+    },
+    "isSpineActivityParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [],
+      "props": [
+        "window"
+      ]
+    },
+    "isDashboardShareParams": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        "number"
+      ],
+      "props": [
+        "isInteger",
+        "ttl_minutes"
+      ]
+    },
+    "readSpineActivityWindow": {
+      "kind": "async function",
+      "params": 3,
+      "literals": [
+        ".jsonl"
+      ],
+      "props": [
+        "getTime",
+        "reverse",
+        "slice",
+        "toISOString"
+      ]
+    },
+    "DashboardShareError": {
+      "kind": "class-expr",
+      "params": null,
+      "literals": [],
+      "props": []
+    },
+    "createDashboardShareManager": {
+      "kind": "function",
+      "params": 1,
+      "literals": [
+        " does not match the pinned ",
+        " the remote page is built from; install tailcat ",
+        "(unknown version)",
+        "SIGTERM",
+        "exit",
+        "tailcat ",
+        "the share was stopped or replaced while it was starting",
+        "ttl_minutes must be a positive integer",
+        "ttl_minutes must be at most "
+      ],
+      "props": [
+        "child",
+        "deps",
+        "expiresAt",
+        "floor",
+        "isInteger",
+        "kill",
+        "now",
+        "once",
+        "readTailcatVersion",
+        "spawnTailcat",
+        "tcpPort",
+        "timer",
+        "toISOString",
+        "trim",
+        "unref"
+      ]
+    },
+    "TAILCAT_PINNED_VERSION": {
+      "kind": "value",
+      "params": null,
+      "value": "cf615f279b096695",
+      "preview": "\"v0.7.0\"",
+      "readers": [
+        "lit: does not match the pinned ",
+        "lit: the remote page is built from; install tailcat ",
+        "lit:(unknown version)",
+        "lit:); install tailcat ",
+        "lit:SIGTERM",
+        "lit:cannot run `tailcat version` (",
+        "lit:exit",
+        "lit:ignore",
+        "lit:pipe",
+        "lit:tailcat",
+        "lit:tailcat ",
+        "lit:the share was stopped or replaced while it was starting",
+        "lit:ttl_minutes must be a positive integer",
+        "lit:ttl_minutes must be at most ",
+        "lit:version",
+        "prop:child",
+        "prop:deps",
+        "prop:expiresAt",
+        "prop:floor",
+        "prop:isInteger",
+        "prop:kill",
+        "prop:message",
+        "prop:now",
+        "prop:once",
+        "prop:readTailcatVersion",
+        "prop:spawnTailcat",
+        "prop:tcpPort",
+        "prop:timer",
+        "prop:toISOString",
+        "prop:trim",
+        "prop:unref"
+      ]
+    },
+    "DASHBOARD_SHARE_DEFAULT_TTL_MINUTES": {
+      "kind": "value",
+      "params": null,
+      "value": "39fa9ec190eee7b6",
+      "preview": "60",
+      "readers": [
+        "lit: does not match the pinned ",
+        "lit: the remote page is built from; install tailcat ",
+        "lit:(unknown version)",
+        "lit:SIGTERM",
+        "lit:exit",
+        "lit:tailcat ",
+        "lit:the share was stopped or replaced while it was starting",
+        "lit:ttl_minutes must be a positive integer",
+        "lit:ttl_minutes must be at most ",
+        "prop:child",
+        "prop:deps",
+        "prop:expiresAt",
+        "prop:floor",
+        "prop:isInteger",
+        "prop:kill",
+        "prop:now",
+        "prop:once",
+        "prop:readTailcatVersion",
+        "prop:spawnTailcat",
+        "prop:tcpPort",
+        "prop:timer",
+        "prop:toISOString",
+        "prop:trim",
+        "prop:unref"
       ]
     }
   }

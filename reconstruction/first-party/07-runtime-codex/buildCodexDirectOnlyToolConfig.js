@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: buildCodexDirectOnlyToolConfig  (minified: ZH, daemon.pretty.js:63414)
+// symbol: buildCodexDirectOnlyToolConfig  (minified: u6, daemon.pretty.js:63615)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.7.1 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.7.1 (high): duoduo's tools are mounted under their own namespace and pinned to the top level, so they no longer get demoted out of the model's directly-visible tool list
@@ -8,6 +8,6 @@
 
 function buildCodexDirectOnlyToolConfig() {
     return {
-        [zct]: [ALADUO_TOOL_NAMESPACE]
+        [pdt]: [ALADUO_TOOL_NAMESPACE]
     }
 }

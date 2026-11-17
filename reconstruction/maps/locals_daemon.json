@@ -2513,7 +2513,7 @@
       "src": "llm"
     },
     {
-      "ctx": "95d71abf54acf414",
+      "ctx": "438a40414afa036e",
       "occ": 0,
       "name": "execFileAsync",
       "src": "llm"
@@ -5849,61 +5849,79 @@
       "src": "llm"
     },
     {
-      "ctx": "072c86f825ca3e72",
+      "ctx": "7f2f7590c847169f",
       "occ": 0,
       "name": "maxPayload",
       "src": "llm"
     },
     {
-      "ctx": "158bd86367a9378a",
+      "ctx": "29980797403d2ec4",
       "occ": 0,
       "name": "socketApp",
       "src": "llm"
     },
     {
-      "ctx": "dfd06870e48d72dd",
+      "ctx": "d2cd5d2d317e716b",
       "occ": 0,
       "name": "remoteApp",
       "src": "llm"
     },
     {
-      "ctx": "65737d130fe1dd94",
+      "ctx": "3fbc93dea03479f5",
+      "occ": 0,
+      "name": "tcpPort",
+      "src": "llm"
+    },
+    {
+      "ctx": "a9e6e7ffdaaa010d",
+      "occ": 0,
+      "name": "readTcpPort",
+      "src": "llm"
+    },
+    {
+      "ctx": "8272c6899fc4cce7",
+      "occ": 0,
+      "name": "dashboardShare",
+      "src": "llm"
+    },
+    {
+      "ctx": "39a3336746dd88f1",
       "occ": 0,
       "name": "allowedHostnames",
       "src": "llm"
     },
     {
-      "ctx": "5efc29256006d0ab",
+      "ctx": "8a39011ecbb8df7d",
       "occ": 0,
       "name": "rejectRequest",
       "src": "llm"
     },
     {
-      "ctx": "6afbe80324a753f2",
+      "ctx": "2e385dc5afdee475",
       "occ": 0,
       "name": "request",
       "src": "llm"
     },
     {
-      "ctx": "29d3cecf45493d72",
+      "ctx": "c4132846ee98ca56",
       "occ": 0,
       "name": "reply",
       "src": "llm"
     },
     {
-      "ctx": "a70fa360c51c5e20",
+      "ctx": "e8a0b962543577f7",
       "occ": 0,
       "name": "statusCode",
       "src": "llm"
     },
     {
-      "ctx": "7545aa11ad969b2e",
+      "ctx": "ff1bde7ffb0e22f7",
       "occ": 0,
       "name": "statusText",
       "src": "llm"
     },
     {
-      "ctx": "f0d18b6b4d866b4a",
+      "ctx": "271a8dcb61c2fd4d",
       "occ": 0,
       "name": "payload",
       "src": "llm"
@@ -6329,25 +6347,25 @@
       "src": "llm"
     },
     {
-      "ctx": "7ec57403cae0c8ef",
+      "ctx": "b7912d9b7e6a04fb",
       "occ": 0,
       "name": "jobs",
       "src": "llm"
     },
     {
-      "ctx": "eb7d655dfb43363b",
+      "ctx": "e553e1fabfd5ad28",
       "occ": 0,
       "name": "job",
       "src": "llm"
     },
     {
-      "ctx": "b0dae2e393a1a062",
+      "ctx": "63f1cb3843beacf2",
       "occ": 0,
       "name": "wakes",
       "src": "llm"
     },
     {
-      "ctx": "b891cfb826e64d18",
+      "ctx": "1b05b95377cc10b5",
       "occ": 0,
       "name": "wakeRecord",
       "src": "llm"
@@ -6959,7 +6977,13 @@
       "src": "llm"
     },
     {
-      "ctx": "32507e56a896122c",
+      "ctx": "451a905ef0c24567",
+      "occ": 0,
+      "name": "tcpAddress",
+      "src": "llm"
+    },
+    {
+      "ctx": "47101e038695df63",
       "occ": 0,
       "name": "closePromises",
       "src": "llm"
@@ -18077,69 +18101,39 @@
   ],
   "isJobScheduleDue": [
     {
-      "ctx": "63412b8169f13dbc",
+      "ctx": "5612790c64bd0bd2",
       "occ": 0,
       "name": "schedule",
       "src": "llm"
     },
     {
-      "ctx": "e0e1e8fc23768c2b",
+      "ctx": "cb7c9ef3bedc0fa9",
       "occ": 0,
       "name": "lastRunAt",
       "src": "llm"
     },
     {
-      "ctx": "6a0283a0fb123a00",
+      "ctx": "9f850b03b6283835",
       "occ": 0,
       "name": "now",
       "src": "llm"
     },
     {
-      "ctx": "2105001ead115ac3",
+      "ctx": "4ad55f131c0f0cb7",
       "occ": 0,
       "name": "createdAt",
       "src": "llm"
     },
     {
-      "ctx": "022c852a347f09c8",
+      "ctx": "0d3af3b338c2f5d2",
       "occ": 0,
       "name": "runAt",
       "src": "llm"
     },
     {
-      "ctx": "ea23c9d86bca05bb",
+      "ctx": "770a5331eadc3f31",
       "occ": 0,
-      "name": "runAtMs",
-      "src": "llm"
-    },
-    {
-      "ctx": "cc81431d9b69a39d",
-      "occ": 0,
-      "name": "createdAtMs",
-      "src": "llm"
-    },
-    {
-      "ctx": "35ce64a71d0cba1d",
-      "occ": 0,
-      "name": "hasCreatedAt",
-      "src": "llm"
-    },
-    {
-      "ctx": "21b29375e71b2854",
-      "occ": 0,
-      "name": "lastRunMs",
-      "src": "llm"
-    },
-    {
-      "ctx": "6cb53de35298d449",
-      "occ": 0,
-      "name": "nextRunDate",
-      "src": "llm"
-    },
-    {
-      "ctx": "ee9d6d69f9f5441c",
-      "occ": 0,
-      "name": "lastRunTimeMs",
+      "name": "nextDue",
       "src": "llm"
     }
   ],
@@ -30045,45 +30039,27 @@
       "src": "llm"
     },
     {
-      "ctx": "ad48ede8c22bad39",
+      "ctx": "43a758ea0f5b7fbf",
       "occ": 0,
       "name": "spawned",
       "src": "llm"
     },
     {
-      "ctx": "0edb29f22e302314",
+      "ctx": "284b90ad9b43fb8e",
       "occ": 0,
       "name": "wakesFired",
       "src": "llm"
     },
     {
-      "ctx": "f7d82e1ebcce14d6",
+      "ctx": "09911d1a35b4e3b5",
       "occ": 0,
       "name": "job",
       "src": "llm"
     },
     {
-      "ctx": "e8fb7a5709e687b4",
+      "ctx": "394e1268a55d74c8",
       "occ": 0,
       "name": "lastRunAt",
-      "src": "llm"
-    },
-    {
-      "ctx": "f46061f2bfaa75c9",
-      "occ": 0,
-      "name": "lastScheduledMs",
-      "src": "llm"
-    },
-    {
-      "ctx": "26d9a404f5d0d8b1",
-      "occ": 0,
-      "name": "lastRunStartedMs",
-      "src": "llm"
-    },
-    {
-      "ctx": "9c773e5d48265299",
-      "occ": 0,
-      "name": "claimNotStarted",
       "src": "llm"
     },
     {

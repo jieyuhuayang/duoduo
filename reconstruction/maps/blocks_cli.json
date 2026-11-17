@@ -1,19 +1,19 @@
 {
   "bundle": "cli",
-  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.7/cli.pretty.js",
-  "helper": "Qm",
+  "source": "/home/user/duoduo/reconstruction/tools/../.build/beautified/v0.8.9/cli.pretty.js",
+  "helper": "HE",
   "helperCandidates": {
-    "Qm": 6
+    "HE": 7
   },
-  "blockCount": 6,
-  "namesInBlocks": 31,
-  "distinctNamesInBlocks": 31,
-  "entryExportCount": 18,
+  "blockCount": 7,
+  "namesInBlocks": 42,
+  "distinctNamesInBlocks": 42,
+  "entryExportCount": 19,
   "blocks": [
     {
       "index": 0,
-      "line": 23947,
-      "count": 11,
+      "line": 24128,
+      "count": 16,
       "marker": [
         "PLIST_LABEL",
         "generatePlist",
@@ -25,30 +25,40 @@
         "getLaunchdPid",
         "getUid",
         "installAndLoad",
-        "isAquaSession",
+        "installedPlist",
         "isServiceLoaded",
         "kickstart",
+        "loadPlist",
         "plistPath",
+        "plistProgramArguments",
+        "plistProgramArgumentsFor",
+        "resolveLauncherBundle",
         "uninstall",
-        "unload"
+        "unload",
+        "withProgramArguments"
       ],
       "mangled": [
-        "MB",
-        "tZ",
-        "Hf",
-        "j_",
-        "TF",
-        "IF",
-        "$_",
-        "yF",
-        "SF",
-        "DF",
-        "r1"
+        "kB",
+        "TZ",
+        "Wf",
+        "Z_",
+        "kF",
+        "xF",
+        "ku",
+        "FF",
+        "GB",
+        "FB",
+        "LF",
+        "UB",
+        "PB",
+        "UF",
+        "s1",
+        "MF"
       ]
     },
     {
       "index": 1,
-      "line": 24960,
+      "line": 25244,
       "count": 6,
       "marker": [
         "defaultCallerVerdict",
@@ -64,17 +74,17 @@
         "runSessionSubcommand"
       ],
       "mangled": [
-        "PB",
-        "FZ",
-        "UZ",
-        "PZ",
-        "kZ",
-        "n8e"
+        "WB",
+        "lee",
+        "cee",
+        "uee",
+        "Aee",
+        "q8e"
       ]
     },
     {
       "index": 2,
-      "line": 67560,
+      "line": 67864,
       "count": 7,
       "marker": [
         "jobHelp",
@@ -91,32 +101,58 @@
         "runJobSubcommand"
       ],
       "mangled": [
-        "N9",
-        "Ome",
-        "Mme",
-        "wme",
-        "Lme",
-        "xme",
-        "Int"
+        "G9",
+        "r_e",
+        "s_e",
+        "i_e",
+        "o_e",
+        "hb",
+        "grt"
       ]
     },
     {
       "index": 3,
-      "line": 67942,
-      "count": 1,
+      "line": 68110,
+      "count": 6,
       "marker": [
-        "runPromptsSubcommand"
+        "dashboardHelp",
+        "parseDashboardCli",
+        "renderShare"
       ],
       "names": [
-        "runPromptsSubcommand"
+        "dashboardHelp",
+        "parseDashboardCli",
+        "renderShare",
+        "renderStatus",
+        "renderStop",
+        "runDashboardSubcommand"
       ],
       "mangled": [
-        "Tnt"
+        "Y9",
+        "c_e",
+        "d_e",
+        "g_e",
+        "E_e",
+        "Ert"
       ]
     },
     {
       "index": 4,
-      "line": 69940,
+      "line": 68363,
+      "count": 1,
+      "marker": [
+        "runPromptsSubcommand"
+      ],
+      "names": [
+        "runPromptsSubcommand"
+      ],
+      "mangled": [
+        "prt"
+      ]
+    },
+    {
+      "index": 5,
+      "line": 70361,
       "count": 1,
       "marker": [
         "runMemoryCommand"
@@ -125,12 +161,12 @@
         "runMemoryCommand"
       ],
       "mangled": [
-        "oit"
+        "Xit"
       ]
     },
     {
-      "index": 5,
-      "line": 70558,
+      "index": 6,
+      "line": 70979,
       "count": 5,
       "marker": [
         "SpineCommandError",
@@ -145,32 +181,33 @@
         "spineParamsToArgs"
       ],
       "mangled": [
-        "IT",
-        "j_e",
-        "z_e",
-        "_it",
-        "Cit"
+        "DT",
+        "Rhe",
+        "Bhe",
+        "uot",
+        "got"
       ]
     }
   ],
   "entryExports": {
-    "channelVerbInSession": "iot",
-    "defaultExistingDaemonChoice": "ghe",
-    "inferOnboardConfigFromProbe": "Vit",
-    "isDetachedUpgradeWorker": "$it",
-    "isInstallTargetFilePath": "Git",
-    "main": "sot",
-    "parseExistingDaemonChoice": "Yit",
-    "parseRestartArgs": "Jit",
-    "parseRootCli": "Hit",
-    "parseUpgradeArgs": "eot",
-    "printHelp": "Ehe",
-    "readCliPackageVersion": "qit",
-    "readOption": "TT",
-    "reasonlessRestartRefusal": "zit",
-    "renderChannelNotInstalled": "oot",
-    "restartWakeReport": "jit",
-    "runDeclaredChannelVerb": "lhe",
-    "runUpgradeChannelPhase": "tot"
+    "channelVerbInSession": "Xot",
+    "defaultExistingDaemonChoice": "qhe",
+    "inferOnboardConfigFromProbe": "kot",
+    "isDetachedRestartWorker": "qot",
+    "isDetachedUpgradeWorker": "Vot",
+    "isInstallTargetFilePath": "Lot",
+    "main": "est",
+    "parseExistingDaemonChoice": "xot",
+    "parseRestartArgs": "Got",
+    "parseRootCli": "Mot",
+    "parseUpgradeArgs": "Jot",
+    "printHelp": "Whe",
+    "readCliPackageVersion": "Fot",
+    "readOption": "BT",
+    "reasonlessRestartRefusal": "Hot",
+    "renderChannelNotInstalled": "Zot",
+    "restartWakeReport": "Yot",
+    "runDeclaredChannelVerb": "Ghe",
+    "runUpgradeChannelPhase": "zot"
   }
 }

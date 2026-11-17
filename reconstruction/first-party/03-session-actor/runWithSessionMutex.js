@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: runWithSessionMutex  (minified: Zi, daemon.pretty.js:33711)
+// symbol: runWithSessionMutex  (minified: Zi, daemon.pretty.js:33829)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.1 — first release whose bundle holds this declaration; body changed in v0.5.0 (maps/history_daemon.json)
 // locals: 6 renamed — 1 from the code at the binding (rule), 5 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -11,11 +11,11 @@ async function runWithSessionMutex(sessionKey, task) {
     let releaseLock, promise = new Promise(resolve => {
             releaseLock = resolve
         }),
-        previousLock = rI.get(sessionKey) ?? Promise.resolve();
-    rI.set(sessionKey, promise), await previousLock;
+        previousLock = uI.get(sessionKey) ?? Promise.resolve();
+    uI.set(sessionKey, promise), await previousLock;
     try {
         return await task()
     } finally {
-        releaseLock(), rI.get(sessionKey) === promise && rI.delete(sessionKey)
+        releaseLock(), uI.get(sessionKey) === promise && uI.delete(sessionKey)
     }
 }

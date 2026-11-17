@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: renderForOwnerAttribute  (minified: uJ, daemon.pretty.js:72963)
+// symbol: renderForOwnerAttribute  (minified: vJ, daemon.pretty.js:73148)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.7 (medium): A job outcome whose owner cannot take it goes to main, marked as a stand-in delivery.

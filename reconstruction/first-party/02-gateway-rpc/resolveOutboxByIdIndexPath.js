@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: resolveOutboxByIdIndexPath  (minified: Eq, daemon.pretty.js:37481)
+// symbol: resolveOutboxByIdIndexPath  (minified: Nq, daemon.pretty.js:37599)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.3.0 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -8,5 +8,5 @@
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
 function resolveOutboxByIdIndexPath(paths) {
-    return qr.join(paths.outboxDir, "index", "by_id.jsonl")
+    return Ur.join(paths.outboxDir, "index", "by_id.jsonl")
 }

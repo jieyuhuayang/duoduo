@@ -1,10 +1,10 @@
 {
   "generatedBy": "reconstruction/tools/rebuild.sh",
-  "package": "v0.8.8",
+  "package": "v0.8.9",
   "note": "Generated. Do not hand-edit, and do not restate these numbers in prose — cite this file.",
   "bundles": {
     "daemon": {
-      "prettyLines": 94768,
+      "prettyLines": 95156,
       "exportBlocks": 25,
       "firstPartyBlocks": 15,
       "vendorBlocks": 10,
@@ -12,66 +12,66 @@
       "distinctNamesInBlocks": 808,
       "firstPartyNamesFromBlocks": 110,
       "namesFromEntryExports": 7,
-      "inferredNames": 773,
-      "renameEntries": 890,
-      "renamesApplied": 890,
-      "referencesRewritten": 4066,
+      "inferredNames": 785,
+      "renameEntries": 902,
+      "renamesApplied": 902,
+      "referencesRewritten": 4112,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 890,
-      "localBindings": 6406,
-      "localNamesApplied": 6303,
+      "indexedSymbols": 902,
+      "localBindings": 6455,
+      "localNamesApplied": 6308,
       "localNamesBySource": {
-        "llm": 5037,
-        "rule:callee": 529,
-        "rule:member": 236,
-        "rule:catch": 154,
-        "rule:destructure": 278,
-        "rule:new": 66,
+        "llm": 5033,
+        "rule:callee": 532,
+        "rule:member": 240,
+        "rule:catch": 155,
+        "rule:destructure": 276,
+        "rule:new": 69,
         "rule:member-chain": 3
       }
     },
     "cli": {
-      "prettyLines": 78828,
-      "exportBlocks": 6,
-      "firstPartyBlocks": 6,
+      "prettyLines": 79301,
+      "exportBlocks": 7,
+      "firstPartyBlocks": 7,
       "vendorBlocks": 0,
-      "namesInBlocks": 31,
-      "distinctNamesInBlocks": 31,
-      "firstPartyNamesFromBlocks": 31,
-      "namesFromEntryExports": 18,
+      "namesInBlocks": 42,
+      "distinctNamesInBlocks": 42,
+      "firstPartyNamesFromBlocks": 42,
+      "namesFromEntryExports": 19,
       "inferredNames": 18,
-      "renameEntries": 67,
-      "renamesApplied": 67,
-      "referencesRewritten": 221,
+      "renameEntries": 79,
+      "renamesApplied": 79,
+      "referencesRewritten": 265,
       "renamesSkippedMissing": 0,
       "renamesSkippedCollision": 0,
-      "indexedSymbols": 67
+      "indexedSymbols": 79
     }
   },
   "sha256": {
     "daemon": {
-      "shipped": "299b6258b6091a04c1423151d05b24aa34dd5162e923efef7ebf2ec59468a1a0",
-      "pretty": "5c20a9022db79b259a10812841c39d05a34f0326031a2436c4bc515456ac9294"
+      "shipped": "7c2aa34b21cd48b3ef324f1feb436b4df0657bfead76d58bb9b4b25f0c21e30f",
+      "pretty": "204e9d5b81402440bc76c74610c454308d563c95259d581396c5342bdb263090"
     },
     "cli": {
-      "shipped": "ae7254a2f31b5fabad7474ca7af0e8ae83d2bee9a36bff525e5be2137648897c",
-      "pretty": "1b38065b8aeb3c6e1ef74c8a64e31bd60d3a2f51a58026b1adf217dc57c465f3"
+      "shipped": "3698070b923fd278fd225a4d3029ca0111643ab02d9b7eb6446fe1016ffc3132",
+      "pretty": "9b4ca5f50c2f64455f81d31b7663b1ed746926e38d19fc831896ec0d3d41d539"
     }
   },
   "firstPartyTree": {
-    "files": 890,
+    "files": 902,
     "subsystems": 12,
     "bySubsystem": {
       "00-daemon-entry": 29,
       "01-spine-wal": 42,
-      "02-gateway-rpc": 152,
+      "02-gateway-rpc": 159,
       "03-session-actor": 132,
       "04-cognition-prompt": 43,
       "05-drain-turn": 79,
       "06-runtime-claude": 56,
       "07-runtime-codex": 30,
-      "08-cadence-subconscious": 96,
+      "08-cadence-subconscious": 101,
       "09-memory": 116,
       "10-runtime-host": 95,
       "11-runtime-grok": 20
@@ -107,6 +107,6 @@
   },
   "totals": {
     "coveredBundles": 2,
-    "firstPartySymbols": 957
+    "firstPartySymbols": 981
   }
 }

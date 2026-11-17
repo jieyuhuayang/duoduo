@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 10-runtime-host
-// symbol: writeHostDotEnvLines  (minified: mA, daemon.pretty.js:70298)
+// symbol: writeHostDotEnvLines  (minified: vA, daemon.pretty.js:70483)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.4.3 — first release whose bundle holds this declaration; body changed in v0.7.0, v0.8.2 (maps/history_daemon.json)
 // locals: 8 renamed — 0 from the code at the binding (rule), 8 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,14 +9,14 @@
 
 async function writeHostDotEnvLines(lines, env) {
     let envPath = hostDotEnvPath(env),
-        envDir = oxe.dirname(envPath);
+        envDir = kxe.dirname(envPath);
     if (!lines.some(line => line.trim() !== "")) {
-        await Fs.rm(envPath, {
+        await zs.rm(envPath, {
             force: !0
         });
         return
     }
-    await Fs.mkdir(envDir, {
+    await zs.mkdir(envDir, {
         recursive: !0
     });
     let trimmedLines = [...lines];
@@ -25,8 +25,8 @@ async function writeHostDotEnvLines(lines, env) {
 `) + `
 `,
         tmpPath = `${envPath}.tmp`;
-    await Fs.writeFile(tmpPath, fileContent, {
+    await zs.writeFile(tmpPath, fileContent, {
         encoding: "utf8",
         mode: 384
-    }), await Fs.rename(tmpPath, envPath), await Fs.chmod(envPath, 384)
+    }), await zs.rename(tmpPath, envPath), await zs.chmod(envPath, 384)
 }

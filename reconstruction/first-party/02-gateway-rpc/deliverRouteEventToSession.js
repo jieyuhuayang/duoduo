@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: deliverRouteEventToSession  (minified: Ls, daemon.pretty.js:66333)
+// symbol: deliverRouteEventToSession  (minified: Fs, daemon.pretty.js:66518)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.4.5, v0.5.0, v0.5.4, v0.5.6, v0.6.0, v0.8.0, v0.8.1, v0.8.4 (maps/history_daemon.json)
 // locals: 21 renamed — 14 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)

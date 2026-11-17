@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 02-gateway-rpc
-// symbol: listMainAliasHolderKeys  (minified: Uft, daemon.pretty.js:90198)
+// symbol: listMainAliasHolderKeys  (minified: hpt, daemon.pretty.js:90380)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.7 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // changelog v0.8.7 (medium): **Main session.** One channel session holds the alias `main`; Notify takes `main` as an explicit target and resolves it at each delivery.

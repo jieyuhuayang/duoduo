@@ -1,33 +1,33 @@
 // duoduo reconstruction — subsystem: 08-cadence-subconscious
-// symbol: initMetaSessionModule  (minified: STe, daemon.pretty.js:88038)
+// symbol: initMetaSessionModule  (minified: qTe, daemon.pretty.js:88223)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.8.0 — first release whose bundle holds this declaration; body changed in v0.8.1 (maps/history_daemon.json)
 // changelog v0.8.0 (medium): The single memory weaver is now two partitions with separate jobs — one distils raw experience into fragments, one consolidates them into intuition.
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var Vwt, initMetaSessionModule = A(() => {
+var ISt, initMetaSessionModule = A(() => {
     "use strict";
     initAgentSdkAdapterModule();
     initCodexAppServerModule();
     initGrokAcpRuntimeModule();
-    vJ();
-    SJ();
-    xC();
+    OJ();
+    NJ();
+    PC();
     initRuntimeValidationModule();
-    Ym();
+    eh();
     initSpineEventLogModule();
     initGapSpanModule();
-    LG();
-    FG();
-    eJ();
+    ZG();
+    YG();
+    fJ();
     initChannelConfigLoaderModule();
-    ul();
+    ll();
     initLogLevelModule();
-    dI();
-    Zu();
+    gI();
+    Yu();
     initSubconsciousPlaylistModule();
-    nc();
+    oc();
     initPartitionRunStateModule();
-    Vwt = new Set(["gradient-distiller", "intuition-weaver"])
+    ISt = new Set(["gradient-distiller", "intuition-weaver"])
 });

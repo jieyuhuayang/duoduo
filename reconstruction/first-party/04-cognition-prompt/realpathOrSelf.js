@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 04-cognition-prompt
-// symbol: realpathOrSelf  (minified: Swt, daemon.pretty.js:83839)
+// symbol: realpathOrSelf  (minified: oSt, daemon.pretty.js:84024)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.2 — first release whose bundle holds this declaration; body changed in no later release (maps/history_daemon.json)
 // locals: 1 renamed — 0 from the code at the binding (rule), 1 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -9,7 +9,7 @@
 
 async function realpathOrSelf(filePath) {
     try {
-        return await YIe.realpath(filePath)
+        return await yTe.realpath(filePath)
     } catch {
         return filePath
     }

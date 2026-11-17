@@ -1,17 +1,18 @@
 // duoduo reconstruction — subsystem: 07-runtime-codex
-// symbol: ALADUO_TOOL_NAMESPACE  (minified: uO, daemon.pretty.js:64309)
+// symbol: ALADUO_TOOL_NAMESPACE  (minified: mO, daemon.pretty.js:64493)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule = A(() => {
+var ALADUO_TOOL_NAMESPACE, pdt, c6, d6, ydt, _dt, pO, jve, initCodexAppServerModule = A(() => {
     "use strict";
-    ic();
+    ac();
     initLogLevelModule();
     initInterruptMarkerTextModule();
     initSkipToolModule();
-    ALADUO_TOOL_NAMESPACE = "aladuo", zct = "features.code_mode.direct_only_tool_namespaces";
-    Vct = {
+    ALADUO_TOOL_NAMESPACE = "aladuo", pdt = "features.code_mode.direct_only_tool_namespaces";
+    ydt = 5e3;
+    _dt = {
         codexBinary: "codex",
         env: {},
         sandbox: "read-only",
@@ -20,7 +21,7 @@ var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule =
         effort: null,
         ephemeral: !0,
         dynamicTools: []
-    }, aO = class extends Fct {
+    }, pO = class extends fdt {
         constructor(binary, cwd, env) {
             super();
             this.binary = binary;
@@ -36,7 +37,7 @@ var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule =
         pending = new Map;
         alive = !1;
         start() {
-            this.alive || (this.proc = Mct(this.binary, ["app-server"], {
+            this.alive || (this.proc = ldt(this.binary, ["app-server"], {
                 cwd: this.cwd,
                 stdio: ["pipe", "pipe", "pipe"],
                 env: {
@@ -213,5 +214,5 @@ var ALADUO_TOOL_NAMESPACE, zct, XH, QH, Vct, aO, xve, initCodexAppServerModule =
             for (let [id, pendingRequest] of this.pending) pendingRequest.reject(error), this.pending.delete(id)
         }
     };
-    xve = new Set
+    jve = new Set
 });

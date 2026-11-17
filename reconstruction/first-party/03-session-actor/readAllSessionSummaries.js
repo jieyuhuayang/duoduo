@@ -1,5 +1,5 @@
 // duoduo reconstruction — subsystem: 03-session-actor
-// symbol: readAllSessionSummaries  (minified: Aq, daemon.pretty.js:38365)
+// symbol: readAllSessionSummaries  (minified: qq, daemon.pretty.js:38483)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
 // since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.8.2 (maps/history_daemon.json)
 // locals: 7 renamed — 0 from the code at the binding (rule), 7 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
@@ -10,7 +10,7 @@ async function readAllSessionSummaries(paths, options) {
     await ensureDirectoryExists(paths.usageDir);
     let entries;
     try {
-        entries = await FI.readdir(paths.usageDir)
+        entries = await VI.readdir(paths.usageDir)
     } catch {
         return {}
     }

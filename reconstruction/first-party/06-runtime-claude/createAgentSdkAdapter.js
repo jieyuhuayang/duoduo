@@ -1,7 +1,7 @@
 // duoduo reconstruction — subsystem: 06-runtime-claude
-// symbol: createAgentSdkAdapter  (minified: Jf, daemon.pretty.js:56799)
+// symbol: createAgentSdkAdapter  (minified: Kf, daemon.pretty.js:56925)
 // name: authoritative — upstream's own name, from an esbuild __export block or the bundle's export statement
-// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.2, v0.2.3, v0.3.0, v0.3.2, v0.3.4, v0.3.5, v0.3.7, v0.4.0, v0.4.3, v0.5.0, v0.5.2, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.4, v0.8.6 (maps/history_daemon.json)
+// since: v0.2.0 — first release whose bundle holds this declaration; body changed in v0.2.2, v0.2.3, v0.3.0, v0.3.2, v0.3.4, v0.3.5, v0.3.7, v0.4.0, v0.4.3, v0.5.0, v0.5.2, v0.5.5, v0.5.6, v0.5.7, v0.5.8, v0.5.10, v0.6.0, v0.6.2, v0.7.0, v0.8.0, v0.8.1, v0.8.4, v0.8.6, v0.8.9 (maps/history_daemon.json)
 // locals: 104 renamed — 25 from the code at the binding (rule), 79 proposed by an LLM reading the body; descriptive, not evidence (maps/locals_daemon.json)
 // changelog v0.8.4 (high): **Claude Code's own auto memory is off** in every Claude session duoduo starts, because it would keep a second memory store beside duoduo's.
 // changelog v0.8.6 (high): Fork subagents stay off. Agent SDK 0.3.302 started offering "fork" subagents by default: a subagent that inherits the whole conversation and always runs on the parent session's model. duoduo turns them off for every Claude session in this release.
@@ -49,7 +49,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
         let env = {
             ...process.env
         };
-        delete env.CLAUDECODE, (input.additionalDirectories?.length ?? 0) > 0 && input.autoloadAdditionalDirectoryClaudeMd !== !1 ? env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1" : input.autoloadAdditionalDirectoryClaudeMd === !1 && delete env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD, env.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", env.CLAUDE_CODE_FORK_SUBAGENT = "0", input.callerSession ? env[nl] = input.callerSession : delete env[nl], options.env = env, "claudeSettingsPath" in input && input.claudeSettingsPath && (options.settings = input.claudeSettingsPath);
+        delete env.CLAUDECODE, (input.additionalDirectories?.length ?? 0) > 0 && input.autoloadAdditionalDirectoryClaudeMd !== !1 ? env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD = "1" : input.autoloadAdditionalDirectoryClaudeMd === !1 && delete env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD, env.CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1", env.CLAUDE_CODE_FORK_SUBAGENT = "0", Object.assign(env, WV), input.callerSession ? env[rl] = input.callerSession : delete env[rl], options.env = env, "claudeSettingsPath" in input && input.claudeSettingsPath && (options.settings = input.claudeSettingsPath);
         let CLAUDECODEEXECUTABLE = process.env.CLAUDE_CODE_EXECUTABLE;
         if (CLAUDECODEEXECUTABLE && CLAUDECODEEXECUTABLE.trim().length > 0 && (options.pathToClaudeCodeExecutable = CLAUDECODEEXECUTABLE), "hooks" in input && input.hooks && (options.hooks = input.hooks), queryFlags?.includePartialMessages && (options.includePartialMessages = !0), sdkDebug) {
             let debugOptions = {
@@ -68,7 +68,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
     };
     return {
         async run(runInput) {
-            c_e();
+            v_e();
             let sessionId = runInput.sessionId,
                 resultText, structured, streamedText = "",
                 turnStreamedText = "",
@@ -86,7 +86,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
                 let hooks = queryOptions.hooks ?? {},
                     preToolUseHooks = hooks.PreToolUse ?? [];
                 preToolUseHooks.push({
-                    matcher: Ic,
+                    matcher: $c,
                     hooks: [async hookInput => (hookInput?.agent_id !== void 0 || (skipCalled = !0, skipActive = !0, logInfoMessage("[claude-sdk] Skip detected via PreToolUse hook (non-streaming)")), {
                         continue: !1,
                         stopReason: "The agent intentionally ended this turn silently by calling Skip."
@@ -178,7 +178,7 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
                 for await (let promptMessage of promptStream) yield promptMessage;
                 await inputHoldPromise
             }
-            let query = u_e({
+            let query = __e({
                     prompt: holdInputOpen ? heldPromptGenerator() : runInput.prompt,
                     options: queryOptions
                 }),
@@ -302,8 +302,8 @@ ${trimmed}` : optionalEnvString ? options.systemPrompt = optionalEnvString : tri
             }
         },
         createStreamingQuery(streamInput) {
-            return c_e(), {
-                query: u_e({
+            return v_e(), {
+                query: __e({
                     prompt: streamInput.prompt,
                     options: buildQueryOptions(streamInput, {
                         includePartialMessages: !0

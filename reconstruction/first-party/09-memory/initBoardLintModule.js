@@ -1,13 +1,13 @@
 // duoduo reconstruction — subsystem: 09-memory
-// symbol: initBoardLintModule  (minified: tke, daemon.pretty.js:68325)
+// symbol: initBoardLintModule  (minified: bke, daemon.pretty.js:68510)
 // name: INFERRED — hand-derived from the body, not upstream's name (maps/inferred_daemon.json)
 // since: v0.5.5 — first release whose bundle holds this declaration; body changed in v0.5.6 (maps/history_daemon.json)
 // NOTE: readable extract from daemon.recon.js; references other top-level
 // symbols. The runnable artifact is recon/daemon.recon.js (provably equivalent).
 
-var bpt, initBoardLintModule = A(() => {
+var Gpt, initBoardLintModule = A(() => {
     "use strict";
     oo();
     initMemorySignalKindsModule();
-    bpt = ["PRESERVE", "KEEP", "REMOVE", "REWRITE", "SHARPEN", "DROP"]
+    Gpt = ["PRESERVE", "KEEP", "REMOVE", "REWRITE", "SHARPEN", "DROP"]
 });

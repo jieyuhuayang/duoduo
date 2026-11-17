@@ -5,6 +5,21 @@
     "disamb": null,
     "since": "v0.8.7"
   },
+  "DASHBOARD_SHARE_DEFAULT_TTL_MINUTES": {
+    "id": "v_c20fbc37265bd9d4",
+    "kind": "value",
+    "disamb": null,
+    "since": "v0.8.9"
+  },
+  "DashboardShareError": {
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:2/3",
+    "kind": "function",
+    "disamb": {
+      "by": "p",
+      "value": "c:4f53cda18c2b+p:2/3"
+    },
+    "since": "v0.8.9"
+  },
   "JsonRpcInvalidParamsError": {
     "id": "f_b8c3418a7cfeb2d8",
     "kind": "function",
@@ -12,22 +27,28 @@
     "since": "v0.8.7"
   },
   "MemoryReadRpcError": {
-    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:1/2",
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:1/3",
     "kind": "function",
     "disamb": {
       "by": "p",
-      "value": "c:4f53cda18c2b+p:1/2"
+      "value": "c:4f53cda18c2b+p:1/3"
     },
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "SpineRpcParamsError": {
-    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:2/2",
+    "id": "f_3105ae3e1a85b258+c:4f53cda18c2b+p:3/3",
     "kind": "function",
     "disamb": {
       "by": "p",
-      "value": "c:4f53cda18c2b+p:2/2"
+      "value": "c:4f53cda18c2b+p:3/3"
     },
-    "since": "v0.8.7"
+    "since": "v0.8.9"
+  },
+  "TAILCAT_PINNED_VERSION": {
+    "id": "v_cd0d9114bdba37a1",
+    "kind": "value",
+    "disamb": null,
+    "since": "v0.8.9"
   },
   "accumulateDrainRecordIntoSummary": {
     "id": "f_2394ef231d23a5aa",
@@ -716,6 +737,18 @@
     "disamb": null,
     "since": "v0.8.7"
   },
+  "computeJobNextDue": {
+    "id": "f_c8329879262f7ee9",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
+  },
+  "computeJobNextRunAt": {
+    "id": "f_c29d66275c2ae8ef",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
+  },
   "computeLegacyJobSessionKey": {
     "id": "f_29c771e747f751b3",
     "kind": "function",
@@ -745,6 +778,12 @@
     "kind": "function",
     "disamb": null,
     "since": "v0.8.7"
+  },
+  "computeScheduleNextDue": {
+    "id": "f_31e332c5aba3e306",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
   },
   "computeStreamEventDedupKey": {
     "id": "f_90fedb44497c251f",
@@ -832,6 +871,12 @@
     "kind": "function",
     "disamb": null,
     "since": "v0.8.7"
+  },
+  "createDashboardShareManager": {
+    "id": "f_d5e09da3fb3cc775",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
   },
   "createDrainExecutionEventRecorder": {
     "id": "f_1418ced7be85a2d7",
@@ -1509,10 +1554,10 @@
     "since": "v0.8.7"
   },
   "initAgentSdkAdapterModule": {
-    "id": "m_c72510485cd6d727",
+    "id": "m_1d770568eaae1c53",
     "kind": "moduleInit",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "initBoardLintModule": {
     "id": "m_1b8f48d6a3ead917",
@@ -1563,10 +1608,10 @@
     "since": "v0.8.7"
   },
   "initCodexAppServerModule": {
-    "id": "m_23280deb3a4cf3a0",
+    "id": "m_2de02137b71bdf7e",
     "kind": "moduleInit",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "initEntityLintModule": {
     "id": "m_a92b5ff222a14919",
@@ -1615,6 +1660,12 @@
     "kind": "moduleInit",
     "disamb": null,
     "since": "v0.8.7"
+  },
+  "initJobScheduleModule": {
+    "id": "m_424b7895c94fd168",
+    "kind": "moduleInit",
+    "disamb": null,
+    "since": "v0.8.9"
   },
   "initJobSchedulerModule": {
     "id": "m_ec078c7ec8f04d8d",
@@ -1940,6 +1991,12 @@
     },
     "since": "v0.8.7"
   },
+  "isDashboardShareParams": {
+    "id": "f_caa694b0bd383ded",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
+  },
   "isDirEmptyOrMissing": {
     "id": "f_bf8bf4cde61f3776",
     "kind": "function",
@@ -2031,10 +2088,10 @@
     "since": "v0.8.7"
   },
   "isJobScheduleDue": {
-    "id": "f_b3fbd169d7891898",
+    "id": "f_18d073ed3dff8fbd",
     "kind": "function",
     "disamb": null,
-    "since": "v0.8.7"
+    "since": "v0.8.9"
   },
   "isJobSessionKeyKind": {
     "id": "f_c238a3a01724ced6",
@@ -2320,6 +2377,12 @@
     "kind": "function",
     "disamb": null,
     "since": "v0.8.7"
+  },
+  "isSpineActivityParams": {
+    "id": "f_e343f4097840accb",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
   },
   "isSpineTailParams": {
     "id": "f_61578f90fa7e3d99",
@@ -3320,6 +3383,12 @@
     "disamb": null,
     "since": "v0.8.7"
   },
+  "readSpineActivityWindow": {
+    "id": "f_51efffd645a68616",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
+  },
   "readSpineIndexRetentionDays": {
     "id": "f_3add7ee2d0092dfc",
     "kind": "function",
@@ -3988,6 +4057,12 @@
     "kind": "function",
     "disamb": null,
     "since": "v0.8.7"
+  },
+  "resolveJobScheduleAnchor": {
+    "id": "f_74873aaa55613081",
+    "kind": "function",
+    "disamb": null,
+    "since": "v0.8.9"
   },
   "resolveLayeredChannelRuntime": {
     "id": "f_38f04d3d5ab92b06",
