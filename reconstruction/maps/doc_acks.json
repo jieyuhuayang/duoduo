@@ -1197,7 +1197,8 @@
    {"section":"Running / verifying the actual runtime","line":298,"hash":"faba464334c315fb","cites":["daemon:loadHostDotEnv"]},
    {"section":"duoduo runtime architecture (what the docs describe)","line":306,"hash":"b5f25b5a572574b6","cites":["daemon:acquireSessionDrainLock","daemon:appendBeforeExecuteGateway","daemon:atomicAppendEvent","daemon:buildSystemPromptForChannelConfig","daemon:buildTransientUserBlocks","daemon:createSpineEvent","daemon:renderPromptLayers","daemon:resolveDefaultRuntime","daemon:resolveMainSession","daemon:runCadenceTick","daemon:runMemoryCheckTick","daemon:validateKnownRuntimeValue","daemon:validateRunnableRuntimeValue"]},
    {"section":"Writing / editing the analysis docs","line":317,"hash":"8f61a1a0f7bbb5fa","cites":["cli:main","daemon:atomicAppendEvent","daemon:drainSessionMailbox"]},
-   {"section":"Writing / editing the analysis docs","line":326,"hash":"e61421cd88049bae","cites":["daemon:initMailboxDrainRunnerModule"]}
+   {"section":"Writing / editing the analysis docs","line":322,"hash":"1a5005af2e46518a","cites":["daemon:initOrphanMemoryModule"]},
+   {"section":"Writing / editing the analysis docs","line":332,"hash":"e61421cd88049bae","cites":["daemon:initMailboxDrainRunnerModule"]}
   ] }
  },
  "symbols": {
